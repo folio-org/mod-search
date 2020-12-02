@@ -1,0 +1,42 @@
+{
+  "id": "${artifactId}-${version}",
+  "name": "The blueprint module that could be used as a template for folio spring based backend modules.",
+  "provides": [
+    {
+      "id": "spring-template",
+      "version": "1.0",
+      "handlers": []
+    },
+    {
+      "id": "_tenant",
+      "version": "1.2",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/_/tenant"
+        }, {
+          "methods": ["DELETE"],
+          "pathPattern": "/_/tenant"
+        }
+      ]
+    }
+  ],
+  "permissionSets" : [],
+  "requires": [],
+  "launchDescriptor": {
+    "dockerImage": "${artifactId}:${version}",
+    "dockerPull": false,
+    "dockerArgs": {
+      "HostConfig": {
+        "Memory": 357913941,
+        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+      }
+    },
+    "env": [
+      { "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=66.0"
+      }
+    ]
+  }
+}

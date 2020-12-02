@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: mod-search
+  jackson:
+    default-property-inclusion: non_null
+
+server.port: 8081
+folio.tenant.validation.enabled: true

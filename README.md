@@ -1,2 +1,2 @@
 # mod-search
-Folio search project.
+FOLIO search project.

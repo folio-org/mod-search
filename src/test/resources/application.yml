@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: mod-search
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-single-value-as-array: true
+
+server.port: 8081
+folio.tenant.validation.enabled: true
+
+application:
+  kafka:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/agl_feedback}
+    listener:
+      events:
+        concurrency: 4
+        topics: search-instances
+        group-id: search-events-group

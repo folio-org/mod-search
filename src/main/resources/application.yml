@@ -3,6 +3,22 @@ spring:
     name: mod-search
   jackson:
     default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-single-value-as-array: true
+  elasticsearch:
+    rest:
+      uris: http://elasticsearch:9200
+  kafka:
+    bootstrap-servers: kafka:9092
+
+application:
+  kafka:
+    listener:
+      events:
+        concurrency: 1
+        topics: inventory.instance
+        group-id: mod-search-instances-group
 
 server.port: 8081
 folio.tenant.validation.enabled: true

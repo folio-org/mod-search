@@ -1,0 +1,75 @@
+{
+  "name": "instance",
+  "fields": {
+    "id": {
+      "index": "keyword",
+      "sourcePath": "$.id"
+    },
+    "hrid": {
+      "index": "keyword",
+      "sourcePath": "$.hrid"
+    },
+    "source": {
+      "index": "keyword",
+      "sourcePath": "$.source"
+    },
+    "title": {
+      "index": "multilang",
+      "sourcePath": "$.title"
+    },
+    "series": {
+      "index": "keyword",
+      "sourcePath": "$.series"
+    },
+    "identifiers": {
+      "index": "keyword",
+      "sourcePath": "$.identifiers"
+    },
+    "contributors": {
+      "index": "keyword",
+      "sourcePath": "$.contributors.name"
+    },
+    "subjects": {
+      "index": "keyword",
+      "sourcePath": "$.subjects"
+    },
+    "instanceTypeId": {
+      "index": "keyword",
+      "sourcePath": "$.instanceTypeId"
+    },
+    "instanceFormatId": {
+      "index": "keyword",
+      "sourcePath": "$.instanceFormatId"
+    },
+    "language": {
+      "index": "keyword",
+      "sourcePath": "$.languages",
+      "languageSource": true
+    },
+    "metadata": {
+      "name": "metadata",
+      "type": "object",
+      "properties": {
+        "dateCreated": {
+          "index": "date",
+          "sourcePath": "$.metadata.dateCreated",
+          "fieldType": "date"
+        },
+        "dateUpdated": {
+          "index": "date",
+          "sourcePath": "$.metadata.dateUpdated"
+        },
+        "createdBy": {
+          "index": "date",
+          "sourcePath": "$.metadata.createdBy"
+        },
+        "updatedBy": {
+          "index": "date",
+          "sourcePath": "$.metadata.updatedBy"
+        }
+      }
+    }
+  },
+  "groups": { },
+  "indexFields": { }
+}

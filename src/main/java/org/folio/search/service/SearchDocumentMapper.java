@@ -92,7 +92,7 @@ public class SearchDocumentMapper {
         .map(sourcePath -> getStringListByJsonPath(doc, sourcePath))
         .flatMap(Collection::stream)
         .filter(value -> value instanceof String)
-        .map(value -> (String) value)
+        .map(String.class::cast)
         .collect(Collectors.toList());
   }
 

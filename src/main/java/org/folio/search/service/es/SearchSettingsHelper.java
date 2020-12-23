@@ -23,11 +23,11 @@ public class SearchSettingsHelper {
    */
   public String getSettings(String resource) {
     var resourceSettings = localFileProvider.read(getIndexSettingsPath(resource));
-    if (resourceSettings == null) {
+    if (!jsonConverter.isValidJsonString(resourceSettings)) {
       throw new ResourceDescriptionException(String.format(
-          "Failed to load resource index settings [source=%s]", resource));
+          "Failed to load resource index settings [resourceName: %s]", resource));
     }
-    return jsonConverter.toJson(jsonConverter.asJsonTree(resourceSettings));
+    return resourceSettings;
   }
 
   private static String getIndexSettingsPath(String resource) {

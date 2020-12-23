@@ -1,5 +1,6 @@
 package org.folio.search.repository;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -126,6 +127,12 @@ class IndexRepositoryTest {
   }
 
   @Test
+  void indexResources_positive_emptyList() {
+    var response = indexRepository.indexResources(emptyList());
+    assertThat(response).isEqualTo(FolioIndexResourceResponse.success());
+  }
+
+  @Test
   void indexResources_negative_bulkFail() throws IOException {
     var documentBody = searchDocumentBody();
     var bulkResponse = mock(BulkResponse.class);
@@ -139,10 +146,11 @@ class IndexRepositoryTest {
   @Test
   void indexResources_negative_throwsIOException() throws IOException {
     var documentBody = searchDocumentBody();
+    var documentBodies = singletonList(documentBody);
     when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT)))
         .thenThrow(new IOException("err"));
 
-    assertThatThrownBy(() -> indexRepository.indexResources(singletonList(documentBody)))
+    assertThatThrownBy(() -> indexRepository.indexResources(documentBodies))
         .isInstanceOf(SearchServiceException.class)
         .hasCauseExactlyInstanceOf(IOException.class)
         .hasMessage("Failed to perform elasticsearch request "

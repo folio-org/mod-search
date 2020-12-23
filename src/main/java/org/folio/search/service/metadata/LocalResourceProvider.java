@@ -11,11 +11,10 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.service.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -40,8 +39,8 @@ public class LocalResourceProvider implements MetadataResourceProvider {
           .collect(toList());
     } catch (IOException e) {
       log.error("Failed to read models [pattern: {}]", pattern);
-      throw new BeanInitializationException(String.format(
-          "Failed to read models [pattern: %s]", pattern), e);
+      throw new ResourceDescriptionException(String.format(
+          "Failed to read local files [pattern: %s]", pattern), e);
     }
   }
 

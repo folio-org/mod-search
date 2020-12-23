@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class SearchMappingsHelper {
 
   private final ResourceDescriptionService resourceDescriptionService;
-  private final SearchFieldProvider fieldTypeProvider;
+  private final SearchFieldProvider searchFieldProvider;
   private final JsonConverter jsonConverter;
   private final ObjectMapper objectMapper;
 
@@ -100,10 +100,7 @@ public class SearchMappingsHelper {
     if (fieldDescription instanceof PlainFieldDescription) {
       return getMappingForPlainField((PlainFieldDescription) fieldDescription);
     }
-    if (fieldDescription instanceof ObjectFieldDescription) {
-      return getMappingForObjectField((ObjectFieldDescription) fieldDescription);
-    }
-    return null;
+    return getMappingForObjectField((ObjectFieldDescription) fieldDescription);
   }
 
   private JsonNode getMappingForPlainField(PlainFieldDescription fieldDescription) {
@@ -113,13 +110,13 @@ public class SearchMappingsHelper {
     var indexType = fieldDescription.getIndex();
     ObjectNode mappings = null;
     if (indexType != null && !NONE_FIELD_TYPE.equals(indexType)) {
-      mappings = fieldTypeProvider.getSearchFieldType(indexType).getMapping();
+      mappings = searchFieldProvider.getSearchFieldType(indexType).getMapping();
     }
 
     var fieldDescriptionMappings = fieldDescription.getMappings();
     if (fieldDescriptionMappings != null) {
       if (mappings == null) {
-        mappings = fieldDescriptionMappings;
+        mappings = fieldDescriptionMappings.deepCopy();
       } else {
         mappings.setAll(fieldDescriptionMappings);
       }

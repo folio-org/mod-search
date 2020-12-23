@@ -52,7 +52,8 @@ class JsonConverterTest {
 
   @Test
   void toJson_negative_throwsIOException() {
-    assertThatThrownBy(() -> jsonConverter.toJson(new InvalidSerializationClass()))
+    var value = new NonSerializableByJacksonClass();
+    assertThatThrownBy(() -> jsonConverter.toJson(value))
         .isInstanceOf(SerializationException.class)
         .hasMessageContaining("Failed to serialize value");
   }
@@ -193,6 +194,24 @@ class JsonConverterTest {
     assertThat(actual).isNull();
   }
 
+  @Test
+  void isValidJsonString_positive() {
+    var actual = jsonConverter.isValidJsonString("{}");
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isValidJsonString_negative_nullValue() {
+    var actual = jsonConverter.isValidJsonString(null);
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void isValidJsonString_negative_invalidJsonValue() {
+    var actual = jsonConverter.isValidJsonString("{123}");
+    assertThat(actual).isFalse();
+  }
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor(staticName = "of")
@@ -201,12 +220,12 @@ class JsonConverterTest {
     private String field;
   }
 
-  private static class InvalidSerializationClass {
+  private static class NonSerializableByJacksonClass {
 
-    private final InvalidSerializationClass self = this;
+    private final NonSerializableByJacksonClass self = this;
 
     @SuppressWarnings("unused")
-    public InvalidSerializationClass getSelf() {
+    public NonSerializableByJacksonClass getSelf() {
       return self;
     }
   }

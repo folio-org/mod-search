@@ -3,7 +3,7 @@
 #--------------------------------------------------------
 FROM adoptopenjdk/openjdk11:alpine-jre as builder
 # should be a single jar file
-ARG JAR_FILE=mod-search/target/*.jar
+ARG JAR_FILE=target/*.jar
 
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract

@@ -54,6 +54,16 @@ class LocalResourceProviderTest {
   }
 
   @Test
+  void getResourceDescriptions_negative_IOException() throws IOException {
+    when(patternResolver.getResources("classpath*:/model/*.json"))
+      .thenThrow(new IOException("error"));
+
+    assertThatThrownBy(() -> localResourceProvider.getResourceDescriptions())
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessageContaining("Failed to read local files [pattern: classpath*:/model/*.json]");
+  }
+
+  @Test
   void getResourceDescriptions_negative_resourceWithIOException() throws IOException {
     var resource = mock(Resource.class);
 

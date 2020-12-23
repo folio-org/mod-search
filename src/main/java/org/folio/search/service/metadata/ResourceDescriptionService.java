@@ -118,14 +118,15 @@ public class ResourceDescriptionService {
         return singletonList(plainFieldDesc.getSourcePath());
       }
     }
+
     return emptyList();
   }
 
   private Set<String> getSupportedLanguages() {
     var indexFieldType = localSearchFieldProvider.getSearchFieldType(MULTILANG_FIELD_TYPE);
-    var supportedLanguages = new HashSet<String>();
+    var supportedLanguagesSet = new HashSet<String>();
     var mapping = indexFieldType.getMapping();
-    mapping.path("properties").fieldNames().forEachRemaining(supportedLanguages::add);
-    return supportedLanguages;
+    mapping.path("properties").fieldNames().forEachRemaining(supportedLanguagesSet::add);
+    return supportedLanguagesSet;
   }
 }

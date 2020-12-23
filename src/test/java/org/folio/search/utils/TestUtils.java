@@ -6,6 +6,7 @@ import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -68,11 +69,26 @@ public class TestUtils {
     return resourceDescription;
   }
 
+  public static PlainFieldDescription plainField(String index) {
+    var fieldDescription = new PlainFieldDescription();
+    fieldDescription.setType(PLAIN);
+    fieldDescription.setIndex(index);
+    return fieldDescription;
+  }
+
   public static PlainFieldDescription plainField(String index, String path) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(index);
     fieldDescription.setSourcePath(path);
+    return fieldDescription;
+  }
+
+  public static PlainFieldDescription plainField(String index, ObjectNode mappings) {
+    var fieldDescription = new PlainFieldDescription();
+    fieldDescription.setType(PLAIN);
+    fieldDescription.setIndex(index);
+    fieldDescription.setMappings(mappings);
     return fieldDescription;
   }
 

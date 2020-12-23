@@ -7,13 +7,15 @@ import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.languageField;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +68,7 @@ class ResourceDescriptionServiceTest {
   @Test
   void getLanguageSourcePaths_positive() {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths(RESOURCE_NAME);
-    assertThat(languageSourcePaths).isEqualTo(List.of("$.lang"));
+    assertThat(languageSourcePaths).isEqualTo(List.of("$.lang", "$.nested.lang"));
   }
 
   @Test
@@ -77,9 +79,11 @@ class ResourceDescriptionServiceTest {
 
   private static ResourceDescription resourceDescription() {
     return TestUtils.resourceDescription(mapOf(
-        "id", plainField("keyword", "$.id"),
-        "lang", languageField("keyword", "$.lang"),
-        "isbn", plainField("keyword", "$.isbn")));
+      "id", plainField("keyword", "$.id"),
+      "lang", languageField("keyword", "$.lang"),
+      "isbn", plainField("keyword", "$.isbn"),
+      "nested", objectField(mapOf(
+        "nested_language", languageField("keyword", "$.nested.lang")))));
   }
 
   private static SearchFieldType multilangField() {

@@ -126,6 +126,24 @@ public class JsonConverter {
   }
 
   /**
+   * Validates string if it's correct JSON value or not.
+   *
+   * @param value JSON string to validate
+   * @return true if string value contains valid JSON, false - otherwise.
+   */
+  public boolean isValidJsonString(String value) {
+    if (value == null) {
+      return false;
+    }
+    try {
+      objectMapper.readTree(value);
+    } catch (JsonProcessingException e) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Reads {@link String} value as jackson {@link JsonNode} object.
    *
    * @param value json value stream as {@link InputStream} object

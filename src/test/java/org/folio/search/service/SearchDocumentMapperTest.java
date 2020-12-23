@@ -150,7 +150,7 @@ class SearchDocumentMapperTest {
         "bool", plainField("boolean", "$.bool"),
         "number", plainField("numeric", "$.number"),
         "numbers", plainField("numeric", "$.numbers"),
-        "ignored_field", plainField("none", null),
+        "ignored_field", plainField("none"),
         "metadata", objectField(mapOf(
             "createdAt", plainField("keyword", "$.metadata.createdAt"))));
   }

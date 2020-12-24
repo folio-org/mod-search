@@ -21,7 +21,8 @@ COPY --from=builder snapshot-dependencies/ ${JAVA_APP_DIR}/
 COPY --from=builder spring-boot-loader/ ${JAVA_APP_DIR}/
 COPY --from=builder application/ ${JAVA_APP_DIR}/
 
-COPY ./run.sh ${JAVA_APP_DIR}/
+CMD ls
+COPY run.sh ${JAVA_APP_DIR}/
 RUN chmod 755 ${JAVA_APP_DIR}/run.sh
 
 # Expose this port locally in the container.

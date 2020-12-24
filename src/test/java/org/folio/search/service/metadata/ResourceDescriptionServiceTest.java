@@ -82,6 +82,7 @@ class ResourceDescriptionServiceTest {
       "id", plainField("keyword", "$.id"),
       "lang", languageField("keyword", "$.lang"),
       "isbn", plainField("keyword", "$.isbn"),
+      "unsupportedField", new TestFieldDescription(),
       "nested", objectField(mapOf(
         "nested_language", languageField("keyword", "$.nested.lang")))));
   }
@@ -95,4 +96,6 @@ class ResourceDescriptionServiceTest {
             "fra", jsonObject("type", "text"))));
     return indexFieldType;
   }
+
+  private static class TestFieldDescription extends FieldDescription {}
 }

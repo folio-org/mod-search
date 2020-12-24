@@ -61,6 +61,7 @@ class SearchMappingsHelperTest {
       "properties", jsonObject(
         "id", keywordType.getMapping(),
         "title", multilangType.getMapping(),
+        "subtitle", jsonObject("type", "text"),
         "isbn", jsonObject("type", "keyword", "normalizer", "lowercase_normalizer"),
         "metadata", jsonObject("properties", jsonObject("createdDate", dateType.getMapping())),
       "identifiers", keywordType.getMapping()
@@ -94,6 +95,7 @@ class SearchMappingsHelperTest {
       "id", plainField("keyword"),
       "issn", identifiersGroup(),
       "title", plainField("multilang"),
+      "subtitle", plainField(null, jsonObject("type", "text")),
       "not_indexed_field1", plainField("none"),
       "not_indexed_field2", plainField(null),
       "isbn", plainField("keyword", jsonObject("normalizer", "lowercase_normalizer")),

@@ -137,7 +137,7 @@ public class SearchDocumentMapper {
         }
       }
 
-      objectNode.set("source", jsonNodes);
+      objectNode.set("src", jsonNodes);
       return objectNode;
     }
 

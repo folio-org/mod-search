@@ -23,7 +23,7 @@
     },
     "identifiers": {
       "index": "keyword",
-      "sourcePath": "$.identifiers"
+      "sourcePath": "$.identifiers.value"
     },
     "contributors": {
       "index": "keyword",
@@ -60,11 +60,11 @@
           "sourcePath": "$.metadata.dateUpdated"
         },
         "createdBy": {
-          "index": "date",
+          "index": "keyword",
           "sourcePath": "$.metadata.createdBy"
         },
         "updatedBy": {
-          "index": "date",
+          "index": "keyword",
           "sourcePath": "$.metadata.updatedBy"
         }
       }

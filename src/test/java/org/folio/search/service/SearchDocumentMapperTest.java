@@ -176,7 +176,7 @@ class SearchDocumentMapperTest {
         "language", "eng",
         "multilang_value", jsonObject(
             "eng", "some value",
-            "source", "some value"),
+            "src", "some value"),
         "bool", true,
         "number", 123,
         "numbers", arrayNode(1, 2, 3, 4),

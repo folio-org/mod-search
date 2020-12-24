@@ -30,6 +30,10 @@
           "type": "text",
           "analyzer": "german"
         },
+        "ger": {
+          "type": "text",
+          "analyzer": "german"
+        },
         "eng": {
           "type": "text",
           "analyzer": "english"

@@ -6,11 +6,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.ResourceEventBody;
 import org.folio.search.model.rest.response.FolioCreateIndexResponse;
 import org.folio.search.model.rest.response.FolioIndexResourceResponse;
 import org.folio.search.model.rest.response.FolioPutMappingResponse;
-import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.ResourceEventBody;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -32,7 +32,7 @@ public class IndexService {
    * @param tenantId tenant id as {@link String} value.
    * @return {@link FolioCreateIndexResponse} if index was created successfully
    * @throws SearchServiceException if {@link IOException} has been occurred during execution
-   *     request to elasticsearch
+   *   request to elasticsearch
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
     var index = getIndexName(resourceName, tenantId);

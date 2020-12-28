@@ -21,7 +21,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     var indexFieldType = elasticsearchFieldTypes.get(fieldType);
     if (indexFieldType == null) {
       throw new ResourceDescriptionException(String.format(
-          "Failed to find search field type [fieldType: %s]", fieldType));
+        "Failed to find search field type [fieldType: %s]", fieldType));
     }
     return indexFieldType;
   }

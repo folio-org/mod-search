@@ -11,12 +11,12 @@ public enum SearchFieldType {
   /**
    * Provides opportunity to use field values for sorting.
    */
-  FACET ("facet"),
+  FACET("facet"),
 
   /**
    * Provides opportunity to use field values for faceting.
    */
-  SORT ("sort"),
+  SORT("sort"),
 
   /**
    * Provides opportunity to use field values as language source for multi-language search.

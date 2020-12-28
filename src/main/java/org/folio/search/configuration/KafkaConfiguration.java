@@ -53,8 +53,7 @@ public class KafkaConfiguration {
    *
    * @return typed {@link ConsumerFactory} object as Spring bean.
    */
-  @Bean
-  public ConsumerFactory<String, ResourceEventBody> jsonNodeConsumerFactory() {
+  private ConsumerFactory<String, ResourceEventBody> jsonNodeConsumerFactory() {
     var deserializer = new JsonDeserializer<>(ResourceEventBody.class);
     Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties());
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

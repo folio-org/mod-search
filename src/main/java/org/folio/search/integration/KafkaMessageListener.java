@@ -28,16 +28,16 @@ public class KafkaMessageListener {
    * @param events list with the body as json from messaging system.
    */
   @KafkaListener(
-      id = "search-events-listener",
-      containerFactory = "kafkaListenerContainerFactory",
-      topics = "${application.kafka.listener.events.topics}",
-      groupId = "${application.kafka.listener.events.group-id}",
-      concurrency = "${application.kafka.listener.events.concurrency}")
+    id = "mod-search-listener",
+    containerFactory = "kafkaListenerContainerFactory",
+    topics = "${application.kafka.listener.events.topics}",
+    groupId = "${application.kafka.listener.events.group-id}",
+    concurrency = "${application.kafka.listener.events.concurrency}")
   public void handleEvents(List<ResourceEventBody> events) {
-    log.info("Received data from kafka [eventsCount: {}]", events.size());
+    log.info("Processing resource events from kafka [eventsCount: {}]", events.size());
     var resources = events.stream()
-        .map(event -> event.withResourceName(INSTANCE_RESOURCE))
-        .collect(toList());
+      .map(event -> event.withResourceName(INSTANCE_RESOURCE))
+      .collect(toList());
 
     indexService.indexResources(resources);
   }

@@ -33,14 +33,14 @@ public class LocalResourceProvider implements MetadataResourceProvider {
     var pattern = "classpath*:/model/*.json";
     try {
       return Stream.of(patternResolver.getResources(pattern))
-          .filter(Resource::isReadable)
-          .map(this::getResourceDescription)
-          .filter(Objects::nonNull)
-          .collect(toList());
+        .filter(Resource::isReadable)
+        .map(this::getResourceDescription)
+        .filter(Objects::nonNull)
+        .collect(toList());
     } catch (IOException e) {
       log.error("Failed to read models [pattern: {}]", pattern);
       throw new ResourceDescriptionException(String.format(
-          "Failed to read local files [pattern: %s]", pattern), e);
+        "Failed to read local files [pattern: %s]", pattern), e);
     }
   }
 
@@ -48,10 +48,10 @@ public class LocalResourceProvider implements MetadataResourceProvider {
   public Map<String, SearchFieldType> getSearchFieldTypes() {
     var path = "elasticsearch/index-field-types.json";
     Map<String, SearchFieldType> fieldTypes =
-        localFileProvider.readAsObject(path, new TypeReference<>() {});
+      localFileProvider.readAsObject(path, new TypeReference<>() {});
     if (fieldTypes == null) {
       throw new ResourceDescriptionException(String.format(
-          "Failed to load search field types [path: %s]", path));
+        "Failed to load search field types [path: %s]", path));
     }
     return fieldTypes;
   }
@@ -63,7 +63,7 @@ public class LocalResourceProvider implements MetadataResourceProvider {
       var filename = resource.getFilename();
       log.error("Failed to read resource [file: {}]", filename, e);
       throw new ResourceDescriptionException(String.format(
-          "Failed to read resource [file: %s]", filename), e);
+        "Failed to read resource [file: %s]", filename), e);
     }
   }
 }

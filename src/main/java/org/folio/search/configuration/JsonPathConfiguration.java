@@ -53,11 +53,11 @@ public class JsonPathConfiguration {
   }
 
   private com.jayway.jsonpath.Configuration jsonPathConfiguration(
-      JsonProvider jsonProvider, MappingProvider mappingProvider) {
+    JsonProvider jsonProvider, MappingProvider mappingProvider) {
     return com.jayway.jsonpath.Configuration.builder()
-        .jsonProvider(jsonProvider)
-        .mappingProvider(mappingProvider)
-        .options(EnumSet.noneOf(Option.class))
-        .build();
+      .jsonProvider(jsonProvider)
+      .mappingProvider(mappingProvider)
+      .options(EnumSet.noneOf(Option.class))
+      .build();
   }
 }

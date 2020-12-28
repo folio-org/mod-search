@@ -24,6 +24,7 @@ public class SearchController {
 
   /**
    * Performs search request for passed {@link SearchRequestBody} object
+   *
    * @param requestBody search request body
    * @param tenantId tenant id from request header
    * @return search result as {@link SearchResult} object
@@ -31,8 +32,8 @@ public class SearchController {
   @SuppressWarnings("unused")
   @PostMapping("/query")
   public SearchResult search(
-      @RequestBody SearchRequestBody requestBody,
-      @RequestHeader("tenant-id") String tenantId) {
+    @RequestBody SearchRequestBody requestBody,
+    @RequestHeader("tenant-id") String tenantId) {
     return searchService.search(requestBody.getQuery(), tenantId);
   }
 }

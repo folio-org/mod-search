@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class EventListenerTest {
+class KafkaMessageListenerTest {
 
   @Mock private IndexService indexService;
   @InjectMocks private KafkaMessageListener messageListener;

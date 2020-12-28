@@ -10,17 +10,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.TypeRef;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.model.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -35,12 +31,56 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SearchDocumentMapper {
 
-  private static final TypeRef<List<Object>> STRING_LIST_TYPE_REF = new TypeRef<>() {};
-
   private final ObjectMapper objectMapper;
   private final ParseContext parseContext;
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
+
+  private static String getIndexName(ResourceEventBody eventBody) {
+    return eventBody.getResourceName() + "_" + eventBody.getTenant();
+  }
+
+  private static boolean isMultilangField(PlainFieldDescription desc) {
+    return MULTILANG_FIELD_TYPE.equals(desc.getIndex());
+  }
+
+  private static boolean isNotIndexedField(PlainFieldDescription desc) {
+    return NONE_FIELD_TYPE.equals(desc.getIndex());
+  }
+
+  private static JsonNode getJsonNodeByPath(DocumentContext doc, String sourcePath) {
+    try {
+      return doc.read(sourcePath, JsonNode.class);
+    } catch (PathNotFoundException e) {
+      if (log.isDebugEnabled()) {
+        log.debug("Path not found [jsonPath: {}, doc: {}]", sourcePath, doc, e);
+      }
+      return null;
+    }
+  }
+
+  private static Stream<String> getStreamFromJson(JsonNode jsonNode) {
+    if (jsonNode == null) {
+      return Stream.empty();
+    }
+    if (jsonNode.isArray()) {
+      var builder = Stream.<String>builder();
+      for (JsonNode node : jsonNode) {
+        if (isTextNode(node)) {
+          builder.add(node.asText());
+        }
+      }
+      return builder.build();
+    }
+    if (isTextNode(jsonNode)) {
+      return Stream.of(jsonNode.asText());
+    }
+    return Stream.empty();
+  }
+
+  private static boolean isTextNode(JsonNode jsonNode) {
+    return jsonNode.isTextual() && jsonNode.asText() != null;
+  }
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody}
@@ -51,15 +91,15 @@ public class SearchDocumentMapper {
    */
   public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
     return resourceEvents.stream()
-        .map(this::convert)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(toList());
+      .map(this::convert)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(toList());
   }
 
   /**
-   * Converts single {@link ResourceEventBody} object to the {@link SearchDocumentBody} object with all
-   * required data for elasticsearch index operation.
+   * Converts single {@link ResourceEventBody} object to the {@link SearchDocumentBody} object with
+   * all required data for elasticsearch index operation.
    *
    * @param event resource event body for conversion
    * @return elasticsearch document
@@ -79,25 +119,25 @@ public class SearchDocumentMapper {
     ObjectNode objectNode = convertDocument(document, fields, conversionContext);
 
     return Optional.of(SearchDocumentBody.builder()
-        .id(newData.path("id").textValue())
-        .index(getIndexName(event))
-        .routing(event.getTenant())
-        .rawJson(jsonConverter.toJson(objectNode))
-        .build());
+      .id(newData.path("id").textValue())
+      .index(getIndexName(event))
+      .routing(event.getTenant())
+      .rawJson(jsonConverter.toJson(objectNode))
+      .build());
   }
 
   private List<String> getResourceLanguages(String resourceName, DocumentContext doc) {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths(resourceName);
     return languageSourcePaths.stream()
-        .map(sourcePath -> getStringListByJsonPath(doc, sourcePath))
-        .flatMap(Collection::stream)
-        .filter(value -> value instanceof String)
-        .map(String.class::cast)
-        .collect(Collectors.toList());
+      .map(sourcePath -> getJsonNodeByPath(doc, sourcePath))
+      .flatMap(SearchDocumentMapper::getStreamFromJson)
+      .distinct()
+      .filter(descriptionService::isSupportedLanguage)
+      .collect(toList());
   }
 
   private ObjectNode convertDocument(
-      DocumentContext doc, Map<String, FieldDescription> fields, ConversionContext ctx) {
+    DocumentContext doc, Map<String, FieldDescription> fields, ConversionContext ctx) {
     var objectNode = objectMapper.createObjectNode();
     for (var fieldEntry : fields.entrySet()) {
       var jsonNode = getFieldValueAsJsonNode(doc, fieldEntry.getValue(), ctx);
@@ -109,7 +149,7 @@ public class SearchDocumentMapper {
   }
 
   private JsonNode getFieldValueAsJsonNode(
-      DocumentContext doc, FieldDescription desc, ConversionContext ctx) {
+    DocumentContext doc, FieldDescription desc, ConversionContext ctx) {
     if (desc instanceof PlainFieldDescription) {
       return getPlainFieldValue(doc, (PlainFieldDescription) desc, ctx);
     }
@@ -119,12 +159,11 @@ public class SearchDocumentMapper {
   }
 
   private JsonNode getPlainFieldValue(
-      DocumentContext doc, PlainFieldDescription desc, ConversionContext ctx) {
+    DocumentContext doc, PlainFieldDescription desc, ConversionContext ctx) {
     if (isNotIndexedField(desc)) {
       return null;
     }
-    List<Object> fieldValues = getStringListByJsonPath(doc, desc.getSourcePath());
-    var jsonNodes = getFieldValueAsJsonNode(fieldValues);
+    JsonNode jsonNodes = getJsonNodeByPath(doc, desc.getSourcePath());
     return isMultilangField(desc) ? getMultilangValueAsJsonNode(jsonNodes, ctx) : jsonNodes;
   }
 
@@ -132,9 +171,7 @@ public class SearchDocumentMapper {
     if (jsonNodes != null) {
       var objectNode = objectMapper.createObjectNode();
       for (var language : ctx.getLanguages()) {
-        if (descriptionService.isSupportedLanguage(language)) {
-          objectNode.set(language, jsonNodes);
-        }
+        objectNode.set(language, jsonNodes);
       }
 
       objectNode.set("src", jsonNodes);
@@ -144,48 +181,16 @@ public class SearchDocumentMapper {
     return null;
   }
 
-  private JsonNode getFieldValueAsJsonNode(List<Object> fieldValues) {
-    if (CollectionUtils.isEmpty(fieldValues)) {
-      return null;
-    }
-
-    if (fieldValues.size() == 1) {
-      return objectMapper.valueToTree(fieldValues.get(0));
-    }
-
-    var arrayNode = objectMapper.createArrayNode();
-    fieldValues.forEach(value -> arrayNode.add(objectMapper.valueToTree(value)));
-    return arrayNode;
-  }
-
-  private static String getIndexName(ResourceEventBody eventBody) {
-    return eventBody.getResourceName() + "_" + eventBody.getTenant();
-  }
-
-  private static boolean isMultilangField(PlainFieldDescription desc) {
-    return MULTILANG_FIELD_TYPE.equals(desc.getIndex());
-  }
-
-  private static boolean isNotIndexedField(PlainFieldDescription desc) {
-    return NONE_FIELD_TYPE.equals(desc.getIndex());
-  }
-
-
-  private static List<Object> getStringListByJsonPath(DocumentContext doc, String sourcePath) {
-    try {
-      return doc.read(sourcePath, STRING_LIST_TYPE_REF);
-    } catch (PathNotFoundException e) {
-      if (log.isDebugEnabled()) {
-        log.debug("Path not found [jsonPath: {}, doc: {}]", sourcePath, doc, e);
-      }
-      return Collections.emptyList();
-    }
-  }
-
+  /**
+   * The conversion context object.
+   */
   @Getter
   @RequiredArgsConstructor(staticName = "of")
   private static class ConversionContext {
 
+    /**
+     * List of supported language for resource.
+     */
     private final List<String> languages;
   }
 }

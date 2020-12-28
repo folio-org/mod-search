@@ -31,7 +31,7 @@ public class JsonUtils {
     return objectNode;
   }
 
-  public static ArrayNode arrayNode(Object... values) {
+  public static ArrayNode jsonArray(Object... values) {
     var arrayNode = OBJECT_MAPPER.createArrayNode();
     for (Object value : values) {
       arrayNode.add(jsonNode(value));

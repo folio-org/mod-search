@@ -21,11 +21,17 @@ import org.springframework.stereotype.Component;
 public class JsonConverter {
 
   public static final String SERIALIZATION_ERROR_MSG_TEMPLATE =
-      "Failed to serialize value [message: %s]";
+    "Failed to serialize value [message: %s]";
   public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE =
-      "Failed to deserialize value [value: {}]";
+    "Failed to deserialize value [value: {}]";
 
   private final ObjectMapper objectMapper;
+
+  private static RuntimeException deserializationException(String value, Throwable e) {
+    log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
+    return new SerializationException(String.format(
+      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
+  }
 
   /**
    * Converts {@link String} value as {@link T} class value.
@@ -47,7 +53,6 @@ public class JsonConverter {
       throw deserializationException(value, e);
     }
   }
-
 
   /**
    * Converts {@link String} value as {@link T} class value.
@@ -188,13 +193,7 @@ public class JsonConverter {
       return objectMapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
       throw new SerializationException(String.format(
-          SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
+        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
     }
-  }
-
-  private static RuntimeException deserializationException(String value, Throwable e) {
-    log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
-    return new SerializationException(String.format(
-        "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
   }
 }

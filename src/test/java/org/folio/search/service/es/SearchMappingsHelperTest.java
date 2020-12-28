@@ -1,7 +1,7 @@
 package org.folio.search.service.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.JsonUtils.arrayNode;
+import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -72,7 +72,7 @@ class SearchMappingsHelperTest {
   void getMappings_positive_resourceWithIndexMappings() {
     var keywordType = fieldType(jsonObject("type", "keyword"));
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword", jsonObject("copy_to", arrayNode("id_copy")))));
+      "id", plainField("keyword", jsonObject("copy_to", jsonArray("id_copy")))));
     var idCopyMappings = jsonObject("type", "keyword", "normalizer", "lowercase");
     resourceDescription.setIndexMappings(mapOf("id_copy", idCopyMappings));
 
@@ -85,7 +85,7 @@ class SearchMappingsHelperTest {
       "numeric_detection", false,
       "_routing", jsonObject("required", true),
       "properties", jsonObject(
-        "id", jsonObject("type", "keyword", "copy_to", arrayNode("id_copy")),
+        "id", jsonObject("type", "keyword", "copy_to", jsonArray("id_copy")),
         "id_copy", idCopyMappings
       ))));
   }

@@ -9,13 +9,13 @@ import org.folio.search.model.types.FieldType;
 
 @Data
 @JsonTypeInfo(
-    use = Id.NAME,
-    property = "type",
-    defaultImpl = PlainFieldDescription.class,
-    visible = true)
+  use = Id.NAME,
+  property = "type",
+  defaultImpl = PlainFieldDescription.class,
+  visible = true)
 @JsonSubTypes({
-    @Type(value = PlainFieldDescription.class, name = "plain"),
-    @Type(value = ObjectFieldDescription.class, name = "object"),
+  @Type(value = PlainFieldDescription.class, name = "plain"),
+  @Type(value = ObjectFieldDescription.class, name = "object"),
 })
 public abstract class FieldDescription {
 

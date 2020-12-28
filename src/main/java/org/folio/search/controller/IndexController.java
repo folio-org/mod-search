@@ -5,11 +5,11 @@ import static org.springframework.http.HttpStatus.CREATED;
 import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.model.ResourceEventBody;
 import org.folio.search.model.rest.request.IndexRequestBody;
 import org.folio.search.model.rest.response.FolioCreateIndexResponse;
 import org.folio.search.model.rest.response.FolioIndexResourceResponse;
 import org.folio.search.model.rest.response.FolioPutMappingResponse;
-import org.folio.search.model.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,8 +39,8 @@ public class IndexController {
    */
   @PostMapping("/indices")
   public FolioCreateIndexResponse createIndices(
-      @RequestBody IndexRequestBody requestBody,
-      @NotEmpty @RequestHeader("tenant-id") String tenantId) {
+    @RequestBody IndexRequestBody requestBody,
+    @NotEmpty @RequestHeader("tenant-id") String tenantId) {
     return elasticsearchIndexService.createIndex(requestBody.getResourceName(), tenantId);
   }
 
@@ -53,8 +53,8 @@ public class IndexController {
    */
   @PostMapping("/mappings")
   public FolioPutMappingResponse updateMappings(
-      @RequestBody IndexRequestBody requestBody,
-      @NotEmpty @RequestHeader("tenant-id") String tenantId) {
+    @RequestBody IndexRequestBody requestBody,
+    @NotEmpty @RequestHeader("tenant-id") String tenantId) {
     return elasticsearchIndexService.updateMappings(requestBody.getResourceName(), tenantId);
   }
 

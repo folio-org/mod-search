@@ -37,6 +37,7 @@ public class ResourceEventBody {
 
   /**
    * Adds resource name to the name.
+   *
    * @param resourceName name of resource.
    * @return {@link ResourceEventBody} object
    */

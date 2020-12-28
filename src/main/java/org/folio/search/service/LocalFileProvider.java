@@ -16,9 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LocalFileProvider {
 
-  private final JsonConverter jsonConverter;
-
   private static final ClassLoader CLASSLOADER = LocalFileProvider.class.getClassLoader();
+  private final JsonConverter jsonConverter;
 
   /**
    * Reads file from resources folder as {@link String} object.
@@ -49,7 +48,7 @@ public class LocalFileProvider {
    * @param <T> generic type for response object
    * @return file content as {@link JsonNode} object
    */
-  public  <T> T readAsObject(String path, Class<T> type) {
+  public <T> T readAsObject(String path, Class<T> type) {
     return jsonConverter.readJson(CLASSLOADER.getResourceAsStream(path), type);
   }
 

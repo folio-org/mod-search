@@ -16,8 +16,8 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
-import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,14 @@ public class SearchMappingsHelper {
   private final SearchFieldProvider searchFieldProvider;
   private final JsonConverter jsonConverter;
   private final ObjectMapper objectMapper;
+
+  private static Map<String, Object> createIndexMappingsObject() {
+    var indexMappings = new LinkedHashMap<String, Object>();
+    indexMappings.put("date_detection", false);
+    indexMappings.put("numeric_detection", false);
+    indexMappings.put("_routing", Map.of("required", true));
+    return indexMappings;
+  }
 
   /**
    * Provides elasticsearch mappings for given resource name.
@@ -52,14 +60,6 @@ public class SearchMappingsHelper {
     }
 
     return jsonConverter.toJson(indexMappings);
-  }
-
-  private static Map<String, Object> createIndexMappingsObject() {
-    var indexMappings = new LinkedHashMap<String, Object>();
-    indexMappings.put("date_detection", false);
-    indexMappings.put("numeric_detection", false);
-    indexMappings.put("_routing", Map.of("required", true));
-    return indexMappings;
   }
 
   private Map<String, JsonNode> createMappingsForFields(ResourceDescription description) {

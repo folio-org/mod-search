@@ -51,7 +51,7 @@ public class ResourceDescriptionService {
     var resourceDescription = resourceDescriptions.get(resourceName);
     if (resourceDescription == null) {
       throw new ResourceDescriptionException(String.format(
-          "Resource description not found [resourceName: %s]", resourceName));
+        "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
   }
@@ -95,9 +95,9 @@ public class ResourceDescriptionService {
     var map = new HashMap<String, List<String>>();
     for (var entry : resourceDescriptions.entrySet()) {
       var languageFieldPaths = entry.getValue().getFields().values().stream()
-          .map(this::getLanguageSourcePath)
-          .flatMap(Collection::stream)
-          .collect(toUnmodifiableList());
+        .map(this::getLanguageSourcePath)
+        .flatMap(Collection::stream)
+        .collect(toUnmodifiableList());
       map.put(entry.getKey(), languageFieldPaths);
     }
     return map;
@@ -107,9 +107,9 @@ public class ResourceDescriptionService {
     if (fieldDescription instanceof ObjectFieldDescription) {
       var objectFieldDesc = (ObjectFieldDescription) fieldDescription;
       return objectFieldDesc.getProperties().values().stream()
-          .map(this::getLanguageSourcePath)
-          .flatMap(Collection::stream)
-          .collect(toList());
+        .map(this::getLanguageSourcePath)
+        .flatMap(Collection::stream)
+        .collect(toList());
     }
 
     if (fieldDescription instanceof PlainFieldDescription) {

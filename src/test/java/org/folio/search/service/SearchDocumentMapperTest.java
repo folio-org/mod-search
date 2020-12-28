@@ -3,7 +3,7 @@ package org.folio.search.service;
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.JsonUtils.arrayNode;
+import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -51,14 +51,14 @@ import org.slf4j.LoggerFactory;
 class SearchDocumentMapperTest {
 
   @Spy private final ObjectMapper objectMapper = new ObjectMapper()
-      .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
 
   @Spy private final ParseContext parseContext = JsonPath.using(Configuration.builder()
-      .jsonProvider(new JacksonJsonProvider(objectMapper))
-      .mappingProvider(new JacksonMappingProvider(objectMapper))
-      .options(EnumSet.noneOf(Option.class))
-      .build());
+    .jsonProvider(new JacksonJsonProvider(objectMapper))
+    .mappingProvider(new JacksonMappingProvider(objectMapper))
+    .options(EnumSet.noneOf(Option.class))
+    .build());
 
   @Mock private ResourceDescriptionService descriptionService;
 
@@ -67,9 +67,9 @@ class SearchDocumentMapperTest {
   @BeforeAll
   static void beforeAll() {
     LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-    ch.qos.logback.classic.Logger log = logContext.getLogger(
-        "com.jayway.jsonpath.internal.path.CompiledPath");
-    log.setLevel(Level.INFO);
+    var loggerName = "com.jayway.jsonpath.internal.path.CompiledPath";
+    var logger = logContext.getLogger(loggerName);
+    logger.setLevel(Level.INFO);
   }
 
   @Test
@@ -88,7 +88,7 @@ class SearchDocumentMapperTest {
 
     var expectedJson = asJsonString(getExpectedDocument(id));
     assertThat(actual).isPresent().get()
-        .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
 
     verify(parseContext).parse(jsonConverter.toJson(jsonBody));
   }
@@ -109,7 +109,7 @@ class SearchDocumentMapperTest {
 
     var expectedJson = asJsonString(getExpectedDocument(id));
     assertThat(actual).isEqualTo(List.of(
-        SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson)));
+      SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson)));
     verify(parseContext).parse(jsonConverter.toJson(jsonBody));
   }
 
@@ -119,8 +119,8 @@ class SearchDocumentMapperTest {
     var jsonBody = jsonObject("id", id);
     var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(mapOf(
-        "id", plainField("keyword", "$.id"),
-        "title", plainField("keyword", "$.title")));
+      "id", plainField("keyword", "$.id"),
+      "title", plainField("keyword", "$.title")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(emptyList());
@@ -129,7 +129,58 @@ class SearchDocumentMapperTest {
 
     var expectedJson = asJsonString(jsonObject("id", id));
     assertThat(actual).isPresent().get()
-        .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+
+    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+  }
+
+  @Test
+  void convertSingle_negative_emptyTitle() {
+    var id = randomId();
+    var jsonBody = jsonObject("id", id, "title", "");
+    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var resourceDescription = resourceDescription(mapOf(
+      "id", plainField("keyword", "$.id"),
+      "title", plainField("keyword", "$.title")));
+
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(emptyList());
+
+    var actual = documentMapper.convert(eventBody);
+
+    var expectedJson = asJsonString(jsonObject("id", id, "title", ""));
+    assertThat(actual).isPresent().get()
+      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+
+    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+  }
+
+  @Test
+  void convertSingle_positive_multilangResource() {
+    var id = randomId();
+    var jsonBody = jsonObject(
+      "id", id, "title", "val",
+      "l1", jsonArray("eng"),
+      "l2", jsonObject("value", "eng"),
+      "l3", jsonArray(1, 2),
+      "l4", "eng",
+      "l5", true);
+    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var resourceDescription = resourceDescription(mapOf(
+      "id", plainField("keyword", "$.id"),
+      "title", multilangField("$.title")));
+
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    when(descriptionService.isSupportedLanguage("eng")).thenReturn(true);
+    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(List.of(
+      "$.l1", "$.l2", "$.l3", "$.l4", "$.l5"));
+
+    var actual = documentMapper.convert(eventBody);
+
+    var expectedJson = asJsonString(jsonObject(
+      "id", id, "title", jsonObject("eng", "val", "src", "val")));
+    assertThat(actual).isPresent().get()
+      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
 
     verify(parseContext).parse(jsonConverter.toJson(jsonBody));
   }
@@ -143,44 +194,44 @@ class SearchDocumentMapperTest {
 
   private static Map<String, FieldDescription> getFieldDescriptions() {
     return mapOf(
-        "id", plainField("keyword", "$.id"),
-        "title", plainField("keyword", "$.title"),
-        "language", plainField("keyword", "$.language"),
-        "multilang_value", multilangField("$.multilang_value"),
-        "bool", plainField("boolean", "$.bool"),
-        "number", plainField("numeric", "$.number"),
-        "numbers", plainField("numeric", "$.numbers"),
-        "ignored_field", plainField("none"),
-        "metadata", objectField(mapOf(
-            "createdAt", plainField("keyword", "$.metadata.createdAt"))));
+      "id", plainField("keyword", "$.id"),
+      "title", plainField("keyword", "$.title"),
+      "language", plainField("keyword", "$.language"),
+      "multilang_value", multilangField("$.multilang_value"),
+      "bool", plainField("boolean", "$.bool"),
+      "number", plainField("numeric", "$.number"),
+      "numbers", plainField("numeric", "$.numbers"),
+      "ignored_field", plainField("none"),
+      "metadata", objectField(mapOf(
+        "createdAt", plainField("keyword", "$.metadata.createdAt"))));
   }
 
   private static ObjectNode getResourceTestData(String id) {
     return jsonObject(
-        "id", id,
-        "title", arrayNode("instance title"),
-        "language", "eng",
-        "multilang_value", "some value",
-        "bool", true,
-        "number", 123,
-        "numbers", arrayNode(1, 2, 3, 4),
-        "ignored_field", "ignored value",
-        "metadata", jsonObject(
-            "createdAt", "12-01-01T12:03:12Z"));
+      "id", id,
+      "title", jsonArray("instance title"),
+      "language", "eng",
+      "multilang_value", "some value",
+      "bool", true,
+      "number", 123,
+      "numbers", jsonArray(1, 2, 3, 4),
+      "ignored_field", "ignored value",
+      "metadata", jsonObject(
+        "createdAt", "12-01-01T12:03:12Z"));
   }
 
   private static ObjectNode getExpectedDocument(String id) {
     return jsonObject(
-        "id", id,
-        "title", "instance title",
-        "language", "eng",
-        "multilang_value", jsonObject(
-            "eng", "some value",
-            "src", "some value"),
-        "bool", true,
-        "number", 123,
-        "numbers", arrayNode(1, 2, 3, 4),
-        "metadata", jsonObject(
-            "createdAt", "12-01-01T12:03:12Z"));
+      "id", id,
+      "title", jsonArray("instance title"),
+      "language", "eng",
+      "multilang_value", jsonObject(
+        "eng", "some value",
+        "src", "some value"),
+      "bool", true,
+      "number", 123,
+      "numbers", jsonArray(1, 2, 3, 4),
+      "metadata", jsonObject(
+        "createdAt", "12-01-01T12:03:12Z"));
   }
 }

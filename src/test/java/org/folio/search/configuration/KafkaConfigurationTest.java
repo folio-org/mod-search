@@ -16,23 +16,13 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 @ExtendWith(MockitoExtension.class)
 class KafkaConfigurationTest {
 
-  @InjectMocks
-  private KafkaConfiguration kafkaConfiguration;
-
-  @Mock
-  private KafkaProperties kafkaProperties;
+  @InjectMocks private KafkaConfiguration kafkaConfiguration;
+  @Mock private KafkaProperties kafkaProperties;
 
   @Test
   void kafkaListenerContainerFactory() {
     when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
     var containerFactory = kafkaConfiguration.kafkaListenerContainerFactory();
     assertThat(containerFactory).isNotNull();
-  }
-
-  @Test
-  void jsonNodeConsumerFactoryTest() {
-    when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
-    var consumerFactory = kafkaConfiguration.jsonNodeConsumerFactory();
-    assertThat(consumerFactory).isNotNull();
   }
 }

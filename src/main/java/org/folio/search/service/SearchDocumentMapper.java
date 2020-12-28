@@ -36,6 +36,50 @@ public class SearchDocumentMapper {
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
 
+  /**
+   * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody}
+   * objects.
+   *
+   * @param resourceEvents list with resource events for conversion to elasticsearch document
+   * @return list with elasticsearch documents.
+   */
+  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
+    return resourceEvents.stream()
+      .map(this::convert)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(toList());
+  }
+
+  /**
+   * Converts single {@link ResourceEventBody} object to the {@link SearchDocumentBody} object with
+   * all required data for elasticsearch index operation.
+   *
+   * @param event resource event body for conversion
+   * @return elasticsearch document
+   */
+  public Optional<SearchDocumentBody> convert(ResourceEventBody event) {
+    var newData = event.getNewData();
+    if (newData == null) {
+      return Optional.empty();
+    }
+
+    var document = parseContext.parse(newData.toString());
+    var resourceName = event.getResourceName();
+    var resourceDescription = descriptionService.get(event.getResourceName());
+    var fields = resourceDescription.getFields();
+
+    var conversionContext = ConversionContext.of(getResourceLanguages(resourceName, document));
+    ObjectNode objectNode = convertDocument(document, fields, conversionContext);
+
+    return Optional.of(SearchDocumentBody.builder()
+      .id(newData.path("id").textValue())
+      .index(getIndexName(event))
+      .routing(event.getTenant())
+      .rawJson(jsonConverter.toJson(objectNode))
+      .build());
+  }
+
   private static String getIndexName(ResourceEventBody eventBody) {
     return eventBody.getResourceName() + "_" + eventBody.getTenant();
   }
@@ -80,50 +124,6 @@ public class SearchDocumentMapper {
 
   private static boolean isTextNode(JsonNode jsonNode) {
     return jsonNode.isTextual() && jsonNode.asText() != null;
-  }
-
-  /**
-   * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody}
-   * objects.
-   *
-   * @param resourceEvents list with resource events for conversion to elasticsearch document
-   * @return list with elasticsearch documents.
-   */
-  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
-    return resourceEvents.stream()
-      .map(this::convert)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .collect(toList());
-  }
-
-  /**
-   * Converts single {@link ResourceEventBody} object to the {@link SearchDocumentBody} object with
-   * all required data for elasticsearch index operation.
-   *
-   * @param event resource event body for conversion
-   * @return elasticsearch document
-   */
-  public Optional<SearchDocumentBody> convert(ResourceEventBody event) {
-    var newData = event.getNewData();
-    if (newData == null) {
-      return Optional.empty();
-    }
-
-    var document = parseContext.parse(newData.toString());
-    var resourceName = event.getResourceName();
-    var resourceDescription = descriptionService.get(event.getResourceName());
-    var fields = resourceDescription.getFields();
-
-    var conversionContext = ConversionContext.of(getResourceLanguages(resourceName, document));
-    ObjectNode objectNode = convertDocument(document, fields, conversionContext);
-
-    return Optional.of(SearchDocumentBody.builder()
-      .id(newData.path("id").textValue())
-      .index(getIndexName(event))
-      .routing(event.getTenant())
-      .rawJson(jsonConverter.toJson(objectNode))
-      .build());
   }
 
   private List<String> getResourceLanguages(String resourceName, DocumentContext doc) {

@@ -27,12 +27,6 @@ public class JsonConverter {
 
   private final ObjectMapper objectMapper;
 
-  private static RuntimeException deserializationException(String value, Throwable e) {
-    log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
-    return new SerializationException(String.format(
-      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
-  }
-
   /**
    * Converts {@link String} value as {@link T} class value.
    *
@@ -195,5 +189,11 @@ public class JsonConverter {
       throw new SerializationException(String.format(
         SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
     }
+  }
+
+  private static RuntimeException deserializationException(String value, Throwable e) {
+    log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
+    return new SerializationException(String.format(
+      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
   }
 }

@@ -31,14 +31,6 @@ public class SearchMappingsHelper {
   private final JsonConverter jsonConverter;
   private final ObjectMapper objectMapper;
 
-  private static Map<String, Object> createIndexMappingsObject() {
-    var indexMappings = new LinkedHashMap<String, Object>();
-    indexMappings.put("date_detection", false);
-    indexMappings.put("numeric_detection", false);
-    indexMappings.put("_routing", Map.of("required", true));
-    return indexMappings;
-  }
-
   /**
    * Provides elasticsearch mappings for given resource name.
    *
@@ -60,6 +52,14 @@ public class SearchMappingsHelper {
     }
 
     return jsonConverter.toJson(indexMappings);
+  }
+
+  private static Map<String, Object> createIndexMappingsObject() {
+    var indexMappings = new LinkedHashMap<String, Object>();
+    indexMappings.put("date_detection", false);
+    indexMappings.put("numeric_detection", false);
+    indexMappings.put("_routing", Map.of("required", true));
+    return indexMappings;
   }
 
   private Map<String, JsonNode> createMappingsForFields(ResourceDescription description) {

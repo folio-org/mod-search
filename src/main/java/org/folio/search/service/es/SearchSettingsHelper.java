@@ -15,10 +15,6 @@ public class SearchSettingsHelper {
   private final LocalFileProvider localFileProvider;
   private final JsonConverter jsonConverter;
 
-  private static String getIndexSettingsPath(String resource) {
-    return "elasticsearch/index/" + resource + ".json";
-  }
-
   /**
    * Provides elasticsearch settings for given resource name.
    *
@@ -32,5 +28,9 @@ public class SearchSettingsHelper {
         "Failed to load resource index settings [resourceName: %s]", resource));
     }
     return resourceSettings;
+  }
+
+  private static String getIndexSettingsPath(String resource) {
+    return "elasticsearch/index/" + resource + ".json";
   }
 }

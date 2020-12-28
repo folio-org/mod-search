@@ -223,69 +223,38 @@
           </execution>
         </executions>
       </plugin>
-<!--
+
       <plugin>
-        <groupId>org.openapitools</groupId>
-        <artifactId>openapi-generator-maven-plugin</artifactId>
-        <version>${openapi-generator.version}</version>
+
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.1.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>8.38</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
-            <id>validator-registry</id>
+            <id>verify-style</id>
+            <phase>process-classes</phase>
             <goals>
-              <goal>generate</goal>
+              <goal>check</goal>
             </goals>
-            <configuration>
-              <inputSpec>${validator-registry.yaml.file}</inputSpec>
-              <output>${project.build.directory}/generated-sources</output>
-              <generatorName>spring</generatorName>
-              <modelPackage>${project.groupId}.pv.domain.dto</modelPackage>
-              <apiPackage>${project.groupId}.pv.rest.resource</apiPackage>
-              <generateApis>true</generateApis>
-              <generateApiTests>true</generateApiTests>
-              <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModels>true</generateModels>
-              <modelsToGenerate>error,errors,parameter,metadata,validationRule,validationRuleCollection</modelsToGenerate>
-              <generateModelTests>false</generateModelTests>
-              <generateSupportingFiles>true</generateSupportingFiles>
-              <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
-              <generateModelDocumentation>true</generateModelDocumentation>
-              <configOptions>
-                <java8>true</java8>
-                <dateLibrary>java</dateLibrary>
-                <interfaceOnly>true</interfaceOnly>
-              </configOptions>
-
-            </configuration>
-          </execution>
-          <execution>
-            <id>validator</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <inputSpec>${password-validator.yaml.file}</inputSpec>
-              <output>${project.build.directory}/generated-sources</output>
-              <generatorName>spring</generatorName>
-              <modelPackage>${project.groupId}.pv.domain.dto</modelPackage>
-              <apiPackage>${project.groupId}.pv.rest.resource</apiPackage>
-              <generateApis>true</generateApis>
-              <generateApiTests>true</generateApiTests>
-              <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModels>true</generateModels>
-              <modelsToGenerate>password,validation_result</modelsToGenerate>
-              <generateModelTests>false</generateModelTests>
-              <generateSupportingFiles>false</generateSupportingFiles>
-              <generateModelDocumentation>true</generateModelDocumentation>
-              <configOptions>
-                <java8>true</java8>
-                <dateLibrary>java</dateLibrary>
-                <interfaceOnly>true</interfaceOnly>
-              </configOptions>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <failsOnError>false</failsOnError>
+          <encoding>UTF-8</encoding>
+          <failOnViolation>false</failOnViolation>
+          <logViolationsToConsole>true</logViolationsToConsole>
+          <configLocation>checkstyle/checkstyle.xml</configLocation>
+          <cacheFile>${basedir}/target/cachefile</cacheFile>
+        </configuration>
       </plugin>
--->
+
     </plugins>
   </build>
 

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/index")
+@RequestMapping("/search/index")
 public class IndexController {
 
   private final IndexService elasticsearchIndexService;

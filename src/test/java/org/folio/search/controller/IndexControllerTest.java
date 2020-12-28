@@ -43,7 +43,7 @@ class IndexControllerTest {
 
   @Test
   void createIndex_positive() throws Exception {
-    var requestBuilder = post("/index/indices")
+    var requestBuilder = post("/search/index/indices")
       .content(asJsonString(IndexRequestBody.of(RESOURCE_NAME)))
       .contentType(APPLICATION_JSON)
       .header(TENANT_HEADER, TENANT_ID);
@@ -59,7 +59,7 @@ class IndexControllerTest {
 
   @Test
   void updateMappings_positive() throws Exception {
-    var requestBuilder = post("/index/mappings")
+    var requestBuilder = post("/search/index/mappings")
       .content(asJsonString(IndexRequestBody.of(RESOURCE_NAME)))
       .contentType(APPLICATION_JSON)
       .header(TENANT_HEADER, TENANT_ID);
@@ -79,7 +79,7 @@ class IndexControllerTest {
     var resourceBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME,
       jsonObject("id", jsonNode(randomId())));
 
-    var requestBuilder = post("/index/resources")
+    var requestBuilder = post("/search/index/resources")
       .content(asJsonString(resourceBody))
       .contentType(APPLICATION_JSON)
       .header(TENANT_HEADER, TENANT_ID);

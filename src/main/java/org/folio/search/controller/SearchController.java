@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated
 @RestController
-@RequestMapping("/search/")
+@RequestMapping("/search")
 @RequiredArgsConstructor
 public class SearchController {
 

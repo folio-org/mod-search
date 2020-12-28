@@ -36,7 +36,7 @@
 
   <module name="LineLength">
     <property name="fileExtensions" value="java"/>
-    <property name="max" value="100"/>
+    <property name="max" value="120"/>
     <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
   </module>
 
@@ -249,7 +249,7 @@
       <property name="braceAdjustment" value="2"/>
       <property name="caseIndent" value="2"/>
       <property name="throwsIndent" value="4"/>
-      <property name="lineWrappingIndentation" value="4"/>
+      <property name="lineWrappingIndentation" value="2"/>
       <property name="arrayInitIndent" value="2"/>
     </module>
     <module name="AbbreviationAsWordInName">
@@ -305,8 +305,9 @@
       <property name="allowSamelineMultipleAnnotations" value="true"/>
     </module>
     <module name="NonEmptyAtclauseDescription"/>
-    <module name="InvalidJavadocPosition"/>
-    <module name="JavadocTagContinuationIndentation"/>
+    <module name="JavadocTagContinuationIndentation">
+      <property name="offset" value="2"/>
+    </module>
     <module name="SummaryJavadoc">
       <property name="forbiddenSummaryFragments"
                value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
@@ -318,27 +319,22 @@
       <property name="target"
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
     </module>
+
+    <!-- Disable javadoc verification -->
+    <module name="JavadocType">
+      <property name="severity" value="ignore"/>
+    </module>
     <module name="JavadocMethod">
-      <property name="scope" value="public"/>
-      <property name="allowMissingParamTags" value="true"/>
-      <property name="allowMissingReturnTag" value="true"/>
-      <property name="allowedAnnotations" value="Override, Test"/>
-      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+      <property name="severity" value="ignore"/>
+    </module>
+    <module name="JavadocVariable">
+      <property name="severity" value="ignore"/>
     </module>
     <module name="MissingJavadocMethod">
-      <property name="scope" value="public"/>
-      <property name="minLineCount" value="2"/>
-      <property name="allowedAnnotations" value="Override, Test"/>
-      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
-                                   COMPACT_CTOR_DEF"/>
+      <property name="severity" value="ignore"/>
     </module>
-    <module name="MissingJavadocType">
-      <property name="scope" value="protected"/>
-      <property name="tokens"
-                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
-                      RECORD_DEF, ANNOTATION_DEF"/>
-      <property name="excludeScope" value="nothing"/>
-    </module>
+
+
     <module name="MethodName">
       <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
       <message key="name.invalidPattern"

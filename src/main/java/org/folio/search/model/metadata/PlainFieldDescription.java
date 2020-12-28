@@ -19,7 +19,7 @@ public class PlainFieldDescription extends FieldDescription {
   /**
    * List of field types for search possibilities, like faceting, sorting and so on.
    *
-   * Mapping of this field should provide ability to perform requested operation
+   * <p>Mapping of this field should provide ability to perform requested operation</p>
    */
   private List<SearchFieldType> searchFieldType;
 
@@ -34,21 +34,20 @@ public class PlainFieldDescription extends FieldDescription {
   private String index;
 
   /**
-   * Specifies if field can be used as language source
+   * Specifies if field can be used as language source.
    */
   private boolean languageSource;
 
   /**
    * Elasticsearch fields mappings.
    *
-   * Resource description processor will take this field without any modification and put it to
-   * elasticsearch.
+   * <p>Resource description processor will take this field without any modification and put it to
+   * elasticsearch.</p>
    */
   private ObjectNode mappings;
 
   /**
-   * JSON path to the value from incoming event. This value or set of values will be indexed in
-   * search engine.
+   * JSON path to the value from incoming event. This value or set of values will be indexed in search engine.
    */
   private String sourcePath;
 }

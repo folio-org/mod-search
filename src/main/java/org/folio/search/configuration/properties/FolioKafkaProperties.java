@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class FolioKafkaProperties {
 
   /**
-   * Map with settings for application kafka listeners
+   * Map with settings for application kafka listeners.
    */
   private Map<String, KafkaListenerProperties> listener;
 

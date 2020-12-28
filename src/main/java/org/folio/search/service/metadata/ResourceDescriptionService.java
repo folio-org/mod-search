@@ -42,7 +42,7 @@ public class ResourceDescriptionService {
   private Set<String> supportedLanguages;
 
   /**
-   * Provides {@link ResourceDescription} object for given resource name
+   * Provides {@link ResourceDescription} object for given resource name.
    *
    * @param resourceName name of resource as {@link String} object.
    * @return {@link ResourceDescription} object
@@ -87,11 +87,11 @@ public class ResourceDescriptionService {
       mapBuilder.put(description.getName(), description);
     }
     this.resourceDescriptions = unmodifiableMap(mapBuilder);
-    this.languageSourcePaths = unmodifiableMap(getLanguageSourcePaths());
+    this.languageSourcePaths = unmodifiableMap(getLanguageSourcePathsAsMap());
     this.supportedLanguages = unmodifiableSet(getSupportedLanguages());
   }
 
-  private Map<String, List<String>> getLanguageSourcePaths() {
+  private Map<String, List<String>> getLanguageSourcePathsAsMap() {
     var map = new HashMap<String, List<String>>();
     for (var entry : resourceDescriptions.entrySet()) {
       var languageFieldPaths = entry.getValue().getFields().values().stream()
@@ -113,7 +113,7 @@ public class ResourceDescriptionService {
     }
 
     if (fieldDescription instanceof PlainFieldDescription) {
-      var plainFieldDesc = ((PlainFieldDescription) fieldDescription);
+      var plainFieldDesc = (PlainFieldDescription) fieldDescription;
       if (plainFieldDesc.isLanguageSource()) {
         return singletonList(plainFieldDesc.getSourcePath());
       }

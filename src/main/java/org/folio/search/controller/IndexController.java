@@ -40,8 +40,8 @@ public class IndexController {
    */
   @PostMapping("/indices")
   public FolioCreateIndexResponse createIndices(
-    @RequestBody IndexRequestBody requestBody,
-    @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
+      @RequestBody IndexRequestBody requestBody,
+      @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
     return elasticsearchIndexService.createIndex(requestBody.getResourceName(), tenantId);
   }
 
@@ -54,8 +54,8 @@ public class IndexController {
    */
   @PostMapping("/mappings")
   public FolioPutMappingResponse updateMappings(
-    @RequestBody IndexRequestBody requestBody,
-    @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
+      @RequestBody IndexRequestBody requestBody,
+      @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
     return elasticsearchIndexService.updateMappings(requestBody.getResourceName(), tenantId);
   }
 

@@ -38,6 +38,7 @@ class SearchSettingsHelperTest {
     when(jsonConverter.isValidJsonString(null)).thenReturn(false);
     assertThatThrownBy(() -> settingsHelper.getSettings(RESOURCE_NAME))
       .isInstanceOf(ResourceDescriptionException.class)
-      .hasMessageContaining("Failed to load resource index settings [resourceName: test-resource]");
+      .hasMessageContaining(
+        "Failed to load resource index settings [resourceName: test-resource]");
   }
 }

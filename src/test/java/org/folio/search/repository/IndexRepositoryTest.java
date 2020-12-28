@@ -67,7 +67,7 @@ class IndexRepositoryTest {
   }
 
   @Test
-  void createIndex_negative_throwsIOException() throws IOException {
+  void createIndex_negative_throwsException() throws IOException {
     when(restHighLevelClient.indices()).thenReturn(indices);
     when(indices.create(any(CreateIndexRequest.class), eq(DEFAULT)))
       .thenThrow(new IOException("err"));
@@ -103,7 +103,7 @@ class IndexRepositoryTest {
   }
 
   @Test
-  void updateMappings_negative_throwsIOException() throws IOException {
+  void updateMappings_negative_throwsException() throws IOException {
     when(restHighLevelClient.indices()).thenReturn(indices);
     when(indices.putMapping(any(PutMappingRequest.class), eq(DEFAULT)))
       .thenThrow(new IOException("err"));
@@ -144,7 +144,7 @@ class IndexRepositoryTest {
   }
 
   @Test
-  void indexResources_negative_throwsIOException() throws IOException {
+  void indexResources_negative_throwsException() throws IOException {
     var documentBody = searchDocumentBody();
     var documentBodies = singletonList(documentBody);
     when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT)))

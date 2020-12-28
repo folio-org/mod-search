@@ -54,7 +54,7 @@ class LocalResourceProviderTest {
   }
 
   @Test
-  void getResourceDescriptions_negative_IOException() throws IOException {
+  void getResourceDescriptions_negative_throwsException() throws IOException {
     when(patternResolver.getResources("classpath*:/model/*.json"))
       .thenThrow(new IOException("error"));
 
@@ -64,7 +64,7 @@ class LocalResourceProviderTest {
   }
 
   @Test
-  void getResourceDescriptions_negative_resourceWithIOException() throws IOException {
+  void getResourceDescriptions_negative_resourceWithException() throws IOException {
     var resource = mock(Resource.class);
 
     when(resource.isReadable()).thenReturn(true);

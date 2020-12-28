@@ -192,7 +192,6 @@ class SearchDocumentConverterTest {
     assertThat(actual).isNotPresent();
   }
 
-
   private static Map<String, FieldDescription> getFieldDescriptions() {
     return mapOf(
       "id", plainField("keyword", "$.id"),

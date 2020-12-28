@@ -31,8 +31,8 @@ public class IndexService {
    * @param resourceName name of resource as {@link String} value.
    * @param tenantId tenant id as {@link String} value.
    * @return {@link FolioCreateIndexResponse} if index was created successfully
-   * @throws SearchServiceException if {@link IOException} has been occurred during execution
-   *   request to elasticsearch
+   * @throws SearchServiceException if {@link IOException} has been occurred during execution request to
+   *   elasticsearch
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
     var index = getIndexName(resourceName, tenantId);

@@ -27,7 +27,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   /**
-   * Loads local
+   * Loads local defined elasticsearch field type from json.
    */
   @PostConstruct
   public void init() {

@@ -245,9 +245,10 @@
           </execution>
         </executions>
         <configuration>
-          <failsOnError>false</failsOnError>
+          <failsOnError>true</failsOnError>
           <encoding>UTF-8</encoding>
-          <failOnViolation>false</failOnViolation>
+          <violationSeverity>warning</violationSeverity>
+          <failOnViolation>true</failOnViolation>
           <logViolationsToConsole>true</logViolationsToConsole>
           <configLocation>checkstyle/checkstyle.xml</configLocation>
           <cacheFile>${basedir}/target/cachefile</cacheFile>

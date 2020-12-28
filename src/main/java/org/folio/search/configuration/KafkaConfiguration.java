@@ -21,8 +21,8 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 /**
- * Responsible for configuration of kafka consumer bean factories and creation of topics at at
- * application startup for kafka listeners.
+ * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
+ * kafka listeners.
  */
 @Slf4j
 @Configuration
@@ -33,8 +33,8 @@ public class KafkaConfiguration {
   private final KafkaProperties kafkaProperties;
 
   /**
-   * Creates and configures {@link ConcurrentKafkaListenerContainerFactory} as Spring bean for
-   * consuming resource events from Apache Kafka.
+   * Creates and configures {@link ConcurrentKafkaListenerContainerFactory} as Spring bean for consuming resource events
+   * from Apache Kafka.
    *
    * @return {@link ConcurrentKafkaListenerContainerFactory} object as Spring bean.
    */
@@ -49,7 +49,7 @@ public class KafkaConfiguration {
   /**
    * Creates and configures {@link ConsumerFactory} as Spring bean.
    *
-   * Key type - {@link String}, value - {@link JsonNode}.
+   * <p>Key type - {@link String}, value - {@link JsonNode}.</p>
    *
    * @return typed {@link ConsumerFactory} object as Spring bean.
    */

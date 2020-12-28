@@ -125,6 +125,36 @@ public class JsonConverter {
   }
 
   /**
+   * Reads {@link InputStream} value as jackson {@link JsonNode} object.
+   *
+   * @param inputStream json value stream as {@link InputStream} object
+   * @return converted {@link JsonNode} object from input stream
+   */
+  public JsonNode asJsonTree(InputStream inputStream) {
+    if (inputStream == null) {
+      return null;
+    }
+    try {
+      return objectMapper.readTree(inputStream);
+    } catch (IOException e) {
+      throw deserializationException(inputStream.toString(), e);
+    }
+  }
+
+  /**
+   * Reads {@link String} value as jackson {@link JsonNode} object.
+   *
+   * @param value json value stream as {@link InputStream} object
+   * @return converted {@link JsonNode} object from input stream
+   */
+  public JsonNode toJsonTree(Object value) {
+    if (value == null) {
+      return null;
+    }
+    return objectMapper.valueToTree(value);
+  }
+
+  /**
    * Validates string if it's correct JSON value or not.
    *
    * @param value JSON string to validate
@@ -140,37 +170,6 @@ public class JsonConverter {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Reads {@link String} value as jackson {@link JsonNode} object.
-   *
-   * @param value json value stream as {@link InputStream} object
-   * @return converted {@link JsonNode} object from input stream
-   */
-  @SuppressWarnings("unused")
-  public JsonNode toJsonTree(Object value) {
-    if (value == null) {
-      return null;
-    }
-    return objectMapper.valueToTree(value);
-  }
-
-  /**
-   * Reads {@link InputStream} value as jackson {@link JsonNode} object.
-   *
-   * @param inputStream json value stream as {@link InputStream} object
-   * @return converted {@link JsonNode} object from input stream
-   */
-  public JsonNode asJsonTree(InputStream inputStream) {
-    if (inputStream == null) {
-      return null;
-    }
-    try {
-      return objectMapper.readTree(inputStream);
-    } catch (IOException e) {
-      throw deserializationException(inputStream.toString(), e);
-    }
   }
 
   /**

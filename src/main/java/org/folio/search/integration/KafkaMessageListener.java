@@ -22,8 +22,8 @@ public class KafkaMessageListener {
   private final IndexService indexService;
 
   /**
-   * Listens the events with instance data inside from messaging system and sends request to index
-   * this values in search engine.
+   * Listens the events with instance data inside from messaging system and sends request to index this values in search
+   * engine.
    *
    * @param events list with the body as json from messaging system.
    */

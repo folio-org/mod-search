@@ -23,7 +23,7 @@ public class IndexService {
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
-  private final SearchDocumentConverter esDocumentMapper;
+  private final SearchDocumentConverter searchDocumentConverter;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -63,7 +63,7 @@ public class IndexService {
     if (CollectionUtils.isEmpty(resources)) {
       return FolioIndexResourceResponse.success();
     }
-    var elasticsearchDocuments = esDocumentMapper.convert(resources);
+    var elasticsearchDocuments = searchDocumentConverter.convert(resources);
     return indexRepository.indexResources(elasticsearchDocuments);
   }
 

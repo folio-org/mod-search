@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class SearchDocumentMapperTest {
+class SearchDocumentConverterTest {
 
   @Spy private final ObjectMapper objectMapper = new ObjectMapper()
     .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
@@ -62,7 +62,7 @@ class SearchDocumentMapperTest {
 
   @Mock private ResourceDescriptionService descriptionService;
 
-  @InjectMocks private SearchDocumentMapper documentMapper;
+  @InjectMocks private SearchDocumentConverter documentMapper;
 
   private static Map<String, FieldDescription> getFieldDescriptions() {
     return mapOf(

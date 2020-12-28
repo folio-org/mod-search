@@ -23,7 +23,7 @@ public class IndexService {
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
-  private final SearchDocumentMapper esDocumentMapper;
+  private final SearchDocumentConverter esDocumentMapper;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.

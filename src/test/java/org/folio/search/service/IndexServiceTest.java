@@ -33,7 +33,7 @@ class IndexServiceTest {
   @Mock private IndexRepository indexRepository;
   @Mock private SearchMappingsHelper mappingsHelper;
   @Mock private SearchSettingsHelper settingsHelper;
-  @Mock private SearchDocumentMapper searchDocumentMapper;
+  @Mock private SearchDocumentConverter searchDocumentConverter;
   @InjectMocks private IndexService indexService;
 
   @Test
@@ -67,7 +67,7 @@ class IndexServiceTest {
     var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, resourceData);
     var expectedResponse = FolioIndexResourceResponse.success();
 
-    when(searchDocumentMapper.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
+    when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
 
     var response = indexService.indexResources(List.of(eventBody));

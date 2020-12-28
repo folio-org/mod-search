@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SearchDocumentMapper {
+public class SearchDocumentConverter {
 
   private final ObjectMapper objectMapper;
   private final ParseContext parseContext;
@@ -130,7 +130,7 @@ public class SearchDocumentMapper {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths(resourceName);
     return languageSourcePaths.stream()
       .map(sourcePath -> getJsonNodeByPath(doc, sourcePath))
-      .flatMap(SearchDocumentMapper::getStreamFromJson)
+      .flatMap(SearchDocumentConverter::getStreamFromJson)
       .distinct()
       .filter(descriptionService::isSupportedLanguage)
       .collect(toList());

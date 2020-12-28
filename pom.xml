@@ -105,7 +105,6 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
-
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>

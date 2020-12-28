@@ -8,10 +8,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import org.folio.search.model.ResourceEventBody;
 import org.folio.search.model.rest.response.FolioCreateIndexResponse;
 import org.folio.search.model.rest.response.FolioIndexResourceResponse;
 import org.folio.search.model.rest.response.FolioPutMappingResponse;
-import org.folio.search.model.ResourceEventBody;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -28,9 +28,8 @@ class IndexServiceTest {
 
   private static final String RESOURCE_NAME = "test-resource";
   private static final String TENANT_ID = "test-tenant";
-  private static final String EMPTY_OBJECT = "{}";
   public static final String INDEX_NAME = RESOURCE_NAME + "_" + TENANT_ID;
-
+  private static final String EMPTY_OBJECT = "{}";
   @Mock private IndexRepository indexRepository;
   @Mock private SearchMappingsHelper mappingsHelper;
   @Mock private SearchSettingsHelper settingsHelper;
@@ -44,7 +43,7 @@ class IndexServiceTest {
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT))
-        .thenReturn(expectedResponse);
+      .thenReturn(expectedResponse);
 
     var indexResponse = indexService.createIndex(RESOURCE_NAME, TENANT_ID);
     assertThat(indexResponse).isEqualTo(expectedResponse);

@@ -37,11 +37,11 @@ public class TestUtils {
 
   public static SearchDocumentBody searchDocumentBody() {
     return SearchDocumentBody.builder()
-        .id(UUID.randomUUID().toString())
-        .index(INDEX_NAME)
-        .routing(TestConstants.TENANT_ID)
-        .rawJson(TestConstants.EMPTY_OBJECT)
-        .build();
+      .id(UUID.randomUUID().toString())
+      .index(INDEX_NAME)
+      .routing(TestConstants.TENANT_ID)
+      .rawJson(TestConstants.EMPTY_OBJECT)
+      .build();
   }
 
   public static <K, V> Map<K, V> mapOf(K k1, V v1, Object... pairs) {

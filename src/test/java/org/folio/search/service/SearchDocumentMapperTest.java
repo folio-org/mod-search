@@ -64,6 +64,49 @@ class SearchDocumentMapperTest {
 
   @InjectMocks private SearchDocumentMapper documentMapper;
 
+  private static Map<String, FieldDescription> getFieldDescriptions() {
+    return mapOf(
+      "id", plainField("keyword", "$.id"),
+      "title", plainField("keyword", "$.title"),
+      "language", plainField("keyword", "$.language"),
+      "multilang_value", multilangField("$.multilang_value"),
+      "bool", plainField("boolean", "$.bool"),
+      "number", plainField("numeric", "$.number"),
+      "numbers", plainField("numeric", "$.numbers"),
+      "ignored_field", plainField("none"),
+      "metadata", objectField(mapOf(
+        "createdAt", plainField("keyword", "$.metadata.createdAt"))));
+  }
+
+  private static ObjectNode getResourceTestData(String id) {
+    return jsonObject(
+      "id", id,
+      "title", jsonArray("instance title"),
+      "language", "eng",
+      "multilang_value", "some value",
+      "bool", true,
+      "number", 123,
+      "numbers", jsonArray(1, 2, 3, 4),
+      "ignored_field", "ignored value",
+      "metadata", jsonObject(
+        "createdAt", "12-01-01T12:03:12Z"));
+  }
+
+  private static ObjectNode getExpectedDocument(String id) {
+    return jsonObject(
+      "id", id,
+      "title", jsonArray("instance title"),
+      "language", "eng",
+      "multilang_value", jsonObject(
+        "eng", "some value",
+        "src", "some value"),
+      "bool", true,
+      "number", 123,
+      "numbers", jsonArray(1, 2, 3, 4),
+      "metadata", jsonObject(
+        "createdAt", "12-01-01T12:03:12Z"));
+  }
+
   @BeforeAll
   static void beforeAll() {
     LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -190,48 +233,5 @@ class SearchDocumentMapperTest {
     var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, null);
     var actual = documentMapper.convert(eventBody);
     assertThat(actual).isNotPresent();
-  }
-
-  private static Map<String, FieldDescription> getFieldDescriptions() {
-    return mapOf(
-      "id", plainField("keyword", "$.id"),
-      "title", plainField("keyword", "$.title"),
-      "language", plainField("keyword", "$.language"),
-      "multilang_value", multilangField("$.multilang_value"),
-      "bool", plainField("boolean", "$.bool"),
-      "number", plainField("numeric", "$.number"),
-      "numbers", plainField("numeric", "$.numbers"),
-      "ignored_field", plainField("none"),
-      "metadata", objectField(mapOf(
-        "createdAt", plainField("keyword", "$.metadata.createdAt"))));
-  }
-
-  private static ObjectNode getResourceTestData(String id) {
-    return jsonObject(
-      "id", id,
-      "title", jsonArray("instance title"),
-      "language", "eng",
-      "multilang_value", "some value",
-      "bool", true,
-      "number", 123,
-      "numbers", jsonArray(1, 2, 3, 4),
-      "ignored_field", "ignored value",
-      "metadata", jsonObject(
-        "createdAt", "12-01-01T12:03:12Z"));
-  }
-
-  private static ObjectNode getExpectedDocument(String id) {
-    return jsonObject(
-      "id", id,
-      "title", jsonArray("instance title"),
-      "language", "eng",
-      "multilang_value", jsonObject(
-        "eng", "some value",
-        "src", "some value"),
-      "bool", true,
-      "number", 123,
-      "numbers", jsonArray(1, 2, 3, 4),
-      "metadata", jsonObject(
-        "createdAt", "12-01-01T12:03:12Z"));
   }
 }

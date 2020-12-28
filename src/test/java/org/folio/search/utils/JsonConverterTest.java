@@ -32,9 +32,8 @@ class JsonConverterTest {
   private static final String WRONG_JSON_BODY = "{\"field\":value}";
   private static final TypeReference<Map<String, String>> MAP_TYPE = new TypeReference<>() {};
   private static final String FIELD_VALUE = "value";
-
-  @InjectMocks private JsonConverter jsonConverter;
   @Spy private final ObjectMapper objectMapper = new ObjectMapper();
+  @InjectMocks private JsonConverter jsonConverter;
 
   @Test
   void toJson_positive() throws JsonProcessingException {
@@ -54,8 +53,8 @@ class JsonConverterTest {
   void toJson_negative_throwsIOException() {
     var value = new NonSerializableByJacksonClass();
     assertThatThrownBy(() -> jsonConverter.toJson(value))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to serialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to serialize value");
   }
 
   @Test
@@ -74,8 +73,8 @@ class JsonConverterTest {
   @Test
   void fromJsonForClass_negative_throwsIOException() {
     assertThatThrownBy(() -> jsonConverter.fromJson(WRONG_JSON_BODY, TestClass.class))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test
@@ -94,8 +93,8 @@ class JsonConverterTest {
   @Test
   void fromJsonForType_negative_throwsIOException() {
     assertThatThrownBy(() -> jsonConverter.fromJson(WRONG_JSON_BODY, MAP_TYPE))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test
@@ -116,8 +115,8 @@ class JsonConverterTest {
   void fromJsonInputStreamForClass_negative_throwsIOException() {
     InputStream is = new ByteArrayInputStream(WRONG_JSON_BODY.getBytes(UTF_8));
     assertThatThrownBy(() -> jsonConverter.readJson(is, TestClass.class))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test
@@ -138,8 +137,8 @@ class JsonConverterTest {
   void fromJsonInputStreamForType_negative_throwsIOException() {
     InputStream is = new ByteArrayInputStream(WRONG_JSON_BODY.getBytes(UTF_8));
     assertThatThrownBy(() -> jsonConverter.readJson(is, MAP_TYPE))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test
@@ -157,8 +156,8 @@ class JsonConverterTest {
   @Test
   void asJsonTree_string_negative_throwsIOException() {
     assertThatThrownBy(() -> jsonConverter.asJsonTree(WRONG_JSON_BODY))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test
@@ -178,8 +177,8 @@ class JsonConverterTest {
   void asJsonTree_inputStream_negative_throwsIOException() {
     InputStream is = new ByteArrayInputStream(WRONG_JSON_BODY.getBytes(UTF_8));
     assertThatThrownBy(() -> jsonConverter.asJsonTree(is))
-        .isInstanceOf(SerializationException.class)
-        .hasMessageContaining("Failed to deserialize value");
+      .isInstanceOf(SerializationException.class)
+      .hasMessageContaining("Failed to deserialize value");
   }
 
   @Test

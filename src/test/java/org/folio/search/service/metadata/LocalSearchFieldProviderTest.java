@@ -25,7 +25,7 @@ class LocalSearchFieldProviderTest {
   @BeforeEach
   void setUp() {
     when(localResourceProvider.getSearchFieldTypes()).thenReturn(mapOf(
-        "keyword", new SearchFieldType()));
+      "keyword", new SearchFieldType()));
     searchFieldProvider.init();
   }
 
@@ -38,7 +38,7 @@ class LocalSearchFieldProviderTest {
   @Test
   void getSearchFieldType_negative() {
     assertThatThrownBy(() -> searchFieldProvider.getSearchFieldType(null))
-        .isInstanceOf(ResourceDescriptionException.class)
-        .hasMessageContaining("Failed to find search field type [fieldType: null]");
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessageContaining("Failed to find search field type [fieldType: null]");
   }
 }

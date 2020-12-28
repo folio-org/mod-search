@@ -13,10 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class JsonPathConfigurationTest {
 
+  private final ObjectMapper objectMapper = new ObjectMapper();
   @InjectMocks
   private JsonPathConfiguration jsonPathConfiguration;
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
   void jacksonJsonProviderBean() {

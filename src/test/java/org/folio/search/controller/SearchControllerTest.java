@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,11 +34,11 @@ class SearchControllerTest {
     when(searchService.search(any(), any())).thenReturn(new SearchResult());
 
     var requestBuilder = post("/search/query")
-        .content(asJsonString(SearchRequestBody.of("search", "text")))
-        .contentType(APPLICATION_JSON)
-        .header("tenant-id", TENANT_ID);
+      .content(asJsonString(SearchRequestBody.of("search", "text")))
+      .contentType(APPLICATION_JSON)
+      .header(TENANT_HEADER, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 }

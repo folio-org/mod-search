@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.TestConstants.UNIT_TEST;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,7 +15,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,8 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LocalFileProviderTest {
 
-  @InjectMocks private LocalFileProvider resourceService;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @InjectMocks private LocalFileProvider resourceService;
 
   @Test
   void read_positive() {
@@ -60,7 +58,7 @@ class LocalFileProviderTest {
 
   @Test
   void readAsObjectForType_positive() {
-    var mapType = new TypeReference<Map<String, String>>()  {};
+    var mapType = new TypeReference<Map<String, String>>() {};
     var actual = resourceService.readAsObject("test-resources/test-json.json", mapType);
     assertThat(actual).isEqualTo(Map.of("key", "value"));
     verify(jsonConverter).readJson(any(InputStream.class), eq(mapType));

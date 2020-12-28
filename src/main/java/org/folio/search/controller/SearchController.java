@@ -1,5 +1,7 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
+
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.rest.request.SearchRequestBody;
 import org.folio.search.model.rest.response.SearchResult;
@@ -33,7 +35,7 @@ public class SearchController {
   @PostMapping("/query")
   public SearchResult search(
     @RequestBody SearchRequestBody requestBody,
-    @RequestHeader("tenant-id") String tenantId) {
+    @RequestHeader(TENANT_HEADER) String tenantId) {
     return searchService.search(requestBody.getQuery(), tenantId);
   }
 }

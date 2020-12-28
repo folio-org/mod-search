@@ -33,12 +33,32 @@ class ResourceDescriptionServiceTest {
   @Mock private LocalResourceProvider localResourceProvider;
   @InjectMocks private ResourceDescriptionService descriptionService;
 
+  private static ResourceDescription resourceDescription() {
+    return TestUtils.resourceDescription(mapOf(
+      "id", plainField("keyword", "$.id"),
+      "lang", languageField("keyword", "$.lang"),
+      "isbn", plainField("keyword", "$.isbn"),
+      "unsupportedField", new TestFieldDescription(),
+      "nested", objectField(mapOf(
+        "nested_language", languageField("keyword", "$.nested.lang")))));
+  }
+
+  private static SearchFieldType multilangField() {
+    var indexFieldType = new SearchFieldType();
+    indexFieldType.setMapping(jsonObject(
+      "properties", jsonObject(
+        "eng", jsonObject("type", "text"),
+        "spa", jsonObject("type", "text"),
+        "fra", jsonObject("type", "text"))));
+    return indexFieldType;
+  }
+
   @BeforeEach
   void setUp() {
     var resourceDescription = resourceDescription();
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     when(localSearchFieldProvider.getSearchFieldType(MULTILANG_FIELD_TYPE))
-        .thenReturn(multilangField());
+      .thenReturn(multilangField());
     descriptionService.init();
   }
 
@@ -51,8 +71,8 @@ class ResourceDescriptionServiceTest {
   @Test
   void get_negative() {
     assertThatThrownBy(() -> descriptionService.get("not_existing_resource"))
-        .isInstanceOf(ResourceDescriptionException.class)
-        .hasMessage("Resource description not found [resourceName: not_existing_resource]");
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessage("Resource description not found [resourceName: not_existing_resource]");
   }
 
   @Test
@@ -75,26 +95,6 @@ class ResourceDescriptionServiceTest {
   void getLanguageSourcePaths_negative() {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths("unknown");
     assertThat(languageSourcePaths).isEmpty();
-  }
-
-  private static ResourceDescription resourceDescription() {
-    return TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword", "$.id"),
-      "lang", languageField("keyword", "$.lang"),
-      "isbn", plainField("keyword", "$.isbn"),
-      "unsupportedField", new TestFieldDescription(),
-      "nested", objectField(mapOf(
-        "nested_language", languageField("keyword", "$.nested.lang")))));
-  }
-
-  private static SearchFieldType multilangField() {
-    var indexFieldType = new SearchFieldType();
-    indexFieldType.setMapping(jsonObject(
-        "properties", jsonObject(
-            "eng", jsonObject("type", "text"),
-            "spa", jsonObject("type", "text"),
-            "fra", jsonObject("type", "text"))));
-    return indexFieldType;
   }
 
   private static class TestFieldDescription extends FieldDescription {}

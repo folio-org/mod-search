@@ -18,7 +18,7 @@ public class JsonUtils {
     return OBJECT_MAPPER.createObjectNode();
   }
 
-  public static <T> ObjectNode jsonObject(String k1, T v1, Object ... pairs) {
+  public static <T> ObjectNode jsonObject(String k1, T v1, Object... pairs) {
     var objectNode = jsonObject();
     objectNode.set(k1, jsonNode(v1));
 

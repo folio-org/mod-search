@@ -73,8 +73,8 @@ class LocalResourceProviderTest {
     when(patternResolver.getResources("classpath*:/model/*.json")).thenReturn(array(resource));
 
     assertThatThrownBy(() -> localResourceProvider.getResourceDescriptions())
-        .isInstanceOf(ResourceDescriptionException.class)
-        .hasMessageContaining("Failed to read resource [file: file.json]");
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessageContaining("Failed to read resource [file: file.json]");
   }
 
   @Test
@@ -82,7 +82,7 @@ class LocalResourceProviderTest {
     var fieldTypeMap = mapOf("field", new SearchFieldType());
     //noinspection unchecked
     when(localFileProvider.readAsObject(eq("elasticsearch/index-field-types.json"),
-        any(TypeReference.class))).thenReturn(fieldTypeMap);
+      any(TypeReference.class))).thenReturn(fieldTypeMap);
 
     var actual = localResourceProvider.getSearchFieldTypes();
     assertThat(actual).isEqualTo(fieldTypeMap);
@@ -92,11 +92,11 @@ class LocalResourceProviderTest {
   void getSearchFieldTypes_negative() {
     //noinspection unchecked
     when(localFileProvider.readAsObject(eq("elasticsearch/index-field-types.json"),
-        any(TypeReference.class))).thenReturn(null);
+      any(TypeReference.class))).thenReturn(null);
 
     assertThatThrownBy(() -> localResourceProvider.getSearchFieldTypes())
-        .isInstanceOf(ResourceDescriptionException.class)
-        .hasMessageContaining("Failed to load search field types "
-            + "[path: elasticsearch/index-field-types.json]");
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessageContaining("Failed to load search field types "
+        + "[path: elasticsearch/index-field-types.json]");
   }
 }

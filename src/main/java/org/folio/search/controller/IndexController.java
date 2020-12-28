@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class IndexController {
   @PostMapping("/indices")
   public FolioCreateIndexResponse createIndices(
     @RequestBody IndexRequestBody requestBody,
-    @NotEmpty @RequestHeader("tenant-id") String tenantId) {
+    @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
     return elasticsearchIndexService.createIndex(requestBody.getResourceName(), tenantId);
   }
 
@@ -54,7 +55,7 @@ public class IndexController {
   @PostMapping("/mappings")
   public FolioPutMappingResponse updateMappings(
     @RequestBody IndexRequestBody requestBody,
-    @NotEmpty @RequestHeader("tenant-id") String tenantId) {
+    @NotEmpty @RequestHeader(TENANT_HEADER) String tenantId) {
     return elasticsearchIndexService.updateMappings(requestBody.getResourceName(), tenantId);
   }
 
@@ -65,7 +66,7 @@ public class IndexController {
    */
   @PostMapping("/resources")
   @ResponseStatus(CREATED)
-  public FolioIndexResourceResponse indexResource(@RequestBody List<ResourceEventBody> events) {
+  public FolioIndexResourceResponse indexResources(@RequestBody List<ResourceEventBody> events) {
     return elasticsearchIndexService.indexResources(events);
   }
 }

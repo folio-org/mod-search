@@ -74,7 +74,7 @@
           "type": "text",
           "analyzer": "smartcn"
         },
-        "source": {
+        "src": {
           "type": "text",
           "analyzer": "source_analyzer"
         }

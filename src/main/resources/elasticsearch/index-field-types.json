@@ -1,0 +1,84 @@
+{
+  "keyword": {
+    "mapping": {
+      "type": "keyword"
+    }
+  },
+  "lowercase_sort": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase"
+    }
+  },
+  "date": {
+    "mapping": {
+      "type": "date",
+      "format": "epoch_millis||strict_date_optional_time_nanos||strict_date_optional_time"
+    }
+  },
+  "source": {
+      "index": false
+  },
+  "multilang": {
+    "mapping": {
+      "properties": {
+        "ara": {
+          "type": "text",
+          "analyzer": "arabic"
+        },
+        "deu": {
+          "type": "text",
+          "analyzer": "german"
+        },
+        "ger": {
+          "type": "text",
+          "analyzer": "german"
+        },
+        "eng": {
+          "type": "text",
+          "analyzer": "english"
+        },
+        "spa": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "fra": {
+          "type": "text",
+          "analyzer": "french"
+        },
+        "heb": {
+          "type": "text",
+          "analyzer": "icu_analyzer"
+        },
+        "ita": {
+          "type": "text",
+          "analyzer": "italian"
+        },
+        "jpn": {
+          "type": "text",
+          "analyzer": "kuromoji"
+        },
+        "kor": {
+          "type": "text",
+          "analyzer": "nori"
+        },
+        "rus": {
+          "type": "text",
+          "analyzer": "russian"
+        },
+        "swe": {
+          "type": "text",
+          "analyzer": "swedish"
+        },
+        "zho": {
+          "type": "text",
+          "analyzer": "smartcn"
+        },
+        "src": {
+          "type": "text",
+          "analyzer": "source_analyzer"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: org.folio/elasticsearch:latest
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - discovery.zen.minimum_master_nodes=1
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  zookeeper:
+    image: zookeeper:3.6.2
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+      - 8080:8080
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOO_PORT_NUMBER: 2181
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.6.0
+    container_name: kafka
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: INSIDE://:9091,OUTSIDE://:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9091,OUTSIDE://kafka:9092
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_MESSAGE_MAX_BYTES: 1000000
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      MIN_INSYNC_REPLICAS: 2
+      KAFKA_CREATE_TOPICS: >-
+        inventory.instance:4:1
+
+volumes:
+  es-data: { }

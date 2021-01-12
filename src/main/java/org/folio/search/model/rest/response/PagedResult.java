@@ -1,18 +1,10 @@
 package org.folio.search.model.rest.response;
 
 import java.util.List;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-public class PagedResult<T> {
+public interface PagedResult<T> {
 
-  private long total;
-  private long totalPages;
+  long getTotalRecords();
 
-  private int pageSize;
-  private int pageNumber;
-
-  private List<T> content;
+  List<T> getInstances();
 }

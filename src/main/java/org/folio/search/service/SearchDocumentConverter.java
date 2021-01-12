@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,14 +75,10 @@ public class SearchDocumentConverter {
 
     return Optional.of(SearchDocumentBody.builder()
       .id(newData.path("id").textValue())
-      .index(getIndexName(event))
+      .index(getElasticsearchIndexName(event.getResourceName(), event.getTenant()))
       .routing(event.getTenant())
       .rawJson(jsonConverter.toJson(objectNode))
       .build());
-  }
-
-  private static String getIndexName(ResourceEventBody eventBody) {
-    return eventBody.getResourceName() + "_" + eventBody.getTenant();
   }
 
   private static boolean isMultilangField(PlainFieldDescription desc) {

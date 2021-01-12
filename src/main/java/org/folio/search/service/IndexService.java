@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
@@ -32,10 +34,10 @@ public class IndexService {
    * @param tenantId tenant id as {@link String} value.
    * @return {@link FolioCreateIndexResponse} if index was created successfully
    * @throws SearchServiceException if {@link IOException} has been occurred during execution request to
-   *   elasticsearch
+   *     elasticsearch
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
-    var index = getIndexName(resourceName, tenantId);
+    var index = getElasticsearchIndexName(resourceName, tenantId);
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
     return indexRepository.createIndex(index, settings, mappings);
@@ -49,7 +51,7 @@ public class IndexService {
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioPutMappingResponse updateMappings(String resourceName, String tenantId) {
-    var index = getIndexName(resourceName, tenantId);
+    var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
     return indexRepository.updateMappings(index, mappings);
   }
@@ -65,9 +67,5 @@ public class IndexService {
     }
     var elasticsearchDocuments = searchDocumentConverter.convert(resources);
     return indexRepository.indexResources(elasticsearchDocuments);
-  }
-
-  private static String getIndexName(String resource, String tenantId) {
-    return resource + "_" + tenantId;
   }
 }

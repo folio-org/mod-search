@@ -1,9 +1,9 @@
 package org.folio.search.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-
 import lombok.RequiredArgsConstructor;
+import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchService {
 
+  private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final SearchRepository searchRepository;
 
   /**
    * Prepares search query and executes search request to the search engine.
    *
-   * @param query CQL query as {@link String} object
-   * @param tenantId the tenant id as {@link String} object
+   * @param searchRequest cql search request as {@link CqlSearchRequest} object
    * @return search result with found data.
    */
-  public SearchResult search(@SuppressWarnings("unused") String query, String tenantId) {
-    return searchRepository.search(matchAllQuery(), tenantId);
+  public SearchResult search(CqlSearchRequest searchRequest) {
+    return searchRepository.search(searchRequest, cqlSearchQueryConverter.convert(searchRequest));
   }
 }

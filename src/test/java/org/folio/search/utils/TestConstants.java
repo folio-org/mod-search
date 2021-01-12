@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestConstants {
 
-  public static final String UNIT_TEST = "unit";
   public static final String EMPTY_OBJECT = "{}";
   public static final String TENANT_ID = "test-tenant";
   public static final String RESOURCE_NAME = "test-resource";

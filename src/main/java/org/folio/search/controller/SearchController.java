@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
 
 import lombok.RequiredArgsConstructor;
@@ -31,13 +32,13 @@ public class SearchController {
    * @param tenantId tenant id from request header
    * @return search result as {@link SearchResult} object
    */
-  @GetMapping("/query")
-  public SearchResult search(
+  @GetMapping("/instances")
+  public SearchResult searchInstances(
     SearchRequestBody requestBody,
     @RequestHeader(TENANT_HEADER) String tenantId) {
     return searchService.search(CqlSearchRequest.builder()
       .cqlQuery(requestBody.getQuery())
-      .resource(requestBody.getResource())
+      .resource(INSTANCE_RESOURCE)
       .limit(requestBody.getLimit())
       .offset(requestBody.getOffset())
       .tenantId(tenantId)

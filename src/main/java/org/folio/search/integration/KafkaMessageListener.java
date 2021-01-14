@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.folio.search.model.ResourceEventBody;
 import org.folio.search.service.IndexService;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageListener {
 
-  private static final String INSTANCE_RESOURCE = "instance";
   private final IndexService indexService;
 
   /**
@@ -36,7 +36,7 @@ public class KafkaMessageListener {
   public void handleEvents(List<ResourceEventBody> events) {
     log.info("Processing resource events from kafka [eventsCount: {}]", events.size());
     var resources = events.stream()
-      .map(event -> event.withResourceName(INSTANCE_RESOURCE))
+      .map(event -> event.withResourceName(SearchUtils.INSTANCE_RESOURCE))
       .collect(toList());
 
     indexService.indexResources(resources);

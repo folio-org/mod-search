@@ -35,10 +35,10 @@ class SearchControllerTest {
   void search_positive() throws Exception {
     var expectedSearchResult = SearchResult.of(0, emptyList());
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, TENANT_ID, 100, 0);
+    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0);
     when(searchService.search(expectedSearchRequest)).thenReturn(expectedSearchResult);
 
-    var requestBuilder = get("/search/query")
+    var requestBuilder = get("/search/instances")
       .queryParam("resource", RESOURCE_NAME)
       .queryParam("query", cqlQuery)
       .queryParam("limit", "100")

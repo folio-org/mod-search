@@ -10,11 +10,6 @@ import lombok.NoArgsConstructor;
 public class SearchRequestBody {
 
   /**
-   * Resource name.
-   */
-  private String resource = "instance";
-
-  /**
    * Search query.
    */
   private String query;

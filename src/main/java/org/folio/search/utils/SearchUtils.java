@@ -10,6 +10,7 @@ import org.folio.search.model.service.CqlSearchRequest;
 public class SearchUtils {
 
   public static final String TENANT_HEADER = "X-Okapi-Tenant";
+  public static final String INSTANCE_RESOURCE = "instance";
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link

@@ -9,6 +9,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(staticName = "of")
 public class SearchRequestBody {
 
-  private String type;
+  /**
+   * Search query.
+   */
   private String query;
+
+  /**
+   * Request page number.
+   */
+  private Integer limit = 100;
+
+  /**
+   * Request page size.
+   */
+  private Integer offset = 0;
 }

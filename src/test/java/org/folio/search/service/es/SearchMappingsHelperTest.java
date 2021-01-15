@@ -33,37 +33,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchMappingsHelperTest {
 
+  @InjectMocks private SearchMappingsHelper mappingsHelper;
+
   @Spy private final ObjectMapper objectMapper = new ObjectMapper();
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
-  @InjectMocks private SearchMappingsHelper mappingsHelper;
+
   @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchFieldProvider searchFieldProvider;
-
-  private static ResourceDescription resourceDescription() {
-    var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword"),
-      "issn", identifiersGroup(),
-      "title", plainField("multilang"),
-      "subtitle", plainField(null, jsonObject("type", "text")),
-      "not_indexed_field1", plainField("none"),
-      "not_indexed_field2", plainField(null),
-      "isbn", plainField("keyword", jsonObject("normalizer", "lowercase_normalizer")),
-      "metadata", objectField(mapOf(
-        "createdDate", plainField("date")
-      ))));
-    resourceDescription.setGroups(mapOf("identifiers", plainField("keyword")));
-    return resourceDescription;
-  }
-
-  private static PlainFieldDescription identifiersGroup() {
-    var groupField = plainField("keyword");
-    groupField.setGroup(List.of("identifiers"));
-    return groupField;
-  }
-
-  private static SearchFieldType fieldType(ObjectNode mappings) {
-    return SearchFieldType.of(mappings);
-  }
 
   @Test
   void getMappings_positive() {
@@ -114,5 +90,31 @@ class SearchMappingsHelperTest {
         "id", jsonObject("type", "keyword", "copy_to", jsonArray("id_copy")),
         "id_copy", idCopyMappings
       ))));
+  }
+
+  private static ResourceDescription resourceDescription() {
+    var resourceDescription = TestUtils.resourceDescription(mapOf(
+      "id", plainField("keyword"),
+      "issn", identifiersGroup(),
+      "title", plainField("multilang"),
+      "subtitle", plainField(null, jsonObject("type", "text")),
+      "not_indexed_field1", plainField("none"),
+      "not_indexed_field2", plainField(null),
+      "isbn", plainField("keyword", jsonObject("normalizer", "lowercase_normalizer")),
+      "metadata", objectField(mapOf(
+        "createdDate", plainField("date")
+      ))));
+    resourceDescription.setGroups(mapOf("identifiers", plainField("keyword")));
+    return resourceDescription;
+  }
+
+  private static PlainFieldDescription identifiersGroup() {
+    var groupField = plainField("keyword");
+    groupField.setGroup(List.of("identifiers"));
+    return groupField;
+  }
+
+  private static SearchFieldType fieldType(ObjectNode mappings) {
+    return SearchFieldType.of(mappings);
   }
 }

@@ -1,11 +1,14 @@
 package org.folio.search.model.rest.response;
 
+import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class SearchResult extends PagedResult<Object> {
+@AllArgsConstructor(staticName = "of")
+public class SearchResult implements PagedResult<Map<String, Object>> {
+
+  private final long totalRecords;
+  private final List<Map<String, Object>> instances;
 }

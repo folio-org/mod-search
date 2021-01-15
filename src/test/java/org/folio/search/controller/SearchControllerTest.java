@@ -1,16 +1,18 @@
 package org.folio.search.controller;
 
+import static java.util.Collections.emptyList;
 import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.folio.search.model.rest.request.SearchRequestBody;
 import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.SearchService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -31,14 +33,21 @@ class SearchControllerTest {
 
   @Test
   void search_positive() throws Exception {
-    when(searchService.search(any(), any())).thenReturn(new SearchResult());
+    var expectedSearchResult = SearchResult.of(0, emptyList());
+    var cqlQuery = "title all \"test-query\"";
+    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0);
+    when(searchService.search(expectedSearchRequest)).thenReturn(expectedSearchResult);
 
-    var requestBuilder = post("/search/query")
-      .content(asJsonString(SearchRequestBody.of("search", "text")))
+    var requestBuilder = get("/search/instances")
+      .queryParam("resource", RESOURCE_NAME)
+      .queryParam("query", cqlQuery)
+      .queryParam("limit", "100")
       .contentType(APPLICATION_JSON)
       .header(TENANT_HEADER, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.instances", is(emptyList())));
   }
 }

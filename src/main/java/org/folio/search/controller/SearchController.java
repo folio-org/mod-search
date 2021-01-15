@@ -1,14 +1,15 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.TENANT_HEADER;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.rest.request.SearchRequestBody;
 import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.SearchService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,11 +32,16 @@ public class SearchController {
    * @param tenantId tenant id from request header
    * @return search result as {@link SearchResult} object
    */
-  @SuppressWarnings("unused")
-  @PostMapping("/query")
-  public SearchResult search(
-      @RequestBody SearchRequestBody requestBody,
-      @RequestHeader(TENANT_HEADER) String tenantId) {
-    return searchService.search(requestBody.getQuery(), tenantId);
+  @GetMapping("/instances")
+  public SearchResult searchInstances(
+    SearchRequestBody requestBody,
+    @RequestHeader(TENANT_HEADER) String tenantId) {
+    return searchService.search(CqlSearchRequest.builder()
+      .cqlQuery(requestBody.getQuery())
+      .resource(INSTANCE_RESOURCE)
+      .limit(requestBody.getLimit())
+      .offset(requestBody.getOffset())
+      .tenantId(tenantId)
+      .build());
   }
 }

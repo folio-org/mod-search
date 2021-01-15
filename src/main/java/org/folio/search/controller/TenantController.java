@@ -6,7 +6,6 @@ import org.folio.tenant.rest.resource.TenantApi;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Log4j2
 @RequiredArgsConstructor
 @RequestMapping(value = "/_/")
 @RestController("folioTenantController")

@@ -5,7 +5,6 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.SearchRequest;
@@ -15,8 +14,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private final RestHighLevelClient elasticsearchClient;
+  private final JsonConverter jsonConverter;
 
   /**
    * Executes request to elasticsearch and returns found documents from elasticsearch.
@@ -49,14 +51,17 @@ public class SearchRepository {
     );
   }
 
-  private static SearchResult mapToSearchResult(SearchResponse response) {
+  private SearchResult mapToSearchResult(SearchResponse response) {
     var hits = response.getHits();
-    return SearchResult.of(hits.getTotalHits().value, getResultDocuments(hits.getHits()));
+    var searchResult = new SearchResult();
+    searchResult.setTotalRecords((int) hits.getTotalHits().value);
+    searchResult.setInstances(getResultDocuments(hits.getHits()));
+    return searchResult;
   }
 
-  private static List<Map<String, Object>> getResultDocuments(SearchHit[] searchHits) {
+  private List<Instance> getResultDocuments(SearchHit[] searchHits) {
     return Arrays.stream(searchHits)
-      .map(SearchHit::getSourceAsMap)
+      .map(e -> jsonConverter.fromJson(e.getSourceAsString(), Instance.class))
       .collect(Collectors.toList());
   }
 }

@@ -1,20 +1,19 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import org.folio.search.model.ResourceEventBody;
-import org.folio.search.model.rest.response.FolioCreateIndexResponse;
-import org.folio.search.model.rest.response.FolioIndexResourceResponse;
-import org.folio.search.model.rest.response.FolioPutMappingResponse;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +37,7 @@ class IndexServiceTest {
 
   @Test
   void createIndex() {
-    var expectedResponse = FolioCreateIndexResponse.success(List.of(INDEX_NAME));
+    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME));
 
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
@@ -51,7 +50,7 @@ class IndexServiceTest {
 
   @Test
   void updateMappings() {
-    var expectedResponse = FolioPutMappingResponse.success();
+    var expectedResponse = getSuccessIndexOperationResponse();
 
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(indexRepository.updateMappings(INDEX_NAME, EMPTY_OBJECT)).thenReturn(expectedResponse);
@@ -63,9 +62,8 @@ class IndexServiceTest {
   @Test
   void indexResources_positive() {
     var searchBody = searchDocumentBody();
-    var resourceData = jsonObject("id", randomId());
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, resourceData);
-    var expectedResponse = FolioIndexResourceResponse.success();
+    var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
+    var expectedResponse = getSuccessIndexOperationResponse();
 
     when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -77,6 +75,6 @@ class IndexServiceTest {
   @Test
   void indexResources_positive_emptyList() {
     var response = indexService.indexResources(Collections.emptyList());
-    assertThat(response).isEqualTo(FolioIndexResourceResponse.success());
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
   }
 }

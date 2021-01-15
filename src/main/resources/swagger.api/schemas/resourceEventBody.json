@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "description": "Resource event body",
+  "properties": {
+    "type": {
+      "description": "Operation type [update, create, delete]",
+      "type": "string"
+    },
+    "tenant": {
+      "description": "Tenant id",
+      "type": "string"
+    },
+    "resourceName": {
+      "description": "Name of resource",
+      "type": "string"
+    },
+    "new": {
+      "description": "Instance record new fields",
+      "type": "object"
+    }
+  }
+}

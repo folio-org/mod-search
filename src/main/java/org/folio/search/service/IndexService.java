@@ -1,5 +1,6 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,11 +9,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.folio.search.domain.dto.FolioCreateIndexResponse;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.ResourceEventBody;
-import org.folio.search.model.rest.response.FolioCreateIndexResponse;
-import org.folio.search.model.rest.response.FolioIndexResourceResponse;
-import org.folio.search.model.rest.response.FolioPutMappingResponse;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -50,7 +50,7 @@ public class IndexService {
    * @param tenantId tenant id as {@link String} value.
    * @return {@link AcknowledgedResponse} object.
    */
-  public FolioPutMappingResponse updateMappings(String resourceName, String tenantId) {
+  public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
     return indexRepository.updateMappings(index, mappings);
@@ -61,9 +61,9 @@ public class IndexService {
    *
    * @param resources {@link List} of resources as {@link JsonNode} objects.
    */
-  public FolioIndexResourceResponse indexResources(List<ResourceEventBody> resources) {
+  public FolioIndexOperationResponse indexResources(List<ResourceEventBody> resources) {
     if (CollectionUtils.isEmpty(resources)) {
-      return FolioIndexResourceResponse.success();
+      return getSuccessIndexOperationResponse();
     }
     var elasticsearchDocuments = searchDocumentConverter.convert(resources);
     return indexRepository.indexResources(elasticsearchDocuments);

@@ -4,8 +4,8 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.folio.search.model.ResourceEventBody;
+import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.SearchUtils;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 /**
  * A Spring component for consuming events from messaging system.
  */
-@Slf4j
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class KafkaMessageListener {
@@ -34,11 +34,16 @@ public class KafkaMessageListener {
     groupId = "${application.kafka.listener.events.group-id}",
     concurrency = "${application.kafka.listener.events.concurrency}")
   public void handleEvents(List<ResourceEventBody> events) {
-    log.info("Processing resource events from kafka [eventsCount: {}]", events.size());
+    log.info("Processing resource events from kafka [number of events: {}]", events.size());
     var resources = events.stream()
-      .map(event -> event.withResourceName(SearchUtils.INSTANCE_RESOURCE))
+      .map(KafkaMessageListener::asInstanceResource)
       .collect(toList());
 
     indexService.indexResources(resources);
+  }
+
+  private static ResourceEventBody asInstanceResource(ResourceEventBody eventBody) {
+    eventBody.setResourceName(SearchUtils.INSTANCE_RESOURCE);
+    return eventBody;
   }
 }

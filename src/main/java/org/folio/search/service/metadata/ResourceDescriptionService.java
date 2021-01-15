@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * Spring component which responsible for holding fields and resource descriptions which are used
  * for mapping resource from event to elasticsearch document.
  */
-@Slf4j
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class ResourceDescriptionService {
@@ -69,7 +69,7 @@ public class ResourceDescriptionService {
   /**
    * Checks if passed language is supported by mod-search application.
    *
-   * @param language found language value from resource as {@link String} value.
+   * @param language founded language value from resource as {@link String} value.
    * @return true if language is supported, false - otherwise
    */
   public boolean isSupportedLanguage(String language) {

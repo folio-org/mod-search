@@ -11,6 +11,10 @@ spring:
       uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+  datasource:
+    url: jdbc:postgresql://localhost:5432/okapi_modules
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
 
 application:
   kafka:

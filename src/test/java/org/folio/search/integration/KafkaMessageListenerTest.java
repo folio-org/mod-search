@@ -1,13 +1,14 @@
 package org.folio.search.integration;
 
-import static org.folio.search.model.rest.response.FolioIndexResourceResponse.success;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestUtils.eventBody;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.folio.search.model.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -25,12 +26,9 @@ class KafkaMessageListenerTest {
 
   @Test
   void handleEvents() {
-    var instanceData = OBJECT_MAPPER.createObjectNode();
-    instanceData.put("id", randomId());
-    var resourceBody = ResourceEventBody.of("CREATE", "tenant", "instance", instanceData);
-    var resourceEvents = List.of(resourceBody);
+    var resourceEvents = List.of(eventBody(INSTANCE_RESOURCE, mapOf("id", randomId())));
 
-    when(indexService.indexResources(resourceEvents)).thenReturn(success());
+    when(indexService.indexResources(resourceEvents)).thenReturn(getSuccessIndexOperationResponse());
     messageListener.handleEvents(resourceEvents);
     verify(indexService).indexResources(resourceEvents);
   }

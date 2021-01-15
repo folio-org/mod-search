@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
-import org.folio.search.model.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
  * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
  * kafka listeners.
  */
-@Slf4j
+@Log4j2
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({FolioKafkaProperties.class})

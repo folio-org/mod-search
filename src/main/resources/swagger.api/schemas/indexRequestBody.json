@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "description": "Index request body",
+  "properties": {
+    "resourceName": {
+      "description": "Name of resource",
+      "type": "string"
+    }
+  }
+}

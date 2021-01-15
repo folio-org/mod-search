@@ -5,6 +5,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.folio.search.utils.SearchResponseUtils.getErrorFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseUtils.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
@@ -24,9 +28,6 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.PutMappingRequest;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.rest.response.FolioCreateIndexResponse;
-import org.folio.search.model.rest.response.FolioIndexResourceResponse;
-import org.folio.search.model.rest.response.FolioPutMappingResponse;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +52,7 @@ class IndexRepositoryTest {
     when(indices.create(any(CreateIndexRequest.class), eq(DEFAULT))).thenReturn(esResponse);
 
     var response = indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT);
-    assertThat(response).isEqualTo(FolioCreateIndexResponse.success(List.of(INDEX_NAME)));
+    assertThat(response).isEqualTo(getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME)));
   }
 
   @Test
@@ -63,7 +64,7 @@ class IndexRepositoryTest {
     when(indices.create(any(CreateIndexRequest.class), eq(DEFAULT))).thenReturn(esResponse);
 
     var response = indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT);
-    assertThat(response).isEqualTo(FolioCreateIndexResponse.error("error", List.of(INDEX_NAME)));
+    assertThat(response).isEqualTo(getErrorFolioCreateIndexResponse(List.of(INDEX_NAME)));
   }
 
   @Test
@@ -88,7 +89,7 @@ class IndexRepositoryTest {
     when(indices.putMapping(any(PutMappingRequest.class), eq(DEFAULT))).thenReturn(response);
 
     var folioResponse = indexRepository.updateMappings(INDEX_NAME, EMPTY_OBJECT);
-    assertThat(folioResponse).isEqualTo(FolioPutMappingResponse.success());
+    assertThat(folioResponse).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
@@ -99,7 +100,7 @@ class IndexRepositoryTest {
     when(indices.putMapping(any(PutMappingRequest.class), eq(DEFAULT))).thenReturn(esResponse);
 
     var response = indexRepository.updateMappings(INDEX_NAME, EMPTY_OBJECT);
-    assertThat(response).isEqualTo(FolioPutMappingResponse.error("Failed to put mappings"));
+    assertThat(response).isEqualTo(getErrorIndexOperationResponse("Failed to put mappings"));
   }
 
   @Test
@@ -123,13 +124,13 @@ class IndexRepositoryTest {
     when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT))).thenReturn(bulkResponse);
 
     var response = indexRepository.indexResources(singletonList(documentBody));
-    assertThat(response).isEqualTo(FolioIndexResourceResponse.success());
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
   void indexResources_positive_emptyList() {
     var response = indexRepository.indexResources(emptyList());
-    assertThat(response).isEqualTo(FolioIndexResourceResponse.success());
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
@@ -140,7 +141,7 @@ class IndexRepositoryTest {
     when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT))).thenReturn(bulkResponse);
 
     var response = indexRepository.indexResources(singletonList(documentBody));
-    assertThat(response).isEqualTo(FolioIndexResourceResponse.error(null));
+    assertThat(response).isEqualTo(getErrorIndexOperationResponse(null));
   }
 
   @Test

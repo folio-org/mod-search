@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  * A Spring component for serialization and deserialization operations basing on jackson
  * objectMapper.
  */
-@Slf4j
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class JsonConverter {

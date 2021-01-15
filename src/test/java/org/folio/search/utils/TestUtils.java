@@ -4,6 +4,7 @@ import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FI
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -22,7 +24,6 @@ import org.folio.search.model.types.FieldType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtils {
-
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -114,5 +115,14 @@ public class TestUtils {
     objectFieldDescription.setType(FieldType.OBJECT);
     objectFieldDescription.setProperties(props);
     return objectFieldDescription;
+  }
+
+  public static ResourceEventBody eventBody(String resourceName, Object newData) {
+    var resourceBody = new ResourceEventBody();
+    resourceBody.setType("CREATE");
+    resourceBody.setResourceName(resourceName);
+    resourceBody.setTenant(TENANT_ID);
+    resourceBody.setNew(newData);
+    return resourceBody;
   }
 }

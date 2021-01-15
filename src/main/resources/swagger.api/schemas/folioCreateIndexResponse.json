@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "Folio search create index response",
+  "properties": {
+    "errorMessage": {
+      "type": "string",
+      "description": "Error message with the reason why index was failed to create."
+    },
+    "indices": {
+      "description": "List of created elasticsearch indices.",
+      "minItems": 0,
+      "items": {
+        "description": "Create index name",
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "description": "Index creation status - success or error.",
+      "enum": [ "success", "error" ]
+    }
+  },
+  "additionalProperties": false
+}

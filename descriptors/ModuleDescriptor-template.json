@@ -11,21 +11,21 @@
             "POST"
           ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": ["search.index.indices.item.post"]
+          "permissionsRequired": [ "search.index.indices.item.post" ]
         },
         {
           "methods": [
             "POST"
           ],
           "pathPattern": "/search/index/mappings",
-          "permissionsRequired": ["search.index.mappings.item.post"]
+          "permissionsRequired": [ "search.index.mappings.item.post" ]
         },
         {
           "methods": [
             "POST"
           ],
           "pathPattern": "/search/index/resources",
-          "permissionsRequired": ["search.index.resources.collection.post"]
+          "permissionsRequired": [ "search.index.resources.collection.post" ]
         }
       ]
     },
@@ -38,7 +38,7 @@
             "GET"
           ],
           "pathPattern": "/search/instances",
-          "permissionsRequired": ["search.instances.collection.get"]
+          "permissionsRequired": [ "search.instances.collection.get" ]
         }
       ]
     }
@@ -49,7 +49,7 @@
       "version": "7.5"
     }
   ],
-  "permissionSets" : [
+  "permissionSets": [
     {
       "permissionName": "search.index.indices.item.post",
       "displayName": "Search - creates an index",
@@ -77,7 +77,13 @@
     "dockerArgs": {
       "HostConfig": {
         "Memory": 357913941,
-        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+        "PortBindings": {
+          "8081/tcp": [
+            {
+              "HostPort": "%p"
+            }
+          ]
+        }
       }
     },
     "env": [
@@ -100,6 +106,38 @@
       {
         "name": "ELASTICSEARCH_PORT",
         "value": "9200"
+      },
+      {
+        "name": "DB_HOST",
+        "value": "postgres"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "folio_admin"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "folio_admin"
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": "okapi_modules"
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": "60000"
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8"
+      },
+      {
+        "name": "DB_MAXPOOLSIZE",
+        "value": "5"
       }
     ]
   }

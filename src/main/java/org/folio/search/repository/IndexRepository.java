@@ -1,5 +1,9 @@
 package org.folio.search.repository;
 
+import static org.folio.search.utils.SearchResponseUtils.getErrorFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseUtils.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.LinkedHashSet;
@@ -13,10 +17,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.folio.search.domain.dto.FolioCreateIndexResponse;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.SearchDocumentBody;
-import org.folio.search.model.rest.response.FolioCreateIndexResponse;
-import org.folio.search.model.rest.response.FolioIndexResourceResponse;
-import org.folio.search.model.rest.response.FolioPutMappingResponse;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -47,8 +50,8 @@ public class IndexRepository {
       index, "createIndexApi");
 
     return createIndexResponse.isAcknowledged()
-      ? FolioCreateIndexResponse.success(List.of(index))
-      : FolioCreateIndexResponse.error("error", List.of(index));
+      ? getSuccessFolioCreateIndexResponse(List.of(index))
+      : getErrorFolioCreateIndexResponse(List.of(index));
   }
 
   /**
@@ -58,15 +61,15 @@ public class IndexRepository {
    * @param mappings mappings JSON {@link String} object
    * @return {@link FolioCreateIndexResponse} object
    */
-  public FolioPutMappingResponse updateMappings(String index, String mappings) {
+  public FolioIndexOperationResponse updateMappings(String index, String mappings) {
     var putMappingRequest = new PutMappingRequest(index).source(mappings, XContentType.JSON);
     var putMappingsResponse = performExceptionalOperation(
       () -> elasticsearchClient.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT),
       index, "putMappingsApi");
 
     return putMappingsResponse.isAcknowledged()
-      ? FolioPutMappingResponse.success()
-      : FolioPutMappingResponse.error("Failed to put mappings");
+      ? getSuccessIndexOperationResponse()
+      : getErrorIndexOperationResponse("Failed to put mappings");
   }
 
   /**
@@ -74,9 +77,9 @@ public class IndexRepository {
    *
    * @param esDocumentBodies list wth {@link SearchDocumentBody} object
    */
-  public FolioIndexResourceResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
+  public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
     if (CollectionUtils.isEmpty(esDocumentBodies)) {
-      return FolioIndexResourceResponse.success();
+      return getSuccessIndexOperationResponse();
     }
 
     var bulkRequest = new BulkRequest();
@@ -92,8 +95,8 @@ public class IndexRepository {
       String.join(",", indices), "bulkApi");
 
     return bulkApiResponse.hasFailures()
-      ? FolioIndexResourceResponse.error(bulkApiResponse.buildFailureMessage())
-      : FolioIndexResourceResponse.success();
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
   }
 
   private static IndexRequest prepareIndexRequest(String index, SearchDocumentBody body) {

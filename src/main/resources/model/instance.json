@@ -41,7 +41,7 @@
       "index": "keyword",
       "sourcePath": "$.instanceFormatId"
     },
-    "language": {
+    "languages": {
       "index": "keyword",
       "sourcePath": "$.languages",
       "languageSource": true
@@ -50,22 +50,30 @@
       "name": "metadata",
       "type": "object",
       "properties": {
-        "dateCreated": {
+        "createdDate": {
           "index": "date",
-          "sourcePath": "$.metadata.dateCreated",
+          "sourcePath": "$.metadata.createdDate",
           "fieldType": "date"
         },
-        "dateUpdated": {
+        "createdByUserId": {
+          "index": "keyword",
+          "sourcePath": "$.metadata.createdByUserId"
+        },
+        "createdByUsername": {
+          "index": "keyword",
+          "sourcePath": "$.metadata.createdByUsername"
+        },
+        "updatedDate": {
           "index": "date",
-          "sourcePath": "$.metadata.dateUpdated"
+          "sourcePath": "$.metadata.updatedDate"
         },
-        "createdBy": {
+        "updatedByUserId": {
           "index": "keyword",
-          "sourcePath": "$.metadata.createdBy"
+          "sourcePath": "$.metadata.updatedByUsername"
         },
-        "updatedBy": {
+        "updatedByUsername": {
           "index": "keyword",
-          "sourcePath": "$.metadata.updatedBy"
+          "sourcePath": "$.metadata.updatedByUsername"
         }
       }
     }

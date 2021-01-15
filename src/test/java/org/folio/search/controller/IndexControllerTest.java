@@ -73,7 +73,7 @@ class IndexControllerTest {
     instanceData.put("id", randomId());
     var resourceBody = eventBody(RESOURCE_NAME, mapOf("id", randomId()));
 
-    var requestBuilder = post("/search/index/resources")
+    var requestBuilder = post("/search/index/records")
       .content(asJsonString(resourceBody))
       .contentType(APPLICATION_JSON)
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
@@ -82,7 +82,7 @@ class IndexControllerTest {
       .thenReturn(getSuccessIndexOperationResponse());
 
     mockMvc.perform(requestBuilder)
-      .andExpect(status().isCreated())
+      .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
   }
 

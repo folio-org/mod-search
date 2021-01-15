@@ -4,6 +4,7 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -23,18 +24,10 @@ import org.springframework.stereotype.Repository;
  * mappings.
  */
 @Repository
+@RequiredArgsConstructor
 public class IndexRepository {
 
   private final RestHighLevelClient elasticsearchClient;
-
-  /**
-   * Constructor that will be used by dependency injection framework.
-   *
-   * @param elasticsearchClient {@link RestHighLevelClient} component from DI context
-   */
-  public IndexRepository(RestHighLevelClient elasticsearchClient) {
-    this.elasticsearchClient = elasticsearchClient;
-  }
 
   /**
    * Creates index using passed settings and mappings JSONs.
@@ -102,7 +95,6 @@ public class IndexRepository {
       ? FolioIndexResourceResponse.error(bulkApiResponse.buildFailureMessage())
       : FolioIndexResourceResponse.success();
   }
-
 
   private static IndexRequest prepareIndexRequest(String index, SearchDocumentBody body) {
     return new IndexRequest(index)

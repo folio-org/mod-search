@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
@@ -15,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import org.folio.okapi.common.XOkapiHeaders;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
@@ -41,7 +41,7 @@ class IndexControllerTest {
     var requestBuilder = post("/search/index/indices")
       .content(asJsonString(requestBody()))
       .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME)));
@@ -57,7 +57,7 @@ class IndexControllerTest {
     var requestBuilder = post("/search/index/mappings")
       .content(asJsonString(requestBody()))
       .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 
     when(indexService.updateMappings(RESOURCE_NAME, TENANT_ID))
       .thenReturn(getSuccessIndexOperationResponse());
@@ -76,7 +76,7 @@ class IndexControllerTest {
     var requestBuilder = post("/search/index/resources")
       .content(asJsonString(resourceBody))
       .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 
     when(indexService.indexResources(List.of(resourceBody)))
       .thenReturn(getSuccessIndexOperationResponse());

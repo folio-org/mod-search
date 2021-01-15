@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
+import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
@@ -10,7 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.folio.okapi.common.XOkapiHeaders;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.SearchService;
@@ -44,7 +44,7 @@ class SearchControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("limit", "100")
       .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())

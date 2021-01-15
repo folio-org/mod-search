@@ -141,12 +141,12 @@
       <version>32.1.0</version>
       <exclusions>
         <exclusion>
-          <groupId>io.vertx</groupId>
-          <artifactId>vertx-core</artifactId>
+          <groupId>org.folio</groupId>
+          <artifactId>dbschema</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>io.vertx</groupId>
-          <artifactId>vertx-web</artifactId>
+          <groupId>org.folio</groupId>
+          <artifactId>testing</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

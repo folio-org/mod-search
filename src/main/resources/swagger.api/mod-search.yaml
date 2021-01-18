@@ -18,7 +18,7 @@ paths:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
 
       responses:
-        200:
+        '200':
           description: 'Search response with founded instances'
           content:
             application/json:
@@ -37,7 +37,7 @@ paths:
             schema:
               $ref: '#/components/schemas/indexRequestBody'
       responses:
-        200:
+        '200':
           description: Response with created indices and status (error message will be present if operation failed)
           content:
             application/json:
@@ -56,7 +56,7 @@ paths:
             schema:
               $ref: '#/components/schemas/indexRequestBody'
       responses:
-        200:
+        '200':
           description: Response with created indices and status (error message will be present if operation failed)
           content:
             application/json:
@@ -73,7 +73,7 @@ paths:
             schema:
               $ref: '#/components/schemas/indexRecordRequestBody'
       responses:
-        201:
+        '201':
           description: Response with created indices and status (error message will be present if operation failed)
           content:
             application/json:

@@ -9,6 +9,7 @@ import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,6 @@ public class IndexController implements IndexApi {
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEventBody> events) {
     log.info("Saving records into elasticsearch [amount of records: {}]", events.size());
-    return ResponseEntity.ok(indexService.indexResources(events));
+    return ResponseEntity.status(HttpStatus.CREATED).body(indexService.indexResources(events));
   }
 }

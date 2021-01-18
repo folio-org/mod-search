@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +55,15 @@ public class ResourceDescriptionService {
         "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
+  }
+
+  /**
+   * Returns all existing resource descriptions as list.
+   *
+   * @return {@link List} with {@link ResourceDescription} objects.
+   */
+  public List<ResourceDescription> getAll() {
+    return new ArrayList<>(resourceDescriptions.values());
   }
 
   /**

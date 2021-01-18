@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.folio.search.model.types.InventorySearchType;
 import org.folio.search.model.types.SearchFieldType;
 
 /**
@@ -21,7 +22,12 @@ public class PlainFieldDescription extends FieldDescription {
    *
    * <p>Mapping of this field should provide ability to perform requested operation</p>
    */
-  private List<SearchFieldType> searchFieldType;
+  private List<SearchFieldType> searchFieldTypes;
+
+  /**
+   * List of search types.
+   */
+  private List<InventorySearchType> inventorySearchTypes;
 
   /**
    * List of references to groups, where values can be combined in one elasticsearch field.

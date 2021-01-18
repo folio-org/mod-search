@@ -8,7 +8,9 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +35,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchMappingsHelperTest {
 
+  private static final String MULTILANG_TYPE = "multilang";
+  private static final String KEYWORD_TYPE = "keyword";
+
   @InjectMocks private SearchMappingsHelper mappingsHelper;
 
   @Spy private final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,19 +48,17 @@ class SearchMappingsHelperTest {
 
   @Test
   void getMappings_positive() {
-    var keywordType = fieldType(jsonObject("type", "keyword"));
+    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
     var dateType = fieldType(jsonObject("type", "date", "format", "epoch_millis"));
-    var multilangType = fieldType(jsonObject(
-      "properties", jsonObject(
-        "eng", jsonObject("type", "text", "analyzer", "english"),
-        "spa", jsonObject("type", "text", "analyzer", "spanish"))));
+    var multilangType = multilangFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription());
-    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType("keyword");
-    doReturn(multilangType).when(searchFieldProvider).getSearchFieldType("multilang");
+    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_TYPE);
+    doReturn(multilangFieldType()).when(searchFieldProvider).getSearchFieldType(MULTILANG_TYPE);
     doReturn(dateType).when(searchFieldProvider).getSearchFieldType("date");
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
+
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
@@ -64,22 +67,23 @@ class SearchMappingsHelperTest {
         "id", keywordType.getMapping(),
         "title", multilangType.getMapping(),
         "subtitle", jsonObject("type", "text"),
-        "isbn", jsonObject("type", "keyword", "normalizer", "lowercase_normalizer"),
+        "isbn", jsonObject("type", KEYWORD_TYPE, "normalizer", "lowercase_normalizer"),
         "metadata", jsonObject("properties", jsonObject("createdDate", dateType.getMapping())),
         "identifiers", keywordType.getMapping()
       ))));
+    verify(jsonConverter).toJson(anyMap());
   }
 
   @Test
   void getMappings_positive_resourceWithIndexMappings() {
-    var keywordType = fieldType(jsonObject("type", "keyword"));
+    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword", jsonObject("copy_to", jsonArray("id_copy")))));
-    var idCopyMappings = jsonObject("type", "keyword", "normalizer", "lowercase");
+      "id", plainField(KEYWORD_TYPE, jsonObject("copy_to", jsonArray("id_copy")))));
+    var idCopyMappings = jsonObject("type", KEYWORD_TYPE, "normalizer", "lowercase");
     resourceDescription.setIndexMappings(mapOf("id_copy", idCopyMappings));
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(searchFieldProvider.getSearchFieldType("keyword")).thenReturn(keywordType);
+    when(searchFieldProvider.getSearchFieldType(KEYWORD_TYPE)).thenReturn(keywordType);
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
@@ -87,29 +91,70 @@ class SearchMappingsHelperTest {
       "numeric_detection", false,
       "_routing", jsonObject("required", true),
       "properties", jsonObject(
-        "id", jsonObject("type", "keyword", "copy_to", jsonArray("id_copy")),
+        "id", jsonObject("type", KEYWORD_TYPE, "copy_to", jsonArray("id_copy")),
         "id_copy", idCopyMappings
+      ))));
+  }
+
+  @Test
+  void getMappings_positive_resourceWithMultilangIndexMappings() {
+    var resourceDescription = TestUtils.resourceDescription(mapOf(
+      "id", plainField(KEYWORD_TYPE),
+      "title", plainField(MULTILANG_TYPE, jsonObject("copy_to", jsonArray("sort_title")))));
+    var sortTitleMappings = jsonObject("type", KEYWORD_TYPE, "analyzer", "lowercase_keyword");
+    resourceDescription.setIndexMappings(mapOf("sort_title", sortTitleMappings));
+
+    var multilangType = multilangFieldType();
+    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    doReturn(multilangType).when(searchFieldProvider).getSearchFieldType(MULTILANG_TYPE);
+    when(searchFieldProvider.getSearchFieldType(KEYWORD_TYPE)).thenReturn(keywordType);
+
+    var actual = mappingsHelper.getMappings(RESOURCE_NAME);
+    assertThat(actual).isEqualTo(asJsonString(jsonObject(
+      "date_detection", false,
+      "numeric_detection", false,
+      "_routing", jsonObject("required", true),
+      "properties", jsonObject(
+        "id", keywordType.getMapping(),
+        "title", jsonObject(
+          "properties", jsonObject(
+            "eng", jsonObject("type", "text", "analyzer", "english"),
+            "spa", jsonObject("type", "text", "analyzer", "spanish"),
+            "src", jsonObject("type", "text", "analyzer", "source_analyzer", "copy_to", jsonArray("sort_title"))
+          )),
+        "sort_title", sortTitleMappings
       ))));
   }
 
   private static ResourceDescription resourceDescription() {
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword"),
+      "id", plainField(KEYWORD_TYPE),
       "issn", identifiersGroup(),
-      "title", plainField("multilang"),
+      "title", plainField(MULTILANG_TYPE),
       "subtitle", plainField(null, jsonObject("type", "text")),
       "not_indexed_field1", plainField("none"),
       "not_indexed_field2", plainField(null),
-      "isbn", plainField("keyword", jsonObject("normalizer", "lowercase_normalizer")),
+      "isbn", plainField(KEYWORD_TYPE, jsonObject("normalizer", "lowercase_normalizer")),
       "metadata", objectField(mapOf(
         "createdDate", plainField("date")
       ))));
-    resourceDescription.setGroups(mapOf("identifiers", plainField("keyword")));
+    resourceDescription.setGroups(mapOf("identifiers", plainField(KEYWORD_TYPE)));
     return resourceDescription;
   }
 
+  private static SearchFieldType multilangFieldType() {
+    return fieldType(jsonObject(
+      "properties", jsonObject(
+        "eng", jsonObject("type", "text", "analyzer", "english"),
+        "spa", jsonObject("type", "text", "analyzer", "spanish"),
+        "src", jsonObject("type", "text", "analyzer", "source_analyzer")
+      )));
+  }
+
   private static PlainFieldDescription identifiersGroup() {
-    var groupField = plainField("keyword");
+    var groupField = plainField(KEYWORD_TYPE);
     groupField.setGroup(List.of("identifiers"));
     return groupField;
   }

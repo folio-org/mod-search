@@ -14,10 +14,25 @@
       "sourcePath": "$.source"
     },
     "title": {
+      "inventorySearchTypes": "title",
       "index": "multilang",
-      "sourcePath": "$.title"
+      "sourcePath": "$.title",
+      "mappings": {
+        "copy_to": [ "sort_title" ]
+      }
+    },
+    "alternativeTitle": {
+      "inventorySearchTypes": "title",
+      "index": "multilang",
+      "sourcePath": "$.alternativeTitles.alternativeTitle"
+    },
+    "indexTitle": {
+      "inventorySearchTypes": "title",
+      "index": "multilang",
+      "sourcePath": "$.indexTitle"
     },
     "series": {
+      "inventorySearchTypes": "title",
       "index": "keyword",
       "sourcePath": "$.series"
     },
@@ -79,5 +94,14 @@
     }
   },
   "groups": { },
-  "indexFields": { }
+  "indexMappings": {
+    "sort_title": {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase",
+      "ignore_above": 25,
+      "index": false,
+      "doc_values": true,
+      "global_ordinals": true
+    }
+  }
 }

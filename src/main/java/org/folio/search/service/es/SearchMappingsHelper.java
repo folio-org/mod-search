@@ -1,5 +1,6 @@
 package org.folio.search.service.es;
 
+import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchMappingsHelper {
 
+  private static final String MAPPING_PROPERTIES_FIELD = "properties";
+
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchFieldProvider searchFieldProvider;
   private final JsonConverter jsonConverter;
@@ -42,7 +45,7 @@ public class SearchMappingsHelper {
 
     var indexMappings = createIndexMappingsObject();
     var mappingProperties = new LinkedHashMap<String, Object>();
-    indexMappings.put("properties", mappingProperties);
+    indexMappings.put(MAPPING_PROPERTIES_FIELD, mappingProperties);
 
     mappingProperties.putAll(createMappingsForFields(description));
     mappingProperties.putAll(createMappingsForGroups(description));
@@ -118,7 +121,11 @@ public class SearchMappingsHelper {
       if (mappings == null) {
         mappings = fieldDescriptionMappings.deepCopy();
       } else {
-        mappings.setAll(fieldDescriptionMappings);
+        if (MULTILANG_FIELD_TYPE.equals(fieldDescription.getIndex())) {
+          ((ObjectNode) mappings.path(MAPPING_PROPERTIES_FIELD).path("src")).setAll(fieldDescriptionMappings);
+        } else {
+          mappings.setAll(fieldDescriptionMappings);
+        }
       }
     }
 
@@ -130,6 +137,6 @@ public class SearchMappingsHelper {
     for (var entry : fieldDescription.getProperties().entrySet()) {
       objectNodeMappings.put(entry.getKey(), getMappingForField(entry.getValue()));
     }
-    return objectMapper.valueToTree(Map.of("properties", objectNodeMappings));
+    return objectMapper.valueToTree(Map.of(MAPPING_PROPERTIES_FIELD, objectNodeMappings));
   }
 }

@@ -115,6 +115,7 @@ components:
       description: A CQL query string with search conditions.
       schema:
         type: string
+      required: true
     search-pageable-offset:
       name: offset
       in: query
@@ -137,5 +138,6 @@ components:
       name: x-okapi-tenant
       in: header
       description: X-Okapi-Tenant header value
+      required: true
       schema:
         type: string

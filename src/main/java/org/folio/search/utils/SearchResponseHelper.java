@@ -8,7 +8,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse.StatusEnum;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchResponseUtils {
+public class SearchResponseHelper {
 
   /**
    * Creates positive {@link FolioCreateIndexResponse} object with list of created indices.
@@ -32,7 +32,7 @@ public class SearchResponseUtils {
   public static FolioCreateIndexResponse getErrorFolioCreateIndexResponse(List<String> indices) {
     var response = new FolioCreateIndexResponse();
     response.setIndices(indices);
-    response.setErrorMessage("error");
+    response.setErrorMessage("Failed to create indices in elasticsearch");
     response.setStatus(FolioCreateIndexResponse.StatusEnum.ERROR);
     return response;
   }

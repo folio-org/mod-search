@@ -1,9 +1,9 @@
 package org.folio.search.repository;
 
-import static org.folio.search.utils.SearchResponseUtils.getErrorFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseUtils.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.LinkedHashSet;

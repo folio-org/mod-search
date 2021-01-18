@@ -61,7 +61,7 @@ public class SearchRepository {
 
   private List<Instance> getResultDocuments(SearchHit[] searchHits) {
     return Arrays.stream(searchHits)
-      .map(e -> jsonConverter.fromJson(e.getSourceAsString(), Instance.class))
+      .map(searchHit -> jsonConverter.fromJson(searchHit.getSourceAsString(), Instance.class))
       .collect(Collectors.toList());
   }
 }

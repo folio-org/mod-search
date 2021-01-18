@@ -1,7 +1,7 @@
 package org.folio.search.controller;
 
-import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;

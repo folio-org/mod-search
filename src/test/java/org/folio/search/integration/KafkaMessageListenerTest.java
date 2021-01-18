@@ -1,6 +1,6 @@
 package org.folio.search.integration;
 
-import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;

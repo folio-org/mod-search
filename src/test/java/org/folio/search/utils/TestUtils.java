@@ -119,7 +119,7 @@ public class TestUtils {
 
   public static ResourceEventBody eventBody(String resourceName, Object newData) {
     var resourceBody = new ResourceEventBody();
-    resourceBody.setType("CREATE");
+    resourceBody.setType(ResourceEventBody.TypeEnum.CREATE);
     resourceBody.setResourceName(resourceName);
     resourceBody.setTenant(TENANT_ID);
     resourceBody.setNew(newData);

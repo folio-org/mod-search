@@ -1,6 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;

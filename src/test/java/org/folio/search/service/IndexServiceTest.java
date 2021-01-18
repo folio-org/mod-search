@@ -1,8 +1,8 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.SearchResponseUtils.getSuccessFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseUtils.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;

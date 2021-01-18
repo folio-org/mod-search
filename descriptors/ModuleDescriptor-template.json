@@ -11,7 +11,7 @@
             "POST"
           ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": ["search.index.indexes.item.post"]
+          "permissionsRequired": ["search.index.indices.item.post"]
         },
         {
           "methods": [
@@ -51,9 +51,9 @@
   ],
   "permissionSets" : [
     {
-      "permissionName": "search.index.indexes.item.post",
-      "displayName": "Search - create an index",
-      "description": "Create an index"
+      "permissionName": "search.index.indices.item.post",
+      "displayName": "Search - creates an index",
+      "description": "Creates an index"
     },
     {
       "permissionName": "search.index.mappings.item.post",

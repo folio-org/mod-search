@@ -3,7 +3,7 @@
   "name": "Search Module",
   "provides": [
     {
-      "id": "indexes",
+      "id": "indices",
       "version": "0.1",
       "handlers": [
         {

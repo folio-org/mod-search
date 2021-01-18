@@ -1,29 +1,76 @@
 {
   "id": "${artifactId}-${version}",
-  "name": "The blueprint module that could be used as a template for folio spring based backend modules.",
+  "name": "Search Module",
   "provides": [
     {
-      "id": "spring-template",
-      "version": "1.0",
-      "handlers": []
-    },
-    {
-      "id": "_tenant",
-      "version": "1.2",
-      "interfaceType": "system",
+      "id": "indices",
+      "version": "0.1",
       "handlers": [
         {
-          "methods": ["POST"],
-          "pathPattern": "/_/tenant"
-        }, {
-          "methods": ["DELETE"],
-          "pathPattern": "/_/tenant"
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/indices",
+          "permissionsRequired": ["search.index.indices.item.post"]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/mappings",
+          "permissionsRequired": ["search.index.mappings.item.post"]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/resources",
+          "permissionsRequired": ["search.index.resources.collection.post"]
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "version": "0.1",
+      "handlers": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/instances",
+          "permissionsRequired": ["search.instances.collection.get"]
         }
       ]
     }
   ],
-  "permissionSets" : [],
-  "requires": [],
+  "requires": [
+    {
+      "id": "instance-storage",
+      "version": "7.5"
+    }
+  ],
+  "permissionSets" : [
+    {
+      "permissionName": "search.index.indices.item.post",
+      "displayName": "Search - creates an index",
+      "description": "Creates an index"
+    },
+    {
+      "permissionName": "search.index.mappings.item.post",
+      "displayName": "Search - updates mappings for the index",
+      "description": "Updates mappings for the index"
+    },
+    {
+      "permissionName": "search.index.resources.collection.post",
+      "displayName": "Search - saves resource to the search engine",
+      "description": "Saves resource to the search engine"
+    },
+    {
+      "permissionName": "search.instances.collection.get",
+      "displayName": "Search - searches instances by given query",
+      "description": "Searches instances by given query"
+    }
+  ],
   "launchDescriptor": {
     "dockerImage": "${artifactId}:${version}",
     "dockerPull": false,
@@ -34,8 +81,25 @@
       }
     },
     "env": [
-      { "name": "JAVA_OPTIONS",
+      {
+        "name": "JAVA_OPTIONS",
         "value": "-XX:MaxRAMPercentage=66.0"
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": "kafka"
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": "9092"
+      },
+      {
+        "name": "ELASTICSEARCH_HOST",
+        "value": "elasticsearch"
+      },
+      {
+        "name": "ELASTICSEARCH_PORT",
+        "value": "9200"
       }
     ]
   }

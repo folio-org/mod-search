@@ -8,9 +8,9 @@ spring:
       accept-single-value-as-array: true
   elasticsearch:
     rest:
-      uris: http://elasticsearch:9200
+      uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
 
 application:
   kafka:

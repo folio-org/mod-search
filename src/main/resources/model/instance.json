@@ -23,11 +23,11 @@
     },
     "identifiers": {
       "index": "keyword",
-      "sourcePath": "$.identifiers.value"
+      "sourcePath": "$.identifiers[*].value"
     },
     "contributors": {
       "index": "keyword",
-      "sourcePath": "$.contributors.name"
+      "sourcePath": "$.contributors[*].name"
     },
     "subjects": {
       "index": "keyword",

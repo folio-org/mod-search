@@ -25,7 +25,7 @@
             "POST"
           ],
           "pathPattern": "/search/index/records",
-          "permissionsRequired": [ "search.index.resources.collection.post" ]
+          "permissionsRequired": [ "search.index.records.collection.post" ]
         }
       ]
     },

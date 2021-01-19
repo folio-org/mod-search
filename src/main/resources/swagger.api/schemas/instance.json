@@ -1,5 +1,6 @@
 {
   "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "instance description",
   "properties": {
     "id": {
@@ -99,20 +100,58 @@
     "multilangField": {
       "type": "object",
       "properties": {
-        "ara": { "type": "string" },
-        "deu": { "type": "string" },
-        "ger": { "type": "string" },
-        "eng": { "type": "string" },
-        "spa": { "type": "string" },
-        "fra": { "type": "string" },
-        "heb": { "type": "string" },
-        "ita": { "type": "string" },
-        "jpn": { "type": "string" },
-        "kor": { "type": "string" },
-        "rus": { "type": "string" },
-        "swe": { "type": "string" },
-        "zho": { "type": "string" },
-        "src": { "type": "string" }
+        "ara": {
+          "description": "Multi-language Arabic value",
+          "type": "string"
+        },
+        "ger": {
+          "description": "Multi-language German value",
+          "type": "string"
+        },
+        "eng": {
+          "description": "Multi-language English value",
+          "type": "string"
+        },
+        "spa": {
+          "description": "Multi-language Spanish value",
+          "type": "string"
+        },
+        "fre": {
+          "description": "Multi-language French value",
+          "type": "string"
+        },
+        "heb": {
+          "description": "Multi-language Hebrew value",
+          "type": "string"
+        },
+        "ita": {
+          "description": "Multi-language Italian value",
+          "type": "string"
+        },
+        "jpn": {
+          "description": "Multi-language Japanese value",
+          "type": "string"
+        },
+        "kor": {
+          "description": "Multi-language Korean value",
+          "type": "string"
+        },
+        "rus": {
+          "description": "Multi-language Russian value",
+          "type": "string"
+        },
+        "swe": {
+          "description": "Multi-language Swedish value",
+          "type": "string"
+        },
+        "chi": {
+          "description": "Multi-language Chinese value",
+          "type": "string"
+        },
+        "src": {
+          "description": "Original value",
+          "type": "string"
+        }
       }
     }
   }

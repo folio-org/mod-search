@@ -1,5 +1,6 @@
 package org.folio.search.support.base;
 
+import static java.lang.String.format;
 import static org.folio.dbschema.ObjectMapperTool.getMapper;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -47,14 +48,13 @@ public abstract class BaseIntegrationTest {
 
   @DynamicPropertySource
   @SuppressWarnings("unused")
-  private static void esUrisProperty(DynamicPropertyRegistry registry) {
+  static void esUrisProperty(DynamicPropertyRegistry registry) {
     registry.add("spring.elasticsearch.rest.uris",
-      () -> "http://localhost:" + esContainer.getMappedPort(9200));
+      () -> format("http://%s:%s", esContainer.getHost(), esContainer.getMappedPort(9200)));
   }
 
   @BeforeAll
-  @SuppressWarnings("unused")
-  private static void createIndexAndUploadInstances(@Autowired MockMvc mockMvc) throws Exception {
+  static void createIndexAndUploadInstances(@Autowired MockMvc mockMvc) throws Exception {
     mockMvc.perform(post("/search/index/indices")
       .content(asJsonString(IndexRequestBody.of(INSTANCE_RESOURCE)))
       .headers(defaultHeaders())

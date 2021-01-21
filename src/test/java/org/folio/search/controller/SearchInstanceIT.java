@@ -8,8 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.Test;
 
+@IntegrationTest
 public class SearchInstanceIT extends BaseIntegrationTest {
   @Test
   void canSearchByInstanceId_exactMatch() throws Exception {

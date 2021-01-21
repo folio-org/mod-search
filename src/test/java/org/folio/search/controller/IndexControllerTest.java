@@ -82,7 +82,7 @@ class IndexControllerTest {
       .thenReturn(getSuccessIndexOperationResponse());
 
     mockMvc.perform(requestBuilder)
-      .andExpect(status().isCreated())
+      .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
   }
 

@@ -31,7 +31,7 @@ public class SearchRepository {
   private final JsonConverter jsonConverter;
 
   /**
-   * Executes request to elasticsearch and returns found documents from elasticsearch.
+   * Executes request to elasticsearch and returns search result with related documents.
    *
    * @param queryBuilder elasticsearch query as {@link QueryBuilder} object.
    * @param cqlSearchRequest search request as {@link CqlSearchRequest} object.

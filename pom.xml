@@ -36,6 +36,8 @@
       src/main/java/org/folio/search/model/**,
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
+    <lombok.version>1.18.16</lombok.version>
+    <testcontainer.version>1.15.1</testcontainer.version>
   </properties>
 
   <dependencies>
@@ -147,7 +149,18 @@
         </exclusion>
       </exclusions>
     </dependency>
-
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>${testcontainer.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${testcontainer.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

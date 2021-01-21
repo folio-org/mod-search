@@ -21,7 +21,7 @@ public class SearchService {
    * Prepares search query and executes search request to the search engine.
    *
    * @param searchRequest cql search request as {@link CqlSearchRequest} object
-   * @return search result with founded data.
+   * @return search result.
    */
   public SearchResult search(CqlSearchRequest searchRequest) {
     return searchRepository.search(searchRequest, cqlSearchQueryConverter.convert(searchRequest));

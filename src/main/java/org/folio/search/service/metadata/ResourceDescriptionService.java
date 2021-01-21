@@ -44,7 +44,7 @@ public class ResourceDescriptionService {
   /**
    * Provides {@link ResourceDescription} object for given resource name.
    *
-   * @param resourceName name of resource as {@link String} object.
+   * @param resourceName name of resource as {@link String}
    * @return {@link ResourceDescription} object
    */
   public ResourceDescription get(String resourceName) {
@@ -59,7 +59,7 @@ public class ResourceDescriptionService {
   /**
    * Provides list of language source JSON paths for given resource name.
    *
-   * @param resourceName name of resource as {@link String} object.
+   * @param resourceName name of resource as {@link String}
    * @return {@link List} with {@link String} JSON paths values.
    */
   public List<String> getLanguageSourcePaths(String resourceName) {
@@ -69,7 +69,7 @@ public class ResourceDescriptionService {
   /**
    * Checks if passed language is supported by mod-search application.
    *
-   * @param language founded language value from resource as {@link String} value.
+   * @param language language value as {@link String}
    * @return true if language is supported, false - otherwise
    */
   public boolean isSupportedLanguage(String language) {

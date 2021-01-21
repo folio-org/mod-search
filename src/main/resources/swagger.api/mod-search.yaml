@@ -19,7 +19,7 @@ paths:
 
       responses:
         '200':
-          description: 'Search response with founded instances'
+          description: 'Instance search result'
           content:
             application/json:
               schema:
@@ -73,7 +73,7 @@ paths:
             schema:
               $ref: '#/components/schemas/indexRecordRequestBody'
       responses:
-        '201':
+        '200':
           description: Response with created indices and status (error message will be present if operation failed)
           content:
             application/json:
@@ -101,10 +101,10 @@ components:
       properties:
         totalRecords:
           type: integer
-          description: Amount of founded instances
+          description: Amount of instances found
         instances:
           type: array
-          description: List with founded instances
+          description: List of instances foubd
           items:
             $ref: '#/components/schemas/instance'
 

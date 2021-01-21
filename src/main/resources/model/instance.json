@@ -69,7 +69,7 @@
         },
         "updatedByUserId": {
           "index": "keyword",
-          "sourcePath": "$.metadata.updatedByUsername"
+          "sourcePath": "$.metadata.updatedById"
         },
         "updatedByUsername": {
           "index": "keyword",

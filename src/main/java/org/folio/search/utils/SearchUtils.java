@@ -9,8 +9,9 @@ import org.folio.search.model.service.CqlSearchRequest;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
 
-  public static final String TENANT_HEADER = "X-Okapi-Tenant";
   public static final String INSTANCE_RESOURCE = "instance";
+  public static final String X_OKAPI_TENANT_HEADER = "X-Okapi-Tenant";
+
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link

@@ -9,6 +9,7 @@ import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -18,8 +19,6 @@ import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.Configuration;
@@ -31,20 +30,17 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import org.folio.search.model.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.LoggerFactory;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -64,19 +60,11 @@ class SearchDocumentConverterTest {
 
   @InjectMocks private SearchDocumentConverter documentMapper;
 
-  @BeforeAll
-  static void beforeAll() {
-    LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-    var loggerName = "com.jayway.jsonpath.internal.path.CompiledPath";
-    var logger = logContext.getLogger(loggerName);
-    logger.setLevel(Level.INFO);
-  }
-
   @Test
   void convertSingle_positive() {
     var id = randomId();
     var jsonBody = getResourceTestData(id);
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(getFieldDescriptions());
     var languageSources = List.of("$.language");
 
@@ -97,7 +85,7 @@ class SearchDocumentConverterTest {
   void convertMultiple_positive() {
     var id = randomId();
     var jsonBody = getResourceTestData(id);
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(getFieldDescriptions());
     var languageSources = List.of("$.language");
 
@@ -117,7 +105,7 @@ class SearchDocumentConverterTest {
   void convertSingle_negative_pathNotFound() {
     var id = randomId();
     var jsonBody = jsonObject("id", id);
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(mapOf(
       "id", plainField("keyword", "$.id"),
       "title", plainField("keyword", "$.title")));
@@ -138,7 +126,7 @@ class SearchDocumentConverterTest {
   void convertSingle_negative_emptyTitle() {
     var id = randomId();
     var jsonBody = jsonObject("id", id, "title", "");
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(mapOf(
       "id", plainField("keyword", "$.id"),
       "title", plainField("keyword", "$.title")));
@@ -165,7 +153,7 @@ class SearchDocumentConverterTest {
       "l3", jsonArray(1, 2),
       "l4", "eng",
       "l5", true);
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
     var resourceDescription = resourceDescription(mapOf(
       "id", plainField("keyword", "$.id"),
       "title", multilangField("$.title")));
@@ -187,7 +175,7 @@ class SearchDocumentConverterTest {
 
   @Test
   void convertSingle_negative_dataIsNull() {
-    var eventBody = ResourceEventBody.of("CREATE", TENANT_ID, RESOURCE_NAME, null);
+    var eventBody = eventBody(RESOURCE_NAME, null);
     var actual = documentMapper.convert(eventBody);
     assertThat(actual).isNotPresent();
   }

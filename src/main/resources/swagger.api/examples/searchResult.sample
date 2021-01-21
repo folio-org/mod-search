@@ -1,0 +1,24 @@
+{
+  "totalRecords": 1,
+  "instances": [
+    {
+      "hrid": "in157249",
+      "series": [ "Welsh studies in education,v. 3" ],
+      "instanceTypeId": "1c43b4c1-b138-4386-a91d-0d305e4ddf23",
+      "subjects": [
+        "Bilingualism--Wales--Bibliography.",
+        "Bilingualism--Bibliography.",
+        "Bilingualism.",
+        "Wales.",
+        "Bibliography."
+      ],
+      "language": [ "eng" ],
+      "id": "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f",
+      "source": "MARC",
+      "title": {
+        "src": "Bilingualism:a bibliography of 1000 references with special reference to Wales.",
+        "eng": "Bilingualism:a bibliography of 1000 references with special reference to Wales."
+      }
+    }
+  ]
+}

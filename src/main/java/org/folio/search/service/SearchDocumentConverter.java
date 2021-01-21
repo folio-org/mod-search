@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.folio.search.model.ResourceEventBody;
+import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -27,7 +27,7 @@ import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class SearchDocumentConverter {
@@ -60,12 +60,12 @@ public class SearchDocumentConverter {
    * @return elasticsearch document
    */
   public Optional<SearchDocumentBody> convert(ResourceEventBody event) {
-    var newData = event.getNewData();
+    var newData = event.getNew();
     if (newData == null) {
       return Optional.empty();
     }
-
-    var document = parseContext.parse(newData.toString());
+    var newDataJson = jsonConverter.toJsonTree(newData);
+    var document = parseContext.parse(newDataJson.toString());
     var resourceName = event.getResourceName();
     var resourceDescription = descriptionService.get(event.getResourceName());
     var fields = resourceDescription.getFields();
@@ -74,7 +74,7 @@ public class SearchDocumentConverter {
     ObjectNode objectNode = convertDocument(document, fields, conversionContext);
 
     return Optional.of(SearchDocumentBody.builder()
-      .id(newData.path("id").textValue())
+      .id(newDataJson.path("id").textValue())
       .index(getElasticsearchIndexName(event.getResourceName(), event.getTenant()))
       .routing(event.getTenant())
       .rawJson(jsonConverter.toJson(objectNode))

@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Resource event body",
+  "properties": {
+    "type": {
+      "description": "Operation type [update, create, delete]",
+      "enum": ["UPDATE", "CREATE", "DELETE"],
+      "type": "string"
+    },
+    "tenant": {
+      "description": "Tenant id",
+      "type": "string"
+    },
+    "resourceName": {
+      "description": "Name of resource",
+      "type": "string"
+    },
+    "new": {
+      "description": "Instance record new fields",
+      "type": "object"
+    }
+  }
+}

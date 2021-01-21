@@ -13,5 +13,5 @@ FOLIO search project.
 
 ### Running integration tests
 
-The module uses tests [Testcontainers](https://www.testcontainers.org/) to run Elasticsearch in
-embedded mode. It is required to have Docker installed and available on the host where the tests are executed.
+The module uses [Testcontainers](https://www.testcontainers.org/) to run Elasticsearch in embedded mode.
+It is required to have Docker installed and available on the host where the tests are executed.

@@ -121,7 +121,6 @@ class CqlSearchQueryConverterTest {
     );
   }
 
-
   private static Stream<Arguments> parseCqlQueryTitleDataProvider() {
     return Stream.of(
       arguments("title(all)", "(title all \"test-query\") sortby title",

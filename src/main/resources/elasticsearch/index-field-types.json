@@ -26,10 +26,6 @@
           "type": "text",
           "analyzer": "arabic"
         },
-        "deu": {
-          "type": "text",
-          "analyzer": "german"
-        },
         "ger": {
           "type": "text",
           "analyzer": "german"
@@ -42,7 +38,7 @@
           "type": "text",
           "analyzer": "spanish"
         },
-        "fra": {
+        "fre": {
           "type": "text",
           "analyzer": "french"
         },
@@ -70,7 +66,7 @@
           "type": "text",
           "analyzer": "swedish"
         },
-        "zho": {
+        "chi": {
           "type": "text",
           "analyzer": "smartcn"
         },

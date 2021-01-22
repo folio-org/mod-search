@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class SearchService {
    * Prepares search query and executes search request to the search engine.
    *
    * @param searchRequest cql search request as {@link CqlSearchRequest} object
-   * @return search result with found data.
+   * @return search result.
    */
   public SearchResult search(CqlSearchRequest searchRequest) {
     return searchRepository.search(searchRequest, cqlSearchQueryConverter.convert(searchRequest));

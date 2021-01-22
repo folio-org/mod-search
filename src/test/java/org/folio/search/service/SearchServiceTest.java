@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.model.rest.response.SearchResult;
+import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.utils.types.UnitTest;
@@ -28,7 +28,10 @@ class SearchServiceTest {
 
   @Test
   void search_positive() {
-    var expectedResult = SearchResult.of(0, Collections.emptyList());
+    var expectedResult = new SearchResult();
+    expectedResult.setInstances(Collections.emptyList());
+    expectedResult.setTotalRecords(0);
+
     var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 0, 10);
     var searchSourceBuilder = searchSource();
 

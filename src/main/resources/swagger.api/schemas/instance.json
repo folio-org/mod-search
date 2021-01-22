@@ -1,0 +1,159 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "instance description",
+  "properties": {
+    "id": {
+      "description": "The unique ID of the instance record; a UUID",
+      "type": "string"
+    },
+    "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+    },
+    "source": {
+      "type": "string",
+      "description": "The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)"
+    },
+    "title": {
+      "type": "object",
+      "description": "The primary title (or label) associated with the resource",
+      "$ref": "#/definitions/multilangField"
+    },
+    "series": {
+      "type": "array",
+      "description": "List of series titles associated with the resource (e.g. Harry Potter)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "identifiers": {
+      "type": "array",
+      "description": "Resource identifier value array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contributors": {
+      "type": "array",
+      "description": "List of contributors names",
+      "items": {
+        "type": "string"
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "description": "List of subject headings",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instanceTypeId": {
+      "type": "string",
+      "description": "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined"
+    },
+    "instanceFormatId": {
+      "type": "array",
+      "description": "UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined",
+      "items": {
+        "type": "string"
+      }
+    },
+    "languages": {
+      "type": "array",
+      "description": "The set of languages used by the resource",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "description": "Date and time when the record was created",
+          "type": "string"
+        },
+        "createdByUserId": {
+          "description": "ID of the user who created the record (when available)",
+          "type": "string"
+        },
+        "createdByUsername": {
+          "description": "Username of the user who created the record (when available)",
+          "type": "string"
+        },
+        "updatedDate": {
+          "description": "Date and time when the record was last updated",
+          "type": "string"
+        },
+        "updatedByUserId": {
+          "description": "ID of the user who last updated the record (when available)",
+          "type": "string"
+        },
+        "updatedByUsername": {
+          "description": "Username of the user who last updated the record (when available)",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "multilangField": {
+      "type": "object",
+      "properties": {
+        "ara": {
+          "description": "Multi-language Arabic value",
+          "type": "string"
+        },
+        "ger": {
+          "description": "Multi-language German value",
+          "type": "string"
+        },
+        "eng": {
+          "description": "Multi-language English value",
+          "type": "string"
+        },
+        "spa": {
+          "description": "Multi-language Spanish value",
+          "type": "string"
+        },
+        "fre": {
+          "description": "Multi-language French value",
+          "type": "string"
+        },
+        "heb": {
+          "description": "Multi-language Hebrew value",
+          "type": "string"
+        },
+        "ita": {
+          "description": "Multi-language Italian value",
+          "type": "string"
+        },
+        "jpn": {
+          "description": "Multi-language Japanese value",
+          "type": "string"
+        },
+        "kor": {
+          "description": "Multi-language Korean value",
+          "type": "string"
+        },
+        "rus": {
+          "description": "Multi-language Russian value",
+          "type": "string"
+        },
+        "swe": {
+          "description": "Multi-language Swedish value",
+          "type": "string"
+        },
+        "chi": {
+          "description": "Multi-language Chinese value",
+          "type": "string"
+        },
+        "src": {
+          "description": "Original value",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+

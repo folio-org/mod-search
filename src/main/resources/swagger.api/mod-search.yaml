@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  title: Search API
+  version: v1
+
+servers:
+  - url: /search/
+
+paths:
+  /instances:
+    get:
+      operationId: searchInstances
+      description: Get a list of instances for CQL query
+      parameters:
+        - $ref: '#/components/parameters/search-cql-query'
+        - $ref: '#/components/parameters/search-pageable-limit'
+        - $ref: '#/components/parameters/search-pageable-offset'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+
+      responses:
+        '200':
+          description: 'Instance search result'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/searchResult'
+
+  /index/indices:
+    post:
+      operationId: createIndices
+      description: Creates indices for passed resource name and tenant id in request header.
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/indexRequestBody'
+      responses:
+        '200':
+          description: Response with created indices and status (error message will be present if operation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/folioCreateIndexResponse'
+
+  /index/mappings:
+    post:
+      operationId: updateMappings
+      description: Creates mappings for passed resource name and tenant id in request header.
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/indexRequestBody'
+      responses:
+        '200':
+          description: Response with created indices and status (error message will be present if operation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+
+  /index/records:
+    post:
+      operationId: indexRecords
+      description: Indexes the records into elasticsearch.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/indexRecordRequestBody'
+      responses:
+        '200':
+          description: Response with created indices and status (error message will be present if operation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+
+components:
+  schemas:
+    instance:
+      $ref: schemas/instance.json
+    indexRequestBody:
+      $ref: schemas/indexRequestBody.json
+    folioCreateIndexResponse:
+      $ref: schemas/folioCreateIndexResponse.json
+    folioIndexOperationResponse:
+      $ref: schemas/folioIndexOperationResponse.json
+    resourceEventBody:
+      $ref: schemas/resourceEventBody.json
+    indexRecordRequestBody:
+      type: array
+      items:
+        $ref: '#/components/schemas/resourceEventBody'
+    searchResult:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Amount of instances found
+        instances:
+          type: array
+          description: List of instances foubd
+          items:
+            $ref: '#/components/schemas/instance'
+
+  parameters:
+    search-cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+      required: true
+    search-pageable-offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    search-pageable-limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 100
+        minimum: 0
+        maximum: 500
+        type: integer
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: X-Okapi-Tenant header value
+      required: true
+      schema:
+        type: string

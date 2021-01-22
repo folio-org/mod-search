@@ -6,15 +6,22 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
+  datasource:
+    url: jdbc:h2:mem:test_tenant_mod_search
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server.port: 8081
 folio.tenant.validation.enabled: true
 
 application:
   kafka:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/agl_feedback}
     listener:
       events:
         concurrency: 4
-        topics: search-instances
+        topics: inventory.instance
         group-id: search-events-group

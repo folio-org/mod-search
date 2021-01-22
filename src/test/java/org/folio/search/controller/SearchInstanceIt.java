@@ -12,7 +12,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SearchInstanceIT extends BaseIntegrationTest {
+class SearchInstanceIt extends BaseIntegrationTest {
   @Test
   void canSearchByInstanceId_exactMatch() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("id=={value}"), getSemanticWeb().getId())

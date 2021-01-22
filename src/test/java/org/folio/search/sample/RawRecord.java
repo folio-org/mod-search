@@ -1,11 +1,9 @@
 package org.folio.search.sample;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.Getter;
 

@@ -1,9 +1,8 @@
 package org.folio.search.sample;
 
-import static org.folio.dbschema.ObjectMapperTool.getMapper;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 
 import java.io.InputStream;
-
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -17,7 +16,7 @@ public class SampleInstances {
 
   @SneakyThrows
   private static RawRecord readSampleInstance(String fileName) {
-    return getMapper().readValue(getSampleAsStream(fileName), RawRecord.class);
+    return OBJECT_MAPPER.readValue(getSampleAsStream(fileName), RawRecord.class);
   }
 
   private static InputStream getSampleAsStream(String fileName) {

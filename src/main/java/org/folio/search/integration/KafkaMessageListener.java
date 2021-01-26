@@ -1,6 +1,9 @@
 package org.folio.search.integration;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
+import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.SearchUtils;
+import org.folio.spring.FolioModuleMetadata;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class KafkaMessageListener {
 
   private final IndexService indexService;
+  private final FolioModuleMetadata moduleMetadata;
 
   /**
    * Listens the events with instance data inside from messaging system and sends request to index this values in search
@@ -39,7 +44,19 @@ public class KafkaMessageListener {
       .map(KafkaMessageListener::asInstanceResource)
       .collect(toList());
 
-    indexService.indexResources(resources);
+    resources.stream()
+      .collect(groupingBy(ResourceEventBody::getTenant))
+      .forEach((tenant, eventsForTenant) -> {
+        try {
+          log.info("Processing [{}] events for tenant [{}]", eventsForTenant.size(), tenant);
+          // This needed to inject FOLIO specific values to properly work with DB
+          beginFolioExecutionContext(new AsyncFolioExecutionContext(tenant, moduleMetadata));
+
+          indexService.indexResources(resources);
+        } finally {
+          endFolioExecutionContext();
+        }
+      });
   }
 
   private static ResourceEventBody asInstanceResource(ResourceEventBody eventBody) {

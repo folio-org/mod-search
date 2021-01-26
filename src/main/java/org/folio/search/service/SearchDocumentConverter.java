@@ -36,6 +36,7 @@ public class SearchDocumentConverter {
   private final ParseContext parseContext;
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
+  private final LanguageConfigService languageConfigService;
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody}
@@ -125,11 +126,13 @@ public class SearchDocumentConverter {
 
   private List<String> getResourceLanguages(String resourceName, DocumentContext doc) {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths(resourceName);
+    var allLanguageCodes = languageConfigService.getAllSupportedLanguageCodes();
+
     return languageSourcePaths.stream()
       .map(sourcePath -> getJsonNodeByPath(doc, sourcePath))
       .flatMap(SearchDocumentConverter::getStreamFromJson)
       .distinct()
-      .filter(descriptionService::isSupportedLanguage)
+      .filter(allLanguageCodes::contains)
       .collect(toList());
   }
 

@@ -80,6 +80,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
 
+  /config/languages:
+    post:
+      operationId: createLanguageConfig
+      description: Save languages that will be used for analyzers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: schemas/languageConfig.json
+      responses:
+        '200':
+          description: Language support has been added.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/languageConfig.json
+        '422':
+          description: Validation error for the request.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common/validationErrors.json
+    get:
+      operationId: getAllLanguageConfigs
+      description: Get all supported languages
+      responses:
+        '200':
+          description: All supported languages
+          content:
+            application/json:
+              schema:
+                $ref: schemas/languageConfigs.json
+
+  /config/languages/{id}:
+    delete:
+      operationId: deleteLanguageConfig
+      description: Delete all supported languages
+      parameters:
+        - $ref: '#/components/parameters/entity-id'
+      responses:
+        '204':
+          description: Language support has been removed
+        '404':
+          description: No language support is found
+
 components:
   schemas:
     instance:
@@ -109,6 +154,14 @@ components:
             $ref: '#/components/schemas/instance'
 
   parameters:
+    entity-id:
+      name: id
+      in: path
+      required: true
+      description: Entity UUID
+      schema:
+        type: string
+        pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
     search-cql-query:
       name: query
       in: query

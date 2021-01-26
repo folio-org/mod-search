@@ -41,6 +41,44 @@
           "permissionsRequired": [ "search.instances.collection.get" ]
         }
       ]
+    },
+    {
+      "id": "search-config",
+      "version": "0.1",
+      "handlers": [
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/config/languages",
+          "permissionsRequired": [ "search.config.languages.item.post" ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/config/languages",
+          "permissionsRequired": [ "search.config.languages.collection.get" ]
+        },
+        {
+          "methods": [
+            "DELETE"
+          ],
+          "pathPattern": "/search/config/languages/{id}",
+          "permissionsRequired": [ "search.config.languages.item.delete" ]
+        }
+      ]
+    },
+    {
+      "id" : "_tenant",
+      "version" : "2.0",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/_/tenant"
+        }
+      ]
     }
   ],
   "requires": [
@@ -69,6 +107,21 @@
       "permissionName": "search.instances.collection.get",
       "displayName": "Search - searches instances by given query",
       "description": "Searches instances by given query"
+    },
+    {
+      "permissionName": "search.config.languages.item.post",
+      "displayName": "Search - adds a language support for multi-lang indexes",
+      "description": "Adds a language support for multi-lang indexes"
+    },
+    {
+      "permissionName": "search.config.languages.collection.get",
+      "displayName": "Search - returns list of all supported languages for multi-lang indexes",
+      "description": "Returns list of all supported languages for multi-lang indexes"
+    },
+    {
+      "permissionName": "search.config.languages.item.delete",
+      "displayName": "Search - removes a supported language by id",
+      "description": "Removes a supported language by id"
     }
   ],
   "launchDescriptor": {

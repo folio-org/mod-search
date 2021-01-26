@@ -30,6 +30,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -57,6 +58,8 @@ class SearchDocumentConverterTest {
     .build());
 
   @Mock private ResourceDescriptionService descriptionService;
+  @Mock
+  private LanguageConfigService languageConfigService;
 
   @InjectMocks private SearchDocumentConverter documentMapper;
 
@@ -70,7 +73,7 @@ class SearchDocumentConverterTest {
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(languageSources);
-    when(descriptionService.isSupportedLanguage("eng")).thenReturn(true);
+    when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
 
     var actual = documentMapper.convert(eventBody);
 
@@ -91,7 +94,7 @@ class SearchDocumentConverterTest {
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(languageSources);
-    when(descriptionService.isSupportedLanguage("eng")).thenReturn(true);
+    when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
 
     var actual = documentMapper.convert(List.of(eventBody));
 
@@ -159,7 +162,7 @@ class SearchDocumentConverterTest {
       "title", multilangField("$.title")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(descriptionService.isSupportedLanguage("eng")).thenReturn(true);
+    when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
     when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(List.of(
       "$.l1", "$.l2", "$.l3", "$.l4", "$.l5"));
 

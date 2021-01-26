@@ -17,7 +17,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.utils.JsonConverter;
+import org.folio.search.service.converter.ElasticsearchHitConverter;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private final RestHighLevelClient elasticsearchClient;
-  private final JsonConverter jsonConverter;
+  private final ElasticsearchHitConverter elasticsearchHitConverter;
 
   /**
    * Executes request to elasticsearch and returns search result with related documents.
@@ -61,7 +61,8 @@ public class SearchRepository {
 
   private List<Instance> getResultDocuments(SearchHit[] searchHits) {
     return Arrays.stream(searchHits)
-      .map(searchHit -> jsonConverter.fromJson(searchHit.getSourceAsString(), Instance.class))
+      .map(SearchHit::getSourceAsMap)
+      .map(map -> elasticsearchHitConverter.convert(map, Instance.class))
       .collect(Collectors.toList());
   }
 }

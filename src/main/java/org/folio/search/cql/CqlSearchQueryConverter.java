@@ -7,7 +7,6 @@ import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,7 +24,6 @@ import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.model.types.InventorySearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
@@ -98,9 +96,7 @@ public class CqlSearchQueryConverter {
 
   private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
     var fieldName = node.getIndex();
-    var fieldList = InventorySearchType.of(fieldName)
-      .map(searchType -> searchFieldProvider.getFields(request.getResource(), searchType))
-      .orElse(Collections.emptyList());
+    var fieldList = searchFieldProvider.getFields(request.getResource(), fieldName);
 
     var term = node.getTerm();
     if (term.contains(ASTERISKS_SIGN)) {

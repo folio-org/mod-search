@@ -1,14 +1,13 @@
 package org.folio.search.repository;
 
+import static java.util.Collections.emptyMap;
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.array;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -23,13 +22,12 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.utils.JsonConverter;
+import org.folio.search.service.converter.ElasticsearchHitConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
@@ -37,8 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SearchRepositoryTest {
 
   @InjectMocks private SearchRepository searchRepository;
-  @Spy private  final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
-
+  @Mock private ElasticsearchHitConverter elasticsearchHitConverter;
   @Mock private RestHighLevelClient elasticsearchClient;
   @Mock private SearchResponse searchResponse;
   @Mock private SearchHits searchHits;
@@ -52,8 +49,9 @@ class SearchRepositoryTest {
 
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(totalResults, EQUAL_TO));
     when(searchHits.getHits()).thenReturn(array(searchHit));
-    when(searchHit.getSourceAsString()).thenReturn("{}");
+    when(searchHit.getSourceAsMap()).thenReturn(emptyMap());
     when(searchResponse.getHits()).thenReturn(searchHits);
+    when(elasticsearchHitConverter.convert(emptyMap(), Instance.class)).thenReturn(new Instance());
     when(elasticsearchClient.search(esSearchRequest, DEFAULT)).thenReturn(searchResponse);
 
     var expectedResult = new SearchResult();
@@ -63,6 +61,5 @@ class SearchRepositoryTest {
     var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 1, 20);
     var actual = searchRepository.search(searchRequest, queryBuilder);
     assertThat(actual).isEqualTo(expectedResult);
-    verify(jsonConverter).fromJson("{}", Instance.class);
   }
 }

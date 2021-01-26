@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.folio.search.model.types.InventorySearchType;
 import org.folio.search.model.types.SearchFieldType;
 
 /**
@@ -27,7 +26,7 @@ public class PlainFieldDescription extends FieldDescription {
   /**
    * List of search types.
    */
-  private List<InventorySearchType> inventorySearchTypes;
+  private List<String> inventorySearchTypes;
 
   /**
    * List of references to groups, where values can be combined in one elasticsearch field.
@@ -45,15 +44,15 @@ public class PlainFieldDescription extends FieldDescription {
   private boolean languageSource;
 
   /**
+   * Specifies if fields should be returned as part of elasticsearch response or not.
+   */
+  private boolean showInResponse;
+
+  /**
    * Elasticsearch fields mappings.
    *
    * <p>Resource description processor will take this field without any modification and put it to
    * elasticsearch.</p>
    */
   private ObjectNode mappings;
-
-  /**
-   * JSON path to the value from incoming event. This value or set of values will be indexed in search engine.
-   */
-  private String sourcePath;
 }

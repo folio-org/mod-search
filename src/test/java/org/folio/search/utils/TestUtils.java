@@ -6,9 +6,12 @@ import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -25,7 +28,9 @@ import org.folio.search.model.types.FieldType;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtils {
 
-  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    .setSerializationInclusion(Include.NON_NULL)
+    .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -70,6 +75,16 @@ public class TestUtils {
     return resourceDescription;
   }
 
+  public static ResourceDescription resourceDescription(
+    Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
+    var resourceDescription = new ResourceDescription();
+    resourceDescription.setIndex(INDEX_NAME);
+    resourceDescription.setName(RESOURCE_NAME);
+    resourceDescription.setFields(fields);
+    resourceDescription.setLanguageSourcePaths(languageSourcePaths);
+    return resourceDescription;
+  }
+
   public static PlainFieldDescription plainField(String index) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
@@ -81,7 +96,6 @@ public class TestUtils {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(index);
-    fieldDescription.setSourcePath(path);
     return fieldDescription;
   }
 
@@ -98,15 +112,20 @@ public class TestUtils {
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(index);
     fieldDescription.setLanguageSource(true);
-    fieldDescription.setSourcePath(path);
     return fieldDescription;
   }
 
-  public static PlainFieldDescription multilangField(String path) {
+  public static PlainFieldDescription keywordField() {
+    var fieldDescription = new PlainFieldDescription();
+    fieldDescription.setType(PLAIN);
+    fieldDescription.setIndex("keyword");
+    return fieldDescription;
+  }
+
+  public static PlainFieldDescription multilangField() {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(MULTILANG_FIELD_TYPE);
-    fieldDescription.setSourcePath(path);
     return fieldDescription;
   }
 

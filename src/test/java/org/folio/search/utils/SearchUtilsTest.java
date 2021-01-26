@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
@@ -59,6 +60,42 @@ class SearchUtilsTest {
   void getTotalPages_parameterized(long total, long expected) {
     var totalPages = getTotalPages(total, 20);
     assertThat(totalPages).isEqualTo(expected);
+  }
+
+  @Test
+  void isMultiLanguageField_positive() {
+    var actual = SearchUtils.isMultiLanguageField(mapOf("src", "v1", "eng", "v1"));
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isMultiLanguageField_positive_nullValue() {
+    var actual = SearchUtils.isMultiLanguageField(mapOf("src", null));
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isMultiLanguageField_negative() {
+    var actual = SearchUtils.isMultiLanguageField(mapOf("prop1", "v1", "prop2", "v1"));
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void getMultiLanguageField_positive() {
+    var actual = SearchUtils.getSourceMultilangValue(mapOf("src", "v1", "eng", "v1"));
+    assertThat(actual).isEqualTo("v1");
+  }
+
+  @Test
+  void getMultiLanguageField_positive_nullValue() {
+    var actual = SearchUtils.getSourceMultilangValue(mapOf("src", null, "eng", "v1"));
+    assertThat(actual).isNull();
+  }
+
+  @Test
+  void getMultiLanguageField_negative_stringValue() {
+    var actual = SearchUtils.getSourceMultilangValue("value");
+    assertThat(actual).isNull();
   }
 
   private static Stream<Arguments> totalPagesTestData() {

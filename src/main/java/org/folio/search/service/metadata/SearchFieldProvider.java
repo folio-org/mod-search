@@ -2,7 +2,6 @@ package org.folio.search.service.metadata;
 
 import java.util.List;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.model.types.InventorySearchType;
 
 /**
  * Provides access to the index field type, which are used as reference in resource model and it's description in
@@ -13,7 +12,7 @@ public interface SearchFieldProvider {
   /**
    * Provides index field types with mappings and other settings for given field type name.
    *
-   * @param fieldType field type name as {@link String} object.
+   * @param fieldType field type name as {@link String}.
    * @return optional of {@link SearchFieldType} object for given field type.
    */
   SearchFieldType getSearchFieldType(String fieldType);
@@ -21,9 +20,9 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields for given search type.
    *
-   * @param inventorySearchType {@link InventorySearchType} object
-   * @param resource resource type as {@link String} object
+   * @param searchType search type as {@link String}
+   * @param resource resource type as {@link String}
    * @return list of fields.
    */
-  List<String> getFields(String resource, InventorySearchType inventorySearchType);
+  List<String> getFields(String resource, String searchType);
 }

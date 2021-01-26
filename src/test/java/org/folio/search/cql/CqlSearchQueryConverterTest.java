@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.model.types.InventorySearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CqlSearchQueryConverterTest {
 
   private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
+  private static final String TITLE_SEARCH_TYPE = "title";
 
   @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
   @Mock private SearchFieldProvider searchFieldProvider;
@@ -58,7 +58,7 @@ class CqlSearchQueryConverterTest {
   void parseCqlQuery_positive_searchByTitleGroup(
     @SuppressWarnings("unused") String testName, String cqlQuery, SearchSourceBuilder expected) {
     var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0);
-    doReturn(TITLE_FIELDS).when(searchFieldProvider).getFields(RESOURCE_NAME, InventorySearchType.TITLE);
+    doReturn(TITLE_FIELDS).when(searchFieldProvider).getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
     var actual = cqlSearchQueryConverter.convert(request);
 
     assertThat(actual).isEqualTo(expected.size(10).from(0));

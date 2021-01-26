@@ -71,18 +71,6 @@ class ResourceDescriptionServiceTest {
     assertThat(descriptionService.isSupportedLanguage("rus")).isFalse();
   }
 
-  @Test
-  void getLanguageSourcePaths_positive() {
-    var languageSourcePaths = descriptionService.getLanguageSourcePaths(RESOURCE_NAME);
-    assertThat(languageSourcePaths).isEqualTo(List.of("$.lang", "$.nested.lang"));
-  }
-
-  @Test
-  void getLanguageSourcePaths_negative() {
-    var languageSourcePaths = descriptionService.getLanguageSourcePaths("unknown");
-    assertThat(languageSourcePaths).isEmpty();
-  }
-
   private static ResourceDescription resourceDescription() {
     return TestUtils.resourceDescription(mapOf(
       "id", plainField("keyword", "$.id"),

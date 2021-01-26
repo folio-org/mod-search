@@ -1,8 +1,10 @@
 package org.folio.search.utils;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
 
@@ -26,8 +28,8 @@ public class SearchUtils {
       return func.call();
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-          "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
-          index, type, e.getMessage()), e);
+        "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
+        index, type, e.getMessage()), e);
     }
   }
 
@@ -61,5 +63,26 @@ public class SearchUtils {
    */
   public static long getTotalPages(long total, Integer pageSize) {
     return total / pageSize + (total % pageSize != 0 ? 1 : 0);
+  }
+
+  /**
+   * Checks if field is has multi-language subfields.
+   *
+   * @param fieldValue field value as {@link Object}
+   * @return true if field contains multi-language subfields, false - otherwise.
+   */
+  public static boolean isMultiLanguageField(Object fieldValue) {
+    return fieldValue instanceof Map && ((Map<?, ?>) fieldValue).containsKey("src");
+  }
+
+  /**
+   * Extracts multi language source value.
+   *
+   * @param fieldValue multi-language value as {@link Object}
+   * @return found source multi-language value.
+   */
+  @SuppressWarnings("unchecked")
+  public static Object getSourceMultilangValue(Object fieldValue) {
+    return (fieldValue instanceof Map) ? MapUtils.getObject((Map<String, Object>) fieldValue, "src") : null;
   }
 }

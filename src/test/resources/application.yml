@@ -11,6 +11,8 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: password
+  liquibase:
+    change-log: classpath:changelog/changelog-master.xml
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

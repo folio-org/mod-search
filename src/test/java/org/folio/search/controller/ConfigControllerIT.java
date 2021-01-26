@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @IntegrationTest
-class ConfigControllerTest extends BaseIntegrationTest {
+class ConfigControllerIT extends BaseIntegrationTest {
   @Autowired
   private KafkaTemplate<String, Object> kafkaTemplate;
 

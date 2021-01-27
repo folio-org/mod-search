@@ -47,16 +47,18 @@ class LanguageConfigServiceTest {
 
   @Test
   void cannotAddConfigIfLanguageIsNotSupported() {
-    assertThrows(ValidationException.class,
-      () -> configService.create(new LanguageConfig().code(UNSUPPORTED_LANGUAGE_CODE)));
+    final var languageConfig = new LanguageConfig().code(UNSUPPORTED_LANGUAGE_CODE);
+
+    assertThrows(ValidationException.class, () -> configService.create(languageConfig));
   }
 
   @Test
   void cannotAddConfigIfThereIsAlready5Languages() {
+    final var languageConfig = new LanguageConfig().code(SUPPORTED_LANGUAGE_CODE);
+
     when(configRepository.count()).thenReturn(5L);
     when(descriptionService.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
 
-    assertThrows(ValidationException.class,
-      () -> configService.create(new LanguageConfig().code(SUPPORTED_LANGUAGE_CODE)));
+    assertThrows(ValidationException.class, () -> configService.create(languageConfig));
   }
 }

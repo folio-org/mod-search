@@ -82,23 +82,27 @@ public abstract class BaseIntegrationTest {
     }
   }
 
-  public static KafkaContainer createAndStartKafka() {
+  private static KafkaContainer createAndStartKafka() {
     final KafkaContainer kafkaContainer = new KafkaContainer(KAFKA_IMAGE).withReuse(true);
 
     kafkaContainer.start();
 
+    Runtime.getRuntime().addShutdownHook(new Thread(kafkaContainer::stop));
+
     return kafkaContainer;
   }
 
-  public static GenericContainer<?> createAndStartElasticsearch() {
+  private static GenericContainer<?> createAndStartElasticsearch() {
     final GenericContainer<?> esContainer = new GenericContainer<>(
-      new ImageFromDockerfile(ES_IMAGE_NAME, true).withDockerfile(ES_DOCKERFILE_PATH))
+      new ImageFromDockerfile(ES_IMAGE_NAME, false).withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
       .withExposedPorts(9200)
       // Reuse container between tests and control their lifecycle manually
       .withReuse(true);
 
     esContainer.start();
+
+    Runtime.getRuntime().addShutdownHook(new Thread(esContainer::stop));
 
     return esContainer;
   }

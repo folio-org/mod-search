@@ -11,10 +11,10 @@ import lombok.Getter;
 public class RawRecord {
   private String id;
   @Getter(onMethod_ = @__(@JsonAnyGetter))
-  private Map<String, Object> unknown = new HashMap<>();
+  private Map<String, Object> rawProperties = new HashMap<>();
 
   @JsonAnySetter
   public void set(String name, Object value) {
-    unknown.put(name, value);
+    rawProperties.put(name, value);
   }
 }

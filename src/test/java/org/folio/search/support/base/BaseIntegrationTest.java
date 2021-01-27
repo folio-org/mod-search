@@ -70,7 +70,7 @@ public abstract class BaseIntegrationTest {
     }
   }
 
-  public static KafkaContainer createAndStartKafka() {
+  private static KafkaContainer createAndStartKafka() {
     final KafkaContainer kafkaContainer = new KafkaContainer(KAFKA_IMAGE).withReuse(true);
 
     kafkaContainer.start();
@@ -78,7 +78,7 @@ public abstract class BaseIntegrationTest {
     return kafkaContainer;
   }
 
-  public static GenericContainer<?> createAndStartElasticsearch() {
+  private static GenericContainer<?> createAndStartElasticsearch() {
     final GenericContainer<?> esContainer = new GenericContainer<>(
       new ImageFromDockerfile(ES_IMAGE_NAME, true).withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")

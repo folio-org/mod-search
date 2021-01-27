@@ -118,7 +118,7 @@ paths:
       operationId: deleteLanguageConfig
       description: Delete all supported languages
       parameters:
-        - $ref: '#/components/parameters/entity-id'
+        - $ref: '#/components/parameters/entity-id-path-variable'
       responses:
         '204':
           description: Language support has been removed
@@ -154,7 +154,7 @@ components:
             $ref: '#/components/schemas/instance'
 
   parameters:
-    entity-id:
+    entity-id-path-variable:
       name: id
       in: path
       required: true

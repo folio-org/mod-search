@@ -18,7 +18,7 @@
   },
   "additionalProperties": false,
   "required": [
-    "configLanguages",
+    "languageConfigs",
     "totalRecords"
   ]
 }

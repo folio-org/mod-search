@@ -1,11 +1,15 @@
 package org.folio.search.service;
 
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.converter.LanguageConfigConverter;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.ValidationException;
@@ -45,7 +49,7 @@ public class LanguageConfigService {
 
   public LanguageConfigs getAll() {
     final List<LanguageConfig> languageConfigs = configRepository.findAll().stream()
-      .map(this::toLanguageConfig)
+      .map(LanguageConfigConverter::toLanguageConfig)
       .collect(Collectors.toList());
 
     return new LanguageConfigs()
@@ -57,23 +61,5 @@ public class LanguageConfigService {
     return getAll().getLanguageConfigs().stream()
       .map(LanguageConfig::getCode)
       .collect(Collectors.toSet());
-  }
-
-  private LanguageConfig toLanguageConfig(LanguageConfigEntity entity) {
-    final LanguageConfig languageConfig = new LanguageConfig();
-
-    languageConfig.setId(entity.getId().toString());
-    languageConfig.setCode(entity.getCode());
-
-    return languageConfig;
-  }
-
-  private LanguageConfigEntity toLanguageConfigEntity(LanguageConfig dto) {
-    final LanguageConfigEntity languageConfig = new LanguageConfigEntity();
-
-    languageConfig.setId(dto.getId() != null ? UUID.fromString(dto.getId()) : UUID.randomUUID());
-    languageConfig.setCode(dto.getCode());
-
-    return languageConfig;
   }
 }

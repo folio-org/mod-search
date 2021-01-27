@@ -1,11 +1,12 @@
 package org.folio.search.converter;
 
 import java.util.UUID;
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.config.LanguageConfigEntity;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LanguageConfigConverter {
   public static LanguageConfig toLanguageConfig(LanguageConfigEntity entity) {
     final LanguageConfig languageConfig = new LanguageConfig();

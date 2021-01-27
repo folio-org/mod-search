@@ -75,6 +75,8 @@ public abstract class BaseIntegrationTest {
 
     kafkaContainer.start();
 
+    Runtime.getRuntime().addShutdownHook(new Thread(kafkaContainer::stop));
+
     return kafkaContainer;
   }
 
@@ -87,6 +89,8 @@ public abstract class BaseIntegrationTest {
       .withReuse(true);
 
     esContainer.start();
+
+    Runtime.getRuntime().addShutdownHook(new Thread(esContainer::stop));
 
     return esContainer;
   }

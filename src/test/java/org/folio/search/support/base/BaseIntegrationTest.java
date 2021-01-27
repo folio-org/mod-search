@@ -27,25 +27,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Testcontainers
 public abstract class BaseIntegrationTest {
   private static final DockerImageName KAFKA_IMAGE = parse("confluentinc/cp-kafka:5.5.3");
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");
 
-  @Container
-  private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_IMAGE);
-  @Container
-  private static final GenericContainer<?> ES_CONTAINER = new GenericContainer<>(
-    new ImageFromDockerfile(ES_IMAGE_NAME, false).withDockerfile(ES_DOCKERFILE_PATH))
-    .withEnv("discovery.type", "single-node")
-    .withExposedPorts(9200);
+  private static final KafkaContainer KAFKA_CONTAINER = createAndStartKafka();
+  private static final GenericContainer<?> ES_CONTAINER = createAndStartElasticsearch();
+
+  private static boolean alreadyInitialized = false;
 
   @Autowired
   protected MockMvc mockMvc;
@@ -59,17 +53,42 @@ public abstract class BaseIntegrationTest {
   }
 
   @BeforeAll
-  static void createIndexAndUploadInstances(@Autowired MockMvc mockMvc,
+  static void doFirstInitialization(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) throws Exception {
 
-    mockMvc.perform(post("/search/index/indices")
-      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
-      .headers(defaultHeaders())
-      .contentType(APPLICATION_JSON))
-      .andExpect(status().isOk());
+    if (!alreadyInitialized) {
+      mockMvc.perform(post("/search/index/indices")
+        .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
+        .headers(defaultHeaders())
+        .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
 
-    kafkaTemplate.send("inventory.instance", getSemanticWeb().getId(),
-      eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
+      kafkaTemplate.send("inventory.instance", getSemanticWeb().getId(),
+        eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
+
+      alreadyInitialized = true;
+    }
+  }
+
+  public static KafkaContainer createAndStartKafka() {
+    final KafkaContainer kafkaContainer = new KafkaContainer(KAFKA_IMAGE).withReuse(true);
+
+    kafkaContainer.start();
+
+    return kafkaContainer;
+  }
+
+  public static GenericContainer<?> createAndStartElasticsearch() {
+    final GenericContainer<?> esContainer = new GenericContainer<>(
+      new ImageFromDockerfile(ES_IMAGE_NAME, true).withDockerfile(ES_DOCKERFILE_PATH))
+      .withEnv("discovery.type", "single-node")
+      .withExposedPorts(9200)
+      // Reuse container between tests and control their lifecycle manually
+      .withReuse(true);
+
+    esContainer.start();
+
+    return esContainer;
   }
 
   public static HttpHeaders defaultHeaders() {

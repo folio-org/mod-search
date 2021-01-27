@@ -126,13 +126,13 @@ public class SearchDocumentConverter {
 
   private List<String> getResourceLanguages(String resourceName, DocumentContext doc) {
     var languageSourcePaths = descriptionService.getLanguageSourcePaths(resourceName);
-    var allLanguageCodes = languageConfigService.getAllSupportedLanguageCodes();
+    var supportedLanguages = languageConfigService.getAllSupportedLanguageCodes();
 
     return languageSourcePaths.stream()
       .map(sourcePath -> getJsonNodeByPath(doc, sourcePath))
       .flatMap(SearchDocumentConverter::getStreamFromJson)
       .distinct()
-      .filter(allLanguageCodes::contains)
+      .filter(supportedLanguages::contains)
       .collect(toList());
   }
 

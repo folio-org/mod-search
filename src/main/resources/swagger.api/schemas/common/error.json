@@ -22,9 +22,11 @@
         "type": "object",
         "properties": {
           "key": {
+            "description": "Property name",
             "type": "string"
           },
           "value": {
+            "description": "Property value",
             "type": "string"
           }
         }

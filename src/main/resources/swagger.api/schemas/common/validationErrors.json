@@ -8,7 +8,7 @@
       "id": "errors",
       "type": "array",
       "items": {
-        "$ref": "validationError.json"
+        "$ref": "error.json"
       }
     }
   }

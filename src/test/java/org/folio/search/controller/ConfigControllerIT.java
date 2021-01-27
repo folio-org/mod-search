@@ -83,14 +83,15 @@ class ConfigControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  void canRemoveLanguageConfig() {
+  void canRemoveLanguageConfig() throws Exception {
     final LanguageConfig language = new LanguageConfig()
       .code("fre")
       .id(UUID.randomUUID().toString());
 
     doPost(languageConfig(), language);
 
-    doDelete(languageConfig() + "/{id}", language.getId());
+    doDelete(languageConfig() + "/{id}", language.getId())
+      .andExpect(status().isNoContent());
   }
 
   @Test

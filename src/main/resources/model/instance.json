@@ -22,7 +22,7 @@
         "copy_to": [ "sort_title" ]
       }
     },
-    "alternativeTitle": {
+    "alternativeTitles": {
       "type": "object",
       "properties": {
         "alternativeTitle": {
@@ -37,7 +37,7 @@
     },
     "series": {
       "inventorySearchTypes": "title",
-      "index": "keyword"
+      "index": "multilang"
     },
     "identifiers": {
       "type": "object",

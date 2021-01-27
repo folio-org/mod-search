@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 class SearchInstanceIT extends BaseIntegrationTest {
+
   @Test
   void canSearchByInstanceId_exactMatch() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("id=={value}"), getSemanticWeb().getId())
@@ -25,6 +26,51 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @Test
   void canSearchByInstanceId_wildcard() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("id=={value}"), "5bf370e0*a0a39")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByTitle_title() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("title all {value}"), "semantic")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByTitle_series() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("title all {value}"), "cooperative")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByTitle_seriesPartialMatch() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("title all {value}"), "cooperate")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByTitle_partOfTitle() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("title all {value}"), "primers")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByTitle_alternativeTitle() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("title all {value}"), "alternative")
       .headers(defaultHeaders()))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(1)))

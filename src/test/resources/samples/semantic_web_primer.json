@@ -4,7 +4,11 @@
   "source": "FOLIO",
   "title": "A semantic web primer",
   "indexTitle": "Semantic web primer",
-  "alternativeTitles": [],
+  "alternativeTitles": [
+    {
+      "alternativeTitle": "An alternative title"
+    }
+  ],
   "editions": [],
   "series": [
     "Cooperative information systems"

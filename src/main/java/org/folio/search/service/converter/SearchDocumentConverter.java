@@ -14,7 +14,6 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
@@ -22,8 +21,8 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.utils.ConversionHelper;
 import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.SearchConverterUtils;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -79,8 +78,8 @@ public class SearchDocumentConverter {
 
   private List<String> getResourceLanguages(Map<String, Object> resourceData, List<String> languageSourcePaths) {
     return languageSourcePaths.stream()
-      .map(sourcePath -> ConversionHelper.getMapValueByPath(sourcePath, resourceData))
-      .flatMap(ConversionHelper::getStringStreamFromValue)
+      .map(sourcePath -> SearchConverterUtils.getMapValueByPath(sourcePath, resourceData))
+      .flatMap(SearchConverterUtils::getStringStreamFromValue)
       .distinct()
       .filter(descriptionService::isSupportedLanguage)
       .collect(toList());
@@ -128,11 +127,10 @@ public class SearchDocumentConverter {
     }
 
     if (value instanceof List) {
-      var convertedValues = ((List<Object>) value).stream()
+      return ((List<Object>) value).stream()
         .map(listValue -> getObjectFieldValue(listValue, subfields, ctx))
         .filter(Objects::nonNull)
         .collect(toList());
-      return CollectionUtils.isNotEmpty(convertedValues) ? convertedValues : null;
     }
 
     return null;

@@ -1,5 +1,6 @@
 package org.folio.search.service.converter;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -16,6 +17,7 @@ import org.elasticsearch.common.collect.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
 import org.folio.search.domain.dto.InstanceIdentifiers;
+import org.folio.search.domain.dto.InstanceMetadata;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +48,8 @@ class ElasticsearchHitConverterTest {
 
   private static Stream<Arguments> positiveConvertDataProvider() {
     return Stream.of(
+      arguments(emptyMap(), new Instance()),
+
       arguments(
         mapOf("title", mapOf("src", "title value", "eng", "title value")),
         instance(instance -> instance.setTitle("title value"))),
@@ -53,6 +57,10 @@ class ElasticsearchHitConverterTest {
       arguments(
         mapOf("identifiers", List.of(mapOf("value", "isbn1"), mapOf("value", "isbn2"))),
         instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
+
+      arguments(
+        mapOf("metadata", mapOf("updatedByUserId", "userId", "createdByUsername", "username")),
+        instance(instance -> instance.setMetadata(metadata()))),
 
       arguments(
         mapOf("alternativeTitles", List.of(
@@ -83,5 +91,12 @@ class ElasticsearchHitConverterTest {
     var title = new InstanceAlternativeTitles();
     title.setAlternativeTitle(value);
     return title;
+  }
+
+  private static InstanceMetadata metadata() {
+    var metadata = new InstanceMetadata();
+    metadata.setUpdatedByUserId("userId");
+    metadata.setCreatedByUsername("username");
+    return metadata;
   }
 }

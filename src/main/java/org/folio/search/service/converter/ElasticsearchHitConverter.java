@@ -64,6 +64,6 @@ public class ElasticsearchHitConverter {
 
   @SuppressWarnings("unchecked")
   private static Object getSourceMultilangValue(Object fieldValue) {
-    return (fieldValue instanceof Map) ? MapUtils.getObject((Map<String, Object>) fieldValue, "src") : null;
+    return ((Map<String, Object>) fieldValue).get("src");
   }
 }

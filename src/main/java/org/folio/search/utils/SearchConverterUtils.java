@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConversionHelper {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class SearchConverterUtils {
 
   /**
    * Retrieves field value by path. It will extract all field value matching following keys separated by dot. If map
@@ -26,12 +28,10 @@ public class ConversionHelper {
     if (MapUtils.isEmpty(map)) {
       return null;
     }
-    var values = path.split("\\.");
+    var pathToProcess = path.startsWith("$.") ? path.substring(2) : path;
+    var values = pathToProcess.split("\\.");
     Object currentValue = map;
     for (String pathValue : values) {
-      if (StringUtils.equals("$", pathValue)) {
-        continue;
-      }
       currentValue = getFieldValueByPath(pathValue, currentValue);
       if (currentValue == null) {
         break;

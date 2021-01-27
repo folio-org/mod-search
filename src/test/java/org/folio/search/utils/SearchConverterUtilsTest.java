@@ -15,13 +15,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
-class ConversionHelperTest {
+class SearchConverterUtilsTest {
 
   @ParameterizedTest(name = "[{index}] path={1}, expected={2}")
   @MethodSource("getValueByPathProvider")
   @DisplayName("should receive value by path")
   void getValueByPath(String path, Map<String, Object> document, Object expected) {
-    var actual = ConversionHelper.getMapValueByPath(path, document);
+    var actual = SearchConverterUtils.getMapValueByPath(path, document);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -32,6 +32,7 @@ class ConversionHelperTest {
       arguments("$.languages", mapOf("key", "value"), null),
       arguments("$.languages.value", mapOf("languages", "eng"), null),
       arguments("$.languages.value", mapOf("languages", List.of("eng", "rus")), null),
+      arguments("languages", mapOf("languages", "eng"), "eng"),
       arguments("$.languages", mapOf("languages", "eng"), "eng"),
       arguments("$.languages", mapOf("languages", List.of("eng", "rus")), List.of("eng", "rus")),
       arguments("$.languages.value", mapOf("languages", List.of(

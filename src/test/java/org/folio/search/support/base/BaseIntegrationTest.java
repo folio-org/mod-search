@@ -82,7 +82,7 @@ public abstract class BaseIntegrationTest {
 
   private static GenericContainer<?> createAndStartElasticsearch() {
     final GenericContainer<?> esContainer = new GenericContainer<>(
-      new ImageFromDockerfile(ES_IMAGE_NAME, true).withDockerfile(ES_DOCKERFILE_PATH))
+      new ImageFromDockerfile(ES_IMAGE_NAME, false).withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
       .withExposedPorts(9200)
       // Reuse container between tests and control their lifecycle manually

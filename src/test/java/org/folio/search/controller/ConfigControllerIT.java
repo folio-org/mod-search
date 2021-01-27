@@ -53,26 +53,6 @@ class ConfigControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  void cannotHaveMoreThan5LanguageConfigs() throws Exception {
-    final List<String> languageCodes = List.of("eng", "ara", "rus", "ger", "spa");
-
-    for (String languageCode : languageCodes) {
-      doPost(languageConfig(), new LanguageConfig().code(languageCode));
-    }
-
-    attemptPost(languageConfig(), new LanguageConfig().code("heb"))
-      .andExpect(status().is(422))
-      .andExpect(jsonPath("errors[0].parameters.key", is("code")))
-      .andExpect(jsonPath("errors[0].parameters.value", is("heb")))
-      .andExpect(jsonPath("errors[0].message",
-        is("Tenant is allowed to have only 5 languages configured")));
-
-    doGet(languageConfig())
-      .andExpect(jsonPath("totalRecords", is(5)))
-      .andExpect(jsonPath("languageConfigs[*].code", is(languageCodes)));
-  }
-
-  @Test
   void cannotAddLanguageIfNoAnalyzer() throws Exception {
     attemptPost(languageConfig(), new LanguageConfig().code("ukr"))
       .andExpect(status().is(422))

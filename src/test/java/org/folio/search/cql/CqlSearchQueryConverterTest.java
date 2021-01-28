@@ -13,6 +13,7 @@ import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CqlSearchQueryConverterTest {
 
   private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
+  private static final List<String> SOURCE_FIELDS = List.of("title.*", "source.*");
   private static final String TITLE_SEARCH_TYPE = "title";
 
   @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
@@ -47,6 +49,7 @@ class CqlSearchQueryConverterTest {
   void parseCqlQuery_positive_parameterized(
     @SuppressWarnings("unused") String testName, String cqlQuery, SearchSourceBuilder expected) {
     var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0);
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
     var actual = cqlSearchQueryConverter.convert(request);
 
     assertThat(actual).isEqualTo(expected.size(10).from(0));
@@ -59,6 +62,8 @@ class CqlSearchQueryConverterTest {
     @SuppressWarnings("unused") String testName, String cqlQuery, SearchSourceBuilder expected) {
     var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0);
     doReturn(TITLE_FIELDS).when(searchFieldProvider).getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+
     var actual = cqlSearchQueryConverter.convert(request);
 
     assertThat(actual).isEqualTo(expected.size(10).from(0));
@@ -155,7 +160,8 @@ class CqlSearchQueryConverterTest {
   }
 
   private static SearchSourceBuilder searchSource() {
-    return SearchSourceBuilder.searchSource().trackTotalHits(true);
+    return SearchSourceBuilder.searchSource().trackTotalHits(true)
+      .fetchSource(SOURCE_FIELDS.toArray(String[]::new), null);
   }
 
   private static SearchSourceBuilder searchSourceSort() {

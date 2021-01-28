@@ -3,9 +3,12 @@ package org.folio.search.service.metadata;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +35,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
   private Map<String, Map<String, List<String>>> fieldBySearchType;
+  private Map<String, List<String>> sourceFields;
 
   /**
    * Loads local defined elasticsearch field type from json.
@@ -39,7 +43,9 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   @PostConstruct
   public void init() {
     elasticsearchFieldTypes = unmodifiableMap(localResourceProvider.getSearchFieldTypes());
-    fieldBySearchType = collectFieldsBySearchType(localResourceProvider.getResourceDescriptions());
+    var resourceDescriptions = localResourceProvider.getResourceDescriptions();
+    fieldBySearchType = collectFieldsBySearchType(resourceDescriptions);
+    sourceFields = collectSourceFields(resourceDescriptions);
   }
 
   @Override
@@ -57,6 +63,11 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return fieldBySearchType
       .getOrDefault(resource, emptyMap())
       .getOrDefault(searchType, emptyList());
+  }
+
+  @Override
+  public List<String> getSourceFields(String resource) {
+    return sourceFields.getOrDefault(resource, emptyList());
   }
 
   private static Map<String, Map<String, List<String>>> collectFieldsBySearchType(
@@ -81,7 +92,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       var searchTypes = plainFieldDescription.getInventorySearchTypes();
       if (CollectionUtils.isNotEmpty(searchTypes)) {
         var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
-        var fieldPath = MULTILANG_FIELD_TYPE.equals(plainFieldDescription.getIndex()) ? fieldName + ".*" : fieldName;
+        var fieldPath = isMultilangField(plainFieldDescription) ? fieldName + ".*" : fieldName;
         searchTypes.forEach(type -> fieldsBySearchType.put(type, List.of(getFullPathToField(prefix, fieldPath))));
         return fieldsBySearchType;
       } else {
@@ -91,8 +102,40 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
     var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
     ((ObjectFieldDescription) fieldDescription).getProperties().forEach((name, desc) ->
-      addFieldsToResultMap(name, desc, fieldName, fieldsBySearchType));
+      addFieldsToResultMap(name, desc, getFullPathToField(prefix, fieldName), fieldsBySearchType));
     return fieldsBySearchType;
+  }
+
+  private Map<String, List<String>> collectSourceFields(List<ResourceDescription> resourceDescriptions) {
+    var sourceFieldPerResource = new LinkedHashMap<String, List<String>>();
+    for (ResourceDescription desc : resourceDescriptions) {
+      sourceFieldPerResource.put(desc.getName(), getSourceFieldPaths(null, desc.getFields()));
+    }
+    return unmodifiableMap(sourceFieldPerResource);
+  }
+
+  private static List<String> getSourceFieldPaths(String prefix, Map<String, FieldDescription> fields) {
+    return fields.entrySet().stream()
+      .map(entry -> getSourceFieldPaths(prefix, entry.getKey(), entry.getValue()))
+      .flatMap(Collection::stream)
+      .distinct()
+      .collect(toUnmodifiableList());
+  }
+
+  private static List<String> getSourceFieldPaths(String prefix, String name, FieldDescription desc) {
+    if (desc instanceof PlainFieldDescription) {
+      var fieldDesc = (PlainFieldDescription) desc;
+      if (fieldDesc.isShowInResponse()) {
+        var resultFieldName = isMultilangField(fieldDesc) ? name + "." + MULTILANG_SOURCE_SUBFIELD : name;
+        return List.of(getFullPathToField(prefix, resultFieldName));
+      }
+      return emptyList();
+    }
+    return getSourceFieldPaths(getFullPathToField(prefix, name), ((ObjectFieldDescription) desc).getProperties());
+  }
+
+  private static boolean isMultilangField(PlainFieldDescription plainFieldDescription) {
+    return MULTILANG_FIELD_TYPE.equals(plainFieldDescription.getIndex());
   }
 
   private static void addFieldsToResultMap(String fieldName, FieldDescription description, String prefix,

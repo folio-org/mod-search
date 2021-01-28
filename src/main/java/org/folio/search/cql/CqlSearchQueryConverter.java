@@ -76,6 +76,7 @@ public class CqlSearchQueryConverter {
 
     return queryBuilder
       .query(convertToQuery(searchRequest, node))
+      .fetchSource(searchFieldProvider.getSourceFields(searchRequest.getResource()).toArray(String[]::new), null)
       .from(searchRequest.getOffset())
       .size(searchRequest.getLimit());
   }

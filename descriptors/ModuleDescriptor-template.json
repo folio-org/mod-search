@@ -99,7 +99,7 @@
       "description": "Updates mappings for the index"
     },
     {
-      "permissionName": "search.index.resources.collection.post",
+      "permissionName": "search.index.records.collection.post",
       "displayName": "Search - saves resource to the search engine",
       "description": "Saves resource to the search engine"
     },

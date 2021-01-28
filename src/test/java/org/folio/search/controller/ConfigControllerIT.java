@@ -1,19 +1,29 @@
 package org.folio.search.controller;
 
 import static org.awaitility.Awaitility.await;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.folio.search.support.base.ApiEndpoints.languageConfig;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
+import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.SneakyThrows;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.sample.InstanceBuilder;
@@ -28,6 +38,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 class ConfigControllerIT extends BaseIntegrationTest {
   @Autowired
   private KafkaTemplate<String, Object> kafkaTemplate;
+  @Autowired
+  private RestHighLevelClient elasticsearchClient;
 
   @BeforeEach
   void removeConfigs() {
@@ -89,12 +101,24 @@ class ConfigControllerIT extends BaseIntegrationTest {
     kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, newInstance.getId().toString(),
       eventBody(INSTANCE_RESOURCE, newInstance));
 
-    await()
-      .untilAsserted(() -> doGet(searchInstancesByQuery("id==\"{id}\""), newInstance.getId())
-        .andExpect(jsonPath("totalRecords", is(1)))
-        .andExpect(jsonPath("instances[0].id", is(newInstance.getId().toString())))
-        .andExpect(jsonPath("instances[0].title.src", is(newInstance.getTitle())))
-        .andExpect(jsonPath("instances[0].title.eng", is(newInstance.getTitle())))
-        .andExpect(jsonPath("instances[0].title.rus", is(newInstance.getTitle()))));
+    final var indexedInstance = getIndexedInstanceById(newInstance.getId().toString());
+
+    assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
+    assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
+    assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
+  }
+
+  @SneakyThrows
+  private Map<String, Object> getIndexedInstanceById(String id) {
+    final var searchRequest = new SearchRequest()
+      .routing(TENANT_ID)
+      .source(new SearchSourceBuilder().query(matchQuery("id", id)))
+      .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID));
+
+    await().until(() -> elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT)
+      .getHits().getTotalHits().value > 0);
+
+    return elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT).getHits()
+      .getAt(0).getSourceAsMap();
   }
 }

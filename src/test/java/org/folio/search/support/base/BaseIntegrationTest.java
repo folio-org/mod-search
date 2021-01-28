@@ -1,6 +1,7 @@
 package org.folio.search.support.base;
 
 import static java.lang.String.format;
+import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -19,6 +20,7 @@ import static org.testcontainers.utility.DockerImageName.parse;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import org.awaitility.Duration;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,28 +88,13 @@ public abstract class BaseIntegrationTest {
     return httpHeaders;
   }
 
-  private static void checkThatElasticsearchAcceptResourcesFromKafka(MockMvc mockMvc) throws InterruptedException {
-    var retryCount = 0;
-    boolean success = false;
-    do {
-      retryCount++;
-      try {
-        mockMvc.perform(get(searchInstancesByQuery("id={value}"), getSemanticWeb().getId())
-          .headers(defaultHeaders()))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("totalRecords", is(1)))
-          .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
-      } catch (Throwable t) {
-        log.info("Waiting for full data uploading...");
-        Thread.sleep(1000);
-        continue;
-      }
-      success = true;
-    } while (retryCount < 10 && !success);
-
-    if (!success) {
-      throw new AssertionError("Failed to upload data into elasticsearch");
-    }
+  private static void checkThatElasticsearchAcceptResourcesFromKafka(MockMvc mockMvc) {
+    await().atMost(Duration.ONE_MINUTE).untilAsserted(() ->
+      mockMvc.perform(get(searchInstancesByQuery("id={value}"), getSemanticWeb().getId())
+        .headers(defaultHeaders()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("totalRecords", is(1)))
+        .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId()))));
   }
 
   private static KafkaContainer createAndStartKafka() {

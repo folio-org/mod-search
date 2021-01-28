@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -43,30 +41,7 @@ public class KafkaMessageListener {
       .map(KafkaMessageListener::asInstanceResource)
       .collect(toList());
 
-    resources.stream()
-      .collect(groupingBy(ResourceEventBody::getTenant))
-      .forEach((tenant, eventsForTenant) -> {
-        try {
-          log.info("Processing [{}] events for tenant [{}]", eventsForTenant.size(), tenant);
-          // This needed to inject FOLIO specific values to properly work with DB
-          beginFolioExecutionContext(tenant);
-
-          indexService.indexResources(eventsForTenant);
-        } finally {
-          endFolioExecutionContext();
-        }
-      });
-  }
-
-  // Package access required for tests
-  void beginFolioExecutionContext(String tenant) {
-    FolioExecutionScopeExecutionContextManager
-      .beginFolioExecutionContext(new AsyncFolioExecutionContext(tenant, moduleMetadata));
-  }
-
-  // Package access required for tests
-  void endFolioExecutionContext() {
-    FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();
+    indexService.indexResources(resources);
   }
 
   private static ResourceEventBody asInstanceResource(ResourceEventBody eventBody) {

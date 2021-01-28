@@ -11,7 +11,7 @@ public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = "instance";
   public static final String X_OKAPI_TENANT_HEADER = "X-Okapi-Tenant";
-
+  public static final String MULTILANG_SOURCE_SUBFIELD = "src";
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
@@ -26,8 +26,8 @@ public class SearchUtils {
       return func.call();
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-          "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
-          index, type, e.getMessage()), e);
+        "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
+        index, type, e.getMessage()), e);
     }
   }
 

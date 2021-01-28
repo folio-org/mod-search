@@ -16,9 +16,12 @@
       "description": "The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)"
     },
     "title": {
-      "type": "object",
-      "description": "The primary title (or label) associated with the resource",
-      "$ref": "#/definitions/multilangField"
+      "type": "string",
+      "description": "The primary title (or label) associated with the resource"
+    },
+    "indexTitle": {
+      "type": "string",
+      "description": "Title normalized for browsing and searching; based on the title with articles removed"
     },
     "series": {
       "type": "array",
@@ -27,18 +30,47 @@
         "type": "string"
       }
     },
+    "alternativeTitles": {
+      "type": "array",
+      "description": "List of alternative titles for the resource (e.g. original language version title of a movie)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "alternativeTitle": {
+            "type": "string",
+            "description": "An alternative title for the resource"
+          }
+        }
+      }
+    },
     "identifiers": {
       "type": "array",
       "description": "Resource identifier value array",
       "items": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Resource identifier value"
+          },
+          "identifierTypeId": {
+            "type": "string",
+            "description": "UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)"
+          }
+        }
       }
     },
     "contributors": {
       "type": "array",
       "description": "List of contributors names",
       "items": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Personal name, corporate name, meeting name"
+          }
+        }
       }
     },
     "subjects": {
@@ -91,65 +123,6 @@
         },
         "updatedByUsername": {
           "description": "Username of the user who last updated the record (when available)",
-          "type": "string"
-        }
-      }
-    }
-  },
-  "definitions": {
-    "multilangField": {
-      "type": "object",
-      "properties": {
-        "ara": {
-          "description": "Multi-language Arabic value",
-          "type": "string"
-        },
-        "ger": {
-          "description": "Multi-language German value",
-          "type": "string"
-        },
-        "eng": {
-          "description": "Multi-language English value",
-          "type": "string"
-        },
-        "spa": {
-          "description": "Multi-language Spanish value",
-          "type": "string"
-        },
-        "fre": {
-          "description": "Multi-language French value",
-          "type": "string"
-        },
-        "heb": {
-          "description": "Multi-language Hebrew value",
-          "type": "string"
-        },
-        "ita": {
-          "description": "Multi-language Italian value",
-          "type": "string"
-        },
-        "jpn": {
-          "description": "Multi-language Japanese value",
-          "type": "string"
-        },
-        "kor": {
-          "description": "Multi-language Korean value",
-          "type": "string"
-        },
-        "rus": {
-          "description": "Multi-language Russian value",
-          "type": "string"
-        },
-        "swe": {
-          "description": "Multi-language Swedish value",
-          "type": "string"
-        },
-        "chi": {
-          "description": "Multi-language Chinese value",
-          "type": "string"
-        },
-        "src": {
-          "description": "Original value",
           "type": "string"
         }
       }

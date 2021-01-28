@@ -2,15 +2,21 @@ package org.folio.search.cql;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -18,6 +24,7 @@ import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -38,6 +45,8 @@ import org.z3950.zing.cql.CQLTermNode;
 public class CqlSearchQueryConverter {
 
   private static final String ASTERISKS_SIGN = "*";
+
+  private final SearchFieldProvider searchFieldProvider;
 
   /**
    * Parses {@link CqlSearchRequest} object to the elasticsearch.
@@ -61,45 +70,54 @@ public class CqlSearchQueryConverter {
     if (node instanceof CQLSortNode) {
       for (var sortIndex : ((CQLSortNode) node).getSortIndexes()) {
         var modifiers = new CqlModifiers(sortIndex);
-        queryBuilder.sort(sortIndex.getBase(), getSortOrder(modifiers.getCqlSort()));
+        queryBuilder.sort("sort_" + sortIndex.getBase(), getSortOrder(modifiers.getCqlSort()));
       }
     }
 
     return queryBuilder
-      .query(convertToQuery(node))
+      .query(convertToQuery(searchRequest, node))
       .from(searchRequest.getOffset())
       .size(searchRequest.getLimit());
   }
 
-  private QueryBuilder convertToQuery(CQLNode node) {
+  private QueryBuilder convertToQuery(CqlSearchRequest request, CQLNode node) {
     var cqlNode = node;
     if (node instanceof CQLSortNode) {
       cqlNode = ((CQLSortNode) node).getSubtree();
     }
     if (cqlNode instanceof CQLTermNode) {
-      return convertToTermQuery((CQLTermNode) cqlNode);
+      return convertToTermQuery(request, (CQLTermNode) cqlNode);
     }
     if (cqlNode instanceof CQLBooleanNode) {
-      return convertToBoolQuery((CQLBooleanNode) cqlNode);
+      return convertToBoolQuery(request, (CQLBooleanNode) cqlNode);
     }
     throw new UnsupportedOperationException("Unsupported node: " + node.getClass().getSimpleName());
   }
 
-  private QueryBuilder convertToTermQuery(CQLTermNode node) {
+  private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
     var fieldName = node.getIndex();
+    var fieldList = searchFieldProvider.getFields(request.getResource(), fieldName);
+
     var term = node.getTerm();
     if (term.contains(ASTERISKS_SIGN)) {
-      return wildcardQuery(fieldName, term);
+      return prepareElasticsearchQuery(fieldList,
+        fields -> prepareBoolQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),
+        () -> prepareWildcardQuery(fieldName, term));
     }
+
     var comparator = StringUtils.lowerCase(node.getRelation().getBase());
     switch (comparator) {
       case "=":
-        return termQuery(fieldName, term);
+        return prepareElasticsearchQuery(fieldList,
+          fields -> prepareBoolQueryForFieldsGroup(fields, field -> termQuery(field, term)),
+          () -> termQuery(fieldName, term));
       case "adj":
       case "all":
       case "any":
       case "==":
-        return matchQuery(fieldName, term);
+        return prepareElasticsearchQuery(fieldList,
+          fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
+          () -> matchQuery(fieldName, term));
       case "<>":
         return boolQuery().mustNot(termQuery(fieldName, term));
       case "<":
@@ -115,25 +133,44 @@ public class CqlSearchQueryConverter {
     }
   }
 
-  private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node) {
+  private BoolQueryBuilder convertToBoolQuery(CqlSearchRequest request, CQLBooleanNode node) {
     var operator = node.getOperator();
     var boolQuery = boolQuery();
     switch (operator) {
       case OR:
         return boolQuery
-          .should(convertToQuery(node.getLeftOperand()))
-          .should(convertToQuery(node.getRightOperand()));
+          .should(convertToQuery(request, node.getLeftOperand()))
+          .should(convertToQuery(request, node.getRightOperand()));
       case AND:
         return boolQuery
-          .must(convertToQuery(node.getLeftOperand()))
-          .must(convertToQuery(node.getRightOperand()));
+          .must(convertToQuery(request, node.getLeftOperand()))
+          .must(convertToQuery(request, node.getRightOperand()));
       case NOT:
         return boolQuery
-          .must(convertToQuery(node.getLeftOperand()))
-          .mustNot(convertToQuery(node.getRightOperand()));
+          .must(convertToQuery(request, node.getLeftOperand()))
+          .mustNot(convertToQuery(request, node.getRightOperand()));
       default:
         throw unsupportedException(operator.name());
     }
+  }
+
+  private static QueryBuilder prepareElasticsearchQuery(List<String> fieldsGroup,
+    Function<List<String>, QueryBuilder> groupQueryProducer, Supplier<QueryBuilder> defaultQuery) {
+    return CollectionUtils.isNotEmpty(fieldsGroup) ? groupQueryProducer.apply(fieldsGroup) : defaultQuery.get();
+  }
+
+  private static BoolQueryBuilder prepareBoolQueryForFieldsGroup(List<String> fieldsGroup,
+    Function<String, QueryBuilder> innerQueryProvider) {
+    var boolQueryBuilder = boolQuery();
+    fieldsGroup.forEach(field -> {
+      var newFieldName = (field.endsWith(".*")) ? field.substring(0, field.length() - 2) + ".src" : field;
+      boolQueryBuilder.should(innerQueryProvider.apply(newFieldName));
+    });
+    return boolQueryBuilder;
+  }
+
+  private static WildcardQueryBuilder prepareWildcardQuery(String fieldName, String term) {
+    return wildcardQuery(fieldName, term).rewrite("constant_score");
   }
 
   private static SortOrder getSortOrder(CqlSort cqlSort) {

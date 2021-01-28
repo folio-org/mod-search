@@ -1,7 +1,7 @@
-package org.folio.search.service;
+package org.folio.search.service.converter;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
@@ -10,29 +10,25 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
+import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.ParseContext;
-import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
@@ -47,133 +43,133 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
-  @Spy private final ObjectMapper objectMapper = new ObjectMapper()
-    .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
-
-  @Spy private final ParseContext parseContext = JsonPath.using(Configuration.builder()
-    .jsonProvider(new JacksonJsonProvider(objectMapper))
-    .mappingProvider(new JacksonMappingProvider(objectMapper))
-    .options(EnumSet.noneOf(Option.class))
-    .build());
-
+  @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
   @Mock
   private LanguageConfigService languageConfigService;
-
-  @InjectMocks private SearchDocumentConverter documentMapper;
+  @Spy private final ObjectMapper objectMapper = new ObjectMapper().configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+  @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
 
   @Test
   void convertSingle_positive() {
     var id = randomId();
     var jsonBody = getResourceTestData(id);
     var eventBody = eventBody(RESOURCE_NAME, jsonBody);
-    var resourceDescription = resourceDescription(getFieldDescriptions());
-    var languageSources = List.of("$.language");
+    var resourceDescription = resourceDescription(getDescriptionFields(), List.of("$.language"));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(languageSources);
     when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
 
     var actual = documentMapper.convert(eventBody);
-
     var expectedJson = asJsonString(getExpectedDocument(id));
-    assertThat(actual).isPresent().get()
-      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
 
-    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+    verify(jsonConverter).toJson(anyMap());
   }
 
   @Test
   void convertMultiple_positive() {
     var id = randomId();
-    var jsonBody = getResourceTestData(id);
-    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
-    var resourceDescription = resourceDescription(getFieldDescriptions());
-    var languageSources = List.of("$.language");
+    var resourceData = getResourceTestData(id);
+    var eventBody = eventBody(RESOURCE_NAME, resourceData);
+    var resourceDescription = resourceDescription(getDescriptionFields(), List.of("$.language"));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(languageSources);
     when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
 
     var actual = documentMapper.convert(List.of(eventBody));
 
     var expectedJson = asJsonString(getExpectedDocument(id));
-    assertThat(actual).isEqualTo(List.of(
-      SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson)));
-    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+    assertThat(actual).isEqualTo(List.of(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson)));
   }
 
   @Test
   void convertSingle_negative_pathNotFound() {
     var id = randomId();
-    var jsonBody = jsonObject("id", id);
-    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
+    var eventBody = eventBody(RESOURCE_NAME, mapOf("id", id));
     var resourceDescription = resourceDescription(mapOf(
-      "id", plainField("keyword", "$.id"),
-      "title", plainField("keyword", "$.title")));
+      "id", plainField("keyword"),
+      "title", plainField("keyword")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(emptyList());
 
     var actual = documentMapper.convert(eventBody);
-
     var expectedJson = asJsonString(jsonObject("id", id));
-    assertThat(actual).isPresent().get()
-      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
 
-    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
   }
 
   @Test
   void convertSingle_negative_emptyTitle() {
     var id = randomId();
-    var jsonBody = jsonObject("id", id, "title", "");
-    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
-    var resourceDescription = resourceDescription(mapOf(
-      "id", plainField("keyword", "$.id"),
-      "title", plainField("keyword", "$.title")));
+    var eventBody = eventBody(RESOURCE_NAME, mapOf("id", id, "title", ""));
+    var resourceDescription = resourceDescription(
+      mapOf("id", plainField("keyword"), "title", plainField("keyword")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(emptyList());
 
     var actual = documentMapper.convert(eventBody);
-
     var expectedJson = asJsonString(jsonObject("id", id, "title", ""));
-    assertThat(actual).isPresent().get()
-      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
 
-    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
   }
 
   @Test
   void convertSingle_positive_multilangResource() {
     var id = randomId();
-    var jsonBody = jsonObject(
+    var eventBody = eventBody(RESOURCE_NAME, mapOf(
       "id", id, "title", "val",
-      "l1", jsonArray("eng"),
-      "l2", jsonObject("value", "eng"),
-      "l3", jsonArray(1, 2),
-      "l4", "eng",
-      "l5", true);
-    var eventBody = eventBody(RESOURCE_NAME, jsonBody);
-    var resourceDescription = resourceDescription(mapOf(
-      "id", plainField("keyword", "$.id"),
-      "title", multilangField("$.title")));
+      "lang1", List.of("eng"),
+      "lang2", mapOf("value", "eng"),
+      "lang3", List.of(1, 2),
+      "lang4", "eng",
+      "lang5", true));
+
+    var resourceDescription = resourceDescription(
+      mapOf("id", plainField("keyword"), "title", multilangField()),
+      List.of("$.lang1", "$.lang2", "$.lang3", "$.lang4", "$.lang5"));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
-    when(descriptionService.getLanguageSourcePaths(RESOURCE_NAME)).thenReturn(List.of(
-      "$.l1", "$.l2", "$.l3", "$.l4", "$.l5"));
 
     var actual = documentMapper.convert(eventBody);
+    var expectedJson = asJsonString(jsonObject("id", id, "title", jsonObject("eng", "val", "src", "val")));
 
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+  }
+
+  @Test
+  void convertSingle_positive_repeatableObjectField() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf(
+      "id", keywordField(), "identifiers", objectField(mapOf("value", keywordField()))));
+    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id, "identifiers", List.of(
+      mapOf("type", "isbn", "value", "test-isbn"),
+      mapOf("type", "issn", "value", "test-issn"),
+      mapOf("type", "isbn"), "test-isbn-2")));
+
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = documentMapper.convert(resourceEventBody);
     var expectedJson = asJsonString(jsonObject(
-      "id", id, "title", jsonObject("eng", "val", "src", "val")));
-    assertThat(actual).isPresent().get()
-      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+      "id", id, "identifiers", jsonArray(jsonObject("value", "test-isbn"), jsonObject("value", "test-issn"))));
 
-    verify(parseContext).parse(jsonConverter.toJson(jsonBody));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+  }
+
+  @Test
+  void convertSingle_positive_multiLanguageValue() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf(
+      "id", keywordField(), "alternativeTitle", objectField(mapOf("value", multilangField()))));
+    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id,
+      "alternativeTitle", List.of(mapOf("value", "title1"), mapOf("value", null), emptyMap(), "title3")));
+
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    var actual = documentMapper.convert(resourceEventBody);
+    var expectedJson = asJsonString(jsonObject(
+      "id", id, "alternativeTitle", jsonArray(jsonObject("value", jsonObject("src", "title1")))));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
   }
 
   @Test
@@ -183,31 +179,31 @@ class SearchDocumentConverterTest {
     assertThat(actual).isNotPresent();
   }
 
-  private static Map<String, FieldDescription> getFieldDescriptions() {
+  private static Map<String, FieldDescription> getDescriptionFields() {
     return mapOf(
-      "id", plainField("keyword", "$.id"),
-      "title", plainField("keyword", "$.title"),
-      "language", plainField("keyword", "$.language"),
-      "multilang_value", multilangField("$.multilang_value"),
-      "bool", plainField("boolean", "$.bool"),
-      "number", plainField("numeric", "$.number"),
-      "numbers", plainField("numeric", "$.numbers"),
+      "id", keywordField(),
+      "title", keywordField(),
+      "language", keywordField(),
+      "multilang_value", multilangField(),
+      "bool", plainField("boolean"),
+      "number", plainField("numeric"),
+      "numbers", plainField("numeric"),
       "ignored_field", plainField("none"),
       "metadata", objectField(mapOf(
-        "createdAt", plainField("keyword", "$.metadata.createdAt"))));
+        "createdAt", plainField("keyword"))));
   }
 
-  private static ObjectNode getResourceTestData(String id) {
-    return jsonObject(
+  private static Map<String, Object> getResourceTestData(String id) {
+    return mapOf(
       "id", id,
-      "title", jsonArray("instance title"),
+      "title", List.of("instance title"),
       "language", "eng",
       "multilang_value", "some value",
       "bool", true,
       "number", 123,
-      "numbers", jsonArray(1, 2, 3, 4),
+      "numbers", List.of(1, 2, 3, 4),
       "ignored_field", "ignored value",
-      "metadata", jsonObject(
+      "metadata", mapOf(
         "createdAt", "12-01-01T12:03:12Z"));
   }
 

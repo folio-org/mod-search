@@ -1,50 +1,75 @@
 {
   "name": "instance",
+  "languageSourcePaths": [
+    "$.languages"
+  ],
   "fields": {
     "id": {
       "index": "keyword",
-      "sourcePath": "$.id"
+      "showInResponse": true
     },
     "hrid": {
-      "index": "keyword",
-      "sourcePath": "$.hrid"
+      "index": "keyword"
     },
     "source": {
-      "index": "keyword",
-      "sourcePath": "$.source"
+      "index": "keyword"
     },
     "title": {
+      "inventorySearchTypes": "title",
       "index": "multilang",
-      "sourcePath": "$.title"
+      "showInResponse": true,
+      "mappings": {
+        "copy_to": [ "sort_title" ]
+      }
+    },
+    "alternativeTitles": {
+      "type": "object",
+      "properties": {
+        "alternativeTitle": {
+          "inventorySearchTypes": "title",
+          "index": "multilang"
+        }
+      }
+    },
+    "indexTitle": {
+      "inventorySearchTypes": "title",
+      "index": "multilang"
     },
     "series": {
-      "index": "keyword",
-      "sourcePath": "$.series"
+      "inventorySearchTypes": "title",
+      "index": "multilang"
     },
     "identifiers": {
-      "index": "keyword",
-      "sourcePath": "$.identifiers[*].value"
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "keyword"
+        },
+        "identifierTypeId": {
+          "index": "none"
+        }
+      }
     },
     "contributors": {
-      "index": "keyword",
-      "sourcePath": "$.contributors[*].name"
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "keyword",
+          "showInResponse": true
+        }
+      }
     },
     "subjects": {
-      "index": "keyword",
-      "sourcePath": "$.subjects"
+      "index": "keyword"
     },
     "instanceTypeId": {
-      "index": "keyword",
-      "sourcePath": "$.instanceTypeId"
+      "index": "keyword"
     },
     "instanceFormatId": {
-      "index": "keyword",
-      "sourcePath": "$.instanceFormatId"
+      "index": "keyword"
     },
     "languages": {
-      "index": "keyword",
-      "sourcePath": "$.languages",
-      "languageSource": true
+      "index": "keyword"
     },
     "metadata": {
       "name": "metadata",
@@ -52,32 +77,34 @@
       "properties": {
         "createdDate": {
           "index": "date",
-          "sourcePath": "$.metadata.createdDate",
           "fieldType": "date"
         },
         "createdByUserId": {
-          "index": "keyword",
-          "sourcePath": "$.metadata.createdByUserId"
+          "index": "keyword"
         },
         "createdByUsername": {
-          "index": "keyword",
-          "sourcePath": "$.metadata.createdByUsername"
+          "index": "keyword"
         },
         "updatedDate": {
-          "index": "date",
-          "sourcePath": "$.metadata.updatedDate"
+          "index": "date"
         },
         "updatedByUserId": {
-          "index": "keyword",
-          "sourcePath": "$.metadata.updatedById"
+          "index": "keyword"
         },
         "updatedByUsername": {
-          "index": "keyword",
-          "sourcePath": "$.metadata.updatedByUsername"
+          "index": "keyword"
         }
       }
     }
   },
   "groups": { },
-  "indexFields": { }
+  "indexMappings": {
+    "sort_title": {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase",
+      "ignore_above": 50,
+      "index": false,
+      "doc_values": true
+    }
+  }
 }

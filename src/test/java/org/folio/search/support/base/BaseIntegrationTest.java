@@ -2,8 +2,10 @@ package org.folio.search.support.base;
 
 import static java.lang.String.format;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -18,13 +20,21 @@ import static org.testcontainers.utility.DockerImageName.parse;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.IndexRequestBody;
+import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -35,6 +45,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
 
+@Log4j2
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
@@ -44,8 +55,6 @@ public abstract class BaseIntegrationTest {
 
   private static final KafkaContainer KAFKA_CONTAINER = createAndStartKafka();
   private static final GenericContainer<?> ES_CONTAINER = createAndStartElasticsearch();
-
-  private static boolean alreadyInitialized = false;
 
   @Autowired
   protected MockMvc mockMvc;
@@ -62,24 +71,41 @@ public abstract class BaseIntegrationTest {
   static void doFirstInitialization(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) throws Exception {
 
-    if (!alreadyInitialized) {
-      mockMvc.perform(post("/_/tenant")
-        .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
-        .headers(defaultHeaders())
-        .contentType(APPLICATION_JSON))
-        .andExpect(status().isOk());
+    mockMvc.perform(post("/_/tenant")
+      .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
 
-      mockMvc.perform(post("/search/index/indices")
-        .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
-        .headers(defaultHeaders())
-        .contentType(APPLICATION_JSON))
-        .andExpect(status().isOk());
+    mockMvc.perform(post("/search/index/indices")
+      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
 
-      kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, getSemanticWeb().getId(),
-        eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
+    mockMvc.perform(post(languageConfig())
+      .content(asJsonString(new LanguageConfig().code("eng")))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
 
-      alreadyInitialized = true;
-    }
+    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, getSemanticWeb().getId(),
+      eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
+  }
+
+  @AfterAll
+  static void removeTenant(@Autowired RestHighLevelClient highLevelClient,
+    @Autowired JdbcTemplate jdbcTemplate, @Autowired FolioModuleMetadata moduleMetadata)
+    throws Exception {
+
+    log.info("Removing elasticsearch index...");
+    highLevelClient.indices().delete(new DeleteIndexRequest()
+      .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID)),
+      RequestOptions.DEFAULT);
+
+    log.info("Destroying schema...");
+    jdbcTemplate.execute(format("DROP SCHEMA %s CASCADE", moduleMetadata
+      .getDBSchemaName(TENANT_ID)));
   }
 
   private static KafkaContainer createAndStartKafka() {
@@ -131,6 +157,11 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   public ResultActions doGet(String uri, Object... args) {
+    return doGet(mockMvc, uri, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(get(uri, args)
       .headers(defaultHeaders()))
       .andExpect(status().isOk());
@@ -138,6 +169,11 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   public ResultActions doDelete(String uri, Object... args) {
+    return doDelete(mockMvc, uri, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions doDelete(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(delete(uri, args)
       .headers(defaultHeaders()))
       .andExpect(status().isNoContent());

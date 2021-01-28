@@ -21,7 +21,12 @@ public class PlainFieldDescription extends FieldDescription {
    *
    * <p>Mapping of this field should provide ability to perform requested operation</p>
    */
-  private List<SearchFieldType> searchFieldType;
+  private List<SearchFieldType> searchFieldTypes;
+
+  /**
+   * List of search types.
+   */
+  private List<String> inventorySearchTypes;
 
   /**
    * List of references to groups, where values can be combined in one elasticsearch field.
@@ -39,15 +44,15 @@ public class PlainFieldDescription extends FieldDescription {
   private boolean languageSource;
 
   /**
+   * Specifies if fields should be returned as part of elasticsearch response or not.
+   */
+  private boolean showInResponse;
+
+  /**
    * Elasticsearch fields mappings.
    *
    * <p>Resource description processor will take this field without any modification and put it to
    * elasticsearch.</p>
    */
   private ObjectNode mappings;
-
-  /**
-   * JSON path to the value from incoming event. This value or set of values will be indexed in search engine.
-   */
-  private String sourcePath;
 }

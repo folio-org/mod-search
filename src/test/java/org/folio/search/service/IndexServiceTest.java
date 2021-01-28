@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.converter.SearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.utils.TestUtils;

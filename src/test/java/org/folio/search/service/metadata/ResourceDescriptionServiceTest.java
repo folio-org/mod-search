@@ -33,26 +33,6 @@ class ResourceDescriptionServiceTest {
   @Mock private LocalResourceProvider localResourceProvider;
   @InjectMocks private ResourceDescriptionService descriptionService;
 
-  private static ResourceDescription resourceDescription() {
-    return TestUtils.resourceDescription(mapOf(
-      "id", plainField("keyword", "$.id"),
-      "lang", languageField("keyword", "$.lang"),
-      "isbn", plainField("keyword", "$.isbn"),
-      "unsupportedField", new TestFieldDescription(),
-      "nested", objectField(mapOf(
-        "nested_language", languageField("keyword", "$.nested.lang")))));
-  }
-
-  private static SearchFieldType multilangField() {
-    var indexFieldType = new SearchFieldType();
-    indexFieldType.setMapping(jsonObject(
-      "properties", jsonObject(
-        "eng", jsonObject("type", "text"),
-        "spa", jsonObject("type", "text"),
-        "fra", jsonObject("type", "text"))));
-    return indexFieldType;
-  }
-
   @BeforeEach
   void setUp() {
     var resourceDescription = resourceDescription();
@@ -76,6 +56,12 @@ class ResourceDescriptionServiceTest {
   }
 
   @Test
+  void getAll_positive() {
+    var actual = descriptionService.getAll();
+    assertThat(actual).isEqualTo(List.of(resourceDescription()));
+  }
+
+  @Test
   void isSupportedLanguage_positive() {
     assertThat(descriptionService.isSupportedLanguage("eng")).isTrue();
   }
@@ -85,16 +71,24 @@ class ResourceDescriptionServiceTest {
     assertThat(descriptionService.isSupportedLanguage("rus")).isFalse();
   }
 
-  @Test
-  void getLanguageSourcePaths_positive() {
-    var languageSourcePaths = descriptionService.getLanguageSourcePaths(RESOURCE_NAME);
-    assertThat(languageSourcePaths).isEqualTo(List.of("$.lang", "$.nested.lang"));
+  private static ResourceDescription resourceDescription() {
+    return TestUtils.resourceDescription(mapOf(
+      "id", plainField("keyword", "$.id"),
+      "lang", languageField("keyword", "$.lang"),
+      "isbn", plainField("keyword", "$.isbn"),
+      "unsupportedField", new TestFieldDescription(),
+      "nested", objectField(mapOf(
+        "nested_language", languageField("keyword", "$.nested.lang")))));
   }
 
-  @Test
-  void getLanguageSourcePaths_negative() {
-    var languageSourcePaths = descriptionService.getLanguageSourcePaths("unknown");
-    assertThat(languageSourcePaths).isEmpty();
+  private static SearchFieldType multilangField() {
+    var indexFieldType = new SearchFieldType();
+    indexFieldType.setMapping(jsonObject(
+      "properties", jsonObject(
+        "eng", jsonObject("type", "text"),
+        "spa", jsonObject("type", "text"),
+        "fra", jsonObject("type", "text"))));
+    return indexFieldType;
   }
 
   private static class TestFieldDescription extends FieldDescription {}

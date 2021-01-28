@@ -1,6 +1,8 @@
 package org.folio.search.model.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import lombok.Data;
 
@@ -19,6 +21,11 @@ public class ResourceDescription {
    * Elasticsearch index name.
    */
   private String index;
+
+  /**
+   * Contains list of json path expressions to extract languages values in ISO-639 format.
+   */
+  private List<String> languageSourcePaths = Collections.emptyList();
 
   /**
    * Map with field descriptions.

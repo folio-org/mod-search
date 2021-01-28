@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -59,11 +60,12 @@ public class ElasticsearchHitConverter {
 
   @SuppressWarnings("unchecked")
   private static boolean isMultiLanguageField(Object fieldValue) {
-    return fieldValue instanceof Map && ((Map<String, Object>) fieldValue).containsKey("src");
+    return fieldValue instanceof Map && ((Map<String, Object>) fieldValue).containsKey(
+      SearchUtils.MULTILANG_SOURCE_SUBFIELD);
   }
 
   @SuppressWarnings("unchecked")
   private static Object getSourceMultilangValue(Object fieldValue) {
-    return ((Map<String, Object>) fieldValue).get("src");
+    return ((Map<String, Object>) fieldValue).get(SearchUtils.MULTILANG_SOURCE_SUBFIELD);
   }
 }

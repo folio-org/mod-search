@@ -15,18 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageListenerTest {
 
-  @Mock
-  private IndexService indexService;
-  @InjectMocks
-  @Spy
-  private KafkaMessageListener messageListener;
+  @Mock private IndexService indexService;
+  @InjectMocks private KafkaMessageListener messageListener;
 
   @Test
   void handleEvents() {

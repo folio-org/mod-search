@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.SearchUtils;
-import org.folio.spring.FolioModuleMetadata;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 public class KafkaMessageListener {
 
   private final IndexService indexService;
-  private final FolioModuleMetadata moduleMetadata;
 
   /**
    * Listens the events with instance data inside from messaging system and sends request to index this values in search

@@ -3,9 +3,6 @@
   "type": "object",
   "description": "Language config",
   "properties": {
-    "id": {
-      "$ref": "common/uuid.json"
-    },
     "code": {
       "type": "string",
       "description": "An ISO-639-2/B compatible language code.",

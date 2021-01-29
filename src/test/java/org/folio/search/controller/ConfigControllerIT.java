@@ -17,8 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -43,14 +41,9 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
   @BeforeEach
   void removeConfigs() {
-    var languageConfigIds = parseResponse(doGet(languageConfig()), LanguageConfigs.class)
-      .getLanguageConfigs().stream()
-      .map(LanguageConfig::getId)
-      .collect(Collectors.toSet());
-
-    for (var id : languageConfigIds) {
-      doDelete(languageConfig() + "/{id}", id);
-    }
+    parseResponse(doGet(languageConfig()), LanguageConfigs.class)
+      .getLanguageConfigs()
+      .forEach(config -> doDelete(languageConfig() + "/{code}", config.getCode()));
   }
 
   @Test
@@ -76,13 +69,11 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
   @Test
   void canRemoveLanguageConfig() throws Exception {
-    final LanguageConfig language = new LanguageConfig()
-      .code("fre")
-      .id(UUID.randomUUID().toString());
+    final LanguageConfig language = new LanguageConfig().code("fre");
 
     doPost(languageConfig(), language);
 
-    doDelete(languageConfig() + "/{id}", language.getId())
+    doDelete(languageConfig() + "/fre")
       .andExpect(status().isNoContent());
   }
 

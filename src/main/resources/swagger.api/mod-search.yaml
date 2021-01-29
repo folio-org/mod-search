@@ -113,12 +113,12 @@ paths:
               schema:
                 $ref: schemas/languageConfigs.json
 
-  /config/languages/{id}:
+  /config/languages/{code}:
     delete:
       operationId: deleteLanguageConfig
       description: Delete all supported languages
       parameters:
-        - $ref: '#/components/parameters/entity-id-path-variable'
+        - $ref: '#/components/parameters/language-code'
       responses:
         '204':
           description: Language support has been removed
@@ -154,14 +154,14 @@ components:
             $ref: '#/components/schemas/instance'
 
   parameters:
-    entity-id-path-variable:
-      name: id
+    language-code:
+      name: code
       in: path
       required: true
-      description: Entity UUID
+      description: Language code
       schema:
         type: string
-        pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+        pattern: '[a-zA-Z]{3}'
     search-cql-query:
       name: query
       in: query

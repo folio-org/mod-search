@@ -1,6 +1,5 @@
 package org.folio.search.model.config;
 
-import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -15,6 +14,5 @@ import lombok.NoArgsConstructor;
 @Entity
 public class LanguageConfigEntity {
   @Id
-  private UUID id;
   private String code;
 }

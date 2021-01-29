@@ -5,7 +5,6 @@ import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfi
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -43,8 +42,8 @@ public class LanguageConfigService {
     return toLanguageConfig(configRepository.save(entity));
   }
 
-  public void delete(String id) {
-    configRepository.deleteById(UUID.fromString(id));
+  public void delete(String code) {
+    configRepository.deleteById(code);
   }
 
   public LanguageConfigs getAll() {

@@ -4,7 +4,6 @@ import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.ok;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -31,11 +30,9 @@ public class ConfigController implements ConfigApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteLanguageConfig(@Pattern(
-    regexp = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$") String id) {
-
-    log.info("Attempting to remove language config {}", id);
-    languageConfigService.delete(id);
+  public ResponseEntity<Void> deleteLanguageConfig(String code) {
+    log.info("Attempting to remove language config {}", code);
+    languageConfigService.delete(code);
     return noContent().build();
   }
 

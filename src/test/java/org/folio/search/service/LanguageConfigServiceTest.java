@@ -2,12 +2,10 @@ package org.folio.search.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.UUID;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
@@ -37,11 +35,10 @@ class LanguageConfigServiceTest {
     when(configRepository.count()).thenReturn(0L);
     when(descriptionService.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
     when(configRepository.save(any(LanguageConfigEntity.class)))
-      .thenReturn(new LanguageConfigEntity(UUID.randomUUID(), SUPPORTED_LANGUAGE_CODE));
+      .thenReturn(new LanguageConfigEntity(SUPPORTED_LANGUAGE_CODE));
 
     final var saveResult = configService.create(new LanguageConfig().code(SUPPORTED_LANGUAGE_CODE));
 
-    assertThat(saveResult.getId(), notNullValue());
     assertThat(saveResult.getCode(), is(SUPPORTED_LANGUAGE_CODE));
   }
 

@@ -78,7 +78,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
-  void canSearchByContributorName() throws Exception {
+  void canSearchByContributorsName() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("contributors.name all {value}"), "frank")
       .headers(defaultHeaders()))
       .andExpect(status().isOk())
@@ -89,5 +89,14 @@ class SearchInstanceIT extends BaseIntegrationTest {
         is("Antoniou, Grigoris")))
       .andExpect(jsonPath("instances[0].contributors[1].name",
         is("Van Harmelen, Frank")));
+  }
+
+  @Test
+  void canSearchByContributors() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("contributors all {value}"), "grigoris")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
   }
 }

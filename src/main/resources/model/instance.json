@@ -54,7 +54,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": "contributors.name",
+          "inventorySearchTypes": "contributors",
           "index": "multilang",
           "showInResponse": true
         }

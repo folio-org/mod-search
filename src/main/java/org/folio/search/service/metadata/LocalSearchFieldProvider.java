@@ -3,19 +3,15 @@ package org.folio.search.service.metadata;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.model.metadata.FieldDescription;
-import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
@@ -54,54 +50,54 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public List<String> getFields(String resource, String searchType) {
-    return fieldBySearchType
+    final List<String> fieldList = new ArrayList<>(fieldBySearchType
       .getOrDefault(resource, emptyMap())
-      .getOrDefault(searchType, emptyList());
+      .getOrDefault(searchType, emptyList()));
+
+    if (isMultilangField(resource, searchType)) {
+      fieldList.add(updatePathForMultilang(searchType));
+    }
+
+    return fieldList.stream()
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  private boolean isMultilangField(String resourceName, String path) {
+    return localResourceProvider.getResourceDescription(resourceName)
+      .map(ResourceDescription::getFlattenFields)
+      .map(map -> map.get(path))
+      .map(PlainFieldDescription::isMultilang)
+      .orElse(false);
   }
 
   private static Map<String, Map<String, List<String>>> collectFieldsBySearchType(
     List<ResourceDescription> resourceDescriptions) {
+
     var resultMap = new LinkedHashMap<String, Map<String, List<String>>>();
-    for (ResourceDescription description : resourceDescriptions) {
-      resultMap.put(description.getName(), collectFieldsBySearchType(description));
+    for (ResourceDescription desc : resourceDescriptions) {
+      resultMap.put(desc.getName(), collectFieldsBySearchType(desc));
     }
+
     return unmodifiableMap(resultMap);
   }
 
   private static Map<String, List<String>> collectFieldsBySearchType(ResourceDescription description) {
     var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
-    description.getFields().forEach((name, desc) -> addFieldsToResultMap(name, desc, null, fieldsBySearchType));
-    return unmodifiableMap(fieldsBySearchType);
-  }
 
-  private static Map<String, List<String>> getFieldPathsBySearchType(
-    String fieldName, FieldDescription fieldDescription, String prefix) {
-    if (fieldDescription instanceof PlainFieldDescription) {
-      var plainFieldDescription = (PlainFieldDescription) fieldDescription;
-      var searchTypes = plainFieldDescription.getInventorySearchTypes();
-      if (CollectionUtils.isNotEmpty(searchTypes)) {
-        var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
-        var fieldPath = MULTILANG_FIELD_TYPE.equals(plainFieldDescription.getIndex()) ? fieldName + ".*" : fieldName;
-        searchTypes.forEach(type -> fieldsBySearchType.put(type, List.of(getFullPathToField(prefix, fieldPath))));
-        return fieldsBySearchType;
-      } else {
-        return emptyMap();
-      }
-    }
+    description.getFlattenFields().forEach((fieldPath, currentFieldDesc) -> {
+      final var updatedPath = currentFieldDesc.isMultilang()
+        ? updatePathForMultilang(fieldPath) : fieldPath;
 
-    var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
-    ((ObjectFieldDescription) fieldDescription).getProperties().forEach((name, desc) ->
-      addFieldsToResultMap(name, desc, fieldName, fieldsBySearchType));
+      currentFieldDesc.getInventorySearchTypes().stream()
+        .map(type -> fieldsBySearchType.computeIfAbsent(type, k -> new ArrayList<>()))
+        .forEach(list -> list.add(updatedPath));
+    });
+
     return fieldsBySearchType;
   }
 
-  private static void addFieldsToResultMap(String fieldName, FieldDescription description, String prefix,
-    Map<String, List<String>> map) {
-    getFieldPathsBySearchType(fieldName, description, prefix).forEach((searchType, fieldNames) ->
-      map.computeIfAbsent(searchType, v -> new ArrayList<>()).addAll(fieldNames));
-  }
-
-  private static String getFullPathToField(String prefix, String fieldName) {
-    return StringUtils.isEmpty(prefix) ? fieldName : prefix + "." + fieldName;
+  private static String updatePathForMultilang(String path) {
+    return path + ".*";
   }
 }

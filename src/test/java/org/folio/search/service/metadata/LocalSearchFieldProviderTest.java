@@ -54,7 +54,7 @@ class LocalSearchFieldProviderTest {
   @Test
   void getFieldByInventorySearchType_positive() {
     var fields = searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
-    assertThat(fields).containsExactly("title1.*", "title2.sub1", "title2.sub2.*");
+    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*");
   }
 
   @Test

@@ -54,7 +54,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "index": "keyword",
+          "inventorySearchTypes": "contributors",
+          "index": "multilang",
           "showInResponse": true
         }
       }

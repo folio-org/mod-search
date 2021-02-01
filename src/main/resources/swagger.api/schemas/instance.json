@@ -126,21 +126,21 @@
           "type": "string"
         }
       }
-    }
-  },
-  "publication": {
-    "type": "array",
-    "description": "List of publication items",
-    "items": {
-      "type": "object",
-      "properties": {
-        "publisher": {
-          "type": "string",
-          "description": "Name of publisher, distributor, etc."
-        },
-        "dateOfPublication": {
-          "type": "string",
-          "description": "Date (year YYYY) of publication, distribution, etc."
+    },
+    "publication": {
+      "type": "array",
+      "description": "List of publication items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "publisher": {
+            "type": "string",
+            "description": "Name of publisher, distributor, etc."
+          },
+          "dateOfPublication": {
+            "type": "string",
+            "description": "Date (year YYYY) of publication, distribution, etc."
+          }
         }
       }
     }

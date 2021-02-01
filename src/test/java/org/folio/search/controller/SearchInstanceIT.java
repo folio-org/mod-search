@@ -78,6 +78,24 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void canSearchByPublisher_byAbbreviate() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("publisher all {value}"), "MIT")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchByPublisher_byWord() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("publisher all {value}"), "press")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
   void canSearchByContributorsName() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("contributors.name all {value}"), "frank")
       .headers(defaultHeaders()))

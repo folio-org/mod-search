@@ -15,7 +15,6 @@ import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,7 @@ class LocalSearchFieldProviderTest {
   @Test
   void getFieldByInventorySearchType_positive() {
     var fields = searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
-    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*");
+    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*", "title2.sub3.sub4");
   }
 
   @Test
@@ -66,36 +65,47 @@ class LocalSearchFieldProviderTest {
   }
 
   @Test
+  void getSourceFields_positive() {
+    var actual = searchFieldProvider.getSourceFields(RESOURCE_NAME);
+    assertThat(actual).containsExactlyInAnyOrder("id", "title1.src", "title2.sub1",
+      "title2.sub3.sub5.src", "source");
+  }
+
+  @Test
+  void getSourceFields_positive_nonExistingResource() {
+    var actual = searchFieldProvider.getSourceFields("unknown-resource");
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
   void shouldAddStarNotationForMultilangField() {
     when(localResourceProvider.getResourceDescription(eq(RESOURCE_NAME)))
       .thenReturn(Optional.of(resourceDescriptions().get(0)));
 
-    assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "contributors.name"))
-      .containsExactly("contributors.name.*");
+    assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "title2.sub3.sub5"))
+      .containsExactly("title2.sub3.sub5.*");
   }
 
   private static List<ResourceDescription> resourceDescriptions() {
-    return List.of(resourceDescription(
-      mapOf(
-        "id", TestUtils.plainField("keyword", "$.id"),
-        "title1", plainField("multilang", TITLE_SEARCH_TYPE),
-        "title2", objectField(
-          mapOf(
-            "sub1", plainField("keyword", TITLE_SEARCH_TYPE),
-            "sub2", plainField("multilang", TITLE_SEARCH_TYPE)
-          )),
-        "contributors", objectField(
-          mapOf(
-            "name", plainField("multilang")
-          )),
-        "source", TestUtils.plainField("keyword", "$.source")
-      )));
+    return List.of(
+      resourceDescription(mapOf(
+        "id", plainField("keyword", true),
+        "title1", plainField("multilang", true, TITLE_SEARCH_TYPE),
+        "title2", objectField(mapOf(
+          "sub1", plainField("keyword", true, TITLE_SEARCH_TYPE),
+          "sub2", plainField("multilang", false, TITLE_SEARCH_TYPE),
+          "sub3", objectField(mapOf(
+            "sub4", plainField("keyword", false, TITLE_SEARCH_TYPE),
+            "sub5", plainField("multilang", true))))),
+        "source", plainField("keyword", true)))
+    );
   }
 
-  private static PlainFieldDescription plainField(String index, String... searchTypes) {
+  private static PlainFieldDescription plainField(String index, boolean showInResponse, String... searchTypes) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setIndex(index);
     fieldDescription.setInventorySearchTypes(List.of(searchTypes));
+    fieldDescription.setShowInResponse(showInResponse);
     return fieldDescription;
   }
 }

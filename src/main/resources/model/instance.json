@@ -96,6 +96,20 @@
           "index": "keyword"
         }
       }
+    },
+    "publication": {
+      "type": "object",
+      "properties": {
+        "publisher": {
+          "inventorySearchTypes": "publisher",
+          "index": "multilang",
+          "showInResponse": true
+        },
+        "dateOfPublication": {
+          "index": "source",
+          "showInResponse": true
+        }
+      }
     }
   },
   "groups": { },

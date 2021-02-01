@@ -6,9 +6,11 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -63,16 +65,31 @@ class LocalSearchFieldProviderTest {
     assertThat(fields).isEmpty();
   }
 
+  @Test
+  void shouldAddStarNotationForMultilangField() {
+    when(localResourceProvider.getResourceDescription(eq(RESOURCE_NAME)))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+
+    assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "contributors.name"))
+      .containsExactly("contributors.name.*");
+  }
+
   private static List<ResourceDescription> resourceDescriptions() {
-    return List.of(
-      resourceDescription(mapOf(
+    return List.of(resourceDescription(
+      mapOf(
         "id", TestUtils.plainField("keyword", "$.id"),
         "title1", plainField("multilang", TITLE_SEARCH_TYPE),
-        "title2", objectField(mapOf(
-          "sub1", plainField("keyword", TITLE_SEARCH_TYPE),
-          "sub2", plainField("multilang", TITLE_SEARCH_TYPE))),
-        "source", TestUtils.plainField("keyword", "$.source")))
-    );
+        "title2", objectField(
+          mapOf(
+            "sub1", plainField("keyword", TITLE_SEARCH_TYPE),
+            "sub2", plainField("multilang", TITLE_SEARCH_TYPE)
+          )),
+        "contributors", objectField(
+          mapOf(
+            "name", plainField("multilang")
+          )),
+        "source", TestUtils.plainField("keyword", "$.source")
+      )));
   }
 
   private static PlainFieldDescription plainField(String index, String... searchTypes) {

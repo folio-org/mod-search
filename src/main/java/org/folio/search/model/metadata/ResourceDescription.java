@@ -62,12 +62,12 @@ public class ResourceDescription {
   public void setFields(Map<String, FieldDescription> fields) {
     if (!Objects.equals(this.fields, fields)) {
       this.fields = fields;
-      this.flattenFields = new HashMap<>();
-      flattenFields(null, flattenFields, fields);
+      this.flattenFields = flattenFields(null, new HashMap<>(), fields);
     }
   }
 
-  private void flattenFields(String parentPath, Map<String, PlainFieldDescription> flattenFields,
+  private Map<String, PlainFieldDescription> flattenFields(String parentPath,
+    Map<String, PlainFieldDescription> flattenFields,
     Map<String, FieldDescription> originFields) {
 
     originFields.forEach((currentName, desc) -> {
@@ -79,6 +79,8 @@ public class ResourceDescription {
         flattenFields.put(currentPath, (PlainFieldDescription) desc);
       }
     });
+
+    return flattenFields;
   }
 
   private String getFieldPath(String parentPath, String currentName) {

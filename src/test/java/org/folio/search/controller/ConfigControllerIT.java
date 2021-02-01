@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -85,6 +86,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
     }
 
     var newInstance = new Instance()
+      .id(randomId())
       .languages(languageCodes)
       .title("This is title");
 

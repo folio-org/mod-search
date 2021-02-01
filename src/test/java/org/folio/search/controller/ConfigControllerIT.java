@@ -22,9 +22,9 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
-import org.folio.search.sample.InstanceBuilder;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,15 +84,14 @@ class ConfigControllerIT extends BaseIntegrationTest {
       doPost(languageConfig(), new LanguageConfig().code(languageCode));
     }
 
-    var newInstance = InstanceBuilder.builder()
+    var newInstance = new Instance()
       .languages(languageCodes)
-      .title("This is title")
-      .build();
+      .title("This is title");
 
-    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, newInstance.getId().toString(),
+    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, newInstance.getId(),
       eventBody(INSTANCE_RESOURCE, newInstance));
 
-    final var indexedInstance = getIndexedInstanceById(newInstance.getId().toString());
+    final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 
     assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));

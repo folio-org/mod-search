@@ -1,6 +1,7 @@
 package org.folio.search.model.metadata;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Collections;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,7 +27,7 @@ public class PlainFieldDescription extends FieldDescription {
   /**
    * List of search types.
    */
-  private List<String> inventorySearchTypes;
+  private List<String> inventorySearchTypes = Collections.emptyList();
 
   /**
    * List of references to groups, where values can be combined in one elasticsearch field.
@@ -55,4 +56,8 @@ public class PlainFieldDescription extends FieldDescription {
    * elasticsearch.</p>
    */
   private ObjectNode mappings;
+
+  public boolean isMultilang() {
+    return MULTILANG_FIELD_TYPE.equals(index);
+  }
 }

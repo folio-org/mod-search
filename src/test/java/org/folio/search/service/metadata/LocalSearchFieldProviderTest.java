@@ -9,6 +9,7 @@ import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -53,7 +54,7 @@ class LocalSearchFieldProviderTest {
   @Test
   void getFieldByInventorySearchType_positive() {
     var fields = searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
-    assertThat(fields).containsExactly("title1.*", "title2.sub1", "title2.sub2.*", "title2.sub3.sub4");
+    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*", "title2.sub3.sub4");
   }
 
   @Test
@@ -65,13 +66,23 @@ class LocalSearchFieldProviderTest {
   @Test
   void getSourceFields_positive() {
     var actual = searchFieldProvider.getSourceFields(RESOURCE_NAME);
-    assertThat(actual).containsExactly("id", "title1.src", "title2.sub1", "title2.sub3.sub5.src", "source");
+    assertThat(actual).containsExactlyInAnyOrder("id", "title1.src", "title2.sub1",
+      "title2.sub3.sub5.src", "source");
   }
 
   @Test
   void getSourceFields_positive_nonExistingResource() {
     var actual = searchFieldProvider.getSourceFields("unknown-resource");
     assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void shouldAddStarNotationForMultilangField() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+
+    assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "title2.sub3.sub5"))
+      .containsExactly("title2.sub3.sub5.*");
   }
 
   private static List<ResourceDescription> resourceDescriptions() {

@@ -20,9 +20,17 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields for given search type.
    *
-   * @param searchType search type as {@link String}
    * @param resource resource type as {@link String}
+   * @param searchType search type as {@link String}
    * @return list of fields.
    */
   List<String> getFields(String resource, String searchType);
+
+  /**
+   * Provides list of fields of source fields for resource.
+   *
+   * @param resource resource type as {@link String}
+   * @return list of fields.
+   */
+  List<String> getSourceFields(String resource);
 }

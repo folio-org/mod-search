@@ -1,8 +1,10 @@
 package org.folio.search.support.base;
 
 import static java.lang.String.format;
+import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.support.base.ApiEndpoints.languageConfig;
+import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
@@ -10,10 +12,12 @@ import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.testcontainers.utility.DockerImageName.parse;
 
@@ -21,6 +25,7 @@ import java.nio.file.Path;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.awaitility.Duration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -49,6 +54,7 @@ import org.testcontainers.utility.DockerImageName;
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
+
   private static final DockerImageName KAFKA_IMAGE = parse("confluentinc/cp-kafka:5.5.3");
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");
@@ -91,6 +97,8 @@ public abstract class BaseIntegrationTest {
 
     kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, getSemanticWeb().getId(),
       eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
+
+    checkThatElasticsearchAcceptResourcesFromKafka(mockMvc);
   }
 
   @AfterAll
@@ -106,6 +114,23 @@ public abstract class BaseIntegrationTest {
     log.info("Destroying schema...");
     jdbcTemplate.execute(format("DROP SCHEMA %s CASCADE", moduleMetadata
       .getDBSchemaName(TENANT_ID)));
+  }
+
+  public static HttpHeaders defaultHeaders() {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+
+    httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(TENANT_ID));
+
+    return httpHeaders;
+  }
+
+  private static void checkThatElasticsearchAcceptResourcesFromKafka(MockMvc mockMvc) {
+    await().atMost(Duration.ONE_MINUTE).untilAsserted(() ->
+      mockMvc.perform(get(searchInstancesByQuery("id={value}"), getSemanticWeb().getId())
+        .headers(defaultHeaders()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("totalRecords", is(1)))
+        .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId()))));
   }
 
   private static KafkaContainer createAndStartKafka() {
@@ -131,14 +156,6 @@ public abstract class BaseIntegrationTest {
     Runtime.getRuntime().addShutdownHook(new Thread(esContainer::stop));
 
     return esContainer;
-  }
-
-  public static HttpHeaders defaultHeaders() {
-    final HttpHeaders httpHeaders = new HttpHeaders();
-
-    httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(TENANT_ID));
-
-    return httpHeaders;
   }
 
   @SneakyThrows

@@ -22,6 +22,7 @@ paths:
           description: 'Instance search result'
           content:
             application/json:
+              example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/searchResult'
 
@@ -34,6 +35,7 @@ paths:
       requestBody:
         content:
           application/json:
+            example: examples/indexRequestBody.sample
             schema:
               $ref: '#/components/schemas/indexRequestBody'
       responses:
@@ -70,6 +72,7 @@ paths:
       requestBody:
         content:
           application/json:
+            example: examples/indexRecordRequestBody.sample
             schema:
               $ref: '#/components/schemas/indexRecordRequestBody'
       responses:
@@ -77,6 +80,7 @@ paths:
           description: Response with created indices and status (error message will be present if operation failed)
           content:
             application/json:
+              example: examples/indexRecordResponse.sample
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
 

@@ -3,12 +3,9 @@ package org.folio.search.service.metadata;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,17 +67,17 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       .collect(Collectors.toList());
   }
 
+  @Override
+  public List<String> getSourceFields(String resource) {
+    return sourceFields.getOrDefault(resource, emptyList());
+  }
+
   private boolean isMultilangField(String resourceName, String path) {
     return localResourceProvider.getResourceDescription(resourceName)
       .map(ResourceDescription::getFlattenFields)
       .map(map -> map.get(path))
       .map(PlainFieldDescription::isMultilang)
       .orElse(false);
-  }
-
-  @Override
-  public List<String> getSourceFields(String resource) {
-    return sourceFields.getOrDefault(resource, emptyList());
   }
 
   private static Map<String, Map<String, List<String>>> collectFieldsBySearchType(
@@ -113,45 +110,24 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return path + ".*";
   }
 
-  private Map<String, List<String>> collectSourceFields(List<ResourceDescription> resourceDescriptions) {
+  private static Map<String, List<String>> collectSourceFields(List<ResourceDescription> descriptions) {
     var sourceFieldPerResource = new LinkedHashMap<String, List<String>>();
-    for (ResourceDescription desc : resourceDescriptions) {
-      sourceFieldPerResource.put(desc.getName(), getSourceFieldPaths(null, desc.getFields()));
+    for (ResourceDescription desc : descriptions) {
+      final List<String> sourcePaths = desc.getFlattenFields().entrySet().stream()
+        .filter(entry -> entry.getValue().isShowInResponse())
+        .map(LocalSearchFieldProvider::getSourcePath)
+        .collect(Collectors.toList());
+
+      sourceFieldPerResource.put(desc.getName(), sourcePaths);
     }
+
     return unmodifiableMap(sourceFieldPerResource);
   }
 
-  private static List<String> getSourceFieldPaths(String prefix, Map<String, FieldDescription> fields) {
-    return fields.entrySet().stream()
-      .map(entry -> getSourceFieldPaths(prefix, entry.getKey(), entry.getValue()))
-      .flatMap(Collection::stream)
-      .distinct()
-      .collect(toUnmodifiableList());
-  }
+  private static String getSourcePath(Map.Entry<String, PlainFieldDescription> entry) {
+    final String path = entry.getKey();
+    final PlainFieldDescription descriptor = entry.getValue();
 
-  private static List<String> getSourceFieldPaths(String prefix, String name, FieldDescription desc) {
-    if (desc instanceof PlainFieldDescription) {
-      var fieldDesc = (PlainFieldDescription) desc;
-      if (fieldDesc.isShowInResponse()) {
-        var resultFieldName = isMultilangField(fieldDesc) ? name + "." + MULTILANG_SOURCE_SUBFIELD : name;
-        return List.of(getFullPathToField(prefix, resultFieldName));
-      }
-      return emptyList();
-    }
-    return getSourceFieldPaths(getFullPathToField(prefix, name), ((ObjectFieldDescription) desc).getProperties());
-  }
-
-  private static boolean isMultilangField(PlainFieldDescription plainFieldDescription) {
-    return MULTILANG_FIELD_TYPE.equals(plainFieldDescription.getIndex());
-  }
-
-  private static void addFieldsToResultMap(String fieldName, FieldDescription description, String prefix,
-    Map<String, List<String>> map) {
-    getFieldPathsBySearchType(fieldName, description, prefix).forEach((searchType, fieldNames) ->
-      map.computeIfAbsent(searchType, v -> new ArrayList<>()).addAll(fieldNames));
-  }
-
-  private static String getFullPathToField(String prefix, String fieldName) {
-    return StringUtils.isEmpty(prefix) ? fieldName : prefix + "." + fieldName;
+    return descriptor.isMultilang() ? path + "." + MULTILANG_SOURCE_SUBFIELD : path;
   }
 }

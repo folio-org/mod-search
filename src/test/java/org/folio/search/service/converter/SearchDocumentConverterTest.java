@@ -61,7 +61,7 @@ class SearchDocumentConverterTest {
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
 
   @Test
-  void convertSingle_positive() {
+  void convertList_positive() {
     var id = randomId();
     var jsonBody = getResourceTestData(id);
     var eventBody = eventBody(RESOURCE_NAME, jsonBody);
@@ -79,22 +79,28 @@ class SearchDocumentConverterTest {
 
   @Test
   void convertMultiple_positive() {
-    var id = randomId();
-    var resourceData = getResourceTestData(id);
-    var eventBody = eventBody(RESOURCE_NAME, resourceData);
+    var idForEvent1 = randomId();
+    var idForEvent2 = randomId();
+    var eventBody1 = eventBody(RESOURCE_NAME, getResourceTestData(idForEvent1));
+    var eventBody2 = eventBody(RESOURCE_NAME, getResourceTestData(idForEvent2));
     var resourceDescription = resourceDescription(getDescriptionFields(), List.of("$.language"));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(languageConfigService.getAllSupportedLanguageCodes()).thenReturn(Set.of("eng"));
 
-    var actual = documentMapper.convert(List.of(eventBody));
+    var actual = documentMapper.convert(List.of(eventBody1, eventBody2));
 
-    var expectedJson = asJsonString(getExpectedDocument(id));
-    assertThat(actual, contains(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson)));
+    var expectedForEvent1 = asJsonString(getExpectedDocument(idForEvent1));
+    var expectedForEvent2 = asJsonString(getExpectedDocument(idForEvent2));
+
+    assertThat(actual, containsInAnyOrder(
+      SearchDocumentBody.of(idForEvent1, TENANT_ID, INDEX_NAME, expectedForEvent1),
+      SearchDocumentBody.of(idForEvent2, TENANT_ID, INDEX_NAME, expectedForEvent2)
+    ));
   }
 
   @Test
-  void convertSingle_negative_pathNotFound() {
+  void convertList_negative_pathNotFound() {
     var id = randomId();
     var eventBody = eventBody(RESOURCE_NAME, mapOf("id", id));
     var resourceDescription = resourceDescription(mapOf(
@@ -110,7 +116,7 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingle_negative_emptyTitle() {
+  void convertList_negative_emptyTitle() {
     var id = randomId();
     var eventBody = eventBody(RESOURCE_NAME, mapOf("id", id, "title", ""));
     var resourceDescription = resourceDescription(
@@ -125,7 +131,7 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingle_positive_multilangResource() {
+  void convertList_positive_multilangResource() {
     var id = randomId();
     var eventBody = eventBody(RESOURCE_NAME, mapOf(
       "id", id, "title", "val",
@@ -149,7 +155,7 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingle_positive_repeatableObjectField() {
+  void convertList_positive_repeatableObjectField() {
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf(
       "id", keywordField(), "identifiers", objectField(mapOf("value", keywordField()))));
@@ -168,7 +174,7 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingle_positive_multiLanguageValue() {
+  void convertList_positive_multiLanguageValue() {
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf(
       "id", keywordField(), "alternativeTitle", objectField(mapOf("value", multilangField()))));
@@ -183,7 +189,7 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingle_negative_dataIsNull() {
+  void convertList_negative_dataIsNull() {
     var eventBody = eventBody(RESOURCE_NAME, null);
     var actual = documentMapper.convert(List.of(eventBody));
     assertThat(actual, empty());

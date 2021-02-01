@@ -6,7 +6,6 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -79,7 +78,7 @@ class LocalSearchFieldProviderTest {
 
   @Test
   void shouldAddStarNotationForMultilangField() {
-    when(localResourceProvider.getResourceDescription(eq(RESOURCE_NAME)))
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
       .thenReturn(Optional.of(resourceDescriptions().get(0)));
 
     assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "title2.sub3.sub5"))

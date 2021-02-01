@@ -30,13 +30,10 @@ class ResourceDescriptionTest {
   private Map<String, FieldDescription> testFields() {
     return mapOf(
       "id", plainField("keyword"),
-      "objectField", objectField(
-        mapOf(
-          "objectSub1", plainField("keyword"),
-          "objectSub2", objectField(
-            mapOf(
-              "sub1", plainField("multilang")
-            ))
-        )));
+      "objectField", objectField(mapOf(
+        "objectSub1", plainField("keyword"),
+        "objectSub2", objectField(mapOf(
+          "sub1", plainField("multilang")))))
+    );
   }
 }

@@ -1,11 +1,9 @@
 package org.folio.search.service.converter;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
-import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,13 +21,9 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.LanguageConfigService;
-import org.folio.search.service.indexing.IndexingConfig;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
-import org.folio.spring.DefaultFolioExecutionContext;
-import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -41,15 +34,6 @@ public class SearchDocumentConverter {
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
   private final LanguageConfigService languageConfigService;
-  private final FolioModuleMetadata moduleMetadata;
-
-  public List<SearchDocumentBody> convert(List<ResourceEventBody> resources) {
-    return resources.stream()
-      .collect(groupingBy(ResourceEventBody::getTenant))
-      .entrySet().stream()
-      .flatMap(entry -> convertForTenant(entry.getKey(), entry.getValue()))
-      .collect(toList());
-  }
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
@@ -57,9 +41,9 @@ public class SearchDocumentConverter {
    * @param resourceEvents list with resource events for conversion to elasticsearch document
    * @return list with elasticsearch documents.
    */
-  List<SearchDocumentBody> convert(IndexingConfig indexingConfig, List<ResourceEventBody> resourceEvents) {
+  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
     return resourceEvents.stream()
-      .map(event -> convert(indexingConfig, event))
+      .map(this::convert)
       .filter(Optional::isPresent)
       .map(Optional::get)
       .collect(toList());
@@ -73,7 +57,7 @@ public class SearchDocumentConverter {
    * @return elasticsearch document
    */
   @SuppressWarnings("unchecked")
-  private Optional<SearchDocumentBody> convert(IndexingConfig config, ResourceEventBody event) {
+  public Optional<SearchDocumentBody> convert(ResourceEventBody event) {
     var newData = event.getNew();
     if (!(newData instanceof Map)) {
       return Optional.empty();
@@ -83,7 +67,7 @@ public class SearchDocumentConverter {
     var fields = resourceDescription.getFields();
 
     var conversionContext = ConversionContext.of(
-      getResourceLanguages(config, resourceData, resourceDescription.getLanguageSourcePaths()));
+      getResourceLanguages(event.getTenant(), resourceData, resourceDescription.getLanguageSourcePaths()));
     Map<String, Object> resultDocument = convertMapUsingResourceFields(resourceData, fields, conversionContext);
 
     return Optional.of(SearchDocumentBody.builder()
@@ -94,37 +78,16 @@ public class SearchDocumentConverter {
       .build());
   }
 
-  private List<String> getResourceLanguages(IndexingConfig indexingConfig, Map<String, Object> resourceData,
+  private List<String> getResourceLanguages(String tenant, Map<String, Object> resourceData,
     List<String> languageSourcePaths) {
 
+    final var supportedLanguages = languageConfigService.getAllLanguagesForTenant(tenant);
     return languageSourcePaths.stream()
       .map(sourcePath -> SearchConverterUtils.getMapValueByPath(sourcePath, resourceData))
       .flatMap(SearchConverterUtils::getStringStreamFromValue)
       .distinct()
-      .filter(indexingConfig::isSupportedLanguage)
+      .filter(supportedLanguages::contains)
       .collect(toList());
-  }
-
-  private Stream<SearchDocumentBody> convertForTenant(String tenant, List<ResourceEventBody> events) {
-    try {
-      beginFolioExecutionContext(tenant);
-      final var indexingConfig = new IndexingConfig(languageConfigService.getAllSupportedLanguageCodes());
-      return convert(indexingConfig, events).stream();
-    } finally {
-      endFolioExecutionContext();
-    }
-  }
-
-  void beginFolioExecutionContext(String tenant) {
-    final var folioExecutionContext =
-      new DefaultFolioExecutionContext(moduleMetadata, Map.of(TENANT, List.of(tenant)));
-
-    FolioExecutionScopeExecutionContextManager
-      .beginFolioExecutionContext(folioExecutionContext);
-  }
-
-  void endFolioExecutionContext() {
-    FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();
   }
 
   private static Map<String, Object> convertMapUsingResourceFields(

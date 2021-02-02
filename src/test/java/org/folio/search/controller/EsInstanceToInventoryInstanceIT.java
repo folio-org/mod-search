@@ -1,0 +1,42 @@
+package org.folio.search.controller;
+
+import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.jayway.jsonpath.JsonPath;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.types.IntegrationTest;
+import org.junit.jupiter.api.Test;
+
+@IntegrationTest
+public class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
+  @Test
+  void responseContainsAllExpectedFields() throws Exception {
+    final var expected = getSemanticWeb();
+    final var actualJson = mockMvc.perform(get(searchInstancesByQuery("id=={value}"), expected.getId())
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      // make sure that no unexpected properties are present
+      .andExpect(jsonPath("instances[0].length()", is(9)))
+      .andReturn().getResponse().getContentAsString();
+
+    final var actual = JsonPath.parse(actualJson).read("instances[0]", Instance.class);
+
+    assertThat(actual.getId(), is(expected.getId()));
+    assertThat(actual.getTitle(), is(expected.getTitle()));
+    assertThat(actual.getAlternativeTitles(), is(expected.getAlternativeTitles()));
+    assertThat(actual.getIndexTitle(), is(expected.getIndexTitle()));
+    assertThat(actual.getSeries(), is(expected.getSeries()));
+    assertThat(actual.getIdentifiers(), is(expected.getIdentifiers()));
+    assertThat(actual.getContributors(), is(expected.getContributors()));
+    assertThat(actual.getSubjects(), is(expected.getSubjects()));
+    assertThat(actual.getPublication(), is(expected.getPublication()));
+  }
+}

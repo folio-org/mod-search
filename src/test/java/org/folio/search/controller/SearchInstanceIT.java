@@ -110,6 +110,15 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void canSearchByKeyword_matchesTitle() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("keyword all {value}"), "primer")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
   void canSearchBySubjects() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("subjects all {value}"), "semantic")
       .headers(defaultHeaders()))

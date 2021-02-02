@@ -15,7 +15,7 @@
       "index": "keyword"
     },
     "title": {
-      "inventorySearchTypes": "title",
+      "inventorySearchTypes": ["title", "keyword"],
       "index": "multilang",
       "showInResponse": true,
       "mappings": {
@@ -26,24 +26,24 @@
       "type": "object",
       "properties": {
         "alternativeTitle": {
-          "inventorySearchTypes": "title",
+          "inventorySearchTypes": ["title", "keyword"],
           "index": "multilang"
         }
       }
     },
     "indexTitle": {
-      "inventorySearchTypes": "title",
+      "inventorySearchTypes": ["title", "keyword"],
       "index": "multilang"
     },
     "series": {
-      "inventorySearchTypes": "title",
+      "inventorySearchTypes": ["title", "keyword"],
       "index": "multilang"
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "inventorySearchTypes": "title",
+          "inventorySearchTypes": ["title", "keyword"],
           "index": "keyword"
         },
         "identifierTypeId": {
@@ -55,7 +55,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": ["contributors", "title"],
+          "inventorySearchTypes": ["contributors", "keyword"],
           "index": "multilang",
           "showInResponse": true
         }

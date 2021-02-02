@@ -15,7 +15,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
+class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   @Test
   void responseContainsAllExpectedFields() throws Exception {
     final var expected = getSemanticWeb();

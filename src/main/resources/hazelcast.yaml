@@ -1,0 +1,11 @@
+hazelcast:
+  network:
+    join:
+      multicast:
+        enabled: true
+map:
+  default:
+    eviction:
+      eviction-policy: LFU
+      max-size-policy: FREE_HEAP_PERCENTAGE
+      size: 40

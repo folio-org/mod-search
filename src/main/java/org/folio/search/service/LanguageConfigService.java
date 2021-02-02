@@ -2,6 +2,8 @@ package org.folio.search.service;
 
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
+import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
+import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 
 import java.util.List;
 import java.util.Set;
@@ -15,15 +17,22 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.spring.FolioModuleMetadata;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
 @AllArgsConstructor
 public class LanguageConfigService {
+  private static final String CACHE_NAME = "language-config";
+
   private final LanguageConfigRepository configRepository;
   private final ResourceDescriptionService descriptionService;
+  private final FolioModuleMetadata moduleMetadata;
 
+  @CacheEvict(value = CACHE_NAME, key = "@folioExecutionContext.tenantId")
   public LanguageConfig create(LanguageConfig languageConfig) {
     final LanguageConfigEntity entity = toLanguageConfigEntity(languageConfig);
 
@@ -42,6 +51,7 @@ public class LanguageConfigService {
     return toLanguageConfig(configRepository.save(entity));
   }
 
+  @CacheEvict(value = CACHE_NAME, key = "@folioExecutionContext.tenantId")
   public void delete(String code) {
     configRepository.deleteById(code);
   }
@@ -56,9 +66,15 @@ public class LanguageConfigService {
       .totalRecords(languageConfigs.size());
   }
 
-  public Set<String> getAllSupportedLanguageCodes() {
-    return getAll().getLanguageConfigs().stream()
-      .map(LanguageConfig::getCode)
-      .collect(Collectors.toSet());
+  @Cacheable(CACHE_NAME)
+  public Set<String> getAllLanguagesForTenant(String tenant) {
+    try {
+      beginFolioExecutionContext(new AsyncFolioExecutionContext(tenant, moduleMetadata));
+      return configRepository.findAll().stream()
+        .map(LanguageConfigEntity::getCode)
+        .collect(Collectors.toSet());
+    } finally {
+      endFolioExecutionContext();
+    }
   }
 }

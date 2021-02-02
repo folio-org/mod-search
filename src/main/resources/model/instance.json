@@ -27,26 +27,32 @@
       "properties": {
         "alternativeTitle": {
           "inventorySearchTypes": "title",
-          "index": "multilang"
+          "index": "multilang",
+          "showInResponse": true
         }
       }
     },
     "indexTitle": {
       "inventorySearchTypes": "title",
-      "index": "multilang"
+      "index": "multilang",
+      "showInResponse": true
     },
     "series": {
       "inventorySearchTypes": "title",
-      "index": "multilang"
+      "index": "multilang",
+      "showInResponse": true
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "index": "keyword"
+          "inventorySearchTypes": "title",
+          "index": "keyword",
+          "showInResponse": true
         },
         "identifierTypeId": {
-          "index": "none"
+          "index": "source",
+          "showInResponse": true
         }
       }
     },
@@ -54,14 +60,15 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": "contributors",
+          "inventorySearchTypes": ["contributors", "title"],
           "index": "multilang",
           "showInResponse": true
         }
       }
     },
     "subjects": {
-      "index": "keyword"
+      "index": "multilang",
+      "showInResponse": true
     },
     "instanceTypeId": {
       "index": "keyword"

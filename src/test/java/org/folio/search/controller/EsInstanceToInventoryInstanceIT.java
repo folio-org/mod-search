@@ -17,26 +17,21 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   @Test
-  void responseContainsAllExpectedFields() throws Exception {
+  void responseContainsOnlyBasicInstanceProperties() throws Exception {
     final var expected = getSemanticWeb();
     final var actualJson = mockMvc.perform(get(searchInstancesByQuery("id=={value}"), expected.getId())
       .headers(defaultHeaders()))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(1)))
       // make sure that no unexpected properties are present
-      .andExpect(jsonPath("instances[0].length()", is(9)))
+      .andExpect(jsonPath("instances[0].length()", is(4)))
       .andReturn().getResponse().getContentAsString();
 
     final var actual = JsonPath.parse(actualJson).read("instances[0]", Instance.class);
 
     assertThat(actual.getId(), is(expected.getId()));
     assertThat(actual.getTitle(), is(expected.getTitle()));
-    assertThat(actual.getAlternativeTitles(), is(expected.getAlternativeTitles()));
-    assertThat(actual.getIndexTitle(), is(expected.getIndexTitle()));
-    assertThat(actual.getSeries(), is(expected.getSeries()));
-    assertThat(actual.getIdentifiers(), is(expected.getIdentifiers()));
     assertThat(actual.getContributors(), is(expected.getContributors()));
-    assertThat(actual.getSubjects(), is(expected.getSubjects()));
     assertThat(actual.getPublication(), is(expected.getPublication()));
   }
 }

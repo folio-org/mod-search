@@ -32,6 +32,20 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/searchResult'
+        '400':
+          description: Error response when NullPointerException occurred during code execution
+          content:
+            application/json:
+              example: examples/indexNotFoundError.sample
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '500':
+          description: Error response when NullPointerException occurred during code execution
+          content:
+            application/json:
+              example: examples/npeError.sample
+              schema:
+                $ref: '#/components/schemas/errorResponse'
 
   /index/indices:
     post:
@@ -52,6 +66,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/folioCreateIndexResponse'
+        '400':
+          description: Error response when request tries to create index that already exists
+          content:
+            application/json:
+              example: examples/indexCreationError.sample
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '500':
+          description: Error response when NullPointerException occurred during code execution
+          content:
+            application/json:
+              example: examples/npeError.sample
+              schema:
+                $ref: '#/components/schemas/errorResponse'
 
   /index/mappings:
     post:
@@ -71,6 +99,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
+        '500':
+          description: Error response when NullPointerException occurred during code execution
+          content:
+            application/json:
+              example: examples/npeError.sample
 
   /index/records:
     post:
@@ -90,6 +123,11 @@ paths:
               example: examples/indexRecordResponse.sample
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
+        '500':
+          description: Error response when NullPointerException occurred during code execution
+          content:
+            application/json:
+              example: examples/npeError.sample
 
   /config/languages:
     post:
@@ -163,6 +201,8 @@ components:
           description: List of instances foubd
           items:
             $ref: '#/components/schemas/instance'
+    errorResponse:
+      $ref: schemas/errors.json
 
   parameters:
     language-code:

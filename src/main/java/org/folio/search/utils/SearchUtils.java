@@ -3,7 +3,7 @@ package org.folio.search.utils;
 import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.folio.search.exception.SearchServiceException;
+import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.CqlSearchRequest;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,7 +25,7 @@ public class SearchUtils {
     try {
       return func.call();
     } catch (Exception e) {
-      throw new SearchServiceException(String.format(
+      throw new SearchOperationException(String.format(
         "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
         index, type, e.getMessage()), e);
     }

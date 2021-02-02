@@ -8,6 +8,7 @@
       "description": "Error message with the reason why index was failed to create."
     },
     "indices": {
+      "type": "array",
       "description": "List of created elasticsearch indices.",
       "minItems": 0,
       "items": {

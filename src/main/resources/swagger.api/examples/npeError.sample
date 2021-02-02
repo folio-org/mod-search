@@ -1,0 +1,9 @@
+{
+  "errors": [
+    {
+      "type": "NullPointerException",
+      "code": "Unknown error"
+    }
+  ],
+  "total_records": 1
+}

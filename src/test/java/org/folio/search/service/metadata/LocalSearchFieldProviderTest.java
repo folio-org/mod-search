@@ -2,9 +2,11 @@ package org.folio.search.service.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
+import static org.folio.search.utils.TestUtils.readJsonFromFile;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +85,18 @@ class LocalSearchFieldProviderTest {
 
     assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "title2.sub3.sub5"))
       .containsExactly("title2.sub3.sub5.*");
+  }
+
+  @Test
+  void shouldReturnAllExpectedFieldsForInstanceTitleSearch() {
+    when(localResourceProvider.getResourceDescriptions())
+      .thenReturn(List.of(readJsonFromFile("/model/instance.json", ResourceDescription.class)));
+
+    searchFieldProvider.init();
+
+    assertThat(searchFieldProvider.getFields(INSTANCE_RESOURCE, "title"))
+      .containsExactlyInAnyOrder("title.*", "alternativeTitles.alternativeTitle.*",
+        "indexTitle.*", "series.*", "identifiers.value", "contributors.name.*");
   }
 
   private static List<ResourceDescription> resourceDescriptions() {

@@ -15,15 +15,6 @@ import org.junit.jupiter.api.Test;
 class SearchInstanceIT extends BaseIntegrationTest {
 
   @Test
-  void canSearchByInstanceId_exactMatch() throws Exception {
-    mockMvc.perform(get(searchInstancesByQuery("id=={value}"), getSemanticWeb().getId())
-      .headers(defaultHeaders()))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
-  }
-
-  @Test
   void canSearchByInstanceId_wildcard() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("id=={value}"), "5bf370e0*a0a39")
       .headers(defaultHeaders()))
@@ -112,6 +103,15 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @Test
   void canSearchByContributors() throws Exception {
     mockMvc.perform(get(searchInstancesByQuery("contributors all {value}"), "grigoris")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+  }
+
+  @Test
+  void canSearchBySubjects() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("subjects all {value}"), "semantic")
       .headers(defaultHeaders()))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(1)))

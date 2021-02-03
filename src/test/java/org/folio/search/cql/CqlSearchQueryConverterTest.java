@@ -11,6 +11,7 @@ import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -105,9 +106,12 @@ class CqlSearchQueryConverterTest {
   }
 
   private static Stream<Arguments> parseCqlQueryDataProvider() {
+    var resourceId = randomId();
     return Stream.of(
       arguments("contributors", "(contributors =/@name \"test-query\") sortby title",
         searchSourceSort().query(termQuery("contributors", "test-query"))),
+
+      arguments("id", "id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
       arguments("keyword(title, contributor, identifier)", "(keyword all \"test-query\") sortby title/sort.descending",
         searchSource().query(matchQuery("keyword", "test-query")).sort("sort_title", DESC)),

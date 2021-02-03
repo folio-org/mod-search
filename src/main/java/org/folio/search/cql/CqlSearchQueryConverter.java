@@ -109,13 +109,13 @@ public class CqlSearchQueryConverter {
     var comparator = StringUtils.lowerCase(node.getRelation().getBase());
     switch (comparator) {
       case "=":
+      case "==":
         return prepareElasticsearchQuery(fieldList,
           fields -> prepareBoolQueryForFieldsGroup(fields, field -> termQuery(field, term)),
           () -> termQuery(fieldName, term));
       case "adj":
       case "all":
       case "any":
-      case "==":
         return prepareElasticsearchQuery(fieldList,
           fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
           () -> matchQuery(fieldName, term));

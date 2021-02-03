@@ -30,11 +30,19 @@ public class TestUtils {
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
     .setSerializationInclusion(Include.NON_NULL)
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
   @SneakyThrows
   public static String asJsonString(Object value) {
     return OBJECT_MAPPER.writeValueAsString(value);
+  }
+
+  @SneakyThrows
+  public static <T> T readJsonFromFile(String path, Class<T> type) {
+    try (var resource = TestUtils.class.getResourceAsStream(path)) {
+      return OBJECT_MAPPER.readValue(resource, type);
+    }
   }
 
   public static String randomId() {

@@ -59,7 +59,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by hrid for exact match", "hrid={value}", array("inst000000000022"), null),
       arguments("search by hrid with wildcard (starts with)", "hrid=={value}", array("inst000*"), null),
       arguments("search by hrid with wildcard (ends with)", "hrid=={value}", array("*00022"), null),
-      arguments("search by hrid with wildcard (contains)", "hrid=={value}", array("*00000002*"), null)
+      arguments("search by hrid with wildcard (contains)", "hrid=={value}", array("*00000002*"), null),
+      arguments("search by keyword that matches title", "keyword all {value}", array("primer"), null),
+      arguments("search by subjects", "subjects all {value}", array("semantic"), null)
     );
   }
 }

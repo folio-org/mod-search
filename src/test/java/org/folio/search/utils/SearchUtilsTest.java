@@ -42,7 +42,7 @@ class SearchUtilsTest {
 
   @Test
   void getElasticsearchIndexName_cqlSearchRequest_positive() {
-    var cqlSearchRequest = CqlSearchRequest.of(RESOURCE_NAME, null, TENANT_ID, null, null);
+    var cqlSearchRequest = CqlSearchRequest.of(RESOURCE_NAME, null, TENANT_ID, null, null, false);
     var actual = getElasticsearchIndexName(cqlSearchRequest);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }

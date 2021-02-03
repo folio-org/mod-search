@@ -32,7 +32,7 @@ class SearchServiceTest {
     expectedResult.setInstances(Collections.emptyList());
     expectedResult.setTotalRecords(0);
 
-    var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 0, 10);
+    var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 0, 10, false);
     var searchSourceBuilder = searchSource();
 
     when(searchRepository.search(searchRequest, searchSourceBuilder)).thenReturn(expectedResult);

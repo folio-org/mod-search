@@ -74,9 +74,16 @@ public class CqlSearchQueryConverter {
       }
     }
 
+    if (!searchRequest.isExpandAll()) {
+      final String[] includes = searchFieldProvider
+        .getSourceFields(searchRequest.getResource())
+        .toArray(String[]::new);
+
+      queryBuilder.fetchSource(includes, null);
+    }
+
     return queryBuilder
       .query(convertToQuery(searchRequest, node))
-      .fetchSource(searchFieldProvider.getSourceFields(searchRequest.getResource()).toArray(String[]::new), null)
       .from(searchRequest.getOffset())
       .size(searchRequest.getLimit());
   }

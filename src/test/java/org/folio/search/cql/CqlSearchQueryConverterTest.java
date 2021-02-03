@@ -49,7 +49,7 @@ class CqlSearchQueryConverterTest {
   @ParameterizedTest(name = "[{index}] type={0}, cqlQuery={1}")
   void parseCqlQuery_positive_parameterized(
     @SuppressWarnings("unused") String testName, String cqlQuery, SearchSourceBuilder expected) {
-    var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0);
+    var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0, false);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
     var actual = cqlSearchQueryConverter.convert(request);
 
@@ -61,19 +61,23 @@ class CqlSearchQueryConverterTest {
   @ParameterizedTest(name = "[{index}] type={0}, cqlQuery={1}")
   void parseCqlQuery_positive_searchByTitleGroup(
     @SuppressWarnings("unused") String testName, String cqlQuery, SearchSourceBuilder expected) {
-    var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0);
+    var request = CqlSearchRequest.of(RESOURCE_NAME, cqlQuery, null, 10, 0, false);
     doReturn(TITLE_FIELDS).when(searchFieldProvider).getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
 
     var actual = cqlSearchQueryConverter.convert(request);
 
     assertThat(actual).isEqualTo(expected.size(10).from(0));
+    // Should fetch only basic fields, because expandAll is false
+    assertThat(actual.fetchSource()).isNotNull();
+    assertThat(actual.fetchSource().includes())
+      .containsExactlyInAnyOrderElementsOf(SOURCE_FIELDS);
   }
 
   @Test
   void parseCqlQuery_negative_unsupportedBoolOperator() {
     var cqlQuery = "title all \"test-query\" prox contributors = \"value\"";
-    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0);
+    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0, false);
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(request))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to parse cql query "
@@ -85,7 +89,7 @@ class CqlSearchQueryConverterTest {
   @Test
   void parseCqlQuery_negative_unsupportedComparator() {
     var cqlQuery = "title within  \"test-query\"";
-    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0);
+    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0, false);
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(request))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to parse cql query [cql: 'title within  \"test-query\"', resource: null]")
@@ -96,13 +100,30 @@ class CqlSearchQueryConverterTest {
   @Test
   void parseCqlQuery_negative_unsupportedNode() {
     var cqlQuery = "> dc = \"info:srw/context-sets/1/dc-v1.1\" dc.title any fish";
-    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0);
+    var request = CqlSearchRequest.of(null, cqlQuery, null, 10, 0, false);
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(request))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to parse cql query "
         + "[cql: '> dc = \"info:srw/context-sets/1/dc-v1.1\" dc.title any fish', resource: null]")
       .hasCauseInstanceOf(UnsupportedOperationException.class)
       .hasRootCauseMessage("Unsupported node: CQLPrefixNode");
+  }
+
+  @Test
+  void shouldNotSetSourceFieldWhenExpandAll() {
+    final var request = CqlSearchRequest.builder()
+      .cqlQuery("title==title").expandAll(true)
+      .build();
+
+    final var searchSourceBuilder = cqlSearchQueryConverter.convert(request);
+
+    assertThat(searchSourceBuilder.fetchSource()).isNull();
+    assertThat(searchSourceBuilder)
+      .isEqualTo(SearchSourceBuilder.searchSource()
+        .trackTotalHits(true)
+        .query(termQuery("title", "title"))
+        .size(request.getLimit())
+        .from(request.getOffset()));
   }
 
   private static Stream<Arguments> parseCqlQueryDataProvider() {

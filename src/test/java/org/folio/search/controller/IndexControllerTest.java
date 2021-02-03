@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
@@ -91,13 +92,32 @@ class IndexControllerTest {
     var elasticsearchException = new ElasticsearchException(errorMessage);
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
-      new SearchOperationException("error", elasticsearchException));
+      new SearchOperationException("i/o error", elasticsearchException));
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
       .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")))
+      .andExpect(jsonPath("$.total_records", is(1)));
+  }
+
+  @Test
+  void createIndex_negative_unknownErrorInSearchOperationException() throws Exception {
+    var requestBuilder = post("/search/index/indices")
+      .content(asJsonString(requestBody()))
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    var errorMessage = "i/o error";
+    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
+      new SearchOperationException(errorMessage, new IOException(errorMessage)));
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
+      .andExpect(jsonPath("$.errors[0].type", is("SearchOperationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("Unknown error")))
       .andExpect(jsonPath("$.total_records", is(1)));
   }
 

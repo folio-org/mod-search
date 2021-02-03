@@ -40,7 +40,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> positiveSearchTestDataProvider() {
     return Stream.of(
-      arguments("search by instance id for exactMatch", "id={value}", array(getSemanticWeb().getId()), null),
+      arguments("search by instance id", "id={value}", array(getSemanticWeb().getId()), null),
+      arguments("search by instance id for exactMatch", "id=={value}", array(getSemanticWeb().getId()), null),
       arguments("search by instance id using wildcard", "id={value}", array("5bf370e0*a0a39"), null),
       arguments("search by instance title (title)", "title all {value}", array("semantic"), null),
       arguments("search by instance title (series)", "title all {value}", array("cooperative"), null),
@@ -56,9 +57,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
           .andExpect(jsonPath("instances[0].contributors[1].name", is("Van Harmelen, Frank")))),
       arguments("search by contributors alias", "contributors all {value}", array("grigoris"), null),
       arguments("search by hrid for exact match", "hrid={value}", array("inst000000000022"), null),
-      arguments("search by hrid with wildcard (starts with)", "hrid={value}", array("inst000*"), null),
-      arguments("search by hrid with wildcard (ends with)", "hrid={value}", array("*00022"), null),
-      arguments("search by hrid with wildcard (contains)", "hrid={value}", array("*00000002*"), null)
+      arguments("search by hrid with wildcard (starts with)", "hrid=={value}", array("inst000*"), null),
+      arguments("search by hrid with wildcard (ends with)", "hrid=={value}", array("*00022"), null),
+      arguments("search by hrid with wildcard (contains)", "hrid=={value}", array("*00000002*"), null)
     );
   }
 }

@@ -43,7 +43,7 @@
       "type": "object",
       "properties": {
         "value": {
-          "inventorySearchTypes": ["title", "keyword"],
+          "inventorySearchTypes": "keyword",
           "index": "keyword"
         },
         "identifierTypeId": {

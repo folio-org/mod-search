@@ -75,10 +75,10 @@ class SearchControllerTest {
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index not found: " + INDEX_NAME)))
       .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")));
   }
 
   @Test
@@ -91,10 +91,10 @@ class SearchControllerTest {
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("must be less than or equal to 500")))
       .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Validation error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Validation error")));
   }
 
   @Test
@@ -111,9 +111,9 @@ class SearchControllerTest {
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(exceptionMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("SearchServiceException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Service error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Service error")));
   }
 }

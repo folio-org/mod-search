@@ -67,10 +67,10 @@ class IndexControllerTest {
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
       .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index already exists: " + INDEX_NAME)))
       .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")));
   }
 
   @Test
@@ -83,10 +83,10 @@ class IndexControllerTest {
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
       .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")));
   }
 
   @Test
@@ -97,22 +97,22 @@ class IndexControllerTest {
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
       .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("SearchOperationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")));
   }
 
   @Test
   void createIndex_negative_resourceNameIsNotPassed() throws Exception {
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(new IndexRequestBody())))
       .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("must not be null")))
       .andExpect(jsonPath("$.errors[0].type", is("MethodArgumentNotValidException")))
       .andExpect(jsonPath("$.errors[0].code", is("Validation error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("null")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("null")));
   }
 
   @Test
@@ -120,9 +120,9 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(new NullPointerException());
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
       .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].type", is("NullPointerException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Unknown error")))
-      .andExpect(jsonPath("$.total_records", is(1)));
+      .andExpect(jsonPath("$.errors[0].code", is("Unknown error")));
   }
 
   @Test

@@ -65,7 +65,14 @@
   ],
   "publicationFrequency": [],
   "publicationRange": [],
-  "electronicAccess": [],
+  "electronicAccess": [
+    {
+      "uri": "http://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+      "linkText": "electronic access link text",
+      "publicNote": "Online access via Wiley (1996-current)",
+      "materialsSpecification": "electronic access material"
+    }
+  ],
   "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
   "instanceFormatIds": [],
   "instanceFormats": [],

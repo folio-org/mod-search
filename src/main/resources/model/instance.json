@@ -123,6 +123,42 @@
           "index": "multilang"
         }
       }
+    },
+    "classifications": {
+      "type": "object",
+      "properties": {
+        "classificationNumber": {
+          "index": "keyword"
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "index": "multilang"
+        },
+        "staffOnly": {
+          "index": "bool"
+        }
+      }
+    },
+    "electronicAccess": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "index": "keyword"
+        },
+        "linkText": {
+          "index": "multilang"
+        },
+        "materialsSpecification": {
+          "index": "multilang"
+        },
+        "publicNote": {
+          "index": "multilang"
+        }
+      }
     }
   },
   "searchFields": {

@@ -161,6 +161,62 @@
           }
         }
       }
+    },
+    "classifications": {
+      "type": "array",
+      "description": "List of classifications",
+      "items": {
+        "type": "object",
+        "properties": {
+          "classificationNumber": {
+            "type": "string",
+            "description": "Classification (e.g. classification scheme, classification schedule)"
+          }
+        }
+      }
+    },
+    "electronicAccess": {
+      "type": "array",
+      "description": "List of electronic access items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources"
+          },
+          "linkText": {
+            "type": "string",
+            "description": "The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated"
+          },
+          "materialsSpecification": {
+            "type": "string",
+            "description": "Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+          },
+          "publicNote": {
+            "type": "string",
+            "description": "URL public note to be displayed in the discovery"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "description": "Bibliographic notes (e.g. general notes, specialized notes), and administrative notes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "Text content of the note"
+          },
+          "staffOnly": {
+            "type": "boolean",
+            "description": "If true, determines that the note should not be visible for others than staff",
+            "default": false
+          }
+        }
+      }
     }
   }
 }

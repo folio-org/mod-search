@@ -5,6 +5,5 @@
   "items": {
     "type": "object",
     "$ref": "parameter.json"
-  },
-  "additionalProperties": false
+  }
 }

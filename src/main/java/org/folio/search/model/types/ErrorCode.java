@@ -1,5 +1,6 @@
 package org.folio.search.model.types;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,5 +14,6 @@ public enum ErrorCode {
   VALIDATION_ERROR("validation_error"),
   CONSTRAINT_VIOLATION("constraint_violation_error");
 
-  private final String description;
+  @JsonValue
+  private final String value;
 }

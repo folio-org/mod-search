@@ -16,6 +16,5 @@
         "description": "Total number of errors",
       "type": "integer"
     }
-  },
-  "additionalProperties": false
+  }
 }

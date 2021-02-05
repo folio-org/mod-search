@@ -72,7 +72,7 @@ public class ApiExceptionHandler {
     validationErrors.forEach(error ->
       errorResponse.addErrorsItem(new Error()
         .message(error.getDefaultMessage())
-        .code(ErrorCode.VALIDATION_ERROR.getDescription())
+        .code(ErrorCode.VALIDATION_ERROR.getValue())
         .type(MethodArgumentNotValidException.class.getSimpleName())
         .addParametersItem(new Parameter()
           .key(((FieldError) error).getField())
@@ -95,7 +95,7 @@ public class ApiExceptionHandler {
     exception.getConstraintViolations().forEach(constraintViolation ->
       errorResponse.addErrorsItem(new Error()
         .message(constraintViolation.getMessage())
-        .code(ErrorCode.VALIDATION_ERROR.getDescription())
+        .code(ErrorCode.VALIDATION_ERROR.getValue())
         .type(ConstraintViolationException.class.getSimpleName())));
     errorResponse.totalRecords(errorResponse.getErrors().size());
 
@@ -110,7 +110,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception exception) {
-    log.warn("Handling exception [type: {}]", exception.getClass().getSimpleName(), exception);
+    log.warn("Handling exception", exception);
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);
   }
 
@@ -134,7 +134,7 @@ public class ApiExceptionHandler {
       .errors(List.of(new Error()
         .message(e.getMessage())
         .type(e.getClass().getSimpleName())
-        .code(code.getDescription())))
+        .code(code.getValue())))
       .totalRecords(1);
     return buildResponseEntity(errorResponse, status);
   }
@@ -147,7 +147,7 @@ public class ApiExceptionHandler {
     return new ErrorResponse()
       .addErrorsItem(new Error().message(message)
         .type(ElasticsearchException.class.getSimpleName())
-        .code(ELASTICSEARCH_ERROR.getDescription()))
+        .code(ELASTICSEARCH_ERROR.getValue()))
       .totalRecords(1);
   }
 }

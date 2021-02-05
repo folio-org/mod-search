@@ -11,7 +11,5 @@
       "description": "Parameter value",
       "type": "string"
     }
-  },
-  "additionalProperties": false,
-  "required": [ "key" ]
+  }
 }

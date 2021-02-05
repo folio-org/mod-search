@@ -23,7 +23,6 @@ paths:
             type: boolean
             default: false
           required: true
-
       responses:
         '200':
           description: 'Instance search result'
@@ -190,7 +189,7 @@ components:
       description: When unhandled exception occurred during code execution, e.g. NullPointerException
       content:
         application/json:
-          example: examples/npeError.sample
+          example: examples/unknownError.sample
 
   parameters:
     language-code:

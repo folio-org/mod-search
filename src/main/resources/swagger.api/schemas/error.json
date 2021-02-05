@@ -20,7 +20,5 @@
       "description": "Error message parameters",
       "$ref": "parameters.json"
     }
-  },
-  "additionalProperties": false,
-  "required": [ "message" ]
+  }
 }

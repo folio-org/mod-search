@@ -1,14 +1,11 @@
 package org.folio.search.exception;
 
-import lombok.Getter;
 import org.folio.search.model.types.ErrorCode;
 
 /**
  * Thrown to indicate a service error that was occurred at operations to search engine.
  */
-public class SearchServiceException extends RuntimeException {
-
-  @Getter private final ErrorCode errorCode = ErrorCode.SERVICE_ERROR;
+public class SearchServiceException extends BaseSearchException {
 
   /**
    * Creates exception instance from given message.
@@ -16,7 +13,7 @@ public class SearchServiceException extends RuntimeException {
    * @param message exception message as {@link String} object
    */
   public SearchServiceException(String message) {
-    super(message);
+    super(message, ErrorCode.SERVICE_ERROR);
   }
 
   /**
@@ -26,6 +23,6 @@ public class SearchServiceException extends RuntimeException {
    * @param throwable exception cause as {@link Throwable} object
    */
   public SearchServiceException(String message, Throwable throwable) {
-    super(message, throwable);
+    super(message, throwable, ErrorCode.SERVICE_ERROR);
   }
 }

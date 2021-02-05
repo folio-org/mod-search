@@ -40,4 +40,7 @@ public class CqlSearchRequest {
    */
   @Builder.Default
   private Integer offset = 0;
+
+  @Builder.Default
+  private boolean expandAll = false;
 }

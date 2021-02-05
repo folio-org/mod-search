@@ -47,7 +47,7 @@
           "index": "keyword"
         },
         "identifierTypeId": {
-          "index": "none"
+          "index": "source"
         }
       }
     },

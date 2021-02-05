@@ -58,7 +58,7 @@ class SearchRepositoryTest {
     expectedResult.setTotalRecords(totalResults);
     expectedResult.setInstances(List.of(new Instance()));
 
-    var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 1, 20);
+    var searchRequest = CqlSearchRequest.of(RESOURCE_NAME, "query", TENANT_ID, 1, 20, false);
     var actual = searchRepository.search(searchRequest, queryBuilder);
     assertThat(actual).isEqualTo(expectedResult);
   }

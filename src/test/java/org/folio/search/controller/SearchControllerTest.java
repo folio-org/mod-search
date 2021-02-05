@@ -78,7 +78,7 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index not found: " + INDEX_NAME)))
       .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Elasticsearch error")));
+      .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
 
   @Test
@@ -94,7 +94,7 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("must be less than or equal to 500")))
       .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Validation error")));
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 
   @Test
@@ -114,6 +114,6 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(exceptionMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("SearchServiceException")))
-      .andExpect(jsonPath("$.errors[0].code", is("Service error")));
+      .andExpect(jsonPath("$.errors[0].code", is("service_error")));
   }
 }

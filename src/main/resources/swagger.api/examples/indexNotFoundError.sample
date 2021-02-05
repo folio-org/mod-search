@@ -3,7 +3,7 @@
     {
       "message": "Index not found: instance_test-tenant",
       "type": "ElasticsearchException",
-      "code": "Elasticsearch error"
+      "code": "elasticsearch_error"
     }
   ],
   "total_records": 1

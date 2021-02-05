@@ -3,7 +3,7 @@
     {
       "message": "must not be null",
       "type": "MethodArgumentNotValidException",
-      "code": "Validation error",
+      "code": "validation_error",
       "parameters": [
         {
           "key": "parameter",

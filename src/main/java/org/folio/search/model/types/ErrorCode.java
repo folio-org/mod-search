@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-  UNKNOWN_ERROR("Unknown error"),
-  SERVICE_ERROR("Service error"),
-  ELASTICSEARCH_ERROR("Elasticsearch error"),
-  VALIDATION_ERROR("Validation error"),
-  CONSTRAINT_VIOLATION("Constraint violation error");
+  UNKNOWN_ERROR("unknown_error"),
+  SERVICE_ERROR("service_error"),
+  ELASTICSEARCH_ERROR("elasticsearch_error"),
+  VALIDATION_ERROR("validation_error"),
+  CONSTRAINT_VIOLATION("constraint_violation_error");
 
   private final String description;
 }

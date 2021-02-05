@@ -2,7 +2,7 @@
   "errors": [
     {
       "type": "NullPointerException",
-      "code": "Unknown error"
+      "code": "unknown_error"
     }
   ],
   "total_records": 1

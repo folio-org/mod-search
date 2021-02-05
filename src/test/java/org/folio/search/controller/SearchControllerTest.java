@@ -59,7 +59,7 @@ class SearchControllerTest {
   @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0);
+    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0, false);
     var elasticsearchException = new ElasticsearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
@@ -100,7 +100,7 @@ class SearchControllerTest {
   @Test
   void search_negative_invalidCqlQuery() throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0);
+    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0, false);
     var exceptionMessage = String.format("Failed to parse CQL query [query: '%s']", cqlQuery);
     when(searchService.search(expectedSearchRequest)).thenThrow(new SearchServiceException(exceptionMessage));
 

@@ -260,7 +260,7 @@ class SearchDocumentConverterTest {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
     assertThatThrownBy(() -> convert(resourceEventBody))
-      .hasMessage("There is no such index setter: undefinedSetter")
+      .hasMessage("There is no such property setter: undefinedSetter")
       .isInstanceOf(IllegalArgumentException.class);
   }
 

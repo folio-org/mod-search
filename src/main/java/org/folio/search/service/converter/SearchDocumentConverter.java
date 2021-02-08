@@ -133,12 +133,12 @@ public class SearchDocumentConverter {
       return fieldData.get(fieldName);
     }
 
-    final var indexGenerator = fieldSetters.get(desc.getPopulatedBy());
-    if (indexGenerator == null) {
-      throw new IllegalArgumentException("There is no such index setter: " + desc.getPopulatedBy());
+    final var propertySetter = fieldSetters.get(desc.getPopulatedBy());
+    if (propertySetter == null) {
+      throw new IllegalArgumentException("There is no such property setter: " + desc.getPopulatedBy());
     }
 
-    return indexGenerator.getFieldValue(fieldData);
+    return propertySetter.getFieldValue(fieldData);
   }
 
   @SuppressWarnings("unchecked")

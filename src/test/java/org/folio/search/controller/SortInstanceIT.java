@@ -21,6 +21,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,8 +35,8 @@ class SortInstanceIT extends BaseIntegrationTest {
   }
 
   @AfterAll
-  static void removeTenant(@Autowired RestHighLevelClient client) {
-    removeTenant(client, TENANT);
+  static void removeTenant(@Autowired RestHighLevelClient client, @Autowired JdbcTemplate template) {
+    removeTenant(client, template, TENANT);
   }
 
   @Test

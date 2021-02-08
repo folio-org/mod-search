@@ -24,6 +24,7 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.types.FieldType;
+import org.springframework.test.web.servlet.ResultActions;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtils {
@@ -43,6 +44,12 @@ public class TestUtils {
     try (var resource = TestUtils.class.getResourceAsStream(path)) {
       return OBJECT_MAPPER.readValue(resource, type);
     }
+  }
+
+  @SneakyThrows
+  public static <T> T parseResponse(ResultActions result, Class<T> type) {
+    return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
+      .getContentAsString(), type);
   }
 
   public static String randomId() {

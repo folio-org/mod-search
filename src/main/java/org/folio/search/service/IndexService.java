@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.converter.ConvertConfig;
 import org.folio.search.service.converter.SearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -27,6 +28,7 @@ public class IndexService {
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
   private final SearchDocumentConverter searchDocumentConverter;
+  private final LanguageConfigService languageConfigService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -66,7 +68,15 @@ public class IndexService {
     if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
     }
-    var elasticsearchDocuments = searchDocumentConverter.convert(resources);
+
+    final ConvertConfig convertConfig = new ConvertConfig();
+    resources.stream()
+      .map(ResourceEventBody::getTenant)
+      .distinct()
+      .forEach(tenant -> convertConfig.addSupportedLanguage(tenant,
+        languageConfigService.getAllLanguagesForTenant(tenant)));
+
+    var elasticsearchDocuments = searchDocumentConverter.convert(convertConfig, resources);
     return indexRepository.indexResources(elasticsearchDocuments);
   }
 }

@@ -91,6 +91,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
 
+  /config/languages:
+    post:
+      operationId: createLanguageConfig
+      description: Save languages that will be used for analyzers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: schemas/languageConfig.json
+      responses:
+        '200':
+          description: Language support has been added.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/languageConfig.json
+        '422':
+          description: Validation error for the request.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common/validationErrors.json
+    get:
+      operationId: getAllLanguageConfigs
+      description: Get all supported languages
+      responses:
+        '200':
+          description: All supported languages
+          content:
+            application/json:
+              schema:
+                $ref: schemas/languageConfigs.json
+
+  /config/languages/{code}:
+    delete:
+      operationId: deleteLanguageConfig
+      description: Delete all supported languages
+      parameters:
+        - $ref: '#/components/parameters/language-code'
+      responses:
+        '204':
+          description: Language support has been removed
+        '404':
+          description: No language support is found
+
 components:
   schemas:
     instance:
@@ -120,6 +165,14 @@ components:
             $ref: '#/components/schemas/instance'
 
   parameters:
+    language-code:
+      name: code
+      in: path
+      required: true
+      description: Language code
+      schema:
+        type: string
+        pattern: '[a-zA-Z]{3}'
     search-cql-query:
       name: query
       in: query

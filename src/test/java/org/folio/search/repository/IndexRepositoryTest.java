@@ -78,7 +78,7 @@ class IndexRepositoryTest {
       .isInstanceOf(SearchServiceException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=test-resource_test-tenant, type=createIndexApi, message: err]");
+        + "[index=test-resource_test_tenant, type=createIndexApi, message: err]");
   }
 
   @Test
@@ -113,7 +113,7 @@ class IndexRepositoryTest {
       .isInstanceOf(SearchServiceException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=test-resource_test-tenant, type=putMappingsApi, message: err]");
+        + "[index=test-resource_test_tenant, type=putMappingsApi, message: err]");
   }
 
   @Test
@@ -155,6 +155,6 @@ class IndexRepositoryTest {
       .isInstanceOf(SearchServiceException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=test-resource_test-tenant, type=bulkApi, message: err]");
+        + "[index=test-resource_test_tenant, type=bulkApi, message: err]");
   }
 }

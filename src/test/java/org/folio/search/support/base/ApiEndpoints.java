@@ -13,4 +13,8 @@ public class ApiEndpoints {
   public static String allInstancesSortedBy(String sort, CqlSort order) {
     return searchInstancesByQuery("id<>\"\" sortBy %s/sort.%s", sort, order);
   }
+
+  public static String languageConfig() {
+    return "/search/config/languages";
+  }
 }

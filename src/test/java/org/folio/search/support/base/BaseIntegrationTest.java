@@ -3,15 +3,18 @@ package org.folio.search.support.base;
 import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,16 +31,20 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
@@ -66,21 +73,27 @@ public abstract class BaseIntegrationTest {
   }
 
   @BeforeAll
-  static void createDefaultTenant(@Autowired MockMvc mockMvc,
+  static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
     setUpTenant(TENANT_ID, mockMvc, kafkaTemplate, getSemanticWeb());
   }
 
   @AfterAll
-  static void removeDefaultTenant(@Autowired RestHighLevelClient client) {
-    removeTenant(client, TENANT_ID);
+  static void removeDefaultTenant(@Autowired RestHighLevelClient highLevelClient,
+    @Autowired JdbcTemplate jdbcTemplate) {
+
+    removeTenant(highLevelClient, jdbcTemplate, TENANT_ID);
   }
 
   public static HttpHeaders defaultHeaders() {
+    return defaultHeaders(TENANT_ID);
+  }
+
+  public static HttpHeaders defaultHeaders(String tenant) {
     final HttpHeaders httpHeaders = new HttpHeaders();
 
-    httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(TENANT_ID));
+    httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(tenant));
 
     return httpHeaders;
   }
@@ -122,14 +135,67 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
+  public ResultActions attemptPost(String uri, Object body) {
+    return mockMvc.perform(post(uri)
+      .content(asJsonString(body))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON));
+  }
+
+  @SneakyThrows
+  public ResultActions doPost(String uri, Object body) {
+    return attemptPost(uri, body)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public ResultActions doGet(String uri, Object... args) {
+    return doGet(mockMvc, uri, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(MockMvc mockMvc, String uri, Object... args) {
+    return mockMvc.perform(get(uri, args)
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public ResultActions doDelete(String uri, Object... args) {
+    return doDelete(mockMvc, uri, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions doDelete(MockMvc mockMvc, String uri, Object... args) {
+    return mockMvc.perform(delete(uri, args)
+      .headers(defaultHeaders()))
+      .andExpect(status().isNoContent());
+  }
+
+  @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc,
     KafkaTemplate<String, Object> kafkaTemplate, Instance ... instances) {
 
-    mockMvc.perform(post("/search/index/indices")
-      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
-      .header(X_OKAPI_TENANT_HEADER, tenantName)
+    mockMvc.perform(post("/_/tenant")
+      .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
+      .headers(defaultHeaders(tenantName))
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
+
+    mockMvc.perform(post("/search/index/indices")
+      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
+      .headers(defaultHeaders(tenantName))
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
+
+    mockMvc.perform(post(languageConfig())
+      .content(asJsonString(new LanguageConfig().code("eng")))
+      .headers(defaultHeaders(tenantName))
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
+
+    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, getSemanticWeb().getId(),
+      eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
 
     for (Instance instance : instances) {
       kafkaTemplate.send("inventory.instance", instance.getId(),
@@ -143,10 +209,14 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static void removeTenant(RestHighLevelClient highLevelClient, String tenant) {
-    log.info("Removing elasticsearch index...");
+  protected static void removeTenant(RestHighLevelClient highLevelClient,
+    JdbcTemplate jdbcTemplate, String tenant) {
 
+    log.info("Removing elasticsearch index...");
     highLevelClient.indices().delete(new DeleteIndexRequest()
-        .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, tenant)), RequestOptions.DEFAULT);
+      .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, tenant)), RequestOptions.DEFAULT);
+
+    log.info("Destroying schema...");
+    jdbcTemplate.execute(format("DROP SCHEMA %s_mod_search CASCADE", tenant));
   }
 }

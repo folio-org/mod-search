@@ -17,10 +17,7 @@
     "title": {
       "inventorySearchTypes": ["title", "keyword"],
       "index": "multilang",
-      "showInResponse": true,
-      "mappings": {
-        "copy_to": [ "sort_title" ]
-      }
+      "showInResponse": true
     },
     "alternativeTitles": {
       "type": "object",
@@ -111,16 +108,16 @@
           "showInResponse": true
         }
       }
+    },
+    "sort_contributors": {
+      "index": "lowercase_sort",
+      "populatedBy": "sortContributorsSetter"
+    },
+    "sort_title": {
+      "index": "lowercase_sort",
+      "populatedBy": "sortTitleSetter"
     }
   },
   "groups": { },
-  "indexMappings": {
-    "sort_title": {
-      "type": "keyword",
-      "normalizer": "keyword_lowercase",
-      "ignore_above": 50,
-      "index": false,
-      "doc_values": true
-    }
-  }
+  "indexMappings": {}
 }

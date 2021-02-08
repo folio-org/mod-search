@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.model.types.SearchFieldType;
 
 /**
@@ -57,7 +58,13 @@ public class PlainFieldDescription extends FieldDescription {
    */
   private ObjectNode mappings;
 
+  private String populatedBy;
+
   public boolean isMultilang() {
     return MULTILANG_FIELD_TYPE.equals(index);
+  }
+
+  public boolean hasPopulatedBy() {
+    return StringUtils.isNotBlank(populatedBy);
   }
 }

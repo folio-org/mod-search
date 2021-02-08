@@ -190,6 +190,13 @@ public class JsonConverter {
     }
   }
 
+  public <T> T convert(Object value, Class<T> target) {
+    if (value == null) {
+      return null;
+    }
+    return objectMapper.convertValue(value, target);
+  }
+
   private static RuntimeException deserializationException(String value, Throwable e) {
     log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
     return new SerializationException(String.format(

@@ -21,6 +21,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.setter.FieldSetter;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ public class SearchDocumentConverter {
 
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
+  private final Map<String, FieldSetter<?>> fieldSetters;
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
@@ -85,7 +87,7 @@ public class SearchDocumentConverter {
       .collect(toList());
   }
 
-  private static Map<String, Object> convertMapUsingResourceFields(
+  private Map<String, Object> convertMapUsingResourceFields(
     Map<String, Object> data, Map<String, FieldDescription> fields, ConversionContext ctx) {
     var resultMap = new LinkedHashMap<String, Object>();
     for (var fieldEntry : fields.entrySet()) {
@@ -97,7 +99,7 @@ public class SearchDocumentConverter {
     return MapUtils.isNotEmpty(resultMap) ? resultMap : null;
   }
 
-  private static Object getFieldValue(
+  private Object getFieldValue(
     Map<String, Object> data, Entry<String, FieldDescription> descEntry, ConversionContext ctx) {
     var fieldDescription = descEntry.getValue();
     if (fieldDescription instanceof PlainFieldDescription) {
@@ -109,18 +111,33 @@ public class SearchDocumentConverter {
     return getObjectFieldValue(objectMapValue, objectFieldDescription.getProperties(), ctx);
   }
 
-  private static Object getPlainFieldValue(Map<String, Object> fieldData,
+  private Object getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (isNotIndexedField(desc)) {
       return null;
     }
-    Object plainFieldValue = fieldData.get(fieldEntry.getKey());
+    Object plainFieldValue = getPlainFieldValue(fieldData, fieldEntry.getKey(), desc);
     return isMultilangField(desc) ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
   }
 
+  private Object getPlainFieldValue(Map<String, Object> fieldData, String fieldName,
+    PlainFieldDescription desc) {
+
+    if (!desc.hasPopulatedBy()) {
+      return fieldData.get(fieldName);
+    }
+
+    final var indexGenerator = fieldSetters.get(desc.getPopulatedBy());
+    if (indexGenerator == null) {
+      throw new IllegalArgumentException("There is no such index setter: " + desc.getPopulatedBy());
+    }
+
+    return indexGenerator.getFieldValue(fieldData);
+  }
+
   @SuppressWarnings("unchecked")
-  private static Object getObjectFieldValue(
+  private Object getObjectFieldValue(
     Object value, Map<String, FieldDescription> subfields, ConversionContext ctx) {
     if (value instanceof Map) {
       return convertMapUsingResourceFields((Map<String, Object>) value, subfields, ctx);

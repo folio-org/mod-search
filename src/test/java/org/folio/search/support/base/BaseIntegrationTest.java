@@ -103,7 +103,7 @@ public abstract class BaseIntegrationTest {
 
     await().atMost(Duration.ONE_MINUTE).untilAsserted(() ->
       mockMvc.perform(get(searchInstancesByQuery("id={value}"), id)
-        .header(X_OKAPI_TENANT_HEADER, tenant))
+        .headers(defaultHeaders(tenant)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("totalRecords", is(1)))
         .andExpect(jsonPath("instances[0].id", is(id))));
@@ -194,11 +194,8 @@ public abstract class BaseIntegrationTest {
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
-    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, getSemanticWeb().getId(),
-      eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
-
     for (Instance instance : instances) {
-      kafkaTemplate.send("inventory.instance", instance.getId(),
+      kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, instance.getId(),
         eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
     }
 

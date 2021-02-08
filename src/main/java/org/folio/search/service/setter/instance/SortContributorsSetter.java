@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,8 @@ public final class SortContributorsSetter implements FieldSetter<String> {
   private List<InstanceContributors> getContributors(Map<String, Object> eventBody) {
     final var contributors = MapUtils.getObject(eventBody, "contributors");
 
-    return ofNullable(jsonConverter.convert(contributors, InstanceContributors[].class))
-      .map(List::of)
+    return ofNullable(jsonConverter.convert(contributors,
+      new TypeReference<List<InstanceContributors>>() {}))
       .orElse(emptyList());
   }
 }

@@ -190,11 +190,11 @@ public class JsonConverter {
     }
   }
 
-  public <T> T convert(Object value, Class<T> target) {
+  public <T> T convert(Object value, TypeReference<T> type) {
     if (value == null) {
       return null;
     }
-    return objectMapper.convertValue(value, target);
+    return objectMapper.convertValue(value, type);
   }
 
   private static RuntimeException deserializationException(String value, Throwable e) {

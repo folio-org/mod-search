@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "message": "must not be null",
+      "type": "MethodArgumentNotValidException",
+      "code": "validation_error",
+      "parameters": [
+        {
+          "key": "parameter",
+          "value": "null"
+        }
+      ]
+    }
+  ],
+  "total_records": 1
+}

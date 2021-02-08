@@ -1,0 +1,10 @@
+{
+  "errors": [
+    {
+      "message": "Index not found: instance_test-tenant",
+      "type": "ElasticsearchException",
+      "code": "elasticsearch_error"
+    }
+  ],
+  "total_records": 1
+}

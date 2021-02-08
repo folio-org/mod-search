@@ -62,8 +62,9 @@ class ConfigControllerIT extends BaseIntegrationTest {
   void cannotAddLanguageIfNoAnalyzer() throws Exception {
     attemptPost(languageConfig(), new LanguageConfig().code("ukr"))
       .andExpect(status().is(422))
-      .andExpect(jsonPath("errors[0].parameters.key", is("code")))
-      .andExpect(jsonPath("errors[0].parameters.value", is("ukr")))
+      .andExpect(jsonPath("total_records", is(1)))
+      .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
+      .andExpect(jsonPath("errors[0].parameters[0].value", is("ukr")))
       .andExpect(jsonPath("errors[0].message",
         is("Language has no analyzer available")));
   }

@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "An error",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
     "message": {
@@ -18,22 +18,7 @@
     "parameters": {
       "type": "object",
       "description": "Error message parameters",
-      "items": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "description": "Property name",
-            "type": "string"
-          },
-          "value": {
-            "description": "Property value",
-            "type": "string"
-          }
-        }
-      }
+      "$ref": "parameters.json"
     }
-  },
-  "required": [
-    "message"
-  ]
+  }
 }

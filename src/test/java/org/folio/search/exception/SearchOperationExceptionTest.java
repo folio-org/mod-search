@@ -7,18 +7,19 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-class SearchServiceExceptionTest {
+class SearchOperationExceptionTest {
 
   @Test
   void constructor_positive_message() {
-    var error = new SearchServiceException("error");
+    var error = new SearchOperationException("error");
     assertThat(error).isNotNull();
+    assertThat(error.getErrorCode()).isEqualTo(ErrorCode.ELASTICSEARCH_ERROR);
   }
 
   @Test
   void constructor_positive_messageAndCause() {
-    var error = new SearchServiceException("error", new Exception("error"));
+    var error = new SearchOperationException("error", new Exception("error"));
     assertThat(error).isNotNull();
-    assertThat(error.getErrorCode()).isEqualTo(ErrorCode.SERVICE_ERROR);
+    assertThat(error.getErrorCode()).isEqualTo(ErrorCode.ELASTICSEARCH_ERROR);
   }
 }

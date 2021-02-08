@@ -16,7 +16,7 @@ public abstract class BaseSearchException extends RuntimeException {
    * @param message exception message as {@link String} object
    * @param errorCode exception error code as {@link ErrorCode} object
    */
-  public BaseSearchException(String message, ErrorCode errorCode) {
+  protected BaseSearchException(String message, ErrorCode errorCode) {
     super(message);
     this.errorCode = errorCode;
   }
@@ -28,7 +28,7 @@ public abstract class BaseSearchException extends RuntimeException {
    * @param cause exception cause as {@link Throwable} object
    * @param errorCode exception error code as {@link ErrorCode} object
    */
-  public BaseSearchException(String message, Throwable cause, ErrorCode errorCode) {
+  protected BaseSearchException(String message, Throwable cause, ErrorCode errorCode) {
     super(message, cause);
     this.errorCode = errorCode;
   }

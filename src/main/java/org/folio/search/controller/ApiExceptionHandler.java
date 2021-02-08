@@ -1,6 +1,8 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
+import static org.apache.logging.log4j.Level.DEBUG;
+import static org.apache.logging.log4j.Level.WARN;
 import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
 import static org.folio.search.model.types.ErrorCode.UNKNOWN_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -11,6 +13,7 @@ import java.util.Optional;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.Error;
@@ -39,7 +42,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(SearchServiceException.class)
   public ResponseEntity<ErrorResponse> handleSearchServiceException(SearchServiceException exception) {
-    log.debug("Handling exception", exception);
+    logException(DEBUG, exception);
     return buildResponseEntity(exception, BAD_REQUEST, exception.getErrorCode());
   }
 
@@ -51,7 +54,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(SearchOperationException.class)
   public ResponseEntity<ErrorResponse> handleSearchServiceException(SearchOperationException exception) {
-    log.debug("Handling exception", exception);
+    logException(DEBUG, exception);
 
     var cause = exception.getCause();
     return cause instanceof ElasticsearchException
@@ -90,7 +93,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException exception) {
-    log.debug("Handling exception", exception);
+    logException(DEBUG, exception);
     var errorResponse = new ErrorResponse();
     exception.getConstraintViolations().forEach(constraintViolation ->
       errorResponse.addErrorsItem(new Error()
@@ -110,7 +113,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception exception) {
-    log.warn("Handling exception", exception);
+    logException(WARN, exception);
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);
   }
 
@@ -118,14 +121,14 @@ public class ApiExceptionHandler {
     var message = exception.getMessage();
     var indexName = Optional.ofNullable(exception.getIndex()).map(Index::getName).orElse(null);
     if (StringUtils.contains(message, "index_not_found")) {
-      log.debug("Handling exception", exception);
+      logException(DEBUG, exception);
       return buildResponseEntity(buildErrorResponse("Index not found: " + indexName), BAD_REQUEST);
     }
     if (StringUtils.contains(message, "resource_already_exists")) {
-      log.debug("Handling exception", exception);
+      logException(DEBUG, exception);
       return buildResponseEntity(buildErrorResponse("Index already exists: " + indexName), BAD_REQUEST);
     }
-    log.warn("Handling unknown elasticsearch exception", exception);
+    logException(WARN, exception);
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, ELASTICSEARCH_ERROR);
   }
 
@@ -149,5 +152,9 @@ public class ApiExceptionHandler {
         .type(ElasticsearchException.class.getSimpleName())
         .code(ELASTICSEARCH_ERROR.getValue()))
       .totalRecords(1);
+  }
+
+  private static void logException(Level logLevel, Exception exception) {
+    log.log(logLevel, "Handling exception", exception);
   }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ class SortContributorsSetterTest {
     List<Object> contributorsArray = new ArrayList<>();
 
     for (InstanceContributors contributor : contributors) {
-      contributorsArray.add(converter.convert(contributor, Map.class));
+      contributorsArray.add(converter.convert(contributor, new TypeReference<Map<String, Object>>() {}));
     }
 
     return Map.of(CONTRIBUTORS, contributorsArray);

@@ -72,7 +72,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by notes (word in note)", "notes.note all {value}", array("references"), null),
       arguments("search by notes (partial match)", "notes.note all {value}", array("reference"), null),
       arguments("search by notes (root of word)", "notes.note all {value}", array("readability"), null),
-      arguments("search by staffOnly", "notes.staffOnly=={value}", array("false"), null),
       arguments("search by electronic access (uri)", "electronicAccess.uri==\"{value}\"",
         array("http://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"), null),
       arguments("search by electronic access (link text)",

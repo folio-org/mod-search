@@ -8,8 +8,10 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -23,7 +25,9 @@ import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.metadata.CqlQueryFilter;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.service.metadata.MetadataResourceProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
@@ -47,6 +51,7 @@ public class CqlSearchQueryConverter {
   private static final String ASTERISKS_SIGN = "*";
 
   private final SearchFieldProvider searchFieldProvider;
+  private final MetadataResourceProvider metadataResourceProvider;
 
   /**
    * Parses {@link CqlSearchRequest} object to the elasticsearch.
@@ -94,7 +99,10 @@ public class CqlSearchQueryConverter {
       cqlNode = ((CQLSortNode) node).getSubtree();
     }
     if (cqlNode instanceof CQLTermNode) {
-      return convertToTermQuery(request, (CQLTermNode) cqlNode);
+      var termNode = (CQLTermNode) cqlNode;
+      var termIndex = termNode.getIndex();
+      var termLevelQuery = convertToTermQuery(request, termNode);
+      return applyFiltersToQuery(termLevelQuery, request.getResource(), termIndex);
     }
     if (cqlNode instanceof CQLBooleanNode) {
       return convertToBoolQuery(request, (CQLBooleanNode) cqlNode);
@@ -187,5 +195,31 @@ public class CqlSearchQueryConverter {
 
   private static UnsupportedOperationException unsupportedException(String operator) {
     return new UnsupportedOperationException(String.format("Not implemented yet [operator: %s]", operator));
+  }
+
+  private QueryBuilder applyFiltersToQuery(QueryBuilder query, String resource, String field) {
+    var resourceDescription = metadataResourceProvider.getResourceDescription(resource);
+    if (resourceDescription.isEmpty()) {
+      return query;
+    }
+    var cqlQueryFilters = resourceDescription.get().getCqlQueryFilters();
+    List<QueryBuilder> queryFilters = cqlQueryFilters.stream()
+      .filter(e -> e.getQueryTerms().contains(field))
+      .map(CqlQueryFilter::getQueryFilter)
+      .map(CqlSearchQueryConverter::convertToQueryFilter)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(Collectors.toList());
+    var resultQuery = boolQuery().must(query);
+    queryFilters.forEach(resultQuery::filter);
+    return resultQuery;
+  }
+
+  private static Optional<QueryBuilder> convertToQueryFilter(String queryFilter) {
+    var split = queryFilter.split("=");
+    if (split.length == 2) {
+      return Optional.of(termQuery(split[0].trim(), split[1].trim()));
+    }
+    return Optional.empty();
   }
 }

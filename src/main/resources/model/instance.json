@@ -5,8 +5,8 @@
   ],
   "cqlQueryFilters": [
     {
-      "filter": "notes.staffOnly = true",
-      "fields": "notes.note"
+      "queryFilter": "notes.staffOnly = false",
+      "queryTerms": "notes.note"
     }
   ],
   "fields": {

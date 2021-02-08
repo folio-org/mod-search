@@ -54,7 +54,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public List<String> getFields(String resource, String searchType) {
-    final List<String> fieldList = new ArrayList<>(fieldBySearchType
+    var fieldList = new ArrayList<>(fieldBySearchType
       .getOrDefault(resource, emptyMap())
       .getOrDefault(searchType, emptyList()));
 

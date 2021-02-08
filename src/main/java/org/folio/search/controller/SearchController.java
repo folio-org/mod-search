@@ -24,13 +24,16 @@ public class SearchController implements InstancesApi {
   private final SearchService searchService;
 
   @Override
-  public ResponseEntity<SearchResult> searchInstances(String query, String tenantId, Integer limit, Integer offset) {
+  public ResponseEntity<SearchResult> searchInstances(String query, String tenantId, Boolean expandAll,
+    Integer limit, Integer offset) {
+
     var searchResult = searchService.search(CqlSearchRequest.builder()
       .cqlQuery(query)
       .resource(INSTANCE_RESOURCE)
       .tenantId(tenantId)
       .limit(limit)
       .offset(offset)
+      .expandAll(expandAll)
       .build());
 
     return ResponseEntity.ok(searchResult);

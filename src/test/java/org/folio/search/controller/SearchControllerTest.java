@@ -35,7 +35,7 @@ class SearchControllerTest {
     expectedSearchResult.setInstances(emptyList());
 
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0);
+    var expectedSearchRequest = CqlSearchRequest.of("instance", cqlQuery, TENANT_ID, 100, 0, false);
 
     when(searchService.search(expectedSearchRequest)).thenReturn(expectedSearchResult);
 

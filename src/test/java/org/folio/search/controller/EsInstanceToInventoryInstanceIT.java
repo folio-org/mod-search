@@ -34,4 +34,17 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
     assertThat(actual.getContributors(), is(expected.getContributors()));
     assertThat(actual.getPublication(), is(expected.getPublication()));
   }
+
+  @Test
+  void responseContainsAllInstanceProperties() throws Exception {
+    final var expected = getSemanticWeb();
+    final var actualJson = mockMvc.perform(get(searchInstancesByQuery("id=={value}&expandAll=true"), expected.getId())
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andReturn().getResponse().getContentAsString();
+
+    final var actual = JsonPath.parse(actualJson).read("instances[0]", Instance.class);
+    assertThat(actual, is(expected));
+  }
 }

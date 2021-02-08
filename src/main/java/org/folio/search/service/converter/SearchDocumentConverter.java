@@ -132,13 +132,9 @@ public class SearchDocumentConverter {
     if (!desc.hasPopulatedBy()) {
       return fieldData.get(fieldName);
     }
-
-    final var propertySetter = fieldSetters.get(desc.getPopulatedBy());
-    if (propertySetter == null) {
-      throw new IllegalArgumentException("There is no such property setter: " + desc.getPopulatedBy());
-    }
-
-    return propertySetter.getFieldValue(fieldData);
+    // No NPE here, the setters are validated during metadata collection
+    return fieldSetters.get(desc.getPopulatedBy())
+      .getFieldValue(fieldData);
   }
 
   @SuppressWarnings("unchecked")

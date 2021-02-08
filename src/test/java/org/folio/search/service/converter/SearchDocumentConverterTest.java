@@ -3,7 +3,6 @@ package org.folio.search.service.converter;
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -36,9 +35,9 @@ import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldSetter;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,19 +46,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
-  private SearchDocumentConverter documentMapper;
+  @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
   @Spy private final ObjectMapper objectMapper = new ObjectMapper()
     .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
-
-  @BeforeEach
-  void setUpConverter() {
-    Map<String, FieldSetter<?>> setters = Map.of("testSetter",
-      map -> MapUtils.getString(map, "baseProperty"));
-
-    documentMapper = new SearchDocumentConverter(jsonConverter, descriptionService, setters);
-  }
 
   @Test
   void convertSingleEvent_positive() {
@@ -223,6 +214,11 @@ class SearchDocumentConverterTest {
 
   @Test
   void shouldConvertPopulatedByProperty() {
+    Map<String, FieldSetter<?>> setters = Map.of("testSetter",
+      map -> MapUtils.getString(map, "baseProperty"));
+
+    documentMapper = new SearchDocumentConverter(jsonConverter, descriptionService, setters);
+
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf(
       "id", keywordField(),
@@ -246,22 +242,6 @@ class SearchDocumentConverterTest {
 
     assertThat(actual)
       .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
-  }
-
-  @Test
-  void shouldThrowIllegalArgumentIfNoSetterForPopulatedProperty() {
-    var id = randomId();
-    var resourceDescription = resourceDescription(mapOf(
-      "id", keywordField(),
-      "populatedProperty", populatedByField("undefinedSetter")
-    ));
-
-    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-
-    assertThatThrownBy(() -> convert(resourceEventBody))
-      .hasMessage("There is no such property setter: undefinedSetter")
-      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

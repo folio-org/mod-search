@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "Language config",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "An ISO-639-2/B compatible language code.",
+      "pattern": "[a-zA-Z]{3}"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["code"]
+}
+

@@ -3,5 +3,11 @@
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
-
+  <changeSet id="01_create_language_config_table" author="bohdan_suprun@epam.com">
+    <createTable tableName="language_config">
+      <column name="code" type="varchar(3)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>

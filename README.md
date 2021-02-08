@@ -15,3 +15,28 @@ FOLIO search project.
 
 The module uses [Testcontainers](https://www.testcontainers.org/) to run Elasticsearch in embedded mode.
 It is required to have Docker installed and available on the host where the tests are executed.
+
+## Multi-language search support
+
+Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title, contributors, etc.).
+This can be done via following API:
+`POST /search/config/languages`
+```javascript
+{
+  "code":"eng"
+}
+```
+
+The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-installed languages analyzers:
+- ara
+- ger
+- eng
+- spa
+- fre
+- heb
+- ita
+- jpn
+- kor
+- rus
+- swe
+- chi

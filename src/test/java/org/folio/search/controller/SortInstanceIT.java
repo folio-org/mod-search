@@ -16,7 +16,6 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
-import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ class SortInstanceIT extends BaseIntegrationTest {
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
     mockMvc.perform(get(allInstancesSortedBy("contributors", ASCENDING))
-      .header(XOkapiHeaders.TENANT, TENANT))
+      .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
@@ -54,7 +53,7 @@ class SortInstanceIT extends BaseIntegrationTest {
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
     mockMvc.perform(get(allInstancesSortedBy("contributors", DESCENDING))
-      .header(XOkapiHeaders.TENANT, TENANT))
+      .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
@@ -66,7 +65,7 @@ class SortInstanceIT extends BaseIntegrationTest {
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
     mockMvc.perform(get(allInstancesSortedBy("title", ASCENDING))
-      .header(XOkapiHeaders.TENANT, TENANT))
+      .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].title", is("Aaa")))
@@ -78,7 +77,7 @@ class SortInstanceIT extends BaseIntegrationTest {
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
     mockMvc.perform(get(allInstancesSortedBy("title", DESCENDING))
-      .header(XOkapiHeaders.TENANT, TENANT))
+      .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].title", is("Zzz")))

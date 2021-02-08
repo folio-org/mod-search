@@ -144,6 +144,14 @@ public class TestUtils {
     return objectFieldDescription;
   }
 
+  public static PlainFieldDescription populatedByField(String setter) {
+    var fieldDescription = new PlainFieldDescription();
+    fieldDescription.setType(PLAIN);
+    fieldDescription.setIndex("keyword");
+    fieldDescription.setPopulatedBy(setter);
+    return fieldDescription;
+  }
+
   public static ResourceEventBody eventBody(String resourceName, Object newData) {
     var resourceBody = new ResourceEventBody();
     resourceBody.setType(ResourceEventBody.TypeEnum.CREATE);

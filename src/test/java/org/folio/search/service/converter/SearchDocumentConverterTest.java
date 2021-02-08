@@ -3,6 +3,7 @@ package org.folio.search.service.converter;
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -15,6 +16,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.folio.search.utils.TestUtils.populatedByField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -25,14 +27,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.setter.FieldSetter;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,10 +45,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
-  @InjectMocks private SearchDocumentConverter documentMapper;
+  private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
-  @Spy private final ObjectMapper objectMapper = new ObjectMapper().configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+  @Spy private final ObjectMapper objectMapper = new ObjectMapper()
+    .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
+
+  @BeforeEach
+  void setUpConverter() {
+    Map<String, FieldSetter<?>> setters = Map.of("testSetter",
+      map -> MapUtils.getString(map, "baseProperty"));
+
+    documentMapper = new SearchDocumentConverter(jsonConverter, descriptionService, setters);
+  }
 
   @Test
   void convertSingle_positive() {
@@ -173,6 +186,49 @@ class SearchDocumentConverterTest {
     var eventBody = eventBody(RESOURCE_NAME, null);
     var actual = documentMapper.convert(eventBody);
     assertThat(actual).isNotPresent();
+  }
+
+  @Test
+  void shouldConvertPopulatedByProperty() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf(
+      "id", keywordField(),
+      "baseProperty", keywordField(),
+      "populatedProperty", populatedByField("testSetter")
+    ));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf(
+      "id", id,
+      "baseProperty", "base property value"
+    ));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = documentMapper.convert(List.of(resourceEventBody));
+
+    var expectedJson = asJsonString(jsonObject(
+      "id", id,
+      "baseProperty", "base property value",
+      "populatedProperty", "base property value"
+    ));
+
+    assertThat(actual)
+      .containsExactly(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+  }
+
+  @Test
+  void shouldThrowIllegalArgumentIfNoSetterForPopulatedProperty() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf(
+      "id", keywordField(),
+      "populatedProperty", populatedByField("undefinedSetter")
+    ));
+
+    var resourceEventBody = List.of(eventBody(RESOURCE_NAME, mapOf("id", id)));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    assertThatThrownBy(() -> documentMapper.convert(resourceEventBody))
+      .hasMessage("There is no such index setter: undefinedSetter")
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

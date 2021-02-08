@@ -123,7 +123,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: schemas/common/validationErrors.json
+                $ref: '#/components/schemas/errorResponse'
     get:
       operationId: getAllLanguageConfigs
       description: Get all supported languages

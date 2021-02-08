@@ -7,6 +7,7 @@ import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
 import static org.folio.search.model.types.ErrorCode.UNKNOWN_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import org.folio.search.domain.dto.ErrorResponse;
 import org.folio.search.domain.dto.Parameter;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.exception.ValidationException;
 import org.folio.search.model.types.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -103,6 +105,15 @@ public class ApiExceptionHandler {
     errorResponse.totalRecords(errorResponse.getErrors().size());
 
     return buildResponseEntity(errorResponse, BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ValidationException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
+    var error = new Error()
+      .message(exception.getMessage())
+      .parameters(List.of(new Parameter().key(exception.getKey()).value(exception.getValue())));
+    var errorResponse = new ErrorResponse().errors(List.of(error)).totalRecords(1);
+    return buildResponseEntity(errorResponse, UNPROCESSABLE_ENTITY);
   }
 
   /**

@@ -6,6 +6,7 @@ import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
@@ -19,9 +20,15 @@ import static org.testcontainers.utility.DockerImageName.parse;
 
 import java.nio.file.Path;
 import java.util.List;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.awaitility.Duration;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.IndexRequestBody;
+import org.folio.search.domain.dto.Instance;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -48,8 +55,6 @@ public abstract class BaseIntegrationTest {
   private static final KafkaContainer KAFKA_CONTAINER = createAndStartKafka();
   private static final GenericContainer<?> ES_CONTAINER = createAndStartElasticsearch();
 
-  private static boolean alreadyInitialized = false;
-
   @Autowired protected MockMvc mockMvc;
 
   @DynamicPropertySource
@@ -61,23 +66,15 @@ public abstract class BaseIntegrationTest {
   }
 
   @BeforeAll
-  static void doFirstInitialization(@Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate) throws Exception {
+  static void createDefaultTenant(@Autowired MockMvc mockMvc,
+    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
-    if (!alreadyInitialized) {
-      mockMvc.perform(post("/search/index/indices")
-        .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
-        .headers(defaultHeaders())
-        .contentType(APPLICATION_JSON))
-        .andExpect(status().isOk());
+    setUpTenant(TENANT_ID, mockMvc, kafkaTemplate, getSemanticWeb());
+  }
 
-      kafkaTemplate.send("inventory.instance", getSemanticWeb().getId(),
-        eventBody(INSTANCE_RESOURCE, getSemanticWeb()));
-
-      checkThatElasticsearchAcceptResourcesFromKafka(mockMvc);
-
-      alreadyInitialized = true;
-    }
+  @AfterAll
+  static void removeDefaultTenant(@Autowired RestHighLevelClient client) {
+    removeTenant(client, TENANT_ID);
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -88,13 +85,15 @@ public abstract class BaseIntegrationTest {
     return httpHeaders;
   }
 
-  private static void checkThatElasticsearchAcceptResourcesFromKafka(MockMvc mockMvc) {
+  private static void checkThatElasticsearchAcceptResourcesFromKafka(
+    String tenant, MockMvc mockMvc, String id) {
+
     await().atMost(Duration.ONE_MINUTE).untilAsserted(() ->
-      mockMvc.perform(get(searchInstancesByQuery("id={value}"), getSemanticWeb().getId())
-        .headers(defaultHeaders()))
+      mockMvc.perform(get(searchInstancesByQuery("id={value}"), id)
+        .header(X_OKAPI_TENANT_HEADER, tenant))
         .andExpect(status().isOk())
         .andExpect(jsonPath("totalRecords", is(1)))
-        .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId()))));
+        .andExpect(jsonPath("instances[0].id", is(id))));
   }
 
   private static KafkaContainer createAndStartKafka() {
@@ -120,5 +119,34 @@ public abstract class BaseIntegrationTest {
     Runtime.getRuntime().addShutdownHook(new Thread(esContainer::stop));
 
     return esContainer;
+  }
+
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, MockMvc mockMvc,
+    KafkaTemplate<String, Object> kafkaTemplate, Instance ... instances) {
+
+    mockMvc.perform(post("/search/index/indices")
+      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
+      .header(X_OKAPI_TENANT_HEADER, tenantName)
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk());
+
+    for (Instance instance : instances) {
+      kafkaTemplate.send("inventory.instance", instance.getId(),
+        eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
+    }
+
+    if (instances.length > 0) {
+      checkThatElasticsearchAcceptResourcesFromKafka(tenantName, mockMvc,
+        instances[instances.length - 1].getId());
+    }
+  }
+
+  @SneakyThrows
+  protected static void removeTenant(RestHighLevelClient highLevelClient, String tenant) {
+    log.info("Removing elasticsearch index...");
+
+    highLevelClient.indices().delete(new DeleteIndexRequest()
+        .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, tenant)), RequestOptions.DEFAULT);
   }
 }

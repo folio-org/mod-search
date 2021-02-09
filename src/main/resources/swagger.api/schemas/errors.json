@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "A set of errors",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
     "errors": {
@@ -8,8 +8,13 @@
       "id": "errors",
       "type": "array",
       "items": {
+        "type": "object",
         "$ref": "error.json"
       }
+    },
+    "total_records": {
+        "description": "Total number of errors",
+      "type": "integer"
     }
   }
 }

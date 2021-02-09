@@ -23,7 +23,6 @@ paths:
             type: boolean
             default: false
           required: true
-
       responses:
         '200':
           description: 'Instance search result'
@@ -32,6 +31,10 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/searchResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /index/indices:
     post:
@@ -52,6 +55,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/folioCreateIndexResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /index/mappings:
     post:
@@ -71,6 +78,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /index/records:
     post:
@@ -90,6 +99,8 @@ paths:
               example: examples/indexRecordResponse.sample
               schema:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /config/languages:
     post:
@@ -112,7 +123,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: schemas/common/validationErrors.json
+                $ref: '#/components/schemas/errorResponse'
     get:
       operationId: getAllLanguageConfigs
       description: Get all supported languages
@@ -163,6 +174,22 @@ components:
           description: List of instances foubd
           items:
             $ref: '#/components/schemas/instance'
+    errorResponse:
+      $ref: schemas/errors.json
+
+  responses:
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/validationErrorResponse.sample
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: examples/unknownError.sample
 
   parameters:
     language-code:

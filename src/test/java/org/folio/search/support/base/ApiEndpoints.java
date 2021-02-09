@@ -5,6 +5,7 @@ import org.folio.cql2pgjson.model.CqlSort;
 
 @UtilityClass
 public class ApiEndpoints {
+
   public static String searchInstancesByQuery(String query, Object ... args) {
     final var formattedQuery = String.format(query, args);
     return String.format("/search/instances?query=%s&limit=%s&offset=%s", formattedQuery, 100, 0);
@@ -16,5 +17,9 @@ public class ApiEndpoints {
 
   public static String languageConfig() {
     return "/search/config/languages";
+  }
+
+  public static String createIndicesEndpoint() {
+    return "/search/index/indices";
   }
 }

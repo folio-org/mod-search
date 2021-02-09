@@ -12,7 +12,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.stream.Stream;
-import org.folio.search.exception.SearchServiceException;
+import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +35,7 @@ class SearchUtilsTest {
     assertThatThrownBy(() -> performExceptionalOperation(() -> {
       throw new IOException("err");
     }, INDEX_NAME, "op"))
-      .isInstanceOf(SearchServiceException.class)
+      .isInstanceOf(SearchOperationException.class)
       .hasMessage(String.format("Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
         INDEX_NAME, "op", "err"));
   }

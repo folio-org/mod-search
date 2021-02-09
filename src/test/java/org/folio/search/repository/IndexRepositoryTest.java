@@ -27,7 +27,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.PutMappingRequest;
-import org.folio.search.exception.SearchServiceException;
+import org.folio.search.exception.SearchOperationException;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,7 +75,7 @@ class IndexRepositoryTest {
 
     assertThatThrownBy(
       () -> indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT))
-      .isInstanceOf(SearchServiceException.class)
+      .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
         + "[index=test-resource_test_tenant, type=createIndexApi, message: err]");
@@ -110,7 +110,7 @@ class IndexRepositoryTest {
       .thenThrow(new IOException("err"));
 
     assertThatThrownBy(() -> indexRepository.updateMappings(INDEX_NAME, EMPTY_OBJECT))
-      .isInstanceOf(SearchServiceException.class)
+      .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
         + "[index=test-resource_test_tenant, type=putMappingsApi, message: err]");
@@ -152,7 +152,7 @@ class IndexRepositoryTest {
       .thenThrow(new IOException("err"));
 
     assertThatThrownBy(() -> indexRepository.indexResources(documentBodies))
-      .isInstanceOf(SearchServiceException.class)
+      .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
         + "[index=test-resource_test_tenant, type=bulkApi, message: err]");

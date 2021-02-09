@@ -15,7 +15,7 @@
       "index": "keyword"
     },
     "title": {
-      "inventorySearchTypes": ["title", "keyword"],
+      "inventorySearchTypes": [ "title", "keyword" ],
       "index": "multilang",
       "showInResponse": true,
       "mappings": {
@@ -26,17 +26,17 @@
       "type": "object",
       "properties": {
         "alternativeTitle": {
-          "inventorySearchTypes": ["title", "keyword"],
+          "inventorySearchTypes": [ "title", "keyword" ],
           "index": "multilang"
         }
       }
     },
     "indexTitle": {
-      "inventorySearchTypes": ["title", "keyword"],
+      "inventorySearchTypes": [ "title", "keyword" ],
       "index": "multilang"
     },
     "series": {
-      "inventorySearchTypes": ["title", "keyword"],
+      "inventorySearchTypes": [ "title", "keyword" ],
       "index": "multilang"
     },
     "identifiers": {
@@ -55,7 +55,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": ["contributors", "keyword"],
+          "inventorySearchTypes": [ "contributors", "keyword" ],
           "index": "multilang",
           "showInResponse": true
         }
@@ -109,6 +109,16 @@
         "dateOfPublication": {
           "index": "source",
           "showInResponse": true
+        }
+      }
+    },
+    "tags": {
+      "description": "arbitrary tags associated with this instance",
+      "id": "tags",
+      "type": "object",
+      "properties": {
+        "tagList": {
+          "index": "multilang"
         }
       }
     }

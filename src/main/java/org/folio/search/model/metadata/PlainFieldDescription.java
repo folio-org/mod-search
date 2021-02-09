@@ -58,6 +58,11 @@ public class PlainFieldDescription extends FieldDescription {
    */
   private ObjectNode mappings;
 
+  /**
+   * Name of a Spring bean that is used to generate value for the field.
+   *
+   * @see org.folio.search.service.setter.FieldSetter
+   */
   private String populatedBy;
 
   public boolean isMultilang() {

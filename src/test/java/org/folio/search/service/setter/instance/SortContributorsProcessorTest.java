@@ -15,11 +15,11 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-class SortContributorsSetterTest {
+class SortContributorsProcessorTest {
   private static final String CONTRIBUTORS = "contributors";
 
   private final JsonConverter converter = new JsonConverter(OBJECT_MAPPER);
-  private final SortContributorsProcessor contributorsSetter =
+  private final SortContributorsProcessor processor =
     new SortContributorsProcessor(converter);
 
   @Test
@@ -27,7 +27,7 @@ class SortContributorsSetterTest {
     var map = contributorsToMap(new InstanceContributors().name("first"),
       new InstanceContributors().name("second"));
 
-    assertThat(contributorsSetter.getFieldValue(map)).isEqualTo("first");
+    assertThat(processor.getFieldValue(map)).isEqualTo("first");
   }
 
   @Test
@@ -35,22 +35,22 @@ class SortContributorsSetterTest {
     var map = contributorsToMap(new InstanceContributors().name("first"),
       new InstanceContributors().name("second").primary(true));
 
-    assertThat(contributorsSetter.getFieldValue(map)).isEqualTo("second");
+    assertThat(processor.getFieldValue(map)).isEqualTo("second");
   }
 
   @Test
   void shouldReturnNullIfEmptyMap() {
-    assertNull(contributorsSetter.getFieldValue(null));
+    assertNull(processor.getFieldValue(null));
   }
 
   @Test
   void shouldReturnNullIfNoContributors() {
-    assertNull(contributorsSetter.getFieldValue(Map.of("title", "title")));
+    assertNull(processor.getFieldValue(Map.of("title", "title")));
   }
 
   @Test
   void shouldReturnNullIfContributorsIsEmpty() {
-    assertNull(contributorsSetter.getFieldValue(Map.of(CONTRIBUTORS, emptyList())));
+    assertNull(processor.getFieldValue(Map.of(CONTRIBUTORS, emptyList())));
   }
 
   private Map<String, Object> contributorsToMap(InstanceContributors... contributors) {

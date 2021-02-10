@@ -113,7 +113,7 @@ public class SearchMappingsHelper {
     var indexType = fieldDescription.getIndex();
     ObjectNode mappings = null;
     if (indexType != null && !NONE_FIELD_TYPE.equals(indexType)) {
-      mappings = searchFieldProvider.getSearchFieldType(indexType).getMapping();
+      mappings = searchFieldProvider.getSearchFieldType(indexType).getMapping().deepCopy();
     }
 
     var fieldDescriptionMappings = fieldDescription.getMappings();

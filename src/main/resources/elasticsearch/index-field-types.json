@@ -17,7 +17,9 @@
     }
   },
   "source": {
-      "index": false
+    "mapping": {
+      "type": "keyword"
+    }
   },
   "multilang": {
     "mapping": {

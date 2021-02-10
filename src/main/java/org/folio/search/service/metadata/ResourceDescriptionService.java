@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
-import org.folio.search.service.setter.FieldSetter;
+import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,7 +30,7 @@ public class ResourceDescriptionService {
 
   private final LocalSearchFieldProvider localSearchFieldProvider;
   private final LocalResourceProvider localResourceProvider;
-  private final Map<String, FieldSetter<?>> availableSetters;
+  private final Map<String, FieldProcessor<?>> availableProcessors;
 
   private Map<String, ResourceDescription> resourceDescriptions;
   private Set<String> supportedLanguages;
@@ -76,9 +76,10 @@ public class ResourceDescriptionService {
   public void init() {
     var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
     var resources = localResourceProvider.getResourceDescriptions();
-    for (var description : resources) {
-      checkIfSettersExistForPopulatedByFields(description);
 
+    validateResourceDescriptions(resources);
+
+    for (var description : resources) {
       mapBuilder.put(description.getName(), description);
     }
     this.resourceDescriptions = unmodifiableMap(mapBuilder);
@@ -93,12 +94,16 @@ public class ResourceDescriptionService {
     return supportedLanguagesSet;
   }
 
-  private void checkIfSettersExistForPopulatedByFields(ResourceDescription resourceDescription) {
-    resourceDescription.getFlattenFields().forEach((field, desc) -> {
-      if (desc.hasPopulatedBy() && !availableSetters.containsKey(desc.getPopulatedBy())) {
+  private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
+    descriptors.forEach(this::checkIfProcessorExistForExtendedFields);
+  }
+
+  private void checkIfProcessorExistForExtendedFields(ResourceDescription resourceDescription) {
+    resourceDescription.getExtendedFields().forEach((fieldName, fieldDesc) -> {
+      if (!availableProcessors.containsKey(fieldDesc.getProcessor())) {
         throw new ResourceDescriptionException(
-          format("There is no such setter [%s] required for property [%s]",
-            desc.getPopulatedBy(), field));
+          format("There is no such processor [%s] required for field [%s]",
+            fieldDesc.getProcessor(), fieldName));
       }
     });
   }

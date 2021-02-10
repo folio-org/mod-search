@@ -1,25 +1,25 @@
 package org.folio.search.service.metadata;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.extendedField;
 import static org.folio.search.utils.TestUtils.languageField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
-import static org.folio.search.utils.TestUtils.populatedByField;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.service.setter.FieldSetter;
+import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,39 +76,40 @@ class ResourceDescriptionServiceTest {
   }
 
   @Test
-  void shouldPassInitIfPropertySetterExists() {
-    var setters = Map.<String, FieldSetter<?>>of("populatedBySetter", map -> "populatedByValue");
-    var resourceFields = resourceDescriptionFields();
-
-    resourceFields.put("populatedByField", populatedByField("populatedBySetter"));
+  void shouldPassInitIfPropertyProcessorExists() {
+    var processors = Map.<String, FieldProcessor<?>>of("populatedByProcessor", map -> "populatedByValue");
+    var resourceDescription = resourceDescription();
+    resourceDescription.setExtendedFields(Map.of("populatedByField",
+      extendedField("populatedByProcessor")));
 
     when(localResourceProvider.getResourceDescriptions())
-      .thenReturn(List.of(TestUtils.resourceDescription(resourceFields)));
+      .thenReturn(List.of(resourceDescription));
 
     descriptionService = new ResourceDescriptionService(localSearchFieldProvider,
-      localResourceProvider, setters);
+      localResourceProvider, processors);
 
     descriptionService.init();
 
-    assertThat(descriptionService.get(RESOURCE_NAME).getFlattenFields())
+    assertThat(descriptionService.get(RESOURCE_NAME).getExtendedFields())
       .containsKey("populatedByField");
   }
 
   @Test
   void shouldFailInitIfUndefinedPropertySetterSpecified() {
-    var resourceFields = resourceDescriptionFields();
-
-    resourceFields.put("populatedByField", populatedByField("populatedBySetter"));
+    var resourceDescription = resourceDescription();
+    resourceDescription.setExtendedFields(Map.of("populatedByField",
+      extendedField("populatedByProcessor")));
 
     when(localResourceProvider.getResourceDescriptions())
-      .thenReturn(List.of(TestUtils.resourceDescription(resourceFields)));
+      .thenReturn(List.of(resourceDescription));
 
     descriptionService = new ResourceDescriptionService(localSearchFieldProvider,
-      localResourceProvider, Collections.emptyMap());
+      localResourceProvider, emptyMap());
 
     assertThatThrownBy(() -> descriptionService.init())
       .isInstanceOf(ResourceDescriptionException.class)
-      .hasMessage("There is no such setter [populatedBySetter] required for property [populatedByField]");
+      .hasMessage("There is no such processor [populatedByProcessor] required for field "
+        + "[populatedByField]");
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

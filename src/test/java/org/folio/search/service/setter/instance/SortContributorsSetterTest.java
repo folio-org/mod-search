@@ -19,8 +19,8 @@ class SortContributorsSetterTest {
   private static final String CONTRIBUTORS = "contributors";
 
   private final JsonConverter converter = new JsonConverter(OBJECT_MAPPER);
-  private final SortContributorsSetter contributorsSetter =
-    new SortContributorsSetter(converter);
+  private final SortContributorsProcessor contributorsSetter =
+    new SortContributorsProcessor(converter);
 
   @Test
   void shouldReturnFirstContributorIfNoPrimary() {

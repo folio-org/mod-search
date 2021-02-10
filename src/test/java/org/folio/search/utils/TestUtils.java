@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
+import org.folio.search.model.metadata.ExtendedFieldDescriptor;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -151,11 +152,11 @@ public class TestUtils {
     return objectFieldDescription;
   }
 
-  public static PlainFieldDescription populatedByField(String setter) {
-    var fieldDescription = new PlainFieldDescription();
+  public static ExtendedFieldDescriptor extendedField(String processor) {
+    var fieldDescription = new ExtendedFieldDescriptor();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex("keyword");
-    fieldDescription.setPopulatedBy(setter);
+    fieldDescription.setProcessor(processor);
     return fieldDescription;
   }
 

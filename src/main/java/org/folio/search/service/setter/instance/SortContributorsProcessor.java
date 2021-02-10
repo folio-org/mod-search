@@ -10,13 +10,13 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.InstanceContributors;
-import org.folio.search.service.setter.FieldSetter;
+import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public final class SortContributorsSetter implements FieldSetter<String> {
+public final class SortContributorsProcessor implements FieldProcessor<String> {
   private final JsonConverter jsonConverter;
 
   @Override

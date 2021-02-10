@@ -138,17 +138,6 @@
         }
       }
     },
-    "notes": {
-      "type": "object",
-      "properties": {
-        "note": {
-          "index": "multilang"
-        },
-        "staffOnly": {
-          "index": "bool"
-        }
-      }
-    },
     "electronicAccess": {
       "type": "object",
       "properties": {

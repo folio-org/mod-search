@@ -1,6 +1,5 @@
 package org.folio.search.cql;
 
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -12,19 +11,15 @@ import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.metadata.CqlQueryFilter;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.metadata.MetadataResourceProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -131,21 +126,6 @@ class CqlSearchQueryConverterTest {
         .query(termQuery("title", "title"))
         .size(request.getLimit())
         .from(request.getOffset()));
-  }
-
-  @Test
-  void parseCqlQuery_positive_queryWithFilter() {
-    var resourceDescription = resourceDescription(emptyMap());
-    resourceDescription.setCqlQueryFilters(List.of(CqlQueryFilter.of("field2 = value2", List.of("field1"))));
-
-    when(metadataResourceProvider.getResourceDescription(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription));
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
-
-    var request = CqlSearchRequest.of(RESOURCE_NAME, "field1==value1", TENANT_ID, 100, 0, false);
-    var actual = cqlSearchQueryConverter.convert(request);
-
-    assertThat(actual).isEqualTo(searchSource().from(0).size(100)
-      .query(boolQuery().must(termQuery("field1", "value1")).filter(termQuery("field2", "value2"))));
   }
 
   private static Stream<Arguments> parseCqlQueryDataProvider() {

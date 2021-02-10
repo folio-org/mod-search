@@ -15,6 +15,7 @@ import org.folio.search.model.types.FieldType;
   visible = true)
 @JsonSubTypes({
   @Type(value = PlainFieldDescription.class, name = "plain"),
+  @Type(value = ExtendedFieldDescriptor.class, name = "extended"),
   @Type(value = ObjectFieldDescription.class, name = "object"),
 })
 public abstract class FieldDescription {

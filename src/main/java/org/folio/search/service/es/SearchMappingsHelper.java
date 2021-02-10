@@ -48,7 +48,7 @@ public class SearchMappingsHelper {
     indexMappings.put(MAPPING_PROPERTIES_FIELD, mappingProperties);
 
     mappingProperties.putAll(createMappingsForFields(description));
-    mappingProperties.putAll(createMappingsForGroups(description));
+    mappingProperties.putAll(createMappingsForExtendedFields(description));
     var customIndexMappings = description.getIndexMappings();
     if (customIndexMappings != null) {
       mappingProperties.putAll(customIndexMappings);
@@ -82,15 +82,15 @@ public class SearchMappingsHelper {
     return mappings;
   }
 
-  private Map<String, JsonNode> createMappingsForGroups(ResourceDescription description) {
-    var groups = description.getGroups();
-    if (MapUtils.isEmpty(groups)) {
+  private Map<String, JsonNode> createMappingsForExtendedFields(ResourceDescription description) {
+    var extendedFields = description.getExtendedFields();
+    if (MapUtils.isEmpty(extendedFields)) {
       return Collections.emptyMap();
     }
 
     var mappings = new LinkedHashMap<String, JsonNode>();
-    groups.forEach((name, groupDescription) -> {
-      var fieldMapping = getMappingForPlainField(groupDescription);
+    extendedFields.forEach((name, fieldDescriptor) -> {
+      var fieldMapping = getMappingForPlainField(fieldDescriptor);
       if (fieldMapping != null) {
         mappings.put(name, fieldMapping);
       }

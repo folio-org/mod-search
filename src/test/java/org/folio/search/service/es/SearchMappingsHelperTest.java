@@ -5,6 +5,7 @@ import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.extendedField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
@@ -140,7 +141,7 @@ class SearchMappingsHelperTest {
       "metadata", objectField(mapOf(
         "createdDate", plainField("date")
       ))));
-    resourceDescription.setGroups(mapOf("identifiers", plainField(KEYWORD_TYPE)));
+    resourceDescription.setExtendedFields(mapOf("identifiers", extendedField("isbn_identifier")));
     return resourceDescription;
   }
 

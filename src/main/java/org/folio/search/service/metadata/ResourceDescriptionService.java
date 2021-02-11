@@ -95,10 +95,10 @@ public class ResourceDescriptionService {
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
-    descriptors.forEach(this::checkIfProcessorExistForExtendedFields);
+    descriptors.forEach(this::checkIfProcessorExistForSearchFields);
   }
 
-  private void checkIfProcessorExistForExtendedFields(ResourceDescription resourceDescription) {
+  private void checkIfProcessorExistForSearchFields(ResourceDescription resourceDescription) {
     resourceDescription.getSearchFields().forEach((fieldName, fieldDesc) -> {
       if (!availableProcessors.containsKey(fieldDesc.getProcessor())) {
         throw new ResourceDescriptionException(

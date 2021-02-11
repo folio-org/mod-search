@@ -58,6 +58,10 @@
           "inventorySearchTypes": [ "contributors", "keyword" ],
           "index": "multilang",
           "showInResponse": true
+        },
+        "primary": {
+          "index": "bool",
+          "showInResponse": true
         }
       }
     },
@@ -121,7 +125,13 @@
       }
     }
   },
-  "groups": { },
+  "searchFields": {
+    "sort_contributors": {
+      "type": "search",
+      "index": "lowercase_sort",
+      "processor": "sortContributorsProcessor"
+    }
+  },
   "indexMappings": {
     "sort_title": {
       "type": "keyword",

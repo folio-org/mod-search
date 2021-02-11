@@ -17,6 +17,7 @@ import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,10 +27,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -43,14 +46,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
-  @InjectMocks
-  private SearchDocumentConverter documentMapper;
-  @Mock
-  private ResourceDescriptionService descriptionService;
-  @Spy
-  private final ObjectMapper objectMapper = new ObjectMapper().configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-  @Spy
-  private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
+  @InjectMocks private SearchDocumentConverter documentMapper;
+  @Mock private ResourceDescriptionService descriptionService;
+  @Spy private final ObjectMapper objectMapper = new ObjectMapper()
+    .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+  @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
 
   @Test
   void convertSingleEvent_positive() {
@@ -210,6 +210,33 @@ class SearchDocumentConverterTest {
     assertThat(actual).containsExactlyInAnyOrder(
       SearchDocumentBody.of(firstEventId, firstTenantName, "test-resource_first", firstExpectedJson),
       SearchDocumentBody.of(secondEventId, secondTenantName, "test-resource_second", secondExpectedJson));
+  }
+
+  @Test
+  void shouldConvertExtendedFields() {
+    Map<String, FieldProcessor<?>> setters = Map.of("testProcessor",
+      map -> MapUtils.getString(map, "baseProperty"));
+
+    documentMapper = new SearchDocumentConverter(jsonConverter, descriptionService, setters);
+
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "baseProperty", keywordField()));
+    resourceDescription.setSearchFields(Map.of("extendedField",
+      searchField("testProcessor")));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id,
+      "baseProperty", "base property value"));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+
+    var expectedJson = asJsonString(jsonObject("id", id,
+      "baseProperty", "base property value",
+      "extendedField", "base property value"));
+
+    assertThat(actual)
+      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

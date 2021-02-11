@@ -3,6 +3,8 @@ package org.folio.search.service.converter;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
+import static org.folio.search.utils.CollectionUtils.mergeSafely;
+import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import java.util.LinkedHashMap;
@@ -23,6 +25,7 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
 import org.springframework.stereotype.Component;
@@ -34,6 +37,7 @@ public class SearchDocumentConverter {
 
   private final JsonConverter jsonConverter;
   private final ResourceDescriptionService descriptionService;
+  private final Map<String, FieldProcessor<?>> fieldProcessors;
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
@@ -59,8 +63,11 @@ public class SearchDocumentConverter {
   private SearchDocumentBody convert(ConversionContext context) {
     final var resourceData = context.getResourceData();
 
-    Map<String, Object> resultDocument = convertMapUsingResourceFields(resourceData,
+    Map<String, Object> baseFields = convertMapUsingResourceFields(resourceData,
       context.getResourceDescription().getFields(), context);
+    Map<String, Object> searchFields = generateSearchFields(context);
+
+    Map<String, Object> resultDocument = mergeSafely(baseFields, searchFields);
 
     return SearchDocumentBody.builder()
       .id(context.getId())
@@ -90,6 +97,19 @@ public class SearchDocumentConverter {
     return context.withLanguages(getResourceLanguages(context));
   }
 
+  private Map<String, Object> generateSearchFields(ConversionContext ctx) {
+    var resultMap = new LinkedHashMap<String, Object>();
+
+    ctx.getResourceDescription().getSearchFields().forEach(
+      (fieldName, desc) -> {
+        FieldProcessor<?> fieldProcessor = fieldProcessors.get(desc.getProcessor());
+
+        resultMap.put(fieldName, fieldProcessor.getFieldValue(ctx.getResourceData()));
+      });
+
+    return nullIfEmpty(resultMap);
+  }
+
   private static Map<String, Object> convertMapUsingResourceFields(
     Map<String, Object> data, Map<String, FieldDescription> fields, ConversionContext ctx) {
     var resultMap = new LinkedHashMap<String, Object>();
@@ -99,7 +119,7 @@ public class SearchDocumentConverter {
         resultMap.put(fieldEntry.getKey(), fieldValue);
       }
     }
-    return MapUtils.isNotEmpty(resultMap) ? resultMap : null;
+    return nullIfEmpty(resultMap);
   }
 
   private static Object getFieldValue(

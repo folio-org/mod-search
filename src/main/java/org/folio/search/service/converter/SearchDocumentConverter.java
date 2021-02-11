@@ -65,9 +65,9 @@ public class SearchDocumentConverter {
 
     Map<String, Object> baseFields = convertMapUsingResourceFields(resourceData,
       context.getResourceDescription().getFields(), context);
-    Map<String, Object> extendedFields = generateExtendedFields(context);
+    Map<String, Object> searchFields = generateSearchFields(context);
 
-    Map<String, Object> resultDocument = mergeSafely(baseFields, extendedFields);
+    Map<String, Object> resultDocument = mergeSafely(baseFields, searchFields);
 
     return SearchDocumentBody.builder()
       .id(context.getId())
@@ -97,10 +97,10 @@ public class SearchDocumentConverter {
     return context.withLanguages(getResourceLanguages(context));
   }
 
-  private Map<String, Object> generateExtendedFields(ConversionContext ctx) {
+  private Map<String, Object> generateSearchFields(ConversionContext ctx) {
     var resultMap = new LinkedHashMap<String, Object>();
 
-    ctx.getResourceDescription().getExtendedFields().forEach(
+    ctx.getResourceDescription().getSearchFields().forEach(
       (fieldName, desc) -> {
         FieldProcessor<?> fieldProcessor = fieldProcessors.get(desc.getProcessor());
 

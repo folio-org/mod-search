@@ -45,7 +45,7 @@ public class ResourceDescription {
   /**
    * Map with additional generated fields for specific resource.
    */
-  private Map<String, ExtendedFieldDescriptor> extendedFields = Collections.emptyMap();
+  private Map<String, SearchFieldDescriptor> searchFields = Collections.emptyMap();
 
   /**
    * Map with index fields, that can be used for copy_to functionality of elasticsearch.

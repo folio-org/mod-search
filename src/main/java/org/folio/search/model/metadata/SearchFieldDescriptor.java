@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ExtendedFieldDescriptor extends PlainFieldDescription {
+public class SearchFieldDescriptor extends PlainFieldDescription {
   /**
    * Name of a Spring bean that is used to generate value for the field.
    *

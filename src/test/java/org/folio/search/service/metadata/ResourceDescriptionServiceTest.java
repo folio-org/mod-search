@@ -6,11 +6,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.extendedField;
 import static org.folio.search.utils.TestUtils.languageField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -79,8 +79,8 @@ class ResourceDescriptionServiceTest {
   void shouldPassInitIfPropertyProcessorExists() {
     var processors = Map.<String, FieldProcessor<?>>of("populatedByProcessor", map -> "populatedByValue");
     var resourceDescription = resourceDescription();
-    resourceDescription.setExtendedFields(Map.of("populatedByField",
-      extendedField("populatedByProcessor")));
+    resourceDescription.setSearchFields(Map.of("populatedByField",
+      searchField("populatedByProcessor")));
 
     when(localResourceProvider.getResourceDescriptions())
       .thenReturn(List.of(resourceDescription));
@@ -90,15 +90,15 @@ class ResourceDescriptionServiceTest {
 
     descriptionService.init();
 
-    assertThat(descriptionService.get(RESOURCE_NAME).getExtendedFields())
+    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields())
       .containsKey("populatedByField");
   }
 
   @Test
   void shouldFailInitIfUndefinedPropertySetterSpecified() {
     var resourceDescription = resourceDescription();
-    resourceDescription.setExtendedFields(Map.of("populatedByField",
-      extendedField("populatedByProcessor")));
+    resourceDescription.setSearchFields(Map.of("populatedByField",
+      searchField("populatedByProcessor")));
 
     when(localResourceProvider.getResourceDescriptions())
       .thenReturn(List.of(resourceDescription));

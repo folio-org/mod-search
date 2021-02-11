@@ -83,7 +83,7 @@ public class SearchMappingsHelper {
   }
 
   private Map<String, JsonNode> createMappingsForExtendedFields(ResourceDescription description) {
-    var extendedFields = description.getExtendedFields();
+    var extendedFields = description.getSearchFields();
     if (MapUtils.isEmpty(extendedFields)) {
       return Collections.emptyMap();
     }

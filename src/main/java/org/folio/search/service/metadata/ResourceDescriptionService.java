@@ -99,7 +99,7 @@ public class ResourceDescriptionService {
   }
 
   private void checkIfProcessorExistForExtendedFields(ResourceDescription resourceDescription) {
-    resourceDescription.getExtendedFields().forEach((fieldName, fieldDesc) -> {
+    resourceDescription.getSearchFields().forEach((fieldName, fieldDesc) -> {
       if (!availableProcessors.containsKey(fieldDesc.getProcessor())) {
         throw new ResourceDescriptionException(
           format("There is no such processor [%s] required for field [%s]",

@@ -10,7 +10,6 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
-import static org.folio.search.utils.TestUtils.extendedField;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -18,6 +17,7 @@ import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -222,8 +222,8 @@ class SearchDocumentConverterTest {
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf("id", keywordField(),
       "baseProperty", keywordField()));
-    resourceDescription.setExtendedFields(Map.of("extendedField",
-      extendedField("testProcessor")));
+    resourceDescription.setSearchFields(Map.of("extendedField",
+      searchField("testProcessor")));
 
     var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id,
       "baseProperty", "base property value"));

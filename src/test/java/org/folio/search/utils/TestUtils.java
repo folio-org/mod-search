@@ -19,11 +19,11 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
-import org.folio.search.model.metadata.ExtendedFieldDescriptor;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.types.FieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -152,8 +152,8 @@ public class TestUtils {
     return objectFieldDescription;
   }
 
-  public static ExtendedFieldDescriptor extendedField(String processor) {
-    var fieldDescription = new ExtendedFieldDescriptor();
+  public static SearchFieldDescriptor searchField(String processor) {
+    var fieldDescription = new SearchFieldDescriptor();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex("keyword");
     fieldDescription.setProcessor(processor);

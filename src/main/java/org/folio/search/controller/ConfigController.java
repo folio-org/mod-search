@@ -25,13 +25,13 @@ public class ConfigController implements ConfigApi {
 
   @Override
   public ResponseEntity<LanguageConfig> createLanguageConfig(@Valid LanguageConfig languageConfig) {
-    log.info("Attempting to save language config {}", languageConfig.getCode());
+    log.info("Attempting to save language config [code: {}]", languageConfig.getCode());
     return ok(languageConfigService.create(languageConfig));
   }
 
   @Override
   public ResponseEntity<Void> deleteLanguageConfig(String code) {
-    log.info("Attempting to remove language config {}", code);
+    log.info("Attempting to remove language config [code: {}]", code);
     languageConfigService.delete(code);
     return noContent().build();
   }

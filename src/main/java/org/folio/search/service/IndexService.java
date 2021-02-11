@@ -46,7 +46,7 @@ public class IndexService {
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Creating mappings for resource [{}] for tenant [{}] - [{}]",
+    log.info("Creating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
       resourceName, tenantId, mappings);
     return indexRepository.createIndex(index, settings, mappings);
   }
@@ -62,7 +62,7 @@ public class IndexService {
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Updating mappings for resource [{}] for tenant [{}] - [{}]",
+    log.info("Updating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
       resourceName, tenantId, mappings);
     return indexRepository.updateMappings(index, mappings);
   }

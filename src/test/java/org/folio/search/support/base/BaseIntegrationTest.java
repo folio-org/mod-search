@@ -83,14 +83,14 @@ public abstract class BaseIntegrationTest {
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
-    mockMvc.perform(post("/search/index/indices")
-      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
+    mockMvc.perform(post(languageConfig())
+      .content(asJsonString(new LanguageConfig().code("eng")))
       .headers(defaultHeaders())
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
-    mockMvc.perform(post(languageConfig())
-      .content(asJsonString(new LanguageConfig().code("eng")))
+    mockMvc.perform(post("/search/index/indices")
+      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
       .headers(defaultHeaders())
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());

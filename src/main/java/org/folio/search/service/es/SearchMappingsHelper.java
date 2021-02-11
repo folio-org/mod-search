@@ -17,6 +17,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
@@ -28,11 +29,13 @@ import org.springframework.stereotype.Service;
 public class SearchMappingsHelper {
 
   private static final String MAPPING_PROPERTIES_FIELD = "properties";
+  private static final String MULTILANG_SOURCE_FIELD = "src";
 
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchFieldProvider searchFieldProvider;
   private final JsonConverter jsonConverter;
   private final ObjectMapper objectMapper;
+  private final LanguageConfigService languageConfigService;
 
   /**
    * Provides elasticsearch mappings for given resource name.
@@ -129,6 +132,10 @@ public class SearchMappingsHelper {
       }
     }
 
+    if (fieldDescription.isMultilang()) {
+      removeUnsupportedLanguages(mappings);
+    }
+
     return mappings;
   }
 
@@ -138,5 +145,21 @@ public class SearchMappingsHelper {
       objectNodeMappings.put(entry.getKey(), getMappingForField(entry.getValue()));
     }
     return objectMapper.valueToTree(Map.of(MAPPING_PROPERTIES_FIELD, objectNodeMappings));
+  }
+
+  private void removeUnsupportedLanguages(ObjectNode mappings) {
+    if (mappings == null) {
+      return;
+    }
+
+    var supportedLanguages = languageConfigService.getAllLanguageCodes();
+    var propertiesIterator = mappings.get(MAPPING_PROPERTIES_FIELD).fields();
+    while (propertiesIterator.hasNext()) {
+      var languageNode = propertiesIterator.next();
+      if (!supportedLanguages.contains(languageNode.getKey())
+        && !MULTILANG_SOURCE_FIELD.equals(languageNode.getKey())) {
+        propertiesIterator.remove();
+      }
+    }
   }
 }

@@ -25,7 +25,7 @@ public class ConfigController implements ConfigApi {
 
   @Override
   public ResponseEntity<LanguageConfig> createLanguageConfig(@Valid LanguageConfig languageConfig) {
-    log.info("Attempting to save language config {}", languageConfig);
+    log.info("Attempting to save language config {}", languageConfig.getCode());
     return ok(languageConfigService.create(languageConfig));
   }
 

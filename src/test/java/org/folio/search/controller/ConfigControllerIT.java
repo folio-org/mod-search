@@ -81,7 +81,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @SuppressWarnings("all")
+  @SuppressWarnings("unchecked")
   void shouldUseConfiguredLanguagesDuringMapping() {
     final List<String> languageCodes = List.of("eng", "rus");
     for (String languageCode : languageCodes) {
@@ -98,7 +98,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
     final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 
-    assertThat((Map) getMapValueByPath("title", indexedInstance), aMapWithSize(3));
+    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance), aMapWithSize(3));
     assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));

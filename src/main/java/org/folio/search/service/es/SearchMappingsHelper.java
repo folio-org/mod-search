@@ -125,7 +125,8 @@ public class SearchMappingsHelper {
         mappings = fieldDescriptionMappings.deepCopy();
       } else {
         if (MULTILANG_FIELD_TYPE.equals(fieldDescription.getIndex())) {
-          ((ObjectNode) mappings.path(MAPPING_PROPERTIES_FIELD).path("src")).setAll(fieldDescriptionMappings);
+          ((ObjectNode) mappings.path(MAPPING_PROPERTIES_FIELD).path(MULTILANG_SOURCE_FIELD))
+            .setAll(fieldDescriptionMappings);
         } else {
           mappings.setAll(fieldDescriptionMappings);
         }

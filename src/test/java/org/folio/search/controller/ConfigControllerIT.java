@@ -12,6 +12,7 @@ import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -102,6 +103,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
     assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
+    assertThat(getMapValueByPath("title.fre", indexedInstance), nullValue());
   }
 
   @SneakyThrows

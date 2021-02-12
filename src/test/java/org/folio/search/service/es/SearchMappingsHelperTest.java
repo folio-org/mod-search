@@ -8,6 +8,7 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -169,7 +170,7 @@ class SearchMappingsHelperTest {
       "metadata", objectField(mapOf(
         "createdDate", plainField("date")
       ))));
-    resourceDescription.setGroups(mapOf("identifiers", plainField(KEYWORD_TYPE)));
+    resourceDescription.setSearchFields(mapOf("identifiers", searchField("isbn_identifier")));
     return resourceDescription;
   }
 

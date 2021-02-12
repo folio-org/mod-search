@@ -60,6 +60,12 @@ public class LanguageConfigService {
       .totalRecords(languageConfigs.size());
   }
 
+  public Set<String> getAllLanguageCodes() {
+    return getAll().getLanguageConfigs().stream()
+      .map(LanguageConfig::getCode)
+      .collect(Collectors.toSet());
+  }
+
   public Set<String> getAllLanguagesForTenant(String tenant) {
     try {
       beginFolioExecutionContext(new AsyncFolioExecutionContext(tenant, moduleMetadata));

@@ -3,6 +3,12 @@
   "languageSourcePaths": [
     "$.languages"
   ],
+  "cqlQueryFilters": [
+    {
+      "queryFilter": "notes.staffOnly = false",
+      "queryTerms": "notes.note"
+    }
+  ],
   "fields": {
     "id": {
       "index": "keyword",
@@ -120,6 +126,35 @@
       "type": "object",
       "properties": {
         "tagList": {
+          "index": "multilang"
+        }
+      }
+    },
+    "classifications": {
+      "type": "object",
+      "properties": {
+        "classificationNumber": {
+          "index": "keyword"
+        }
+      }
+    },
+    "electronicAccess": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "inventorySearchTypes": "electronicAccess",
+          "index": "keyword"
+        },
+        "linkText": {
+          "inventorySearchTypes": "electronicAccess",
+          "index": "multilang"
+        },
+        "materialsSpecification": {
+          "inventorySearchTypes": "electronicAccess",
+          "index": "multilang"
+        },
+        "publicNote": {
+          "inventorySearchTypes": "electronicAccess",
           "index": "multilang"
         }
       }

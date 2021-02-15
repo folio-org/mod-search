@@ -2,9 +2,10 @@ openapi: 3.0.0
 info:
   title: Search API
   version: v1
+  description: Search API
 
 servers:
-  - url: /search/
+  - url: https://falcon.ci.folio.org/search/
 
 paths:
   /instances:

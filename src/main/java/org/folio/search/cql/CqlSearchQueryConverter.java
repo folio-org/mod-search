@@ -107,40 +107,40 @@ public class CqlSearchQueryConverter {
   }
 
   private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
-    var field = node.getIndex();
-    var inventoryTypeFields = searchFieldProvider.getFields(request.getResource(), field);
-    var fieldsGroup = inventoryTypeFields.isEmpty() ? getFieldsForMultilangField(request, field) : inventoryTypeFields;
+    var fieldName = node.getIndex();
+    var inventoryTypeFields = searchFieldProvider.getFields(request.getResource(), fieldName);
+    var fieldsList = inventoryTypeFields.isEmpty() ? getFieldsForMultilangField(request, fieldName) : inventoryTypeFields;
 
     var term = node.getTerm();
     if (term.contains(ASTERISKS_SIGN)) {
-      return prepareElasticsearchQuery(fieldsGroup,
+      return prepareElasticsearchQuery(fieldsList,
         fields -> prepareQueryForFieldsGroup(fields, f -> prepareWildcardQuery(f, term)),
-        () -> prepareWildcardQuery(field, term));
+        () -> prepareWildcardQuery(fieldName, term));
     }
 
     var comparator = StringUtils.lowerCase(node.getRelation().getBase());
     switch (comparator) {
       case "==":
-        return prepareElasticsearchQuery(fieldsGroup,
+        return prepareElasticsearchQuery(fieldsList,
           fields -> prepareQueryForFieldsGroup(fields, f -> termQuery(f, term)),
-          () -> termQuery(field, term));
+          () -> termQuery(fieldName, term));
       case "=":
       case "adj":
       case "all":
       case "any":
-        return prepareElasticsearchQuery(fieldsGroup,
+        return prepareElasticsearchQuery(fieldsList,
           fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
-          () -> matchQuery(field, term));
+          () -> matchQuery(fieldName, term));
       case "<>":
-        return boolQuery().mustNot(termQuery(field, term));
+        return boolQuery().mustNot(termQuery(fieldName, term));
       case "<":
-        return rangeQuery(field).lt(term);
+        return rangeQuery(fieldName).lt(term);
       case ">":
-        return rangeQuery(field).gt(term);
+        return rangeQuery(fieldName).gt(term);
       case "<=":
-        return rangeQuery(field).lte(term);
+        return rangeQuery(fieldName).lte(term);
       case ">=":
-        return rangeQuery(field).gte(term);
+        return rangeQuery(fieldName).gte(term);
       default:
         throw unsupportedException(comparator);
     }

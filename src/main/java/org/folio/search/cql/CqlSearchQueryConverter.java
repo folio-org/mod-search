@@ -108,27 +108,27 @@ public class CqlSearchQueryConverter {
 
   private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
     var fieldName = node.getIndex();
-    var inventoryTypeFields = searchFieldProvider.getFields(request.getResource(), fieldName);
-    var fieldsList = inventoryTypeFields.isEmpty() ? getFieldsForMultilangField(request, fieldName) : inventoryTypeFields;
+    var fieldsGroup = searchFieldProvider.getFields(request.getResource(), fieldName);
+    var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(request, fieldName) : fieldsGroup;
 
     var term = node.getTerm();
     if (term.contains(ASTERISKS_SIGN)) {
-      return prepareElasticsearchQuery(fieldsList,
-        fields -> prepareQueryForFieldsGroup(fields, f -> prepareWildcardQuery(f, term)),
+      return prepareElasticsearchQuery(fieldList,
+        fields -> prepareQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),
         () -> prepareWildcardQuery(fieldName, term));
     }
 
     var comparator = StringUtils.lowerCase(node.getRelation().getBase());
     switch (comparator) {
       case "==":
-        return prepareElasticsearchQuery(fieldsList,
-          fields -> prepareQueryForFieldsGroup(fields, f -> termQuery(f, term)),
+        return prepareElasticsearchQuery(fieldList,
+          fields -> prepareQueryForFieldsGroup(fields, field -> termQuery(field, term)),
           () -> termQuery(fieldName, term));
       case "=":
       case "adj":
       case "all":
       case "any":
-        return prepareElasticsearchQuery(fieldsList,
+        return prepareElasticsearchQuery(fieldList,
           fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
           () -> matchQuery(fieldName, term));
       case "<>":

@@ -12,7 +12,9 @@ import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,6 +82,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void shouldUseConfiguredLanguagesDuringMapping() {
     final List<String> languageCodes = List.of("eng", "rus");
     for (String languageCode : languageCodes) {
@@ -88,7 +91,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
     var newInstance = new Instance()
       .id(randomId())
-      .languages(languageCodes)
+      .languages(List.of("eng", "rus", "fre"))
       .title("This is title");
 
     kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, newInstance.getId(),
@@ -96,9 +99,11 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
     final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 
+    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance), aMapWithSize(3));
     assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
+    assertThat(getMapValueByPath("title.fre", indexedInstance), nullValue());
   }
 
   @SneakyThrows

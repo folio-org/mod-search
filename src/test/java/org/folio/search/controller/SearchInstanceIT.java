@@ -63,7 +63,20 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by keyword that matches title", "keyword all {value}", array("primer"), null),
       arguments("search by subjects", "subjects all {value}", array("semantic"), null),
       arguments("search by subjects", "tags.tagList all {value}", array("book"), null),
-      arguments("search by subjects", "tags.tagList all {value}", array("electronic"), null)
+      arguments("search by subjects", "tags.tagList all {value}", array("electronic"), null),
+      arguments("search by subjects", "subjects all {value}", array("semantic"), null),
+      arguments("search by classification number",
+        "classifications.classificationNumber=={value}", array("025.04"), null),
+      arguments("search by classification number (using wildcard)",
+        "classifications.classificationNumber=={value}", array("025*"), null),
+      arguments("search by electronic access (uri)", "electronicAccess.uri==\"{value}\"",
+        array("http://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"), null),
+      arguments("search by electronic access (link text)",
+        "electronicAccess.linkText all {value}", array("access"), null),
+      arguments("search by electronic access (materials specification)",
+        "electronicAccess.materialsSpecification all {value}", array("material"), null),
+      arguments("search by electronic access (public note)",
+        "electronicAccess.publicNote all {value}", array("online"), null)
     );
   }
 }

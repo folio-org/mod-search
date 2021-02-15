@@ -1,5 +1,6 @@
 package org.folio.search.service.metadata;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
@@ -9,13 +10,16 @@ import static org.folio.search.utils.TestUtils.languageField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,14 +75,55 @@ class ResourceDescriptionServiceTest {
     assertThat(descriptionService.isSupportedLanguage("rus")).isFalse();
   }
 
-  private static ResourceDescription resourceDescription() {
-    return TestUtils.resourceDescription(mapOf(
+  @Test
+  void shouldPassInitIfPropertyProcessorExists() {
+    var processors = Map.<String, FieldProcessor<?>>of("populatedByProcessor", map -> "populatedByValue");
+    var resourceDescription = resourceDescription();
+    resourceDescription.setSearchFields(Map.of("populatedByField",
+      searchField("populatedByProcessor")));
+
+    when(localResourceProvider.getResourceDescriptions())
+      .thenReturn(List.of(resourceDescription));
+
+    descriptionService = new ResourceDescriptionService(localSearchFieldProvider,
+      localResourceProvider, processors);
+
+    descriptionService.init();
+
+    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields())
+      .containsKey("populatedByField");
+  }
+
+  @Test
+  void shouldFailInitIfUndefinedPropertySetterSpecified() {
+    var resourceDescription = resourceDescription();
+    resourceDescription.setSearchFields(Map.of("populatedByField",
+      searchField("populatedByProcessor")));
+
+    when(localResourceProvider.getResourceDescriptions())
+      .thenReturn(List.of(resourceDescription));
+
+    descriptionService = new ResourceDescriptionService(localSearchFieldProvider,
+      localResourceProvider, emptyMap());
+
+    assertThatThrownBy(() -> descriptionService.init())
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessage("There is no such processor [populatedByProcessor] required for field "
+        + "[populatedByField]");
+  }
+
+  private static Map<String, FieldDescription> resourceDescriptionFields() {
+    return mapOf(
       "id", plainField("keyword", "$.id"),
       "lang", languageField("keyword", "$.lang"),
       "isbn", plainField("keyword", "$.isbn"),
       "unsupportedField", new TestFieldDescription(),
       "nested", objectField(mapOf(
-        "nested_language", languageField("keyword", "$.nested.lang")))));
+        "nested_language", languageField("keyword", "$.nested.lang"))));
+  }
+
+  private static ResourceDescription resourceDescription() {
+    return TestUtils.resourceDescription(resourceDescriptionFields());
   }
 
   private static SearchFieldType multilangField() {

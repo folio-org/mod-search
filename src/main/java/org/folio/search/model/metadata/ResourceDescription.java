@@ -43,12 +43,9 @@ public class ResourceDescription {
   private Map<String, FieldDescription> fields;
 
   /**
-   * Map with groups for specific resource.
-   *
-   * <p>It can be used when several values should be grouped at one place to reduce the number of
-   * fields in elasticsearch and play with relevancy and boosting results for specific group.</p>
+   * Map with additional generated fields for specific resource.
    */
-  private Map<String, PlainFieldDescription> groups;
+  private Map<String, SearchFieldDescriptor> searchFields = Collections.emptyMap();
 
   /**
    * Map with index fields, that can be used for copy_to functionality of elasticsearch.

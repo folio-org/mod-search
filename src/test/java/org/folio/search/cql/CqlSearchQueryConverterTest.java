@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.service.metadata.MetadataResourceProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,7 @@ class CqlSearchQueryConverterTest {
 
   @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
   @Mock private SearchFieldProvider searchFieldProvider;
+  @Mock private MetadataResourceProvider metadataResourceProvider;
 
   @DisplayName("should parse CQL query")
   @MethodSource("parseCqlQueryDataProvider")

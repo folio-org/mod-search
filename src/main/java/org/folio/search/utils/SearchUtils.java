@@ -62,4 +62,14 @@ public class SearchUtils {
   public static long getTotalPages(long total, Integer pageSize) {
     return total / pageSize + (total % pageSize != 0 ? 1 : 0);
   }
+
+  /**
+   * Updates path for multilang field.
+   *
+   * @param path path to field
+   * @return updated path as {@link String}
+   */
+  public static String updatePathForMultilangField(String path) {
+    return path + ".*";
+  }
 }

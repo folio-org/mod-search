@@ -1,12 +1,15 @@
 package org.folio.search.cql;
 
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
+import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,6 +26,7 @@ import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
@@ -103,42 +107,53 @@ public class CqlSearchQueryConverter {
   }
 
   private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
-    var fieldName = node.getIndex();
-    var fieldList = searchFieldProvider.getFields(request.getResource(), fieldName);
+    var field = node.getIndex();
+    var inventoryTypeFields = searchFieldProvider.getFields(request.getResource(), field);
+    var fieldsGroup = inventoryTypeFields.isEmpty() ? getFieldsForMultilangField(request, field) : inventoryTypeFields;
 
     var term = node.getTerm();
     if (term.contains(ASTERISKS_SIGN)) {
-      return prepareElasticsearchQuery(fieldList,
-        fields -> prepareBoolQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),
-        () -> prepareWildcardQuery(fieldName, term));
+      return prepareElasticsearchQuery(fieldsGroup,
+        fields -> prepareQueryForFieldsGroup(fields, f -> prepareWildcardQuery(f, term)),
+        () -> prepareWildcardQuery(field, term));
     }
 
     var comparator = StringUtils.lowerCase(node.getRelation().getBase());
     switch (comparator) {
-      case "=":
       case "==":
-        return prepareElasticsearchQuery(fieldList,
-          fields -> prepareBoolQueryForFieldsGroup(fields, field -> termQuery(field, term)),
-          () -> termQuery(fieldName, term));
+        return prepareElasticsearchQuery(fieldsGroup,
+          fields -> prepareQueryForFieldsGroup(fields, f -> termQuery(f, term)),
+          () -> termQuery(field, term));
+      case "=":
       case "adj":
       case "all":
       case "any":
-        return prepareElasticsearchQuery(fieldList,
+        return prepareElasticsearchQuery(fieldsGroup,
           fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
-          () -> matchQuery(fieldName, term));
+          () -> matchQuery(field, term));
       case "<>":
-        return boolQuery().mustNot(termQuery(fieldName, term));
+        return boolQuery().mustNot(termQuery(field, term));
       case "<":
-        return rangeQuery(fieldName).lt(term);
+        return rangeQuery(field).lt(term);
       case ">":
-        return rangeQuery(fieldName).gt(term);
+        return rangeQuery(field).gt(term);
       case "<=":
-        return rangeQuery(fieldName).lte(term);
+        return rangeQuery(field).lte(term);
       case ">=":
-        return rangeQuery(fieldName).gte(term);
+        return rangeQuery(field).gte(term);
       default:
         throw unsupportedException(comparator);
     }
+  }
+
+  private List<String> getFieldsForMultilangField(CqlSearchRequest request, String fieldName) {
+    return searchFieldProvider.getFieldByPath(request.getResource(), fieldName)
+      .filter(fieldDescription -> fieldDescription instanceof PlainFieldDescription)
+      .map(fieldDescription -> (PlainFieldDescription) fieldDescription)
+      .filter(PlainFieldDescription::isMultilang)
+      .map(plainFieldDescription -> updatePathForMultilangField(fieldName))
+      .map(Collections::singletonList)
+      .orElse(emptyList());
   }
 
   private BoolQueryBuilder convertToBoolQuery(CqlSearchRequest request, CQLBooleanNode node) {
@@ -167,14 +182,18 @@ public class CqlSearchQueryConverter {
     return CollectionUtils.isNotEmpty(fieldsGroup) ? groupQueryProducer.apply(fieldsGroup) : defaultQuery.get();
   }
 
-  private static BoolQueryBuilder prepareBoolQueryForFieldsGroup(List<String> fieldsGroup,
+  private static QueryBuilder prepareQueryForFieldsGroup(List<String> fieldsGroup,
     Function<String, QueryBuilder> innerQueryProvider) {
     var boolQueryBuilder = boolQuery();
-    fieldsGroup.forEach(field -> {
-      var newFieldName = (field.endsWith(".*")) ? field.substring(0, field.length() - 2) + ".src" : field;
-      boolQueryBuilder.should(innerQueryProvider.apply(newFieldName));
-    });
+    if (fieldsGroup.size() == 1) {
+      return innerQueryProvider.apply(updateMultilangFieldPath(fieldsGroup.get(0)));
+    }
+    fieldsGroup.forEach(field -> boolQueryBuilder.should(innerQueryProvider.apply(updateMultilangFieldPath(field))));
     return boolQueryBuilder;
+  }
+
+  private static String updateMultilangFieldPath(String field) {
+    return (field.endsWith(".*")) ? field.substring(0, field.length() - 2) + ".src" : field;
   }
 
   private static WildcardQueryBuilder prepareWildcardQuery(String fieldName, String term) {

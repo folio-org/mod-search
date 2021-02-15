@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
+import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -154,7 +155,7 @@ public class TestUtils {
 
   public static SearchFieldDescriptor searchField(String processor) {
     var fieldDescription = new SearchFieldDescriptor();
-    fieldDescription.setType(PLAIN);
+    fieldDescription.setType(SEARCH);
     fieldDescription.setIndex("keyword");
     fieldDescription.setProcessor(processor);
     return fieldDescription;

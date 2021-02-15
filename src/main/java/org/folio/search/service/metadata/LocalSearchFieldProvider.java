@@ -4,15 +4,19 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.exception.ResourceDescriptionException;
+import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
@@ -25,7 +29,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LocalSearchFieldProvider implements SearchFieldProvider {
 
-  private final LocalResourceProvider localResourceProvider;
+  private final MetadataResourceProvider metadataResourceProvider;
 
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
   private Map<String, Map<String, List<String>>> fieldBySearchType;
@@ -36,8 +40,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
    */
   @PostConstruct
   public void init() {
-    elasticsearchFieldTypes = unmodifiableMap(localResourceProvider.getSearchFieldTypes());
-    var resourceDescriptions = localResourceProvider.getResourceDescriptions();
+    elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
+    var resourceDescriptions = metadataResourceProvider.getResourceDescriptions();
     fieldBySearchType = collectFieldsBySearchType(resourceDescriptions);
     sourceFields = collectSourceFields(resourceDescriptions);
   }
@@ -59,7 +63,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       .getOrDefault(searchType, emptyList()));
 
     if (isMultilangField(resource, searchType)) {
-      fieldList.add(updatePathForMultilang(searchType));
+      fieldList.add(updatePathForMultilangField(searchType));
     }
 
     return fieldList.stream()
@@ -72,8 +76,36 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return sourceFields.getOrDefault(resource, emptyList());
   }
 
+  @Override
+  public Optional<FieldDescription> getFieldByPath(String resource, String path) {
+    var optResourceDescription = metadataResourceProvider.getResourceDescription(resource);
+    if (optResourceDescription.isEmpty()) {
+      return Optional.empty();
+    }
+    var resourceDescription = optResourceDescription.get();
+    return getFieldByPath(resourceDescription.getFields(), path)
+      .or(() -> getFieldByPath(resourceDescription.getSearchFields(), path));
+  }
+
+  private static Optional<FieldDescription> getFieldByPath(
+    Map<String, ? extends FieldDescription> fields, String path) {
+    var pathValues = path.split("\\.");
+    if (pathValues.length == 0) {
+      return Optional.empty();
+    }
+    FieldDescription currentField = fields.get(pathValues[0]);
+    for (int i = 1; i < pathValues.length; i++) {
+      if (currentField instanceof ObjectFieldDescription) {
+        currentField = ((ObjectFieldDescription) currentField).getProperties().get(pathValues[i]);
+      } else {
+        return Optional.empty();
+      }
+    }
+    return Optional.ofNullable(currentField);
+  }
+
   private boolean isMultilangField(String resourceName, String path) {
-    return localResourceProvider.getResourceDescription(resourceName)
+    return metadataResourceProvider.getResourceDescription(resourceName)
       .map(ResourceDescription::getFlattenFields)
       .map(map -> map.get(path))
       .map(PlainFieldDescription::isMultilang)
@@ -96,7 +128,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
     description.getFlattenFields().forEach((fieldPath, currentFieldDesc) -> {
       final var updatedPath = currentFieldDesc.isMultilang()
-        ? updatePathForMultilang(fieldPath) : fieldPath;
+        ? updatePathForMultilangField(fieldPath) : fieldPath;
 
       currentFieldDesc.getInventorySearchTypes().stream()
         .map(type -> fieldsBySearchType.computeIfAbsent(type, k -> new ArrayList<>()))
@@ -104,10 +136,6 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     });
 
     return fieldsBySearchType;
-  }
-
-  private static String updatePathForMultilang(String path) {
-    return path + ".*";
   }
 
   private static Map<String, List<String>> collectSourceFields(List<ResourceDescription> descriptions) {

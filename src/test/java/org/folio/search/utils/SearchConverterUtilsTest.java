@@ -17,14 +17,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 @UnitTest
 class SearchConverterUtilsTest {
 
-  @ParameterizedTest(name = "[{index}] path={1}, expected={2}")
   @MethodSource("getValueByPathProvider")
   @DisplayName("should receive value by path")
+  @ParameterizedTest(name = "[{index}] path={1}, expected={2}")
   void getValueByPath(String path, Map<String, Object> document, Object expected) {
     var actual = SearchConverterUtils.getMapValueByPath(path, document);
     assertThat(actual).isEqualTo(expected);
   }
-
 
   private static Stream<Arguments> getValueByPathProvider() {
     return Stream.of(
@@ -40,9 +39,5 @@ class SearchConverterUtilsTest {
       arguments("$.languages", mapOf("languages", List.of(
         mapOf("value", "rus"), mapOf("value", "eng"))), List.of(mapOf("value", "rus"), mapOf("value", "eng")))
     );
-  }
-
-  private static Stream<Arguments> updatePropertyTestData() {
-    return Stream.of();
   }
 }

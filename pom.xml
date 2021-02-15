@@ -283,6 +283,10 @@
                   <sourceFile>${project.build.directory}/DeploymentDescriptor-template.json</sourceFile>
                   <destinationFile>${project.build.directory}/DeploymentDescriptor.json</destinationFile>
                 </fileSet>
+                <fileSet>
+                  <sourceFile>${project.build.directory}/docs/mod-search/index.html</sourceFile>
+                  <destinationFile>${project.build.directory}/apidocs/mod-search.html</destinationFile>
+                </fileSet>
               </fileSets>
             </configuration>
           </execution>
@@ -372,6 +376,16 @@
                 <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
               </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${mod-search.yaml.file}</inputSpec>
+              <output>${project.build.directory}/docs/mod-search</output>
+              <generatorName>html2</generatorName>
             </configuration>
           </execution>
         </executions>

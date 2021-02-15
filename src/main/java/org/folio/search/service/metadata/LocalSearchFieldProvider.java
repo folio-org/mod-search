@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -79,7 +80,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   @Override
   public Optional<FieldDescription> getFieldByPath(String resource, String path) {
     var optResourceDescription = metadataResourceProvider.getResourceDescription(resource);
-    if (optResourceDescription.isEmpty()) {
+    if (optResourceDescription.isEmpty() || StringUtils.isBlank(path)) {
       return Optional.empty();
     }
     var resourceDescription = optResourceDescription.get();
@@ -90,9 +91,6 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   private static Optional<FieldDescription> getFieldByPath(
     Map<String, ? extends FieldDescription> fields, String path) {
     var pathValues = path.split("\\.");
-    if (pathValues.length == 0) {
-      return Optional.empty();
-    }
     FieldDescription currentField = fields.get(pathValues[0]);
     for (int i = 1; i < pathValues.length; i++) {
       if (currentField instanceof ObjectFieldDescription) {

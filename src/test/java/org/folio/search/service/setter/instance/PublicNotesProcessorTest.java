@@ -48,6 +48,7 @@ class PublicNotesProcessorTest {
       arguments(mapOf("notes", List.of(mapOf("staffOnly", false, "note", "value"))), List.of("value")),
       arguments(mapOf("notes", List.of(mapOf("staffOnly", null, "note", "value"))), List.of("value")),
       arguments(mapOf("notes", List.of(mapOf("staffOnly", true, "note", "value"))), emptyList()),
+      arguments(mapOf("notes", List.of(mapOf("staffOnly", false))), emptyList()),
       arguments(mapOf("id", randomId()), emptyList()),
       arguments(mapOf("id", randomId(), "notes", null), emptyList()),
       arguments(mapOf("id", randomId(), "notes", emptyList()), emptyList()),

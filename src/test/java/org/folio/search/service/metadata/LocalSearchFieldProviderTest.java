@@ -102,6 +102,22 @@ class LocalSearchFieldProviderTest {
     assertThat(actual).isEqualTo(Optional.ofNullable(expected));
   }
 
+  @Test
+  void getFieldByPath_negative_nonExistingResourceDescription() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, "path");
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void getFieldByPath_negative_emptyPath() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, "  ");
+    assertThat(actual).isEmpty();
+  }
+
   private static List<ResourceDescription> resourceDescriptions() {
     return List.of(
       resourceDescription(mapOf(

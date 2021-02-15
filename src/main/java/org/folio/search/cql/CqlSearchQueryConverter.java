@@ -149,7 +149,7 @@ public class CqlSearchQueryConverter {
   private List<String> getFieldsForMultilangField(CqlSearchRequest request, String fieldName) {
     return searchFieldProvider.getFieldByPath(request.getResource(), fieldName)
       .filter(fieldDescription -> fieldDescription instanceof PlainFieldDescription)
-      .map(fieldDescription -> (PlainFieldDescription) fieldDescription)
+      .map(PlainFieldDescription.class::cast)
       .filter(PlainFieldDescription::isMultilang)
       .map(plainFieldDescription -> updatePathForMultilangField(fieldName))
       .map(Collections::singletonList)

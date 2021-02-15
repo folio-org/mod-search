@@ -142,6 +142,16 @@ class CqlSearchQueryConverterTest {
   }
 
   @Test
+  void convertCqlQuery_positive_multilangSearchFieldExactMatch() {
+    var request = CqlSearchRequest.of(RESOURCE_NAME, "field == value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    var actual = cqlSearchQueryConverter.convert(request);
+    assertThat(actual).isEqualTo(searchSource().query(termQuery("field.src", "value")).from(0).size(100));
+  }
+
+  @Test
   void convertCqlQuery_positive_plainSearchField() {
     var request = CqlSearchRequest.of(RESOURCE_NAME, "field all value", TENANT_ID, 100, 0, false);
     when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());

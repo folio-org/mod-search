@@ -1,0 +1,24 @@
+{
+  "topics": [
+    {
+      "name": "inventory.instance",
+      "numPartitions": 50,
+      "replicationFactor": 1
+    },
+    {
+      "name": "inventory.item",
+      "numPartitions": 50,
+      "replicationFactor": 1
+    },
+    {
+      "name": "inventory.holdings-record",
+      "numPartitions": 50,
+      "replicationFactor": 1
+    },
+    {
+      "name": "search.resource-ids",
+      "numPartitions": 50,
+      "replicationFactor": 1
+    }
+  ]
+}

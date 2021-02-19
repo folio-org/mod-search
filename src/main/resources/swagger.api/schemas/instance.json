@@ -217,6 +217,20 @@
           }
         }
       }
+    },
+    "items": {
+      "type": "array",
+      "description": "List of instance items",
+      "items": {
+        "$ref": "item.json"
+      }
+    },
+    "holdings": {
+      "type": "array",
+      "description": "List of instance items",
+      "items": {
+        "$ref": "holding.json"
+      }
     }
   }
 }

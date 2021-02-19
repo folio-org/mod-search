@@ -99,7 +99,7 @@ public class ApiExceptionHandler {
     var errorResponse = new ErrorResponse();
     exception.getConstraintViolations().forEach(constraintViolation ->
       errorResponse.addErrorsItem(new Error()
-        .message(constraintViolation.getMessage())
+        .message(String.format("%s %s", constraintViolation.getPropertyPath(), constraintViolation.getMessage()))
         .code(ErrorCode.VALIDATION_ERROR.getValue())
         .type(ConstraintViolationException.class.getSimpleName())));
     errorResponse.totalRecords(errorResponse.getErrors().size());

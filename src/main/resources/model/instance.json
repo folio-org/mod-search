@@ -1,14 +1,6 @@
 {
   "name": "instance",
-  "languageSourcePaths": [
-    "$.languages"
-  ],
-  "cqlQueryFilters": [
-    {
-      "queryFilter": "notes.staffOnly = false",
-      "queryTerms": "notes.note"
-    }
-  ],
+  "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
       "index": "keyword",
@@ -167,6 +159,28 @@
         "publicNote": {
           "inventorySearchTypes": "electronicAccess",
           "index": "multilang"
+        }
+      }
+    },
+    "items": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "index": "keyword"
+        },
+        "hrid": {
+          "index": "keyword"
+        },
+        "barcode": {
+          "index": "keyword"
+        }
+      }
+    },
+    "holdings": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "index": "keyword"
         }
       }
     }

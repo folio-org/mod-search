@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,16 @@ public class ResourceDescriptionService {
         "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
+  }
+
+  /**
+   * Provides optional of {@link ResourceDescription} object for given resource name.
+   *
+   * @param resourceName name of resource as {@link String}
+   * @return optional of {@link ResourceDescription} object, it would be empty if no resource description found
+   */
+  public Optional<ResourceDescription> find(String resourceName) {
+    return Optional.ofNullable(resourceDescriptions.get(resourceName));
   }
 
   /**

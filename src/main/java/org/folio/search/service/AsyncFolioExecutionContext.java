@@ -9,7 +9,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 
 @RequiredArgsConstructor
-final class AsyncFolioExecutionContext implements FolioExecutionContext {
+public final class AsyncFolioExecutionContext implements FolioExecutionContext {
   private final String tenantId;
   private final FolioModuleMetadata moduleMetadata;
 

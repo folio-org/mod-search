@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,6 +37,14 @@ class SearchInstanceIT extends BaseIntegrationTest {
     if (extendedSearchResultMatcher != null) {
       extendedSearchResultMatcher.accept(searchResult);
     }
+  }
+
+  @Test
+  void searchByStaffOnlyNoteReturnZeroResults() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("publicNotes all {value}"), "librarian")
+      .headers(defaultHeaders()))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(0)));
   }
 
   private static Stream<Arguments> positiveSearchTestDataProvider() {
@@ -76,7 +85,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by electronic access (materials specification)",
         "electronicAccess.materialsSpecification all {value}", array("material"), null),
       arguments("search by electronic access (public note)",
-        "electronicAccess.publicNote all {value}", array("online"), null)
+        "electronicAccess.publicNote all {value}", array("online"), null),
+      arguments("search by notes.note", "publicNotes all {value}", array("development"), null)
     );
   }
 }

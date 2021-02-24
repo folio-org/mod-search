@@ -16,7 +16,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -50,8 +49,8 @@ public class SearchMappingsHelper {
     var mappingProperties = new LinkedHashMap<String, Object>();
     indexMappings.put(MAPPING_PROPERTIES_FIELD, mappingProperties);
 
-    mappingProperties.putAll(createMappingsForFields(description));
-    mappingProperties.putAll(createMappingsForSearchFields(description));
+    mappingProperties.putAll(createMappingsForFields(description.getFields()));
+    mappingProperties.putAll(createMappingsForFields(description.getSearchFields()));
     var customIndexMappings = description.getIndexMappings();
     if (customIndexMappings != null) {
       mappingProperties.putAll(customIndexMappings);
@@ -68,8 +67,7 @@ public class SearchMappingsHelper {
     return indexMappings;
   }
 
-  private Map<String, JsonNode> createMappingsForFields(ResourceDescription description) {
-    var fields = description.getFields();
+  private Map<String, JsonNode> createMappingsForFields(Map<String, ? extends FieldDescription> fields) {
     if (MapUtils.isEmpty(fields)) {
       return Collections.emptyMap();
     }
@@ -77,23 +75,6 @@ public class SearchMappingsHelper {
     var mappings = new LinkedHashMap<String, JsonNode>();
     fields.forEach((name, fieldDescription) -> {
       var fieldMapping = getMappingForField(fieldDescription);
-      if (fieldMapping != null) {
-        mappings.put(name, fieldMapping);
-      }
-    });
-
-    return mappings;
-  }
-
-  private Map<String, JsonNode> createMappingsForSearchFields(ResourceDescription description) {
-    var searchFields = description.getSearchFields();
-    if (MapUtils.isEmpty(searchFields)) {
-      return Collections.emptyMap();
-    }
-
-    var mappings = new LinkedHashMap<String, JsonNode>();
-    searchFields.forEach((name, fieldDescriptor) -> {
-      var fieldMapping = getMappingForPlainField(fieldDescriptor);
       if (fieldMapping != null) {
         mappings.put(name, fieldMapping);
       }

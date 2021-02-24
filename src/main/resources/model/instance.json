@@ -138,6 +138,17 @@
         }
       }
     },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "index": "source"
+        },
+        "staffOnly": {
+          "index": "bool"
+        }
+      }
+    },
     "electronicAccess": {
       "type": "object",
       "properties": {
@@ -165,6 +176,11 @@
       "type": "search",
       "index": "lowercase_sort",
       "processor": "sortContributorsProcessor"
+    },
+    "publicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "publicNotesProcessor"
     }
   },
   "indexMappings": {

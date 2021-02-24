@@ -6,18 +6,25 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.folio.search.exception.ResourceDescriptionException;
+import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -85,6 +92,32 @@ class LocalSearchFieldProviderTest {
       .containsExactly("title2.sub3.sub5.*");
   }
 
+  @DisplayName("should provide resource field by path")
+  @MethodSource("getFieldsByPathDataProvider")
+  @ParameterizedTest(name = "[{index}] path={0}")
+  void getFieldByPath(String path, FieldDescription expected) {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, path);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
+  @Test
+  void getFieldByPath_negative_nonExistingResourceDescription() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, "path");
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void getFieldByPath_negative_emptyPath() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, "  ");
+    assertThat(actual).isEmpty();
+  }
+
   private static List<ResourceDescription> resourceDescriptions() {
     return List.of(
       resourceDescription(mapOf(
@@ -97,6 +130,21 @@ class LocalSearchFieldProviderTest {
             "sub4", plainField("keyword", false, TITLE_SEARCH_TYPE),
             "sub5", plainField("multilang", true))))),
         "source", plainField("keyword", true)))
+    );
+  }
+
+  private static Stream<Arguments> getFieldsByPathDataProvider() {
+    return Stream.of(
+      arguments("id", plainField("keyword", true)),
+      arguments("title2.sub1", plainField("keyword", true, TITLE_SEARCH_TYPE)),
+      arguments("title2.sub3.sub4", plainField("keyword", false, TITLE_SEARCH_TYPE)),
+      arguments("title2.sub3", objectField(mapOf(
+        "sub4", plainField("keyword", false, TITLE_SEARCH_TYPE),
+        "sub5", plainField("multilang", true)))),
+      arguments("title4", null),
+      arguments("title1.subfield", null),
+      arguments("title2.subfield", null),
+      arguments("title2.sub.sub.sub", null)
     );
   }
 

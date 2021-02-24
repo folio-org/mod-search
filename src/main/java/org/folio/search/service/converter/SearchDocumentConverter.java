@@ -1,8 +1,6 @@
 package org.folio.search.service.converter;
 
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
-import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
@@ -104,7 +102,8 @@ public class SearchDocumentConverter {
       (fieldName, desc) -> {
         FieldProcessor<?> fieldProcessor = fieldProcessors.get(desc.getProcessor());
 
-        resultMap.put(fieldName, fieldProcessor.getFieldValue(ctx.getResourceData()));
+        Object fieldValue = fieldProcessor.getFieldValue(ctx.getResourceData());
+        resultMap.put(fieldName, desc.isMultilang() ? getMultilangValue(fieldValue, ctx) : fieldValue);
       });
 
     return nullIfEmpty(resultMap);
@@ -137,11 +136,11 @@ public class SearchDocumentConverter {
   private static Object getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
     var desc = (PlainFieldDescription) fieldEntry.getValue();
-    if (isNotIndexedField(desc)) {
+    if (!desc.isIndexed()) {
       return null;
     }
     Object plainFieldValue = fieldData.get(fieldEntry.getKey());
-    return isMultilangField(desc) ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
+    return desc.isMultilang() ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
   }
 
   @SuppressWarnings("unchecked")
@@ -170,14 +169,6 @@ public class SearchDocumentConverter {
     }
 
     return null;
-  }
-
-  private static boolean isMultilangField(PlainFieldDescription desc) {
-    return MULTILANG_FIELD_TYPE.equals(desc.getIndex());
-  }
-
-  private static boolean isNotIndexedField(PlainFieldDescription desc) {
-    return NONE_FIELD_TYPE.equals(desc.getIndex());
   }
 
   /**

@@ -1,5 +1,6 @@
 package org.folio.search.model.metadata;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +58,23 @@ public class PlainFieldDescription extends FieldDescription {
    */
   private ObjectNode mappings;
 
+  /**
+   * Checks if resource description field is multi-language.
+   *
+   * @return true if field is must be indexed, false - otherwise
+   */
+  @JsonIgnore
   public boolean isMultilang() {
     return MULTILANG_FIELD_TYPE.equals(index);
+  }
+
+  /**
+   * Checks if resource description field should be indexed or not.
+   *
+   * @return true if field is must be indexed, false - otherwise
+   */
+  @JsonIgnore
+  public boolean isIndexed() {
+    return !NONE_FIELD_TYPE.equals(index);
   }
 }

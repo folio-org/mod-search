@@ -1,5 +1,6 @@
 package org.folio.search.cql;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -11,17 +12,20 @@ import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.keywordField;
+import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.service.metadata.MetadataResourceProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +48,6 @@ class CqlSearchQueryConverterTest {
 
   @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
   @Mock private SearchFieldProvider searchFieldProvider;
-  @Mock private MetadataResourceProvider metadataResourceProvider;
 
   @DisplayName("should parse CQL query")
   @MethodSource("parseCqlQueryDataProvider")
@@ -128,11 +131,41 @@ class CqlSearchQueryConverterTest {
         .from(request.getOffset()));
   }
 
+  @Test
+  void convertCqlQuery_positive_multilangSearchField() {
+    var request = CqlSearchRequest.of(RESOURCE_NAME, "field all value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    var actual = cqlSearchQueryConverter.convert(request);
+    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")).from(0).size(100));
+  }
+
+  @Test
+  void convertCqlQuery_positive_multilangSearchFieldExactMatch() {
+    var request = CqlSearchRequest.of(RESOURCE_NAME, "field == value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    var actual = cqlSearchQueryConverter.convert(request);
+    assertThat(actual).isEqualTo(searchSource().query(termQuery("field.src", "value")).from(0).size(100));
+  }
+
+  @Test
+  void convertCqlQuery_positive_plainSearchField() {
+    var request = CqlSearchRequest.of(RESOURCE_NAME, "field all value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    var actual = cqlSearchQueryConverter.convert(request);
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery("field", "value")).from(0).size(100));
+  }
+
   private static Stream<Arguments> parseCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(
       arguments("contributors", "(contributors =/@name \"test-query\") sortby title",
-        searchSourceSort().query(termQuery("contributors", "test-query"))),
+        searchSourceSort().query(matchQuery("contributors", "test-query"))),
 
       arguments("id", "id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
@@ -140,6 +173,9 @@ class CqlSearchQueryConverterTest {
         searchSource().query(matchQuery("keyword", "test-query")).sort("sort_title", DESC)),
 
       arguments("identifier(all)", "(identifiers =/@value \"test-query\") sortby title",
+        searchSourceSort().query(matchQuery("identifiers", "test-query"))),
+
+      arguments("identifier(all)", "(identifiers ==/@value \"test-query\") sortby title",
         searchSourceSort().query(termQuery("identifiers", "test-query"))),
 
       arguments("identifier(all)(wildcard)", "(identifiers =/@value \"*test-query\") sortby title",
@@ -162,12 +198,12 @@ class CqlSearchQueryConverterTest {
         "((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSourceSort().query(boolQuery()
           .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))
-          .must(boolQuery().should(termQuery("languages", "eng")).should(termQuery("languages", "ger"))))),
+          .must(boolQuery().should(matchQuery("languages", "eng")).should(matchQuery("languages", "ger"))))),
 
       arguments("title(all) not contributor", "title all \"test-query\" not contributors = \"test-contributor\"",
         searchSource().query(boolQuery()
           .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))
-          .mustNot(termQuery("contributors", "test-contributor")))),
+          .mustNot(matchQuery("contributors", "test-contributor")))),
 
       arguments("title(all) sort by relevance", "title all \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
@@ -179,10 +215,7 @@ class CqlSearchQueryConverterTest {
           .should(wildcardQuery("source", "*test-query").rewrite("constant_score")))),
 
       arguments("title(all) term query", "title = \"test-query\"",
-        searchSource().query(boolQuery()
-          .should(termQuery("title.src", "test-query"))
-          .should(termQuery("source.src", "test-query"))
-          .should(termQuery("source", "test-query"))))
+        searchSource().query(multiMatchQuery("test-query", "title.*", "source.*", "source")))
     );
   }
 

@@ -35,6 +35,11 @@ public class ResourceDescription {
   private List<String> languageSourcePaths = Collections.emptyList();
 
   /**
+   * Path to instance id of resource.
+   */
+  private String instanceIdPath;
+
+  /**
    * Map with field descriptions.
    *
    * <p>The field description should contain json path to the value in event document and elasticsearch representation

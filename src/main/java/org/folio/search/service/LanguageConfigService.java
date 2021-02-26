@@ -32,7 +32,7 @@ public class LanguageConfigService {
     final LanguageConfigEntity entity = toLanguageConfigEntity(languageConfig);
 
     if (!descriptionService.isSupportedLanguage(languageConfig.getCode())) {
-      log.warn("There is no language analyzer configured for language {}", languageConfig);
+      log.warn("There is no language analyzer configured for language {}", languageConfig.getCode());
       throw new ValidationException("Language has no analyzer available",
         "code", languageConfig.getCode());
     }

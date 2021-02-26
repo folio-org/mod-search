@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Item description",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique ID of the item record"
+    },
+    "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
+    },
+    "barcode": {
+      "type": "string",
+      "description": "Unique inventory control number for physical resources, used largely for circulation purposes"
+    }
+  }
+}

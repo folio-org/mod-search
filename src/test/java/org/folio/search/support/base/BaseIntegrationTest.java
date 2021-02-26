@@ -110,7 +110,9 @@ public abstract class BaseIntegrationTest {
   }
 
   private static KafkaContainer createAndStartKafka() {
-    final KafkaContainer kafkaContainer = new KafkaContainer(KAFKA_IMAGE).withReuse(true);
+    final KafkaContainer kafkaContainer = new KafkaContainer(KAFKA_IMAGE)
+      .withReuse(true)
+      .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "false");
 
     kafkaContainer.start();
 

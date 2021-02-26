@@ -41,6 +41,7 @@ class IsbnProcessorTest {
     return Stream.of(
       arguments(emptyList(), emptyList()),
       arguments(null, emptyList()),
+      arguments(List.of(isbnIdentifier("  ")), emptyList()),
       arguments(List.of(isbnIdentifier("047144250X")), List.of("047144250X", "9780471442509")),
       arguments(List.of(isbnIdentifier("978-0-471-44250-9")), List.of("9780471442509")),
       arguments(List.of(isbnIdentifier("9780471442509 (cloth : alk. paper)")),

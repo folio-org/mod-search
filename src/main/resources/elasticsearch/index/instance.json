@@ -7,6 +7,12 @@
     "mapping.total_fields.limit": 250
   },
   "analysis": {
+    "char_filter": {
+      "remove_hyphen_char_filter": {
+        "type": "mapping",
+        "mappings": [ "-=>" ]
+      }
+    },
     "normalizer": {
       "keyword_lowercase": {
         "filter": [ "lowercase" ],
@@ -18,9 +24,13 @@
         "tokenizer": "standard",
         "filter": [ "lowercase" ],
         "type": "custom"
+      },
+      "isbn_analyzer": {
+        "tokenizer": "standard",
+        "char_filter": [ "remove_hyphen_char_filter" ],
+        "filter": [ "lowercase" ]
       }
     },
-    "char_filters": { },
     "tokenizers": { }
   }
 }

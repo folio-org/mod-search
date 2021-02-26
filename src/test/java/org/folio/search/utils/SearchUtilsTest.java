@@ -61,6 +61,17 @@ class SearchUtilsTest {
     assertThat(totalPages).isEqualTo(expected);
   }
 
+  @Test
+  void removeHyphens_positive() {
+    var actual = SearchUtils.removeHyphens("123-456");
+    assertThat(actual).isEqualTo("123456");
+  }
+
+  @Test
+  void removeHyphens_positive_nullValue() {
+    assertThat(SearchUtils.removeHyphens(null)).isNull();
+  }
+
   private static Stream<Arguments> totalPagesTestData() {
     return Stream.of(
       arguments(0, 0),

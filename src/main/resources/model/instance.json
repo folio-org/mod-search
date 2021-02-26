@@ -195,6 +195,19 @@
       "type": "search",
       "index": "multilang",
       "processor": "publicNotesProcessor"
+    },
+    "isbn": {
+      "type": "search",
+      "processor": "isbnProcessor",
+      "mappings": {
+        "type": "text",
+        "analyzer": "isbn_analyzer"
+      }
+    },
+    "issn": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "issnProcessor"
     }
   },
   "indexMappings": {

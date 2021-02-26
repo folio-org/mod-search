@@ -80,6 +80,6 @@ public class SearchUtils {
    * @return string without hyphen symbols
    */
   public static String removeHyphens(String value) {
-    return value != null ? value.replaceAll("-", "") : null;
+    return value != null ? value.replace("-", "") : null;
   }
 }

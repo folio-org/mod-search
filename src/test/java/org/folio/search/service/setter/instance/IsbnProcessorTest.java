@@ -32,7 +32,7 @@ class IsbnProcessorTest {
   @MethodSource("rawIsbnDataProvider")
   @DisplayName("should get field value")
   @ParameterizedTest(name = "[{index}] initial={0}, expected={1}")
-  public void getFieldValue_positive(List<Map<String, Object>> identifiers, List<String> expected) {
+  void getFieldValue_positive(List<Map<String, Object>> identifiers, List<String> expected) {
     var actual = isbnProcessor.getFieldValue(mapOf("identifiers", identifiers));
     assertThat(actual).isEqualTo(expected);
   }

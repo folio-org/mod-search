@@ -63,8 +63,8 @@ class SearchUtilsTest {
 
   @Test
   void removeHyphens_positive() {
-    var actual = SearchUtils.removeHyphens("123-456");
-    assertThat(actual).isEqualTo("123456");
+    var actual = SearchUtils.removeHyphens("123-456-789");
+    assertThat(actual).isEqualTo("123456789");
   }
 
   @Test

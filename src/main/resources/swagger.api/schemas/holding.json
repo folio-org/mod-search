@@ -5,7 +5,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "Unique ID of the item record"
+      "description": "Unique ID of the holding record"
     }
   }
 }

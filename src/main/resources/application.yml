@@ -21,6 +21,12 @@ spring:
     change-log: classpath:changelog/changelog-master.xml
 
 application:
+  application:
+    system-user:
+      username: mod-search
+      password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}
+      lastname: System
+      permissionsFilePath: classpath:permissions/mod-search.csv
   kafka:
     listener:
       instances:

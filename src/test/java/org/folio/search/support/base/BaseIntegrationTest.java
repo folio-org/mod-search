@@ -19,8 +19,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 import static org.testcontainers.utility.DockerImageName.parse;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -32,6 +34,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,6 +58,7 @@ import org.testcontainers.utility.DockerImageName;
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
 
+  protected static final WireMockServer WIRE_MOCK = new WireMockServer(findAvailableTcpPort());
   private static final DockerImageName KAFKA_IMAGE = parse("confluentinc/cp-kafka:5.5.3");
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");
@@ -76,6 +80,8 @@ public abstract class BaseIntegrationTest {
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
+    WIRE_MOCK.start();
+
     setUpTenant(TENANT_ID, mockMvc, kafkaTemplate, getSemanticWeb());
   }
 
@@ -84,6 +90,8 @@ public abstract class BaseIntegrationTest {
     @Autowired JdbcTemplate jdbcTemplate) {
 
     removeTenant(highLevelClient, jdbcTemplate, TENANT_ID);
+
+    WIRE_MOCK.stop();
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -93,7 +101,9 @@ public abstract class BaseIntegrationTest {
   public static HttpHeaders defaultHeaders(String tenant) {
     final HttpHeaders httpHeaders = new HttpHeaders();
 
+    httpHeaders.setContentType(APPLICATION_JSON);
     httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(tenant));
+    httpHeaders.add(XOkapiHeaders.URL, WIRE_MOCK.baseUrl());
 
     return httpHeaders;
   }

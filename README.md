@@ -40,3 +40,9 @@ The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-ins
 - rus
 - swe
 - chi
+
+## Deploying
+
+The module uses system user to communicate with other modules from Kafka consumers.
+For production deployments you MUST specify the password for this system user via env variable:
+`SYSTEM_USER_PASSWORD=<password>`.

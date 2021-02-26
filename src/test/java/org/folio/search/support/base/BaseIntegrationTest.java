@@ -3,7 +3,6 @@ package org.folio.search.support.base;
 import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
-import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
@@ -29,9 +28,7 @@ import org.awaitility.Duration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -178,18 +175,6 @@ public abstract class BaseIntegrationTest {
 
     mockMvc.perform(post("/_/tenant")
       .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
-      .headers(defaultHeaders(tenantName))
-      .contentType(APPLICATION_JSON))
-      .andExpect(status().isOk());
-
-    mockMvc.perform(post(languageConfig())
-      .content(asJsonString(new LanguageConfig().code("eng")))
-      .headers(defaultHeaders(tenantName))
-      .contentType(APPLICATION_JSON))
-      .andExpect(status().isOk());
-
-    mockMvc.perform(post("/search/index/indices")
-      .content(asJsonString(new IndexRequestBody().resourceName(INSTANCE_RESOURCE)))
       .headers(defaultHeaders(tenantName))
       .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());

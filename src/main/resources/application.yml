@@ -19,6 +19,8 @@ spring:
     change-log: classpath:changelog/changelog-master.xml
 
 application:
+  search-config:
+    initial-languages: ${INITIAL_MULTILANG_LANGUAGES:eng}
   kafka:
     listener:
       events:

@@ -40,3 +40,16 @@ The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-ins
 - rus
 - swe
 - chi
+
+### Adding new languages via REST
+
+It is allowed to add new languages via rest endpoint `/search/config/languages`.
+**Please note, when you add a new language, a whole reindex is required in order to
+apply new configuration**.
+
+### Defining initial languages via ENV variable
+
+It is possible to define initial languages for via `INITIAL_MULTILANG_LANGUAGES` env variable.
+These languages will be added on tenant init and applied to index. Example usage:
+`INITIAL_MULTILANG_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined than only
+`eng` code is added.

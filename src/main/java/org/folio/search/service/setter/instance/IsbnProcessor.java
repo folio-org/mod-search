@@ -18,7 +18,13 @@ import org.springframework.stereotype.Component;
 public class IsbnProcessor extends AbstractIdentifierProcessor {
 
   private static final String ISBN_IDENTIFIER_TYPE_ID = "8261054f-be78-422d-bd51-4ed9f33c3422";
+  private static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = "fcca2643-406a-482a-b760-7a7f8aec640e";
 
+  /**
+   * Used by dependency injection.
+   *
+   * @param jsonConverter {@link JsonConverter} bean
+   */
   public IsbnProcessor(JsonConverter jsonConverter) {
     super(jsonConverter);
   }

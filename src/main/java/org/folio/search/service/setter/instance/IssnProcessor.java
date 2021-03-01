@@ -13,7 +13,13 @@ import org.springframework.stereotype.Component;
 public class IssnProcessor extends AbstractIdentifierProcessor {
 
   private static final String ISSN_IDENTIFIER_TYPE_ID = "913300b2-03ed-469a-8179-c1092c991227";
+  private static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = "27fd35a6-b8f6-41f2-aa0e-9c663ceb250c";
 
+  /**
+   * Used by dependency injection.
+   *
+   * @param jsonConverter {@link JsonConverter} bean
+   */
   public IssnProcessor(JsonConverter jsonConverter) {
     super(jsonConverter);
   }

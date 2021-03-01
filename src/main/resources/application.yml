@@ -11,6 +11,8 @@ spring:
       uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+    consumer:
+      max-poll-records: 200
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
@@ -23,10 +25,14 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
   kafka:
     listener:
-      events:
+      instances:
         concurrency: 1
         topics: inventory.instance
         group-id: mod-search-instances-group
+      events:
+        concurrency: 1
+        topics: inventory.instance,inventory.item,inventory.holdings-record
+        group-id: mod-search-events-group
 
 server.port: 8081
 folio.tenant.validation.enabled: true

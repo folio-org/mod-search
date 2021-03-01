@@ -25,7 +25,11 @@ application:
     initial-languages: eng,fre,ita,spa
   kafka:
     listener:
-      events:
-        concurrency: 4
+      instances:
+        concurrency: 1
         topics: inventory.instance
-        group-id: search-events-group
+        group-id: mod-search-instances-group
+      events:
+        concurrency: 1
+        topics: inventory.instance,inventory.item,inventory.holdings-record
+        group-id: mod-search-events-group

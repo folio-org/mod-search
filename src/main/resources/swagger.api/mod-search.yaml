@@ -152,6 +152,8 @@ components:
   schemas:
     instance:
       $ref: schemas/instance.json
+    item:
+      $ref: schemas/item.json
     indexRequestBody:
       $ref: schemas/indexRequestBody.json
     folioCreateIndexResponse:
@@ -172,7 +174,7 @@ components:
           description: Amount of instances found
         instances:
           type: array
-          description: List of instances foubd
+          description: List of instances found
           items:
             $ref: '#/components/schemas/instance'
     errorResponse:

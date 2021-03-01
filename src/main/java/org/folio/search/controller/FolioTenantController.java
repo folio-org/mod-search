@@ -3,7 +3,6 @@ package org.folio.search.controller;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.service.KafkaAdminService;
 import org.folio.search.service.TenantService;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.controller.TenantController;
 import org.folio.spring.liquibase.FolioSpringLiquibase;

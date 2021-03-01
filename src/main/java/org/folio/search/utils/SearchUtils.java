@@ -4,13 +4,15 @@ import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.SearchResource;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
 
-  public static final String INSTANCE_RESOURCE = "instance";
-  public static final String X_OKAPI_TENANT_HEADER = "X-Okapi-Tenant";
+  public static final String INSTANCE_RESOURCE = SearchResource.INSTANCE.getName();
+  public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
 
   /**

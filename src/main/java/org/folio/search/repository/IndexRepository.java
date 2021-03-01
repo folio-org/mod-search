@@ -15,6 +15,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
@@ -97,6 +98,13 @@ public class IndexRepository {
     return bulkApiResponse.hasFailures()
       ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
       : getSuccessIndexOperationResponse();
+  }
+
+  public boolean indexExists(String index) {
+    var request = new GetIndexRequest(index);
+    return performExceptionalOperation(() ->
+      elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),
+      index, "indexExists");
   }
 
   private static IndexRequest prepareIndexRequest(String index, SearchDocumentBody body) {

@@ -2,6 +2,8 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.service.setter.instance.IsbnProcessor.INVALID_ISBN_IDENTIFIER_TYPE_ID;
+import static org.folio.search.service.setter.instance.IsbnProcessor.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -24,8 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IsbnProcessorTest {
 
-  private static final String ISBN_TYPE = "8261054f-be78-422d-bd51-4ed9f33c3422";
-
   @InjectMocks private IsbnProcessor isbnProcessor;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
@@ -43,20 +43,34 @@ class IsbnProcessorTest {
       arguments(null, emptyList()),
       arguments(List.of(isbnIdentifier("  ")), emptyList()),
       arguments(List.of(isbnIdentifier("047144250X")), List.of("047144250X", "9780471442509")),
+      arguments(List.of(invalidIsbnIdentifier("1 86197 271-7")), List.of("1861972717", "9781861972712")),
+      arguments(List.of(invalidIsbnIdentifier("1 86197 2717")), List.of("1861972717")),
+      arguments(List.of(invalidIsbnIdentifier("047144250X")), List.of("047144250X", "9780471442509")),
+      arguments(List.of(isbnIdentifier("1 86197 271-7")), List.of("1861972717", "9781861972712")),
+      arguments(List.of(isbnIdentifier("1-86-197 271-7")), List.of("1861972717")),
       arguments(List.of(isbnIdentifier("978-0-471-44250-9")), List.of("9780471442509")),
-      arguments(List.of(isbnIdentifier("9780471442509 (cloth : alk. paper)")),
-        List.of("9780471442509 (cloth : alk. paper)")),
-      arguments(List.of(isbnIdentifier("978-0-471-44250-9 (cloth : alk. paper)")),
-        List.of("9780471442509 (cloth : alk. paper)")),
+      arguments(List.of(isbnIdentifier("978 0 471 44250 9")), List.of("9780471442509")),
+      arguments(List.of(isbnIdentifier("9780471442509 (alk. paper)")), List.of("9780471442509", "(alk. paper)")),
+      arguments(List.of(isbnIdentifier("978-0-471-44250-9 (alk. paper)")), List.of("9780471442509", "(alk. paper)")),
+      arguments(List.of(isbnIdentifier("978 0 471 44250 9 (alk. paper)")), List.of("9780471442509", "(alk. paper)")),
+      arguments(List.of(isbnIdentifier("978-0 4712 442509 (alk. paper)")), List.of("97804712442509 (alk. paper)")),
+      arguments(List.of(isbnIdentifier("047144250X (paper)")), List.of("047144250X", "9780471442509", "(paper)")),
+      arguments(List.of(isbnIdentifier("1 86197 271-7 (paper)")), List.of("1861972717", "9781861972712", "(paper)")),
+      arguments(List.of(isbnIdentifier("1 86197 2717 (paper)")), List.of("1861972717 (paper)")),
+      arguments(List.of(isbnIdentifier("1-86-197 2717 (paper)")), List.of("1861972717 (paper)")),
       arguments(List.of(identifier("issn", "0747-0088")), emptyList())
     );
   }
 
-  private static Map<String, Object> identifier(String type, String value) {
+  private static Map<String, Object> identifier(String value, String type) {
     return mapOf("identifierTypeId", type, "value", value);
   }
 
+  private static Map<String, Object> invalidIsbnIdentifier(String value) {
+    return identifier(value, INVALID_ISBN_IDENTIFIER_TYPE_ID);
+  }
+
   private static Map<String, Object> isbnIdentifier(String value) {
-    return identifier(ISBN_TYPE, value);
+    return identifier(value, ISBN_IDENTIFIER_TYPE_ID);
   }
 }

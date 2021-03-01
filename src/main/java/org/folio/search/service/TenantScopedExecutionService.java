@@ -38,7 +38,7 @@ public class TenantScopedExecutionService {
 
   private FolioExecutionContext folioExecutionContext(String tenant) {
     return new SystemUserFolioExecutionContext(
-      systemUserService.getSystemUserParameters(tenant), moduleMetadata);
+      systemUserService.getSystemUser(tenant), moduleMetadata);
   }
 
   @FunctionalInterface

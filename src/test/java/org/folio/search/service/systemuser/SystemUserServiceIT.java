@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.folio.search.repository.SystemUserRepository;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.folio.tenant.domain.dto.TenantAttributes;
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @IntegrationTest
 class SystemUserServiceIT extends BaseIntegrationTest {
   @Autowired
-  private SystemUserRepository userRepository;
+  private SystemUserService systemUserService;
 
   @Test
   void shouldCreateSystemUserDuringTenantInit() throws Exception {
@@ -36,11 +35,9 @@ class SystemUserServiceIT extends BaseIntegrationTest {
     WIRE_MOCK.verify(postRequestedFor(urlEqualTo("/perms/users")));
     WIRE_MOCK.verify(postRequestedFor(urlEqualTo("/authn/login")));
 
-    var systemUserOptional = userRepository.getByTenantId(tenantId);
-    assertThat(systemUserOptional.isPresent(), is(true));
-    assertThat(systemUserOptional.get().getTenantId(), is(tenantId));
-    assertThat(systemUserOptional.get().getOkapiToken(), is("aa.bb.cc"));
-    assertThat(systemUserOptional.get().getUsername(), is("mod-search"));
-    assertThat(systemUserOptional.get().getPassword(), is("Mod-search-1-0-0"));
+    var systemUser = systemUserService.getSystemUser(tenantId);
+    assertThat(systemUser.getTenantId(), is(tenantId));
+    assertThat(systemUser.getOkapiToken(), is("aa.bb.cc"));
+    assertThat(systemUser.getUsername(), is("mod-search"));
   }
 }

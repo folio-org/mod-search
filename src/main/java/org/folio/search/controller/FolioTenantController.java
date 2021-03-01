@@ -19,6 +19,7 @@ public class FolioTenantController extends TenantController {
 
   private final KafkaAdminService kafkaAdminService;
   private final SystemUserService systemUserService;
+  private final FolioExecutionContext executionContext;
 
   public FolioTenantController(
     FolioSpringLiquibase folioSpringLiquibase,
@@ -29,6 +30,7 @@ public class FolioTenantController extends TenantController {
     super(folioSpringLiquibase, context);
     this.kafkaAdminService = kafkaAdminService;
     this.systemUserService = systemUserService;
+    this.executionContext = context;
   }
 
   @Override
@@ -37,7 +39,7 @@ public class FolioTenantController extends TenantController {
     var response = super.postTenant(tenantAttributes);
 
     if (response.getStatusCode() == HttpStatus.OK) {
-      systemUserService.prepareSystemUser();
+      systemUserService.prepareSystemUser(executionContext);
     }
 
     return response;

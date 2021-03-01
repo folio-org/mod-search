@@ -2,15 +2,16 @@ package org.folio.search.service.systemuser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.folio.search.client.AuthnClient;
 import org.folio.search.client.PermissionsClient;
@@ -44,10 +45,7 @@ class SystemUserServiceTest {
 
   @Test
   void shouldCreateSystemUserWhenNotExist() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
     when(usersClient.query(any())).thenReturn(userNotExistResponse());
-    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
-      .header(XOkapiHeaders.TOKEN, "token").build());
 
     prepareSystemUser(systemUser());
 
@@ -58,16 +56,13 @@ class SystemUserServiceTest {
     verify(repository).save(captor.capture());
 
     assertThat(captor.getValue().getUsername(), is(systemUser().getUsername()));
-    assertThat(captor.getValue().getPassword(), is(systemUser().getPassword()));
-    assertThat(captor.getValue().getOkapiToken(), is("token"));
+    assertThat(captor.getValue().getOkapiToken(), nullValue());
   }
 
   @Test
   void shouldNotCreateSystemUserWhenExists() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
-      .header(XOkapiHeaders.TOKEN, "token2").build());
+    when(permissionsClient.getUserPermissions(any())).thenReturn(new PermissionsClient.Permissions());
 
     prepareSystemUser(systemUser());
 
@@ -77,61 +72,64 @@ class SystemUserServiceTest {
     verify(repository).save(captor.capture());
 
     assertThat(captor.getValue().getUsername(), is(systemUser().getUsername()));
-    assertThat(captor.getValue().getPassword(), is(systemUser().getPassword()));
-    assertThat(captor.getValue().getOkapiToken(), is("token2"));
+    assertThat(captor.getValue().getOkapiToken(), nullValue());
   }
 
   @Test
-  void canUpdateUserIfEmptyPermissions() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
+  void cannotUpdateUserIfEmptyPermissions() {
     when(usersClient.query(any())).thenReturn(userNotExistResponse());
-    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
-      .header(XOkapiHeaders.TOKEN, "token2").build());
 
-    prepareSystemUser(systemUserNoPermissions());
+    assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUserNoPermissions()));
 
-    verify(usersClient).saveUser(any());
     verifyNoInteractions(permissionsClient);
-    verify(repository, times(1)).save(any());
+    verify(repository, times(0)).save(any());
   }
 
   @Test
-  void canCreateUserIfEmptyPermissions() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
+  void cannotCreateUserIfEmptyPermissions() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
-      .header(XOkapiHeaders.TOKEN, "token2").build());
 
-    prepareSystemUser(systemUserNoPermissions());
-
-    verify(usersClient).query(any());
-    verifyNoInteractions(permissionsClient);
-    verify(repository).save(any());
+    assertThrows(IllegalStateException.class,
+      () -> prepareSystemUser(systemUserNoPermissions()));
   }
 
   @Test
-  void shouldIgnoreErrorWhenPermissionExists() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
+  void shouldAddOnlyNewPermissions() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
-      .header(XOkapiHeaders.TOKEN, "token").build());
-
-    doThrow(new RuntimeException("Permission exists"))
-      .when(permissionsClient).addPermission(any(), any());
+    when(permissionsClient.getUserPermissions(any()))
+      .thenReturn(PermissionsClient.Permissions.of(null, null,
+        List.of("inventory-storage.instance.item.get")));
 
     prepareSystemUser(systemUser());
 
-    verify(repository).save(any());
+    verify(permissionsClient, times(1)).addPermission(any(), any());
+    verify(permissionsClient, times(0))
+      .addPermission(any(), eq(PermissionsClient.Permission.of("inventory-storage.instance.item.get")));
+    verify(permissionsClient, times(1))
+      .addPermission(any(), eq(PermissionsClient.Permission.of("inventory-storage.instance.item.post")));
   }
 
   @Test
-  void shouldReturnSystemUserFromRepository() {
-    when(repository.getByTenantId(any()))
-      .thenReturn(Optional.of(new SystemUser()));
+  void getSystemUser_shouldLogInUserWhenNoToken() {
+    when(repository.getByTenantId(any())).thenReturn(Optional.of(new SystemUser()));
+    when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
+      .header(XOkapiHeaders.TOKEN, "token").build());
 
-    var user = systemUserService(null).getSystemUserParameters("tenant");
+    var user = systemUserService(systemUser()).getSystemUser("tenant");
 
-    assertThat(user, notNullValue());
+    assertThat(user.getOkapiToken(), is("token"));
+    verify(authnClient, times(1)).getApiKey(any());
+  }
+
+  @Test
+  void getSystemUser_shouldNotLogInUserWhenTokenExist() {
+    when(repository.getByTenantId(any())).thenReturn(Optional.of(SystemUser.builder()
+      .okapiToken("existing-token").build()));
+
+    var user = systemUserService(null).getSystemUser("tenant");
+
+    assertThat(user.getOkapiToken(), is("existing-token"));
+    verifyNoInteractions(authnClient);
   }
 
   @Test
@@ -141,7 +139,7 @@ class SystemUserServiceTest {
     var systemUserService = systemUserService(null);
 
     assertThrows(IllegalArgumentException.class,
-      () -> systemUserService.getSystemUserParameters("tenant"));
+      () -> systemUserService.getSystemUser("tenant"));
   }
 
   private FolioSystemUserProperties systemUser() {
@@ -172,10 +170,10 @@ class SystemUserServiceTest {
 
   private SystemUserService systemUserService(FolioSystemUserProperties properties) {
     return new SystemUserService(permissionsClient, usersClient, authnClient,
-      repository, properties, executionContext);
+      repository, properties);
   }
 
   private void prepareSystemUser(FolioSystemUserProperties properties) {
-    systemUserService(properties).prepareSystemUser();
+    systemUserService(properties).prepareSystemUser(executionContext);
   }
 }

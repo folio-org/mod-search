@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.Test;
@@ -24,10 +25,13 @@ class TenantServiceTest {
   private FolioExecutionContext context;
   @Mock
   private LanguageConfigService languageConfigService;
+  @Mock
+  private SystemUserService systemUserService;
 
   @Test
   void initializeTenant_positive() {
-    var service = new TenantService(indexService, context, Set.of("eng"), languageConfigService);
+    var service = new TenantService(indexService, context, Set.of("eng"),
+      languageConfigService, systemUserService);
     when(context.getTenantId()).thenReturn(TENANT_NAME);
 
     service.initializeTenant();
@@ -38,7 +42,8 @@ class TenantServiceTest {
 
   @Test
   void initializeTenant_shouldNotCreateLanguageIfAlreadyExist() {
-    var service = new TenantService(indexService, context, Set.of("eng", "fre"), languageConfigService);
+    var service = new TenantService(indexService, context, Set.of("eng", "fre"),
+      languageConfigService, systemUserService);
     when(context.getTenantId()).thenReturn(TENANT_NAME);
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
 

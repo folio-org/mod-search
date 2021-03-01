@@ -22,7 +22,7 @@ class SystemUserServiceIT extends BaseIntegrationTest {
 
   @Test
   void shouldCreateSystemUserDuringTenantInit() throws Exception {
-    var tenantId = "shouldCreateSystemUserDuringTenantInit";
+    var tenantId = "should_create_system_user";
 
     mockMvc.perform(post("/_/tenant")
       .headers(defaultHeaders(tenantId))

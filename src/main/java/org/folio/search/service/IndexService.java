@@ -87,4 +87,11 @@ public class IndexService {
     var elasticsearchDocuments = searchDocumentConverter.convert(convertConfig, resources);
     return indexRepository.indexResources(elasticsearchDocuments);
   }
+
+  public void createIndexIfNotExist(String resourceName, String tenantId) {
+    var index = getElasticsearchIndexName(resourceName, tenantId);
+    if (!indexRepository.indexExists(index)) {
+      createIndex(resourceName, tenantId);
+    }
+  }
 }

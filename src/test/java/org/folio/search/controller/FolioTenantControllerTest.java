@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import liquibase.exception.LiquibaseException;
+import org.folio.search.service.KafkaAdminService;
 import org.folio.search.service.TenantService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
@@ -30,6 +31,7 @@ class FolioTenantControllerTest {
   @Mock private FolioSpringLiquibase liquibase;
   @Mock private FolioExecutionContext context;
   @Mock private TenantService tenantService;
+  @Mock private KafkaAdminService kafkaAdminService;
   @InjectMocks private FolioTenantController tenantController;
 
   @BeforeEach

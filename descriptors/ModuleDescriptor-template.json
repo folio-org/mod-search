@@ -191,6 +191,10 @@
       {
         "name": "DB_MAXPOOLSIZE",
         "value": "5"
+      },
+      {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng"
       }
     ]
   }

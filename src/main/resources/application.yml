@@ -20,7 +20,7 @@ spring:
 
 application:
   search-config:
-    initial-languages: ${INITIAL_MULTILANG_LANGUAGES:eng}
+    initial-languages: ${INITIAL_LANGUAGES:eng}
   kafka:
     listener:
       events:

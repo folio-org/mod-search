@@ -49,7 +49,7 @@ apply new configuration**.
 
 ### Defining initial languages via ENV variable
 
-It is possible to define initial languages for via `INITIAL_MULTILANG_LANGUAGES` env variable.
+It is possible to define initial languages via `INITIAL_LANGUAGES` env variable.
 These languages will be added on tenant init and applied to index. Example usage:
-`INITIAL_MULTILANG_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined than only
+`INITIAL_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined, only
 `eng` code is added.

@@ -3,11 +3,14 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -82,5 +85,24 @@ class IndexServiceTest {
   void indexResources_positive_emptyList() {
     var response = indexService.indexResources(Collections.emptyList());
     assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void createIndexIfNotExist_shouldCreateIndex_indexNotExist() {
+    var indexName = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
+
+    indexService.createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
+
+    verify(indexRepository).createIndex(eq(indexName), any(), any());
+  }
+
+  @Test
+  void createIndexIfNotExist_shouldNotCreateIndex_alreadyExist() {
+    var indexName = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
+    when(indexRepository.indexExists(indexName)).thenReturn(true);
+
+    indexService.createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
+
+    verify(indexRepository, times(0)).createIndex(eq(indexName), any(), any());
   }
 }

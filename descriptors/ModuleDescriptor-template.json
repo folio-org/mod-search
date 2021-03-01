@@ -212,6 +212,10 @@
         "value": "5"
       },
       {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng"
+      },
+      {
         "name": "SYSTEM_USER_PASSWORD",
         "value": "Mod-search-1-0-0"
       }

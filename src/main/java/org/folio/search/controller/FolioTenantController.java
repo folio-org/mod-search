@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.service.KafkaAdminService;
+import org.folio.search.service.TenantService;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.controller.TenantController;
@@ -18,30 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class FolioTenantController extends TenantController {
 
   private final KafkaAdminService kafkaAdminService;
-  private final SystemUserService systemUserService;
-  private final FolioExecutionContext executionContext;
+  private final TenantService tenantService;
 
-  public FolioTenantController(
-    FolioSpringLiquibase folioSpringLiquibase,
-    FolioExecutionContext context,
-    KafkaAdminService kafkaAdminService,
-    SystemUserService systemUserService) {
+  public FolioTenantController(FolioSpringLiquibase folioSpringLiquibase,
+    FolioExecutionContext context, KafkaAdminService kafkaAdminService,
+    TenantService tenantService) {
 
     super(folioSpringLiquibase, context);
     this.kafkaAdminService = kafkaAdminService;
-    this.systemUserService = systemUserService;
-    this.executionContext = context;
+    this.tenantService = tenantService;
   }
 
   @Override
   public ResponseEntity<String> postTenant(TenantAttributes tenantAttributes) {
     kafkaAdminService.createKafkaTopics();
-    var response = super.postTenant(tenantAttributes);
+    var tenantInit = super.postTenant(tenantAttributes);
 
-    if (response.getStatusCode() == HttpStatus.OK) {
-      systemUserService.prepareSystemUser(executionContext);
+    if (tenantInit.getStatusCode() == HttpStatus.OK) {
+      tenantService.initializeTenant();
     }
 
-    return response;
+    return tenantInit;
   }
 }

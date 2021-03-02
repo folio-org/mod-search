@@ -1,17 +1,16 @@
 package org.folio.search.service.setter.instance;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid13DigitNumber;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharUtils;
@@ -31,9 +30,9 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   private static final String TITLE = "(\\d{1,6})";
 
   private static final Pattern ISBN10_REGEX = Pattern.compile(
-    "(?:(\\d{9}[0-9X])|(?:" + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9X])))");
+    "^(?:(\\d{9}[0-9X])|(?:" + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9X])))");
   private static final Pattern ISBN13_REGEX = Pattern.compile(
-    "(978|979)(?:(\\d{10})|(?:" + SEP + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9])))");
+    "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9])))");
 
   private final Set<String> isbnIdentifierTypeIds =
     Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
@@ -52,7 +51,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
     var isbnIdentifiers = new LinkedHashSet<String>();
 
     for (var identifier : getInstanceIdentifiers(eventBody)) {
-      var normalizedValue = normalizeIsbn(identifier.getValue(), IsbnProcessor::tryToNormalizeIsbn);
+      var normalizedValue = normalizeIsbn(identifier.getValue());
       isbnIdentifiers.addAll(normalizedValue);
     }
 
@@ -64,33 +63,23 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
     return isbnIdentifierTypeIds;
   }
 
-  private static List<String> normalizeIsbn(String value, Function<String, List<String>> fallbackFunction) {
-    var isbnValue = value.trim();
+  private static List<String> normalizeIsbn(String value) {
+    String isbnValue = StringUtils.trim(value);
     if (StringUtils.isEmpty(isbnValue)) {
-      return Collections.emptyList();
+      return emptyList();
     }
-    if (isValid13DigitNumber(isbnValue)) {
-      return List.of(normalizeIsbnValue(isbnValue));
-    }
-    if (isValid10DigitNumber(isbnValue)) {
-      return List.of(normalizeIsbnValue(isbnValue), normalizeIsbnValue(convertTo13DigitNumber(isbnValue)));
-    }
-    return fallbackFunction.apply(isbnValue);
-  }
-
-  private static List<String> tryToNormalizeIsbn(String value) {
-    var isbn13Matcher = ISBN13_REGEX.matcher(value);
+    var isbn13Matcher = ISBN13_REGEX.matcher(isbnValue);
     if (isbn13Matcher.find() && isValid13DigitNumber(isbn13Matcher.group(0))) {
       return getNormalizedIsbnValue(isbn13Matcher, singletonList(isbn13Matcher.group(0)));
     }
 
-    var isbn10Matcher = ISBN10_REGEX.matcher(value);
+    var isbn10Matcher = ISBN10_REGEX.matcher(isbnValue);
     if (isbn10Matcher.find() && isValid10DigitNumber(isbn10Matcher.group(0))) {
       var isbn10Value = isbn10Matcher.group(0);
       return getNormalizedIsbnValue(isbn10Matcher, List.of(isbn10Value, convertTo13DigitNumber(isbn10Value)));
     }
 
-    return List.of(replaceCharactersBetweenDigits(value));
+    return List.of(replaceCharactersBetweenDigits(isbnValue));
   }
 
   private static List<String> getNormalizedIsbnValue(Matcher isbnRegexMatcher, List<String> isbnValues) {
@@ -99,7 +88,9 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
       normalizedIsbnTokens.add(normalizeIsbnValue(isbnValue));
     }
     var isbnQualifierValue = isbnRegexMatcher.replaceFirst("").trim();
-    normalizedIsbnTokens.add(isbnQualifierValue);
+    if (StringUtils.isNotBlank(isbnQualifierValue)) {
+      normalizedIsbnTokens.add(isbnQualifierValue);
+    }
     return normalizedIsbnTokens;
   }
 

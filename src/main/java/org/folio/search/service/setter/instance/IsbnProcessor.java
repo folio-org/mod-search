@@ -1,5 +1,6 @@
 package org.folio.search.service.setter.instance;
 
+import static java.util.Collections.singletonList;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid13DigitNumber;
@@ -24,7 +25,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   static final String ISBN_IDENTIFIER_TYPE_ID = "8261054f-be78-422d-bd51-4ed9f33c3422";
   static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = "fcca2643-406a-482a-b760-7a7f8aec640e";
 
-  private static final String SEP = "(?:-|\\s)";
+  private static final String SEP = "(?:[-\\s])";
   private static final String GROUP = "(\\d{1,5})";
   private static final String PUBLISHER = "(\\d{1,7})";
   private static final String TITLE = "(\\d{1,6})";
@@ -79,28 +80,26 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
 
   private static List<String> tryToNormalizeIsbn(String value) {
     var isbn13Matcher = ISBN13_REGEX.matcher(value);
-    String isbnValue;
-    if (isbn13Matcher.find() && isValid13DigitNumber(isbnValue = isbn13Matcher.group(0))) {
-      return getNormalizedIsbnValue(isbn13Matcher, isbnValue);
+    if (isbn13Matcher.find() && isValid13DigitNumber(isbn13Matcher.group(0))) {
+      return getNormalizedIsbnValue(isbn13Matcher, singletonList(isbn13Matcher.group(0)));
     }
 
     var isbn10Matcher = ISBN10_REGEX.matcher(value);
-    if (isbn10Matcher.find() && isValid10DigitNumber(isbnValue = isbn10Matcher.group(0))) {
-      return getNormalizedIsbnValue(isbn10Matcher, isbnValue, convertTo13DigitNumber(isbnValue));
+    if (isbn10Matcher.find() && isValid10DigitNumber(isbn10Matcher.group(0))) {
+      var isbn10Value = isbn10Matcher.group(0);
+      return getNormalizedIsbnValue(isbn10Matcher, List.of(isbn10Value, convertTo13DigitNumber(isbn10Value)));
     }
 
     return List.of(replaceCharactersBetweenDigits(value));
   }
 
-  private static List<String> getNormalizedIsbnValue(Matcher isbnRegexMatcher, String... isbnValues) {
+  private static List<String> getNormalizedIsbnValue(Matcher isbnRegexMatcher, List<String> isbnValues) {
     var normalizedIsbnTokens = new ArrayList<String>();
     for (String isbnValue : isbnValues) {
       normalizedIsbnTokens.add(normalizeIsbnValue(isbnValue));
     }
     var isbnQualifierValue = isbnRegexMatcher.replaceFirst("").trim();
-    if (StringUtils.isNotBlank(isbnQualifierValue)) {
-      normalizedIsbnTokens.add(isbnQualifierValue);
-    }
+    normalizedIsbnTokens.add(isbnQualifierValue);
     return normalizedIsbnTokens;
   }
 

@@ -35,4 +35,12 @@ application:
         group-id: mod-search-events-group
 
 server.port: 8081
-folio.tenant.validation.enabled: true
+folio.tenant.validation:
+  exclude-paths:
+    - /admin/health
+    - /admin/liquibase
+    - /admin/threaddump
+    - /admin/heapdump
+management.endpoints.web:
+  base-path: /admin
+  exposure.include: health,liquibase,threaddump,heapdump

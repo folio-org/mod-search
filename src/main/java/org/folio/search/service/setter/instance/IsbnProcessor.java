@@ -18,6 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
+/**
+ * Identifier field processor, which extracts valid ISBN values from raw string.
+ * <p>
+ * <a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a>
+ */
 @Component
 public class IsbnProcessor extends AbstractIdentifierProcessor {
 
@@ -25,14 +30,23 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = "fcca2643-406a-482a-b760-7a7f8aec640e";
 
   private static final String SEP = "(?:[-\\s])";
-  private static final String GROUP = "(\\d{1,5})";
-  private static final String PUBLISHER = "(\\d{1,7})";
-  private static final String TITLE = "(\\d{1,6})";
+  private static final String GROUP_1 = "(\\d{1,5})";
+  private static final String GROUP_2 = "(\\d{1,7})";
+  private static final String GROUP_3 = "(\\d{1,6})";
 
+  /**
+   * ISBN-10 consists of 4 groups of numbers separated by either dashes (-) or spaces.  The first group is 1-5
+   * characters, second 1-7, third 1-6, and fourth is 1 digit or an X.
+   */
   private static final Pattern ISBN10_REGEX = Pattern.compile(
-    "^(?:(\\d{9}[0-9X])|(?:" + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9X])))");
+    "^(?:(\\d{9}[0-9X])|(?:" + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9X])))");
+
+  /**
+   * ISBN-13 consists of 5 groups of numbers separated by either dashes (-) or spaces.  The first group is 978 or 979,
+   * the second group is 1-5 characters, third 1-7, fourth 1-6, and fifth is 1 digit.
+   */
   private static final Pattern ISBN13_REGEX = Pattern.compile(
-    "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP + SEP + PUBLISHER + SEP + TITLE + SEP + "([0-9])))");
+    "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
 
   private final Set<String> isbnIdentifierTypeIds =
     Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
@@ -64,7 +78,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   }
 
   private static List<String> normalizeIsbn(String value) {
-    String isbnValue = StringUtils.trim(value);
+    String isbnValue = StringUtils.trim(value).replaceAll("\\s+", " ");
     if (StringUtils.isEmpty(isbnValue)) {
       return emptyList();
     }

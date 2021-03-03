@@ -2,6 +2,8 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.service.setter.instance.IssnProcessor.INVALID_ISSN_IDENTIFIER_TYPE_ID;
+import static org.folio.search.service.setter.instance.IssnProcessor.ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -24,8 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IssnProcessorTest {
 
-  private static final String ISSN_TYPE = "913300b2-03ed-469a-8179-c1092c991227";
-
   @InjectMocks private IssnProcessor issnProcessor;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
@@ -42,11 +42,17 @@ class IssnProcessorTest {
       arguments(emptyList(), emptyList()),
       arguments(List.of(issnIdentifier("0317-8471")), List.of("0317-8471")),
       arguments(List.of(issnIdentifier(" 0317-8471 ")), List.of("0317-8471")),
+      arguments(List.of(invalidIssnIdentifier(" 0317-8471 ")), List.of("0317-8471")),
+      arguments(List.of(invalidIssnIdentifier("03178471 ")), List.of("03178471")),
       arguments(List.of(mapOf("identifierTypeId", "isbn", "value", "1234")), emptyList())
     );
   }
 
   private static Map<String, Object> issnIdentifier(String value) {
-    return mapOf("identifierTypeId", ISSN_TYPE, "value", value);
+    return mapOf("identifierTypeId", ISSN_IDENTIFIER_TYPE_ID, "value", value);
+  }
+
+  private static Map<String, Object> invalidIssnIdentifier(String value) {
+    return mapOf("identifierTypeId", INVALID_ISSN_IDENTIFIER_TYPE_ID, "value", value);
   }
 }

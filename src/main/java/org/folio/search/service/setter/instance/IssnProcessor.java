@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class IssnProcessor extends AbstractIdentifierProcessor {
 
-  private static final String ISSN_IDENTIFIER_TYPE_ID = "913300b2-03ed-469a-8179-c1092c991227";
-  private static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = "27fd35a6-b8f6-41f2-aa0e-9c663ceb250c";
+  static final String ISSN_IDENTIFIER_TYPE_ID = "913300b2-03ed-469a-8179-c1092c991227";
+  static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = "27fd35a6-b8f6-41f2-aa0e-9c663ceb250c";
 
   private final Set<String> issnIdentifierTypeIds = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
 
@@ -30,7 +30,6 @@ public class IssnProcessor extends AbstractIdentifierProcessor {
   @Override
   public List<String> getFieldValue(Map<String, Object> eventBody) {
     return getInstanceIdentifiers(eventBody).stream()
-      .filter(identifier -> ISSN_IDENTIFIER_TYPE_ID.equals(identifier.getIdentifierTypeId()))
       .map(InstanceIdentifiers::getValue)
       .filter(Objects::nonNull)
       .map(String::trim)

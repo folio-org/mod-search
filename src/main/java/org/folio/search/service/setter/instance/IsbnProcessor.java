@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Identifier field processor, which extracts valid ISBN values from raw string.
- * <p>
- * <a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a>
+ *
+ * <p><a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a></p>
  */
 @Component
 public class IsbnProcessor extends AbstractIdentifierProcessor {

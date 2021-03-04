@@ -199,10 +199,8 @@
     "isbn": {
       "type": "search",
       "processor": "isbnProcessor",
-      "mappings": {
-        "type": "text",
-        "analyzer": "isbn_analyzer"
-      }
+      "searchTermProcessor": "isbnSearchTermProcessor",
+      "index": "standard"
     },
     "issn": {
       "type": "search",

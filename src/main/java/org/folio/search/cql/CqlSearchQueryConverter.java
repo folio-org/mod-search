@@ -11,6 +11,7 @@ import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class CqlSearchQueryConverter {
   private static final String ASTERISKS_SIGN = "*";
 
   private final SearchFieldProvider searchFieldProvider;
+  private final Map<String, SearchTermProcessor> searchTermProcessors;
 
   /**
    * Parses {@link CqlSearchRequest} object to the elasticsearch.
@@ -108,10 +110,12 @@ public class CqlSearchQueryConverter {
 
   private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
     var fieldName = node.getIndex();
-    var fieldsGroup = searchFieldProvider.getFields(request.getResource(), fieldName);
+    var resource = request.getResource();
+    var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
     var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(request, fieldName) : fieldsGroup;
 
-    var term = node.getTerm();
+    String term = getSearchTerm(node.getTerm(), fieldName, resource);
+
     if (term.contains(ASTERISKS_SIGN)) {
       return prepareElasticsearchQuery(fieldList,
         fields -> prepareQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),
@@ -144,6 +148,16 @@ public class CqlSearchQueryConverter {
       default:
         throw unsupportedException(comparator);
     }
+  }
+
+  private String getSearchTerm(String term, String fieldName, String resource) {
+    return searchFieldProvider.getFieldByPath(resource, fieldName)
+      .filter(fieldDescription -> fieldDescription instanceof PlainFieldDescription)
+      .map(PlainFieldDescription.class::cast)
+      .map(PlainFieldDescription::getSearchTermProcessor)
+      .map(searchTermProcessors::get)
+      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
+      .orElse(term);
   }
 
   private List<String> getFieldsForMultilangField(CqlSearchRequest request, String fieldName) {

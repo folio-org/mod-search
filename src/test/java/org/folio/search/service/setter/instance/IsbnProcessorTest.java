@@ -48,6 +48,8 @@ class IsbnProcessorTest {
       arguments(List.of(invalidIsbnIdentifier("047144250X")), List.of("047144250X", "9780471442509")),
       arguments(List.of(isbnIdentifier("1 86197 271-7")), List.of("1861972717", "9781861972712")),
       arguments(List.of(isbnIdentifier("1-86-197 271-7")), List.of("1861972717")),
+      arguments(List.of(isbnIdentifier("1-86-1*")), List.of("1861*")),
+      arguments(List.of(isbnIdentifier("*86-1*")), List.of("*861*")),
       arguments(List.of(isbnIdentifier("  1-86-197 271-7  ")), List.of("1861972717")),
       arguments(List.of(isbnIdentifier("978-0-471-44250-9")), List.of("9780471442509")),
       arguments(List.of(isbnIdentifier("978 0 471 44250 9")), List.of("9780471442509")),

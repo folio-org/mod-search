@@ -65,8 +65,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
     var isbnIdentifiers = new LinkedHashSet<String>();
 
     for (var identifier : getInstanceIdentifiers(eventBody)) {
-      var normalizedValue = normalizeIsbn(identifier.getValue());
-      isbnIdentifiers.addAll(normalizedValue);
+      isbnIdentifiers.addAll(normalizeIsbn(identifier.getValue()));
     }
 
     return new ArrayList<>(isbnIdentifiers);
@@ -77,7 +76,13 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
     return isbnIdentifierTypeIds;
   }
 
-  private static List<String> normalizeIsbn(String value) {
+  /**
+   * Returns normalized isbn value.
+   *
+   * @param value value to process as {@link String}
+   * @return normalized isbn value
+   */
+  public List<String> normalizeIsbn(String value) {
     String isbnValue = StringUtils.trim(value).replaceAll("\\s+", " ");
     if (StringUtils.isEmpty(isbnValue)) {
       return emptyList();

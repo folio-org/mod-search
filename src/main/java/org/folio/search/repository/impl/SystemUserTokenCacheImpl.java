@@ -2,25 +2,29 @@ package org.folio.search.repository.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.StringUtils;
+import org.folio.search.model.SystemUser;
 import org.folio.search.repository.SystemUserTokenCache;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SystemUserTokenCacheImpl implements SystemUserTokenCache {
-  private static final Map<String, String> TOKENS = new ConcurrentHashMap<>();
+  private static final Map<String, SystemUser> TOKENS = new ConcurrentHashMap<>();
 
   @Override
-  public String getTokenByTenant(String tenantId) {
+  public SystemUser getByTenant(String tenantId) {
     return TOKENS.get(tenantId);
   }
 
   @Override
   public boolean hasTokenForTenant(String tenantId) {
-    return TOKENS.containsKey(tenantId);
+    return StringUtils.isNotBlank(TOKENS.getOrDefault(tenantId,
+      new SystemUser()).getToken());
   }
 
   @Override
-  public void save(String tenantId, String token) {
-    TOKENS.put(tenantId, token);
+  public SystemUser save(String tenantId, SystemUser systemUser) {
+    TOKENS.put(tenantId, new SystemUser(systemUser));
+    return systemUser;
   }
 }

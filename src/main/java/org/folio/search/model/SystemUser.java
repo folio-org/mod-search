@@ -25,4 +25,9 @@ public class SystemUser {
   private String token;
   private String okapiUrl;
   private String tenantId;
+
+  public SystemUser(SystemUser another) {
+    this(another.getId(), another.getUsername(), another.getToken(), another.getOkapiUrl(),
+      another.getTenantId());
+  }
 }

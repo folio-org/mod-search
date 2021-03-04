@@ -118,8 +118,8 @@ class SystemUserServiceTest {
   @Test
   void getSystemUser_shouldLogInUserWhenNoToken() {
     when(repository.findOneByUsername(any())).thenReturn(Optional.of(new SystemUser()));
-    when(repository.save(any())).thenReturn(new SystemUser());
     when(tokenCache.hasTokenForTenant(any())).thenReturn(false);
+    when(tokenCache.getByTenant(any())).thenReturn(new SystemUser().withToken("token"));
     when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
       .header(XOkapiHeaders.TOKEN, "token").build());
 
@@ -133,7 +133,7 @@ class SystemUserServiceTest {
   void getSystemUser_shouldNotLogInUserWhenTokenExist() {
     when(repository.findOneByUsername(any())).thenReturn(Optional.of(new SystemUser()));
     when(tokenCache.hasTokenForTenant(any())).thenReturn(true);
-    when(tokenCache.getTokenByTenant(any())).thenReturn("existing-token");
+    when(tokenCache.getByTenant(any())).thenReturn(new SystemUser().withToken("existing-token"));
 
     var user = systemUserService(systemUser()).getSystemUser("tenant");
 

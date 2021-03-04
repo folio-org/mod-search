@@ -1,10 +1,12 @@
 package org.folio.search.repository;
 
+import org.folio.search.model.SystemUser;
+
 public interface SystemUserTokenCache {
 
-  String getTokenByTenant(String tenantId);
+  SystemUser getByTenant(String tenantId);
 
   boolean hasTokenForTenant(String tenantId);
 
-  void save(String tenantId, String token);
+  SystemUser save(String tenantId, SystemUser systemUser);
 }

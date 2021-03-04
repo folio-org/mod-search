@@ -3,11 +3,12 @@ package org.folio.search.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import lombok.With;
 
 @Data
 @NoArgsConstructor
@@ -19,11 +20,9 @@ public class SystemUser {
   @Id
   private String id;
   private String username;
+  @Transient
+  @With
   private String token;
   private String okapiUrl;
   private String tenantId;
-
-  public boolean hasToken() {
-    return StringUtils.isNotBlank(token);
-  }
 }

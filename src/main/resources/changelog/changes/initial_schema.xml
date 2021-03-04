@@ -17,7 +17,6 @@
         <constraints primaryKey="true" nullable="false"/>
       </column>
       <column name="username" type="varchar(20)"/>
-      <column name="token" type="varchar"/>
       <column name="okapi_url" type="varchar"/>
       <column name="tenant_id" type="varchar(50)"/>
     </createTable>

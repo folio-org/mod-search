@@ -19,6 +19,7 @@ import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
 import org.folio.search.repository.SystemUserRepository;
+import org.folio.search.repository.SystemUserTokenCache;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
@@ -45,6 +46,8 @@ class SystemUserServiceTest {
   private FolioExecutionContextBuilder contextBuilder;
   @Mock
   private SystemUserRepository repository;
+  @Mock
+  private SystemUserTokenCache tokenCache;
 
   @Test
   void shouldCreateSystemUserWhenNotExist() {
@@ -115,6 +118,8 @@ class SystemUserServiceTest {
   @Test
   void getSystemUser_shouldLogInUserWhenNoToken() {
     when(repository.findOneByUsername(any())).thenReturn(Optional.of(new SystemUser()));
+    when(repository.save(any())).thenReturn(new SystemUser());
+    when(tokenCache.hasTokenForTenant(any())).thenReturn(false);
     when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
       .header(XOkapiHeaders.TOKEN, "token").build());
 
@@ -126,8 +131,9 @@ class SystemUserServiceTest {
 
   @Test
   void getSystemUser_shouldNotLogInUserWhenTokenExist() {
-    when(repository.findOneByUsername(any())).thenReturn(Optional.of(SystemUser.builder()
-      .token("existing-token").build()));
+    when(repository.findOneByUsername(any())).thenReturn(Optional.of(new SystemUser()));
+    when(tokenCache.hasTokenForTenant(any())).thenReturn(true);
+    when(tokenCache.getTokenByTenant(any())).thenReturn("existing-token");
 
     var user = systemUserService(systemUser()).getSystemUser("tenant");
 
@@ -173,7 +179,7 @@ class SystemUserServiceTest {
 
   private SystemUserService systemUserService(FolioSystemUserProperties properties) {
     return new SystemUserService(permissionsClient, usersClient, authnClient,
-      repository, contextBuilder, properties);
+      repository, contextBuilder, properties, tokenCache);
   }
 
   private void prepareSystemUser(FolioSystemUserProperties properties) {

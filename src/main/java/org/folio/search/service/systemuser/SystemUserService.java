@@ -23,6 +23,7 @@ import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
 import org.folio.search.repository.SystemUserRepository;
+import org.folio.search.repository.SystemUserTokenCache;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -42,6 +43,7 @@ public class SystemUserService {
   private final SystemUserRepository systemUserRepository;
   private final FolioExecutionContextBuilder contextBuilder;
   private final FolioSystemUserProperties folioSystemUserConf;
+  private final SystemUserTokenCache tokenCache;
 
   public void prepareSystemUser(FolioExecutionContext context) {
     var folioUser = getFolioUser(folioSystemUserConf.getUsername());
@@ -68,21 +70,22 @@ public class SystemUserService {
     var systemUser = findSystemUser(tenantId)
       .orElseThrow(() -> new IllegalStateException("There is no system user configured"));
 
-    if (systemUser.hasToken()) {
-      return systemUser;
+    if (tokenCache.hasTokenForTenant(tenantId)) {
+      return systemUser.withToken(tokenCache.getTokenByTenant(tenantId));
     }
 
     return issueTokenForSystemUser(systemUser);
   }
 
   private SystemUser issueTokenForSystemUser(SystemUser systemUser) {
+    log.info("Attempting to issue token for system user...");
     synchronized (SystemUserService.class) {
       return executeTenantScoped(contextBuilder.forSystemUser(systemUser), () -> {
         var token = loginSystemUser(systemUser);
+        log.info("Token for system user has been issued");
 
-        systemUser.setToken(token);
-        systemUserRepository.save(systemUser);
-        return systemUser;
+        tokenCache.save(systemUser.getTenantId(), token);
+        return systemUserRepository.save(systemUser).withToken(token);
       });
     }
   }

@@ -1,21 +1,15 @@
 package org.folio.search.controller;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import liquibase.exception.LiquibaseException;
 import org.folio.search.service.KafkaAdminService;
-import org.folio.search.service.TenantService;
+import org.folio.search.service.SearchTenantService;
 import org.folio.search.utils.types.UnitTest;
-import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.liquibase.FolioSpringLiquibase;
+import org.folio.spring.service.TenantService;
 import org.folio.tenant.domain.dto.TenantAttributes;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,19 +22,10 @@ class FolioTenantControllerTest {
   private static final TenantAttributes TENANT_ATTRIBUTES = new TenantAttributes()
     .moduleTo("mod-search-1.0.0");
 
-  @Mock private FolioSpringLiquibase liquibase;
-  @Mock private FolioExecutionContext context;
-  @Mock private TenantService tenantService;
+  @Mock private SearchTenantService tenantService;
+  @Mock private TenantService baseTenantService;
   @Mock private KafkaAdminService kafkaAdminService;
   @InjectMocks private FolioTenantController tenantController;
-
-  @BeforeEach
-  void setUpStubs() {
-    when(context.getTenantId()).thenReturn("tenant");
-    when(context.getFolioModuleMetadata()).thenReturn(mock(FolioModuleMetadata.class));
-    when(context.getFolioModuleMetadata().getDBSchemaName(any()))
-      .thenReturn("db_schema");
-  }
 
   @Test
   void postTenant_shouldCallTenantInitialize() {
@@ -51,7 +36,7 @@ class FolioTenantControllerTest {
 
   @Test
   void postTenant_shouldNotCallTenantInitialize_liquibaseError() throws Exception {
-    doThrow(new LiquibaseException()).when(liquibase).performLiquibaseUpdate();
+    doThrow(new LiquibaseException()).when(baseTenantService).createTenant();
 
     tenantController.postTenant(TENANT_ATTRIBUTES);
 

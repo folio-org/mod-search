@@ -19,6 +19,7 @@ import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
 import org.folio.search.repository.SystemUserRepository;
+import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -41,6 +42,8 @@ class SystemUserServiceTest {
   @Mock
   private FolioExecutionContext executionContext;
   @Mock
+  private FolioExecutionContextBuilder contextBuilder;
+  @Mock
   private SystemUserRepository repository;
 
   @Test
@@ -56,7 +59,7 @@ class SystemUserServiceTest {
     verify(repository).save(captor.capture());
 
     assertThat(captor.getValue().getUsername(), is(systemUser().getUsername()));
-    assertThat(captor.getValue().getOkapiToken(), nullValue());
+    assertThat(captor.getValue().getToken(), nullValue());
   }
 
   @Test
@@ -72,7 +75,7 @@ class SystemUserServiceTest {
     verify(repository).save(captor.capture());
 
     assertThat(captor.getValue().getUsername(), is(systemUser().getUsername()));
-    assertThat(captor.getValue().getOkapiToken(), nullValue());
+    assertThat(captor.getValue().getToken(), nullValue());
   }
 
   @Test
@@ -111,34 +114,34 @@ class SystemUserServiceTest {
 
   @Test
   void getSystemUser_shouldLogInUserWhenNoToken() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.of(new SystemUser()));
+    when(repository.findOneByUsername(any())).thenReturn(Optional.of(new SystemUser()));
     when(authnClient.getApiKey(any())).thenReturn(ResponseEntity.status(200)
       .header(XOkapiHeaders.TOKEN, "token").build());
 
     var user = systemUserService(systemUser()).getSystemUser("tenant");
 
-    assertThat(user.getOkapiToken(), is("token"));
+    assertThat(user.getToken(), is("token"));
     verify(authnClient, times(1)).getApiKey(any());
   }
 
   @Test
   void getSystemUser_shouldNotLogInUserWhenTokenExist() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.of(SystemUser.builder()
-      .okapiToken("existing-token").build()));
+    when(repository.findOneByUsername(any())).thenReturn(Optional.of(SystemUser.builder()
+      .token("existing-token").build()));
 
-    var user = systemUserService(null).getSystemUser("tenant");
+    var user = systemUserService(systemUser()).getSystemUser("tenant");
 
-    assertThat(user.getOkapiToken(), is("existing-token"));
+    assertThat(user.getToken(), is("existing-token"));
     verifyNoInteractions(authnClient);
   }
 
   @Test
   void shouldThrowExceptionIfNoUser() {
-    when(repository.getByTenantId(any())).thenReturn(Optional.empty());
+    when(repository.findOneByUsername(any())).thenReturn(Optional.empty());
 
-    var systemUserService = systemUserService(null);
+    var systemUserService = systemUserService(systemUser());
 
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(IllegalStateException.class,
       () -> systemUserService.getSystemUser("tenant"));
   }
 
@@ -170,7 +173,7 @@ class SystemUserServiceTest {
 
   private SystemUserService systemUserService(FolioSystemUserProperties properties) {
     return new SystemUserService(permissionsClient, usersClient, authnClient,
-      repository, properties);
+      repository, contextBuilder, properties);
   }
 
   private void prepareSystemUser(FolioSystemUserProperties properties) {

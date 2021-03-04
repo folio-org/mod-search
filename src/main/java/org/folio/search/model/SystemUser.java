@@ -1,6 +1,8 @@
 package org.folio.search.model;
 
-import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,14 +13,17 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "system_user")
 public class SystemUser {
-  private UUID id;
+  @Id
+  private String id;
   private String username;
-  private String okapiToken;
+  private String token;
   private String okapiUrl;
   private String tenantId;
 
-  public boolean hasNoToken() {
-    return StringUtils.isBlank(okapiToken);
+  public boolean hasToken() {
+    return StringUtils.isNotBlank(token);
   }
 }

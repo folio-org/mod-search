@@ -10,4 +10,16 @@
       </column>
     </createTable>
   </changeSet>
+
+  <changeSet id="02_create_system_user_table" author="bohdan_suprun@epam.com">
+    <createTable tableName="system_user">
+      <column name="id" type="varchar(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="username" type="varchar(20)"/>
+      <column name="token" type="varchar"/>
+      <column name="okapi_url" type="varchar"/>
+      <column name="tenant_id" type="varchar(50)"/>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>

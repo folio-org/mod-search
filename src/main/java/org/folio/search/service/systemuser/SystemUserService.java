@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -22,7 +23,7 @@ import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
 import org.folio.search.repository.SystemUserRepository;
-import org.folio.search.service.context.AnonymousUserFolioExecutionContext;
+import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,38 +40,56 @@ public class SystemUserService {
   private final UsersClient usersClient;
   private final AuthnClient authnClient;
   private final SystemUserRepository systemUserRepository;
+  private final FolioExecutionContextBuilder contextBuilder;
   private final FolioSystemUserProperties folioSystemUserConf;
 
   public void prepareSystemUser(FolioExecutionContext context) {
-    var systemUser = buildDefaultSystemUser(context);
-    var folioUser = getFolioUser(systemUser.getUsername());
+    var folioUser = getFolioUser(folioSystemUserConf.getUsername());
+    var userId = folioUser.map(User::getId)
+      .orElse(UUID.randomUUID().toString());
 
     if (folioUser.isPresent()) {
-      addPermissions(folioUser.get().getId());
+      addPermissions(userId);
     } else {
-      var userId = createFolioUser();
-      saveCredentials(systemUser);
+      createFolioUser(userId);
+      saveCredentials();
       assignPermissions(userId);
     }
 
-    systemUserRepository.save(systemUser);
+    systemUserRepository.save(SystemUser.builder()
+      .id(userId)
+      .username(folioSystemUserConf.getUsername())
+      .tenantId(context.getTenantId())
+      .okapiUrl(context.getOkapiUrl())
+      .build());
   }
 
   public SystemUser getSystemUser(String tenantId) {
-    var systemUser = systemUserRepository.getByTenantId(tenantId)
-      .orElseThrow(() -> new IllegalArgumentException("No system user for tenant " + tenantId));
+    var systemUser = findSystemUser(tenantId)
+      .orElseThrow(() -> new IllegalStateException("There is no system user configured"));
 
-    if (systemUser.hasNoToken()) {
-      synchronized (SystemUserService.class) {
-        if (systemUser.hasNoToken()) {
-          var token = loginSystemUser(systemUser);
-          systemUser.setOkapiToken(token);
-          systemUserRepository.save(systemUser);
-        }
-      }
+    if (systemUser.hasToken()) {
+      return systemUser;
     }
 
-    return systemUser;
+    return issueTokenForSystemUser(systemUser);
+  }
+
+  private SystemUser issueTokenForSystemUser(SystemUser systemUser) {
+    synchronized (SystemUserService.class) {
+      return executeTenantScoped(contextBuilder.forSystemUser(systemUser), () -> {
+        var token = loginSystemUser(systemUser);
+
+        systemUser.setToken(token);
+        systemUserRepository.save(systemUser);
+        return systemUser;
+      });
+    }
+  }
+
+  private Optional<SystemUser> findSystemUser(String tenantId) {
+    return executeTenantScoped(contextBuilder.dbOnlyContext(tenantId),
+      () -> systemUserRepository.findOneByUsername(folioSystemUserConf.getUsername()));
   }
 
   private Optional<UsersClient.User> getFolioUser(String username) {
@@ -78,18 +97,16 @@ public class SystemUserService {
     return users.getUsers().stream().findFirst();
   }
 
-  private String createFolioUser() {
-    final var user = createUserObject();
-    final var id = user.getId();
+  private void createFolioUser(String id) {
+    final var user = createUserObject(id);
     usersClient.saveUser(user);
-    return id;
   }
 
-  private void saveCredentials(SystemUser parameters) {
-    authnClient.saveCredentials(UserCredentials.of(parameters.getUsername(),
+  private void saveCredentials() {
+    authnClient.saveCredentials(UserCredentials.of(folioSystemUserConf.getUsername(),
       folioSystemUserConf.getPassword()));
 
-    log.info("Saved credentials for user: [{}]", parameters.getUsername());
+    log.info("Saved credentials for user: [{}]", folioSystemUserConf.getUsername());
   }
 
   private void assignPermissions(String userId) {
@@ -120,11 +137,10 @@ public class SystemUserService {
       permissionsClient.addPermission(userId, Permission.of(permission)));
   }
 
-  private User createUserObject() {
+  private User createUserObject(String id) {
     final var user = new User();
 
-    user.setId(UUID.randomUUID()
-      .toString());
+    user.setId(id);
     user.setActive(true);
     user.setUsername(folioSystemUserConf.getUsername());
 
@@ -135,31 +151,24 @@ public class SystemUserService {
     return user;
   }
 
-  private String loginSystemUser(SystemUser user) {
+  private String loginSystemUser(SystemUser systemUser) {
+    var response = authnClient.getApiKey(UserCredentials
+      .of(systemUser.getUsername(), folioSystemUserConf.getPassword()));
+
+    return Optional.ofNullable(response.getHeaders().get(XOkapiHeaders.TOKEN))
+      .filter(list -> !CollectionUtils.isEmpty(list))
+      .map(list -> list.get(0))
+      .orElseThrow(() -> new IllegalStateException(String.format("User [%s] cannot log in",
+        systemUser.getUsername())));
+  }
+
+  private <T> T executeTenantScoped(FolioExecutionContext context, Supplier<T> job) {
     try {
-      beginFolioExecutionContext(new AnonymousUserFolioExecutionContext(
-        user.getTenantId(), user.getOkapiUrl()));
-
-      var response = authnClient.getApiKey(UserCredentials
-        .of(user.getUsername(), folioSystemUserConf.getPassword()));
-
-      return Optional.ofNullable(response.getHeaders().get(XOkapiHeaders.TOKEN))
-        .filter(list -> !CollectionUtils.isEmpty(list))
-        .map(list -> list.get(0))
-        .orElseThrow(() -> new IllegalStateException(String.format("User [%s] cannot log in",
-          user.getUsername())));
-
+      beginFolioExecutionContext(context);
+      return job.get();
     } finally {
       endFolioExecutionContext();
     }
-  }
-
-  private SystemUser buildDefaultSystemUser(FolioExecutionContext context) {
-    return SystemUser.builder()
-      .id(UUID.randomUUID())
-      .username(folioSystemUserConf.getUsername())
-      .okapiUrl(context.getOkapiUrl())
-      .tenantId(context.getTenantId()).build();
   }
 
   @SneakyThrows

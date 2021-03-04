@@ -5,16 +5,15 @@ import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.search.service.context.SystemUserFolioExecutionContext;
+import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.FolioModuleMetadata;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class TenantScopedExecutionService {
-  private final FolioModuleMetadata moduleMetadata;
+  private final FolioExecutionContextBuilder contextBuilder;
   private final SystemUserService systemUserService;
 
   /**
@@ -37,8 +36,7 @@ public class TenantScopedExecutionService {
   }
 
   private FolioExecutionContext folioExecutionContext(String tenant) {
-    return new SystemUserFolioExecutionContext(
-      systemUserService.getSystemUser(tenant), moduleMetadata);
+    return contextBuilder.forSystemUser(systemUserService.getSystemUser(tenant));
   }
 
   @FunctionalInterface

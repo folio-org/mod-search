@@ -37,7 +37,7 @@ class SystemUserServiceIT extends BaseIntegrationTest {
 
     var systemUser = systemUserService.getSystemUser(tenantId);
     assertThat(systemUser.getTenantId(), is(tenantId));
-    assertThat(systemUser.getOkapiToken(), is("aa.bb.cc"));
+    assertThat(systemUser.getToken(), is("aa.bb.cc"));
     assertThat(systemUser.getUsername(), is("mod-search"));
   }
 }

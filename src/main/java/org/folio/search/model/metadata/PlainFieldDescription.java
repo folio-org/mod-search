@@ -51,6 +51,11 @@ public class PlainFieldDescription extends FieldDescription {
   private boolean showInResponse;
 
   /**
+   * Search term processor, which pre-processes incoming term for elasticsearch request.
+   */
+  private String searchTermProcessor;
+
+  /**
    * Elasticsearch fields mappings.
    *
    * <p>Resource description processor will take this field without any modification and put it to

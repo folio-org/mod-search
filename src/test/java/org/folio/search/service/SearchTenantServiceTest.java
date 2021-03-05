@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class TenantServiceTest {
+class SearchTenantServiceTest {
   private static final String TENANT_NAME = "tenant";
   @Mock
   private IndexService indexService;
@@ -30,7 +30,7 @@ class TenantServiceTest {
 
   @Test
   void initializeTenant_positive() {
-    var service = new TenantService(indexService, context, Set.of("eng"),
+    var service = new SearchTenantService(indexService, context, Set.of("eng"),
       languageConfigService, systemUserService);
     when(context.getTenantId()).thenReturn(TENANT_NAME);
 
@@ -42,7 +42,7 @@ class TenantServiceTest {
 
   @Test
   void initializeTenant_shouldNotCreateLanguageIfAlreadyExist() {
-    var service = new TenantService(indexService, context, Set.of("eng", "fre"),
+    var service = new SearchTenantService(indexService, context, Set.of("eng", "fre"),
       languageConfigService, systemUserService);
     when(context.getTenantId()).thenReturn(TENANT_NAME);
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));

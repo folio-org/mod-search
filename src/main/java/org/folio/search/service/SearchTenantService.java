@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
-public class TenantService {
+public class SearchTenantService {
   private final IndexService indexService;
   private final FolioExecutionContext context;
   private final Set<String> initialLanguages;
   private final LanguageConfigService languageConfigService;
   private final SystemUserService systemUserService;
 
-  public TenantService(IndexService indexService, FolioExecutionContext context,
+  public SearchTenantService(IndexService indexService, FolioExecutionContext context,
     @Value("${application.search-config.initial-languages}") Set<String> initialLanguages,
     LanguageConfigService languageConfigService, SystemUserService systemUserService) {
 

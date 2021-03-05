@@ -40,4 +40,6 @@ application:
         group-id: mod-search-events-group
 
 server.port: 8081
-folio.tenant.validation.enabled: true
+management.endpoints.web:
+  base-path: /admin
+  exposure.include: info,health,liquibase,threaddump,heapdump

@@ -1,6 +1,7 @@
 package org.folio.search.cql;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -15,12 +16,14 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
+import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -28,13 +31,13 @@ import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -45,9 +48,17 @@ class CqlSearchQueryConverterTest {
   private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
   private static final List<String> SOURCE_FIELDS = List.of("title.*", "source.*");
   private static final String TITLE_SEARCH_TYPE = "title";
+  private static final String FIELD = "field";
 
-  @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
   @Mock private SearchFieldProvider searchFieldProvider;
+  @Mock private IsbnSearchTermProcessor isbnSearchTermProcessor;
+
+  @BeforeEach
+  void setUp() {
+    cqlSearchQueryConverter = new CqlSearchQueryConverter(
+      searchFieldProvider, Map.of("isbnSearchTermProcessor", isbnSearchTermProcessor));
+  }
 
   @DisplayName("should parse CQL query")
   @MethodSource("parseCqlQueryDataProvider")
@@ -133,32 +144,75 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convertCqlQuery_positive_multilangSearchField() {
-    var request = CqlSearchRequest.of(RESOURCE_NAME, "field all value", TENANT_ID, 100, 0, false);
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
-    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " all value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(multilangField()));
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
     var actual = cqlSearchQueryConverter.convert(request);
-    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")).from(0).size(100));
+    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")));
   }
 
   @Test
   void convertCqlQuery_positive_multilangSearchFieldExactMatch() {
-    var request = CqlSearchRequest.of(RESOURCE_NAME, "field == value", TENANT_ID, 100, 0, false);
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
-    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " == value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(multilangField()));
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
     var actual = cqlSearchQueryConverter.convert(request);
-    assertThat(actual).isEqualTo(searchSource().query(termQuery("field.src", "value")).from(0).size(100));
+    assertThat(actual).isEqualTo(searchSource().query(termQuery("field.src", "value")));
   }
 
   @Test
   void convertCqlQuery_positive_plainSearchField() {
-    var request = CqlSearchRequest.of(RESOURCE_NAME, "field all value", TENANT_ID, 100, 0, false);
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "field")).thenReturn(emptyList());
-    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " all value", TENANT_ID, 100, 0, false);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(keywordField()));
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
     var actual = cqlSearchQueryConverter.convert(request);
-    assertThat(actual).isEqualTo(searchSource().query(matchQuery("field", "value")).from(0).size(100));
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "value")));
+  }
+
+  @Test
+  void convertCqlQuery_positive_isbnSearch() {
+    var plainFieldDescription = keywordField();
+    plainFieldDescription.setSearchTermProcessor("isbnSearchTermProcessor");
+
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(plainFieldDescription));
+    when(isbnSearchTermProcessor.getSearchTerm("1 23")).thenReturn("123");
+
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " = 1 23", TENANT_ID, 100, 0, false);
+    var actual = cqlSearchQueryConverter.convert(request);
+
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "123")));
+  }
+
+  @Test
+  void convertCqlQuery_negative_searchTermProcessorNotFound() {
+    var plainFieldDescription = keywordField();
+    plainFieldDescription.setSearchTermProcessor("termProcessor");
+
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(plainFieldDescription));
+
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " = 1 23", TENANT_ID, 100, 0, false);
+    var actual = cqlSearchQueryConverter.convert(request);
+
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "1 23")));
+  }
+
+  @Test
+  void convertCqlQuery_negative_objectField() {
+    var request = CqlSearchRequest.of(RESOURCE_NAME, FIELD + " = 1 23", TENANT_ID, 100, 0, false);
+
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(SOURCE_FIELDS);
+    when(searchFieldProvider.getFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(objectField(emptyMap())));
+
+    var actual = cqlSearchQueryConverter.convert(request);
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "1 23")));
   }
 
   private static Stream<Arguments> parseCqlQueryDataProvider() {
@@ -221,7 +275,9 @@ class CqlSearchQueryConverterTest {
 
   private static SearchSourceBuilder searchSource() {
     return SearchSourceBuilder.searchSource().trackTotalHits(true)
-      .fetchSource(SOURCE_FIELDS.toArray(String[]::new), null);
+      .fetchSource(SOURCE_FIELDS.toArray(String[]::new), null)
+      .from(0)
+      .size(100);
   }
 
   private static SearchSourceBuilder searchSourceSort() {

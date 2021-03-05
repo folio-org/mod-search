@@ -26,6 +26,12 @@
       "type": "keyword"
     }
   },
+  "standard": {
+    "mapping": {
+      "type": "text",
+      "analyzer": "source_analyzer"
+    }
+  },
   "multilang": {
     "mapping": {
       "properties": {

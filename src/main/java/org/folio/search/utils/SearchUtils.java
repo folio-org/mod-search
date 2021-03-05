@@ -74,4 +74,14 @@ public class SearchUtils {
   public static String updatePathForMultilangField(String path) {
     return path + ".*";
   }
+
+  /**
+   * Removes hyphens from given string.
+   *
+   * @param value value to process
+   * @return string without hyphen symbols
+   */
+  public static String removeHyphens(String value) {
+    return value != null ? value.replace("-", "") : null;
+  }
 }

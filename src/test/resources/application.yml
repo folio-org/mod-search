@@ -23,6 +23,11 @@ folio.tenant.validation.enabled: true
 application:
   search-config:
     initial-languages: eng,fre,ita,spa
+  system-user:
+    username: mod-search
+    password: Mod-search-1-0-0
+    lastname: System
+    permissionsFilePath: classpath:permissions/test-permissions.csv
   kafka:
     listener:
       instances:

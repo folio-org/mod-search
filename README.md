@@ -53,3 +53,9 @@ It is possible to define initial languages via `INITIAL_LANGUAGES` env variable.
 These languages will be added on tenant init and applied to index. Example usage:
 `INITIAL_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined, only
 `eng` code is added.
+
+## Deploying
+
+The module uses system user to communicate with other modules from Kafka consumers.
+For production deployments you MUST specify the password for this system user via env variable:
+`SYSTEM_USER_PASSWORD=<password>`.

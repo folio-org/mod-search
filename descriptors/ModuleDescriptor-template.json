@@ -76,7 +76,14 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant",
+          "modulePermissions": [
+            "users.collection.get",
+            "users.item.post",
+            "login.item.post",
+            "perms.users.item.post",
+            "perms.users.get"
+          ]
         }
       ]
     }
@@ -85,6 +92,18 @@
     {
       "id": "instance-storage",
       "version": "7.5"
+    },
+    {
+      "id": "login",
+      "version": "7.0"
+    },
+    {
+      "id": "permissions",
+      "version": "5.3"
+    },
+    {
+      "id": "users",
+      "version": "15.3"
     }
   ],
   "permissionSets": [
@@ -195,6 +214,10 @@
       {
         "name": "INITIAL_LANGUAGES",
         "value": "eng"
+      },
+      {
+        "name": "SYSTEM_USER_PASSWORD",
+        "value": "Mod-search-1-0-0"
       }
     ]
   }

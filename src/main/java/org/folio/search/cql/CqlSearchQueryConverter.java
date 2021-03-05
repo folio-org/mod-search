@@ -114,8 +114,7 @@ public class CqlSearchQueryConverter {
     var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
     var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(request, fieldName) : fieldsGroup;
 
-    String term = getSearchTerm(node.getTerm(), fieldName, resource);
-
+    var term = getSearchTerm(node.getTerm(), fieldName, resource);
     if (term.contains(ASTERISKS_SIGN)) {
       return prepareElasticsearchQuery(fieldList,
         fields -> prepareQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),

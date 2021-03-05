@@ -67,32 +67,28 @@ public class SystemUserService {
   }
 
   public SystemUser getSystemUser(String tenantId) {
-    var systemUser = findSystemUser(tenantId)
-      .orElseThrow(() -> new IllegalStateException("There is no system user configured"));
-
     if (tokenCache.hasTokenForTenant(tenantId)) {
       return tokenCache.getByTenant(tenantId);
     }
 
-    return issueTokenForSystemUser(systemUser);
+    return issueTokenForSystemUser(tenantId);
   }
 
-  private SystemUser issueTokenForSystemUser(SystemUser systemUser) {
+  private synchronized SystemUser issueTokenForSystemUser(String tenantId) {
     log.info("Attempting to issue token for system user...");
-    synchronized (SystemUserService.class) {
-      return executeTenantScoped(contextBuilder.forSystemUser(systemUser), () -> {
-        if (!tokenCache.hasTokenForTenant(systemUser.getTenantId())) {
-          var token = loginSystemUser(systemUser);
-          log.info("Token for system user has been issued");
-
-          tokenCache.save(systemUser.getTenantId(), systemUser.withToken(token));
-        } else if (log.isInfoEnabled()) {
-          log.info("Token is already issued");
-        }
-
-        return tokenCache.getByTenant(systemUser.getTenantId());
-      });
+    if (tokenCache.hasTokenForTenant(tenantId)) {
+      log.info("Token is already issued");
+      return tokenCache.getByTenant(tenantId);
     }
+
+    var systemUser = findSystemUser(tenantId)
+      .orElseThrow(() -> new IllegalStateException("There is no system user configured"));
+
+    return executeTenantScoped(contextBuilder.forSystemUser(systemUser), () -> {
+      var token = loginSystemUser(systemUser);
+      log.info("Token for system user has been issued");
+      return tokenCache.save(systemUser.getTenantId(), systemUser.withToken(token));
+    });
   }
 
   private Optional<SystemUser> findSystemUser(String tenantId) {

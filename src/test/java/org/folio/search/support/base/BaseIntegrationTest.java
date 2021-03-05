@@ -122,6 +122,8 @@ public abstract class BaseIntegrationTest {
     final GenericContainer<?> esContainer = new GenericContainer<>(
       new ImageFromDockerfile(ES_IMAGE_NAME, false).withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
+      .withEnv("xpack.security.enabled", "true")
+      .withEnv("ELASTIC_PASSWORD", "s3cret")
       .withExposedPorts(9200)
       // Reuse container between tests and control their lifecycle manually
       .withReuse(true);

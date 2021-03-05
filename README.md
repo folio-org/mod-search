@@ -53,3 +53,13 @@ It is possible to define initial languages via `INITIAL_LANGUAGES` env variable.
 These languages will be added on tenant init and applied to index. Example usage:
 `INITIAL_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined, only
 `eng` code is added.
+
+## Configuring connection to elasticsearch
+
+In order to configure connection to elasticsearch you have to provide following env variables:
+* `ELASTICSEARCH_HOST` - host name of the elasticsearch master node (e.g. elasticsearch);
+* `ELASTICSEARCH_PORT` - REST port of the elasticsearch master node (9200 by default);
+* `ELASTICSEARCH_USERNAME` - username of the user to connect to elasticsearch;
+* `ELASTICSEARCH_PASSWORD` - password for the user (see
+  [official guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-security.html)
+  for more details about ES security).

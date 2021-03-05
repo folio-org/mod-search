@@ -7,7 +7,7 @@
     "mapping.total_fields.limit": 250
   },
   "analysis": {
-    "char_filter": {},
+    "char_filter": { },
     "normalizer": {
       "keyword_lowercase": {
         "filter": [ "lowercase" ],

@@ -184,6 +184,14 @@
         "value": "9200"
       },
       {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret"
+      },
+      {
         "name": "DB_HOST",
         "value": "postgres"
       },

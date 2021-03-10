@@ -59,3 +59,13 @@ These languages will be added on tenant init and applied to index. Example usage
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
 `SYSTEM_USER_PASSWORD=<password>`.
+
+### Configuring connection to elasticsearch
+
+In order to configure connection to elasticsearch you have to provide following env variables:
+* `ELASTICSEARCH_HOST` - host name of the elasticsearch master node (e.g. elasticsearch);
+* `ELASTICSEARCH_PORT` - REST port of the elasticsearch master node (9200 by default);
+* `ELASTICSEARCH_USERNAME` - username of the user to connect to elasticsearch;
+* `ELASTICSEARCH_PASSWORD` - password for the user (see
+  [official guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-security.html)
+  for more details about ES security).

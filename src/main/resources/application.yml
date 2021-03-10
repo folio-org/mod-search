@@ -8,6 +8,8 @@ spring:
       accept-single-value-as-array: true
   elasticsearch:
     rest:
+      username: ${ELASTICSEARCH_USERNAME:}
+      password: ${ELASTICSEARCH_PASSWORD:}
       uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}

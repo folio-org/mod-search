@@ -43,6 +43,7 @@ public class ResourceFetchService {
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
       var instanceResultList = inventoryClient.getInstances(exactMatchAny("id", instanceIds));
       return instanceResultList.getResult().stream()
+        .map(InventoryViewClient.InstanceView::toInstance)
         .map(instance -> jsonConverter.convert(instance, new TypeReference<Map<String, Object>>() {}))
         .map(instanceMap -> new ResourceEventBody()._new(instanceMap).tenant(tenantId)
           .resourceName(INSTANCE_RESOURCE).type(TypeEnum.CREATE))

@@ -41,11 +41,11 @@ class ResourceFetchServiceTest {
   @Test
   void fetchInstancesByIdPositive() {
     var events = resourceIdEvents();
-    var instance1 = new Instance().id(events.get(0).getId()).title("instance1");
-    var instance2 = new Instance().id(events.get(1).getId()).title("instance2");
+    var instance1 = instanceView(new Instance().id(events.get(0).getId()).title("instance1"));
+    var instance2 = instanceView(new Instance().id(events.get(1).getId()).title("instance2"));
 
     when(inventoryClient.getInstances(exactMatchAny("id",
-      List.of(instance1.getId(), instance2.getId())))).thenReturn(
+      List.of(instance1.getInstance().getId(), instance2.getInstance().getId())))).thenReturn(
       asSinglePage(List.of(instance1, instance2)));
     when(executionService.executeTenantScoped(any(), any()))
       .thenAnswer(invocationOnMock -> {
@@ -56,11 +56,11 @@ class ResourceFetchServiceTest {
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
-      eventBody(INSTANCE_RESOURCE, mapOf("id", instance1.getId(), "title", "instance1")),
-      eventBody(INSTANCE_RESOURCE, mapOf("id", instance2.getId(), "title", "instance2"))));
+      eventBody(INSTANCE_RESOURCE, mapOf("id", instance1.getInstance().getId(), "title", "instance1")),
+      eventBody(INSTANCE_RESOURCE, mapOf("id", instance2.getInstance().getId(), "title", "instance2"))));
 
-    verify(jsonConverter).convert(eq(instance1), any());
-    verify(jsonConverter).convert(eq(instance2), any());
+    verify(jsonConverter).convert(eq(instance1.toInstance()), any());
+    verify(jsonConverter).convert(eq(instance2.toInstance()), any());
   }
 
   private static List<ResourceIdEvent> resourceIdEvents() {
@@ -68,5 +68,9 @@ class ResourceFetchServiceTest {
       ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID),
       ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID),
       ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
+  }
+
+  private static InventoryViewClient.InstanceView instanceView(Instance instance) {
+    return new InventoryViewClient.InstanceView(instance, null, null);
   }
 }

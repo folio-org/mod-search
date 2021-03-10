@@ -18,6 +18,7 @@ import java.util.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.inventory.InventoryClient;
 import org.folio.search.model.service.ResourceIdEvent;
+import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ class ResourceFetchServiceTest {
   @InjectMocks private ResourceFetchService resourceFetchService;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @Mock private InventoryClient inventoryClient;
+  @Mock private TenantScopedExecutionService executionService;
 
   @Test
   void fetchInstancesByIdPositive() {
@@ -43,6 +45,11 @@ class ResourceFetchServiceTest {
 
     when(inventoryClient.getInstances(List.of(instance1.getId(), instance2.getId()))).thenReturn(
       asSinglePage(List.of(instance1, instance2)));
+    when(executionService.executeTenantScoped(any(), any()))
+      .thenAnswer(invocationOnMock -> {
+        var job = (TenantScopedExecutionService.ThrowableSupplier<?>) invocationOnMock.getArgument(1);
+        return job.get();
+      });
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
 

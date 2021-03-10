@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.SearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
@@ -41,6 +42,7 @@ class IndexServiceTest {
   @Mock private SearchSettingsHelper settingsHelper;
   @Mock private SearchDocumentConverter searchDocumentConverter;
   @Mock private LanguageConfigService languageConfigService;
+  @Mock private InstanceStorageClient instanceStorageClient;
   @InjectMocks private IndexService indexService;
 
   @Test
@@ -104,5 +106,12 @@ class IndexServiceTest {
     indexService.createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
 
     verify(indexRepository, times(0)).createIndex(eq(indexName), any(), any());
+  }
+
+  @Test
+  void reindexInventory_positive() {
+    indexService.reindexInventory();
+
+    verify(instanceStorageClient).submitReindex();
   }
 }

@@ -103,6 +103,20 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /index/inventory/reindex:
+    post:
+      operationId: reindexInventoryRecords
+      description: Initiates reindex for the inventory records
+      responses:
+        '200':
+          description: Reindex operation has been started
+          content:
+            application/json:
+              schema:
+                $ref: schemas/reindexJob.json
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /config/languages:
     post:
       operationId: createLanguageConfig

@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.IndexRequestBody;
+import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
@@ -40,5 +41,11 @@ public class IndexController implements IndexApi {
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEventBody> events) {
     log.info("Saving records into elasticsearch [amount of records: {}]", events.size());
     return ResponseEntity.ok(indexService.indexResources(events));
+  }
+
+  @Override
+  public ResponseEntity<ReindexJob> reindexInventoryRecords() {
+    log.info("Attempting to start reindex for inventory");
+    return ResponseEntity.ok(indexService.reindexInventory());
   }
 }

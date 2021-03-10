@@ -5,7 +5,7 @@
   "properties": {
     "type": {
       "description": "Operation type [update, create, delete]",
-      "enum": ["UPDATE", "CREATE", "DELETE"],
+      "enum": ["UPDATE", "CREATE", "DELETE", "REINDEX", "DELETE_ALL"],
       "type": "string"
     },
     "tenant": {

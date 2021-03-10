@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
@@ -31,6 +33,7 @@ public class IndexService {
   private final SearchSettingsHelper settingsHelper;
   private final SearchDocumentConverter searchDocumentConverter;
   private final LanguageConfigService languageConfigService;
+  private final InstanceStorageClient instanceStorageClient;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -92,6 +95,12 @@ public class IndexService {
     var index = getElasticsearchIndexName(resourceName, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceName, tenantId);
+    } else if (log.isInfoEnabled()) {
+      log.info("Index already exists [index={}]", index);
     }
+  }
+
+  public ReindexJob reindexInventory() {
+    return instanceStorageClient.submitReindex();
   }
 }

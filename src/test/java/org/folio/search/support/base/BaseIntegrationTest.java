@@ -1,5 +1,6 @@
 package org.folio.search.support.base;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
@@ -31,6 +32,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
@@ -55,7 +57,9 @@ import org.testcontainers.utility.DockerImageName;
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
 
-  protected static final WireMockServer WIRE_MOCK = new WireMockServer(findAvailableTcpPort());
+  protected static final WireMockServer WIRE_MOCK = new WireMockServer(wireMockConfig()
+    .port(findAvailableTcpPort())
+    .extensions(new InventoryViewResponseBuilder()));
   private static final DockerImageName KAFKA_IMAGE = parse("confluentinc/cp-kafka:5.5.3");
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");

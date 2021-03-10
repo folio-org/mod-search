@@ -3,6 +3,7 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,7 +13,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
-import org.folio.search.integration.inventory.InventoryClient;
+import org.folio.search.integration.inventory.InventoryViewClient;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.utils.JsonConverter;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResourceFetchService {
 
-  private final InventoryClient inventoryClient;
+  private final InventoryViewClient inventoryClient;
   private final JsonConverter jsonConverter;
   private final TenantScopedExecutionService tenantScopedExecutionService;
 
@@ -40,7 +41,7 @@ public class ResourceFetchService {
 
   private List<ResourceEventBody> fetchInstances(String tenantId, List<String> instanceIds) {
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      var instanceResultList = inventoryClient.getInstances(instanceIds);
+      var instanceResultList = inventoryClient.getInstances(exactMatchAny("id", instanceIds));
       return instanceResultList.getResult().stream()
         .map(instance -> jsonConverter.convert(instance, new TypeReference<Map<String, Object>>() {}))
         .map(instanceMap -> new ResourceEventBody()._new(instanceMap).tenant(tenantId)

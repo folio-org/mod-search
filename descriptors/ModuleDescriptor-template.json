@@ -104,6 +104,10 @@
     {
       "id": "users",
       "version": "15.3"
+    },
+    {
+      "id": "inventory-view",
+      "version": "1.1"
     }
   ],
   "permissionSets": [

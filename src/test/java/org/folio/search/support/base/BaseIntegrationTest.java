@@ -1,5 +1,6 @@
 package org.folio.search.support.base;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
@@ -7,10 +8,8 @@ import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
-import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -31,6 +30,8 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.support.api.InventoryApi;
+import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
@@ -55,7 +56,12 @@ import org.testcontainers.utility.DockerImageName;
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
 
-  protected static final WireMockServer WIRE_MOCK = new WireMockServer(findAvailableTcpPort());
+  protected static final WireMockServer WIRE_MOCK = new WireMockServer(wireMockConfig()
+    .port(findAvailableTcpPort())
+    .extensions(new InventoryViewResponseBuilder()));
+
+  protected static InventoryApi inventoryApi;
+
   private static final DockerImageName KAFKA_IMAGE = parse("confluentinc/cp-kafka:5.5.3");
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");
@@ -77,9 +83,11 @@ public abstract class BaseIntegrationTest {
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
+    inventoryApi = new InventoryApi(kafkaTemplate);
+
     WIRE_MOCK.start();
 
-    setUpTenant(TENANT_ID, mockMvc, kafkaTemplate, getSemanticWeb());
+    setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
   }
 
   @AfterAll
@@ -132,6 +140,8 @@ public abstract class BaseIntegrationTest {
     final GenericContainer<?> esContainer = new GenericContainer<>(
       new ImageFromDockerfile(ES_IMAGE_NAME, false).withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
+      .withEnv("xpack.security.enabled", "true")
+      .withEnv("ELASTIC_PASSWORD", "s3cret")
       .withExposedPorts(9200)
       // Reuse container between tests and control their lifecycle manually
       .withReuse(true);
@@ -182,9 +192,7 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static void setUpTenant(String tenantName, MockMvc mockMvc,
-    KafkaTemplate<String, Object> kafkaTemplate, Instance ... instances) {
-
+  protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance ... instances) {
     mockMvc.perform(post("/_/tenant")
       .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
       .headers(defaultHeaders(tenantName))
@@ -192,8 +200,7 @@ public abstract class BaseIntegrationTest {
       .andExpect(status().isOk());
 
     for (Instance instance : instances) {
-      kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, instance.getId(),
-        eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
+      inventoryApi.createInstance(tenantName, instance);
     }
 
     if (instances.length > 0) {

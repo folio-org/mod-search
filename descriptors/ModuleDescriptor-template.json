@@ -118,6 +118,10 @@
       "version": "15.3"
     },
     {
+      "id": "inventory-view",
+      "version": "1.0"
+    },
+    {
       "id": "instance-reindex",
       "version": "0.1"
     }
@@ -199,6 +203,14 @@
       {
         "name": "ELASTICSEARCH_PORT",
         "value": "9200"
+      },
+      {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret"
       },
       {
         "name": "DB_HOST",

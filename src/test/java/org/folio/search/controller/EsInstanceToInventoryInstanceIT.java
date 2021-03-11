@@ -3,15 +3,18 @@ package org.folio.search.controller;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
@@ -45,6 +48,12 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
       .andReturn().getResponse().getContentAsString();
 
     final var actual = JsonPath.parse(actualJson).read("instances[0]", Instance.class);
-    assertThat(actual, is(expected));
+    assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
+      .map(Matchers::is).collect(Collectors.toList())));
+    assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
+      .map(Matchers::is).collect(Collectors.toList())));
+
+    assertThat(actual.holdings(null).items(null),
+      is(expected.items(null).holdings(null)));
   }
 }

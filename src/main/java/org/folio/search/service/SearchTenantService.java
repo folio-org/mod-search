@@ -43,7 +43,6 @@ public class SearchTenantService {
       .forEach(languageConfigService::create);
 
     for (SearchResource resource : SearchResource.values()) {
-      log.info("Crating index for resource [resource={}]", resource.getName());
       indexService.createIndexIfNotExist(resource.getName(), context.getTenantId());
     }
   }

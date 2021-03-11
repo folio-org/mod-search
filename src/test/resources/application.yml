@@ -6,6 +6,10 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
+  elasticsearch:
+    rest:
+      username: elastic
+      password: s3cret
   datasource:
     url: jdbc:h2:mem:test_tenant_mod_search
     driverClassName: org.h2.Driver
@@ -30,10 +34,6 @@ application:
     permissionsFilePath: classpath:permissions/test-permissions.csv
   kafka:
     listener:
-      instances:
-        concurrency: 1
-        topics: inventory.instance
-        group-id: mod-search-instances-group
       events:
         concurrency: 1
         topics: inventory.instance,inventory.item,inventory.holdings-record

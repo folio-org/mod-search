@@ -8,6 +8,8 @@ spring:
       accept-single-value-as-array: true
   elasticsearch:
     rest:
+      username: ${ELASTICSEARCH_USERNAME:}
+      password: ${ELASTICSEARCH_PASSWORD:}
       uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
@@ -30,10 +32,6 @@ application:
     permissionsFilePath: classpath:permissions/mod-search.csv
   kafka:
     listener:
-      instances:
-        concurrency: 1
-        topics: inventory.instance
-        group-id: mod-search-instances-group
       events:
         concurrency: 1
         topics: inventory.instance,inventory.item,inventory.holdings-record

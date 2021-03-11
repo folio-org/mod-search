@@ -6,9 +6,7 @@ import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
-import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
@@ -33,12 +31,9 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 
 @IntegrationTest
 class ConfigControllerIT extends BaseIntegrationTest {
-  @Autowired
-  private KafkaTemplate<String, Object> kafkaTemplate;
   @Autowired
   private RestHighLevelClient elasticsearchClient;
 
@@ -94,8 +89,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
       .languages(List.of("eng", "rus", "fre"))
       .title("This is title");
 
-    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, newInstance.getId(),
-      eventBody(INSTANCE_RESOURCE, newInstance));
+    inventoryApi.createInstance(TENANT_ID, newInstance);
 
     final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 

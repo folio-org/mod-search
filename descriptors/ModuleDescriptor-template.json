@@ -164,8 +164,8 @@
     },
     {
       "permissionName": "search.index.inventory.reindex.post",
-      "displayName": "Search - starts a reindex operation",
-      "description": "Starts a reindex operation"
+      "displayName": "Search - starts inventory reindex operation",
+      "description": "Starts inventory reindex operation"
     }
   ],
   "launchDescriptor": {

@@ -1,0 +1,17 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/inventory-view/instances"
+      },
+      "response": {
+        "status": 200,
+        "transformers": ["inventory-view-transformer"],
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

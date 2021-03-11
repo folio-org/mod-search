@@ -107,7 +107,7 @@
     },
     {
       "id": "inventory-view",
-      "version": "1.1"
+      "version": "1.0"
     }
   ],
   "permissionSets": [
@@ -182,6 +182,14 @@
       {
         "name": "ELASTICSEARCH_PORT",
         "value": "9200"
+      },
+      {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret"
       },
       {
         "name": "DB_HOST",

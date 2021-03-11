@@ -66,7 +66,7 @@ class KafkaMessageListenerTest {
 
   @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX"})
   @ParameterizedTest
-  void handleEvents_onlyOfKnownTypes(String eventType) {
+  void handleEventsOnlyOfKnownTypes(String eventType) {
     var resourceBody = new ResourceEventBody()
       .type(ResourceEventBody.TypeEnum.fromValue(eventType))
       .tenant(TENANT_ID)
@@ -80,7 +80,7 @@ class KafkaMessageListenerTest {
   }
 
   @Test
-  void handleEvents_instanceIdIsPartitionKeyForReindex() {
+  void handleEventsInstanceIdIsPartitionKeyForReindex() {
     var instanceId = UUID.randomUUID().toString();
     var resourceBody = new ResourceEventBody()
       .type(ResourceEventBody.TypeEnum.REINDEX)

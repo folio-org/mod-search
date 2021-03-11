@@ -32,6 +32,11 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
       .map(id -> getInventoryView(tenant, id))
       .filter(Optional::isPresent)
       .map(Optional::get)
+      .map(instance -> Map.of(
+        "instance", instance,
+        "holdingsRecords", instance.getHoldings(),
+        "items", instance.getItems()))
+      .limit(Integer.parseInt(request.queryParameter("limit").firstValue()))
       .collect(Collectors.toList());
 
     return like(response)

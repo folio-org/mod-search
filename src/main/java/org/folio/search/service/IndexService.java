@@ -95,8 +95,6 @@ public class IndexService {
     var index = getElasticsearchIndexName(resourceName, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceName, tenantId);
-    } else if (log.isInfoEnabled()) {
-      log.info("Index already exists [index={}]", index);
     }
   }
 

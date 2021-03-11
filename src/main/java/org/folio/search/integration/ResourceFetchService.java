@@ -41,7 +41,9 @@ public class ResourceFetchService {
 
   private List<ResourceEventBody> fetchInstances(String tenantId, List<String> instanceIds) {
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      var instanceResultList = inventoryClient.getInstances(exactMatchAny("id", instanceIds));
+      var instanceResultList = inventoryClient.getInstances(
+        exactMatchAny("id", instanceIds), instanceIds.size());
+
       return instanceResultList.getResult().stream()
         .map(InventoryViewClient.InstanceView::toInstance)
         .map(instance -> jsonConverter.convert(instance, new TypeReference<Map<String, Object>>() {}))

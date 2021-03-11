@@ -45,7 +45,7 @@ class ResourceFetchServiceTest {
     var instance2 = instanceView(new Instance().id(events.get(1).getId()).title("instance2"));
 
     when(inventoryClient.getInstances(exactMatchAny("id",
-      List.of(instance1.getInstance().getId(), instance2.getInstance().getId())))).thenReturn(
+      List.of(instance1.getInstance().getId(), instance2.getInstance().getId())), 2)).thenReturn(
       asSinglePage(List.of(instance1, instance2)));
     when(executionService.executeTenantScoped(any(), any()))
       .thenAnswer(invocationOnMock -> {

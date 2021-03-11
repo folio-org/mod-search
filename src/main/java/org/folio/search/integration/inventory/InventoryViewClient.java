@@ -25,8 +25,8 @@ public interface InventoryViewClient {
    * @param cql - CQL query
    * @return {@link ResultList} with Instance objects inside.
    */
-  @GetMapping(path = "/instances?limit=100000", consumes = APPLICATION_OCTET_STREAM_VALUE)
-  ResultList<InstanceView> getInstances(@RequestParam("query") CqlQuery cql);
+  @GetMapping(path = "/instances", consumes = APPLICATION_OCTET_STREAM_VALUE)
+  ResultList<InstanceView> getInstances(@RequestParam("query") CqlQuery cql, @RequestParam("limit") int limit);
 
   @Data
   @AllArgsConstructor

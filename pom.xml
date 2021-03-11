@@ -43,7 +43,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
     <lombok.version>1.18.16</lombok.version>
-    <testcontainer.version>1.15.1</testcontainer.version>
+    <testcontainer.version>1.15.2</testcontainer.version>
     <wiremock.version>2.27.2</wiremock.version>
   </properties>
 
@@ -417,14 +417,19 @@
           <release>11</release>
           <annotationProcessorPaths>
             <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${mapstruct.version}</version>
-            </path>
-            <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
               <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok-mapstruct-binding</artifactId>
+              <version>0.2.0</version>
+            </path>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>

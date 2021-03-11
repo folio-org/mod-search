@@ -10,6 +10,7 @@
       "index": "keyword"
     },
     "source": {
+      "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
     "title": {
@@ -67,12 +68,15 @@
       "index": "multilang"
     },
     "instanceTypeId": {
+      "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
     "instanceFormatId": {
+      "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
     "languages": {
+      "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
     "metadata": {
@@ -80,8 +84,7 @@
       "type": "object",
       "properties": {
         "createdDate": {
-          "index": "date",
-          "fieldType": "date"
+          "index": "date"
         },
         "createdByUserId": {
           "index": "keyword"
@@ -100,6 +103,14 @@
         }
       }
     },
+    "modeOfIssuanceId": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
+    "natureOfContentTermIds": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
     "publication": {
       "type": "object",
       "properties": {
@@ -114,10 +125,19 @@
         }
       }
     },
+    "staffSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool"
+    },
+    "discoverySuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool"
+    },
     "tags": {
       "type": "object",
       "properties": {
         "tagList": {
+          "searchTypes": [ "facet", "filter" ],
           "index": "multilang"
         }
       }
@@ -206,6 +226,12 @@
       "type": "search",
       "index": "keyword",
       "processor": "issnProcessor"
+    },
+    "instanceTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "instanceTagsProcessor"
     }
   },
   "indexMappings": {

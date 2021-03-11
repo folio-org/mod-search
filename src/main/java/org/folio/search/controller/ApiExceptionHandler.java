@@ -26,6 +26,7 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.types.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -107,6 +108,31 @@ public class ApiExceptionHandler {
     return buildResponseEntity(errorResponse, BAD_REQUEST);
   }
 
+  /**
+   * Catches and handles all exceptions of type {@link BindException}.
+   *
+   * @param exception {@link BindException} to process
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
+   */
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> handleSpringBindException(BindException exception) {
+    logException(DEBUG, exception);
+    var errorResponse = new ErrorResponse();
+    exception.getFieldErrors().forEach(fieldError ->
+      errorResponse.addErrorsItem(new Error()
+        .message(String.format("%s value %s", fieldError.getField(), fieldError.getDefaultMessage()))
+        .code(ErrorCode.VALIDATION_ERROR.getValue())
+        .type(BindException.class.getSimpleName())));
+    errorResponse.totalRecords(errorResponse.getErrors().size());
+    return buildResponseEntity(errorResponse, BAD_REQUEST);
+  }
+
+  /**
+   * Catches and handles all exceptions of type {@link ValidationException}.
+   *
+   * @param exception {@link ValidationException} to process
+   * @return {@link ResponseEntity} with {@link ValidationException} body
+   */
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
     var error = new Error()

@@ -8,12 +8,12 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 import org.folio.search.exception.SearchOperationException;
-import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class SearchUtilsTest {
 
   @Test
   void getElasticsearchIndexName_cqlSearchRequest_positive() {
-    var cqlSearchRequest = CqlSearchRequest.of(RESOURCE_NAME, null, TENANT_ID, null, null, false);
+    var cqlSearchRequest = searchServiceRequest(RESOURCE_NAME, null);
     var actual = getElasticsearchIndexName(cqlSearchRequest);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
@@ -59,17 +59,6 @@ class SearchUtilsTest {
   void getTotalPages_parameterized(long total, long expected) {
     var totalPages = getTotalPages(total, 20);
     assertThat(totalPages).isEqualTo(expected);
-  }
-
-  @Test
-  void removeHyphens_positive() {
-    var actual = SearchUtils.removeHyphens("123-456-789");
-    assertThat(actual).isEqualTo("123456789");
-  }
-
-  @Test
-  void removeHyphens_positive_nullValue() {
-    assertThat(SearchUtils.removeHyphens(null)).isNull();
   }
 
   private static Stream<Arguments> totalPagesTestData() {

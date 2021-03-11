@@ -1,25 +1,30 @@
 package org.folio.search.cql;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
+import static org.folio.search.utils.SearchUtils.isBoolQuery;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -28,7 +33,8 @@ import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.service.CqlSearchServiceRequest;
+import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
@@ -55,23 +61,25 @@ public class CqlSearchQueryConverter {
   private final Map<String, SearchTermProcessor> searchTermProcessors;
 
   /**
-   * Parses {@link CqlSearchRequest} object to the elasticsearch.
+   * Parses {@link CqlSearchServiceRequest} object to the elasticsearch.
+   *
+   * @param query cql query to parse
+   * @param resource resource name
+   * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
-  public SearchSourceBuilder convert(CqlSearchRequest request) {
-    var cqlQuery = request.getCqlQuery();
+  public SearchSourceBuilder convert(String query, String resource) {
     try {
-      var cqlNode = new CQLParser().parse(cqlQuery);
-      return toCriteria(request, cqlNode);
+      var cqlNode = new CQLParser().parse(query);
+      return toCriteria(cqlNode, resource);
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-        "Failed to parse cql query [cql: '%s', resource: %s]", cqlQuery, request.getResource()), e);
+        "Failed to parse cql query [cql: '%s', resource: %s]", query, resource), e);
     }
   }
 
-  private SearchSourceBuilder toCriteria(CqlSearchRequest searchRequest, CQLNode node)
+  private SearchSourceBuilder toCriteria(CQLNode node, String resource)
     throws CQLFeatureUnsupportedException {
     var queryBuilder = new SearchSourceBuilder();
-    queryBuilder.trackTotalHits(true);
 
     if (node instanceof CQLSortNode) {
       for (var sortIndex : ((CQLSortNode) node).getSortIndexes()) {
@@ -80,39 +88,27 @@ public class CqlSearchQueryConverter {
       }
     }
 
-    if (!searchRequest.isExpandAll()) {
-      final String[] includes = searchFieldProvider
-        .getSourceFields(searchRequest.getResource())
-        .toArray(String[]::new);
-
-      queryBuilder.fetchSource(includes, null);
-    }
-
-    return queryBuilder
-      .query(convertToQuery(searchRequest, node))
-      .from(searchRequest.getOffset())
-      .size(searchRequest.getLimit());
+    return queryBuilder.query(enhanceQuery(convertToQuery(node, resource), resource));
   }
 
-  private QueryBuilder convertToQuery(CqlSearchRequest request, CQLNode node) {
+  private QueryBuilder convertToQuery(CQLNode node, String resource) {
     var cqlNode = node;
     if (node instanceof CQLSortNode) {
       cqlNode = ((CQLSortNode) node).getSubtree();
     }
     if (cqlNode instanceof CQLTermNode) {
-      return convertToTermQuery(request, (CQLTermNode) cqlNode);
+      return convertToTermQuery((CQLTermNode) cqlNode, resource);
     }
     if (cqlNode instanceof CQLBooleanNode) {
-      return convertToBoolQuery(request, (CQLBooleanNode) cqlNode);
+      return convertToBoolQuery((CQLBooleanNode) cqlNode, resource);
     }
     throw new UnsupportedOperationException("Unsupported node: " + node.getClass().getSimpleName());
   }
 
-  private QueryBuilder convertToTermQuery(CqlSearchRequest request, CQLTermNode node) {
+  private QueryBuilder convertToTermQuery(CQLTermNode node, String resource) {
     var fieldName = node.getIndex();
-    var resource = request.getResource();
     var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
-    var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(request, fieldName) : fieldsGroup;
+    var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(fieldName, resource) : fieldsGroup;
 
     var term = getSearchTerm(node.getTerm(), fieldName, resource);
     if (term.contains(ASTERISKS_SIGN)) {
@@ -149,50 +145,103 @@ public class CqlSearchQueryConverter {
     }
   }
 
-  private String getSearchTerm(String term, String fieldName, String resource) {
-    return searchFieldProvider.getFieldByPath(resource, fieldName)
-      .filter(fieldDescription -> fieldDescription instanceof PlainFieldDescription)
-      .map(PlainFieldDescription.class::cast)
-      .map(PlainFieldDescription::getSearchTermProcessor)
-      .map(searchTermProcessors::get)
-      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
-      .orElse(term);
-  }
-
-  private List<String> getFieldsForMultilangField(CqlSearchRequest request, String fieldName) {
-    return searchFieldProvider.getFieldByPath(request.getResource(), fieldName)
-      .filter(PlainFieldDescription.class::isInstance)
-      .map(PlainFieldDescription.class::cast)
-      .filter(PlainFieldDescription::isMultilang)
-      .map(plainFieldDescription -> updatePathForMultilangField(fieldName))
-      .map(Collections::singletonList)
-      .orElse(emptyList());
-  }
-
-  private BoolQueryBuilder convertToBoolQuery(CqlSearchRequest request, CQLBooleanNode node) {
+  private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
     var operator = node.getOperator();
-    var boolQuery = boolQuery();
     switch (operator) {
       case OR:
-        return boolQuery
-          .should(convertToQuery(request, node.getLeftOperand()))
-          .should(convertToQuery(request, node.getRightOperand()));
+        return flattenBoolQuery(node, resource, BoolQueryBuilder::should);
       case AND:
-        return boolQuery
-          .must(convertToQuery(request, node.getLeftOperand()))
-          .must(convertToQuery(request, node.getRightOperand()));
+        return flattenBoolQuery(node, resource, BoolQueryBuilder::must);
       case NOT:
-        return boolQuery
-          .must(convertToQuery(request, node.getLeftOperand()))
-          .mustNot(convertToQuery(request, node.getRightOperand()));
+        return boolQuery()
+          .must(convertToQuery(node.getLeftOperand(), resource))
+          .mustNot(convertToQuery(node.getRightOperand(), resource));
       default:
         throw unsupportedException(operator.name());
     }
   }
 
+  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource,
+    Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
+    var rightOperandQuery = convertToQuery(node.getRightOperand(), resource);
+    var leftOperandQuery = convertToQuery(node.getLeftOperand(), resource);
+
+    var boolQuery = boolQuery();
+    if (isBoolQuery(leftOperandQuery)) {
+      var leftOperandBoolQuery = (BoolQueryBuilder) leftOperandQuery;
+      var leftBoolQueryConditions = conditionProvider.apply(leftOperandBoolQuery);
+      if (leftBoolQueryConditions.size() >= 2) {
+        var resultBoolQueryConditions = conditionProvider.apply(boolQuery);
+        resultBoolQueryConditions.addAll(leftBoolQueryConditions);
+        resultBoolQueryConditions.add(rightOperandQuery);
+        return boolQuery;
+      }
+    }
+
+    var conditions = conditionProvider.apply(boolQuery);
+    conditions.add(leftOperandQuery);
+    conditions.add(rightOperandQuery);
+    return boolQuery;
+  }
+
+  private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {
+    if (isBoolQuery(query)) {
+      var boolQuery = (BoolQueryBuilder) query;
+      var mustQueryConditions = new ArrayList<QueryBuilder>();
+      var mustConditions = boolQuery.must();
+      for (QueryBuilder innerQuery : mustConditions) {
+        if (isFilterQuery(innerQuery, resource) || isDisjunctionFilterQuery(innerQuery, resource)) {
+          boolQuery.filter(innerQuery);
+        } else {
+          mustQueryConditions.add(innerQuery);
+        }
+      }
+      mustConditions.clear();
+      mustConditions.addAll(mustQueryConditions);
+      return boolQuery;
+    }
+
+    return isFilterQuery(query, resource) ? boolQuery().filter(query) : query;
+  }
+
+  private boolean isDisjunctionFilterQuery(QueryBuilder query, String resource) {
+    if (!isBoolQuery(query)) {
+      return false;
+    }
+    var boolQuery = (BoolQueryBuilder) query;
+    if (isEmpty(boolQuery.should()) && isNotEmpty(boolQuery.must()) && isNotEmpty(boolQuery.mustNot())) {
+      return false;
+    }
+
+    String baseFieldName = null;
+    for (var innerQuery : boolQuery.should()) {
+      if (!isFilterQuery(innerQuery, resource)) {
+        return false;
+      }
+      var currentFieldName = ((TermQueryBuilder) innerQuery).fieldName();
+      if (baseFieldName == null) {
+        baseFieldName = currentFieldName;
+      }
+      if (!Objects.equals(currentFieldName, baseFieldName)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean isFilterQuery(QueryBuilder query, String resource) {
+    return (query instanceof TermQueryBuilder) && isFilterField(((TermQueryBuilder) query).fieldName(), resource);
+  }
+
+  private boolean isFilterField(String fieldName, String resource) {
+    return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
+      .filter(fieldDescription -> fieldDescription.hasType(SearchType.FILTER))
+      .isPresent();
+  }
+
   private static QueryBuilder prepareElasticsearchQuery(List<String> fieldsGroup,
     Function<List<String>, QueryBuilder> groupQueryProducer, Supplier<QueryBuilder> defaultQuery) {
-    return CollectionUtils.isNotEmpty(fieldsGroup) ? groupQueryProducer.apply(fieldsGroup) : defaultQuery.get();
+    return isNotEmpty(fieldsGroup) ? groupQueryProducer.apply(fieldsGroup) : defaultQuery.get();
   }
 
   private static QueryBuilder prepareQueryForFieldsGroup(List<String> fieldsGroup,
@@ -203,6 +252,22 @@ public class CqlSearchQueryConverter {
     }
     fieldsGroup.forEach(field -> boolQueryBuilder.should(innerQueryProvider.apply(updateMultilangFieldPath(field))));
     return boolQueryBuilder;
+  }
+
+  private String getSearchTerm(String term, String fieldName, String resource) {
+    return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
+      .map(PlainFieldDescription::getSearchTermProcessor)
+      .map(searchTermProcessors::get)
+      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
+      .orElse(term);
+  }
+
+  private List<String> getFieldsForMultilangField(String fieldName, String resource) {
+    return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
+      .filter(PlainFieldDescription::isMultilang)
+      .map(plainFieldDescription -> updatePathForMultilangField(fieldName))
+      .map(Collections::singletonList)
+      .orElse(emptyList());
   }
 
   private static String updateMultilangFieldPath(String field) {

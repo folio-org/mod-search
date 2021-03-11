@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "CQL search request",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "A CQL query string with search conditions."
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Limit the number of elements returned in the response",
+      "maximum": 500,
+      "minimum": 0,
+      "default": 100
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Skip over a number of elements by specifying an offset value for the query",
+      "minimum": 0,
+      "default": 0
+    },
+    "expandAll": {
+      "type": "boolean",
+      "description": "Whether to return only basic properties or entire instance.",
+      "default": false
+    }
+  },
+  "required": [ "query", "expandAll" ]
+}

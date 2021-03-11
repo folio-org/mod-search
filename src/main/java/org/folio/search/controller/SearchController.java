@@ -3,9 +3,13 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import lombok.RequiredArgsConstructor;
+import org.folio.search.domain.dto.CqlFacetRequest;
+import org.folio.search.domain.dto.CqlSearchRequest;
+import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.SearchResult;
-import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.mapper.SearchRequestMapper;
 import org.folio.search.rest.resource.InstancesApi;
+import org.folio.search.service.FacetService;
 import org.folio.search.service.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,20 +26,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController implements InstancesApi {
 
   private final SearchService searchService;
+  private final FacetService facetService;
+  private final SearchRequestMapper searchRequestMapper;
 
   @Override
-  public ResponseEntity<SearchResult> searchInstances(String query, String tenantId, Boolean expandAll,
-    Integer limit, Integer offset) {
+  public ResponseEntity<SearchResult> searchInstances(CqlSearchRequest request, String tenantId) {
+    var searchRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+    return ResponseEntity.ok(searchService.search(searchRequest));
+  }
 
-    var searchResult = searchService.search(CqlSearchRequest.builder()
-      .cqlQuery(query)
-      .resource(INSTANCE_RESOURCE)
-      .tenantId(tenantId)
-      .limit(limit)
-      .offset(offset)
-      .expandAll(expandAll)
-      .build());
-
-    return ResponseEntity.ok(searchResult);
+  @Override
+  public ResponseEntity<FacetResult> getFacets(CqlFacetRequest request, String tenantId) {
+    var facetRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+    return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 }

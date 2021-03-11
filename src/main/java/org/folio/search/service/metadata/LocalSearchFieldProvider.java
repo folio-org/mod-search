@@ -84,11 +84,18 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       return Optional.empty();
     }
     var resourceDescription = optResourceDescription.get();
-    return getFieldByPath(resourceDescription.getFields(), path)
-      .or(() -> getFieldByPath(resourceDescription.getSearchFields(), path));
+    return findFieldByPath(resourceDescription.getFields(), path)
+      .or(() -> findFieldByPath(resourceDescription.getSearchFields(), path));
   }
 
-  private static Optional<FieldDescription> getFieldByPath(
+  @Override
+  public Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path) {
+    return getFieldByPath(resource, path)
+      .filter(PlainFieldDescription.class::isInstance)
+      .map(PlainFieldDescription.class::cast);
+  }
+
+  private static Optional<FieldDescription> findFieldByPath(
     Map<String, ? extends FieldDescription> fields, String path) {
     var pathValues = path.split("\\.");
     FieldDescription currentField = fields.get(pathValues[0]);

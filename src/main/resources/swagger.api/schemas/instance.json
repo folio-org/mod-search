@@ -103,32 +103,18 @@
       }
     },
     "metadata": {
-      "type": "object",
-      "properties": {
-        "createdDate": {
-          "description": "Date and time when the record was created",
-          "type": "string"
-        },
-        "createdByUserId": {
-          "description": "ID of the user who created the record (when available)",
-          "type": "string"
-        },
-        "createdByUsername": {
-          "description": "Username of the user who created the record (when available)",
-          "type": "string"
-        },
-        "updatedDate": {
-          "description": "Date and time when the record was last updated",
-          "type": "string"
-        },
-        "updatedByUserId": {
-          "description": "ID of the user who last updated the record (when available)",
-          "type": "string"
-        },
-        "updatedByUsername": {
-          "description": "Username of the user who last updated the record (when available)",
-          "type": "string"
-        }
+      "$ref": "metadata.json"
+    },
+    "modeOfIssuanceId": {
+      "type": "string",
+      "description": "UUID of the RDA mode of issuance, a categorization reflecting whether a resource is issued in one or more parts, the way it is updated, and whether its termination is predetermined or not (e.g. monograph,  sequential monograph, serial; integrating Resource, other)"
+    },
+    "natureOfContentTermIds": {
+      "type": "array",
+      "description": "Array of UUID for the Instance nature of content (e.g. bibliography, biography, exhibition catalogue, festschrift, newspaper, proceedings, research report, thesis or website)",
+      "items": {
+        "type": "string",
+        "description": "Single UUID for the Instance nature of content"
       }
     },
     "publication": {
@@ -147,6 +133,14 @@
           }
         }
       }
+    },
+    "staffSuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed for others than catalogers"
+    },
+    "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system"
     },
     "tags": {
       "description": "arbitrary tags associated with this instance",

@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "0.1",
+      "version": "0.2",
       "handlers": [
         {
           "methods": [
@@ -26,6 +26,18 @@
           ],
           "pathPattern": "/search/index/records",
           "permissionsRequired": [ "search.index.records.collection.post" ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/inventory/reindex",
+          "permissionsRequired": [
+            "search.index.inventory.reindex.post"
+          ],
+          "modulePermissions": [
+            "inventory-storage.instance.reindex.post"
+          ]
         }
       ]
     },
@@ -108,6 +120,10 @@
     {
       "id": "inventory-view",
       "version": "1.0"
+    },
+    {
+      "id": "instance-reindex",
+      "version": "0.1"
     }
   ],
   "permissionSets": [
@@ -145,6 +161,11 @@
       "permissionName": "search.config.languages.item.delete",
       "displayName": "Search - removes a supported language by id",
       "description": "Removes a supported language by id"
+    },
+    {
+      "permissionName": "search.index.inventory.reindex.post",
+      "displayName": "Search - starts inventory reindex operation",
+      "description": "Starts inventory reindex operation"
     }
   ],
   "launchDescriptor": {

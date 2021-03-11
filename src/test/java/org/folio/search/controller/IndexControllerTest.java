@@ -21,6 +21,7 @@ import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.IndexRequestBody;
+import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
@@ -144,6 +145,16 @@ class IndexControllerTest {
     mockMvc.perform(preparePostRequest("/search/index/records", asJsonString(resourceBody)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
+  }
+
+  @Test
+  void canSubmitReindex() throws Exception {
+    var jobId = randomId();
+    when(indexService.reindexInventory()).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("id", is(jobId)));
   }
 
   private static MockHttpServletRequestBuilder preparePostRequest(String endpoint, String requestBody) {

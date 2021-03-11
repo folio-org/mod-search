@@ -1,8 +1,10 @@
 package org.folio.search.support.api;
 
 import static com.github.tomakehurst.wiremock.http.Response.Builder.like;
-import static java.util.Collections.emptyList;
+import static java.util.Arrays.stream;
+import static org.folio.search.support.api.InventoryApi.getInventoryView;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -10,6 +12,8 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -18,8 +22,25 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
   @Override
   @SneakyThrows
   public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+    var tenant = request.header(TENANT).firstValue();
+    var instanceViews = stream(request.queryParameter("query").firstValue()
+      .replaceAll("id==\\(", "")
+      .replaceAll("\"", "")
+      .replace(")", "")
+      .split(" or "))
+      .map(String::trim)
+      .map(id -> getInventoryView(tenant, id))
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .map(instance -> Map.of(
+        "instance", instance,
+        "holdingsRecords", instance.getHoldings(),
+        "items", instance.getItems()))
+      .limit(Integer.parseInt(request.queryParameter("limit").firstValue()))
+      .collect(Collectors.toList());
+
     return like(response)
-      .body(OBJECT_MAPPER.writeValueAsString(Map.of("instances", emptyList())))
+      .body(OBJECT_MAPPER.writeValueAsString(Map.of("instances", instanceViews)))
       .build();
   }
 

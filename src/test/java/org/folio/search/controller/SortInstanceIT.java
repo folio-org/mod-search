@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
@@ -29,8 +28,8 @@ class SortInstanceIT extends BaseIntegrationTest {
   private static final String TENANT = "sort_it_test_tenant";
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc, @Autowired KafkaTemplate<String, Object> kafka) {
-    setUpTenant(TENANT, mockMvc, kafka, createFourInstances());
+  static void createTenant(@Autowired MockMvc mockMvc) {
+    setUpTenant(TENANT, mockMvc, createFourInstances());
   }
 
   @AfterAll

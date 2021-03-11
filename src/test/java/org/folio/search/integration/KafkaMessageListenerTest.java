@@ -2,20 +2,26 @@ package org.folio.search.integration;
 
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,15 +33,6 @@ class KafkaMessageListenerTest {
   @InjectMocks private KafkaMessageListener messageListener;
   @Mock private IndexService indexService;
   @Mock private ResourceFetchService resourceFetchService;
-
-  @Test
-  void handleInstanceEvents() {
-    var resourceEvents = List.of(eventBody(INSTANCE_RESOURCE, mapOf("id", randomId())));
-
-    when(indexService.indexResources(resourceEvents)).thenReturn(getSuccessIndexOperationResponse());
-    messageListener.handleInstanceEvents(resourceEvents);
-    verify(indexService).indexResources(resourceEvents);
-  }
 
   @Test
   void handleEvents() {
@@ -65,5 +62,38 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.holding-record", 0, 0, instanceId3, holdingBody1),
       new ConsumerRecord<>("inventory.holding-record", 0, 0, null, holdingBody2)
     ));
+  }
+
+  @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX"})
+  @ParameterizedTest
+  void handleEventsOnlyOfKnownTypes(String eventType) {
+    var resourceBody = new ResourceEventBody()
+      .type(ResourceEventBody.TypeEnum.fromValue(eventType))
+      .tenant(TENANT_ID)
+      ._new(null);
+
+    messageListener.handleEvents(List.of(
+      new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0,
+        UUID.randomUUID().toString(), resourceBody)));
+
+    verify(indexService).indexResources(any());
+  }
+
+  @Test
+  void handleEventsInstanceIdIsPartitionKeyForReindex() {
+    var instanceId = UUID.randomUUID().toString();
+    var resourceBody = new ResourceEventBody()
+      .type(ResourceEventBody.TypeEnum.REINDEX)
+      .tenant(TENANT_ID)
+      .resourceName(INSTANCE_RESOURCE)
+      ._new(null);
+
+    messageListener.handleEvents(List.of(
+      new ConsumerRecord<>("inventory.instance", 0, 0,
+        instanceId, resourceBody)));
+
+    verify(indexService).indexResources(any());
+    verify(resourceFetchService).fetchInstancesByIds(
+      List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID)));
   }
 }

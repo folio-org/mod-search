@@ -34,10 +34,6 @@ application:
     permissionsFilePath: classpath:permissions/test-permissions.csv
   kafka:
     listener:
-      instances:
-        concurrency: 1
-        topics: inventory.instance
-        group-id: mod-search-instances-group
       events:
         concurrency: 1
         topics: inventory.instance,inventory.item,inventory.holdings-record

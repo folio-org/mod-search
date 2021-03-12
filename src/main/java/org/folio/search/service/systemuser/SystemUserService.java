@@ -98,7 +98,7 @@ public class SystemUserService {
 
   private Optional<UsersClient.User> getFolioUser(String username) {
     var users = usersClient.query("username==" + username);
-    return users.getUsers().stream().findFirst();
+    return users.getResult().stream().findFirst();
   }
 
   private void createFolioUser(String id) {
@@ -135,7 +135,7 @@ public class SystemUserService {
     }
 
     var permissionsToAdd = new HashSet<>(expectedPermissions);
-    permissionsToAdd.removeAll(assignedPermissions.getPermissions());
+    permissionsToAdd.removeAll(assignedPermissions.getResult());
 
     permissionsToAdd.forEach(permission ->
       permissionsClient.addPermission(userId, Permission.of(permission)));

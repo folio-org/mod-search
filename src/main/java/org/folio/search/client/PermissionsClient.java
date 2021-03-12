@@ -2,12 +2,13 @@ package org.folio.search.client;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.folio.search.model.service.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +25,7 @@ public interface PermissionsClient {
   void addPermission(@PathVariable("userId") String userId, Permission permission);
 
   @GetMapping(value = "/{userId}/permissions?indexField=userId")
-  Permissions getUserPermissions(@PathVariable("userId") String userId);
+  ResultList<String> getUserPermissions(@PathVariable("userId") String userId);
 
   @Data
   @AllArgsConstructor(staticName = "of")
@@ -39,7 +40,7 @@ public interface PermissionsClient {
   class Permissions {
     private String id;
     private String userId;
-    @JsonAlias("permissionNames")
-    private List<String> permissions = Collections.emptyList();
+    @JsonProperty("permissions")
+    private List<String> allowedPermissions = Collections.emptyList();
   }
 }

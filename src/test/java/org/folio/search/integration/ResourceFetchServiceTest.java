@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.inventory.InventoryViewClient;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -49,8 +50,8 @@ class ResourceFetchServiceTest {
       asSinglePage(List.of(instance1, instance2)));
     when(executionService.executeTenantScoped(any(), any()))
       .thenAnswer(invocationOnMock -> {
-        var job = (TenantScopedExecutionService.ThrowableSupplier<?>) invocationOnMock.getArgument(1);
-        return job.get();
+        var job = (Callable<?>) invocationOnMock.getArgument(1);
+        return job.call();
       });
 
     var actual = resourceFetchService.fetchInstancesByIds(events);

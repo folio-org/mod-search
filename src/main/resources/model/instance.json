@@ -125,14 +125,6 @@
         }
       }
     },
-    "staffSuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool"
-    },
-    "discoverySuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool"
-    },
     "tags": {
       "type": "object",
       "properties": {
@@ -232,6 +224,18 @@
       "type": "search",
       "index": "keyword",
       "processor": "instanceTagsProcessor"
+    },
+    "staffSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "processor": "staffSuppressProcessor",
+      "index": "bool"
+    },
+    "discoverySuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "processor": "discoverySuppressProcessor",
+      "index": "bool"
     }
   },
   "indexMappings": {

@@ -187,7 +187,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .languages(List.of("rus", "ukr"))
       .instanceTypeId(TYPES[0])
       .staffSuppress(true)
-      .discoverySuppress(false)
       .instanceFormatId(List.of(FORMATS[2]))
       .tags(instanceTags("future", "science"));
 
@@ -203,8 +202,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     instances[4]
       .source("FOLIO")
       .languages(List.of("eng", "fra"))
-      .staffSuppress(false)
-      .discoverySuppress(false)
       .instanceTypeId(TYPES[1])
       .instanceFormatId(List.of(FORMATS[1]))
       .tags(instanceTags("cooking"));

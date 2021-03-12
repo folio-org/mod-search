@@ -59,9 +59,12 @@ public class FacetQueryBuilder {
   }
 
   private void validateFacetField(String facetField, String resource) {
-    searchFieldProvider.getPlainFieldByPath(resource, facetField)
+    var facetFieldDescription = searchFieldProvider.getPlainFieldByPath(resource, facetField)
       .filter(fieldDescription -> fieldDescription.hasType(SearchType.FACET))
-      .orElseThrow(() -> new ValidationException("Invalid facet value", FACET_KEY, facetField));
+      .orElse(null);
+    if (facetFieldDescription == null) {
+      throw new ValidationException("Invalid facet value", FACET_KEY, facetField);
+    }
   }
 
   private Pair<String, Integer> getFacetFieldAndLimitAsPair(String facet) {

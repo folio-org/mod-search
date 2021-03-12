@@ -13,15 +13,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.utils.JsonConverter;
-import org.folio.search.utils.types.MockitoTest;
+import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@MockitoTest
+@UnitTest
+@ExtendWith(MockitoExtension.class)
 class InstanceTagsProcessorTest {
 
   @InjectMocks private InstanceTagsProcessor instanceTagsProcessor;

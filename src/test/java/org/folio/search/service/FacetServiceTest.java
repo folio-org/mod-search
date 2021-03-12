@@ -19,12 +19,15 @@ import org.folio.search.model.service.CqlFacetServiceRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
 import org.folio.search.service.converter.FacetQueryBuilder;
-import org.folio.search.utils.types.MockitoTest;
+import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@MockitoTest
+@UnitTest
+@ExtendWith(MockitoExtension.class)
 class FacetServiceTest {
 
   private static final String QUERY = "test-query";

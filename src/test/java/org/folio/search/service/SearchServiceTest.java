@@ -56,7 +56,7 @@ class SearchServiceTest {
 
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("field1", "field2"));
     when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
-    when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder))).thenReturn(searchResponse);
+    when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
     mockSearchHit(instanceId);
 
     var actual = searchService.search(searchRequest);

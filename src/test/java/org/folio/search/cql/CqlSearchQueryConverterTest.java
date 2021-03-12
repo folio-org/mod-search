@@ -29,15 +29,19 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.utils.types.MockitoTest;
+import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@MockitoTest
+@UnitTest
+@ExtendWith(MockitoExtension.class)
 class CqlSearchQueryConverterTest {
 
   private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
@@ -50,6 +54,7 @@ class CqlSearchQueryConverterTest {
   @Mock private Map<String, SearchTermProcessor> searchTermProcessors;
 
   @MethodSource("convertCqlQueryDataProvider")
+  @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void convert_positive_parameterized(String cqlQuery, SearchSourceBuilder expected) {
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
@@ -58,6 +63,7 @@ class CqlSearchQueryConverterTest {
 
   @ParameterizedTest(name = "[{index}] query={0}")
   @MethodSource("convertCqlQuerySearchGroupDataProvider")
+  @DisplayName("convert_positive_parameterizedSearchGroup")
   void convert_positive_parameterizedSearchGroup(String cqlQuery, SearchSourceBuilder expected) {
     when(searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE)).thenReturn(TITLE_FIELDS);
     if (cqlQuery.contains("languages")) {
@@ -196,11 +202,10 @@ class CqlSearchQueryConverterTest {
 
     var cqlQuery = "((title all \"v1\") and (f2==v2 or f4==v3) and f3==v4) sortby title";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSourceSort().query(
-      boolQuery()
-        .must(matchQuery("title", "v1"))
-        .must(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f4", "v3")))
-        .filter(termQuery("f3", "v4"))));
+    assertThat(actual).isEqualTo(searchSourceSort().query(boolQuery()
+      .must(matchQuery("title", "v1"))
+      .must(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f4", "v3")))
+      .filter(termQuery("f3", "v4"))));
   }
 
   @Test
@@ -209,6 +214,19 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "f1==value";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery().filter(termQuery("f1", "value"))));
+  }
+
+  @Test
+  void convert_positive_boolQueryWithMustNotCondition() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
+
+    var cqlQuery = "(f2=v1 not f3=v2) and f1==(v3 or v4)";
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .must(boolQuery().must(matchQuery("f2", "v1")).mustNot(matchQuery("f3", "v2")))
+      .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

@@ -32,13 +32,17 @@ import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
-import org.folio.search.utils.types.MockitoTest;
+import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@MockitoTest
+@UnitTest
+@ExtendWith(MockitoExtension.class)
 class ElasticsearchFacetConverterTest {
 
   private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
@@ -51,6 +55,12 @@ class ElasticsearchFacetConverterTest {
   void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) throws Exception {
     var actual = facetConverter.convert(aggregationsFromJson(aggregations));
     assertThat(actual).isEqualTo(facetResult(expected));
+  }
+
+  @Test
+  void convert_negative_nullAggregationName() {
+    var actual = facetConverter.convert(new Aggregations(List.of(new ParsedStringTerms())));
+    assertThat(actual).isEqualTo(facetResult(emptyMap()));
   }
 
   private static Stream<Arguments> aggregationsDataProvider() {

@@ -14,6 +14,10 @@
     "barcode": {
       "type": "string",
       "description": "Unique inventory control number for physical resources, used largely for circulation purposes"
+    },
+    "effectiveLocationId": {
+      "type": "string",
+      "description": "Read only current home location for the item."
     }
   }
 }

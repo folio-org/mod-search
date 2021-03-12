@@ -185,6 +185,10 @@
         },
         "barcode": {
           "index": "keyword"
+        },
+        "effectiveLocationId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
         }
       }
     },

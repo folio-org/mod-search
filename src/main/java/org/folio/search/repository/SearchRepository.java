@@ -27,15 +27,15 @@ public class SearchRepository {
   /**
    * Executes request to elasticsearch and returns search result with related documents.
    *
-   * @param queryBuilder elasticsearch query as {@link QueryBuilder} object.
-   * @param cqlSearchRequest search request as {@link CqlSearchServiceRequest} object.
+   * @param searchSource elasticsearch query as {@link QueryBuilder} object.
+   * @param resourceRequest search request as {@link CqlSearchServiceRequest} object.
    * @return search result as {@link SearchResult} object.
    */
-  public SearchResponse search(ResourceRequest cqlSearchRequest, SearchSourceBuilder queryBuilder) {
-    var index = getElasticsearchIndexName(cqlSearchRequest);
+  public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
+    var index = getElasticsearchIndexName(resourceRequest);
     var searchRequest = new SearchRequest()
-      .routing(cqlSearchRequest.getTenantId())
-      .source(queryBuilder)
+      .routing(resourceRequest.getTenantId())
+      .source(searchSource)
       .indices(index);
 
     return performExceptionalOperation(

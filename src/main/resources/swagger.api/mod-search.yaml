@@ -36,13 +36,17 @@ paths:
         - $ref: '#/components/parameters/cql-facet-request'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
-        200:
+        '200':
           description: 'Facet search result'
           content:
             application/json:
               example: examples/facetResult.sample
               schema:
                 $ref: '#/components/schemas/facetResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /index/indices:
     post:

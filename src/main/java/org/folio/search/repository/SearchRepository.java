@@ -8,11 +8,9 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.ResourceRequest;
-import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -27,8 +25,8 @@ public class SearchRepository {
   /**
    * Executes request to elasticsearch and returns search result with related documents.
    *
-   * @param searchSource elasticsearch query as {@link QueryBuilder} object.
-   * @param resourceRequest search request as {@link CqlSearchServiceRequest} object.
+   * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param resourceRequest resource request as {@link ResourceRequest} object.
    * @return search result as {@link SearchResult} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {

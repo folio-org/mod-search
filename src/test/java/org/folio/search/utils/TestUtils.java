@@ -217,6 +217,10 @@ public class TestUtils {
     return new Facet().values(items).totalRecords(items.size());
   }
 
+  public static Facet facet(FacetItem... items) {
+    return new Facet().values(asList(items)).totalRecords(items.length);
+  }
+
   public static FacetItem facetItem(String id, int totalRecords) {
     return new FacetItem().id(id).totalRecords(BigDecimal.valueOf(totalRecords));
   }

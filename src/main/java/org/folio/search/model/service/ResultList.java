@@ -25,8 +25,9 @@ public class ResultList<T> {
    */
   private List<T> result = Collections.emptyList();
 
-  @JsonAnySetter
+  // The `key` is required per contract
   @SuppressWarnings("unused")
+  @JsonAnySetter
   public void set(String key, List<T> result) {
     this.result = result;
   }

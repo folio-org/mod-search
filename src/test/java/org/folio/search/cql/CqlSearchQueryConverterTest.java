@@ -229,6 +229,30 @@ class CqlSearchQueryConverterTest {
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
+  @Test
+  void convert_positive_boolQueryWithMustCondition() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+
+    var cqlQuery = "f2=v1 and f1==(v3 or v4)";
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .must(matchQuery("f2", "v1"))
+      .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
+  }
+
+  @Test
+  void convert_positive_boolQueryWithNotCondition() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+
+    var cqlQuery = "f2<>v1 and f1==(v3 or v4)";
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .must(boolQuery().mustNot(termQuery("f2", "v1")))
+      .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
+  }
+
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(

@@ -40,7 +40,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
-public class SearchInstanceFilterIT extends BaseIntegrationTest {
+class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String TENANT_ID = "filter_test_instance";
 

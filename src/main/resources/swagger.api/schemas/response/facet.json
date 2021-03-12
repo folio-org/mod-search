@@ -4,6 +4,7 @@
   "type": "object",
   "properties": {
     "values": {
+      "description": "Facet items",
       "$ref": "facetItems.json"
     },
     "totalRecords": {

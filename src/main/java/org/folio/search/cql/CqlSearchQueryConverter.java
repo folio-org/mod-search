@@ -209,7 +209,7 @@ public class CqlSearchQueryConverter {
       return false;
     }
     var boolQuery = (BoolQueryBuilder) query;
-    if (isEmpty(boolQuery.should()) && isNotEmpty(boolQuery.must()) && isNotEmpty(boolQuery.mustNot())) {
+    if (isEmpty(boolQuery.should()) || isNotEmpty(boolQuery.must()) || isNotEmpty(boolQuery.mustNot())) {
       return false;
     }
 

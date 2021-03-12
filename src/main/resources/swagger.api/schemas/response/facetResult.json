@@ -4,6 +4,7 @@
   "type": "object",
   "properties": {
     "facets": {
+      "description": "Map with found facet items, key is the facet name, value - facet object with found values",
       "type": "object",
       "additionalProperties": {
         "$ref": "facet.json"

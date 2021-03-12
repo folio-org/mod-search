@@ -10,7 +10,6 @@ import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -73,7 +72,7 @@ class SearchServiceTest {
     var expectedSourceBuilder = searchSource().query(termQuery).size(100).from(0).trackTotalHits(true);
 
     when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
-    when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder))).thenReturn(searchResponse);
+    when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
     mockSearchHit(instanceId);
 
     var actual = searchService.search(searchRequest);

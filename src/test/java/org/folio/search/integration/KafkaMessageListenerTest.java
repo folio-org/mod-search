@@ -62,6 +62,9 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.holding-record", 0, 0, instanceId3, holdingBody1),
       new ConsumerRecord<>("inventory.holding-record", 0, 0, null, holdingBody2)
     ));
+
+    verify(resourceFetchService).fetchInstancesByIds(resourceIdEvents);
+    verify(indexService).indexResources(instanceEventBodies);
   }
 
   @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX"})

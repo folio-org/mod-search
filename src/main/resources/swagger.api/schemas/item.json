@@ -18,6 +18,39 @@
     "effectiveLocationId": {
       "type": "string",
       "description": "Read only current home location for the item."
+    },
+    "status": {
+      "description": "The status of the item",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the status e.g. Available, Checked out, In transit",
+          "type": "string",
+          "enum": [
+            "Aged to lost",
+            "Available",
+            "Awaiting pickup",
+            "Awaiting delivery",
+            "Checked out",
+            "Claimed returned",
+            "Declared lost",
+            "In process",
+            "In process (non-requestable)",
+            "In transit",
+            "Intellectual item",
+            "Long missing",
+            "Lost and paid",
+            "Missing",
+            "On order",
+            "Paged",
+            "Restricted",
+            "Order closed",
+            "Unavailable",
+            "Unknown",
+            "Withdrawn"
+          ]
+        }
+      }
     }
   }
 }

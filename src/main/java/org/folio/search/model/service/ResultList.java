@@ -1,6 +1,8 @@
 package org.folio.search.model.service;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -21,8 +23,14 @@ public class ResultList<T> {
   /**
    * Paged result data.
    */
-  @JsonAlias({"instances"})
   private List<T> result = Collections.emptyList();
+
+  // The `key` is required per contract
+  @SuppressWarnings("unused")
+  @JsonAnySetter
+  public void set(String key, List<T> result) {
+    this.result = result;
+  }
 
   /**
    * Creates empty result list.
@@ -42,5 +50,10 @@ public class ResultList<T> {
    */
   public static <R> ResultList<R> asSinglePage(List<R> result) {
     return new ResultList<>(result.size(), result);
+  }
+
+  @SafeVarargs
+  public static <R> ResultList<R> asSinglePage(R ... records) {
+    return new ResultList<>(records.length, Arrays.asList(records));
   }
 }

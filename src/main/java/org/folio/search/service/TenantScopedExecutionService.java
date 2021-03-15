@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 
+import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
@@ -26,10 +27,10 @@ public class TenantScopedExecutionService {
    * @throws RuntimeException - Wrapped exception from the job.
    */
   @SneakyThrows
-  public <T> T executeTenantScoped(String tenantId, ThrowableSupplier<T> job) {
+  public <T> T executeTenantScoped(String tenantId, Callable<T> job) {
     try {
       beginFolioExecutionContext(folioExecutionContext(tenantId));
-      return job.get();
+      return job.call();
     } finally {
       endFolioExecutionContext();
     }
@@ -37,10 +38,5 @@ public class TenantScopedExecutionService {
 
   private FolioExecutionContext folioExecutionContext(String tenant) {
     return contextBuilder.forSystemUser(systemUserService.getSystemUser(tenant));
-  }
-
-  @FunctionalInterface
-  public interface ThrowableSupplier<T> {
-    T get() throws Exception;
   }
 }

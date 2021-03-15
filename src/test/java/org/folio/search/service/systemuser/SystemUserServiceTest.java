@@ -1,5 +1,6 @@
 package org.folio.search.service.systemuser;
 
+import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -11,13 +12,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import org.folio.search.client.AuthnClient;
 import org.folio.search.client.PermissionsClient;
 import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
+import org.folio.search.model.service.ResultList;
 import org.folio.search.repository.SystemUserRepository;
 import org.folio.search.repository.SystemUserTokenCache;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
@@ -68,7 +69,7 @@ class SystemUserServiceTest {
   @Test
   void shouldNotCreateSystemUserWhenExists() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(permissionsClient.getUserPermissions(any())).thenReturn(new PermissionsClient.Permissions());
+    when(permissionsClient.getUserPermissions(any())).thenReturn(ResultList.empty());
 
     prepareSystemUser(systemUser());
 
@@ -83,9 +84,10 @@ class SystemUserServiceTest {
 
   @Test
   void cannotUpdateUserIfEmptyPermissions() {
+    var systemUser = systemUserNoPermissions();
     when(usersClient.query(any())).thenReturn(userNotExistResponse());
 
-    assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUserNoPermissions()));
+    assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUser));
 
     verifyNoInteractions(permissionsClient);
     verify(repository, times(0)).save(any());
@@ -93,18 +95,17 @@ class SystemUserServiceTest {
 
   @Test
   void cannotCreateUserIfEmptyPermissions() {
+    var systemUser = systemUserNoPermissions();
     when(usersClient.query(any())).thenReturn(userExistsResponse());
 
-    assertThrows(IllegalStateException.class,
-      () -> prepareSystemUser(systemUserNoPermissions()));
+    assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUser));
   }
 
   @Test
   void shouldAddOnlyNewPermissions() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
     when(permissionsClient.getUserPermissions(any()))
-      .thenReturn(PermissionsClient.Permissions.of(null, null,
-        List.of("inventory-storage.instance.item.get")));
+      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     prepareSystemUser(systemUser());
 
@@ -166,14 +167,12 @@ class SystemUserServiceTest {
       .build();
   }
 
-  private UsersClient.Users userExistsResponse() {
-    return UsersClient.Users.builder()
-      .user(new UsersClient.User())
-      .build();
+  private ResultList<UsersClient.User> userExistsResponse() {
+    return asSinglePage(new UsersClient.User());
   }
 
-  private UsersClient.Users userNotExistResponse() {
-    return new UsersClient.Users();
+  private ResultList<UsersClient.User> userNotExistResponse() {
+    return ResultList.empty();
   }
 
   private SystemUserService systemUserService(FolioSystemUserProperties properties) {

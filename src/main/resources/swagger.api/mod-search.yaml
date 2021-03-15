@@ -228,14 +228,14 @@ components:
     cql-search-request:
       name: cqlSearchRequest
       in: query
-      description: A CQL query string with search conditions.
+      description: Search request parameters(query, size, limit and etc.) as object.
       required: true
       schema:
         $ref: '#/components/schemas/cqlSearchRequest'
     cql-facet-request:
       name: cqlFacetRequest
       in: query
-      description: A CQL query string with search conditions and facet names.
+      description: Facet request parameters (cql query, facet names) as object.
       required: true
       schema:
         $ref: '#/components/schemas/cqlFacetRequest'

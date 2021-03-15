@@ -17,7 +17,7 @@ import org.elasticsearch.common.collect.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.domain.dto.InstanceMetadata;
+import org.folio.search.domain.dto.Metadata;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,8 +93,8 @@ class ElasticsearchHitConverterTest {
     return title;
   }
 
-  private static InstanceMetadata metadata() {
-    var metadata = new InstanceMetadata();
+  private static Metadata metadata() {
+    var metadata = new Metadata();
     metadata.setUpdatedByUserId("userId");
     metadata.setCreatedByUsername("username");
     return metadata;

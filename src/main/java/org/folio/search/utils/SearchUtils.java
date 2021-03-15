@@ -3,9 +3,12 @@ package org.folio.search.utils;
 import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
-import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,12 +37,12 @@ public class SearchUtils {
   }
 
   /**
-   * Creates index name for given {@link CqlSearchRequest} object.
+   * Creates index name for given {@link CqlSearchServiceRequest} object.
    *
-   * @param request resource name as {@link CqlSearchRequest} object
+   * @param request resource name as {@link CqlSearchServiceRequest} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(CqlSearchRequest request) {
+  public static String getElasticsearchIndexName(ResourceRequest request) {
     return getElasticsearchIndexName(request.getResource(), request.getTenantId());
   }
 
@@ -76,12 +79,12 @@ public class SearchUtils {
   }
 
   /**
-   * Removes hyphens from given string.
+   * Checks if passed {@link QueryBuilder} has type of {@link BoolQueryBuilder} or not.
    *
-   * @param value value to process
-   * @return string without hyphen symbols
+   * @param query query to analyze
+   * @return true if passed query is bool query, false - otherwise.
    */
-  public static String removeHyphens(String value) {
-    return value != null ? value.replace("-", "") : null;
+  public static boolean isBoolQuery(QueryBuilder query) {
+    return query instanceof BoolQueryBuilder;
   }
 }

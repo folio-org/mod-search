@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Result value for specific facet",
+  "type": "object",
+  "properties": {
+    "values": {
+      "description": "Facet items",
+      "$ref": "facetItems.json"
+    },
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of facet items"
+    }
+  }
+}

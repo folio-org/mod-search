@@ -15,6 +15,11 @@ public class ApiEndpoints {
     return searchInstancesByQuery("id<>\"\" sortBy %s/sort.%s", sort, order);
   }
 
+  public static String getFacets(String query, String... facets) {
+    var joinedFacets = String.join("&facet=", facets);
+    return String.format("/search/instances/facets?query=%s&facet=%s", query, joinedFacets);
+  }
+
   public static String languageConfig() {
     return "/search/config/languages";
   }

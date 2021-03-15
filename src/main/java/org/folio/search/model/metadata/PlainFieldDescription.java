@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.folio.search.model.types.SearchFieldType;
+import org.folio.search.model.types.SearchType;
 
 /**
  * POJO class for specifying a plain field description for search engine.
@@ -19,14 +19,12 @@ public class PlainFieldDescription extends FieldDescription {
   public static final String MULTILANG_FIELD_TYPE = "multilang";
 
   /**
-   * List of field types for search possibilities, like faceting, sorting and so on.
-   *
-   * <p>Mapping of this field should provide ability to perform requested operation</p>
+   * List of search types, that is used to identify search options for given field.
    */
-  private List<SearchFieldType> searchFieldTypes;
+  private List<SearchType> searchTypes = Collections.emptyList();
 
   /**
-   * List of search types.
+   * List of inventory search types, it can be used to create group of field using alias.
    */
   private List<String> inventorySearchTypes = Collections.emptyList();
 
@@ -39,11 +37,6 @@ public class PlainFieldDescription extends FieldDescription {
    * List of references to field types, specified in resource description.
    */
   private String index;
-
-  /**
-   * Specifies if field can be used as language source.
-   */
-  private boolean languageSource;
 
   /**
    * Specifies if fields should be returned as part of elasticsearch response or not.
@@ -81,5 +74,15 @@ public class PlainFieldDescription extends FieldDescription {
   @JsonIgnore
   public boolean isIndexed() {
     return !NONE_FIELD_TYPE.equals(index);
+  }
+
+  /**
+   * Checks if field description contains given {@link SearchType} value.
+   *
+   * @return true - field has given search type, false - otherwise
+   */
+  @JsonIgnore
+  public boolean hasType(SearchType searchType) {
+    return searchTypes.contains(searchType);
   }
 }

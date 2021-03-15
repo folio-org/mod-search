@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.languageField;
+import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
@@ -114,12 +114,12 @@ class ResourceDescriptionServiceTest {
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {
     return mapOf(
-      "id", plainField("keyword", "$.id"),
-      "lang", languageField("keyword", "$.lang"),
-      "isbn", plainField("keyword", "$.isbn"),
+      "id", plainField("keyword"),
+      "lang", keywordField(),
+      "isbn", plainField("keyword"),
       "unsupportedField", new TestFieldDescription(),
       "nested", objectField(mapOf(
-        "nested_language", languageField("keyword", "$.nested.lang"))));
+        "nested_language", keywordField())));
   }
 
   private static ResourceDescription resourceDescription() {

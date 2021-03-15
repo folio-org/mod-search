@@ -17,17 +17,28 @@ public abstract class AbstractIdentifierProcessor implements FieldProcessor<List
 
   protected final JsonConverter jsonConverter;
 
+  /**
+   * Returns instance identifiers from event body by specified set of types.
+   *
+   * @param eventBody event body as map to process
+   * @return {@link List} of {@link InstanceIdentifiers} objects
+   */
   protected List<InstanceIdentifiers> getInstanceIdentifiers(Map<String, Object> eventBody) {
     var identifiers = MapUtils.getObject(eventBody, "identifiers");
     if (identifiers == null) {
       return Collections.emptyList();
     }
-    List<InstanceIdentifiers> convert = jsonConverter.convert(identifiers, new TypeReference<>() {});
+    var instanceIdentifiers = jsonConverter.convert(identifiers, new TypeReference<List<InstanceIdentifiers>>() {});
     var identifierTypeIds = getIdentifierTypeIds();
-    return convert.stream()
+    return instanceIdentifiers.stream()
       .filter(instanceIdentifier -> identifierTypeIds.contains(instanceIdentifier.getIdentifierTypeId()))
       .collect(Collectors.toList());
   }
 
+  /**
+   * Returns set of identifier types, which will be used in method {@link #getInstanceIdentifiers(Map)}.
+   *
+   * @return {@link Set} of {@link String} instance identifier type ids.
+   */
   protected abstract Set<String> getIdentifierTypeIds();
 }

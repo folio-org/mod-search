@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "CQL search request",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "A CQL query string with search conditions."
+    },
+    "facet": {
+      "description": "List of facet names",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "default": "Facet name in format {facetName} or {facetName}:{facetLimit}"
+      }
+    }
+  },
+  "required": [ "query", "facet" ]
+}

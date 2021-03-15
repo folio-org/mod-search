@@ -13,17 +13,8 @@ paths:
       operationId: searchInstances
       description: Get a list of instances for CQL query
       parameters:
-        - $ref: '#/components/parameters/search-cql-query'
-        - $ref: '#/components/parameters/search-pageable-limit'
-        - $ref: '#/components/parameters/search-pageable-offset'
+        - $ref: '#/components/parameters/cql-search-request'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - in: query
-          name: expandAll
-          description: Whether to return only basic properties or entire instance.
-          schema:
-            type: boolean
-            default: false
-          required: true
       responses:
         '200':
           description: 'Instance search result'
@@ -32,6 +23,26 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/searchResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /instances/facets:
+    get:
+      operationId: getFacets
+      description: Provides list of facets for instance
+      parameters:
+        - $ref: '#/components/parameters/cql-facet-request'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Facet search result'
+          content:
+            application/json:
+              example: examples/facetResult.sample
+              schema:
+                $ref: '#/components/schemas/facetResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -181,18 +192,15 @@ components:
       items:
         $ref: '#/components/schemas/resourceEventBody'
     searchResult:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: Amount of instances found
-        instances:
-          type: array
-          description: List of instances found
-          items:
-            $ref: '#/components/schemas/instance'
+      $ref: schemas/response/searchResult.json
+    facetResult:
+      $ref: schemas/response/facetResult.json
     errorResponse:
       $ref: schemas/errors.json
+    cqlSearchRequest:
+      $ref: schemas/request/cqlSearchRequest.json
+    cqlFacetRequest:
+      $ref: schemas/request/cqlFacetRequest.json
 
   responses:
     badRequestResponse:
@@ -217,31 +225,20 @@ components:
       schema:
         type: string
         pattern: '[a-zA-Z]{3}'
-    search-cql-query:
-      name: query
+    cql-search-request:
+      name: cqlSearchRequest
       in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
+      description: Search request parameters(query, size, limit and etc.) as object.
       required: true
-    search-pageable-offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
       schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    search-pageable-limit:
-      name: limit
+        $ref: '#/components/schemas/cqlSearchRequest'
+    cql-facet-request:
+      name: cqlFacetRequest
       in: query
-      description: Limit the number of elements returned in the response
+      description: Facet request parameters (cql query, facet names) as object.
+      required: true
       schema:
-        default: 100
-        minimum: 0
-        maximum: 500
-        type: integer
+        $ref: '#/components/schemas/cqlFacetRequest'
     x-okapi-tenant-header:
       name: x-okapi-tenant
       in: header

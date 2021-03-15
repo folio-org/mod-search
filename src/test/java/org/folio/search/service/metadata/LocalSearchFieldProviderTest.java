@@ -19,7 +19,6 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -92,14 +91,29 @@ class LocalSearchFieldProviderTest {
       .containsExactly("title2.sub3.sub5.*");
   }
 
-  @DisplayName("should provide resource field by path")
   @MethodSource("getFieldsByPathDataProvider")
   @ParameterizedTest(name = "[{index}] path={0}")
-  void getFieldByPath(String path, FieldDescription expected) {
+  void getFieldByPath_positive_parameterized(String path, FieldDescription expected) {
     when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
       .thenReturn(Optional.of(resourceDescriptions().get(0)));
     var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, path);
     assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
+  @Test
+  void getPlainFieldByPath_positive() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "id");
+    assertThat(actual).isPresent().get().isEqualTo(plainField("keyword", true));
+  }
+
+  @Test
+  void getPlainFieldByPath_negative() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME))
+      .thenReturn(Optional.of(resourceDescriptions().get(0)));
+    var actual = searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "title2.sub3");
+    assertThat(actual).isEmpty();
   }
 
   @Test

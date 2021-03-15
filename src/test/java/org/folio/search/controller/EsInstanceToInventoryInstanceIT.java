@@ -54,6 +54,6 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
       .map(Matchers::is).collect(Collectors.toList())));
 
     assertThat(actual.holdings(null).items(null),
-      is(expected.items(null).holdings(null)));
+      is(expected.staffSuppress(false).discoverySuppress(false).items(null).holdings(null)));
   }
 }

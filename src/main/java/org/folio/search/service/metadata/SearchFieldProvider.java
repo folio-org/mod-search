@@ -3,6 +3,7 @@ package org.folio.search.service.metadata;
 import java.util.List;
 import java.util.Optional;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 
 /**
@@ -29,13 +30,22 @@ public interface SearchFieldProvider {
   List<String> getFields(String resource, String searchType);
 
   /**
-   * Provides list of fields for given path.
+   * Provides field for given path.
    *
    * @param resource resource type as {@link String}
    * @param path path to field as {@link String}
-   * @return {@link Optional} of resource field description by path.
+   * @return {@link Optional} of resource field description by path, it would be empty if field by path not found.
    */
   Optional<FieldDescription> getFieldByPath(String resource, String path);
+
+  /**
+   * Provides plain field description for given path.
+   *
+   * @param resource resource type as {@link String}
+   * @param path path to field as {@link String}
+   * @return {@link Optional} of resource field description by path, it would be empty if plain field by path not found
+   */
+  Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path);
 
   /**
    * Provides list of fields of source fields for resource.

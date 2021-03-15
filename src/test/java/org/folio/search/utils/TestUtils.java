@@ -1,8 +1,10 @@
 package org.folio.search.utils;
 
+import static java.util.Arrays.asList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +21,22 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetItem;
+import org.folio.search.domain.dto.FacetResult;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
+import org.folio.search.model.service.CqlFacetServiceRequest;
+import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.types.FieldType;
+import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,6 +63,32 @@ public class TestUtils {
   public static <T> T parseResponse(ResultActions result, Class<T> type) {
     return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
       .getContentAsString(), type);
+  }
+
+  public static CqlSearchServiceRequest searchServiceRequest(String query) {
+    return searchServiceRequest(INSTANCE_RESOURCE, query);
+  }
+
+  public static CqlSearchServiceRequest searchServiceRequest(String resource, String query) {
+    return searchServiceRequest(resource, query, false);
+  }
+
+  public static CqlSearchServiceRequest searchServiceRequest(String resource, String query, boolean expandAll) {
+    var rq = new CqlSearchServiceRequest();
+    rq.query(query).limit(100).offset(0);
+    rq.setResource(resource);
+    rq.setTenantId(TENANT_ID);
+    rq.setExpandAll(expandAll);
+    return rq;
+  }
+
+  public static CqlFacetServiceRequest facetServiceRequest(String query, String...facets) {
+    var request = new CqlFacetServiceRequest();
+    request.setQuery(query);
+    request.setResource(INSTANCE_RESOURCE);
+    request.setTenantId(TENANT_ID);
+    request.setFacet(asList(facets));
+    return request;
   }
 
   public static String randomId() {
@@ -109,13 +146,6 @@ public class TestUtils {
     return fieldDescription;
   }
 
-  public static PlainFieldDescription plainField(String index, String path) {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex(index);
-    return fieldDescription;
-  }
-
   public static PlainFieldDescription plainField(String index, ObjectNode mappings) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
@@ -124,18 +154,24 @@ public class TestUtils {
     return fieldDescription;
   }
 
-  public static PlainFieldDescription languageField(String index, String path) {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex(index);
-    fieldDescription.setLanguageSource(true);
-    return fieldDescription;
-  }
-
   public static PlainFieldDescription keywordField() {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex("keyword");
+    return fieldDescription;
+  }
+
+  public static PlainFieldDescription keywordField(SearchType ... searchTypes) {
+    var fieldDescription = new PlainFieldDescription();
+    fieldDescription.setType(PLAIN);
+    fieldDescription.setIndex("keyword");
+    fieldDescription.setSearchTypes(asList(searchTypes));
+    return fieldDescription;
+  }
+
+  public static PlainFieldDescription filterField() {
+    var fieldDescription = keywordField();
+    fieldDescription.setSearchTypes(List.of(SearchType.FILTER));
     return fieldDescription;
   }
 
@@ -168,5 +204,28 @@ public class TestUtils {
     resourceBody.setTenant(TENANT_ID);
     resourceBody.setNew(newData);
     return resourceBody;
+  }
+
+  public static SearchResult searchResult(Instance... instances) {
+    var searchResult = new SearchResult();
+    searchResult.setInstances(List.of(instances));
+    searchResult.setTotalRecords(instances.length);
+    return searchResult;
+  }
+
+  public static Facet facet(List<FacetItem> items) {
+    return new Facet().values(items).totalRecords(items.size());
+  }
+
+  public static Facet facet(FacetItem... items) {
+    return new Facet().values(asList(items)).totalRecords(items.length);
+  }
+
+  public static FacetItem facetItem(String id, int totalRecords) {
+    return new FacetItem().id(id).totalRecords(BigDecimal.valueOf(totalRecords));
+  }
+
+  public static FacetResult facetResult(Map<String, Facet> facets) {
+    return new FacetResult().facets(facets).totalRecords(facets.size());
   }
 }

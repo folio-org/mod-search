@@ -26,5 +26,5 @@
       "default": false
     }
   },
-  "required": [ "query", "expandAll" ]
+  "required": [ "query" ]
 }

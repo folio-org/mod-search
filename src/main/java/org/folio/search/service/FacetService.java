@@ -46,8 +46,7 @@ public class FacetService {
       ((BoolQueryBuilder) query).filter().clear();
     }
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {
-      var sorts = searchSource.sorts();
-      sorts.clear();
+      searchSource.sorts().clear();
     }
   }
 }

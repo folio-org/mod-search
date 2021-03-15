@@ -235,7 +235,7 @@ components:
     cql-facet-request:
       name: cqlFacetRequest
       in: query
-      description: A CQL query string with search conditions.
+      description: A CQL query string with search conditions and facet names.
       required: true
       schema:
         $ref: '#/components/schemas/cqlFacetRequest'

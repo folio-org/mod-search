@@ -25,8 +25,8 @@ public class SearchRepository {
   /**
    * Executes request to elasticsearch and returns search result with related documents.
    *
-   * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
    * @param resourceRequest resource request as {@link ResourceRequest} object.
+   * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
    * @return search result as {@link SearchResult} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {

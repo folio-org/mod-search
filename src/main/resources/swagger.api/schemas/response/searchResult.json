@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Facet result response",
+  "description": "Search result response",
   "type": "object",
   "properties": {
     "totalRecords": {

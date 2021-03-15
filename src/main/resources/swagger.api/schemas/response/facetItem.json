@@ -9,7 +9,7 @@
     },
     "totalRecords": {
       "type": "number",
-      "description": "Amount of instances for that facet"
+      "description": "Amount of search results for that facet"
     }
   }
 }

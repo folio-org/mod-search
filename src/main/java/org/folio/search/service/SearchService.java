@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +42,7 @@ public class SearchService {
       .size(request.getLimit())
       .trackTotalHits(true);
 
-    if (!request.getExpandAll()) {
+    if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource).toArray(String[]::new);
       queryBuilder.fetchSource(includes, null);
     }

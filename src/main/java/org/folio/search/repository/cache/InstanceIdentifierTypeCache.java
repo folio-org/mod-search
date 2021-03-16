@@ -22,9 +22,10 @@ public class InstanceIdentifierTypeCache {
   @Cacheable(cacheNames = CACHE_NAME,
     key = "@folioExecutionContext.tenantId + ': ' + #identifiers")
   public Set<String> fetchIdentifierIds(Collection<String> identifiers) {
+    log.info("Fetching identifiers [identifierNames={}]", identifiers);
+
     return client.getIdentifierTypes(exactMatchAny("name", identifiers))
       .getResult().stream()
-      .peek(identifier -> log.info("Identifier fetched [identifier={}]", identifier))
       .map(ReferenceRecord::getId)
       .collect(Collectors.toSet());
   }

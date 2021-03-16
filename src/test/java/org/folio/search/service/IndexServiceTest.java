@@ -73,7 +73,7 @@ class IndexServiceTest {
     var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
 
-    when(searchDocumentConverter.convert(eq(List.of(eventBody)))).thenReturn(List.of(searchBody));
+    when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
 
     var response = indexService.indexResources(List.of(eventBody));

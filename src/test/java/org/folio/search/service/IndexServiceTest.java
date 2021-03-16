@@ -15,10 +15,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.repository.IndexRepository;
-import org.folio.search.service.converter.SearchDocumentConverter;
+import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.utils.TestUtils;
@@ -40,8 +39,7 @@ class IndexServiceTest {
   @Mock private IndexRepository indexRepository;
   @Mock private SearchMappingsHelper mappingsHelper;
   @Mock private SearchSettingsHelper settingsHelper;
-  @Mock private SearchDocumentConverter searchDocumentConverter;
-  @Mock private LanguageConfigService languageConfigService;
+  @Mock private MultiTenantSearchDocumentConverter searchDocumentConverter;
   @Mock private InstanceStorageClient instanceStorageClient;
   @InjectMocks private IndexService indexService;
 
@@ -75,9 +73,8 @@ class IndexServiceTest {
     var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
 
-    when(searchDocumentConverter.convert(any(), eq(List.of(eventBody)))).thenReturn(List.of(searchBody));
+    when(searchDocumentConverter.convert(eq(List.of(eventBody)))).thenReturn(List.of(searchBody));
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
-    when(languageConfigService.getAllLanguagesForTenant(any())).thenReturn(Set.of("eng"));
 
     var response = indexService.indexResources(List.of(eventBody));
     assertThat(response).isEqualTo(expectedResponse);

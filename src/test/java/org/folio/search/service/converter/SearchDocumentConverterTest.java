@@ -31,6 +31,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -51,6 +52,7 @@ class SearchDocumentConverterTest {
   @Spy private final ObjectMapper objectMapper = new ObjectMapper()
     .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
   @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
+  @Mock private LanguageConfigService languageConfigService;
 
   @Test
   void convertSingleEvent_positive() {
@@ -76,9 +78,9 @@ class SearchDocumentConverterTest {
 
     when(descriptionService.get(RESOURCE_NAME))
       .thenReturn(resourceDescription(getDescriptionFields(), List.of("$.language")));
+    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
 
-    var actual = documentMapper.convert(convertConfig("eng"),
-      List.of(firstEvent, secondEvent));
+    var actual = documentMapper.convert(List.of(firstEvent, secondEvent));
 
     assertThat(actual).containsExactlyInAnyOrder(
       expectedSearchDocument(firstEventId), expectedSearchDocument(secondEventId));
@@ -175,41 +177,8 @@ class SearchDocumentConverterTest {
   @Test
   void convertSingleEvent_negative_dataIsNull() {
     var eventBody = eventBody(RESOURCE_NAME, null);
-    var actual = documentMapper.convert(convertConfig("eng"), List.of(eventBody));
+    var actual = documentMapper.convert(List.of(eventBody));
     assertThat(actual).isEmpty();
-  }
-
-  @Test
-  void shouldUseOnlyTenantSupportedLanguages() {
-    var firstEventId = randomId();
-    var secondEventId = randomId();
-
-    var firstTenantName = "first";
-    var secondTenantName = "second";
-    var firstTenantLanguage = "eng";
-    var secondTenantLanguage = "rus";
-
-    var firstEvent = eventBody(RESOURCE_NAME,
-      getResourceTestData(firstEventId, firstTenantLanguage)).tenant(firstTenantName);
-    var secondEvent = eventBody(RESOURCE_NAME,
-      getResourceTestData(secondEventId, secondTenantLanguage)).tenant(secondTenantName);
-
-    when(descriptionService.get(RESOURCE_NAME))
-      .thenReturn(resourceDescription(getDescriptionFields(), List.of("$.language")));
-
-    final var convertConfig = new ConvertConfig()
-      .addSupportedLanguage(firstTenantName, Set.of(firstTenantLanguage))
-      .addSupportedLanguage(secondTenantName, Set.of(secondTenantLanguage));
-
-    var actual = documentMapper.convert(convertConfig, List.of(firstEvent, secondEvent));
-
-    final var firstExpectedJson = asJsonString(getExpectedDocument(firstEventId,
-      firstTenantLanguage));
-    final var secondExpectedJson = asJsonString(getExpectedDocument(secondEventId,
-      secondTenantLanguage));
-    assertThat(actual).containsExactlyInAnyOrder(
-      SearchDocumentBody.of(firstEventId, firstTenantName, "test-resource_first", firstExpectedJson),
-      SearchDocumentBody.of(secondEventId, secondTenantName, "test-resource_second", secondExpectedJson));
   }
 
   @Test
@@ -217,7 +186,8 @@ class SearchDocumentConverterTest {
     Map<String, FieldProcessor<?>> setters = Map.of("testProcessor",
       map -> MapUtils.getString(map, "baseProperty"));
 
-    documentMapper = new SearchDocumentConverter(jsonConverter, descriptionService, setters);
+    documentMapper = new SearchDocumentConverter(jsonConverter, languageConfigService,
+      descriptionService, setters);
 
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf("id", keywordField(),
@@ -299,13 +269,9 @@ class SearchDocumentConverterTest {
     return expectedSearchDocument(getExpectedDocument(id));
   }
 
-  private ConvertConfig convertConfig(String ... languageCodes) {
-    return new ConvertConfig().addSupportedLanguage(TENANT_ID, Set.of(languageCodes));
-  }
-
-  private SearchDocumentBody convert(ResourceEventBody eventBody) {
-    final var converted = documentMapper.convert(convertConfig("eng"),
-      List.of(eventBody));
+  private SearchDocumentBody convert(ResourceEventBody ... eventBody) {
+    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
+    final var converted = documentMapper.convert(List.of(eventBody));
 
     assertThat(converted).hasSize(1);
 

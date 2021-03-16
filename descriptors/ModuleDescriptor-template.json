@@ -25,7 +25,10 @@
             "POST"
           ],
           "pathPattern": "/search/index/records",
-          "permissionsRequired": [ "search.index.records.collection.post" ]
+          "permissionsRequired": [ "search.index.records.collection.post" ],
+          "modulePermissions": [
+            "inventory-storage.identifier-types.collection.get"
+          ]
         },
         {
           "methods": [

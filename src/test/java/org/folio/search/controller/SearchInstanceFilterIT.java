@@ -3,9 +3,6 @@ package org.folio.search.controller;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.domain.dto.ItemStatus.NameEnum.AVAILABLE;
-import static org.folio.search.domain.dto.ItemStatus.NameEnum.CHECKED_OUT;
-import static org.folio.search.domain.dto.ItemStatus.NameEnum.MISSING;
 import static org.folio.search.support.base.ApiEndpoints.getFacets;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -33,7 +30,6 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceTags;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemStatus;
-import org.folio.search.domain.dto.ItemStatus.NameEnum;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -48,7 +44,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchInstanceFilterIT extends BaseIntegrationTest {
-
+  private static final String AVAILABLE = "Available";
+  private static final String CHECKED_OUT = "Checked out";
+  private static final String MISSING = "Missing";
   private static final String TENANT_ID = "filter_test_instance";
 
   private static final String[] IDS = array(
@@ -307,7 +305,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     return instances;
   }
 
-  private static ItemStatus itemStatus(NameEnum itemStatus) {
+  private static ItemStatus itemStatus(String itemStatus) {
     return new ItemStatus().name(itemStatus);
   }
 

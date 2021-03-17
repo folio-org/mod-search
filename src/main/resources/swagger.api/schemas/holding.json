@@ -10,6 +10,10 @@
     "permanentLocationId": {
       "type": "string",
       "description": "The permanent shelving location in which an item resides."
+    },
+    "discoverySuppress": {
+      "type": "boolean",
+      "description": "records the fact that the record should not be displayed in a discovery system"
     }
   }
 }

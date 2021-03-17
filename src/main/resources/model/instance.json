@@ -210,6 +210,11 @@
         "permanentLocationId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
+        },
+        "discoverySuppress": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "bool",
+          "default": false
         }
       }
     }

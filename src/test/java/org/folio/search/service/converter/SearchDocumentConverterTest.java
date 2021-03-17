@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.keywordField;
+import static org.folio.search.utils.TestUtils.keywordFieldWithDefaultValue;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -207,6 +208,22 @@ class SearchDocumentConverterTest {
 
     assertThat(actual)
       .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+  }
+
+  @Test
+  void convertSingleEvent_defaultValue() {
+    var defaultValue = "default";
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue(defaultValue)));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, Map.of("id", id));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", defaultValue);
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

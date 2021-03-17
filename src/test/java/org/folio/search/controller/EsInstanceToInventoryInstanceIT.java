@@ -51,6 +51,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
 
     final var actual = OBJECT_MAPPER.readValue(actualJson, SearchResult.class).getInstances().get(0);
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
+      .map(hr -> hr.discoverySuppress(false))
       .map(Matchers::is).collect(Collectors.toList())));
     assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
       .map(Matchers::is).collect(Collectors.toList())));

@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +25,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class IsbnProcessor extends AbstractIdentifierProcessor {
-
-  static final String ISBN_IDENTIFIER_TYPE_ID = "8261054f-be78-422d-bd51-4ed9f33c3422";
-  static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = "fcca2643-406a-482a-b760-7a7f8aec640e";
+  static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
   private static final String SEP = "(?:[-\\s])";
   private static final String GROUP_1 = "(\\d{1,5})";
@@ -48,16 +46,13 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   private static final Pattern ISBN13_REGEX = Pattern.compile(
     "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
 
-  private final Set<String> isbnIdentifierTypeIds =
-    Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
-
   /**
    * Used by dependency injection.
    *
    * @param jsonConverter {@link JsonConverter} bean
    */
-  public IsbnProcessor(JsonConverter jsonConverter) {
-    super(jsonConverter);
+  public IsbnProcessor(JsonConverter jsonConverter, InstanceIdentifierTypeCache cache) {
+    super(jsonConverter, cache);
   }
 
   @Override
@@ -72,8 +67,8 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   }
 
   @Override
-  protected Set<String> getIdentifierTypeIds() {
-    return isbnIdentifierTypeIds;
+  protected List<String> getIdentifierNames() {
+    return ISBN_IDENTIFIER_NAMES;
   }
 
   /**

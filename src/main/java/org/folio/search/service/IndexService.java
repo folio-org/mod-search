@@ -17,8 +17,7 @@ import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
-import org.folio.search.service.converter.ConvertConfig;
-import org.folio.search.service.converter.SearchDocumentConverter;
+import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.springframework.stereotype.Service;
@@ -31,8 +30,7 @@ public class IndexService {
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
-  private final SearchDocumentConverter searchDocumentConverter;
-  private final LanguageConfigService languageConfigService;
+  private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final InstanceStorageClient instanceStorageClient;
 
   /**
@@ -80,14 +78,7 @@ public class IndexService {
       return getSuccessIndexOperationResponse();
     }
 
-    final ConvertConfig convertConfig = new ConvertConfig();
-    resources.stream()
-      .map(ResourceEventBody::getTenant)
-      .distinct()
-      .forEach(tenant -> convertConfig.addSupportedLanguage(tenant,
-        languageConfigService.getAllLanguagesForTenant(tenant)));
-
-    var elasticsearchDocuments = searchDocumentConverter.convert(convertConfig, resources);
+    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
     return indexRepository.indexResources(elasticsearchDocuments);
   }
 

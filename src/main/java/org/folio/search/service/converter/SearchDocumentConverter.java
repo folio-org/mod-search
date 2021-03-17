@@ -5,15 +5,14 @@ import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.With;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
@@ -22,6 +21,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 public class SearchDocumentConverter {
 
   private final JsonConverter jsonConverter;
+  private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService descriptionService;
   private final Map<String, FieldProcessor<?>> fieldProcessors;
 
@@ -43,10 +44,10 @@ public class SearchDocumentConverter {
    * @param resourceEvents list with resource events for conversion to elasticsearch document
    * @return list with elasticsearch documents.
    */
-  public List<SearchDocumentBody> convert(ConvertConfig config, List<ResourceEventBody> resourceEvents) {
+  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
     return resourceEvents.stream()
       .filter(this::canConvertEvent)
-      .map(event -> buildConvertContext(config, event))
+      .map(this::buildConvertContext)
       .map(this::convert)
       .collect(toList());
   }
@@ -75,12 +76,13 @@ public class SearchDocumentConverter {
       .build();
   }
 
-  private List<String> getResourceLanguages(ConversionContext context) {
-    return context.getLanguageSourcePaths().stream()
-      .map(sourcePath -> SearchConverterUtils.getMapValueByPath(sourcePath, context.getResourceData()))
+  private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
+    var supportedLanguages = languageConfigService.getAllLanguageCodes();
+    return languageSource.stream()
+      .map(sourcePath -> SearchConverterUtils.getMapValueByPath(sourcePath, resourceData))
       .flatMap(SearchConverterUtils::getStringStreamFromValue)
       .distinct()
-      .filter(context::isLanguageSupported)
+      .filter(supportedLanguages::contains)
       .collect(toList());
   }
 
@@ -88,11 +90,14 @@ public class SearchDocumentConverter {
     return resourceEventBody.getNew() instanceof Map;
   }
 
-  private ConversionContext buildConvertContext(ConvertConfig config, ResourceEventBody event) {
-    final var context = ConversionContext.of(event, descriptionService
-      .get(event.getResourceName()), config);
+  private ConversionContext buildConvertContext(ResourceEventBody event) {
+    var resourceDescription = descriptionService.get(event.getResourceName());
+    var resourceDataAsMap = getResourceDataAsMap(event);
+    var resourceLanguages = getResourceLanguages(resourceDescription
+        .getLanguageSourcePaths(), resourceDataAsMap);
 
-    return context.withLanguages(getResourceLanguages(context));
+    return new ConversionContext(event.getTenant(), event.getResourceName(), resourceDataAsMap,
+      resourceDescription, resourceLanguages);
   }
 
   private Map<String, Object> generateSearchFields(ConversionContext ctx) {
@@ -107,6 +112,10 @@ public class SearchDocumentConverter {
       });
 
     return nullIfEmpty(resultMap);
+  }
+
+  private Map<String, Object> getResourceDataAsMap(ResourceEventBody event) {
+    return jsonConverter.convert(event.getNew(), new TypeReference<>() {});
   }
 
   private static Map<String, Object> convertMapUsingResourceFields(
@@ -175,41 +184,19 @@ public class SearchDocumentConverter {
    * The conversion context object.
    */
   @Getter
-  @RequiredArgsConstructor(staticName = "of")
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static class ConversionContext {
-    private final ResourceEventBody event;
+    private final String tenant;
+    private final String resourceName;
+    private final Map<String, Object> resourceData;
     private final ResourceDescription resourceDescription;
-    private final ConvertConfig convertConfig;
     /**
      * List of supported language for resource.
      */
-    @With
-    private List<String> languages;
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> getResourceData() {
-      return (Map<String, Object>) event.getNew();
-    }
-
-    private List<String> getLanguageSourcePaths() {
-      return resourceDescription.getLanguageSourcePaths();
-    }
-
-    private boolean isLanguageSupported(String code) {
-      return convertConfig.isSupportedLanguageCode(getTenant(), code);
-    }
-
-    private String getTenant() {
-      return event.getTenant();
-    }
-
-    public String getResourceName() {
-      return event.getResourceName();
-    }
+    private final List<String> languages;
 
     private String getId() {
-      return MapUtils.getString(getResourceData(), "id");
+      return MapUtils.getString(resourceData, "id");
     }
   }
 }

@@ -20,7 +20,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"identifierTypes\": [{\"id\" : \"3cb3e0cd-ccd9-47af-a570-6f3851571dca\",\"name\" : \"Invalid ISSN\"}, {\"id\" : \"2b9f4284-e836-43a1-9aa9-a4c8c2be38d3\",\"name\" : \"ISSN\"}]}",
+        "body": "{\"identifierTypes\": [{\"id\" : \"3cb3e0cd-ccd9-47af-a570-6f3851571dca\",\"name\" : \"Invalid ISSN\"}, {\"id\" : \"913300b2-03ed-469a-8179-c1092c991227\",\"name\" : \"ISSN\"}]}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -33,7 +33,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"identifierTypes\": [{\"id\" : \"9024e225-7a68-4f2c-bcf1-81013fb8a6f0\",\"name\" : \"Invalid ISBN\"}, {\"id\" : \"59378436-9645-4add-b05f-6afc69bdc8d0\",\"name\" : \"ISBN\"}]}",
+        "body": "{\"identifierTypes\": [{\"id\" : \"9024e225-7a68-4f2c-bcf1-81013fb8a6f0\",\"name\" : \"Invalid ISBN\"}, {\"id\" : \"8261054f-be78-422d-bd51-4ed9f33c3422\",\"name\" : \"ISBN\"}]}",
         "headers": {
           "Content-Type": "application/json"
         }

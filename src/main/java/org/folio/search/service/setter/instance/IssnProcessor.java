@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IssnProcessor extends AbstractIdentifierProcessor {
-  private static final List<String> IDENTIFIER_NAMES = List.of("ISSN", "Invalid ISSN");
+  static final List<String> ISSN_IDENTIFIER_NAMES = List.of("ISSN", "Invalid ISSN");
 
   /**
    * Used by dependency injection.
@@ -34,6 +34,6 @@ public class IssnProcessor extends AbstractIdentifierProcessor {
 
   @Override
   protected List<String> getIdentifierNames() {
-    return IDENTIFIER_NAMES;
+    return ISSN_IDENTIFIER_NAMES;
   }
 }

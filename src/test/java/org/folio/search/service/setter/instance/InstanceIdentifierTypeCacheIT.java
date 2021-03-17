@@ -1,14 +1,15 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.service.ResultList.asSinglePage;
+import static org.folio.search.service.setter.instance.IsbnProcessor.ISBN_IDENTIFIER_NAMES;
+import static org.folio.search.utils.TestConstants.INVALID_ISBN_IDENTIFIER_TYPE_ID;
+import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Set;
 import org.folio.search.SearchApplication;
 import org.folio.search.client.IdentifierTypeClient;
@@ -30,9 +31,6 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableAutoConfiguration
 @EnableCaching
 class InstanceIdentifierTypeCacheIT {
-  private static final String ISBN_IDENTIFIER = randomUUID().toString();
-  private static final String INVALID_ISBN_IDENTIFIER = randomUUID().toString();
-
   @MockBean private IdentifierTypeClient identifierTypeClient;
   @Autowired private CacheManager cacheManager;
   @Autowired private InstanceIdentifierTypeCache cache;
@@ -44,7 +42,7 @@ class InstanceIdentifierTypeCacheIT {
     when(identifierTypeClient.getIdentifierTypes(any())).thenReturn(referenceRecords());
 
     beginFolioExecutionContext(contextBuilder.dbOnlyContext("my_tenant_name"));
-    cache.fetchIdentifierIds(List.of("ISBN", "Invalid ISBN"));
+    cache.fetchIdentifierIds(ISBN_IDENTIFIER_NAMES);
     endFolioExecutionContext();
 
     var cache = cacheManager.getCache(InstanceIdentifierTypeCache.CACHE_NAME);
@@ -52,12 +50,12 @@ class InstanceIdentifierTypeCacheIT {
     Set<String> cachedValue = (Set<String>) cache.get("my_tenant_name: ISBN,Invalid ISBN", Set.class);
 
     assertThat(cachedValue)
-      .containsExactlyInAnyOrder(ISBN_IDENTIFIER, INVALID_ISBN_IDENTIFIER);
+      .containsExactlyInAnyOrder(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
   }
 
   private ResultList<ReferenceRecord> referenceRecords() {
     return asSinglePage(
-      ReferenceRecord.referenceRecord(ISBN_IDENTIFIER, "ISBN"),
-      ReferenceRecord.referenceRecord(INVALID_ISBN_IDENTIFIER, "Invalid ISBN"));
+      ReferenceRecord.referenceRecord(ISBN_IDENTIFIER_TYPE_ID, "ISBN"),
+      ReferenceRecord.referenceRecord(INVALID_ISBN_IDENTIFIER_TYPE_ID, "Invalid ISBN"));
   }
 }

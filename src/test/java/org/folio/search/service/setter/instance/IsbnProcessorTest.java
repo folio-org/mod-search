@@ -2,6 +2,9 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.service.setter.instance.IsbnProcessor.ISBN_IDENTIFIER_NAMES;
+import static org.folio.search.utils.TestConstants.INVALID_ISBN_IDENTIFIER_TYPE_ID;
+import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -10,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
 import org.folio.search.utils.JsonConverter;
@@ -28,8 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class IsbnProcessorTest {
-  private static final String ISBN_IDENTIFIER = UUID.randomUUID().toString();
-  private static final String INVALID_ISBN_IDENTIFIER = UUID.randomUUID().toString();
 
   @InjectMocks private IsbnProcessor isbnProcessor;
   @Mock private InstanceIdentifierTypeCache cache;
@@ -39,8 +39,8 @@ class IsbnProcessorTest {
   @DisplayName("should get field value")
   @ParameterizedTest(name = "[{index}] initial={0}, expected={1}")
   void getFieldValue_positive(List<Map<String, Object>> identifiers, List<String> expected) {
-    when(cache.fetchIdentifierIds(List.of("ISBN", "Invalid ISBN")))
-      .thenReturn(Set.of(ISBN_IDENTIFIER, INVALID_ISBN_IDENTIFIER));
+    when(cache.fetchIdentifierIds(ISBN_IDENTIFIER_NAMES))
+      .thenReturn(Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID));
 
     var actual = isbnProcessor.getFieldValue(mapOf("identifiers", identifiers));
     assertThat(actual).isEqualTo(expected);
@@ -93,10 +93,10 @@ class IsbnProcessorTest {
   }
 
   private static Map<String, Object> invalidIsbnIdentifier(String value) {
-    return identifier(value, INVALID_ISBN_IDENTIFIER);
+    return identifier(value, INVALID_ISBN_IDENTIFIER_TYPE_ID);
   }
 
   private static Map<String, Object> isbnIdentifier(String value) {
-    return identifier(value, ISBN_IDENTIFIER);
+    return identifier(value, ISBN_IDENTIFIER_TYPE_ID);
   }
 }

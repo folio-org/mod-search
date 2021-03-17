@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class IsbnProcessor extends AbstractIdentifierProcessor {
+  static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
   private static final String SEP = "(?:[-\\s])";
   private static final String GROUP_1 = "(\\d{1,5})";
@@ -44,8 +45,6 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
    */
   private static final Pattern ISBN13_REGEX = Pattern.compile(
     "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
-
-  private static final List<String> IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
   /**
    * Used by dependency injection.
@@ -69,7 +68,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
 
   @Override
   protected List<String> getIdentifierNames() {
-    return IDENTIFIER_NAMES;
+    return ISBN_IDENTIFIER_NAMES;
   }
 
   /**

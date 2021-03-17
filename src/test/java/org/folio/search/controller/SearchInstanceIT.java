@@ -50,6 +50,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by instance title (part of title)", "title all {value}", array("primers"), null),
       arguments("search by instance title (alternative title)", "title all {value}", array("primers"), null),
 
+      arguments("search by series", "title all {value}", array("cooperate"), null),
+      arguments("search by identifiers (wildcard)", "identifiers.value all {value}", array("200306*"), null),
+
       arguments("search by publisher (abbreviate)", "publisher all {value}", array("MIT"), null),
       arguments("search by publisher (abbreviate lowercase)", "publisher all {value}", array("mit"), null),
       arguments("search by publisher (word)", "publisher all {value}", array("press"), null),

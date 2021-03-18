@@ -56,6 +56,24 @@ These languages will be added on tenant init and applied to index. Example usage
 
 ## Deploying
 
+## Environment variables:
+
+| Name                   | Default value | Description                                                       |
+| :----------------------| :------------:|:------------------------------------------------------------------|
+| DB_HOST                | postgres      | Postgres hostname                                                 |
+| DB_PORT                | 5432          | Postgres port                                                     |
+| DB_USERNAME            | folio_admin   | Postgres username                                                 |
+| DB_PASSWORD            | -             | Postgres username password                                        |
+| DB_DATABASE            | okapi_modules | Postgres database name                                            |
+| ELASTICSEARCH_HOST     | elasticsearch | Elasticsearch hostname                                            |
+| ELASTICSEARCH_PORT     | 9200          | Elasticsearch port                                                |
+| ELASTICSEARCH_USERNAME | -             | Elasticsearch username (not required for dev envs)                |
+| ELASTICSEARCH_PASSWORD | -             | Elasticsearch password (not required for dev envs)                |
+| KAFKA_HOST             | kafka         | Kafka broker hostname                                             |
+| KAFKA_PORT             | 9092          | Kafka broker port                                                 |
+| INITIAL_LANGUAGES      | eng           | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
+| SYSTEM_USER_PASSWORD   | -             | Password for `mod-search` system user (not required for dev envs) |
+
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
 `SYSTEM_USER_PASSWORD=<password>`.

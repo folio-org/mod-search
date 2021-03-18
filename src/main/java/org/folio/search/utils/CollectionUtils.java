@@ -24,17 +24,4 @@ public final class CollectionUtils {
 
     return nullIfEmpty(baseMap);
   }
-
-  /**
-   * Checks whether given key has no value associated or this value is null.
-   *
-   * @param map - The map.
-   * @param key - Key to check.
-   * @param <K> - Key type
-   * @param <V> - Value type
-   * @return true if key has a non-null value associated, otherwise false.
-   */
-  public static <K, V> boolean hasNoValue(Map<K, V> map, K key) {
-    return map.get(key) == null;
-  }
 }

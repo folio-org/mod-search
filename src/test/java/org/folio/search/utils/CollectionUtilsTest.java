@@ -2,12 +2,9 @@ package org.folio.search.utils;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.CollectionUtils.hasNoValue;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -53,18 +50,5 @@ class CollectionUtilsTest {
   @Test
   void shouldReturnNullIfAllMapsAreNull() {
     assertThat(mergeSafely(null, null)).isNull();
-  }
-
-  @Test
-  void hasNoValue_keyIsNull() {
-    var map = new HashMap<>();
-    map.put("key", null);
-
-    assertTrue(hasNoValue(map, "key"));
-  }
-
-  @Test
-  void hasNoValue_noKeyPresent() {
-    assertTrue(hasNoValue(emptyMap(), "key"));
   }
 }

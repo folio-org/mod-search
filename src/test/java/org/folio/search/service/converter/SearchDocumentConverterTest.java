@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -211,13 +212,48 @@ class SearchDocumentConverterTest {
   }
 
   @Test
-  void convertSingleEvent_defaultValue() {
+  void shouldNotUseDefaultValueIfPresent() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue("default")));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, Map.of("id", id, "value", "aValue"));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", "aValue");
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
+  }
+
+  @Test
+  void shouldUseDefaultValueWhenNoValuePresent() {
     var defaultValue = "default";
     var id = randomId();
     var resourceDescription = resourceDescription(mapOf("id", keywordField(),
       "value", keywordFieldWithDefaultValue(defaultValue)));
 
     var resourceEventBody = eventBody(RESOURCE_NAME, Map.of("id", id));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", defaultValue);
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
+  }
+
+  @Test
+  void shouldUseDefaultValueIsNull() {
+    var defaultValue = "default";
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue(defaultValue)));
+
+    var map = new HashMap<>();
+    map.put("id", id);
+    map.put("value", null);
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, map);
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
     var actual = convert(resourceEventBody);

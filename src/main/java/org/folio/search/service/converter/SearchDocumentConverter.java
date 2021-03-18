@@ -1,7 +1,6 @@
 package org.folio.search.service.converter;
 
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.utils.CollectionUtils.hasNoValue;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
@@ -150,9 +149,7 @@ public class SearchDocumentConverter {
     if (!desc.isIndexed()) {
       return null;
     }
-    Object plainFieldValue = hasNoValue(fieldData, fieldName)
-      ? desc.getDefaultValue() : fieldData.get(fieldName);
-
+    Object plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
     return desc.isMultilang() ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
   }
 

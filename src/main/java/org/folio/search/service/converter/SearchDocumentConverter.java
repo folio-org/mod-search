@@ -144,11 +144,12 @@ public class SearchDocumentConverter {
 
   private static Object getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
+    var fieldName = fieldEntry.getKey();
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (!desc.isIndexed()) {
       return null;
     }
-    Object plainFieldValue = fieldData.get(fieldEntry.getKey());
+    Object plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
     return desc.isMultilang() ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
   }
 

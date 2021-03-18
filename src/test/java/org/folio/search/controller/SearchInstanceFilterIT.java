@@ -164,7 +164,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[2]),
         List.of(IDS[3], IDS[4])),
       arguments(format("(holdings.permanentLocationId==%s and source==MARC) sortby title", PERMANENT_LOCATIONS[2]),
-        List.of(IDS[3]))
+        List.of(IDS[3])),
+
+      arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1])),
+      arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4]))
     );
   }
 
@@ -235,7 +238,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("holdings.permanentLocationId"), mapOf(
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
-          facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2))))
+          facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)))),
+      arguments("id=*", array("holdings.discoverySuppress"), mapOf(
+        "holdings.discoverySuppress", facet(facetItem("false", 3),
+          facetItem("true", 1))))
     );
   }
 
@@ -264,7 +270,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceFormatId(List.of(FORMATS[1]))
       .tags(instanceTags("future"))
       .items(List.of(new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))))
-      .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1])));
+      .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
+        .permanentLocationId(PERMANENT_LOCATIONS[1])));
 
     instances[2]
       .source("FOLIO")

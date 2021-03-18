@@ -1,6 +1,7 @@
 package org.folio.search.model.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +56,12 @@ public class PlainFieldDescription extends FieldDescription {
    * elasticsearch.</p>
    */
   private ObjectNode mappings;
+
+  /**
+   * Allows to specify default value when not present or null.
+   */
+  @JsonProperty("default")
+  private Object defaultValue;
 
   /**
    * Checks if resource description field is multi-language.

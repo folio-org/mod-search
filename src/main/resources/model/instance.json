@@ -198,6 +198,10 @@
               "index": "keyword"
             }
           }
+        },
+        "materialTypeId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
         }
       }
     },

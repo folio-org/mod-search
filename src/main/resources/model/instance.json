@@ -219,6 +219,9 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "bool",
           "default": false
+        },
+        "hrid": {
+          "index": "keyword"
         }
       }
     }

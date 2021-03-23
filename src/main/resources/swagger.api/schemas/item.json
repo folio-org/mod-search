@@ -32,6 +32,10 @@
     "materialTypeId": {
       "type": "string",
       "description": "Material type, term. Define what type of thing the item is."
+    },
+    "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system"
     }
   }
 }

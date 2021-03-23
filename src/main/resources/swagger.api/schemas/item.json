@@ -28,6 +28,10 @@
           "type": "string"
         }
       }
+    },
+    "materialTypeId": {
+      "type": "string",
+      "description": "Material type, term. Define what type of thing the item is."
     }
   }
 }

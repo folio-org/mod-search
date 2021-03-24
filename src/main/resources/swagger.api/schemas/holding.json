@@ -14,6 +14,10 @@
     "discoverySuppress": {
       "type": "boolean",
       "description": "Indicates that the record should not be displayed in a discovery system"
+    },
+    "hrid": {
+      "type": "string",
+      "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
     }
   }
 }

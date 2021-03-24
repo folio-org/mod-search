@@ -170,6 +170,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[0]), List.of(IDS[0], IDS[2])),
       arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[1]), List.of(IDS[1], IDS[3], IDS[4])),
 
+      arguments("items.discoverySuppress==true sortBy title", List.of(IDS[0], IDS[2])),
+      arguments("items.discoverySuppress==false sortBy title", List.of(IDS[1], IDS[2], IDS[3], IDS[4])),
+
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[0]),
         List.of(IDS[0], IDS[3])),
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[1]),
@@ -254,6 +257,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("items.status.name"), mapOf(
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
 
+      arguments("id=*", array("items.discoverySuppress"), mapOf(
+        "items.discoverySuppress", facet(facetItem("true", 2), facetItem("false", 4)))),
+
       arguments("id=*", array("holdings.permanentLocationId"), mapOf(
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
           facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)))),
@@ -278,6 +284,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(instanceTags("text", "science"))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
+        .discoverySuppress(true)
         .materialTypeId(MATERIAL_TYPES[0])))
       .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])));
 
@@ -291,6 +298,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(instanceTags("future"))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
+        .discoverySuppress(false)
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
         .permanentLocationId(PERMANENT_LOCATIONS[1])));
@@ -304,6 +312,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(instanceTags("future", "science"))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+          .discoverySuppress(true)
           .materialTypeId(MATERIAL_TYPES[0]),
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))));
 

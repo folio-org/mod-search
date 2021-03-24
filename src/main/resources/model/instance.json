@@ -202,6 +202,20 @@
         "materialTypeId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
+        },
+        "effectiveCallNumberComponents": {
+          "type": "object",
+          "properties": {
+            "callNumber": {
+              "index": "source"
+            },
+            "prefix": {
+              "index": "source"
+            },
+            "suffix": {
+              "index": "source"
+            }
+          }
         }
       }
     },
@@ -262,6 +276,12 @@
       "type": "search",
       "processor": "discoverySuppressProcessor",
       "index": "bool"
+    },
+    "itemsFullCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
+      "processor": "effectiveCallNumberComponentsProcessor"
     }
   },
   "indexMappings": {

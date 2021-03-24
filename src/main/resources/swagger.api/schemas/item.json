@@ -32,6 +32,24 @@
     "materialTypeId": {
       "type": "string",
       "description": "Material type, term. Define what type of thing the item is."
+    },
+    "effectiveCallNumberComponents": {
+      "type": "object",
+      "description": "Elements of a full call number generated from the item or holding",
+      "properties": {
+        "callNumber": {
+          "type": "string",
+          "description": "Effective Call Number is an identifier assigned to an item or its holding and associated with the item."
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item."
+        },
+        "suffix": {
+          "type": "string",
+          "description": "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item."
+        }
+      }
     }
   }
 }

@@ -203,6 +203,11 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
+        "discoverySuppress": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "bool",
+          "default": false
+        },
         "effectiveCallNumberComponents": {
           "type": "object",
           "properties": {
@@ -233,6 +238,9 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "bool",
           "default": false
+        },
+        "hrid": {
+          "index": "keyword"
         }
       }
     }

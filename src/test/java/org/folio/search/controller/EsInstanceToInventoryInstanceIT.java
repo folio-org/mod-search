@@ -54,6 +54,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
       .map(hr -> hr.discoverySuppress(false))
       .map(Matchers::is).collect(Collectors.toList())));
     assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
+      .map(item -> item.discoverySuppress(false))
       .map(Matchers::is).collect(Collectors.toList())));
 
     assertThat(actual.holdings(null).items(null),

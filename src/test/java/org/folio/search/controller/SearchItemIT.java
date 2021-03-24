@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public class SearchItemIT extends BaseIntegrationTest {
+class SearchItemIT extends BaseIntegrationTest {
 
   @CsvSource({
     "items.fullCallNumber=={value}, prefix-90000 TK51*",

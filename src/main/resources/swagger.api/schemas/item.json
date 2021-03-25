@@ -54,6 +54,10 @@
           "description": "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item."
         }
       }
+    },
+    "tags": {
+      "description": "arbitrary tags associated with this item",
+      "$ref": "tags.json"
     }
   }
 }

@@ -26,9 +26,9 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceTags;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemStatus;
+import org.folio.search.domain.dto.Tags;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -43,6 +43,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchInstanceFilterIT extends BaseIntegrationTest {
+
   private static final String AVAILABLE = "Available";
   private static final String CHECKED_OUT = "Checked out";
   private static final String MISSING = "Missing";
@@ -183,7 +184,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[3])),
 
       arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1])),
-      arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4]))
+      arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
+
+      arguments("(itemTags==itag1) sortby title", List.of(IDS[0], IDS[2])),
+      arguments("(holdingTags==htag1) sortby title", List.of(IDS[0], IDS[4]))
     );
   }
 
@@ -263,9 +267,16 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("holdings.permanentLocationId"), mapOf(
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
           facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)))),
+
       arguments("id=*", array("holdings.discoverySuppress"), mapOf(
         "holdings.discoverySuppress", facet(facetItem("false", 3),
-          facetItem("true", 1))))
+          facetItem("true", 1)))),
+
+      arguments("id=*", array("holdingTags"), mapOf(
+        "holdingTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),
+
+      arguments("id=*", array("itemTags"), mapOf(
+        "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2))))
     );
   }
 
@@ -281,12 +292,15 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .staffSuppress(true)
       .discoverySuppress(true)
       .instanceFormatId(List.of(FORMATS[1], FORMATS[2]))
-      .tags(instanceTags("text", "science"))
-      .items(List.of(new Item().id(randomId())
-        .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
-        .discoverySuppress(true)
-        .materialTypeId(MATERIAL_TYPES[0])))
-      .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])));
+      .tags(tags("text", "science"))
+      .items(List.of(
+        new Item().id(randomId())
+          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
+          .discoverySuppress(true)
+          .materialTypeId(MATERIAL_TYPES[0])
+          .tags(tags("itag1", "itag3"))))
+      .holdings(List.of(
+        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
 
     instances[1]
       .source("MARC")
@@ -295,13 +309,15 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .staffSuppress(true)
       .discoverySuppress(true)
       .instanceFormatId(List.of(FORMATS[1]))
-      .tags(instanceTags("future"))
-      .items(List.of(new Item().id(randomId())
-        .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
-        .discoverySuppress(false)
-        .materialTypeId(MATERIAL_TYPES[1])))
+      .tags(tags("future"))
+      .items(List.of(
+        new Item().id(randomId())
+          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
+          .discoverySuppress(false)
+          .materialTypeId(MATERIAL_TYPES[1])
+          .tags(tags("itag2", "itag3"))))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
-        .permanentLocationId(PERMANENT_LOCATIONS[1])));
+        .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
 
     instances[2]
       .source("FOLIO")
@@ -309,12 +325,12 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceTypeId(TYPES[0])
       .staffSuppress(true)
       .instanceFormatId(List.of(FORMATS[2]))
-      .tags(instanceTags("future", "science"))
+      .tags(tags("future", "science"))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-          .discoverySuppress(true)
-          .materialTypeId(MATERIAL_TYPES[0]),
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))));
+          .discoverySuppress(true).materialTypeId(MATERIAL_TYPES[0]).tags(tags("itag3")),
+        new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))
+          .tags(tags("itag1", "itag2", "itag3"))));
 
     instances[3]
       .source("MARC")
@@ -323,26 +339,26 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .discoverySuppress(false)
       .instanceTypeId(TYPES[1])
       .instanceFormatId(List.of(FORMATS))
-      .tags(instanceTags("casual", "cooking"))
+      .tags(tags("casual", "cooking"))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0]),
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]),
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2])));
+        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2")),
+        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 
     instances[4]
       .source("FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
       .instanceFormatId(List.of(FORMATS[1]))
-      .tags(instanceTags("cooking"))
+      .tags(tags("cooking"))
       .items(List.of(
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)),
+        new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
           .materialTypeId(MATERIAL_TYPES[1])))
-      .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2])));
+      .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag1"))));
 
     return instances;
   }
@@ -351,7 +367,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     return new ItemStatus().name(itemStatus);
   }
 
-  private static InstanceTags instanceTags(String... tags) {
-    return new InstanceTags().tagList(asList(tags));
+  private static Tags tags(String... tags) {
+    return new Tags().tagList(asList(tags));
   }
 }

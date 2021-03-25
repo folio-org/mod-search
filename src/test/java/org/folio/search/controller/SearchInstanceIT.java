@@ -106,7 +106,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("search by issn(value with hyphen)", "issn = {value}", array("0317-8471"), null),
       arguments("search by issn(value without hyphen)", "issn = {value}", array("03178471"), zeroResultConsumer()),
-      arguments("search by issn(wildcard)", "issn = {value}", array("0317*"), null)
+      arguments("search by issn(wildcard)", "issn = {value}", array("0317*"), null),
+
+      arguments("search by items hrid", "items.hrid = {value}", array("item000000000014"), null),
+      arguments("search by items hrid (start with)", "items.hrid = {value}", array("item*"), null),
+      arguments("search by items hrid (ends with)", "items.hrid = {value}", array("*00014"), null),
+      arguments("search by items hrid (wildcard)", "items.hrid = {value}", array("item*00014"), null)
     );
   }
 

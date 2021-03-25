@@ -56,7 +56,7 @@
       }
     },
     "tags": {
-      "description": "arbitrary tags associated with this holding",
+      "description": "arbitrary tags associated with this item",
       "$ref": "tags.json"
     }
   }

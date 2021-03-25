@@ -46,6 +46,7 @@ class HoldingTagsProcessorTest {
       arguments(mapOf("holdings", null), emptyList()),
       arguments(mapOf("holdings", emptyMap()), emptyList()),
       arguments(mapOf("holdings", emptyList()), emptyList()),
+      arguments(mapOf("holdings", singletonList(null)), emptyList()),
       arguments(mapOf("holdings", List.of(mapOf("tags", null))), emptyList()),
       arguments(mapOf("holdings", List.of(mapOf("tags", emptyMap()))), emptyList()),
       arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", null)))), emptyList()),

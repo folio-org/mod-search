@@ -47,6 +47,7 @@ class ItemTagsProcessorTest {
       arguments(mapOf("items", emptyMap()), emptyList()),
       arguments(mapOf("items", emptyList()), emptyList()),
       arguments(mapOf("items", List.of(mapOf("tags", null))), emptyList()),
+      arguments(mapOf("items", singletonList(null)), emptyList()),
       arguments(mapOf("items", List.of(mapOf("tags", emptyMap()))), emptyList()),
       arguments(mapOf("items", List.of(mapOf("tags", mapOf("tagList", null)))), emptyList()),
       arguments(mapOf("items", List.of(mapOf("tags", mapOf("tagList", emptyList())))), emptyList()),

@@ -131,7 +131,16 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   private static Map<String, List<String>> collectFieldsBySearchType(ResourceDescription description) {
     var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
 
-    description.getFlattenFields().forEach((fieldPath, currentFieldDesc) -> {
+    collectFieldsBySearchType(fieldsBySearchType, description.getFlattenFields());
+    collectFieldsBySearchType(fieldsBySearchType, description.getSearchFields());
+
+    return fieldsBySearchType;
+  }
+
+  private static void collectFieldsBySearchType(
+    Map<String, List<String>> fieldsBySearchType, Map<String, ? extends PlainFieldDescription> fields) {
+
+    fields.forEach((fieldPath, currentFieldDesc) -> {
       final var updatedPath = currentFieldDesc.isMultilang()
         ? updatePathForMultilangField(fieldPath) : fieldPath;
 
@@ -139,8 +148,6 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
         .map(type -> fieldsBySearchType.computeIfAbsent(type, k -> new ArrayList<>()))
         .forEach(list -> list.add(updatedPath));
     });
-
-    return fieldsBySearchType;
   }
 
   private static Map<String, List<String>> collectSourceFields(List<ResourceDescription> descriptions) {

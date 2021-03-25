@@ -5,18 +5,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
-import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +62,8 @@ class LocalSearchFieldProviderTest {
   @Test
   void getFieldByInventorySearchType_positive() {
     var fields = searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE);
-    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*", "title2.sub3.sub4");
+    assertThat(fields).containsExactlyInAnyOrder("title1.*", "title2.sub1", "title2.sub2.*",
+      "title2.sub3.sub4", "search1");
   }
 
   @Test
@@ -143,7 +146,10 @@ class LocalSearchFieldProviderTest {
           "sub3", objectField(mapOf(
             "sub4", plainField("keyword", false, TITLE_SEARCH_TYPE),
             "sub5", plainField("multilang", true))))),
-        "source", plainField("keyword", true)))
+        "source", plainField("keyword", true)),
+        mapOf(
+          "search1", searchField(TITLE_SEARCH_TYPE),
+          "search2", searchField()))
     );
   }
 
@@ -168,5 +174,22 @@ class LocalSearchFieldProviderTest {
     fieldDescription.setInventorySearchTypes(List.of(searchTypes));
     fieldDescription.setShowInResponse(showInResponse);
     return fieldDescription;
+  }
+
+  private static SearchFieldDescriptor searchField(String... searchTypes) {
+    var fieldDescription = new SearchFieldDescriptor();
+    fieldDescription.setIndex("keyword");
+    fieldDescription.setInventorySearchTypes(List.of(searchTypes));
+    fieldDescription.setProcessor("processor");
+    return fieldDescription;
+  }
+
+  private static ResourceDescription resourceDescription(
+    Map<String, FieldDescription> fields, Map<String, SearchFieldDescriptor> searchFields) {
+
+    var resourceDescription = TestUtils.resourceDescription(fields);
+    resourceDescription.setSearchFields(searchFields);
+
+    return resourceDescription;
   }
 }

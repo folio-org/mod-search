@@ -221,6 +221,14 @@
               "index": "source"
             }
           }
+        },
+        "tags": {
+          "type": "object",
+          "properties": {
+            "tagList": {
+              "index": "multilang"
+            }
+          }
         }
       }
     },
@@ -241,6 +249,14 @@
         },
         "hrid": {
           "index": "keyword"
+        },
+        "tags": {
+          "type": "object",
+          "properties": {
+            "tagList": {
+              "index": "multilang"
+            }
+          }
         }
       }
     }
@@ -272,6 +288,18 @@
       "type": "search",
       "index": "keyword",
       "processor": "instanceTagsProcessor"
+    },
+    "itemTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "itemTagsProcessor"
+    },
+    "holdingTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingTagsProcessor"
     },
     "staffSuppress": {
       "searchTypes": [ "facet", "filter" ],

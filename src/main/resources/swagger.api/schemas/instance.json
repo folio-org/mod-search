@@ -144,17 +144,7 @@
     },
     "tags": {
       "description": "arbitrary tags associated with this instance",
-      "id": "tags",
-      "type": "object",
-      "properties": {
-        "tagList": {
-          "description": "List of tags",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
+      "$ref": "tags.json"
     },
     "classifications": {
       "type": "array",

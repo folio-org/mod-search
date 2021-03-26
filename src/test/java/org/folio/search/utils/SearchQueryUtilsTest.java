@@ -47,19 +47,24 @@ class SearchQueryUtilsTest {
       .should(termQuery("f1", "v"));
 
     var actual = SearchQueryUtils.isDisjunctionFilterQuery(queryBuilder, field -> true);
-    assertThat(actual).isEqualTo(false);
+    assertThat(actual).isFalse();
   }
 
   private static Stream<Arguments> isDisjunctionFilterQueryDataProvider() {
+    var termQuery = termQuery(FIELD, "v");
     return Stream.of(
-      arguments(termQuery(FIELD, "v"), false),
+      arguments(termQuery, false),
       arguments(boolQuery().should(termQuery(FIELD, "v1")).should(termQuery(FIELD, "v2")), true),
       arguments(boolQuery().should(termQuery(FIELD, "v1")).should(termQuery(FIELD, "v2")), true),
-      arguments(boolQuery().should(termQuery(FIELD, "v")).should(termQuery("f1", "v"))
+      arguments(boolQuery().should(termQuery).should(termQuery("f1", "v"))
         .should(termQuery("f2", "v")), false),
       arguments(boolQuery().should(termQuery(FIELD, "v1")).mustNot(termQuery(FIELD, "v2")), false),
-      arguments(boolQuery().must(termQuery(FIELD, "v")), false),
-      arguments(boolQuery().mustNot(termQuery(FIELD, "v")), false)
+      arguments(boolQuery().must(termQuery), false),
+      arguments(boolQuery().must(termQuery).mustNot(termQuery), false),
+      arguments(boolQuery().must(termQuery).should(termQuery), false),
+      arguments(boolQuery().mustNot(termQuery), false),
+      arguments(boolQuery().mustNot(termQuery).should(termQuery), false),
+      arguments(boolQuery().mustNot(termQuery).must(termQuery).should(termQuery), false)
     );
   }
 }

@@ -198,6 +198,37 @@
               "index": "keyword"
             }
           }
+        },
+        "materialTypeId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
+        "discoverySuppress": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "bool",
+          "default": false
+        },
+        "effectiveCallNumberComponents": {
+          "type": "object",
+          "properties": {
+            "callNumber": {
+              "index": "source"
+            },
+            "prefix": {
+              "index": "source"
+            },
+            "suffix": {
+              "index": "source"
+            }
+          }
+        },
+        "tags": {
+          "type": "object",
+          "properties": {
+            "tagList": {
+              "index": "multilang"
+            }
+          }
         }
       }
     },
@@ -210,6 +241,22 @@
         "permanentLocationId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
+        },
+        "discoverySuppress": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "bool",
+          "default": false
+        },
+        "hrid": {
+          "index": "keyword"
+        },
+        "tags": {
+          "type": "object",
+          "properties": {
+            "tagList": {
+              "index": "multilang"
+            }
+          }
         }
       }
     }
@@ -242,6 +289,18 @@
       "index": "keyword",
       "processor": "instanceTagsProcessor"
     },
+    "itemTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "itemTagsProcessor"
+    },
+    "holdingTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingTagsProcessor"
+    },
     "staffSuppress": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
@@ -253,6 +312,12 @@
       "type": "search",
       "processor": "discoverySuppressProcessor",
       "index": "bool"
+    },
+    "itemsFullCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
+      "processor": "effectiveCallNumberComponentsProcessor"
     }
   },
   "indexMappings": {

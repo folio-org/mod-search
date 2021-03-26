@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.keywordField;
+import static org.folio.search.utils.TestUtils.keywordFieldWithDefaultValue;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -207,6 +209,57 @@ class SearchDocumentConverterTest {
 
     assertThat(actual)
       .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson));
+  }
+
+  @Test
+  void shouldNotUseDefaultValueIfPresent() {
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue("default")));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, Map.of("id", id, "value", "aValue"));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", "aValue");
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
+  }
+
+  @Test
+  void shouldUseDefaultValueWhenNoValuePresent() {
+    var defaultValue = "default";
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue(defaultValue)));
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, Map.of("id", id));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", defaultValue);
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
+  }
+
+  @Test
+  void shouldUseDefaultValueIsNull() {
+    var defaultValue = "default";
+    var id = randomId();
+    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "value", keywordFieldWithDefaultValue(defaultValue)));
+
+    var map = new HashMap<>();
+    map.put("id", id);
+    map.put("value", null);
+
+    var resourceEventBody = eventBody(RESOURCE_NAME, map);
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
+    var actual = convert(resourceEventBody);
+    var expectedJson = jsonObject("id", id, "value", defaultValue);
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

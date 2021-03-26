@@ -169,6 +169,12 @@ public class TestUtils {
     return fieldDescription;
   }
 
+  public static PlainFieldDescription keywordFieldWithDefaultValue(Object defaultValue) {
+    var keywordField = keywordField();
+    keywordField.setDefaultValue(defaultValue);
+    return keywordField;
+  }
+
   public static PlainFieldDescription filterField() {
     var fieldDescription = keywordField();
     fieldDescription.setSearchTypes(List.of(SearchType.FILTER));

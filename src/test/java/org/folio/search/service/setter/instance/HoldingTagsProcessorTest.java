@@ -25,16 +25,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class InstanceTagsProcessorTest {
+class HoldingTagsProcessorTest {
 
-  @InjectMocks private InstanceTagsProcessor instanceTagsProcessor;
+  @InjectMocks private HoldingTagsProcessor holdingTagsProcessor;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @MethodSource("rawTagsDataProvider")
-  @DisplayName("should get field value")
+  @DisplayName("getFieldValue_positive")
   @ParameterizedTest(name = "[{index}] initial={0}, expected={1}")
   void getFieldValue_positive(Map<String, Object> eventBody, List<String> expected) {
-    var actual = instanceTagsProcessor.getFieldValue(eventBody);
+    var actual = holdingTagsProcessor.getFieldValue(eventBody);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -43,12 +43,24 @@ class InstanceTagsProcessorTest {
       arguments(null, emptyList()),
       arguments(emptyMap(), emptyList()),
       arguments(mapOf("id", randomId()), emptyList()),
-      arguments(mapOf("tags", mapOf("tagList", null)), emptyList()),
-      arguments(mapOf("tags", mapOf("tagList", emptyList())), emptyList()),
-      arguments(mapOf("tags", mapOf("tagList", List.of("tag1", "tag2"))), List.of("tag1", "tag2")),
-      arguments(mapOf("tags", mapOf("tagList", List.of(" tag2 "))), List.of("tag2")),
-      arguments(mapOf("tags", mapOf("tagList", List.of("  "))), emptyList()),
-      arguments(mapOf("tags", mapOf("tagList", singletonList((String) null))), emptyList())
+      arguments(mapOf("holdings", null), emptyList()),
+      arguments(mapOf("holdings", emptyMap()), emptyList()),
+      arguments(mapOf("holdings", emptyList()), emptyList()),
+      arguments(mapOf("holdings", singletonList(null)), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", null))), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", emptyMap()))), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", null)))), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", emptyList())))), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf(
+        "tagList", List.of("tag1", "tag2"))))), List.of("tag1", "tag2")),
+      arguments(mapOf("holdings", List.of(
+        mapOf("tags", mapOf("tagList", List.of("tag1", "tag2"))),
+        mapOf("tags", mapOf("tagList", List.of("tag1", "tag2"))))),
+        List.of("tag1", "tag2")),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", List.of(" tag2 "))))), List.of("tag2")),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", List.of("  "))))), emptyList()),
+      arguments(mapOf("holdings", List.of(mapOf("tags", mapOf("tagList", singletonList((String) null))))), emptyList()),
+      arguments(mapOf("items", List.of(mapOf("tags", mapOf("tagList", List.of("tag"))))), emptyList())
     );
   }
 }

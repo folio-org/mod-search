@@ -50,6 +50,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by instance title (part of title)", "title all {value}", array("primers"), null),
       arguments("search by instance title (alternative title)", "title all {value}", array("primers"), null),
 
+      arguments("search by series", "title all {value}", array("cooperate"), null),
+      arguments("search by identifiers (wildcard)", "identifiers.value all {value}", array("200306*"), null),
+
       arguments("search by publisher (abbreviate)", "publisher all {value}", array("MIT"), null),
       arguments("search by publisher (abbreviate lowercase)", "publisher all {value}", array("mit"), null),
       arguments("search by publisher (word)", "publisher all {value}", array("press"), null),
@@ -103,7 +106,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("search by issn(value with hyphen)", "issn = {value}", array("0317-8471"), null),
       arguments("search by issn(value without hyphen)", "issn = {value}", array("03178471"), zeroResultConsumer()),
-      arguments("search by issn(wildcard)", "issn = {value}", array("0317*"), null)
+      arguments("search by issn(wildcard)", "issn = {value}", array("0317*"), null),
+
+      arguments("search by items hrid", "items.hrid = {value}", array("item000000000014"), null),
+      arguments("search by items hrid (start with)", "items.hrid = {value}", array("item*"), null),
+      arguments("search by items hrid (ends with)", "items.hrid = {value}", array("*00014"), null),
+      arguments("search by items hrid (wildcard)", "items.hrid = {value}", array("item*00014"), null)
     );
   }
 

@@ -1,6 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.SearchUtils.isBoolQuery;
+import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;

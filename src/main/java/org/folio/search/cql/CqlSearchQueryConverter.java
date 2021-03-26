@@ -1,7 +1,6 @@
 package org.folio.search.cql;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -9,14 +8,14 @@ import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
-import static org.folio.search.utils.SearchUtils.isBoolQuery;
+import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
+import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -185,52 +184,37 @@ public class CqlSearchQueryConverter {
   }
 
   private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {
+    if (isDisjunctionFilterQuery(query, field -> isFilterField(field, resource))) {
+      return boolQuery().filter(query);
+    }
     if (isBoolQuery(query)) {
-      var boolQuery = (BoolQueryBuilder) query;
-      var mustQueryConditions = new ArrayList<QueryBuilder>();
-      var mustConditions = boolQuery.must();
-      for (QueryBuilder innerQuery : mustConditions) {
-        if (isFilterQuery(innerQuery, resource) || isDisjunctionFilterQuery(innerQuery, resource)) {
-          boolQuery.filter(innerQuery);
-        } else {
-          mustQueryConditions.add(innerQuery);
-        }
-      }
-      mustConditions.clear();
-      mustConditions.addAll(mustQueryConditions);
-      return boolQuery;
+      return enhanceBoolQuery((BoolQueryBuilder) query, resource);
     }
 
     return isFilterQuery(query, resource) ? boolQuery().filter(query) : query;
   }
 
-  private boolean isDisjunctionFilterQuery(QueryBuilder query, String resource) {
-    if (!isBoolQuery(query)) {
-      return false;
-    }
-    var boolQuery = (BoolQueryBuilder) query;
-    if (isEmpty(boolQuery.should()) || isNotEmpty(boolQuery.must()) || isNotEmpty(boolQuery.mustNot())) {
-      return false;
-    }
-
-    String baseFieldName = null;
-    for (var innerQuery : boolQuery.should()) {
-      if (!isFilterQuery(innerQuery, resource)) {
-        return false;
-      }
-      var currentFieldName = ((TermQueryBuilder) innerQuery).fieldName();
-      if (baseFieldName == null) {
-        baseFieldName = currentFieldName;
-      }
-      if (!Objects.equals(currentFieldName, baseFieldName)) {
-        return false;
+  private BoolQueryBuilder enhanceBoolQuery(BoolQueryBuilder query, String resource) {
+    var mustQueryConditions = new ArrayList<QueryBuilder>();
+    var mustConditions = query.must();
+    for (var innerQuery : mustConditions) {
+      if (isFilterInnerQuery(innerQuery, resource)) {
+        query.filter(innerQuery);
+      } else {
+        mustQueryConditions.add(innerQuery);
       }
     }
-    return true;
+    mustConditions.clear();
+    mustConditions.addAll(mustQueryConditions);
+    return query;
   }
 
   private boolean isFilterQuery(QueryBuilder query, String resource) {
-    return (query instanceof TermQueryBuilder) && isFilterField(((TermQueryBuilder) query).fieldName(), resource);
+    return query instanceof TermQueryBuilder && isFilterField(((TermQueryBuilder) query).fieldName(), resource);
+  }
+
+  private boolean isFilterInnerQuery(QueryBuilder query, String resource) {
+    return isFilterQuery(query, resource) || isDisjunctionFilterQuery(query, field -> isFilterField(field, resource));
   }
 
   private boolean isFilterField(String fieldName, String resource) {

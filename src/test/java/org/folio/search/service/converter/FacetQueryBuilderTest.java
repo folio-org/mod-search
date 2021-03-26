@@ -82,6 +82,14 @@ class FacetQueryBuilderTest {
   }
 
   @Test
+  void getFacetAggregations_positive_disjunctionFilterBoolQuery() {
+    var query = boolQuery().filter(boolQuery().should(termQuery(FIELD, "v1")).should(termQuery(FIELD, "v2")));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
+    assertThat(actual).containsExactly(AggregationBuilders.terms(FIELD).field(FIELD).size(MAX_VALUE));
+  }
+
+  @Test
   void getFacetAggregation_negative_notRecognizedFilterByFacetField() {
     var query = boolQuery().filter(matchQuery(FIELD, "v2"));
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));

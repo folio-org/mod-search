@@ -1,3 +1,14 @@
+## 1.1.0 2021-03-26
+
+* Adds item material type facet and filter (MSEARCH-44)
+* Adds item discovery suppress facet and filter (MSEARCH-33)
+* Bumps elasticsearch-client version to 7.12.0
+* Supports holdings HRID search (MSEARCH-26)
+* Supports item effective call number search (MSEARCH-12)
+* Adds item and holding tag facet and filter (MSEARCH-79)
+* Provides `search v0.4`
+* Fixes disjunction filters that affected related facet (MSEARCH-80)
+
 ## 1.0.0 2021-03-18
 
 * Supports instance level search queries:

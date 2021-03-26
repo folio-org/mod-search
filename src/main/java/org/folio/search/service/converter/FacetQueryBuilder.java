@@ -4,7 +4,8 @@ import static java.lang.Integer.parseInt;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.folio.search.utils.SearchUtils.isBoolQuery;
+import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
+import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 
 import java.util.List;
 import java.util.Objects;
@@ -94,8 +95,13 @@ public class FacetQueryBuilder {
     return isNotEmpty(facetFilterQuery.filter()) ? Optional.of(facetFilterQuery) : Optional.empty();
   }
 
-  private static boolean isFilterQueryByFacetField(QueryBuilder query, String field) {
-    return (query instanceof TermQueryBuilder) && Objects.equals(((TermQueryBuilder) query).fieldName(), field);
+  private static boolean isFilterQueryByFacetField(QueryBuilder query, String facet) {
+    return (query instanceof TermQueryBuilder) && isFilterQueryByField(((TermQueryBuilder) query).fieldName(), facet)
+      || isDisjunctionFilterQuery(query, field -> isFilterQueryByField(field, facet));
+  }
+
+  private static boolean isFilterQueryByField(String field, String facet) {
+    return Objects.equals(field, facet);
   }
 
   private static AggregationBuilder filterAggregation(BoolQueryBuilder filter, Pair<String, Integer> facetAndLimit) {

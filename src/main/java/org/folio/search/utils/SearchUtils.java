@@ -3,8 +3,6 @@ package org.folio.search.utils;
 import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
@@ -76,15 +74,5 @@ public class SearchUtils {
    */
   public static String updatePathForMultilangField(String path) {
     return path + ".*";
-  }
-
-  /**
-   * Checks if passed {@link QueryBuilder} has type of {@link BoolQueryBuilder} or not.
-   *
-   * @param query query to analyze
-   * @return true if passed query is bool query, false - otherwise.
-   */
-  public static boolean isBoolQuery(QueryBuilder query) {
-    return query instanceof BoolQueryBuilder;
   }
 }

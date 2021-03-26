@@ -253,6 +253,14 @@ class CqlSearchQueryConverterTest {
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
+  @Test
+  void convert_positive_disjunctionFilterQuery() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var actual = cqlSearchQueryConverter.convert("f1==(v3 or v4)", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
+  }
+
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(

@@ -22,6 +22,18 @@
     "tags": {
       "description": "arbitrary tags associated with this holding",
       "$ref": "tags.json"
+    },
+    "callNumberPrefix": {
+      "type": "string",
+      "description": "Prefix of the call number on the holding level."
+    },
+    "callNumber": {
+      "type": "string",
+      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item."
+    },
+    "callNumberSuffix": {
+      "type": "string",
+      "description": "Suffix of the call number on the holding level."
     }
   }
 }

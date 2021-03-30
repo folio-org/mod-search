@@ -257,6 +257,15 @@
               "index": "multilang"
             }
           }
+        },
+        "callNumberPrefix": {
+          "index": "source"
+        },
+        "callNumber": {
+          "index": "source"
+        },
+        "callNumberSuffix": {
+          "index": "source"
         }
       }
     }
@@ -318,6 +327,12 @@
       "index": "keyword",
       "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
       "processor": "effectiveCallNumberComponentsProcessor"
+    },
+    "holdingsFullCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "inventorySearchTypes": "holdings.fullCallNumber",
+      "processor": "holdingsCallNumberComponentsProcessor"
     }
   },
   "indexMappings": {

@@ -15,7 +15,8 @@ class SearchHoldingsIT extends BaseIntegrationTest {
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
-    "holdings.hrid=={value}, hold000000000009"
+    "holdings.hrid=={value}, hold000000000009",
+    "holdingsFullCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE"
   })
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
     doGet(searchInstancesByQuery(query), value)
@@ -25,7 +26,8 @@ class SearchHoldingsIT extends BaseIntegrationTest {
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
-    "holdings.hrid=={value}, ho*7"
+    "holdings.hrid=={value}, ho*7",
+    "holdings.fullCallNumber=={value}, prefix*suffix"
   })
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
     doGet(searchInstancesByQuery(query), value)

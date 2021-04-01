@@ -318,6 +318,12 @@
       "index": "keyword",
       "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
       "processor": "effectiveCallNumberComponentsProcessor"
+    },
+    "holdingsFullCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "inventorySearchTypes": "holdings.fullCallNumber",
+      "processor": "holdingsCallNumberComponentsProcessor"
     }
   },
   "indexMappings": {

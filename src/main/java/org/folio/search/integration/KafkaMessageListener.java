@@ -39,7 +39,8 @@ public class KafkaMessageListener {
     containerFactory = "kafkaListenerContainerFactory",
     topics = "#{'${application.kafka.listener.events.topics}'.split(',')}",
     groupId = "${application.kafka.listener.events.group-id}",
-    concurrency = "${application.kafka.listener.events.concurrency}")
+    concurrency = "${application.kafka.listener.events.concurrency}",
+    errorHandler = "kafkaErrorHandler")
   public void handleEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
     var resourceIds = consumerRecords.stream()

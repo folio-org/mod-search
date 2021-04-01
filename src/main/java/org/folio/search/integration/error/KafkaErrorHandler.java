@@ -29,13 +29,13 @@ public class KafkaErrorHandler implements KafkaListenerErrorHandler {
     // which is treated as a grammar exception.
     // It is possible to have false positives here, when an invalid SQL is used
     // but anyway it results in retrying the consume operation
-    return getThrowableList(exception).stream().anyMatch(ex -> ex instanceof SQLGrammarException);
+    return getThrowableList(exception).stream().anyMatch(SQLGrammarException.class::isInstance);
   }
 
   @SuppressWarnings("unchecked")
   private String[] getTenantNames(Message<?> message) {
     if (!isSupportedType(message)) {
-      return null;
+      return new String[0];
     }
     var consumerRecords = (List<ConsumerRecord<String, ResourceEventBody>>) message.getPayload();
     return consumerRecords.stream()
@@ -52,7 +52,7 @@ public class KafkaErrorHandler implements KafkaListenerErrorHandler {
     }
 
     var payloads = (List) message.getPayload();
-    return payloads.size() > 0 && payloads.get(0) instanceof ConsumerRecord
+    return !payloads.isEmpty() && payloads.get(0) instanceof ConsumerRecord
       && ((ConsumerRecord) payloads.get(0)).value() instanceof ResourceEventBody;
   }
 }

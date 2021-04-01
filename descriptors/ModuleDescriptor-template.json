@@ -220,6 +220,10 @@
         "value": "9200"
       },
       {
+        "name": "ELASTICSEARCH_URL",
+        "value": "http://elasticsearch:9200"
+      },
+      {
         "name": "ELASTICSEARCH_USERNAME",
         "value": "elastic"
       },

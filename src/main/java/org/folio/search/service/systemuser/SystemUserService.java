@@ -178,12 +178,8 @@ public class SystemUserService {
 
   @SneakyThrows
   private static List<String> getResourceLines(String permissionsFilePath) {
-    try {
-      ClassPathResource resource = new ClassPathResource(permissionsFilePath);
-      return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
+    ClassPathResource resource = new ClassPathResource(permissionsFilePath);
+    return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
   }
+  
 }

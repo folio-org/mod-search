@@ -257,15 +257,6 @@
               "index": "multilang"
             }
           }
-        },
-        "callNumberPrefix": {
-          "index": "source"
-        },
-        "callNumber": {
-          "index": "source"
-        },
-        "callNumberSuffix": {
-          "index": "source"
         }
       }
     }

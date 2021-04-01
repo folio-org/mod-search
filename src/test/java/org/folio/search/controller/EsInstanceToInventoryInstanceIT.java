@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import java.util.stream.Collectors;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -52,6 +53,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
     final var actual = OBJECT_MAPPER.readValue(actualJson, SearchResult.class).getInstances().get(0);
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
       .map(hr -> hr.discoverySuppress(false))
+      .map(this::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
     assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
       .map(item -> item.discoverySuppress(false))
@@ -59,5 +61,9 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
 
     assertThat(actual.holdings(null).items(null),
       is(expected.staffSuppress(false).discoverySuppress(false).items(null).holdings(null)));
+  }
+
+  private Holding removeUnexpectedProperties(Holding holding) {
+    return holding.callNumberSuffix(null).callNumber(null).callNumberPrefix(null);
   }
 }

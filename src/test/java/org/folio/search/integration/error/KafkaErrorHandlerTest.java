@@ -37,7 +37,7 @@ class KafkaErrorHandlerTest {
 
     assertThatThrownBy(() -> errorHandler.handleError(message, exception))
       .isInstanceOf(TenantNotInitializedException.class)
-      .hasMessage("Following tenants might not be initialized yet: null");
+      .hasMessage("Following tenants might not be initialized yet: []");
   }
 
   @Test

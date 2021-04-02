@@ -2,6 +2,8 @@ package org.folio.search.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -50,6 +52,14 @@ class SearchQueryUtilsTest {
     assertThat(actual).isFalse();
   }
 
+  @DisplayName("isFilterQuery_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0}, expected={1}")
+  @MethodSource("isFilterQueryDataProvider")
+  void isFilterQuery_parameterized(QueryBuilder queryBuilder, boolean expected) {
+    var actual = SearchQueryUtils.isFilterQuery(queryBuilder, FIELD::equals);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Stream<Arguments> isDisjunctionFilterQueryDataProvider() {
     var termQuery = termQuery(FIELD, "v");
     return Stream.of(
@@ -65,6 +75,16 @@ class SearchQueryUtilsTest {
       arguments(boolQuery().mustNot(termQuery), false),
       arguments(boolQuery().mustNot(termQuery).should(termQuery), false),
       arguments(boolQuery().mustNot(termQuery).must(termQuery).should(termQuery), false)
+    );
+  }
+
+  private static Stream<Arguments> isFilterQueryDataProvider() {
+    return Stream.of(
+      arguments(rangeQuery(FIELD).gt(10), true),
+      arguments(rangeQuery("f").gt(10), false),
+      arguments(matchQuery(FIELD, "value"), false),
+      arguments(termQuery(FIELD, "value"), true),
+      arguments(termQuery("f", "v"), false)
     );
   }
 }

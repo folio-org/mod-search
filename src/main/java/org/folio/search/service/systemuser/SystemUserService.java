@@ -47,18 +47,23 @@ public class SystemUserService {
   private final SystemUserTokenCache tokenCache;
 
   public void prepareSystemUser(FolioExecutionContext context) {
+    log.info("Preparing system user...");
     var folioUser = getFolioUser(folioSystemUserConf.getUsername());
     var userId = folioUser.map(User::getId)
       .orElse(UUID.randomUUID().toString());
 
     if (folioUser.isPresent()) {
+      log.info("System user already exists");
       addPermissions(userId);
     } else {
+      log.info("No system user exist, creating...");
+
       createFolioUser(userId);
       saveCredentials();
       assignPermissions(userId);
     }
 
+    log.info("System user has been created");
     systemUserRepository.save(SystemUser.builder()
       .id(userId)
       .username(folioSystemUserConf.getUsername())

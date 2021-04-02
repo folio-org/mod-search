@@ -28,6 +28,7 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemStatus;
+import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
@@ -187,7 +188,19 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
 
       arguments("(itemTags==itag1) sortby title", List.of(IDS[0], IDS[2])),
-      arguments("(holdingTags==htag1) sortby title", List.of(IDS[0], IDS[4]))
+      arguments("(holdingTags==htag1) sortby title", List.of(IDS[0], IDS[4])),
+
+      arguments("(metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
+        List.of(IDS[0], IDS[2])),
+
+      arguments("(metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
+        List.of(IDS[2], IDS[3]))
     );
   }
 
@@ -297,6 +310,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .discoverySuppress(true)
       .instanceFormatId(List.of(FORMATS[1], FORMATS[2]))
       .tags(tags("text", "science"))
+      .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
       .items(List.of(
         new Item().id(randomId())
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
@@ -314,6 +328,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .discoverySuppress(true)
       .instanceFormatId(List.of(FORMATS[1]))
       .tags(tags("future"))
+      .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
       .items(List.of(
         new Item().id(randomId())
           .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
@@ -330,6 +345,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .staffSuppress(true)
       .instanceFormatId(List.of(FORMATS[2]))
       .tags(tags("future", "science"))
+      .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
           .discoverySuppress(true).materialTypeId(MATERIAL_TYPES[0]).tags(tags("itag3")),
@@ -344,6 +360,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceTypeId(TYPES[1])
       .instanceFormatId(List.of(FORMATS))
       .tags(tags("casual", "cooking"))
+      .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .materialTypeId(MATERIAL_TYPES[1])))
@@ -373,5 +390,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static Tags tags(String... tags) {
     return new Tags().tagList(asList(tags));
+  }
+
+  private static Metadata metadata(String createdDate, String updatedDate) {
+    return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
 }

@@ -6,15 +6,14 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
+import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -96,12 +95,7 @@ public class FacetQueryBuilder {
   }
 
   private static boolean isFilterQueryByFacetField(QueryBuilder query, String facet) {
-    return (query instanceof TermQueryBuilder) && isFilterQueryByField(((TermQueryBuilder) query).fieldName(), facet)
-      || isDisjunctionFilterQuery(query, field -> isFilterQueryByField(field, facet));
-  }
-
-  private static boolean isFilterQueryByField(String field, String facet) {
-    return Objects.equals(field, facet);
+    return isFilterQuery(query, facet::equals) || isDisjunctionFilterQuery(query, facet::equals);
   }
 
   private static AggregationBuilder filterAggregation(BoolQueryBuilder filter, Pair<String, Integer> facetAndLimit) {

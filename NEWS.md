@@ -1,3 +1,11 @@
+## 1.2.0 2021-04-02
+
+* Adds holdings.fullCallNumber search option (MSEARCH-81)
+* Introduces ELASTICSEARCH_URL environment variable (MSEARCH-82)
+* Throws more explicit error when tenant is not initialized yet (MSEARCH-72)
+* Implements filtering by updated/created date (MSEARCH-30)
+* Fixes issue when permissions file can not be read (MSEARCH-85)
+
 ## 1.1.0 2021-03-26
 
 * Adds item material type facet and filter (MSEARCH-44)

@@ -36,6 +36,7 @@ public class FolioTenantController extends TenantController {
       tenantService.initializeTenant();
     }
 
+    log.info("Tenant init has been completed [response={}]", tenantInit);
     return tenantInit;
   }
 }

@@ -84,6 +84,7 @@
       "type": "object",
       "properties": {
         "createdDate": {
+          "searchTypes": "filter",
           "index": "date"
         },
         "createdByUserId": {
@@ -93,6 +94,7 @@
           "index": "keyword"
         },
         "updatedDate": {
+          "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
@@ -318,6 +320,12 @@
       "index": "keyword",
       "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
       "processor": "effectiveCallNumberComponentsProcessor"
+    },
+    "holdingsFullCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "inventorySearchTypes": "holdings.fullCallNumber",
+      "processor": "holdingsCallNumberComponentsProcessor"
     }
   },
   "indexMappings": {

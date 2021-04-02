@@ -155,7 +155,7 @@ class SystemUserServiceTest {
     return FolioSystemUserProperties.builder()
       .password("password")
       .username("username")
-      .permissionsFilePath("classpath:permissions/test-permissions.csv")
+      .permissionsFilePath("permissions/test-permissions.csv")
       .build();
   }
 
@@ -163,7 +163,7 @@ class SystemUserServiceTest {
     return FolioSystemUserProperties.builder()
       .password("password")
       .username("username")
-      .permissionsFilePath("classpath:permissions/empty-permissions.csv")
+      .permissionsFilePath("permissions/empty-permissions.csv")
       .build();
   }
 

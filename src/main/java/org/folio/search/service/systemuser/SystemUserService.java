@@ -8,7 +8,7 @@ import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.IOUtils;
 import org.folio.search.client.AuthnClient;
 import org.folio.search.client.PermissionsClient;
 import org.folio.search.client.UsersClient;
@@ -28,9 +29,9 @@ import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ResourceUtils;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -182,6 +183,8 @@ public class SystemUserService {
 
   @SneakyThrows
   private static List<String> getResourceLines(String permissionsFilePath) {
-    return Files.readAllLines(ResourceUtils.getFile(permissionsFilePath).toPath());
+    ClassPathResource resource = new ClassPathResource(permissionsFilePath);
+    return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
   }
+  
 }

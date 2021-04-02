@@ -10,6 +10,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
+import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
@@ -17,13 +18,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -184,21 +185,22 @@ public class CqlSearchQueryConverter {
   }
 
   private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {
-    if (isDisjunctionFilterQuery(query, field -> isFilterField(field, resource))) {
+    Predicate<String> filterFieldCheck = field -> isFilterField(field, resource);
+    if (isDisjunctionFilterQuery(query, filterFieldCheck)) {
       return boolQuery().filter(query);
     }
     if (isBoolQuery(query)) {
-      return enhanceBoolQuery((BoolQueryBuilder) query, resource);
+      return enhanceBoolQuery((BoolQueryBuilder) query, filterFieldCheck);
     }
 
-    return isFilterQuery(query, resource) ? boolQuery().filter(query) : query;
+    return isFilterQuery(query, filterFieldCheck) ? boolQuery().filter(query) : query;
   }
 
-  private BoolQueryBuilder enhanceBoolQuery(BoolQueryBuilder query, String resource) {
+  private BoolQueryBuilder enhanceBoolQuery(BoolQueryBuilder query, Predicate<String> filterFieldPredicate) {
     var mustQueryConditions = new ArrayList<QueryBuilder>();
     var mustConditions = query.must();
     for (var innerQuery : mustConditions) {
-      if (isFilterInnerQuery(innerQuery, resource)) {
+      if (isFilterInnerQuery(innerQuery, filterFieldPredicate)) {
         query.filter(innerQuery);
       } else {
         mustQueryConditions.add(innerQuery);
@@ -209,12 +211,8 @@ public class CqlSearchQueryConverter {
     return query;
   }
 
-  private boolean isFilterQuery(QueryBuilder query, String resource) {
-    return query instanceof TermQueryBuilder && isFilterField(((TermQueryBuilder) query).fieldName(), resource);
-  }
-
-  private boolean isFilterInnerQuery(QueryBuilder query, String resource) {
-    return isFilterQuery(query, resource) || isDisjunctionFilterQuery(query, field -> isFilterField(field, resource));
+  private boolean isFilterInnerQuery(QueryBuilder query, Predicate<String> filterFieldPredicate) {
+    return isFilterQuery(query, filterFieldPredicate) || isDisjunctionFilterQuery(query, filterFieldPredicate);
   }
 
   private boolean isFilterField(String fieldName, String resource) {

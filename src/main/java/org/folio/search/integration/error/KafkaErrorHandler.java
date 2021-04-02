@@ -16,27 +16,25 @@ import org.springframework.stereotype.Component;
 public class KafkaErrorHandler implements KafkaListenerErrorHandler {
   @Override
   public Object handleError(Message<?> message, ListenerExecutionFailedException exception) {
-    if (isTenantNotInitializedYet(exception)) {
-      throw new TenantNotInitializedException(getTenantNames(message));
-    } else {
-      throw exception;
+    if (isTenantNotInitializedYet(message, exception)) {
+      throw new TenantNotInitializedException(getTenantNames(message), exception.getCause());
     }
+
+    throw exception;
   }
 
-  private boolean isTenantNotInitializedYet(ListenerExecutionFailedException exception) {
+  private boolean isTenantNotInitializedYet(Message<?> message, ListenerExecutionFailedException exception) {
     // In case when the schema for tenant is not created
     // DB will throw an error saying that a table does not exists
     // which is treated as a grammar exception.
     // It is possible to have false positives here, when an invalid SQL is used
     // but anyway it results in retrying the consume operation
-    return getThrowableList(exception).stream().anyMatch(SQLGrammarException.class::isInstance);
+    return getThrowableList(exception).stream().anyMatch(SQLGrammarException.class::isInstance)
+      && isSupportedMessageType(message);
   }
 
   @SuppressWarnings("unchecked")
   private String[] getTenantNames(Message<?> message) {
-    if (!isSupportedType(message)) {
-      return new String[0];
-    }
     var consumerRecords = (List<ConsumerRecord<String, ResourceEventBody>>) message.getPayload();
     return consumerRecords.stream()
       .map(ConsumerRecord::value)
@@ -46,7 +44,7 @@ public class KafkaErrorHandler implements KafkaListenerErrorHandler {
   }
 
   @SuppressWarnings("rawtypes")
-  private boolean isSupportedType(Message<?> message) {
+  private boolean isSupportedMessageType(Message<?> message) {
     if (!(message.getPayload() instanceof List)) {
       return false;
     }

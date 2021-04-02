@@ -27,17 +27,18 @@ class KafkaErrorHandlerTest {
 
     assertThatThrownBy(() -> errorHandler.handleError(message, exception))
       .isInstanceOf(TenantNotInitializedException.class)
-      .hasMessage("Following tenants might not be initialized yet: [one, two]");
+      .hasMessage("Following tenants might not be initialized yet: [one, two]")
+      .hasCauseExactlyInstanceOf(SQLGrammarException.class);
   }
 
   @Test
-  void shouldThrowTenantInitializationExceptionEventWithUnsupportedMessage() {
+  void shouldPropagateOriginalExceptionWhenUnsupportedMessage() {
     var message = buildMessage(Map.of());
     var exception = buildException(new SQLGrammarException("grammar", new SQLException()));
 
     assertThatThrownBy(() -> errorHandler.handleError(message, exception))
-      .isInstanceOf(TenantNotInitializedException.class)
-      .hasMessage("Following tenants might not be initialized yet: []");
+      .isInstanceOf(ListenerExecutionFailedException.class)
+      .hasCauseExactlyInstanceOf(SQLGrammarException.class);
   }
 
   @Test

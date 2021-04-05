@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
-import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;

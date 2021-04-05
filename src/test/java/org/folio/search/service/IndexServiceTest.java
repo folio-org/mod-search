@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
@@ -86,12 +87,12 @@ class IndexServiceTest {
   @Test
   void indexResources_negative() {
     var searchBody = searchDocumentBody();
-    var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
+    var eventBodies = List.of(TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId())));
 
-    when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
+    when(searchDocumentConverter.convert(eventBodies)).thenReturn(List.of(searchBody));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
 
-    assertThatThrownBy(() -> indexService.indexResources(List.of(eventBody)))
+    assertThatThrownBy(() -> indexService.indexResources(eventBodies))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Cancelling bulk operation [reason: "
         + "Cannot index resources for non existing indices [indices=[test-resource_test_tenant]]]");

@@ -39,4 +39,12 @@ public class FolioTenantController extends TenantController {
     log.info("Tenant init has been completed [response={}]", tenantInit);
     return tenantInit;
   }
+
+  @Override
+  public ResponseEntity<Void> deleteTenant() {
+    var deleteResponse = super.deleteTenant();
+
+    tenantService.removeElasticsearchIndexes();
+    return deleteResponse;
+  }
 }

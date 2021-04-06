@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -112,5 +113,12 @@ public class IndexRepository {
       .id(body.getId())
       .routing(body.getRouting())
       .source(body.getRawJson(), XContentType.JSON);
+  }
+
+  public void dropIndex(String index) {
+    var request = new DeleteIndexRequest(index);
+
+    performExceptionalOperation(() -> elasticsearchClient.indices()
+      .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
   }
 }

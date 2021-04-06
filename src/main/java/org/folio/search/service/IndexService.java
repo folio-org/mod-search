@@ -92,4 +92,11 @@ public class IndexService {
   public ReindexJob reindexInventory() {
     return instanceStorageClient.submitReindex();
   }
+
+  public void dropIndex(String resource, String tenant) {
+    var index = getElasticsearchIndexName(resource, tenant);
+    if (indexRepository.indexExists(index)) {
+      indexRepository.dropIndex(index);
+    }
+  }
 }

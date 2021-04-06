@@ -13,6 +13,7 @@ import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +28,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
-import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
-import org.folio.cql2pgjson.model.CqlModifiers;
-import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.CqlSearchServiceRequest;
@@ -39,6 +36,7 @@ import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
+import org.z3950.zing.cql.CQLParseException;
 import org.z3950.zing.cql.CQLParser;
 import org.z3950.zing.cql.CQLSortNode;
 import org.z3950.zing.cql.CQLTermNode;
@@ -57,6 +55,7 @@ public class CqlSearchQueryConverter {
 
   private static final String ASTERISKS_SIGN = "*";
 
+  private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
   private final Map<String, SearchTermProcessor> searchTermProcessors;
 
@@ -71,21 +70,17 @@ public class CqlSearchQueryConverter {
     try {
       var cqlNode = new CQLParser().parse(query);
       return toCriteria(cqlNode, resource);
-    } catch (Exception e) {
+    } catch (CQLParseException | IOException e) {
       throw new SearchServiceException(String.format(
         "Failed to parse cql query [cql: '%s', resource: %s]", query, resource), e);
     }
   }
 
-  private SearchSourceBuilder toCriteria(CQLNode node, String resource)
-    throws CQLFeatureUnsupportedException {
+  private SearchSourceBuilder toCriteria(CQLNode node, String resource) {
     var queryBuilder = new SearchSourceBuilder();
 
     if (node instanceof CQLSortNode) {
-      for (var sortIndex : ((CQLSortNode) node).getSortIndexes()) {
-        var modifiers = new CqlModifiers(sortIndex);
-        queryBuilder.sort("sort_" + sortIndex.getBase(), getSortOrder(modifiers.getCqlSort()));
-      }
+      queryBuilder.sort(cqlSortProvider.getSort((CQLSortNode) node, resource));
     }
 
     return queryBuilder.query(enhanceQuery(convertToQuery(node, resource), resource));
@@ -102,7 +97,8 @@ public class CqlSearchQueryConverter {
     if (cqlNode instanceof CQLBooleanNode) {
       return convertToBoolQuery((CQLBooleanNode) cqlNode, resource);
     }
-    throw new UnsupportedOperationException("Unsupported node: " + node.getClass().getSimpleName());
+    throw new UnsupportedOperationException(String.format(
+      "Failed to parse CQL query. Node with type '%s' is not supported.", node.getClass().getSimpleName()));
   }
 
   private QueryBuilder convertToTermQuery(CQLTermNode node, String resource) {
@@ -141,7 +137,8 @@ public class CqlSearchQueryConverter {
       case ">=":
         return rangeQuery(fieldName).gte(term);
       default:
-        throw unsupportedException(comparator);
+        throw new UnsupportedOperationException(String.format(
+          "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
     }
   }
 
@@ -157,7 +154,8 @@ public class CqlSearchQueryConverter {
           .must(convertToQuery(node.getLeftOperand(), resource))
           .mustNot(convertToQuery(node.getRightOperand(), resource));
       default:
-        throw unsupportedException(operator.name());
+        throw new UnsupportedOperationException(String.format(
+          "Failed to parse CQL query. Operator '%s' is not supported.", operator.name()));
     }
   }
 
@@ -258,13 +256,5 @@ public class CqlSearchQueryConverter {
 
   private static WildcardQueryBuilder prepareWildcardQuery(String fieldName, String term) {
     return wildcardQuery(fieldName, term).rewrite("constant_score");
-  }
-
-  private static SortOrder getSortOrder(CqlSort cqlSort) {
-    return cqlSort == CqlSort.DESCENDING ? SortOrder.DESC : SortOrder.ASC;
-  }
-
-  private static UnsupportedOperationException unsupportedException(String operator) {
-    return new UnsupportedOperationException(String.format("Not implemented yet [operator: %s]", operator));
   }
 }

@@ -14,6 +14,7 @@
       "index": "keyword"
     },
     "title": {
+      "searchTypes": "sort",
       "inventorySearchTypes": [ "title", "keyword" ],
       "index": "multilang",
       "showInResponse": true,
@@ -176,6 +177,16 @@
         }
       }
     },
+    "staffSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
+    "discoverySuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
     "items": {
       "type": "object",
       "properties": {
@@ -196,8 +207,13 @@
           "type": "object",
           "properties": {
             "name": {
-              "searchTypes": [ "facet", "filter" ],
-              "index": "keyword"
+              "searchTypes": [ "facet", "filter", "sort" ],
+              "index": "keyword",
+              "sort": {
+                "fieldName": "items.status.name",
+                "type": "collection",
+                "secondarySort": [ "sort_title" ]
+              }
             }
           }
         },
@@ -265,6 +281,7 @@
   },
   "searchFields": {
     "sort_contributors": {
+      "searchTypes": "sort",
       "type": "search",
       "index": "lowercase_sort",
       "processor": "sortContributorsProcessor"
@@ -302,18 +319,6 @@
       "type": "search",
       "index": "keyword",
       "processor": "holdingTagsProcessor"
-    },
-    "staffSuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "type": "search",
-      "processor": "staffSuppressProcessor",
-      "index": "bool"
-    },
-    "discoverySuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "type": "search",
-      "processor": "discoverySuppressProcessor",
-      "index": "bool"
     },
     "itemsFullCallNumbers": {
       "type": "search",

@@ -63,6 +63,9 @@ public class PlainFieldDescription extends FieldDescription {
   @JsonProperty("default")
   private Object defaultValue;
 
+  @JsonProperty("sort")
+  private SortDescription sortDescription;
+
   /**
    * Checks if resource description field is multi-language.
    *

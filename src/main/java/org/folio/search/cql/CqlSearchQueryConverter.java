@@ -80,7 +80,7 @@ public class CqlSearchQueryConverter {
     var queryBuilder = new SearchSourceBuilder();
 
     if (node instanceof CQLSortNode) {
-      queryBuilder.sort(cqlSortProvider.getSort((CQLSortNode) node, resource));
+      cqlSortProvider.getSort((CQLSortNode) node, resource).forEach(queryBuilder::sort);
     }
 
     return queryBuilder.query(enhanceQuery(convertToQuery(node, resource), resource));

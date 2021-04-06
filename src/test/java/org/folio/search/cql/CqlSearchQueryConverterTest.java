@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
@@ -97,6 +98,14 @@ class CqlSearchQueryConverterTest {
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Failed to parse CQL query. Node with type 'CQLPrefixNode' is not supported.");
+  }
+
+  @Test
+  void convert_negative_invalidQuery() {
+    var cqlQuery = "> invalidQuery";
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to parse cql query [cql: '> invalidQuery', resource: instance]");
   }
 
   @Test

@@ -34,6 +34,7 @@ import org.z3950.zing.cql.ModifierSet;
 @RequiredArgsConstructor
 public class CqlSortProvider {
 
+  private static final String DEFAULT_SORT_FIELD_PREFIX = "sort_";
   private final SearchFieldProvider searchFieldProvider;
 
   /**
@@ -43,33 +44,33 @@ public class CqlSortProvider {
    * @param resource resource name as {@link String} object
    * @return {@link List} of {@link SortBuilder} objects
    */
-  public List<SortBuilder<?>> getSort(CQLSortNode sortNode, String resource) {
+  public List<SortBuilder<FieldSortBuilder>> getSort(CQLSortNode sortNode, String resource) {
     return sortNode.getSortIndexes().stream()
       .map(sortIndex -> buildSortForField(sortIndex, resource))
       .flatMap(Collection::stream)
       .collect(toList());
   }
 
-  private List<SortBuilder<?>> buildSortForField(ModifierSet sortIndex, String resource) {
+  private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, String resource) {
     var sortField = sortIndex.getBase();
     var sortFieldDesc = getValidSortField(resource, sortField);
     var esSortOrder = getSortOrder(getCqlModifiers(sortIndex).getCqlSort());
 
     var sortDescription = sortFieldDesc.getSortDescription();
     if (sortDescription == null) {
-      return singletonList(fieldSort("sort_" + sortField).order(esSortOrder));
+      return singletonList(fieldSort(DEFAULT_SORT_FIELD_PREFIX + sortField).order(esSortOrder));
     }
 
     var sortType = sortDescription.getSortType();
-    var fieldName = StringUtils.defaultString(sortDescription.getFieldName(), "sort_" + sortField);
+    var fieldName = StringUtils.defaultString(sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField);
     return sortType == SortFieldType.COLLECTION
       ? buildSortForCollection(esSortOrder, fieldName, sortDescription.getSecondarySort())
       : singletonList(fieldSort(fieldName).order(esSortOrder));
   }
 
-  private static List<SortBuilder<?>> buildSortForCollection(
+  private static List<SortBuilder<FieldSortBuilder>> buildSortForCollection(
     SortOrder order, String field, List<String> secondarySortFields) {
-    var sort = new ArrayList<SortBuilder<?>>();
+    var sort = new ArrayList<SortBuilder<FieldSortBuilder>>();
     sort.add(buildSortForCollectionField(field, order));
     if (CollectionUtils.isNotEmpty(secondarySortFields)) {
       secondarySortFields.forEach(secondaryField -> sort.add(buildSortForCollectionField(secondaryField, order)));
@@ -83,7 +84,7 @@ public class CqlSortProvider {
 
   private PlainFieldDescription getValidSortField(String resource, String field) {
     return getSortFieldDescription(resource, field)
-      .or(() -> getSortFieldDescription(resource, "sort_" + field))
+      .or(() -> getSortFieldDescription(resource, DEFAULT_SORT_FIELD_PREFIX + field))
       .orElseThrow(() -> new ValidationException("Sort field not found or cannot be used.", "sortField", field));
   }
 

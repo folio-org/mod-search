@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
@@ -33,8 +31,8 @@ class SortInstanceIT extends BaseIntegrationTest {
   }
 
   @AfterAll
-  static void removeTenant(@Autowired RestHighLevelClient client, @Autowired JdbcTemplate template) {
-    removeTenant(client, template, TENANT);
+  static void removeTenant(@Autowired MockMvc mockMvc) {
+    removeTenant(mockMvc, TENANT);
   }
 
   @Test

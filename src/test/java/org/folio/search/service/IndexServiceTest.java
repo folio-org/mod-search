@@ -111,4 +111,24 @@ class IndexServiceTest {
 
     verify(instanceStorageClient).submitReindex();
   }
+
+  @Test
+  void shouldDropIndexWhenExists() {
+    var index = "instance_diku";
+    when(indexRepository.indexExists(index)).thenReturn(true);
+
+    indexService.dropIndex("instance", "diku");
+
+    verify(indexRepository).dropIndex(index);
+  }
+
+  @Test
+  void shouldNotDropIndexWhenNotExist() {
+    var index = "instance_diku";
+    when(indexRepository.indexExists(index)).thenReturn(false);
+
+    indexService.dropIndex("instance", "diku");
+
+    verify(indexRepository, times(0)).dropIndex(index);
+  }
 }

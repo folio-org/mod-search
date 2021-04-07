@@ -18,6 +18,7 @@ import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.List;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.awaitility.Duration;
@@ -34,6 +35,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,11 +58,13 @@ public abstract class BaseIntegrationTest {
 
   @BeforeAll
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
+    @Autowired KafkaTemplate<String, Object> kafkaTemplate,
+    @Autowired CacheManager cacheManager) {
 
     inventoryApi = new InventoryApi(kafkaTemplate);
     WIRE_MOCK.start();
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
+    evictAllCaches(cacheManager);
   }
 
   @AfterAll
@@ -85,7 +90,7 @@ public abstract class BaseIntegrationTest {
   private static void checkThatElasticsearchAcceptResourcesFromKafka(
     String tenant, MockMvc mockMvc, String id) {
 
-    await().atMost(Duration.ONE_MINUTE).untilAsserted(() ->
+    await().atMost(Duration.ONE_MINUTE).pollInterval(Duration.ONE_SECOND).untilAsserted(() ->
       mockMvc.perform(get(searchInstancesByQuery("id={value}"), id)
         .headers(defaultHeaders(tenant)))
         .andExpect(status().isOk())
@@ -132,7 +137,7 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance ... instances) {
+  protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance... instances) {
     mockMvc.perform(post("/_/tenant")
       .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
       .headers(defaultHeaders(tenantName))
@@ -154,5 +159,11 @@ public abstract class BaseIntegrationTest {
     mockMvc.perform(delete("/_/tenant")
       .headers(defaultHeaders(tenant)))
       .andExpect(status().isNoContent());
+  }
+
+  private static void evictAllCaches(CacheManager cacheManager) {
+    for (String cacheName : cacheManager.getCacheNames()) {
+      Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear);
+    }
   }
 }

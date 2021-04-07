@@ -16,7 +16,12 @@ public enum SearchType {
   /**
    * Provides opportunity to use field values for filtering.
    */
-  FILTER("filter");
+  FILTER("filter"),
+
+  /**
+   * Provides opportunity to use field values for sorting.
+   */
+  SORT("sort");
 
   /**
    * Json representation of enum.

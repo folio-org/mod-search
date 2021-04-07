@@ -9,6 +9,7 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -22,12 +23,15 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.SearchDocumentBody;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 /**
  * Search resource repository with set of operation to create/modify/update index settings and
  * mappings.
  */
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class IndexRepository {
@@ -42,6 +46,7 @@ public class IndexRepository {
    * @param mappings mappings JSON {@link String} object
    * @return {@link FolioCreateIndexResponse} object
    */
+  @CacheEvict(cacheNames = "esIndicesCache", key = "#index")
   public FolioCreateIndexResponse createIndex(String index, String settings, String mappings) {
     var createIndexRequest = new CreateIndexRequest(index)
       .settings(settings, XContentType.JSON)
@@ -101,7 +106,9 @@ public class IndexRepository {
       : getSuccessIndexOperationResponse();
   }
 
+  @Cacheable(value = "esIndicesCache", key = "#index", unless = "#result == true")
   public boolean indexExists(String index) {
+    log.info("Checking that index exists [index: {}]", index);
     var request = new GetIndexRequest(index);
     return performExceptionalOperation(() ->
       elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),

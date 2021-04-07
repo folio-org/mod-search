@@ -1,9 +1,13 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.TestConstants.INDEX_NAME;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
@@ -16,6 +20,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
+import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
@@ -32,9 +37,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IndexServiceTest {
 
-  private static final String RESOURCE_NAME = "test-resource";
-  private static final String TENANT_ID = "test-tenant";
-  public static final String INDEX_NAME = RESOURCE_NAME + "_" + TENANT_ID;
   private static final String EMPTY_OBJECT = "{}";
   @Mock private IndexRepository indexRepository;
   @Mock private SearchMappingsHelper mappingsHelper;
@@ -74,10 +76,25 @@ class IndexServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
 
     when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
 
     var response = indexService.indexResources(List.of(eventBody));
     assertThat(response).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void indexResources_negative() {
+    var searchBody = searchDocumentBody();
+    var eventBodies = List.of(TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId())));
+
+    when(searchDocumentConverter.convert(eventBodies)).thenReturn(List.of(searchBody));
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
+
+    assertThatThrownBy(() -> indexService.indexResources(eventBodies))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Cancelling bulk operation [reason: "
+        + "Cannot index resources for non existing indices [indices=[test-resource_test_tenant]]]");
   }
 
   @Test

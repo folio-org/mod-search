@@ -21,6 +21,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldProcessor;
@@ -68,12 +69,15 @@ public class SearchDocumentConverter {
 
     Map<String, Object> resultDocument = mergeSafely(baseFields, searchFields);
 
-    return SearchDocumentBody.builder()
-      .id(context.getId())
-      .index(getElasticsearchIndexName(context.getResourceName(), context.getTenant()))
-      .routing(context.getTenant())
+    return populateBaseFields(context.getId(), context.getResourceName(), context.getTenant())
       .rawJson(jsonConverter.toJson(resultDocument))
       .build();
+  }
+
+  public List<SearchDocumentBody> convertDeleteEvents(List<ResourceIdEvent> resourceEvents) {
+    return resourceEvents.stream()
+      .map(event -> populateBaseFields(event.getId(), event.getType(), event.getTenant()).build())
+      .collect(toList());
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
@@ -179,6 +183,15 @@ public class SearchDocumentConverter {
     }
 
     return null;
+  }
+
+  private static SearchDocumentBody.SearchDocumentBodyBuilder populateBaseFields(
+    String id, String resource, String tenant) {
+
+    return SearchDocumentBody.builder()
+      .id(id)
+      .index(getElasticsearchIndexName(resource, tenant))
+      .routing(tenant);
   }
 
   /**

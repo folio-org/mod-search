@@ -33,6 +33,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldProcessor;
@@ -260,6 +261,26 @@ class SearchDocumentConverterTest {
     var expectedJson = jsonObject("id", id, "value", defaultValue);
 
     assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
+  }
+
+  @Test
+  void convertDeleteEvents() {
+    var deleteEvents = List.of(ResourceIdEvent.of("id1", RESOURCE_NAME, TENANT_ID),
+      ResourceIdEvent.of("id2", RESOURCE_NAME, TENANT_ID + 2),
+      ResourceIdEvent.of("id3", RESOURCE_NAME, TENANT_ID + 3));
+
+    var removeDocuments = documentMapper.convertDeleteEvents(deleteEvents);
+
+    assertThat(removeDocuments).containsExactlyInAnyOrder(
+      deleteSearchDocument("id1", TENANT_ID),
+      deleteSearchDocument("id2", TENANT_ID + 2),
+      deleteSearchDocument("id3", TENANT_ID + 3));
+  }
+
+  private static SearchDocumentBody deleteSearchDocument(String id, String tenant) {
+    return SearchDocumentBody.builder()
+      .id(id).index(RESOURCE_NAME + "_" + tenant).routing(tenant)
+      .build();
   }
 
   private static Map<String, FieldDescription> getDescriptionFields() {

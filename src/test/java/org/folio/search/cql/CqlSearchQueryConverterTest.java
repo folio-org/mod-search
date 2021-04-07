@@ -3,6 +3,7 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -114,7 +115,8 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*").operator(AND)));
+    assertThat(actual).isEqualTo(searchSource().query(
+      multiMatchQuery("value", "field.*").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test
@@ -324,25 +326,27 @@ class CqlSearchQueryConverterTest {
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",
-        searchSourceSort().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND))),
+        searchSourceSort().query(multiMatchQuery("test-query",
+          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
 
       arguments("title any \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSourceSort().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND))
+          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
           .must(boolQuery()
             .should(matchQuery("languages", "eng").operator(AND))
             .should(matchQuery("languages", "ger").operator(AND))))),
 
       arguments("title all \"test-query\" not contributors = \"test-contributor\"",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND))
+          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
           .mustNot(matchQuery("contributors", "test-contributor").operator(AND)))),
 
       arguments("title all \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND))),
+        searchSource().query(multiMatchQuery("test-query",
+          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()
@@ -351,7 +355,8 @@ class CqlSearchQueryConverterTest {
           .should(wildcardQuery("source", "*test-query").rewrite("constant_score")))),
 
       arguments("title = \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", "title.*", "source.*", "source").operator(AND)))
+        searchSource().query(
+          multiMatchQuery("test-query", "title.*", "source.*", "source").operator(AND).type(CROSS_FIELDS)))
     );
   }
 

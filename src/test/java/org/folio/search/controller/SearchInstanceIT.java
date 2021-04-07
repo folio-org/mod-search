@@ -53,6 +53,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),
       arguments("search by instance title (zero results)", "title all {value}", array("semantic web word"),
         (ThrowingConsumer<ResultActions>) searchResult -> searchResult.andExpect(jsonPath("totalRecords", is(0)))),
+      arguments("search by instance title (zero results)", "title all {value}", array("systems alternative semantic"),
+        (ThrowingConsumer<ResultActions>) searchResult -> searchResult.andExpect(jsonPath("totalRecords", is(1)))),
 
       arguments("search by series", "title all {value}", array("cooperate"), null),
       arguments("search by identifiers (wildcard)", "identifiers.value all {value}", array("200306*"), null),

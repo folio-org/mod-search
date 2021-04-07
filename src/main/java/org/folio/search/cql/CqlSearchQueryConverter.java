@@ -2,8 +2,8 @@ package org.folio.search.cql;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.Operator.AND;
-import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -128,11 +128,13 @@ public class CqlSearchQueryConverter {
       case "=":
       case "adj":
       case "all":
-      case "any":
-        var matchOperator = "any".equals(comparator) ? OR : AND;
         return prepareElasticsearchQuery(fieldList,
-          fields -> multiMatchQuery(term, fields.toArray(String[]::new)).operator(matchOperator),
-          () -> matchQuery(fieldName, term).operator(matchOperator));
+          fields -> multiMatchQuery(term, fields.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS),
+          () -> matchQuery(fieldName, term).operator(AND));
+      case "any":
+        return prepareElasticsearchQuery(fieldList,
+          fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
+          () -> matchQuery(fieldName, term));
       case "<>":
         return boolQuery().mustNot(termQuery(fieldName, term));
       case "<":

@@ -127,6 +127,27 @@ class SearchControllerTest {
   }
 
   @Test
+  void search_negative_unsupportedCqlQueryModifier() throws Exception {
+    var cqlQuery = "title all \"test-query\" and";
+    var expectedSearchRequest = searchServiceRequest(cqlQuery);
+    var exceptionMessage = "Failed to parse CQL query. Comparator 'within' is not supported.";
+    when(searchService.search(expectedSearchRequest)).thenThrow(
+      new UnsupportedOperationException(exceptionMessage));
+
+    var requestBuilder = get("/search/instances")
+      .queryParam("query", cqlQuery)
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is(exceptionMessage)))
+      .andExpect(jsonPath("$.errors[0].type", is("UnsupportedOperationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("service_error")));
+  }
+
+  @Test
   void getFacets_positive() throws Exception {
     var cqlQuery = "title all \"test-query\"";
     var expectedFacetRequest = facetServiceRequest(cqlQuery, "source:5");

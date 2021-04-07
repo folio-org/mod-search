@@ -114,21 +114,19 @@ class IndexServiceTest {
 
   @Test
   void shouldDropIndexWhenExists() {
-    var index = "instance_diku";
-    when(indexRepository.indexExists(index)).thenReturn(true);
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
 
-    indexService.dropIndex("instance", "diku");
+    indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
 
-    verify(indexRepository).dropIndex(index);
+    verify(indexRepository).dropIndex(INDEX_NAME);
   }
 
   @Test
   void shouldNotDropIndexWhenNotExist() {
-    var index = "instance_diku";
-    when(indexRepository.indexExists(index)).thenReturn(false);
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
 
-    indexService.dropIndex("instance", "diku");
+    indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
 
-    verify(indexRepository, times(0)).dropIndex(index);
+    verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
   }
 }

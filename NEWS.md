@@ -1,3 +1,9 @@
+## 1.2.1 2021-04-07
+
+* Do not add resources if index does not exist (MSEARCH-86)
+* Support DELETE event for items/holdings/instances (MSEARCH-90)
+* Change multi-match operator from `OR` to `AND` (MSEARCH-91)
+
 ## 1.2.0 2021-04-02
 
 * Adds holdings.fullCallNumber search option (MSEARCH-81)

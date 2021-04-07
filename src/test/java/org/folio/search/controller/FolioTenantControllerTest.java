@@ -42,4 +42,11 @@ class FolioTenantControllerTest {
 
     verifyNoInteractions(tenantService);
   }
+
+  @Test
+  void shouldRemoveElasticIndexOnTenantDelete() {
+    tenantController.deleteTenant();
+
+    verify(tenantService).removeElasticsearchIndexes();
+  }
 }

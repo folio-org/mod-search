@@ -46,4 +46,13 @@ public class SearchTenantService {
       indexService.createIndexIfNotExist(resource.getName(), context.getTenantId());
     }
   }
+
+  public void removeElasticsearchIndexes() {
+    for (SearchResource resource : SearchResource.values()) {
+      log.info("Removing elasticsearch index [resourceName={}, tenant={}]",
+        resource.getName(), context.getTenantId());
+
+      indexService.dropIndex(resource.getName(), context.getTenantId());
+    }
+  }
 }

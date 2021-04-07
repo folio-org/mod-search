@@ -19,6 +19,7 @@ import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.TenantNotInitializedException;
 import org.folio.search.integration.error.KafkaErrorHandler;
 import org.folio.search.integration.inventory.InventoryViewClient;
+import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.messaging.support.GenericMessage;
 @IntegrationTest
 @SpringBootTest(classes = SearchApplication.class)
 @EnableAutoConfiguration
+@EnablePostgres
 class KafkaMessageListenerIT {
   @SpyBean
   private KafkaErrorHandler errorHandler;

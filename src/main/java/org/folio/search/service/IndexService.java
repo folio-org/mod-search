@@ -96,6 +96,13 @@ public class IndexService {
     return instanceStorageClient.submitReindex();
   }
 
+  public void dropIndex(String resource, String tenant) {
+    var index = getElasticsearchIndexName(resource, tenant);
+    if (indexRepository.indexExists(index)) {
+      indexRepository.dropIndex(index);
+    }
+  }
+
   private void checkThatDocumentsCanBeIndexed(List<SearchDocumentBody> elasticsearchDocuments) {
     var absentIndexNames = elasticsearchDocuments.stream()
       .map(SearchDocumentBody::getIndex)

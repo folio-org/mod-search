@@ -128,4 +128,22 @@ class IndexServiceTest {
 
     verify(instanceStorageClient).submitReindex();
   }
+
+  @Test
+  void shouldDropIndexWhenExists() {
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+
+    indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
+
+    verify(indexRepository).dropIndex(INDEX_NAME);
+  }
+
+  @Test
+  void shouldNotDropIndexWhenNotExist() {
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
+
+    indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
+
+    verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
+  }
 }

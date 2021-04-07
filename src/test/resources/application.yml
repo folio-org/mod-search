@@ -11,9 +11,7 @@ spring:
       username: elastic
       password: s3cret
   datasource:
-    url: jdbc:h2:mem:test_tenant_mod_search
-    driverClassName: org.h2.Driver
-    username: sa
+    username: folio_admin
     password: password
   liquibase:
     change-log: classpath:changelog/changelog-master.xml

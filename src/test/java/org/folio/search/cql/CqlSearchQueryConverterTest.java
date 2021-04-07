@@ -3,6 +3,8 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
+import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -113,7 +115,8 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")));
+    assertThat(actual).isEqualTo(searchSource().query(
+      multiMatchQuery("value", "field.*").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test
@@ -133,7 +136,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "value")));
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "value").operator(AND)));
   }
 
   @Test
@@ -146,7 +149,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "123")));
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "123").operator(AND)));
   }
 
   @Test
@@ -158,7 +161,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "1 23")));
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "1 23").operator(AND)));
   }
 
   @Test
@@ -172,7 +175,7 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSourceSort().query(
       boolQuery()
-        .must(matchQuery("title", "v1"))
+        .must(matchQuery("title", "v1").operator(AND))
         .must(termQuery("f4", "v4"))
         .filter(termQuery("f2", "v2"))
         .filter(termQuery("f3", "v3"))));
@@ -188,7 +191,7 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSourceSort().query(
       boolQuery()
-        .must(matchQuery("title", "v1"))
+        .must(matchQuery("title", "v1").operator(AND))
         .filter(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f2", "v3")).should(termQuery("f2", "v4")))
         .filter(termQuery("f3", "v5"))));
   }
@@ -203,7 +206,7 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "((title all \"v1\") and (f2==v2 or f4==v3) and f3==v4) sortby title";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSourceSort().query(boolQuery()
-      .must(matchQuery("title", "v1"))
+      .must(matchQuery("title", "v1").operator(AND))
       .must(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f4", "v3")))
       .filter(termQuery("f3", "v4"))));
   }
@@ -225,7 +228,9 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "(f2=v1 not f3=v2) and f1==(v3 or v4)";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
-      .must(boolQuery().must(matchQuery("f2", "v1")).mustNot(matchQuery("f3", "v2")))
+      .must(boolQuery()
+        .must(matchQuery("f2", "v1").operator(AND))
+        .mustNot(matchQuery("f3", "v2").operator(AND)))
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
@@ -237,7 +242,7 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "f2=v1 and f1==(v3 or v4)";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
-      .must(matchQuery("f2", "v1"))
+      .must(matchQuery("f2", "v1").operator(AND))
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
@@ -277,15 +282,15 @@ class CqlSearchQueryConverterTest {
     var resourceId = randomId();
     return Stream.of(
       arguments("(contributors =/@name \"test-query\") sortby title",
-        searchSourceSort().query(matchQuery("contributors", "test-query"))),
+        searchSourceSort().query(matchQuery("contributors", "test-query").operator(AND))),
 
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
       arguments("(keyword all \"test-query\") sortby title/sort.descending",
-        searchSource().query(matchQuery("keyword", "test-query")).sort("sort_title", DESC)),
+        searchSource().query(matchQuery("keyword", "test-query").operator(AND)).sort("sort_title", DESC)),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
-        searchSourceSort().query(matchQuery("identifiers", "test-query"))),
+        searchSourceSort().query(matchQuery("identifiers", "test-query").operator(AND))),
 
       arguments("(identifiers ==/@value \"test-query\") sortby title",
         searchSourceSort().query(termQuery("identifiers", "test-query"))),
@@ -321,20 +326,27 @@ class CqlSearchQueryConverterTest {
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",
-        searchSourceSort().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
+        searchSourceSort().query(multiMatchQuery("test-query",
+          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
+
+      arguments("title any \"test-query\"",
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSourceSort().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))
-          .must(boolQuery().should(matchQuery("languages", "eng")).should(matchQuery("languages", "ger"))))),
+          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
+          .must(boolQuery()
+            .should(matchQuery("languages", "eng").operator(AND))
+            .should(matchQuery("languages", "ger").operator(AND))))),
 
       arguments("title all \"test-query\" not contributors = \"test-contributor\"",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))
-          .mustNot(matchQuery("contributors", "test-contributor")))),
+          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
+          .mustNot(matchQuery("contributors", "test-contributor").operator(AND)))),
 
       arguments("title all \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
+        searchSource().query(multiMatchQuery("test-query",
+          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()
@@ -343,7 +355,8 @@ class CqlSearchQueryConverterTest {
           .should(wildcardQuery("source", "*test-query").rewrite("constant_score")))),
 
       arguments("title = \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", "title.*", "source.*", "source")))
+        searchSource().query(
+          multiMatchQuery("test-query", "title.*", "source.*", "source").operator(AND).type(CROSS_FIELDS)))
     );
   }
 

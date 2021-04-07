@@ -299,8 +299,8 @@ class CqlSearchQueryConverterTest {
 
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
-      arguments("(keyword all \"test-query\") sortby title/sort.descending",
-        searchSource().query(matchQuery("keyword", "test-query").operator(AND)).sort("sort_title", DESC)),
+      arguments("keyword all \"test-query\"",
+        searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
         searchSource().query(matchQuery("identifiers", "test-query").operator(AND))),

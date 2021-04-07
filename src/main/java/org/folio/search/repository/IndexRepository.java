@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -115,6 +116,27 @@ public class IndexRepository {
       index, "indexExists");
   }
 
+  public FolioIndexOperationResponse removeResources(List<SearchDocumentBody> documents) {
+    if (CollectionUtils.isEmpty(documents)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var bulkRequest = new BulkRequest();
+    var indices = new LinkedHashSet<String>();
+    for (var searchDocument : documents) {
+      indices.add(searchDocument.getIndex());
+      bulkRequest.add(prepareDeleteRequest(searchDocument));
+    }
+
+    var bulkApiResponse = performExceptionalOperation(
+      () -> elasticsearchClient.bulk(bulkRequest, RequestOptions.DEFAULT),
+      String.join(",", indices), "bulkRemove");
+
+    return bulkApiResponse.hasFailures()
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
+  }
+
   private static IndexRequest prepareIndexRequest(String index, SearchDocumentBody body) {
     return new IndexRequest(index)
       .id(body.getId())
@@ -127,5 +149,10 @@ public class IndexRepository {
 
     performExceptionalOperation(() -> elasticsearchClient.indices()
       .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
+  }
+
+  private static DeleteRequest prepareDeleteRequest(SearchDocumentBody event) {
+    return new DeleteRequest(event.getIndex())
+      .id(event.getId()).routing(event.getRouting());
   }
 }

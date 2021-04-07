@@ -3,14 +3,18 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.CREATE;
+import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.UPDATE;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -28,7 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class KafkaMessageListener {
-  private static final EnumSet<ResourceEventBody.TypeEnum> SUPPORTED_EVENT_TYPES =
+  private static final EnumSet<ResourceEventBody.TypeEnum> INDEX_EVENT_TYPES =
     EnumSet.of(CREATE, UPDATE, REINDEX);
 
   private final IndexService indexService;
@@ -42,17 +46,38 @@ public class KafkaMessageListener {
     concurrency = "${application.kafka.listener.events.concurrency}",
     errorHandler = "kafkaErrorHandler")
   public void handleEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
-    log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
-    var resourceIds = consumerRecords.stream()
-      .filter(record -> SUPPORTED_EVENT_TYPES.contains(record.value().getType()))
+    log.info("Processing instance ids from kafka events [number of events: {}]",
+      consumerRecords.size());
+
+    indexResources(consumerRecords);
+    removeResources(consumerRecords);
+  }
+
+  private void indexResources(List<ConsumerRecord<String, ResourceEventBody>> events) {
+    var resourcesToIndex = getResourceIdRecords(events, this::isIndexEvent);
+    var instancesByIds = resourceFetchService.fetchInstancesByIds(resourcesToIndex);
+
+    indexService.indexResources(instancesByIds);
+    log.info("Instances added/updated [size: {}]", instancesByIds.size());
+  }
+
+  private void removeResources(List<ConsumerRecord<String, ResourceEventBody>> events) {
+    var resourcesToRemove = getResourceIdRecords(events, this::isRemoveEvent);
+
+    indexService.removeResources(resourcesToRemove);
+    log.info("Resources removed [size: {}]", resourcesToRemove.size());
+  }
+
+  private List<ResourceIdEvent> getResourceIdRecords(
+    List<ConsumerRecord<String, ResourceEventBody>> events,
+    Predicate<ConsumerRecord<String, ResourceEventBody>> filter) {
+
+    return events.stream()
+      .filter(filter)
       .map(this::getResourceIdRecord)
       .filter(Objects::nonNull)
       .distinct()
       .collect(toList());
-
-    var instancesByIds = resourceFetchService.fetchInstancesByIds(resourceIds);
-    log.info("Instances fetched from inventory [size: {}]", instancesByIds.size());
-    indexService.indexResources(instancesByIds);
   }
 
   private ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
@@ -66,16 +91,37 @@ public class KafkaMessageListener {
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, tenantId);
   }
 
-  @SuppressWarnings("unchecked")
   private String getInstanceId(ConsumerRecord<String, ResourceEventBody> event) {
-    var topic = event.topic();
     var eventResourceBody = event.value();
     if (eventResourceBody.getType() == REINDEX) {
       return event.key();
     }
-    if (topic.equals("inventory.instance")) {
-      return MapUtils.getString((Map<String, Object>) eventResourceBody.getNew(), "id");
+
+    Map<String, Object> eventPayload = eventResourceBody.getNew() != null
+      ? getNewAsMap(eventResourceBody) : getOldAsMap(eventResourceBody);
+
+    if (isInstanceResource(event)) {
+      return MapUtils.getString(eventPayload, "id");
     }
-    return MapUtils.getString((Map<String, Object>) eventResourceBody.getNew(), "instanceId");
+    return MapUtils.getString(eventPayload, "instanceId");
+  }
+
+  private boolean isIndexEvent(ConsumerRecord<String, ResourceEventBody> event) {
+    var eventType = event.value().getType();
+    if (INDEX_EVENT_TYPES.contains(eventType)) {
+      return true;
+    }
+
+    // For items or holdings DELETE we just have to re-index associated instance
+    return !isInstanceResource(event) && eventType == DELETE;
+  }
+
+  private boolean isRemoveEvent(ConsumerRecord<String, ResourceEventBody> event) {
+    // remove events for items/holdings is handled as reindex of the instance
+    return isInstanceResource(event) && event.value().getType() == DELETE;
+  }
+
+  private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> record) {
+    return "inventory.instance".equals(record.topic());
   }
 }

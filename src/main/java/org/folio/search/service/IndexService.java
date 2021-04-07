@@ -18,6 +18,7 @@ import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.SearchDocumentBody;
+import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
@@ -83,6 +84,15 @@ public class IndexService {
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
     checkThatDocumentsCanBeIndexed(elasticsearchDocuments);
     return indexRepository.indexResources(elasticsearchDocuments);
+  }
+
+  public FolioIndexOperationResponse removeResources(List<ResourceIdEvent> resources) {
+    if (CollectionUtils.isEmpty(resources)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var deleteEvents = multiTenantSearchDocumentConverter.convertDeleteEvents(resources);
+    return indexRepository.removeResources(deleteEvents);
   }
 
   public void createIndexIfNotExist(String resourceName, String tenantId) {

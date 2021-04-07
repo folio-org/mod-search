@@ -19,6 +19,10 @@
     "new": {
       "description": "Instance record new fields",
       "type": "object"
+    },
+    "old": {
+      "description": "Instance record old fields",
+      "type": "object"
     }
   }
 }

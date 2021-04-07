@@ -1,6 +1,7 @@
 package org.folio.search.support.api;
 
 import static java.util.Collections.emptyMap;
+import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_HOLDING_TOPIC;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
@@ -66,6 +67,27 @@ public class InventoryApi {
 
     kafkaTemplate.send(INVENTORY_ITEM_TOPIC, instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
+  }
+
+  public void deleteItem(String tenant, String id) {
+    var item = ITEM_STORE.get(tenant).remove(id);
+
+    kafkaTemplate.send(INVENTORY_ITEM_TOPIC, item.getInstanceId(),
+      eventBody(INSTANCE_RESOURCE, null).old(item).tenant(tenant).type(DELETE));
+  }
+
+  public void deleteHolding(String tenant, String id) {
+    var hr = HOLDING_STORE.get(tenant).remove(id);
+
+    kafkaTemplate.send(INVENTORY_HOLDING_TOPIC, hr.getInstanceId(),
+      eventBody(INSTANCE_RESOURCE, null).old(hr).tenant(tenant).type(DELETE));
+  }
+
+  public void deleteInstance(String tenant, String id) {
+    var instance = INSTANCE_STORE.get(tenant).remove(id);
+
+    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, instance.getId(),
+      eventBody(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
   }
 
   public static Optional<Instance> getInventoryView(String tenant, String id) {

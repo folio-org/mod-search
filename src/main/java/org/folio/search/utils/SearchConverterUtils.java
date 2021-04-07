@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -66,6 +67,16 @@ public class SearchConverterUtils {
       return Stream.of((String) value);
     }
     return Stream.empty();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map<String, Object> getNewAsMap(ResourceEventBody resourceEventBody) {
+    return (Map<String, Object>) resourceEventBody.getNew();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map<String, Object> getOldAsMap(ResourceEventBody resourceEventBody) {
+    return (Map<String, Object>) resourceEventBody.getOld();
   }
 
   @SuppressWarnings("unchecked")

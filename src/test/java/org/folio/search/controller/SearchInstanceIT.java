@@ -53,7 +53,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),
       arguments("search by instance title (zero results)", "title all {value}",
         array("semantic web word"), zeroResultConsumer()),
-      arguments("search by instance title (zero results)", "title all {value}",
+      arguments("search by instance title (search across 2 fields)", "title all {value}",
         array("systems alternative semantic"), null),
 
       arguments("search by series", "title all {value}", array("cooperate"), null),

@@ -11,8 +11,7 @@ import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
-import static org.elasticsearch.search.sort.SortOrder.ASC;
-import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.filterField;
@@ -20,6 +19,8 @@ import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +55,7 @@ class CqlSearchQueryConverterTest {
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private IsbnSearchTermProcessor isbnSearchTermProcessor;
   @Mock private Map<String, SearchTermProcessor> searchTermProcessors;
+  @Mock private CqlSortProvider cqlSortProvider;
 
   @MethodSource("convertCqlQueryDataProvider")
   @DisplayName("convert_positive_parameterized")
@@ -80,32 +82,32 @@ class CqlSearchQueryConverterTest {
   void convert_negative_unsupportedBoolOperator() {
     var cqlQuery = "title all \"test-query\" prox contributors = \"value\"";
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse cql query "
-        + "[cql: 'title all \"test-query\" prox contributors = \"value\"', resource: instance]")
-      .hasCauseInstanceOf(UnsupportedOperationException.class)
-      .hasRootCauseMessage("Not implemented yet [operator: PROX]");
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Failed to parse CQL query. Operator 'PROX' is not supported.");
   }
 
   @Test
   void convert_negative_unsupportedComparator() {
     var cqlQuery = "title within  \"test-query\"";
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse cql query [cql: 'title within  \"test-query\"', resource: instance]")
-      .hasCauseInstanceOf(UnsupportedOperationException.class)
-      .hasRootCauseMessage("Not implemented yet [operator: within]");
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Failed to parse CQL query. Comparator 'within' is not supported.");
   }
 
   @Test
   void convert_negative_unsupportedNode() {
     var cqlQuery = "> dc = \"info:srw/context-sets/1/dc-v1.1\" dc.title any fish";
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Failed to parse CQL query. Node with type 'CQLPrefixNode' is not supported.");
+  }
+
+  @Test
+  void convert_negative_invalidQuery() {
+    var cqlQuery = "> invalidQuery";
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse cql query "
-        + "[cql: '> dc = \"info:srw/context-sets/1/dc-v1.1\" dc.title any fish', resource: instance]")
-      .hasCauseInstanceOf(UnsupportedOperationException.class)
-      .hasRootCauseMessage("Unsupported node: CQLPrefixNode");
+      .hasMessage("Failed to parse cql query [cql: '> invalidQuery', resource: instance]");
   }
 
   @Test
@@ -171,9 +173,9 @@ class CqlSearchQueryConverterTest {
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
     doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f4");
 
-    var cqlQuery = "((title all \"v1\") and f2==\"v2\" and f3 ==\"v3\" and f4==\"v4\") sortby title";
+    var cqlQuery = "(title all \"v1\") and f2==\"v2\" and f3 ==\"v3\" and f4==\"v4\"";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSourceSort().query(
+    assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
         .must(matchQuery("title", "v1").operator(AND))
         .must(termQuery("f4", "v4"))
@@ -187,9 +189,9 @@ class CqlSearchQueryConverterTest {
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
 
-    var cqlQuery = "((title all \"v1\") and f2==(v2 or v3 or v4) and f3==v5) sortby title";
+    var cqlQuery = "(title all \"v1\") and f2==(v2 or v3 or v4) and f3==v5";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSourceSort().query(
+    assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
         .must(matchQuery("title", "v1").operator(AND))
         .filter(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f2", "v3")).should(termQuery("f2", "v4")))
@@ -203,9 +205,9 @@ class CqlSearchQueryConverterTest {
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f4");
 
-    var cqlQuery = "((title all \"v1\") and (f2==v2 or f4==v3) and f3==v4) sortby title";
+    var cqlQuery = "(title all \"v1\") and (f2==v2 or f4==v3) and f3==v4";
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSourceSort().query(boolQuery()
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(matchQuery("title", "v1").operator(AND))
       .must(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f4", "v3")))
       .filter(termQuery("f3", "v4"))));
@@ -278,11 +280,22 @@ class CqlSearchQueryConverterTest {
       .filter(rangeQuery("f1").gt("2"))));
   }
 
+  @Test
+  void convert_positive_sortQuery() {
+    var expectedSort = fieldSort(FIELD);
+
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(keywordField()));
+    when(cqlSortProvider.getSort(any(), eq(RESOURCE_NAME))).thenReturn(List.of(expectedSort));
+
+    var actual = cqlSearchQueryConverter.convert("(field==value) sortby title", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(termQuery(FIELD, "value")).sort(expectedSort));
+  }
+
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(
       arguments("(contributors =/@name \"test-query\") sortby title",
-        searchSourceSort().query(matchQuery("contributors", "test-query").operator(AND))),
+        searchSource().query(matchQuery("contributors", "test-query").operator(AND))),
 
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
@@ -290,13 +303,13 @@ class CqlSearchQueryConverterTest {
         searchSource().query(matchQuery("keyword", "test-query").operator(AND)).sort("sort_title", DESC)),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
-        searchSourceSort().query(matchQuery("identifiers", "test-query").operator(AND))),
+        searchSource().query(matchQuery("identifiers", "test-query").operator(AND))),
 
-      arguments("(identifiers ==/@value \"test-query\") sortby title",
-        searchSourceSort().query(termQuery("identifiers", "test-query"))),
+      arguments("identifiers ==/@value \"test-query\"",
+        searchSource().query(termQuery("identifiers", "test-query"))),
 
-      arguments("(identifiers =/@value \"*test-query\") sortby title",
-        searchSourceSort().query(wildcardQuery("identifiers", "*test-query").rewrite("constant_score"))),
+      arguments("identifiers =/@value \"*test-query\"",
+        searchSource().query(wildcardQuery("identifiers", "*test-query").rewrite("constant_score"))),
 
       arguments("num > 2", searchSource().query(rangeQuery("num").gt("2"))),
       arguments("num >= 2", searchSource().query(rangeQuery("num").gte("2"))),
@@ -326,14 +339,14 @@ class CqlSearchQueryConverterTest {
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",
-        searchSourceSort().query(multiMatchQuery("test-query",
+        searchSource().query(multiMatchQuery("test-query",
           TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
 
       arguments("title any \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
-        searchSourceSort().query(boolQuery()
+        searchSource().query(boolQuery()
           .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
           .must(boolQuery()
             .should(matchQuery("languages", "eng").operator(AND))
@@ -362,10 +375,6 @@ class CqlSearchQueryConverterTest {
 
   private static SearchSourceBuilder searchSource() {
     return SearchSourceBuilder.searchSource();
-  }
-
-  private static SearchSourceBuilder searchSourceSort() {
-    return searchSource().sort("sort_title", ASC);
   }
 
   private static PlainFieldDescription keywordFieldWithProcessor(String processorName) {

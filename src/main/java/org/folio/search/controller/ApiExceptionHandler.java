@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.logging.log4j.Level.DEBUG;
 import static org.apache.logging.log4j.Level.WARN;
 import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
+import static org.folio.search.model.types.ErrorCode.SERVICE_ERROR;
 import static org.folio.search.model.types.ErrorCode.UNKNOWN_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -50,13 +51,25 @@ public class ApiExceptionHandler {
   }
 
   /**
+   * Catches and handles all {@link UnsupportedOperationException} objects during code execution.
+   *
+   * @param exception {@link UnsupportedOperationException} to process
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
+   */
+  @ExceptionHandler(UnsupportedOperationException.class)
+  public ResponseEntity<ErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException exception) {
+    logException(DEBUG, exception);
+    return buildResponseEntity(exception, BAD_REQUEST, SERVICE_ERROR);
+  }
+
+  /**
    * Catches and handles all {@link SearchOperationException} objects during code execution.
    *
    * @param exception {@link SearchOperationException} to process
    * @return {@link ResponseEntity} with {@link ErrorResponse} body
    */
   @ExceptionHandler(SearchOperationException.class)
-  public ResponseEntity<ErrorResponse> handleSearchServiceException(SearchOperationException exception) {
+  public ResponseEntity<ErrorResponse> handleSearchOperationException(SearchOperationException exception) {
     logException(DEBUG, exception);
 
     var cause = exception.getCause();

@@ -1,6 +1,5 @@
 package org.folio.search.service.converter;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonUtils.jsonArray;
@@ -8,6 +7,7 @@ import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.keywordField;
@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +51,8 @@ class SearchDocumentConverterTest {
 
   @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
-  @Spy private final ObjectMapper objectMapper = new ObjectMapper()
-    .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
   @Mock private LanguageConfigService languageConfigService;
+  @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
   void convertSingleEvent_positive() {
@@ -137,7 +134,7 @@ class SearchDocumentConverterTest {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
     var actual = convert(eventBody);
-    var expectedJson = jsonObject("id", id, "title", jsonObject("eng", "val", "src", "val"));
+    var expectedJson = jsonObject("id", id, "title", jsonObject("eng", "val"), "plain_title", "val");
 
     assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
@@ -156,8 +153,8 @@ class SearchDocumentConverterTest {
 
     var actual = convert(resourceEventBody);
     var expectedJson = jsonObject("id", id, "identifiers", jsonArray(
-        jsonObject("value", "test-isbn"),
-        jsonObject("value", "test-issn")));
+      jsonObject("value", "test-isbn"),
+      jsonObject("value", "test-issn")));
 
     assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
@@ -173,7 +170,9 @@ class SearchDocumentConverterTest {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     var actual = convert(resourceEventBody);
     var expectedJson = jsonObject(
-      "id", id, "alternativeTitle", jsonArray(jsonObject("value", jsonObject("src", "title1"))));
+      "id", id, "alternativeTitle", jsonArray(jsonObject(
+        "value", jsonObject("src", "title1"),
+        "plain_value", "title1")));
     assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
 
@@ -264,6 +263,23 @@ class SearchDocumentConverterTest {
   }
 
   @Test
+  void convert_positive_languageIsNotSpecified() {
+    var id = randomId();
+    var eventBody = eventBody(RESOURCE_NAME, mapOf("id", id, "language", "rus", "multilang_value", "value"));
+
+    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng", "fra"));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+      resourceDescription(getDescriptionFields(), List.of("$.language")));
+
+    var actual = documentMapper.convert(List.of(eventBody));
+    assertThat(actual).isEqualTo(List.of(expectedSearchDocument(jsonObject(
+      "id", id,
+      "language", "rus",
+      "multilang_value", jsonObject("src", "value"),
+      "plain_multilang_value", "value"))));
+  }
+
+  @Test
   void convertDeleteEvents() {
     var deleteEvents = List.of(ResourceIdEvent.of("id1", RESOURCE_NAME, TENANT_ID),
       ResourceIdEvent.of("id2", RESOURCE_NAME, TENANT_ID + 2),
@@ -297,11 +313,11 @@ class SearchDocumentConverterTest {
         "createdAt", plainField("keyword"))));
   }
 
-  private static Map<String, Object> getResourceTestData(String id, String language) {
+  private static Map<String, Object> getResourceTestData(String id) {
     return mapOf(
       "id", id,
       "title", List.of("instance title"),
-      "language", language,
+      "language", "eng",
       "multilang_value", "some value",
       "bool", true,
       "number", 123,
@@ -311,18 +327,13 @@ class SearchDocumentConverterTest {
         "createdAt", "12-01-01T12:03:12Z"));
   }
 
-  private static Map<String, Object> getResourceTestData(String id) {
-    return getResourceTestData(id, "eng");
-  }
-
-  private static ObjectNode getExpectedDocument(String id, String language) {
+  private static ObjectNode getExpectedDocument(String id) {
     return jsonObject(
       "id", id,
       "title", jsonArray("instance title"),
-      "language", language,
-      "multilang_value", jsonObject(
-        language, "some value",
-        "src", "some value"),
+      "language", "eng",
+      "multilang_value", jsonObject("eng", "some value"),
+      "plain_multilang_value", "some value",
       "bool", true,
       "number", 123,
       "numbers", jsonArray(1, 2, 3, 4),
@@ -330,20 +341,16 @@ class SearchDocumentConverterTest {
         "createdAt", "12-01-01T12:03:12Z"));
   }
 
-  private static ObjectNode getExpectedDocument(String id) {
-    return getExpectedDocument(id, "eng");
-  }
-
-  private SearchDocumentBody expectedSearchDocument(ObjectNode expectedJson) {
+  private static SearchDocumentBody expectedSearchDocument(ObjectNode expectedJson) {
     final var id = expectedJson.get("id").asText();
     return SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, asJsonString(expectedJson));
   }
 
-  private SearchDocumentBody expectedSearchDocument(String id) {
+  private static SearchDocumentBody expectedSearchDocument(String id) {
     return expectedSearchDocument(getExpectedDocument(id));
   }
 
-  private SearchDocumentBody convert(ResourceEventBody ... eventBody) {
+  private SearchDocumentBody convert(ResourceEventBody... eventBody) {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     final var converted = documentMapper.convert(List.of(eventBody));
 

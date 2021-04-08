@@ -1,5 +1,7 @@
 package org.folio.search.service.converter;
 
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,7 +10,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
-import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,20 +33,25 @@ public class ElasticsearchHitConverter {
     if (MapUtils.isEmpty(elasticsearchHit)) {
       return objectMapper.convertValue(elasticsearchHit, resultClass);
     }
-    var processedMap = new LinkedHashMap<String, Object>();
-    elasticsearchHit.forEach((fieldName, fieldValue) -> processedMap.put(fieldName, processField(fieldValue)));
-    return objectMapper.convertValue(processedMap, resultClass);
+    return objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
   }
 
   private static Map<String, Object> processMap(Map<String, Object> map) {
     var resultMap = new LinkedHashMap<String, Object>();
-    map.forEach((fieldName, fieldValue) -> resultMap.put(fieldName, processField(fieldValue)));
+    for (var entry : map.entrySet()) {
+      String key = entry.getKey();
+      if (key.startsWith(PLAIN_MULTILANG_PREFIX)) {
+        resultMap.put(key.substring(PLAIN_MULTILANG_PREFIX.length()), processField(entry.getValue()));
+        continue;
+      }
+      resultMap.putIfAbsent(key, processField(entry.getValue()));
+    }
     return resultMap;
   }
 
   @SuppressWarnings("unchecked")
   private static Object processField(Object value) {
-    if (value instanceof Map && !isMultiLanguageField(value)) {
+    if (value instanceof Map) {
       return processMap((Map<String, Object>) value);
     }
     if (value instanceof List) {
@@ -55,17 +61,10 @@ public class ElasticsearchHitConverter {
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
     }
-    return isMultiLanguageField(value) ? getSourceMultilangValue(value) : value;
+    return value;
   }
 
-  @SuppressWarnings("unchecked")
-  private static boolean isMultiLanguageField(Object fieldValue) {
-    return fieldValue instanceof Map && ((Map<String, Object>) fieldValue).containsKey(
-      SearchUtils.MULTILANG_SOURCE_SUBFIELD);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Object getSourceMultilangValue(Object fieldValue) {
-    return ((Map<String, Object>) fieldValue).get(SearchUtils.MULTILANG_SOURCE_SUBFIELD);
+  private static String updateMultilangFieldName(String name) {
+    return name.startsWith(PLAIN_MULTILANG_PREFIX) ? name.substring(PLAIN_MULTILANG_PREFIX.length()) : name;
   }
 }

@@ -1,8 +1,12 @@
 package org.folio.search.service.converter;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -97,8 +101,7 @@ public class SearchDocumentConverter {
   private ConversionContext buildConvertContext(ResourceEventBody event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceDataAsMap = getResourceDataAsMap(event);
-    var resourceLanguages = getResourceLanguages(resourceDescription
-        .getLanguageSourcePaths(), resourceDataAsMap);
+    var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceDataAsMap);
 
     return new ConversionContext(event.getTenant(), event.getResourceName(), resourceDataAsMap,
       resourceDescription, resourceLanguages);
@@ -107,13 +110,13 @@ public class SearchDocumentConverter {
   private Map<String, Object> generateSearchFields(ConversionContext ctx) {
     var resultMap = new LinkedHashMap<String, Object>();
 
-    ctx.getResourceDescription().getSearchFields().forEach(
-      (fieldName, desc) -> {
-        FieldProcessor<?> fieldProcessor = fieldProcessors.get(desc.getProcessor());
-
-        Object fieldValue = fieldProcessor.getFieldValue(ctx.getResourceData());
-        resultMap.put(fieldName, desc.isMultilang() ? getMultilangValue(fieldValue, ctx) : fieldValue);
-      });
+    ctx.getResourceDescription().getSearchFields().forEach((name, desc) -> {
+      var fieldProcessor = fieldProcessors.get(desc.getProcessor());
+      var value = fieldProcessor.getFieldValue(ctx.getResourceData());
+      if (value != null) {
+        resultMap.putAll(desc.isMultilang() ? getMultilangValue(name, value, ctx) : Map.of(name, value));
+      }
+    });
 
     return nullIfEmpty(resultMap);
   }
@@ -125,16 +128,11 @@ public class SearchDocumentConverter {
   private static Map<String, Object> convertMapUsingResourceFields(
     Map<String, Object> data, Map<String, FieldDescription> fields, ConversionContext ctx) {
     var resultMap = new LinkedHashMap<String, Object>();
-    for (var fieldEntry : fields.entrySet()) {
-      var fieldValue = getFieldValue(data, fieldEntry, ctx);
-      if (fieldValue != null) {
-        resultMap.put(fieldEntry.getKey(), fieldValue);
-      }
-    }
+    fields.entrySet().forEach(entry -> resultMap.putAll(getFieldValue(data, entry, ctx)));
     return nullIfEmpty(resultMap);
   }
 
-  private static Object getFieldValue(
+  private static Map<String, Object> getFieldValue(
     Map<String, Object> data, Entry<String, FieldDescription> descEntry, ConversionContext ctx) {
     var fieldDescription = descEntry.getValue();
     if (fieldDescription instanceof PlainFieldDescription) {
@@ -142,19 +140,26 @@ public class SearchDocumentConverter {
     }
 
     var objectFieldDescription = (ObjectFieldDescription) fieldDescription;
-    var objectMapValue = data.get(descEntry.getKey());
-    return getObjectFieldValue(objectMapValue, objectFieldDescription.getProperties(), ctx);
+    var fieldName = descEntry.getKey();
+    var objectMapValue = data.get(fieldName);
+    var value = getObjectFieldValue(objectMapValue, objectFieldDescription.getProperties(), ctx);
+    return value != null ? Map.of(fieldName, value) : emptyMap();
   }
 
-  private static Object getPlainFieldValue(Map<String, Object> fieldData,
+  private static Map<String, Object> getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
     var fieldName = fieldEntry.getKey();
     var desc = (PlainFieldDescription) fieldEntry.getValue();
-    if (!desc.isIndexed()) {
-      return null;
+    if (desc.isNotIndexed()) {
+      return emptyMap();
     }
     Object plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
-    return desc.isMultilang() ? getMultilangValue(plainFieldValue, ctx) : plainFieldValue;
+    if (plainFieldValue == null) {
+      return emptyMap();
+    }
+    return desc.isMultilang()
+      ? getMultilangValue(fieldName, plainFieldValue, ctx)
+      : singletonMap(fieldName, plainFieldValue);
   }
 
   @SuppressWarnings("unchecked")
@@ -174,15 +179,19 @@ public class SearchDocumentConverter {
     return null;
   }
 
-  private static Map<String, Object> getMultilangValue(Object plainFieldValue, ConversionContext ctx) {
-    if (plainFieldValue != null) {
-      var multilangValueMap = new LinkedHashMap<String, Object>();
-      ctx.getLanguages().forEach(language -> multilangValueMap.put(language, plainFieldValue));
-      multilangValueMap.put("src", plainFieldValue);
-      return multilangValueMap;
+  private static Map<String, Object> getMultilangValue(String key, Object plainFieldValue, ConversionContext ctx) {
+    var multilangValueMap = new LinkedHashMap<String, Object>();
+    var languages = ctx.getLanguages();
+    languages.forEach(language -> multilangValueMap.put(language, plainFieldValue));
+    if (languages.isEmpty()) {
+      multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, plainFieldValue);
     }
 
-    return null;
+    var resultMap = new LinkedHashMap<String, Object>(2);
+    resultMap.put(key, multilangValueMap);
+    resultMap.put(PLAIN_MULTILANG_PREFIX + key, plainFieldValue);
+
+    return resultMap;
   }
 
   private static SearchDocumentBody.SearchDocumentBodyBuilder populateBaseFields(
@@ -200,6 +209,7 @@ public class SearchDocumentConverter {
   @Getter
   @RequiredArgsConstructor
   private static class ConversionContext {
+
     private final String tenant;
     private final String resourceName;
     private final Map<String, Object> resourceData;

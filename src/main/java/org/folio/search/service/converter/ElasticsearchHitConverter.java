@@ -63,8 +63,4 @@ public class ElasticsearchHitConverter {
     }
     return value;
   }
-
-  private static String updateMultilangFieldName(String name) {
-    return name.startsWith(PLAIN_MULTILANG_PREFIX) ? name.substring(PLAIN_MULTILANG_PREFIX.length()) : name;
-  }
 }

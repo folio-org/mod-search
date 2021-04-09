@@ -1,5 +1,7 @@
 package org.folio.search.model.metadata;
 
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,6 +20,7 @@ public class PlainFieldDescription extends FieldDescription {
 
   public static final String NONE_FIELD_TYPE = "none";
   public static final String MULTILANG_FIELD_TYPE = "multilang";
+  public static final String PLAIN_MULTILANG_FIELD_TYPE = PLAIN_MULTILANG_PREFIX + "multilang";
 
   /**
    * List of search types, that is used to identify search options for given field.
@@ -82,8 +85,8 @@ public class PlainFieldDescription extends FieldDescription {
    * @return true if field is must be indexed, false - otherwise
    */
   @JsonIgnore
-  public boolean isIndexed() {
-    return !NONE_FIELD_TYPE.equals(index);
+  public boolean isNotIndexed() {
+    return NONE_FIELD_TYPE.equals(index);
   }
 
   /**

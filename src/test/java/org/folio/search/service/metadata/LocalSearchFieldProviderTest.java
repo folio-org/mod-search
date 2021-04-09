@@ -75,8 +75,8 @@ class LocalSearchFieldProviderTest {
   @Test
   void getSourceFields_positive() {
     var actual = searchFieldProvider.getSourceFields(RESOURCE_NAME);
-    assertThat(actual).containsExactlyInAnyOrder("id", "title1.src", "title2.sub1",
-      "title2.sub3.sub5.src", "source");
+    assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1",
+      "title2.sub3.plain_sub5", "source");
   }
 
   @Test

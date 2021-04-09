@@ -14,6 +14,7 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
+import static org.folio.search.utils.SearchUtils.updatePathForTermQueries;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -233,9 +234,9 @@ public class CqlSearchQueryConverter {
     Function<String, QueryBuilder> innerQueryProvider) {
     var boolQueryBuilder = boolQuery();
     if (fieldsGroup.size() == 1) {
-      return innerQueryProvider.apply(updateMultilangFieldPath(fieldsGroup.get(0)));
+      return innerQueryProvider.apply(updatePathForTermQueries(fieldsGroup.get(0)));
     }
-    fieldsGroup.forEach(field -> boolQueryBuilder.should(innerQueryProvider.apply(updateMultilangFieldPath(field))));
+    fieldsGroup.forEach(field -> boolQueryBuilder.should(innerQueryProvider.apply(updatePathForTermQueries(field))));
     return boolQueryBuilder;
   }
 
@@ -253,10 +254,6 @@ public class CqlSearchQueryConverter {
       .map(plainFieldDescription -> updatePathForMultilangField(fieldName))
       .map(Collections::singletonList)
       .orElse(emptyList());
-  }
-
-  private static String updateMultilangFieldPath(String field) {
-    return (field.endsWith(".*")) ? field.substring(0, field.length() - 2) + ".src" : field;
   }
 
   private static WildcardQueryBuilder prepareWildcardQuery(String fieldName, String term) {

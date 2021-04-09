@@ -3,13 +3,14 @@ package org.folio.search.service.metadata;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.getPathToPlainMultilangValue;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -164,10 +165,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return unmodifiableMap(sourceFieldPerResource);
   }
 
-  private static String getSourcePath(Map.Entry<String, PlainFieldDescription> entry) {
-    final String path = entry.getKey();
-    final PlainFieldDescription descriptor = entry.getValue();
-
-    return descriptor.isMultilang() ? path + "." + MULTILANG_SOURCE_SUBFIELD : path;
+  private static String getSourcePath(Entry<String, PlainFieldDescription> entry) {
+    var path = entry.getKey();
+    return entry.getValue().isMultilang() ? getPathToPlainMultilangValue(path) : path;
   }
 }

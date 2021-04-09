@@ -9,17 +9,14 @@ import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @UnitTest
 class SearchUtilsTest {
@@ -53,22 +50,37 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
-  @MethodSource("totalPagesTestData")
-  @ParameterizedTest(name = "[{index}] total={0}")
-  @DisplayName("should calculate total pages count")
+  @DisplayName("getTotalPages_parameterized")
+  @CsvSource({"0,0", "1,1", "15,1", "21,2", "100,5", "101, 6"})
+  @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
   void getTotalPages_parameterized(long total, long expected) {
     var totalPages = getTotalPages(total, 20);
     assertThat(totalPages).isEqualTo(expected);
   }
 
-  private static Stream<Arguments> totalPagesTestData() {
-    return Stream.of(
-      arguments(0, 0),
-      arguments(1, 1),
-      arguments(15, 1),
-      arguments(21, 2),
-      arguments(100, 5),
-      arguments(101, 6)
-    );
+  @DisplayName("updatePathForTermQueries_parameterized")
+  @CsvSource({
+    "path,path",
+    "object.value,object.value",
+    "field.*,plain_field",
+    "field1.field2.*,field1.plain_field2",
+    "field1.field2.field3.*,field1.field2.plain_field3"
+  })
+  @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
+  void updatePathForTermQueries_parameterized(String given, String expected) {
+    var actual = SearchUtils.updatePathForTermQueries(given);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @DisplayName("getPathToPlainMultilangValue_parameterized")
+  @CsvSource({
+    "field,plain_field",
+    "field1.field2,field1.plain_field2",
+    "field1.field2.field3,field1.field2.plain_field3"
+  })
+  @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
+  void getPathToPlainMultilangValue_parameterized(String given, String expected) {
+    var actual = SearchUtils.getPathToPlainMultilangValue(given);
+    assertThat(actual).isEqualTo(expected);
   }
 }

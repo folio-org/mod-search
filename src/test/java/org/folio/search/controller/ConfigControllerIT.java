@@ -93,8 +93,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
     final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 
-    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance), aMapWithSize(3));
-    assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
+    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance), aMapWithSize(2));
     assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.fre", indexedInstance), nullValue());

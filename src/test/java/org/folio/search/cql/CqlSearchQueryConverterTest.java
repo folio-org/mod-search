@@ -13,6 +13,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
@@ -128,7 +129,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " == value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(termQuery(FIELD + ".src", "value")));
+    assertThat(actual).isEqualTo(searchSource().query(termQuery(PLAIN_MULTILANG_PREFIX + FIELD, "value")));
   }
 
   @Test
@@ -363,8 +364,8 @@ class CqlSearchQueryConverterTest {
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()
-          .should(wildcardQuery("title.src", "*test-query").rewrite("constant_score"))
-          .should(wildcardQuery("source.src", "*test-query").rewrite("constant_score"))
+          .should(wildcardQuery("plain_title", "*test-query").rewrite("constant_score"))
+          .should(wildcardQuery("plain_source", "*test-query").rewrite("constant_score"))
           .should(wildcardQuery("source", "*test-query").rewrite("constant_score")))),
 
       arguments("title = \"test-query\"",

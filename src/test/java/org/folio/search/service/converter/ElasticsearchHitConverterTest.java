@@ -1,5 +1,6 @@
 package org.folio.search.service.converter;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -41,7 +42,6 @@ class ElasticsearchHitConverterTest {
   void convert_positive_noMultiLangFields(
     Map<String, Object> given, Instance expected) {
     var actual = elasticsearchHitConverter.convert(given, Instance.class);
-
     assertThat(actual).isEqualTo(expected);
     verify(objectMapper).convertValue(anyMap(), eq(Instance.class));
   }
@@ -51,7 +51,7 @@ class ElasticsearchHitConverterTest {
       arguments(emptyMap(), new Instance()),
 
       arguments(
-        mapOf("title", mapOf("src", "title value", "eng", "title value")),
+        mapOf("plain_title", "title value", "title", mapOf("eng", "title value", "rus", "title value")),
         instance(instance -> instance.setTitle("title value"))),
 
       arguments(
@@ -63,14 +63,18 @@ class ElasticsearchHitConverterTest {
         instance(instance -> instance.setMetadata(metadata()))),
 
       arguments(
-        mapOf("alternativeTitles", List.of(
-          mapOf("alternativeTitle", mapOf("ara", "value1", "src", "value1")),
-          mapOf("alternativeTitle", mapOf("ara", "value2", "src", "value2")))),
+        mapOf("alternativeTitles", asList(
+          mapOf("plain_alternativeTitle", "value1"),
+          mapOf("plain_alternativeTitle", "value2"))),
         instance(instance -> instance.setAlternativeTitles(List.of(
           alternativeTitle("value1"), alternativeTitle("value2"))))),
 
       arguments(
-        mapOf("series", List.of(mapOf("src", "series1"), mapOf("src", null))),
+        mapOf("plain_series", asList("series1", null)),
+        instance(instance -> instance.setSeries(List.of("series1")))),
+
+      arguments(
+        mapOf("series", List.of(mapOf("src", "series1"), mapOf("src", null)), "plain_series", asList("series1", null)),
         instance(instance -> instance.setSeries(List.of("series1"))))
     );
   }

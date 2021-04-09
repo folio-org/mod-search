@@ -32,6 +32,12 @@
       "analyzer": "source_analyzer"
     }
   },
+  "plain_multilang": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase"
+    }
+  },
   "multilang": {
     "mapping": {
       "properties": {

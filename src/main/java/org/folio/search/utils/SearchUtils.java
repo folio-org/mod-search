@@ -15,6 +15,8 @@ public class SearchUtils {
   public static final String INSTANCE_RESOURCE = SearchResource.INSTANCE.getName();
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
+  public static final String PLAIN_MULTILANG_PREFIX = "plain_";
+  public static final String DOT = ".";
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
@@ -74,5 +76,16 @@ public class SearchUtils {
    */
   public static String updatePathForMultilangField(String path) {
     return path + ".*";
+  }
+
+  public static String updatePathForTermQueries(String path) {
+    return path.endsWith(".*") ? getPathToPlainMultilangValue(path.substring(0, path.length() - 2)) : path;
+  }
+
+  public static String getPathToPlainMultilangValue(String path) {
+    var dotIndex = path.lastIndexOf('.');
+    return dotIndex < 0
+      ? PLAIN_MULTILANG_PREFIX + path
+      : path.substring(0, dotIndex) + DOT + PLAIN_MULTILANG_PREFIX + path.substring(dotIndex + 1);
   }
 }

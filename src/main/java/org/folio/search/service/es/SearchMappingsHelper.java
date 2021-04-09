@@ -1,12 +1,14 @@
 package org.folio.search.service.es;
 
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
-import static org.folio.search.model.metadata.PlainFieldDescription.NONE_FIELD_TYPE;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
+import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_MULTILANG_FIELD_TYPE;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,6 @@ import org.springframework.stereotype.Service;
 public class SearchMappingsHelper {
 
   private static final String MAPPING_PROPERTIES_FIELD = "properties";
-  private static final String MULTILANG_SOURCE_FIELD = "src";
 
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchFieldProvider searchFieldProvider;
@@ -69,64 +70,61 @@ public class SearchMappingsHelper {
 
   private Map<String, JsonNode> createMappingsForFields(Map<String, ? extends FieldDescription> fields) {
     if (MapUtils.isEmpty(fields)) {
-      return Collections.emptyMap();
+      return emptyMap();
     }
 
     var mappings = new LinkedHashMap<String, JsonNode>();
-    fields.forEach((name, fieldDescription) -> {
-      var fieldMapping = getMappingForField(fieldDescription);
-      if (fieldMapping != null) {
-        mappings.put(name, fieldMapping);
-      }
-    });
+    fields.forEach((name, fieldDescription) -> mappings.putAll(getMappingForField(name, fieldDescription)));
 
     return mappings;
   }
 
-  private JsonNode getMappingForField(FieldDescription fieldDescription) {
+  private Map<String, JsonNode> getMappingForField(String name, FieldDescription fieldDescription) {
     if (fieldDescription instanceof PlainFieldDescription) {
-      return getMappingForPlainField((PlainFieldDescription) fieldDescription);
+      return getMappingForPlainField(name, (PlainFieldDescription) fieldDescription);
     }
-    return getMappingForObjectField((ObjectFieldDescription) fieldDescription);
+    return getMappingForObjectField(name, (ObjectFieldDescription) fieldDescription);
   }
 
-  private JsonNode getMappingForPlainField(PlainFieldDescription fieldDescription) {
-    if (CollectionUtils.isNotEmpty(fieldDescription.getGroup())) {
-      return null;
-    }
-    var indexType = fieldDescription.getIndex();
-    ObjectNode mappings = null;
-    if (indexType != null && !NONE_FIELD_TYPE.equals(indexType)) {
-      mappings = searchFieldProvider.getSearchFieldType(indexType).getMapping().deepCopy();
+  private Map<String, JsonNode> getMappingForPlainField(String name, PlainFieldDescription fieldDescription) {
+    return CollectionUtils.isEmpty(fieldDescription.getGroup())
+      ? getMappingsForPlainField(name, fieldDescription, fieldDescription.getIndex())
+      : emptyMap();
+  }
+
+  private Map<String, JsonNode> getMappingsForPlainField(
+    String name, PlainFieldDescription fieldDescription, String indexType) {
+    if (fieldDescription.isNotIndexed()) {
+      return emptyMap();
     }
 
-    var fieldDescriptionMappings = fieldDescription.getMappings();
-    if (fieldDescriptionMappings != null) {
-      if (mappings == null) {
-        mappings = fieldDescriptionMappings.deepCopy();
-      } else {
-        if (MULTILANG_FIELD_TYPE.equals(fieldDescription.getIndex())) {
-          ((ObjectNode) mappings.path(MAPPING_PROPERTIES_FIELD).path(MULTILANG_SOURCE_FIELD))
-            .setAll(fieldDescriptionMappings);
-        } else {
-          mappings.setAll(fieldDescriptionMappings);
-        }
-      }
+    var customMappings = fieldDescription.getMappings();
+    if (indexType == null) {
+      return customMappings != null ? singletonMap(name, customMappings) : emptyMap();
     }
 
+    var mappings = getSearchFieldTypeMappings(indexType);
     if (fieldDescription.isMultilang()) {
       removeUnsupportedLanguages(mappings);
+      var multilangEsMappings = new LinkedHashMap<String, JsonNode>(2);
+      var plainFieldMappings = getSearchFieldTypeMappings(PLAIN_MULTILANG_FIELD_TYPE);
+      multilangEsMappings.put(name, mappings);
+      multilangEsMappings.put(PLAIN_MULTILANG_PREFIX + name, withCustomMappings(plainFieldMappings, customMappings));
+      return multilangEsMappings;
     }
 
-    return mappings;
+    return singletonMap(name, withCustomMappings(mappings, customMappings));
   }
 
-  private JsonNode getMappingForObjectField(ObjectFieldDescription fieldDescription) {
-    var objectNodeMappings = new LinkedHashMap<String, JsonNode>();
-    for (var entry : fieldDescription.getProperties().entrySet()) {
-      objectNodeMappings.put(entry.getKey(), getMappingForField(entry.getValue()));
-    }
-    return objectMapper.valueToTree(Map.of(MAPPING_PROPERTIES_FIELD, objectNodeMappings));
+  private ObjectNode getSearchFieldTypeMappings(String indexType) {
+    return searchFieldProvider.getSearchFieldType(indexType).getMapping().deepCopy();
+  }
+
+  private Map<String, JsonNode> getMappingForObjectField(String fieldName, ObjectFieldDescription fieldDescription) {
+    var mappingProps = new LinkedHashMap<String, JsonNode>();
+    fieldDescription.getProperties().forEach((name, desc) -> mappingProps.putAll(getMappingForField(name, desc)));
+    var objectNodeMappings = singletonMap(MAPPING_PROPERTIES_FIELD, mappingProps);
+    return singletonMap(fieldName, objectMapper.valueToTree(objectNodeMappings));
   }
 
   private void removeUnsupportedLanguages(ObjectNode mappings) {
@@ -139,9 +137,16 @@ public class SearchMappingsHelper {
     while (propertiesIterator.hasNext()) {
       var languageNode = propertiesIterator.next();
       if (!supportedLanguages.contains(languageNode.getKey())
-        && !MULTILANG_SOURCE_FIELD.equals(languageNode.getKey())) {
+        && !MULTILANG_SOURCE_SUBFIELD.equals(languageNode.getKey())) {
         propertiesIterator.remove();
       }
     }
+  }
+
+  private static ObjectNode withCustomMappings(ObjectNode sourceMappings, ObjectNode customMappings) {
+    if (customMappings != null) {
+      sourceMappings.setAll(customMappings);
+    }
+    return sourceMappings;
   }
 }

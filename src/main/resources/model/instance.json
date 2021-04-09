@@ -337,7 +337,6 @@
     "sort_title": {
       "type": "keyword",
       "normalizer": "keyword_lowercase",
-      "ignore_above": 50,
       "index": false,
       "doc_values": true
     }

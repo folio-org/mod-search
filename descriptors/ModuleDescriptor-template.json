@@ -216,26 +216,6 @@
         "value": "9092"
       },
       {
-        "name": "ELASTICSEARCH_HOST",
-        "value": "elasticsearch"
-      },
-      {
-        "name": "ELASTICSEARCH_PORT",
-        "value": "9200"
-      },
-      {
-        "name": "ELASTICSEARCH_URL",
-        "value": "http://elasticsearch:9200"
-      },
-      {
-        "name": "ELASTICSEARCH_USERNAME",
-        "value": "elastic"
-      },
-      {
-        "name": "ELASTICSEARCH_PASSWORD",
-        "value": "s3cret"
-      },
-      {
         "name": "DB_HOST",
         "value": "postgres"
       },
@@ -254,26 +234,6 @@
       {
         "name": "DB_DATABASE",
         "value": "okapi_modules"
-      },
-      {
-        "name": "DB_QUERYTIMEOUT",
-        "value": "60000"
-      },
-      {
-        "name": "DB_CHARSET",
-        "value": "UTF-8"
-      },
-      {
-        "name": "DB_MAXPOOLSIZE",
-        "value": "5"
-      },
-      {
-        "name": "INITIAL_LANGUAGES",
-        "value": "eng"
-      },
-      {
-        "name": "SYSTEM_USER_PASSWORD",
-        "value": "Mod-search-1-0-0"
       }
     ]
   }

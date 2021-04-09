@@ -17,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import java.util.List;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -49,10 +48,10 @@ import org.springframework.test.web.servlet.ResultActions;
 @EnableKafka
 @EnableElasticSearch
 public abstract class BaseIntegrationTest {
-  protected static final WireMockServer WIRE_MOCK = new WireMockServer(wireMockConfig()
-    .port(findAvailableTcpPort())
-    .extensions(new InventoryViewResponseBuilder()));
   protected static InventoryApi inventoryApi;
+  private static final int OKAPI_PORT = findAvailableTcpPort();
+  protected static final WireMockServer WIRE_MOCK = new WireMockServer(
+    wireMockConfig().port(OKAPI_PORT).extensions(new InventoryViewResponseBuilder()));
 
   @Autowired protected MockMvc mockMvc;
 
@@ -81,8 +80,8 @@ public abstract class BaseIntegrationTest {
     final HttpHeaders httpHeaders = new HttpHeaders();
 
     httpHeaders.setContentType(APPLICATION_JSON);
-    httpHeaders.put(X_OKAPI_TENANT_HEADER, List.of(tenant));
-    httpHeaders.add(XOkapiHeaders.URL, WIRE_MOCK.baseUrl());
+    httpHeaders.add(X_OKAPI_TENANT_HEADER, tenant);
+    httpHeaders.add(XOkapiHeaders.URL, getOkapiUrl());
 
     return httpHeaders;
   }
@@ -159,6 +158,10 @@ public abstract class BaseIntegrationTest {
     mockMvc.perform(delete("/_/tenant")
       .headers(defaultHeaders(tenant)))
       .andExpect(status().isNoContent());
+  }
+
+  protected static String getOkapiUrl() {
+    return "http://localhost:" + OKAPI_PORT;
   }
 
   private static void evictAllCaches(CacheManager cacheManager) {

@@ -3,6 +3,7 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -120,7 +121,7 @@ public class CqlSearchQueryConverter {
     switch (comparator) {
       case "==":
         return prepareElasticsearchQuery(fieldList,
-          fields -> prepareQueryForFieldsGroup(fields, field -> termQuery(field, term)),
+          fields -> multiMatchQuery(term, fields.toArray(String[]::new)).type(PHRASE),
           () -> termQuery(fieldName, term));
       case "=":
       case "adj":

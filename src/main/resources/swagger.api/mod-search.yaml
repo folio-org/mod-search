@@ -28,6 +28,24 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /instances/ids:
+    get:
+      operationId: getInstanceIds
+      description: Get a list of instance ids for CQL query
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Instance ids as json stream'
+          content:
+            application/json:
+              example: examples/ResourceIdsResult.sample
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /instances/facets:
     get:
       operationId: getFacets
@@ -195,6 +213,8 @@ components:
       $ref: schemas/response/searchResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
+    resourceIds:
+      $ref: schemas/response/resourceIds.json
     errorResponse:
       $ref: schemas/errors.json
     cqlSearchRequest:
@@ -217,6 +237,13 @@ components:
           example: examples/unknownError.sample
 
   parameters:
+    cql-query:
+      name: query
+      in: query
+      required: true
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
     language-code:
       name: code
       in: path

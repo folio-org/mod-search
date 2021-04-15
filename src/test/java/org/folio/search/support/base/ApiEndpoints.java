@@ -27,4 +27,8 @@ public class ApiEndpoints {
   public static String createIndicesEndpoint() {
     return "/search/index/indices";
   }
+
+  public static String instanceIds(String query) {
+    return String.format("/search/instances/ids?query=%s", query);
+  }
 }

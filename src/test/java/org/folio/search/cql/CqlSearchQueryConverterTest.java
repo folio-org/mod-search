@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -13,7 +14,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
@@ -129,7 +129,8 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " == value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(termQuery(PLAIN_MULTILANG_PREFIX + FIELD, "value")));
+    assertThat(actual).isEqualTo(searchSource().query(
+      multiMatchQuery("value", FIELD + ".*").type(PHRASE)));
   }
 
   @Test

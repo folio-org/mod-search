@@ -39,6 +39,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
     }
   }
 
+  // Test source
+  @SuppressWarnings("unused")
   private static Stream<Arguments> positiveSearchTestDataProvider() {
     return Stream.of(
       arguments("search by instance id", "id={value}", array(getSemanticWeb().getId()), null),
@@ -49,6 +51,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by instance title (series, partial)", "title all {value}", array("cooperate"), null),
       arguments("search by instance title (part of title)", "title all {value}", array("primers"), null),
       arguments("search by instance title (alternative title)", "title all {value}", array("primers"), null),
+      arguments("search by title (phrase match)", "title=={value}", array("semantic web"), null),
+      arguments("search by title (phrase match - NO MATCH)", "title=={value}", array("web semantic"),
+        zeroResultConsumer()),
 
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),
       arguments("search by instance title (zero results)", "title all {value}",

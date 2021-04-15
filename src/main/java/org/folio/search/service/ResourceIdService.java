@@ -33,9 +33,7 @@ public class ResourceIdService {
    * @param outputStream output stream where json will be written in.
    */
   public void streamResourceIds(CqlResourceIdsRequest request, OutputStream outputStream) {
-    try {
-      var json = objectMapper.createGenerator(outputStream);
-
+    try (var json = objectMapper.createGenerator(outputStream)) {
       json.writeStartObject();
       json.writeFieldName("ids");
       json.writeStartArray();

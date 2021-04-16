@@ -67,7 +67,7 @@
             "GET"
           ],
           "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [ "search.instances.ids.collections.get" ]
+          "permissionsRequired": [ "search.instances.ids.collection.get" ]
         }
       ]
     },
@@ -194,7 +194,7 @@
       "description": "Returns facets for a query for given filter options"
     },
     {
-      "permissionName": "search.instances.ids.collections.get",
+      "permissionName": "search.instances.ids.collection.get",
       "displayName": "Search - returns list of resource ids for a cql query",
       "description": "Returns list of resource ids for a cql query"
     }

@@ -87,7 +87,7 @@ class SearchRepositoryTest {
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::add);
 
-    assertThat(actualIds).containsExactly(searchIds, scrollIds, emptyList());
+    assertThat(actualIds).containsExactly(searchIds, scrollIds);
   }
 
   @Test

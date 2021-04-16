@@ -70,18 +70,16 @@ public class SearchRepository {
 
     var searchResponse = performExceptionalOperation(
       () -> elasticsearchClient.search(searchRequest, DEFAULT), index, "searchApi");
-
     var scrollId = searchResponse.getScrollId();
     var searchHits = searchResponse.getHits().getHits();
-    consumer.accept(getInstanceIds(searchHits));
 
     while (isNotEmpty(searchHits)) {
+      consumer.accept(getInstanceIds(searchHits));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
       var scrollResponse = performExceptionalOperation(
         () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi");
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();
-      consumer.accept(getInstanceIds(searchHits));
     }
 
     clearScrollAfterStreaming(index, scrollId);

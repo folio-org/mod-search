@@ -1,7 +1,6 @@
 package org.folio.search.repository;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
@@ -74,7 +73,7 @@ public class SearchRepository {
     var searchHits = searchResponse.getHits().getHits();
 
     while (isNotEmpty(searchHits)) {
-      consumer.accept(getInstanceIds(searchHits));
+      consumer.accept(stream(searchHits).map(SearchHit::getId).collect(toList()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
       var scrollResponse = performExceptionalOperation(
         () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi");
@@ -93,9 +92,5 @@ public class SearchRepository {
     if (!clearScrollResponse.isSucceeded()) {
       log.warn("Failed to clear scroll [index: {}, scrollId: '{}']", index, scrollId);
     }
-  }
-
-  private static List<String> getInstanceIds(SearchHit[] searchHits) {
-    return isNotEmpty(searchHits) ? stream(searchHits).map(SearchHit::getId).collect(toList()) : emptyList();
   }
 }

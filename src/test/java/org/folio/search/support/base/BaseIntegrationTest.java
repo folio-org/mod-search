@@ -58,13 +58,18 @@ public abstract class BaseIntegrationTest {
 
   @BeforeAll
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate,
-    @Autowired CacheManager cacheManager) {
+    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
     inventoryApi = new InventoryApi(kafkaTemplate);
     WIRE_MOCK.start();
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
-    evictAllCaches(cacheManager);
+  }
+
+  @BeforeAll
+  public static void evictAllCaches(@Autowired CacheManager cacheManager) {
+    for (String cacheName : cacheManager.getCacheNames()) {
+      Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear);
+    }
   }
 
   @AfterAll
@@ -159,11 +164,5 @@ public abstract class BaseIntegrationTest {
     mockMvc.perform(delete("/_/tenant")
       .headers(defaultHeaders(tenant)))
       .andExpect(status().isNoContent());
-  }
-
-  private static void evictAllCaches(CacheManager cacheManager) {
-    for (String cacheName : cacheManager.getCacheNames()) {
-      Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear);
-    }
   }
 }

@@ -107,7 +107,7 @@ public class IndexRepository {
       : getSuccessIndexOperationResponse();
   }
 
-  @Cacheable(value = "esIndicesCache", key = "#index", unless = "#result == true")
+  @Cacheable(value = "esIndicesCache", key = "#index", unless = "#result == false")
   public boolean indexExists(String index) {
     log.info("Checking that index exists [index: {}]", index);
     var request = new GetIndexRequest(index);

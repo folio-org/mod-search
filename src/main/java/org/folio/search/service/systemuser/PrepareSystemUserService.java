@@ -38,7 +38,7 @@ public class PrepareSystemUserService {
   private final FolioExecutionContextBuilder contextBuilder;
   private final FolioSystemUserProperties folioSystemUserConf;
 
-  public SystemUser setupSystemUser(FolioExecutionContext context) {
+  public void setupSystemUser() {
     var folioUser = getFolioUser(folioSystemUserConf.getUsername());
     var userId = folioUser.map(UsersClient.User::getId)
       .orElse(UUID.randomUUID().toString());
@@ -53,13 +53,6 @@ public class PrepareSystemUserService {
       saveCredentials();
       assignPermissions(userId);
     }
-
-    return SystemUser.builder()
-      .id(userId)
-      .username(folioSystemUserConf.getUsername())
-      .tenantId(context.getTenantId())
-      .okapiUrl(context.getOkapiUrl())
-      .build();
   }
 
   public String loginSystemUser(SystemUser systemUser) {
@@ -114,7 +107,7 @@ public class PrepareSystemUserService {
     }
 
     var permissionsToAdd = new HashSet<>(expectedPermissions);
-    permissionsToAdd.removeAll(assignedPermissions.getResult());
+    assignedPermissions.getResult().forEach(permissionsToAdd::remove);
 
     permissionsToAdd.forEach(permission ->
       permissionsClient.addPermission(userId, PermissionsClient.Permission.of(permission)));

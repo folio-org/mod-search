@@ -30,7 +30,7 @@ public class SearchTenantService {
   }
 
   public void initializeTenant() {
-    systemUserService.prepareSystemUser(context);
+    systemUserService.prepareSystemUser();
 
     var existingLanguages = languageConfigService.getAllLanguageCodes();
 

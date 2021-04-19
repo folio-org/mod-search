@@ -18,6 +18,8 @@ public class SearchUtils {
   public static final String PLAIN_MULTILANG_PREFIX = "plain_";
   public static final String DOT = ".";
 
+  public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
+
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
    * RuntimeException}.

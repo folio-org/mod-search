@@ -46,7 +46,7 @@
     },
     {
       "id": "search",
-      "version": "0.4",
+      "version": "0.5",
       "handlers": [
         {
           "methods": [
@@ -61,6 +61,13 @@
           ],
           "pathPattern": "/search/instances/facets",
           "permissionsRequired": [ "search.instances.facets.collection.get" ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/instances/ids",
+          "permissionsRequired": [ "search.instances.ids.collection.get" ]
         }
       ]
     },
@@ -185,6 +192,11 @@
       "permissionName": "search.instances.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options",
       "description": "Returns facets for a query for given filter options"
+    },
+    {
+      "permissionName": "search.instances.ids.collection.get",
+      "displayName": "Search - returns list of resource ids for a cql query",
+      "description": "Returns list of resource ids for a cql query"
     }
   ],
   "launchDescriptor": {

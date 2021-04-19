@@ -6,6 +6,7 @@ import static org.apache.logging.log4j.Level.WARN;
 import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
 import static org.folio.search.model.types.ErrorCode.SERVICE_ERROR;
 import static org.folio.search.model.types.ErrorCode.UNKNOWN_ERROR;
+import static org.folio.search.model.types.ErrorCode.VALIDATION_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -153,6 +154,18 @@ public class ApiExceptionHandler {
       .parameters(List.of(new Parameter().key(exception.getKey()).value(exception.getValue())));
     var errorResponse = new ErrorResponse().errors(List.of(error)).totalRecords(1);
     return buildResponseEntity(errorResponse, UNPROCESSABLE_ENTITY);
+  }
+
+  /**
+   * Catches and handles all exceptions of type {@link IllegalArgumentException}.
+   *
+   * @param exception {@link IllegalArgumentException} to process
+   * @return {@link ResponseEntity} with {@link ValidationException} body
+   */
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
+    logException(DEBUG, exception);
+    return buildResponseEntity(exception, BAD_REQUEST, VALIDATION_ERROR);
   }
 
   /**

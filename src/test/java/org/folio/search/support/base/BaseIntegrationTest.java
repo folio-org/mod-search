@@ -1,6 +1,5 @@
 package org.folio.search.support.base;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
@@ -14,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.Optional;
@@ -23,10 +21,11 @@ import lombok.extern.log4j.Log4j2;
 import org.awaitility.Duration;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.api.InventoryApi;
-import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.search.support.extension.EnableElasticSearch;
 import org.folio.search.support.extension.EnableKafka;
+import org.folio.search.support.extension.EnableOkapi;
 import org.folio.search.support.extension.EnablePostgres;
+import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
@@ -47,12 +46,10 @@ import org.springframework.test.web.servlet.ResultActions;
 @EnablePostgres
 @EnableKafka
 @EnableElasticSearch
+@EnableOkapi
 public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
-  private static final int OKAPI_PORT = findAvailableTcpPort();
-  protected static final WireMockServer WIRE_MOCK = new WireMockServer(
-    wireMockConfig().port(OKAPI_PORT).extensions(new InventoryViewResponseBuilder()));
-
+  private static OkapiConfiguration okapi;
   @Autowired protected MockMvc mockMvc;
 
   @BeforeAll
@@ -60,7 +57,6 @@ public abstract class BaseIntegrationTest {
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
 
     inventoryApi = new InventoryApi(kafkaTemplate);
-    WIRE_MOCK.start();
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
   }
 
@@ -74,7 +70,6 @@ public abstract class BaseIntegrationTest {
   @AfterAll
   static void removeDefaultTenant(@Autowired MockMvc mockMvc) {
     removeTenant(mockMvc, TENANT_ID);
-    WIRE_MOCK.stop();
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -86,7 +81,7 @@ public abstract class BaseIntegrationTest {
 
     httpHeaders.setContentType(APPLICATION_JSON);
     httpHeaders.add(X_OKAPI_TENANT_HEADER, tenant);
-    httpHeaders.add(XOkapiHeaders.URL, getOkapiUrl());
+    httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
 
     return httpHeaders;
   }
@@ -165,7 +160,7 @@ public abstract class BaseIntegrationTest {
       .andExpect(status().isNoContent());
   }
 
-  protected static String getOkapiUrl() {
-    return "http://localhost:" + OKAPI_PORT;
+  public static WireMockServer getWireMock() {
+    return okapi.getWireMockServer();
   }
 }

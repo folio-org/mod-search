@@ -17,6 +17,7 @@ import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
+import org.folio.search.support.extension.EnableOkapi;
 import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableAutoConfiguration
 @EnableCaching
 @EnablePostgres
+@EnableOkapi
 class InstanceIdentifierTypeCacheIT {
   @MockBean private IdentifierTypeClient identifierTypeClient;
   @Autowired private CacheManager cacheManager;

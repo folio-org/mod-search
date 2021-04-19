@@ -16,7 +16,6 @@ import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.search.utils.types.UnitTest;
-import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,8 +30,6 @@ class PrepareSystemUserServiceTest {
   private AuthnClient authnClient;
   @Mock
   private PermissionsClient permissionsClient;
-  @Mock
-  private FolioExecutionContext executionContext;
   @Mock
   private FolioExecutionContextBuilder contextBuilder;
 
@@ -119,6 +116,6 @@ class PrepareSystemUserServiceTest {
   }
 
   private void prepareSystemUser(FolioSystemUserProperties properties) {
-    systemUserService(properties).setupSystemUser(executionContext);
+    systemUserService(properties).setupSystemUser();
   }
 }

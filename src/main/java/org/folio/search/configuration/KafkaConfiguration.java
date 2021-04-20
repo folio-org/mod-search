@@ -2,6 +2,7 @@ package org.folio.search.configuration;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
+import static org.springframework.util.backoff.FixedBackOff.UNLIMITED_ATTEMPTS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
@@ -18,7 +19,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.BatchErrorHandler;
+import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
@@ -43,7 +47,15 @@ public class KafkaConfiguration {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEventBody>();
     factory.setBatchListener(true);
     factory.setConsumerFactory(jsonNodeConsumerFactory());
+    factory.setBatchErrorHandler(kafkaFactoryErrorHandler());
     return factory;
+  }
+
+  private BatchErrorHandler kafkaFactoryErrorHandler() {
+    var errorHandler = new SeekToCurrentBatchErrorHandler();
+    // infinity retry every 20 seconds
+    errorHandler.setBackOff(new FixedBackOff(20_000, UNLIMITED_ATTEMPTS));
+    return errorHandler;
   }
 
   /**

@@ -74,6 +74,7 @@ These languages will be added on tenant init and applied to index. Example usage
 | KAFKA_PORT             | 9092                      | Kafka broker port                                                 |
 | INITIAL_LANGUAGES      | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
 | SYSTEM_USER_PASSWORD   | -                         | Password for `mod-search` system user (not required for dev envs) |
+| OKAPI_URL              | -                         | OKAPI URL used to login system user, required                     |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -82,8 +83,7 @@ For production deployments you MUST specify the password for this system user vi
 ### Configuring connection to elasticsearch
 
 In order to configure connection to elasticsearch you have to provide following env variables:
-* `ELASTICSEARCH_HOST` - host name of the elasticsearch master node (e.g. elasticsearch);
-* `ELASTICSEARCH_PORT` - REST port of the elasticsearch master node (9200 by default);
+* `ELASTICSEARCH_URL` - URL to elasticsearch master node (e.g. http(s)://elasticsearch:9200);
 * `ELASTICSEARCH_USERNAME` - username of the user to connect to elasticsearch;
 * `ELASTICSEARCH_PASSWORD` - password for the user (see
   [official guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-security.html)

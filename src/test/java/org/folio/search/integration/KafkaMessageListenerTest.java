@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -9,7 +8,6 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +30,6 @@ class KafkaMessageListenerTest {
 
   @InjectMocks private KafkaMessageListener messageListener;
   @Mock private IndexService indexService;
-  @Mock private ResourceFetchService resourceFetchService;
 
   @Test
   void handleEvents() {
@@ -41,7 +38,6 @@ class KafkaMessageListenerTest {
     var instanceId3 = randomId();
     var instanceBody1 = eventBody(null, mapOf("id", instanceId1, "title", "i1"));
     var instanceBody2 = eventBody(null, mapOf("id", instanceId2, "title", "i2"));
-    var instanceBody3 = eventBody(null, mapOf("id", instanceId2, "title", "i3"));
     var itemBody = eventBody(null, mapOf("id", randomId(), "instanceId", instanceId2));
     var holdingBody1 = eventBody(null, mapOf("id", randomId(), "instanceId", instanceId3));
     var holdingBody2 = eventBody(null, mapOf("id", randomId(), "instanceId", null));
@@ -51,10 +47,6 @@ class KafkaMessageListenerTest {
       ResourceIdEvent.of(instanceId2, INSTANCE_RESOURCE, TENANT_ID),
       ResourceIdEvent.of(instanceId3, INSTANCE_RESOURCE, TENANT_ID));
 
-    var instanceEventBodies = List.of(instanceBody1, instanceBody2, instanceBody3);
-    when(resourceFetchService.fetchInstancesByIds(resourceIdEvents)).thenReturn(instanceEventBodies);
-    when(indexService.indexResources(instanceEventBodies)).thenReturn(getSuccessIndexOperationResponse());
-
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>("inventory.instance", 0, 0, instanceId1, instanceBody1),
       new ConsumerRecord<>("inventory.instance", 0, 0, instanceId2, instanceBody2),
@@ -63,8 +55,7 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.holding-record", 0, 0, null, holdingBody2)
     ));
 
-    verify(resourceFetchService).fetchInstancesByIds(resourceIdEvents);
-    verify(indexService).indexResources(instanceEventBodies);
+    verify(indexService).indexResourcesById(resourceIdEvents);
   }
 
   @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX"})
@@ -79,7 +70,7 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0,
         UUID.randomUUID().toString(), resourceBody)));
 
-    verify(indexService).indexResources(any());
+    verify(indexService).indexResourcesById(any());
   }
 
   @Test
@@ -95,8 +86,6 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.instance", 0, 0,
         instanceId, resourceBody)));
 
-    verify(indexService).indexResources(any());
-    verify(resourceFetchService).fetchInstancesByIds(
-      List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID)));
+    verify(indexService).indexResourcesById(List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID)));
   }
 }

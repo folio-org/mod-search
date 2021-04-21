@@ -36,7 +36,6 @@ public class KafkaMessageListener {
     EnumSet.of(CREATE, UPDATE, REINDEX);
 
   private final IndexService indexService;
-  private final ResourceFetchService resourceFetchService;
 
   @KafkaListener(
     id = "mod-search-events-listener",
@@ -55,17 +54,12 @@ public class KafkaMessageListener {
 
   private void indexResources(List<ConsumerRecord<String, ResourceEventBody>> events) {
     var resourcesToIndex = getResourceIdRecords(events, this::isIndexEvent);
-    var instancesByIds = resourceFetchService.fetchInstancesByIds(resourcesToIndex);
-
-    indexService.indexResources(instancesByIds);
-    log.info("Instances added/updated [size: {}]", instancesByIds.size());
+    indexService.indexResourcesById(resourcesToIndex);
   }
 
   private void removeResources(List<ConsumerRecord<String, ResourceEventBody>> events) {
     var resourcesToRemove = getResourceIdRecords(events, this::isRemoveEvent);
-
     indexService.removeResources(resourcesToRemove);
-    log.info("Resources removed [size: {}]", resourcesToRemove.size());
   }
 
   private List<ResourceIdEvent> getResourceIdRecords(

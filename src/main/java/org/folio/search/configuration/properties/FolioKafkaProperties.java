@@ -17,6 +17,16 @@ public class FolioKafkaProperties {
   private Map<String, KafkaListenerProperties> listener;
 
   /**
+   * Specifies time to wait before reattempting delivery.
+   */
+  private long retryIntervalMs;
+
+  /**
+   * How many delivery attempts to perform when message failed.
+   */
+  private long retryDeliveryAttempts;
+
+  /**
    * Contains set of settings for specific kafka listener.
    */
   @Data

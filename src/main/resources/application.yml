@@ -31,6 +31,8 @@ application:
     lastname: System
     permissionsFilePath: permissions/mod-search.csv
   kafka:
+    retry-interval-ms: 20000
+    retry-delivery-attempts: 10
     listener:
       events:
         concurrency: 1

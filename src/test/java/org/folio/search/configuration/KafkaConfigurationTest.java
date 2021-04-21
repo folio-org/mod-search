@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ class KafkaConfigurationTest {
 
   @InjectMocks private KafkaConfiguration kafkaConfiguration;
   @Mock private KafkaProperties kafkaProperties;
+  @Mock private FolioKafkaProperties folioKafkaProperties;
 
   @Test
   void kafkaListenerContainerFactory() {

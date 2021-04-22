@@ -27,7 +27,7 @@
       "index": "multilang",
       "showInResponse": true,
       "mappings": {
-        "copy_to": [ "sort_title" ]
+        "copy_to": [ "sort_title", "suggest" ]
       }
     },
     "alternativeTitles": {
@@ -35,17 +35,26 @@
       "properties": {
         "alternativeTitle": {
           "inventorySearchTypes": [ "title", "keyword" ],
-          "index": "multilang"
+          "index": "multilang",
+          "mappings": {
+            "copy_to": [ "suggest" ]
+          }
         }
       }
     },
     "indexTitle": {
       "inventorySearchTypes": [ "title", "keyword" ],
-      "index": "multilang"
+      "index": "multilang",
+      "mappings": {
+        "copy_to": [ "suggest" ]
+      }
     },
     "series": {
       "inventorySearchTypes": [ "title", "keyword" ],
-      "index": "multilang"
+      "index": "multilang",
+      "mappings": {
+        "copy_to": [ "suggest" ]
+      }
     },
     "identifiers": {
       "type": "object",
@@ -65,7 +74,10 @@
         "name": {
           "inventorySearchTypes": [ "contributors", "keyword" ],
           "index": "multilang",
-          "showInResponse": true
+          "showInResponse": true,
+          "mappings": {
+            "copy_to": [ "suggest" ]
+          }
         },
         "primary": {
           "index": "bool",
@@ -74,7 +86,10 @@
       }
     },
     "subjects": {
-      "index": "multilang"
+      "index": "multilang",
+      "mappings": {
+        "copy_to": [ "suggest" ]
+      }
     },
     "instanceTypeId": {
       "searchTypes": [ "facet", "filter" ],
@@ -383,6 +398,11 @@
       "normalizer": "keyword_lowercase",
       "index": false,
       "doc_values": true
+    },
+    "suggest": {
+      "type": "completion",
+      "analyzer": "simple",
+      "max_input_length": "50"
     }
   }
 }

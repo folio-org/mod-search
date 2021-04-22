@@ -66,6 +66,26 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /instances/suggestions:
+    get:
+      operationId: getSuggests
+      description: Provides list suggest terms for instance
+      parameters:
+        - $ref: '#/components/parameters/suggest-request'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Search result with suggest terms'
+          content:
+            application/json:
+              example: examples/suggestResult.sample
+              schema:
+                $ref: '#/components/schemas/suggestResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /index/indices:
     post:
       operationId: createIndices
@@ -254,6 +274,10 @@ components:
       $ref: schemas/request/cqlFacetRequest.json
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
+    suggestRequest:
+      $ref: schemas/request/suggestRequest.json
+    suggestResult:
+      $ref: schemas/response/suggestResult.json
 
   responses:
     badRequestResponse:
@@ -306,3 +330,10 @@ components:
       required: true
       schema:
         type: string
+    suggest-request:
+      name: suggestRequest
+      in: query
+      description: Suggest request parameters (query, limit and etc.) as object
+      required: true
+      schema:
+        $ref: '#/components/schemas/suggestRequest'

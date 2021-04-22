@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Suggest result response",
+  "type": "object",
+  "properties": {
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of suggest terms"
+    },
+    "suggests": {
+      "type": "array",
+      "description": "List of suggest terms",
+      "items": {
+        "$ref": "suggestTerm.json"
+      }
+    }
+  }
+}

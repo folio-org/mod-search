@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Suggest request body",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "A string with suggestion query."
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Limit the number of elements returned in the response",
+      "maximum": 500,
+      "minimum": 0,
+      "default": 5
+    }
+  },
+  "required": [ "query" ]
+}

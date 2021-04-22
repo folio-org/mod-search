@@ -153,7 +153,7 @@ public class SearchDocumentConverter {
     if (desc.isNotIndexed()) {
       return emptyMap();
     }
-    Object plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
+    var plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
     if (plainFieldValue == null) {
       return emptyMap();
     }

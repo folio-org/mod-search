@@ -100,7 +100,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     Map<String, ? extends FieldDescription> fields, String path) {
     var pathValues = path.split("\\.");
     FieldDescription currentField = fields.get(pathValues[0]);
-    for (int i = 1; i < pathValues.length; i++) {
+    for (var i = 1; i < pathValues.length; i++) {
       if (currentField instanceof ObjectFieldDescription) {
         currentField = ((ObjectFieldDescription) currentField).getProperties().get(pathValues[i]);
       } else {

@@ -121,7 +121,7 @@ public class KafkaMessageListener {
     return isInstanceResource(event) && event.value().getType() == DELETE;
   }
 
-  private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> record) {
-    return "inventory.instance".equals(record.topic());
+  private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
+    return "inventory.instance".equals(consumerRecord.topic());
   }
 }

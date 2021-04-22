@@ -2,6 +2,7 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.service.IndexService.INDEX_NOT_EXISTS_ERROR;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
@@ -39,6 +40,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class IndexServiceTest {
+  private static final String INDEX_NOT_EXISTS_MESSAGE =
+    String.format(INDEX_NOT_EXISTS_ERROR, List.of("test-resource_test_tenant"));
 
   private static final String EMPTY_OBJECT = "{}";
   @Mock private IndexRepository indexRepository;
@@ -94,8 +97,7 @@ class IndexServiceTest {
 
     assertThatThrownBy(() -> indexService.indexResources(eventBodies))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Cancelling bulk operation [reason: Cannot index resources for non existing indices, "
-        + "tenant not initialized? [indices=[test-resource_test_tenant]]]");
+      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
 
     verifyNoInteractions(searchDocumentConverter);
     verify(indexRepository, times(0)).indexResources(any());
@@ -173,8 +175,7 @@ class IndexServiceTest {
 
     assertThatThrownBy(() -> indexService.indexResourcesById(eventIds))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Cancelling bulk operation [reason: Cannot index resources for non existing indices, "
-        + "tenant not initialized? [indices=[test-resource_test_tenant]]]");
+      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
 
     verifyNoInteractions(searchDocumentConverter);
     verify(indexRepository, times(0)).indexResources(any());
@@ -200,8 +201,7 @@ class IndexServiceTest {
 
     assertThatThrownBy(() -> indexService.removeResources(eventIds))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Cancelling bulk operation [reason: Cannot index resources for non existing indices, "
-        + "tenant not initialized? [indices=[test-resource_test_tenant]]]");
+      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
 
     verifyNoInteractions(searchDocumentConverter);
     verify(indexRepository, times(0)).removeResources(any());

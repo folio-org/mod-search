@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class IndexService {
+  public static final String INDEX_NOT_EXISTS_ERROR = "Cancelling bulk operation [reason: "
+    + "Cannot index resources for non existing indices, tenant not initialized? [indices=%s]]";
 
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
@@ -147,9 +149,7 @@ public class IndexService {
       .collect(toList());
 
     if (CollectionUtils.isNotEmpty(absentIndexNames)) {
-      throw new SearchServiceException(String.format(
-        "Cancelling bulk operation [reason: Cannot index resources for non existing indices, "
-          + "tenant not initialized? [indices=%s]]", absentIndexNames));
+      throw new SearchServiceException(String.format(INDEX_NOT_EXISTS_ERROR, absentIndexNames));
     }
   }
 

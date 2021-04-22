@@ -7,6 +7,8 @@ import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -17,7 +19,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.SearchDocumentBody;
+import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
@@ -29,12 +31,15 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class IndexService {
+  public static final String INDEX_NOT_EXISTS_ERROR = "Cancelling bulk operation [reason: "
+    + "Cannot index resources for non existing indices, tenant not initialized? [indices=%s]]";
 
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final InstanceStorageClient instanceStorageClient;
+  private final ResourceFetchService resourceFetchService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -81,9 +86,17 @@ public class IndexService {
       return getSuccessIndexOperationResponse();
     }
 
-    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
-    checkThatDocumentsCanBeIndexed(elasticsearchDocuments);
-    return indexRepository.indexResources(elasticsearchDocuments);
+    checkThatResourceEventsCanBeIndexed(resources);
+    return addResourcesToIndex(resources);
+  }
+
+  public FolioIndexOperationResponse indexResourcesById(List<ResourceIdEvent> ids) {
+    if (CollectionUtils.isEmpty(ids)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    checkThatResourceIdsCanBeIndexed(ids);
+    return addResourcesToIndex(resourceFetchService.fetchInstancesByIds(ids));
   }
 
   public FolioIndexOperationResponse removeResources(List<ResourceIdEvent> resources) {
@@ -91,8 +104,13 @@ public class IndexService {
       return getSuccessIndexOperationResponse();
     }
 
+    checkThatResourceIdsCanBeIndexed(resources);
+
     var deleteEvents = multiTenantSearchDocumentConverter.convertDeleteEvents(resources);
-    return indexRepository.removeResources(deleteEvents);
+    var response = indexRepository.removeResources(deleteEvents);
+
+    log.info("Resources removed [size: {}]", resources.size());
+    return response;
   }
 
   public void createIndexIfNotExist(String resourceName, String tenantId) {
@@ -113,17 +131,33 @@ public class IndexService {
     }
   }
 
-  private void checkThatDocumentsCanBeIndexed(List<SearchDocumentBody> elasticsearchDocuments) {
-    var absentIndexNames = elasticsearchDocuments.stream()
-      .map(SearchDocumentBody::getIndex)
-      .distinct()
+  private void checkThatResourceIdsCanBeIndexed(List<ResourceIdEvent> events) {
+    checkThatDocumentsCanBeIndexed(events.stream()
+      .map(id -> getElasticsearchIndexName(id.getType(), id.getTenant()))
+      .collect(Collectors.toSet()));
+  }
+
+  private void checkThatResourceEventsCanBeIndexed(List<ResourceEventBody> events) {
+    checkThatDocumentsCanBeIndexed(events.stream()
+      .map(id -> getElasticsearchIndexName(id.getResourceName(), id.getTenant()))
+      .collect(Collectors.toSet()));
+  }
+
+  private void checkThatDocumentsCanBeIndexed(Set<String> indexes) {
+    var absentIndexNames = indexes.stream()
       .filter(index -> !indexRepository.indexExists(index))
       .collect(toList());
 
     if (CollectionUtils.isNotEmpty(absentIndexNames)) {
-      throw new SearchServiceException(String.format(
-        "Cancelling bulk operation [reason: Cannot index resources for non existing indices [indices=%s]]",
-        absentIndexNames));
+      throw new SearchServiceException(String.format(INDEX_NOT_EXISTS_ERROR, absentIndexNames));
     }
+  }
+
+  private FolioIndexOperationResponse addResourcesToIndex(List<ResourceEventBody> resources) {
+    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
+    var response = indexRepository.indexResources(elasticsearchDocuments);
+
+    log.info("Instances added/updated [size: {}]", resources.size());
+    return response;
   }
 }

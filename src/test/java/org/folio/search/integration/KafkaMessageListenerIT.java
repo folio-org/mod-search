@@ -19,6 +19,8 @@ import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.TenantNotInitializedException;
 import org.folio.search.integration.error.KafkaErrorHandler;
 import org.folio.search.integration.inventory.InventoryViewClient;
+import org.folio.search.repository.IndexRepository;
+import org.folio.search.support.extension.EnableElasticSearch;
 import org.folio.search.support.extension.EnableOkapi;
 import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.utils.types.IntegrationTest;
@@ -34,6 +36,7 @@ import org.springframework.messaging.support.GenericMessage;
 @IntegrationTest
 @SpringBootTest(classes = SearchApplication.class)
 @EnableAutoConfiguration
+@EnableElasticSearch
 @EnablePostgres
 @EnableOkapi
 class KafkaMessageListenerIT {
@@ -41,6 +44,8 @@ class KafkaMessageListenerIT {
   private KafkaErrorHandler errorHandler;
   @MockBean
   private InventoryViewClient inventoryViewClient;
+  @SpyBean
+  private IndexRepository indexRepository;
   @Autowired
   private KafkaMessageListener messageListener;
 
@@ -53,6 +58,7 @@ class KafkaMessageListenerIT {
         new ResourceEventBody().type(CREATE)
           .tenant(tenantName)._new(Map.of("id", randomId()))));
 
+    when(indexRepository.indexExists("instance_" + tenantName)).thenReturn(true);
     when(inventoryViewClient.getInstances(any(), anyInt()))
       .thenReturn(asSinglePage(new InventoryViewClient.InstanceView(
         instance, emptyList(), emptyList())));

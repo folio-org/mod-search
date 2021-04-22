@@ -117,7 +117,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   private static String replaceCharactersBetweenDigits(String value) {
     var resultBuilder = new StringBuilder(value.length());
     resultBuilder.append(value.charAt(0));
-    for (int i = 1; i < value.length() - 1; i++) {
+    for (var i = 1; i < value.length() - 1; i++) {
       var current = value.charAt(i);
       if (!(isBetweenNumberCharacters(value.charAt(i - 1), value.charAt(i + 1)) && isHyphenOrSpace(current))) {
         resultBuilder.append(current);

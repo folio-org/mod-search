@@ -138,7 +138,7 @@ public class PrepareSystemUserService {
 
   @SneakyThrows
   private static List<String> getResourceLines(String permissionsFilePath) {
-    ClassPathResource resource = new ClassPathResource(permissionsFilePath);
+    var resource = new ClassPathResource(permissionsFilePath);
     return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
   }
 }

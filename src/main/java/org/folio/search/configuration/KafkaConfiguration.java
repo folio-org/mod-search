@@ -18,7 +18,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.BatchErrorHandler;
+import org.springframework.kafka.listener.RecoveringBatchErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
@@ -31,6 +34,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 public class KafkaConfiguration {
 
   private final KafkaProperties kafkaProperties;
+  private final FolioKafkaProperties folioKafkaProperties;
 
   /**
    * Creates and configures {@link ConcurrentKafkaListenerContainerFactory} as Spring bean for consuming resource events
@@ -43,7 +47,18 @@ public class KafkaConfiguration {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEventBody>();
     factory.setBatchListener(true);
     factory.setConsumerFactory(jsonNodeConsumerFactory());
+    factory.setBatchErrorHandler(kafkaFactoryErrorHandler());
     return factory;
+  }
+
+  /**
+   * Constructs a batch handler that tries to deliver messages 10 times with
+   * configured interval, if exception is not resolved than messages will be redelivered
+   * by next poll() call.
+   */
+  private BatchErrorHandler kafkaFactoryErrorHandler() {
+    return new RecoveringBatchErrorHandler(new FixedBackOff(
+      folioKafkaProperties.getRetryIntervalMs(), folioKafkaProperties.getRetryDeliveryAttempts()));
   }
 
   /**

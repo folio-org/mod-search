@@ -1,3 +1,21 @@
+## 1.3.0 2021-04-22
+
+* Makes sure ES index exists before indexing resources (MSEARCH-112)
+* Fixes cache for index exists method (MSEARCH-101)
+* Fixes sorting for long titles (MSEARCH-99)
+* Upgrades spring-boot-starter version to `2.4.4` (MSEARCH-98)
+* Upgrades spring-cloud:feign version to `3.0.1` (MSEARCH-98)
+* Removes `system_user` table (MSEARCH-97)
+* Uses in-memory cache to store system user details (MSEARCH-97)
+* Requires `OKAPI_URL` env variable (MSEARCH-97)
+* Introduces phrase match for full text fields (MSEARCH-92)
+* Improves full text search by `all` operator to match specification (MSEARCH-91)
+* Handles `DELETE` events for resources (MSEARCH-90)
+* Increases Kafka retry period to 20 seconds (MSEARCH-86)
+* Implements `GET/DELETE` `/_/tenant` endpoints (MSEARCH-45)
+* Implements sorting by item status (MSEARCH-41)
+* Provides `search v0.5`
+
 ## 1.2.0 2021-04-02
 
 * Adds holdings.fullCallNumber search option (MSEARCH-81)

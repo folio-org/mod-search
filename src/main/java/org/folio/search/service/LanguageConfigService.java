@@ -26,7 +26,7 @@ public class LanguageConfigService {
   private final TenantScopedExecutionService executionService;
 
   public LanguageConfig create(LanguageConfig languageConfig) {
-    final LanguageConfigEntity entity = toLanguageConfigEntity(languageConfig);
+    final var entity = toLanguageConfigEntity(languageConfig);
 
     if (!descriptionService.isSupportedLanguage(languageConfig.getCode())) {
       log.warn("There is no language analyzer configured for language {}", languageConfig.getCode());

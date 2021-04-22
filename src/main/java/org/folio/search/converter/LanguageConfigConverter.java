@@ -8,7 +8,7 @@ import org.folio.search.model.config.LanguageConfigEntity;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LanguageConfigConverter {
   public static LanguageConfig toLanguageConfig(LanguageConfigEntity entity) {
-    final LanguageConfig languageConfig = new LanguageConfig();
+    final var languageConfig = new LanguageConfig();
 
     languageConfig.setCode(entity.getCode());
 
@@ -16,7 +16,7 @@ public class LanguageConfigConverter {
   }
 
   public static LanguageConfigEntity toLanguageConfigEntity(LanguageConfig dto) {
-    final LanguageConfigEntity languageConfig = new LanguageConfigEntity();
+    final var languageConfig = new LanguageConfigEntity();
 
     languageConfig.setCode(dto.getCode());
 

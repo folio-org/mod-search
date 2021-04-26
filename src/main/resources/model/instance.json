@@ -247,6 +247,27 @@
               "index": "multilang"
             }
           }
+        },
+        "electronicAccess": {
+          "type": "object",
+          "properties": {
+            "uri": {
+              "inventorySearchTypes": "items.electronicAccess",
+              "index": "keyword"
+            },
+            "linkText": {
+              "inventorySearchTypes": "items.electronicAccess",
+              "index": "multilang"
+            },
+            "materialsSpecification": {
+              "inventorySearchTypes": "items.electronicAccess",
+              "index": "multilang"
+            },
+            "publicNote": {
+              "inventorySearchTypes": "items.electronicAccess",
+              "index": "multilang"
+            }
+          }
         }
       }
     },
@@ -272,6 +293,27 @@
           "type": "object",
           "properties": {
             "tagList": {
+              "index": "multilang"
+            }
+          }
+        },
+        "electronicAccess": {
+          "type": "object",
+          "properties": {
+            "uri": {
+              "inventorySearchTypes": "holdings.electronicAccess",
+              "index": "keyword"
+            },
+            "linkText": {
+              "inventorySearchTypes": "holdings.electronicAccess",
+              "index": "multilang"
+            },
+            "materialsSpecification": {
+              "inventorySearchTypes": "holdings.electronicAccess",
+              "index": "multilang"
+            },
+            "publicNote": {
+              "inventorySearchTypes": "holdings.electronicAccess",
               "index": "multilang"
             }
           }

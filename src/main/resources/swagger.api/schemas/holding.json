@@ -34,6 +34,13 @@
     "callNumberSuffix": {
       "type": "string",
       "description": "Suffix of the call number on the holding level."
+    },
+    "electronicAccess": {
+      "type": "array",
+      "description": "List of electronic access items",
+      "items": {
+        "$ref": "electronicAccess.json"
+      }
     }
   }
 }

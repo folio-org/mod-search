@@ -174,7 +174,7 @@ Here is a table with supported search options.
 #### Instance search options
 
 | Option                                    | Type      |Example                                            | Description                  |
-| :-----------------------------------------|:---------:| :-------------------------------------------------|------------------------------|
+| :-----------------------------------------|:---------:| :-------------------------------------------------|:------------------------------|
 | `keyword`                                 | full text | `keyword all "web semantic"`                      | An alias for: `title`, `alternativeTitles`, `indexTitle`, `series`, `identifiers.value`, `contributors.name` |
 | `id`                                      | term      | `id=="1234567"`                                   | Matches instance with the id |
 | `hrid`                                    | term      | `hrid=="hr1*0"`                                   | Matches instances with given HRID |
@@ -198,7 +198,7 @@ Here is a table with supported search options.
 | `publisher`                               | full text | `publisher all "Publisher of Ukraine"`            | Matches instances that have `Publisher of Ukraine` publisher |
 | `instanceTags`                            | term      | `instanceTags=="important"`                       | Matches instances that have `important` tag |
 | `classifications.classificationNumber`    | term      | `classifications.classificationNumber=="cl1"`     | Matches instances that have `cl1` classification number |
-| `electronicAccess`                        | full text | `electronicAccess any "resource http://folio.org"`| An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
+| `electronicAccess`                        | full text | `electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `electronicAccess.uri`                    | term      | `electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
 | `electronicAccess.linkText`               | full text | `electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
 | `electronicAccess.materialsSpecification` | full text | `electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
@@ -213,7 +213,7 @@ Here is a table with supported search options.
 #### Holdings-records search options
 
 | Option                        | Type |Example                                    | Description                  |
-| :-----------------------------|:----:| :-----------------------------------------|------------------------------|
+| :-----------------------------|:----:| :-----------------------------------------|:------------------------------|
 | `holdings.id`                 | term | `holdings.id=="1234567"`                  | Matches instances that have a holding with the id |
 | `holdings.permanentLocationId`| term | `holdings.permanentLocationId=="123765"`  | Matches instances that have holdings with given permanentLocationId |
 | `holdings.discoverySuppress`  | term | `holdings.discoverySuppress==true`        | Matches instances that have holdings suppressed/not suppressed from discovery |
@@ -225,7 +225,7 @@ Here is a table with supported search options.
 #### Items search options
 
 | Option                      | Type |Example                              | Description                  |
-| :---------------------------|:----:| :-----------------------------------|------------------------------|
+| :---------------------------|:----:| :-----------------------------------|:------------------------------|
 | `items.id`                  | term | `items.id=="1234567"`               | Matches instances that have an item with the id |
 | `items.hrid`                | term | `items.hrid=="it001"`               | Matches instances that have an item with the HRID |
 | `items.barcode`             | term | `items.barcode=="10011"`            | Matches instances that have an item with the barcode |
@@ -244,7 +244,7 @@ The default sorting is by relevancy. The `sortBy` clause is used to define sorti
 title all "semantic web" sortBy title/sort.descending - sort by title in descending order
 ```
 
-Another supported search options:
+Another supported sort options:
 * title
 * items.status.name
 * contributors

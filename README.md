@@ -99,14 +99,14 @@ structure (mapping).
 Here are the steps how to do it:
 1. Remove ES index:
 ```http
-   DELETE [ES_HOST]/instance_[tenant name]
+   DELETE [ES_HOST]/instance_[tenant_name]
 ```
 2. Create index and mapping:
 ```http
 POST [OKAPI_URL]/search/index/indices
 
 x-okapi-tenant: [tenant]
-x-okapi-token: [JWT token]
+x-okapi-token: [JWT_TOKEN]
 content-type: application/json
 
 {
@@ -118,7 +118,7 @@ content-type: application/json
 POST [OKAPI_URL]/search/index/inventory/reindex
 
 x-okapi-tenant: [tenant]
-x-okapi-token: [JWT token]
+x-okapi-token: [JWT_TOKEN]
 ```
 
 ### Monitoring reindex process
@@ -148,26 +148,26 @@ request parameters:
 | offset        | No (default to 0)    | Instructs to skip first N records that matches the query                        |
 | expandAll     | No (default to false)| If false than only basic instance properties returned, otherwise all properties |
 
-We use CQL query for search requests, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
+We use CQL query for search queries, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
 for more details.
 
 In mod-search there are two main types of searchable fields:
 1. _Full text_ capable fields (aka. multi-lang fields) - analyzed and preprocessed fields;
-2. _Term_ fields (keywords, bool, date fields) - non-analyzed fields.
+2. _Term_ fields (keywords, bool, date fields, etc.) - non-analyzed fields.
 
-Depending on the type the CQL operators will be handled in different ways. Here is table of supported operators, and
-their usage depending on field type.
+Depending on field type, CQL operators will be handled in different ways or not supported at all.
+Here is table of supported operators.
 
 | Operator| Full text usage               | Term field usage             | Description |
 | :------:| :----------------------------:|:----------------------------:|---------------------------------------------------------------------------------|
-| `all`   | `title` `all` `"semantic web"`| N/A                          | Matches a resource that has both words in the `title` field                     |
-| `any`   | `title` `any` `"semantic web"`| N/A                          | Matches a resource that has any word in the `title` field                       |
-| `=`     | `title = "semantic web"`      | `hrid = "hr10"`              | Has the same effect as `all` for FT fields and `==` for term fields             |
-| `==`    | `title == "semantic web"`     | `hrid == "hr10"`             | Phrase match for FT fields (i.e. matches resources that contains all fields exactly in the same order), exact match for term fields|
+| `all`   | `title` `all` `"semantic web"`| N/A                          | Matches a resource that has both `semantic` and `web` in the `title` field                     |
+| `any`   | `title` `any` `"semantic web"`| N/A                          | Matches a resource that has either of/both `semantic` or `web` in the `title` field                       |
+| `=`     | `title = "semantic web"`      | `hrid = "hr10"`              | Has the same effect as `all` for FT fields and is the same as `==` for term fields             |
+| `==`    | `title == "semantic web"`     | `hrid == "hr10"`             | Phrase match for FT fields (i.e. matches resources that contains both `semantic` and `web` exactly in the same order), exact match for term fields|
 | `<>`    | `title <> "semantic web"`     | `hrid <> "hr10"`             | Matches resources that are not equal to a term                                  |
 | `<`, `>`| N/A                           | `createdDate > "2020-12-12"` | Matches resources that has the property greater/less than the limit             |
 | `<`, `>`| N/A                           | `createdDate <= "2020-12-12"`| Matches resources that has the property greater or eq/less or eq than the limit |
-| `*`     | `title="mode* europe*"`       | `hrid = "hr10*"`             | Allow to search by wildcard, _NOT recommended to use for FT fields because has low performance, use full text capabilities instead_ |
+| `*`     | `title="mode* europe*"`       | `hrid = "hr10*"`             | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full text capabilities instead**_ |
 
 Here is a table with supported search options.
 

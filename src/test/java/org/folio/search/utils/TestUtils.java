@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -61,6 +62,12 @@ public class TestUtils {
 
   @SneakyThrows
   public static <T> T parseResponse(ResultActions result, Class<T> type) {
+    return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
+      .getContentAsString(), type);
+  }
+
+  @SneakyThrows
+  public static <T> T parseResponse(ResultActions result, TypeReference<T> type) {
     return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
       .getContentAsString(), type);
   }

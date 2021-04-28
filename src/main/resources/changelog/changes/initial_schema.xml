@@ -17,4 +17,10 @@
     </preConditions>
     <dropTable tableName="system_user" cascadeConstraints="true"/>
   </changeSet>
+
+  <changeSet id="04_add_optional_analyzer_to_language_config_table" author="pavel_filippov@epam.com">
+    <addColumn tableName="language_config">
+      <column name="es_analyzer" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

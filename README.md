@@ -19,11 +19,12 @@ It is required to have Docker installed and available on the host where the test
 ## Multi-language search support
 
 Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title, contributors, etc.).
-This can be done via following API:
+This can be done via following API (`languageAnalyzer` field is optional):
 `POST /search/config/languages`
-```javascript
+```json
 {
-  "code":"eng"
+  "code":"eng",
+  "languageAnalyzer": "english"
 }
 ```
 
@@ -36,7 +37,7 @@ The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-ins
 - heb
 - ita
 - jpn
-- kor
+- kor (default analyzer: seunjeon_analyzer, alternative for k8s and on-premise deployment - nori)
 - rus
 - swe
 - chi

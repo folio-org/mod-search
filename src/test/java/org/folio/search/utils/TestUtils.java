@@ -25,6 +25,8 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.SearchDocumentBody;
@@ -233,5 +235,17 @@ public class TestUtils {
 
   public static FacetResult facetResult(Map<String, Facet> facets) {
     return new FacetResult().facets(facets).totalRecords(facets.size());
+  }
+
+  public static LanguageConfig languageConfig(String code) {
+    return new LanguageConfig().code(code);
+  }
+
+  public static LanguageConfig languageConfig(String code, String analyzer) {
+    return new LanguageConfig().code(code).languageAnalyzer(analyzer);
+  }
+
+  public static LanguageConfigs languageConfigs(List<LanguageConfig> configs) {
+    return new LanguageConfigs().languageConfigs(configs).totalRecords(configs.size());
   }
 }

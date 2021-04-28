@@ -30,6 +30,11 @@ public class ConfigController implements ConfigApi {
   }
 
   @Override
+  public ResponseEntity<LanguageConfig> updateLanguageConfig(String code, LanguageConfig languageConfig) {
+    return ok(languageConfigService.update(code, languageConfig));
+  }
+
+  @Override
   public ResponseEntity<Void> deleteLanguageConfig(String code) {
     log.info("Attempting to remove language config [code: {}]", code);
     languageConfigService.delete(code);

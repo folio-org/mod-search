@@ -7,6 +7,10 @@
       "type": "string",
       "description": "An ISO-639-2/B compatible language code.",
       "pattern": "[a-zA-Z]{3}"
+    },
+    "languageAnalyzer": {
+      "type": "string",
+      "description": "Custom elasticsearch analyzer for language."
     }
   },
   "additionalProperties": false,

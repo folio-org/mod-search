@@ -17,7 +17,7 @@
     "analyzer": {
       "source_analyzer": {
         "tokenizer": "standard",
-        "filter": [ "lowercase" ],
+        "filter": [ "lowercase", "asciifolding" ],
         "type": "custom"
       }
     },

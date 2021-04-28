@@ -131,7 +131,8 @@ GET [OKAPI_URL]/instance-storage/reindex/[reindex job id]
 _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
-`totalRecords`, e.g. `GET /search/instances?query=id="*"`.
+`totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
+see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
 
 
 ## Supported search types
@@ -212,29 +213,39 @@ Here is a table with supported search options.
 
 #### Holdings-records search options
 
-| Option                        | Type |Example                                    | Description                  |
-| :-----------------------------|:----:| :-----------------------------------------|:------------------------------|
-| `holdings.id`                 | term | `holdings.id=="1234567"`                  | Matches instances that have a holding with the id |
-| `holdings.permanentLocationId`| term | `holdings.permanentLocationId=="123765"`  | Matches instances that have holdings with given permanentLocationId |
-| `holdings.discoverySuppress`  | term | `holdings.discoverySuppress==true`        | Matches instances that have holdings suppressed/not suppressed from discovery |
-| `holdings.hrid`               | term | `holdings.hrid=="hr10*3"`                 | Matches instances that have a holding with given HRID |
-| `holdingTags`                 | term | `holdingTags=="important"`                | Matches instances that have holdings with given tags |
-| `holdingsFullCallNumbers`     | term | `holdingsFullCallNumbers="cn*434"`        | Matches instances that have holdings with given call number string (prefix + call number + suffix) |
+| Option                                             | Type      |Example                                                     | Description                                       |
+| :--------------------------------------------------|:---------:|:-----------------------------------------------------------|:--------------------------------------------------|
+| `holdings.id`                                      | term      | `holdings.id=="1234567"`                                   | Matches instances that have a holding with the id |
+| `holdings.permanentLocationId`                     | term      | `holdings.permanentLocationId=="123765"`                   | Matches instances that have holdings with given permanentLocationId |
+| `holdings.discoverySuppress`                       | term      | `holdings.discoverySuppress==true`                         | Matches instances that have holdings suppressed/not suppressed from discovery |
+| `holdings.hrid`                                    | term      | `holdings.hrid=="hr10*3"`                                  | Matches instances that have a holding with given HRID |
+| `holdingTags`                                      | term      | `holdingTags=="important"`                                 | Matches instances that have holdings with given tags |
+| `holdingsFullCallNumbers`                          | term      | `holdingsFullCallNumbers="cn*434"`                         | Matches instances that have holdings with given call number string (prefix + call number + suffix) |
+| `holdings.electronicAccess`                        | full text | `holdings.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
+| `holdings.electronicAccess.uri`                    | term      | `holdings.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
+| `holdings.electronicAccess.linkText`               | full text | `holdings.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
+| `holdings.electronicAccess.materialsSpecification` | full text | `holdings.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
+| `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 
 
 #### Items search options
 
-| Option                      | Type |Example                              | Description                  |
-| :---------------------------|:----:| :-----------------------------------|:------------------------------|
-| `items.id`                  | term | `items.id=="1234567"`               | Matches instances that have an item with the id |
-| `items.hrid`                | term | `items.hrid=="it001"`               | Matches instances that have an item with the HRID |
-| `items.barcode`             | term | `items.barcode=="10011"`            | Matches instances that have an item with the barcode |
-| `items.effectiveLocationId` | term | `items.effectiveLocationId=="1212"` | Matches instances that have items with the effective location |
-| `items.status.name`         | term | `items.status.name=="Available"`    | Matches instances that have items with given status |
-| `items.materialTypeId`      | term | `items.materialTypeId="23434"`      | Matches instances that have items with given material type |
-| `items.discoverySuppress`   | term | `items.discoverySuppress=true`      | Matches instances that have items suppressed/not suppressed from discovery |
-| `itemsFullCallNumbers`      | term | `itemsFullCallNumbers="cn*434"`     | Matches instances that have items with given call number string (prefix + call number + suffix) |
-| `itemTags`                  | term | `itemTags="important"`              | Matches instances that have items with given tag |
+| Option                                          | Type      |Example                                                  | Description                  |
+| :-----------------------------------------------|:---------:| :-------------------------------------------------------|:------------------------------|
+| `items.id`                                      | term      | `items.id=="1234567"`                                   | Matches instances that have an item with the id |
+| `items.hrid`                                    | term      | `items.hrid=="it001"`                                   | Matches instances that have an item with the HRID |
+| `items.barcode`                                 | term      | `items.barcode=="10011"`                                | Matches instances that have an item with the barcode |
+| `items.effectiveLocationId`                     | term      | `items.effectiveLocationId=="1212"`                     | Matches instances that have items with the effective location |
+| `items.status.name`                             | term      | `items.status.name=="Available"`                        | Matches instances that have items with given status |
+| `items.materialTypeId`                          | term      | `items.materialTypeId="23434"`                          | Matches instances that have items with given material type |
+| `items.discoverySuppress`                       | term      | `items.discoverySuppress=true`                          | Matches instances that have items suppressed/not suppressed from discovery |
+| `itemsFullCallNumbers`                          | term      | `itemsFullCallNumbers="cn*434"`                         | Matches instances that have items with given call number string (prefix + call number + suffix) |
+| `itemTags`                                      | term      | `itemTags="important"`                                  | Matches instances that have items with given tag |
+| `items.electronicAccess`                        | full text | `items.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
+| `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
+| `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
+| `items.electronicAccess.materialsSpecification` | full text | `items.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
+| `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 
 
 ### Sorting results

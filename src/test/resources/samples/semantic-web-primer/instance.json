@@ -82,7 +82,7 @@
   "publicationRange": [],
   "electronicAccess": [
     {
-      "uri": "http://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+      "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
       "linkText": "electronic access link text",
       "publicNote": "Online access via Wiley (1996-current)",
       "materialsSpecification": "electronic access material"

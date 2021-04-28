@@ -30,7 +30,7 @@
     <es-client.version>7.12.0</es-client.version>
     <mapstruct.version>1.4.1.Final</mapstruct.version>
     <spring-kafka.version>2.6.3</spring-kafka.version>
-    <apache-commons-io.version>2.6</apache-commons-io.version>
+    <apache-commons-io.version>2.7</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>

@@ -183,9 +183,7 @@ public class SearchDocumentConverter {
     var multilangValueMap = new LinkedHashMap<String, Object>();
     var languages = ctx.getLanguages();
     languages.forEach(language -> multilangValueMap.put(language, plainFieldValue));
-    if (languages.isEmpty()) {
-      multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, plainFieldValue);
-    }
+    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, plainFieldValue);
 
     var resultMap = new LinkedHashMap<String, Object>(2);
     resultMap.put(key, multilangValueMap);

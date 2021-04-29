@@ -64,6 +64,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by title (phrase match)", "title=={value}", array("semantic web"), null),
       arguments("search by title (phrase match - NO MATCH)", "title=={value}", array("web semantic"),
         zeroResultConsumer()),
+      arguments("search by title (ASCII folding, match origin)", "title=={value}", array("déjà vu"), null),
+      arguments("search by title (ASCII folding)", "title=={value}", array("deja vu"), null),
 
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),
       arguments("search by instance title (zero results)", "title all {value}",

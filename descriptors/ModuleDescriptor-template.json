@@ -91,6 +91,13 @@
         },
         {
           "methods": [
+            "PUT"
+          ],
+          "pathPattern": "/search/config/languages/{id}",
+          "permissionsRequired": [ "search.config.languages.item.put" ]
+        },
+        {
+          "methods": [
             "DELETE"
           ],
           "pathPattern": "/search/config/languages/{id}",
@@ -177,6 +184,11 @@
       "permissionName": "search.config.languages.collection.get",
       "displayName": "Search - returns list of all supported languages for multi-lang indexes",
       "description": "Returns list of all supported languages for multi-lang indexes"
+    },
+    {
+      "permissionName": "search.config.languages.item.delete",
+      "displayName": "Search - updates a supported language by id",
+      "description": "Updates a supported language by id"
     },
     {
       "permissionName": "search.config.languages.item.delete",

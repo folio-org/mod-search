@@ -134,7 +134,8 @@ class SearchDocumentConverterTest {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
     var actual = convert(eventBody);
-    var expectedJson = jsonObject("id", id, "title", jsonObject("eng", "val"), "plain_title", "val");
+    var expectedJson = jsonObject("id", id, "title", jsonObject("eng", "val", "src", "val"),
+      "plain_title", "val");
 
     assertThat(actual).isEqualTo(expectedSearchDocument(expectedJson));
   }
@@ -332,7 +333,7 @@ class SearchDocumentConverterTest {
       "id", id,
       "title", jsonArray("instance title"),
       "language", "eng",
-      "multilang_value", jsonObject("eng", "some value"),
+      "multilang_value", jsonObject("eng", "some value", "src", "some value"),
       "plain_multilang_value", "some value",
       "bool", true,
       "number", 123,

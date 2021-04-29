@@ -64,6 +64,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by title (phrase match)", "title=={value}", array("semantic web"), null),
       arguments("search by title (phrase match - NO MATCH)", "title=={value}", array("web semantic"),
         zeroResultConsumer()),
+      arguments("search by title (ASCII folding, match origin)", "title=={value}", array("déjà vu"), null),
+      arguments("search by title (ASCII folding)", "title=={value}", array("deja vu"), null),
 
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),
       arguments("search by instance title (zero results)", "title all {value}",
@@ -104,7 +106,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
         "classifications.classificationNumber=={value}", array("025*"), null),
 
       arguments("search by electronic access (uri)", "electronicAccess.uri==\"{value}\"",
-        array("http://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"), null),
+        array("https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"), null),
       arguments("search by electronic access (link text)",
         "electronicAccess.linkText all {value}", array("access"), null),
       arguments("search by electronic access (materials specification)",
@@ -132,7 +134,28 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by items hrid", "items.hrid = {value}", array("item000000000014"), null),
       arguments("search by items hrid (start with)", "items.hrid = {value}", array("item*"), null),
       arguments("search by items hrid (ends with)", "items.hrid = {value}", array("*00014"), null),
-      arguments("search by items hrid (wildcard)", "items.hrid = {value}", array("item*00014"), null)
+      arguments("search by items hrid (wildcard)", "items.hrid = {value}", array("item*00014"), null),
+
+      arguments("search by items electronic access", "items.electronicAccess==\"{value}\"", array("table"), null),
+      arguments("search by items electronic access (uri)", "items.electronicAccess.uri==\"{value}\"",
+        array("https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"), null),
+      arguments("search by items electronic access (link text)",
+        "items.electronicAccess.linkText all {value}", array("links available"), null),
+      arguments("search by items electronic access (materials specification)",
+        "items.electronicAccess.materialsSpecification all {value}", array("table"), null),
+      arguments("search by items electronic access (public note)",
+        "items.electronicAccess.publicNote all {value}", array("table of contents"), null),
+
+      arguments("search by items electronic access (uri)", "holdings.electronicAccess==\"{value}\"",
+        array("electronicAccess"), null),
+      arguments("search by items electronic access (uri)", "holdings.electronicAccess.uri==\"{value}\"",
+        array("https://testlibrary.sample.com/holdings?hrid=ho00000000006"), null),
+      arguments("search by items electronic access (link text)",
+        "holdings.electronicAccess.linkText all {value}", array("link text"), null),
+      arguments("search by items electronic access (materials specification)",
+        "holdings.electronicAccess.materialsSpecification all {value}", array("specification"), null),
+      arguments("search by items electronic access (public note)",
+        "holdings.electronicAccess.publicNote all {value}", array("note"), null)
     );
   }
 

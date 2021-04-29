@@ -134,7 +134,8 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doGet(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(get(uri, args)
-      .headers(defaultHeaders()))
+      .headers(defaultHeaders())
+      .header("Accept", "application/json;charset=UTF-8"))
       .andExpect(status().isOk());
   }
 

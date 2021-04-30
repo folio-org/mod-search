@@ -186,7 +186,7 @@
       "description": "Returns list of all supported languages for multi-lang indexes"
     },
     {
-      "permissionName": "search.config.languages.item.delete",
+      "permissionName": "search.config.languages.item.put",
       "displayName": "Search - updates a supported language by id",
       "description": "Updates a supported language by id"
     },

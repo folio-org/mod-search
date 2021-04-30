@@ -149,7 +149,7 @@ paths:
   /config/languages:
     post:
       operationId: createLanguageConfig
-      description: Update language configuration that will be used for analyzers
+      description: Save languages that will be used for analyzers
       requestBody:
         content:
           application/json:

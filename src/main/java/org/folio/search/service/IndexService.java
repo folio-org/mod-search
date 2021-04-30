@@ -1,12 +1,16 @@
 package org.folio.search.service;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +29,14 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class IndexService {
+
   public static final String INDEX_NOT_EXISTS_ERROR = "Cancelling bulk operation [reason: "
     + "Cannot index resources for non existing indices, tenant not initialized? [indices=%s]]";
 
@@ -47,8 +53,7 @@ public class IndexService {
    * @param resourceName name of resource as {@link String} value.
    * @param tenantId tenant id as {@link String} value.
    * @return {@link FolioCreateIndexResponse} if index was created successfully
-   * @throws SearchServiceException if {@link IOException} has been occurred during execution request to
-   *     elasticsearch
+   * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
     var index = getElasticsearchIndexName(resourceName, tenantId);
@@ -80,6 +85,7 @@ public class IndexService {
    * Saves list of resources to elasticsearch.
    *
    * @param resources {@link List} of resources as {@link JsonNode} objects.
+   * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEventBody> resources) {
     if (CollectionUtils.isEmpty(resources)) {
@@ -87,29 +93,40 @@ public class IndexService {
     }
 
     checkThatResourceEventsCanBeIndexed(resources);
-    return addResourcesToIndex(resources);
+    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
+    var response = indexRepository.indexResources(elasticsearchDocuments);
+
+    log.info("Instances added/updated [size: {}]", resources.size());
+    return response;
   }
 
-  public FolioIndexOperationResponse indexResourcesById(List<ResourceIdEvent> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
+  /**
+   * Index list of resource id event to elasticsearch.
+   *
+   * @param resourceIdEvents list of {@link ResourceIdEvent} objects.
+   * @return index operation response as {@link FolioIndexOperationResponse} object
+   */
+  public FolioIndexOperationResponse indexResourcesById(List<ResourceIdEvent> resourceIdEvents) {
+    if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
-    checkThatResourceIdsCanBeIndexed(ids);
-    return addResourcesToIndex(resourceFetchService.fetchInstancesByIds(ids));
-  }
+    checkThatResourceIdsCanBeIndexed(resourceIdEvents);
 
-  public FolioIndexOperationResponse removeResources(List<ResourceIdEvent> resources) {
-    if (CollectionUtils.isEmpty(resources)) {
-      return getSuccessIndexOperationResponse();
-    }
+    var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceIdEvent::getAction));
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
+    var indexDocuments = multiTenantSearchDocumentConverter.convertIndexEventsAsMap(fetchedInstances);
+    var removeDocuments = multiTenantSearchDocumentConverter.convertDeleteEventsAsMap(groupedByOperation.get(DELETE));
 
-    checkThatResourceIdsCanBeIndexed(resources);
+    var searchDocumentBodies = resourceIdEvents.stream()
+      .map(evt -> evt.getAction() == INDEX ? indexDocuments.get(evt.getId()) : removeDocuments.get(evt.getId()))
+      .filter(Objects::nonNull)
+      .collect(toList());
 
-    var deleteEvents = multiTenantSearchDocumentConverter.convertDeleteEvents(resources);
-    var response = indexRepository.removeResources(deleteEvents);
+    var response = indexRepository.indexResources(searchDocumentBodies);
+    log.info("Instances indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
+      indexDocuments.size(), removeDocuments.size());
 
-    log.info("Resources removed [size: {}]", resources.size());
     return response;
   }
 
@@ -133,7 +150,7 @@ public class IndexService {
 
   private void checkThatResourceIdsCanBeIndexed(List<ResourceIdEvent> events) {
     checkThatDocumentsCanBeIndexed(events.stream()
-      .map(id -> getElasticsearchIndexName(id.getType(), id.getTenant()))
+      .map(SearchUtils::getElasticsearchIndexName)
       .collect(Collectors.toSet()));
   }
 
@@ -151,13 +168,5 @@ public class IndexService {
     if (CollectionUtils.isNotEmpty(absentIndexNames)) {
       throw new SearchServiceException(String.format(INDEX_NOT_EXISTS_ERROR, absentIndexNames));
     }
-  }
-
-  private FolioIndexOperationResponse addResourcesToIndex(List<ResourceEventBody> resources) {
-    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(resources);
-    var response = indexRepository.indexResources(elasticsearchDocuments);
-
-    log.info("Instances added/updated [size: {}]", resources.size());
-    return response;
   }
 }

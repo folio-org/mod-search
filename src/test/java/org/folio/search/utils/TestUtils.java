@@ -4,8 +4,11 @@ import static java.util.Arrays.asList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
+import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 
@@ -37,6 +40,7 @@ import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetServiceRequest;
 import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.types.FieldType;
+import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -104,10 +108,20 @@ public class TestUtils {
 
   public static SearchDocumentBody searchDocumentBody() {
     return SearchDocumentBody.builder()
-      .id(UUID.randomUUID().toString())
+      .id(RESOURCE_ID)
       .index(INDEX_NAME)
-      .routing(TestConstants.TENANT_ID)
-      .rawJson(TestConstants.EMPTY_OBJECT)
+      .routing(TENANT_ID)
+      .rawJson(EMPTY_OBJECT)
+      .action(IndexActionType.INDEX)
+      .build();
+  }
+
+  public static SearchDocumentBody searchDocumentBodyForDelete() {
+    return SearchDocumentBody.builder()
+      .id(RESOURCE_ID)
+      .index(INDEX_NAME)
+      .routing(TENANT_ID)
+      .action(DELETE)
       .build();
   }
 

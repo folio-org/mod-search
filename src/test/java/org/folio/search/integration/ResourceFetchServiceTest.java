@@ -3,6 +3,7 @@ package org.folio.search.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.model.service.ResultList.asSinglePage;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -66,9 +67,9 @@ class ResourceFetchServiceTest {
 
   private static List<ResourceIdEvent> resourceIdEvents() {
     return List.of(
-      ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID),
-      ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID),
-      ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
+      ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID, INDEX),
+      ResourceIdEvent.of(randomId(), INSTANCE_RESOURCE, TENANT_ID, INDEX),
+      ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, INDEX));
   }
 
   private static InventoryViewClient.InstanceView instanceView(Instance instance) {

@@ -11,6 +11,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -106,8 +107,22 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
+  public ResultActions attemptPut(String uri, Object body) {
+    return mockMvc.perform(put(uri)
+      .content(asJsonString(body))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON));
+  }
+
+  @SneakyThrows
   public ResultActions doPost(String uri, Object body) {
     return attemptPost(uri, body)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public ResultActions doPut(String uri, Object body) {
+    return attemptPut(uri, body)
       .andExpect(status().isOk());
   }
 

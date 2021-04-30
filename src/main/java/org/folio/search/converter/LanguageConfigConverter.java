@@ -11,6 +11,7 @@ public class LanguageConfigConverter {
     final var languageConfig = new LanguageConfig();
 
     languageConfig.setCode(entity.getCode());
+    languageConfig.setLanguageAnalyzer(entity.getEsAnalyzer());
 
     return languageConfig;
   }
@@ -19,6 +20,7 @@ public class LanguageConfigConverter {
     final var languageConfig = new LanguageConfigEntity();
 
     languageConfig.setCode(dto.getCode());
+    languageConfig.setEsAnalyzer(dto.getLanguageAnalyzer());
 
     return languageConfig;
   }

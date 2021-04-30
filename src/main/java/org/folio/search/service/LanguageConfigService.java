@@ -4,8 +4,10 @@ import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfi
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.converter.LanguageConfigConverter;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class LanguageConfigService {
+
   private final LanguageConfigRepository configRepository;
   private final ResourceDescriptionService descriptionService;
   private final TenantScopedExecutionService executionService;
@@ -38,6 +41,24 @@ public class LanguageConfigService {
       log.warn("Tenant is allowed to have only 5 languages configured");
       throw new ValidationException("Tenant is allowed to have only 5 languages configured",
         "code", languageConfig.getCode());
+    }
+
+    return toLanguageConfig(configRepository.save(entity));
+  }
+
+  public LanguageConfig update(String code, LanguageConfig languageConfig) {
+    var entity = toLanguageConfigEntity(languageConfig);
+
+    if (!Objects.equals(languageConfig.getCode(), code)) {
+      throw new ValidationException(
+        "Request body language code must be the same as in the URL", "code", languageConfig.getCode());
+    }
+
+    var existingEntity = configRepository.findById(code)
+      .orElseThrow(() -> new EntityNotFoundException("Language config not found for code: " + code));
+
+    if (existingEntity.equals(entity)) {
+      return languageConfig;
     }
 
     return toLanguageConfig(configRepository.save(entity));

@@ -7,6 +7,8 @@ import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.languageConfig;
+import static org.folio.search.utils.TestUtils.languageConfigs;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -19,9 +21,10 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
@@ -61,7 +64,7 @@ class SearchMappingsHelperTest {
     var multilangPlainType = multilangPlainFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription());
-    when(languageConfigService.getAllLanguageCodes()).thenReturn(getSupportedLanguages());
+    when(languageConfigService.getAll()).thenReturn(getSupportedLanguages());
     doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_TYPE);
     doReturn(multilangType).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
     doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
@@ -121,7 +124,7 @@ class SearchMappingsHelperTest {
     var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(languageConfigService.getAllLanguageCodes()).thenReturn(getSupportedLanguages());
+    when(languageConfigService.getAll()).thenReturn(getSupportedLanguages());
     doReturn(multilangType).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
     doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
     doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_TYPE);
@@ -150,7 +153,7 @@ class SearchMappingsHelperTest {
     var multilangPlainType = multilangPlainFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
+    when(languageConfigService.getAll()).thenReturn(languageConfigs(List.of(languageConfig("eng"))));
     doReturn(multilangFieldType()).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
     doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
 
@@ -163,6 +166,31 @@ class SearchMappingsHelperTest {
         "title", jsonObject(
           "properties", jsonObject(
             "eng", jsonObject("type", "text", "analyzer", "english"),
+            "src", jsonObject("type", "text", "analyzer", "source_analyzer")
+          )),
+        "plain_title", multilangPlainType.getMapping()
+      ))));
+  }
+
+  @Test
+  void getMappings_shouldUpdateAnalyzerForKoreanLanguage() {
+    var resourceDescription = TestUtils.resourceDescription(mapOf("title", multilangField()));
+    var multilangPlainType = multilangPlainFieldType();
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    doReturn(multilangFieldType()).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
+    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
+    when(languageConfigService.getAll()).thenReturn(languageConfigs(List.of(languageConfig("eng", "custom_eng"))));
+
+    var actual = mappingsHelper.getMappings(RESOURCE_NAME);
+    assertThat(actual).isEqualTo(asJsonString(jsonObject(
+      "date_detection", false,
+      "numeric_detection", false,
+      "_routing", jsonObject("required", true),
+      "properties", jsonObject(
+        "title", jsonObject(
+          "properties", jsonObject(
+            "eng", jsonObject("type", "text", "analyzer", "custom_eng"),
             "src", jsonObject("type", "text", "analyzer", "source_analyzer")
           )),
         "plain_title", multilangPlainType.getMapping()
@@ -198,12 +226,12 @@ class SearchMappingsHelperTest {
     return fieldType(jsonObject("type", "keyword", "normalizer", "keyword_lowercase"));
   }
 
-  private static Set<String> getSupportedLanguages() {
-    var languages = new HashSet<String>();
-    multilangFieldType().getMapping().path("properties")
-      .fieldNames().forEachRemaining(languages::add);
+  private static LanguageConfigs getSupportedLanguages() {
+    var languageConfigs = new ArrayList<LanguageConfig>();
+    multilangFieldType().getMapping().path("properties").fieldNames()
+      .forEachRemaining(name -> languageConfigs.add(languageConfig(name)));
 
-    return languages;
+    return languageConfigs(languageConfigs);
   }
 
   private static PlainFieldDescription identifiersGroup() {

@@ -180,6 +180,29 @@ paths:
                 $ref: schemas/languageConfigs.json
 
   /config/languages/{code}:
+    put:
+      operationId: updateLanguageConfig
+      description: Update language config settings
+      parameters:
+        - $ref: '#/components/parameters/language-code'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: schemas/languageConfig.json
+      responses:
+        '200':
+          description: Language support has been added.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/languageConfig.json
+        '422':
+          description: Validation error for the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
     delete:
       operationId: deleteLanguageConfig
       description: Delete all supported languages

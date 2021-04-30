@@ -75,7 +75,7 @@
         },
         "kor": {
           "type": "text",
-          "analyzer": "nori"
+          "analyzer": "seunjeon_analyzer"
         },
         "rus": {
           "type": "text",

@@ -12,6 +12,7 @@ public enum ErrorCode {
   SERVICE_ERROR("service_error"),
   ELASTICSEARCH_ERROR("elasticsearch_error"),
   VALIDATION_ERROR("validation_error"),
+  NOT_FOUND_ERROR("not_found_error"),
   CONSTRAINT_VIOLATION("constraint_violation_error");
 
   @JsonValue

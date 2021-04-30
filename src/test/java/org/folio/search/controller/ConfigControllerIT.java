@@ -27,6 +27,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class ConfigControllerIT extends BaseIntegrationTest {
+
   @Autowired
   private RestHighLevelClient elasticsearchClient;
 
@@ -46,13 +48,48 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
   @Test
   void canCreateLanguageConfig() throws Exception {
-    final String languageCode = "eng";
+    final var languageCode = "eng";
 
     doPost(languageConfig(), new LanguageConfig().code(languageCode));
 
     doGet(languageConfig())
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)));
+  }
+
+  @Test
+  void canCreateLanguageConfigWithCustomAnalyzer() throws Exception {
+    final var languageCode = "kor";
+    final var analyzer = "nori";
+
+    doPost(languageConfig(), TestUtils.languageConfig(languageCode, analyzer));
+
+    doGet(languageConfig())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
+      .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
+
+    var newAnalyzer = "seunjeon_analyzer";
+    doPut(languageConfig() + "/kor", TestUtils.languageConfig(languageCode, newAnalyzer))
+      .andExpect(jsonPath("languageAnalyzer", is(newAnalyzer)));
+
+    doGet(languageConfig())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
+      .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(newAnalyzer)));
+  }
+
+  @Test
+  void cannotUpdateNonExistingLanguageConfig() throws Exception {
+    final var languageCode = "kor";
+    final var analyzer = "nori";
+
+    doPost(languageConfig(), TestUtils.languageConfig(languageCode, analyzer));
+
+    doGet(languageConfig())
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
+      .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
   }
 
   @Test
@@ -68,7 +105,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
 
   @Test
   void canRemoveLanguageConfig() throws Exception {
-    final LanguageConfig language = new LanguageConfig().code("fre");
+    final var language = new LanguageConfig().code("fre");
 
     doPost(languageConfig(), language);
 

@@ -4,15 +4,18 @@ import static java.util.Collections.emptyList;
 import static org.apache.logging.log4j.Level.DEBUG;
 import static org.apache.logging.log4j.Level.WARN;
 import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
+import static org.folio.search.model.types.ErrorCode.NOT_FOUND_ERROR;
 import static org.folio.search.model.types.ErrorCode.SERVICE_ERROR;
 import static org.folio.search.model.types.ErrorCode.UNKNOWN_ERROR;
 import static org.folio.search.model.types.ErrorCode.VALIDATION_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -166,6 +169,18 @@ public class ApiExceptionHandler {
   public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
     logException(DEBUG, exception);
     return buildResponseEntity(exception, BAD_REQUEST, VALIDATION_ERROR);
+  }
+
+  /**
+   * Handles all uncaught exceptions.
+   *
+   * @param exception {@link Exception} object
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body.
+   */
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException exception) {
+    logException(WARN, exception);
+    return buildResponseEntity(exception, NOT_FOUND, NOT_FOUND_ERROR);
   }
 
   /**

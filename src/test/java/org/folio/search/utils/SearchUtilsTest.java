@@ -8,10 +8,13 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 
 import java.io.IOException;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.service.ResourceIdEvent;
+import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,13 @@ class SearchUtilsTest {
   @Test
   void getElasticsearchIndexName_resourceNameAndTenantId_positive() {
     var actual = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
+    assertThat(actual).isEqualTo(INDEX_NAME);
+  }
+
+  @Test
+  void getElasticsearchIndexName_positive_resourceIdEvent() {
+    var idEvent = ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, IndexActionType.INDEX);
+    var actual = getElasticsearchIndexName(idEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 

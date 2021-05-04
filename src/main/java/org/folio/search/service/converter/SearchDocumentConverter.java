@@ -3,6 +3,7 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
@@ -25,7 +26,6 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
-import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.setter.FieldProcessor;
@@ -65,23 +65,19 @@ public class SearchDocumentConverter {
    * @return elasticsearch document
    */
   private SearchDocumentBody convert(ConversionContext context) {
-    final var resourceData = context.getResourceData();
+    var resourceData = context.getResourceData();
+    var resourceDescriptionFields = context.getResourceDescription().getFields();
+    var baseFields = convertMapUsingResourceFields(resourceData, resourceDescriptionFields, context);
+    var searchFields = generateSearchFields(context);
+    var resultDocument = mergeSafely(baseFields, searchFields);
 
-    Map<String, Object> baseFields = convertMapUsingResourceFields(resourceData,
-      context.getResourceDescription().getFields(), context);
-    Map<String, Object> searchFields = generateSearchFields(context);
-
-    Map<String, Object> resultDocument = mergeSafely(baseFields, searchFields);
-
-    return populateBaseFields(context.getId(), context.getResourceName(), context.getTenant())
+    return SearchDocumentBody.builder()
+      .id(context.getId())
+      .index(getElasticsearchIndexName(context.getResourceName(), context.getTenant()))
+      .routing(context.getTenant())
       .rawJson(jsonConverter.toJson(resultDocument))
+      .action(INDEX)
       .build();
-  }
-
-  public List<SearchDocumentBody> convertDeleteEvents(List<ResourceIdEvent> resourceEvents) {
-    return resourceEvents.stream()
-      .map(event -> populateBaseFields(event.getId(), event.getType(), event.getTenant()).build())
-      .collect(toList());
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
@@ -190,15 +186,6 @@ public class SearchDocumentConverter {
     resultMap.put(PLAIN_MULTILANG_PREFIX + key, plainFieldValue);
 
     return resultMap;
-  }
-
-  private static SearchDocumentBody.SearchDocumentBodyBuilder populateBaseFields(
-    String id, String resource, String tenant) {
-
-    return SearchDocumentBody.builder()
-      .id(id)
-      .index(getElasticsearchIndexName(resource, tenant))
-      .routing(tenant);
   }
 
   /**

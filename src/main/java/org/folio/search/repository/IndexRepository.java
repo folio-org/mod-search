@@ -1,5 +1,7 @@
 package org.folio.search.repository;
 
+import static org.elasticsearch.common.xcontent.XContentType.JSON;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
@@ -20,7 +22,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.SearchDocumentBody;
@@ -29,8 +30,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 /**
- * Search resource repository with set of operation to create/modify/update index settings and
- * mappings.
+ * Search resource repository with set of operation to create/modify/update index settings and mappings.
  */
 @Log4j2
 @Repository
@@ -50,8 +50,8 @@ public class IndexRepository {
   @CacheEvict(cacheNames = "esIndicesCache", key = "#index")
   public FolioCreateIndexResponse createIndex(String index, String settings, String mappings) {
     var createIndexRequest = new CreateIndexRequest(index)
-      .settings(settings, XContentType.JSON)
-      .mapping(mappings, XContentType.JSON);
+      .settings(settings, JSON)
+      .mapping(mappings, JSON);
 
     var createIndexResponse = performExceptionalOperation(
       () -> elasticsearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT),
@@ -70,7 +70,7 @@ public class IndexRepository {
    * @return {@link FolioCreateIndexResponse} object
    */
   public FolioIndexOperationResponse updateMappings(String index, String mappings) {
-    var putMappingRequest = new PutMappingRequest(index).source(mappings, XContentType.JSON);
+    var putMappingRequest = new PutMappingRequest(index).source(mappings, JSON);
     var putMappingsResponse = performExceptionalOperation(
       () -> elasticsearchClient.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT),
       index, "putMappingsApi");
@@ -92,10 +92,9 @@ public class IndexRepository {
 
     var bulkRequest = new BulkRequest();
     var indices = new LinkedHashSet<String>();
-    for (var documentBody : esDocumentBodies) {
-      var documentIndex = documentBody.getIndex();
-      indices.add(documentIndex);
-      bulkRequest.add(prepareIndexRequest(documentIndex, documentBody));
+    for (var body : esDocumentBodies) {
+      indices.add(body.getIndex());
+      bulkRequest.add(body.getAction() == INDEX ? prepareIndexRequest(body) : prepareDeleteRequest(body));
     }
 
     var bulkApiResponse = performExceptionalOperation(
@@ -107,6 +106,12 @@ public class IndexRepository {
       : getSuccessIndexOperationResponse();
   }
 
+  /**
+   * Checks if index exists in elasticsearch by name.
+   *
+   * @param index elasticsearch index name
+   * @return true if index exists, false - otherwise
+   */
   @Cacheable(value = "esIndicesCache", key = "#index", unless = "#result == false")
   public boolean indexExists(String index) {
     log.info("Checking that index exists [index: {}]", index);
@@ -116,39 +121,23 @@ public class IndexRepository {
       index, "indexExists");
   }
 
-  public FolioIndexOperationResponse removeResources(List<SearchDocumentBody> documents) {
-    if (CollectionUtils.isEmpty(documents)) {
-      return getSuccessIndexOperationResponse();
-    }
-
-    var bulkRequest = new BulkRequest();
-    var indices = new LinkedHashSet<String>();
-    for (var searchDocument : documents) {
-      indices.add(searchDocument.getIndex());
-      bulkRequest.add(prepareDeleteRequest(searchDocument));
-    }
-
-    var bulkApiResponse = performExceptionalOperation(
-      () -> elasticsearchClient.bulk(bulkRequest, RequestOptions.DEFAULT),
-      String.join(",", indices), "bulkRemove");
-
-    return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
-  }
-
-  private static IndexRequest prepareIndexRequest(String index, SearchDocumentBody body) {
-    return new IndexRequest(index)
-      .id(body.getId())
-      .routing(body.getRouting())
-      .source(body.getRawJson(), XContentType.JSON);
-  }
-
+  /**
+   * Deletes elasticsearch index by name.
+   *
+   * @param index elasticsearch index name
+   */
   public void dropIndex(String index) {
     var request = new DeleteIndexRequest(index);
 
     performExceptionalOperation(() -> elasticsearchClient.indices()
       .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
+  }
+
+  private static IndexRequest prepareIndexRequest(SearchDocumentBody body) {
+    return new IndexRequest(body.getIndex())
+      .id(body.getId())
+      .routing(body.getRouting())
+      .source(body.getRawJson(), JSON);
   }
 
   private static DeleteRequest prepareDeleteRequest(SearchDocumentBody event) {

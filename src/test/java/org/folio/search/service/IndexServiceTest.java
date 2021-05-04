@@ -1,17 +1,24 @@
 package org.folio.search.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.service.IndexService.INDEX_NOT_EXISTS_ERROR;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
+import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -40,10 +47,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class IndexServiceTest {
-  private static final String INDEX_NOT_EXISTS_MESSAGE =
-    String.format(INDEX_NOT_EXISTS_ERROR, List.of("test-resource_test_tenant"));
 
-  private static final String EMPTY_OBJECT = "{}";
+  private static final String INDEX_NOT_EXISTS_MESSAGE = String.format(INDEX_NOT_EXISTS_ERROR, List.of(INDEX_NAME));
+
   @Mock private IndexRepository indexRepository;
   @Mock private SearchMappingsHelper mappingsHelper;
   @Mock private SearchSettingsHelper settingsHelper;
@@ -155,22 +161,53 @@ class IndexServiceTest {
 
   @Test
   void canIndexResourcesById() {
-    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
+    var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, INDEX));
     var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
+    var doc = searchDocumentBody();
 
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(fetchService.fetchInstancesByIds(eventIds)).thenReturn(List.of(eventBody));
-    when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchDocumentBody()));
-    when(indexRepository.indexResources(any())).thenReturn(expectedResponse);
+    when(searchDocumentConverter.convertIndexEventsAsMap(List.of(eventBody))).thenReturn(mapOf(RESOURCE_ID, doc));
+    when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
+    when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
 
-    assertThat(indexService.indexResourcesById(eventIds))
-      .isEqualTo(expectedResponse);
+    var actual = indexService.indexResourcesById(eventIds);
+    assertThat(actual).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void indexResourcesById_positive_deleteEvent() {
+    var doc = searchDocumentBodyForDelete();
+    var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, DELETE));
+
+    when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
+    when(searchDocumentConverter.convertIndexEventsAsMap(emptyList())).thenReturn(emptyMap());
+    when(searchDocumentConverter.convertDeleteEventsAsMap(eventIds)).thenReturn(mapOf(doc.getId(), doc));
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+
+    var expectedResponse = getSuccessIndexOperationResponse();
+    when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
+
+    var actual = indexService.indexResourcesById(eventIds);
+    assertThat(actual).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void indexResourcesById_positive_emptyList() {
+    var actual = indexService.indexResourcesById(emptyList());
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResourcesById_positive_null() {
+    var actual = indexService.indexResourcesById(null);
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
   void cannotIndexResourcesById_indexNotExist() {
-    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
+    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, INDEX));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
 
     assertThatThrownBy(() -> indexService.indexResourcesById(eventIds))
@@ -179,31 +216,5 @@ class IndexServiceTest {
 
     verifyNoInteractions(searchDocumentConverter);
     verify(indexRepository, times(0)).indexResources(any());
-  }
-
-  @Test
-  void canRemoveResources() {
-    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
-    var expectedResponse = getSuccessIndexOperationResponse();
-
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-    when(searchDocumentConverter.convertDeleteEvents(eventIds)).thenReturn(List.of(searchDocumentBody()));
-    when(indexRepository.removeResources(any())).thenReturn(expectedResponse);
-
-    assertThat(indexService.removeResources(eventIds))
-      .isEqualTo(expectedResponse);
-  }
-
-  @Test
-  void cannotRemoveResources_indexNotExist() {
-    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID));
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
-
-    assertThatThrownBy(() -> indexService.removeResources(eventIds))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
-
-    verifyNoInteractions(searchDocumentConverter);
-    verify(indexRepository, times(0)).removeResources(any());
   }
 }

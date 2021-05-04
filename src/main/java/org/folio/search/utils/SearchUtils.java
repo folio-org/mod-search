@@ -7,6 +7,7 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
 import org.folio.search.model.service.CqlSearchServiceRequest;
+import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -46,6 +47,16 @@ public class SearchUtils {
    */
   public static String getElasticsearchIndexName(ResourceRequest request) {
     return getElasticsearchIndexName(request.getResource(), request.getTenantId());
+  }
+
+  /**
+   * Creates index name for passed resource id event.
+   *
+   * @param event resource event as {@link ResourceIdEvent} object
+   * @return generated index name.
+   */
+  public static String getElasticsearchIndexName(ResourceIdEvent event) {
+    return getElasticsearchIndexName(event.getType(), event.getTenant());
   }
 
   /**

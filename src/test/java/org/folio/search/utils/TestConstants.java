@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 public class TestConstants {
 
   public static final String EMPTY_OBJECT = "{}";
+  public static final String RESOURCE_ID = "test_tenant";
   public static final String TENANT_ID = "test_tenant";
   public static final String RESOURCE_NAME = "test-resource";
   public static final String INDEX_NAME = RESOURCE_NAME + "_" + TENANT_ID;

@@ -8,9 +8,11 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.integration.inventory.InventoryViewClient;
@@ -28,6 +30,10 @@ public class ResourceFetchService {
   private final TenantScopedExecutionService tenantScopedExecutionService;
 
   public List<ResourceEventBody> fetchInstancesByIds(List<ResourceIdEvent> events) {
+    if (CollectionUtils.isEmpty(events)) {
+      return Collections.emptyList();
+    }
+
     var instanceIdEvents = events.stream()
       .filter(event -> INSTANCE_RESOURCE.equals(event.getType()))
       .collect(groupingBy(ResourceIdEvent::getTenant, mapping(ResourceIdEvent::getId, toList())));

@@ -2,13 +2,12 @@ package org.folio.search.service.converter;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,7 +31,7 @@ public class MultiTenantSearchDocumentConverter {
    * @return list with {@link SearchDocumentBody} objects as value
    */
   public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
-    return convertIndexRequestToStream(resourceEvents).collect(Collectors.toList());
+    return convertIndexRequestToStream(resourceEvents).collect(toList());
   }
 
   /**
@@ -46,7 +45,7 @@ public class MultiTenantSearchDocumentConverter {
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return Collections.emptyMap();
     }
-    return convertIndexRequestToStream(resourceEvents).collect(toMap(SearchDocumentBody::getId, Function.identity()));
+    return convertIndexRequestToStream(resourceEvents).collect(toMap(SearchDocumentBody::getId, identity()));
   }
 
   /**

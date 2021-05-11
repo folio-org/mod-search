@@ -67,6 +67,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by title (ASCII folding, match origin)", "title=={value}", array("déjà vu"), null),
       arguments("search by title (ASCII folding)", "title=={value}", array("deja vu"), null),
       arguments("search by title (Unicode folding, match origin)", "title all {value}", array("Algérie"), null),
+      // e here should replace e + U+0301 (Combining Acute Accent)
       arguments("search by title (Unicode folding)", "title all {value}", array("algerie"), null),
 
       arguments("search by instance title (and operator)", "title all {value}", array("system information"), null),

@@ -1,5 +1,7 @@
 package org.folio.search.controller;
 
+import static org.apache.commons.lang3.BooleanUtils.toBoolean;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,8 +46,8 @@ public class IndexController implements IndexApi {
   }
 
   @Override
-  public ResponseEntity<ReindexJob> reindexInventoryRecords() {
-    log.info("Attempting to start reindex for inventory");
-    return ResponseEntity.ok(indexService.reindexInventory());
+  public ResponseEntity<ReindexJob> reindexInventoryRecords(String tenantId, Boolean recreateIndex) {
+    log.info("Attempting to start reindex for inventory [tenant: {}, recreateIndex: {}]", tenantId, recreateIndex);
+    return ResponseEntity.ok(indexService.reindexInventory(tenantId, toBoolean(recreateIndex)));
   }
 }

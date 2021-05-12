@@ -150,9 +150,22 @@ class IndexControllerTest {
   @Test
   void canSubmitReindex() throws Exception {
     var jobId = randomId();
-    when(indexService.reindexInventory()).thenReturn(new ReindexJob().id(jobId));
+    when(indexService.reindexInventory(TENANT_ID, false)).thenReturn(new ReindexJob().id(jobId));
 
-    mockMvc.perform(post("/search/index/inventory/reindex"))
+    mockMvc.perform(post("/search/index/inventory/reindex")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("id", is(jobId)));
+  }
+
+  @Test
+  void reindexInventoryRecords_positive_withRecreateIndexFlag() throws Exception {
+    var jobId = randomId();
+    when(indexService.reindexInventory(TENANT_ID, true)).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
   }

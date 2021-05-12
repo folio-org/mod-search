@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,8 +61,8 @@ public class IndexService {
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Creating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
-      resourceName, tenantId, mappings);
+    log.info("Creating index for resource [resource: {}, tenant: {}, mappings: {}, settings: {}]",
+      resourceName, tenantId, mappings, settings);
     return indexRepository.createIndex(index, settings, mappings);
   }
 
@@ -137,7 +138,11 @@ public class IndexService {
     }
   }
 
-  public ReindexJob reindexInventory() {
+  public ReindexJob reindexInventory(String tenantId, boolean recreateIndex) {
+    if (recreateIndex) {
+      dropIndex(INSTANCE_RESOURCE, tenantId);
+      createIndex(INSTANCE_RESOURCE, tenantId);
+    }
     return instanceStorageClient.submitReindex();
   }
 

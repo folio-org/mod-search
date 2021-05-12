@@ -136,6 +136,9 @@ paths:
     post:
       operationId: reindexInventoryRecords
       description: Initiates reindex for the inventory records
+      parameters:
+        - $ref: '#/components/parameters/recreate-index'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
           description: Reindex operation has been started
@@ -260,6 +263,7 @@ components:
           example: examples/unknownError.sample
 
   parameters:
+
     cql-query:
       name: query
       in: query
@@ -267,6 +271,14 @@ components:
       description: A CQL query string with search conditions.
       schema:
         type: string
+    recreate-index:
+      name: recreateIndex
+      in: query
+      required: false
+      description: A reindex request parameter (if it is set to true - index for tenant will be recreated).
+      schema:
+        type: boolean
+        default: false
     language-code:
       name: code
       in: path

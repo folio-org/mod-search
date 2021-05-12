@@ -9,6 +9,7 @@ import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.service.IndexService.INDEX_NOT_EXISTS_ERROR;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -136,7 +137,23 @@ class IndexServiceTest {
 
   @Test
   void reindexInventory_positive() {
-    indexService.reindexInventory();
+    var indexName = getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
+
+    when(mappingsHelper.getMappings(INSTANCE_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettings(INSTANCE_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(indexRepository.indexExists(indexName)).thenReturn(true, false);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(createIndexResponse);
+
+    indexService.reindexInventory(TENANT_ID, true);
+
+    verify(instanceStorageClient).submitReindex();
+    verify(indexRepository).dropIndex(indexName);
+  }
+
+  @Test
+  void reindexInventory_positive_recreateIndexIsTrue() {
+    indexService.reindexInventory(TENANT_ID, false);
 
     verify(instanceStorageClient).submitReindex();
   }

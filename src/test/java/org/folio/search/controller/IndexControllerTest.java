@@ -22,6 +22,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.ReindexJob;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
@@ -150,9 +151,26 @@ class IndexControllerTest {
   @Test
   void canSubmitReindex() throws Exception {
     var jobId = randomId();
-    when(indexService.reindexInventory()).thenReturn(new ReindexJob().id(jobId));
+    when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
 
-    mockMvc.perform(post("/search/index/inventory/reindex"))
+    mockMvc.perform(post("/search/index/inventory/reindex")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("id", is(jobId)));
+  }
+
+  @Test
+  void reindexInventoryRecords_positive_withRecreateIndexFlag() throws Exception {
+    var jobId = randomId();
+    var request = new ReindexRequest().recreateIndex(true);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON)
+      .content(asJsonString(request))
+      .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
   }

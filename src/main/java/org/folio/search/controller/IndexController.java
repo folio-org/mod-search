@@ -7,6 +7,7 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.IndexRequestBody;
 import org.folio.search.domain.dto.ReindexJob;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
@@ -44,8 +45,8 @@ public class IndexController implements IndexApi {
   }
 
   @Override
-  public ResponseEntity<ReindexJob> reindexInventoryRecords() {
-    log.info("Attempting to start reindex for inventory");
-    return ResponseEntity.ok(indexService.reindexInventory());
+  public ResponseEntity<ReindexJob> reindexInventoryRecords(String tenantId, ReindexRequest request) {
+    log.info("Attempting to start reindex for inventory [tenant: {}]", tenantId);
+    return ResponseEntity.ok(indexService.reindexInventory(tenantId, request));
   }
 }

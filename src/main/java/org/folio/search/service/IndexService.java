@@ -1,10 +1,12 @@
 package org.folio.search.service;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +23,7 @@ import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
@@ -60,8 +63,8 @@ public class IndexService {
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Creating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
-      resourceName, tenantId, mappings);
+    log.info("Creating index for resource [resource: {}, tenant: {}, mappings: {}, settings: {}]",
+      resourceName, tenantId, mappings, settings);
     return indexRepository.createIndex(index, settings, mappings);
   }
 
@@ -137,7 +140,12 @@ public class IndexService {
     }
   }
 
-  public ReindexJob reindexInventory() {
+  public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
+    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
+      log.info("Recreating indices during reindex operation [tenant: {}]", tenantId);
+      dropIndex(INSTANCE_RESOURCE, tenantId);
+      createIndex(INSTANCE_RESOURCE, tenantId);
+    }
     return instanceStorageClient.submitReindex();
   }
 

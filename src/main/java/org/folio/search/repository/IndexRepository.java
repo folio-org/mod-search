@@ -126,6 +126,7 @@ public class IndexRepository {
    *
    * @param index elasticsearch index name
    */
+  @CacheEvict(cacheNames = "esIndicesCache", key = "#index")
   public void dropIndex(String index) {
     var request = new DeleteIndexRequest(index);
 

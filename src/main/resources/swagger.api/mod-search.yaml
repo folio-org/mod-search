@@ -136,6 +136,14 @@ paths:
     post:
       operationId: reindexInventoryRecords
       description: Initiates reindex for the inventory records
+      requestBody:
+        content:
+          application/json:
+            example: examples/reindexRequest.sample
+            schema:
+              $ref: '#/components/schemas/reindexRequest'
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
           description: Reindex operation has been started
@@ -244,6 +252,8 @@ components:
       $ref: schemas/request/cqlSearchRequest.json
     cqlFacetRequest:
       $ref: schemas/request/cqlFacetRequest.json
+    reindexRequest:
+      $ref: schemas/request/reindexRequest.json
 
   responses:
     badRequestResponse:

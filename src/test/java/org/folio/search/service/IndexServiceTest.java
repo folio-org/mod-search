@@ -9,6 +9,7 @@ import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.service.IndexService.INDEX_NOT_EXISTS_ERROR;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -135,9 +137,30 @@ class IndexServiceTest {
   }
 
   @Test
-  void reindexInventory_positive() {
-    indexService.reindexInventory();
+  void reindexInventory_positive_recreateIndexIsTrue() {
+    var indexName = getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
 
+    when(mappingsHelper.getMappings(INSTANCE_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettings(INSTANCE_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(indexRepository.indexExists(indexName)).thenReturn(true, false);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(createIndexResponse);
+
+    indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
+
+    verify(instanceStorageClient).submitReindex();
+    verify(indexRepository).dropIndex(indexName);
+  }
+
+  @Test
+  void reindexInventory_positive_recreateIndexIsFalse() {
+    indexService.reindexInventory(TENANT_ID, new ReindexRequest());
+    verify(instanceStorageClient).submitReindex();
+  }
+
+  @Test
+  void reindexInventory_positive_recreateIndexIsNull() {
+    indexService.reindexInventory(TENANT_ID, null);
     verify(instanceStorageClient).submitReindex();
   }
 

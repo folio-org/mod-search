@@ -57,6 +57,48 @@ These languages will be added on tenant init and applied to index. Example usage
 
 ## Deploying
 
+## Configuring Elasticsearch
+
+### Configuring on-premise Elasticsearch instance
+
+It is required to install some required plugins for your ES instance, here is the list:
+* analysis-icu
+* analysis-kuromoji
+* analysis-smartcn
+* analysis-nori
+* analysis-phonetic
+
+You can find sample Dockerfile in `docker/elasticsearch/Dockerfile` or install plugins manually:
+```bash
+${ES_HOME}/bin/elasticsearch-plugin install --batch \
+  analysis-icu \
+  analysis-kuromoji \
+  analysis-smartcn \
+  analysis-nori \
+  analysis-phonetic
+```
+
+See also [Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docker.html).
+
+There is an alternative ES image from Bitname - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
+that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to install.
+
+For production installations it is strongly recommended enabling security for instance and set-up user/password. The user
+must have at least following permissions:
+* Create/delete/update index and mappings for it.
+* Create/update/delete documents in index.
+
+### Recommended production set-up
+
+The data nodes Elasticsearch configuration completely depends on the data.
+If there are 7 mln of instances the configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well.
+We performed performance tests for this configuration, and it showed good results.
+We would recommend to performing additional performance testing (try to reindex and search with different configurations)
+with different type of nodes, and see what configuration is sufficient for what data volume.
+
+Also, for fault tolerance Elasticsearch requires dedicated master nodes (not to have quorum problem which is called split brain)
+with less powerful configuration (see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)).
+
 ## Environment variables:
 
 | Name                   | Default value             | Description                                                       |

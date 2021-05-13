@@ -136,8 +136,13 @@ paths:
     post:
       operationId: reindexInventoryRecords
       description: Initiates reindex for the inventory records
+      requestBody:
+        content:
+          application/json:
+            example: examples/reindexRequest.sample
+            schema:
+              $ref: '#/components/schemas/reindexRequest'
       parameters:
-        - $ref: '#/components/parameters/recreate-index'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
@@ -247,6 +252,8 @@ components:
       $ref: schemas/request/cqlSearchRequest.json
     cqlFacetRequest:
       $ref: schemas/request/cqlFacetRequest.json
+    reindexRequest:
+      $ref: schemas/request/reindexRequest.json
 
   responses:
     badRequestResponse:
@@ -263,7 +270,6 @@ components:
           example: examples/unknownError.sample
 
   parameters:
-
     cql-query:
       name: query
       in: query
@@ -271,14 +277,6 @@ components:
       description: A CQL query string with search conditions.
       schema:
         type: string
-    recreate-index:
-      name: recreateIndex
-      in: query
-      required: false
-      description: A reindex request parameter (if it is set to true - index for tenant will be recreated).
-      schema:
-        type: boolean
-        default: false
     language-code:
       name: code
       in: path

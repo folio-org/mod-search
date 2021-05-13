@@ -1,5 +1,6 @@
 package org.folio.search.service;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.DELETE;
@@ -22,6 +23,7 @@ import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
@@ -138,8 +140,9 @@ public class IndexService {
     }
   }
 
-  public ReindexJob reindexInventory(String tenantId, boolean recreateIndex) {
-    if (recreateIndex) {
+  public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
+    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
+      log.info("Recreating indices during reindex operation [tenant: {}]", tenantId);
       dropIndex(INSTANCE_RESOURCE, tenantId);
       createIndex(INSTANCE_RESOURCE, tenantId);
     }

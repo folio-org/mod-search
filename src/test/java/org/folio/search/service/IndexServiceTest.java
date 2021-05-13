@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -136,7 +137,7 @@ class IndexServiceTest {
   }
 
   @Test
-  void reindexInventory_positive() {
+  void reindexInventory_positive_recreateIndexIsTrue() {
     var indexName = getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
 
@@ -145,16 +146,21 @@ class IndexServiceTest {
     when(indexRepository.indexExists(indexName)).thenReturn(true, false);
     when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(createIndexResponse);
 
-    indexService.reindexInventory(TENANT_ID, true);
+    indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
 
     verify(instanceStorageClient).submitReindex();
     verify(indexRepository).dropIndex(indexName);
   }
 
   @Test
-  void reindexInventory_positive_recreateIndexIsTrue() {
-    indexService.reindexInventory(TENANT_ID, false);
+  void reindexInventory_positive_recreateIndexIsFalse() {
+    indexService.reindexInventory(TENANT_ID, new ReindexRequest());
+    verify(instanceStorageClient).submitReindex();
+  }
 
+  @Test
+  void reindexInventory_positive_recreateIndexIsNull() {
+    indexService.reindexInventory(TENANT_ID, null);
     verify(instanceStorageClient).submitReindex();
   }
 

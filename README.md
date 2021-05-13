@@ -120,7 +120,15 @@ POST [OKAPI_URL]/search/index/inventory/reindex
 
 x-okapi-tenant: [tenant]
 x-okapi-token: [JWT_TOKEN]
+
+{
+  "recreateIndex": false
+}
 ```
+
+Optional parameter `recreateIndex` in request body can be set to true specified  to drop existing indices for tenant
+and create them again. Executing request with this parameter in query will erase all the tenant data in mod-search.
+
 
 ### Monitoring reindex process
 

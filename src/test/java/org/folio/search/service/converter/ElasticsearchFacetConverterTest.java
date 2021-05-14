@@ -33,6 +33,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,11 +48,13 @@ class ElasticsearchFacetConverterTest {
 
   private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(getNamedContentRegistryEntries());
+  private static final String AGG_NAME = "item";
 
   @InjectMocks private ElasticsearchFacetConverter facetConverter;
 
-  @ParameterizedTest()
   @MethodSource("aggregationsDataProvider")
+  @DisplayName("convert_positive_parameterized")
+  @ParameterizedTest(name = "[{index}] agg = {0}")
   void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) throws Exception {
     var actual = facetConverter.convert(aggregationsFromJson(aggregations));
     assertThat(actual).isEqualTo(facetResult(expected));
@@ -68,10 +71,17 @@ class ElasticsearchFacetConverterTest {
       arguments(null, emptyMap()),
       arguments(jsonObject(), emptyMap()),
       arguments(jsonObject("sterms#item", null), emptyMap()),
-      arguments(jsonObject("sterms#item", jsonObject("buckets", jsonArray())), mapOf("item", facet(emptyList()))),
-      arguments(stringStatsAggregation(), mapOf("item", facet(emptyList()))),
-      arguments(filterFacetAggregation(), mapOf("item", facet(List.of(facetItem("v1", 200), facetItem("v2", 100))))),
-      arguments(termsFacetAggregation(), mapOf("item", facet(List.of(facetItem("marc", 5), facetItem("folio", 2)))))
+      arguments(jsonObject("sterms#item", jsonObject("buckets", jsonArray())), mapOf(AGG_NAME, facet(emptyList()))),
+      arguments(stringStatsAggregation(), mapOf(AGG_NAME, facet(emptyList()))),
+      arguments(filterFacetAggregation(), mapOf(AGG_NAME, facet(List.of(facetItem("v1", 200), facetItem("v2", 100))))),
+      arguments(termsFacetAggregation(), mapOf(AGG_NAME, facet(List.of(facetItem("marc", 5), facetItem("folio", 2))))),
+      arguments(termsFacetAggregationWithSelectedTerms(), mapOf(AGG_NAME, facet(List.of(
+        facetItem("custom", 10), facetItem("marc", 199), facetItem("folio", 25))))),
+      arguments(termsFacetAggregationWithOnlySelectedTerms(), mapOf(AGG_NAME, facet(List.of(facetItem("custom", 10))))),
+      arguments(filterFacetAggregationWithSelectedTerms(), mapOf(AGG_NAME, facet(List.of(
+        facetItem("v3", 300), facetItem("v4", 10), facetItem("v1", 200), facetItem("v2", 100))))),
+      arguments(filterFacetAggregationWithOnlySelectedTerms(), mapOf(AGG_NAME, facet(List.of(
+        facetItem("v3", 300), facetItem("v4", 10)))))
     );
   }
 
@@ -107,10 +117,42 @@ class ElasticsearchFacetConverterTest {
         jsonObject("key", "v2", "doc_count", 100)))));
   }
 
+  private static ObjectNode filterFacetAggregationWithSelectedTerms() {
+    return jsonObject("filter#item", jsonObject(
+      "sterms#values", jsonObject("buckets", jsonArray(
+        jsonObject("key", "v1", "doc_count", 200),
+        jsonObject("key", "v2", "doc_count", 100))),
+      "sterms#selected_values", jsonObject("buckets", jsonArray(
+        jsonObject("key", "v3", "doc_count", 300),
+        jsonObject("key", "v4", "doc_count", 10)))));
+  }
+
+  private static ObjectNode filterFacetAggregationWithOnlySelectedTerms() {
+    return jsonObject("filter#item", jsonObject(
+      "sterms#selected_values", jsonObject("buckets", jsonArray(
+        jsonObject("key", "v3", "doc_count", 300),
+        jsonObject("key", "v4", "doc_count", 10)))));
+  }
+
   private static ObjectNode termsFacetAggregation() {
     return jsonObject("sterms#item", jsonObject("buckets", jsonArray(
       jsonObject("key", "marc", "doc_count", 5),
       jsonObject("key", "folio", "doc_count", 2))));
+  }
+
+  private static ObjectNode termsFacetAggregationWithSelectedTerms() {
+    return jsonObject(
+      "sterms#item", jsonObject("buckets", jsonArray(
+        jsonObject("key", "marc", "doc_count", 199),
+        jsonObject("key", "folio", "doc_count", 25))),
+      "sterms#selected_item", jsonObject("buckets", jsonArray(
+        jsonObject("key", "custom", "doc_count", 10))));
+  }
+
+  private static ObjectNode termsFacetAggregationWithOnlySelectedTerms() {
+    return jsonObject(
+      "sterms#selected_item", jsonObject("buckets", jsonArray(
+        jsonObject("key", "custom", "doc_count", 10))));
   }
 
   private static ObjectNode stringStatsAggregation() {

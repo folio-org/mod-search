@@ -17,6 +17,7 @@ public class SearchUtils {
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
   public static final String PLAIN_MULTILANG_PREFIX = "plain_";
+  public static final String SELECTED_AGG_PREFIX = "selected_";
   public static final String DOT = ".";
 
   public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;

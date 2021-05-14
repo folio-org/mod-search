@@ -16,10 +16,10 @@ public class Pair<L, R> {
   /**
    * Left value of pair object.
    */
-  private L left;
+  private L first;
 
   /**
    * Right value of pair object.
    */
-  private R right;
+  private R second;
 }

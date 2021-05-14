@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.filter;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
@@ -121,6 +122,14 @@ class FacetQueryBuilderTest {
 
     var include = new IncludeExclude(values, null);
     assertThat(actual).containsExactly(terms(SELECTED_AGG_PREFIX + FIELD).field(FIELD).size(5).includeExclude(include));
+  }
+
+  @Test
+  void getFacetAggregations_positive_filterWithRangeQuery() {
+    var query = boolQuery().filter(rangeQuery(FIELD).lt(0));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD + ":5"), query);
+    assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(5));
   }
 
   @Test

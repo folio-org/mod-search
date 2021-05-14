@@ -198,7 +198,13 @@ request parameters:
 | query         | Yes                  | A CQL query to execute                                                          |
 | limit         | No (default to 100)  | Maximum number of records to fetch                                              |
 | offset        | No (default to 0)    | Instructs to skip first N records that matches the query                        |
-| expandAll     | No (default to false)| If false than only basic instance properties returned, otherwise all properties |
+| expandAll     | No (default to false)| If false than only _*basic_ instance properties returned, otherwise all properties |
+
+> *_Basic fields are following:_
+> * _id_
+> * _title_
+> * _contributors_
+> * _publication_
 
 We use CQL query for search queries, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
 for more details.

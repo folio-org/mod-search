@@ -3,6 +3,7 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.utils.CollectionUtils.addToList;
 import static org.folio.search.utils.SearchUtils.SELECTED_AGG_PREFIX;
 
 import java.math.BigDecimal;
@@ -58,10 +59,8 @@ public class ElasticsearchFacetConverter {
 
   private static List<FacetItem> getFacetItemsFromSingleBucketAggregation(ParsedSingleBucketAggregation agg) {
     var facetItems = new ArrayList<FacetItem>();
-    for (var nestedAggregation : agg.getAggregations()) {
-      var startIndex = isSelectedTermsAggregation(nestedAggregation.getName()) ? 0 : facetItems.size();
-      facetItems.addAll(startIndex, getFacetItems(nestedAggregation));
-    }
+    agg.getAggregations().forEach(nestedAgg ->
+      addToList(facetItems, getFacetItems(nestedAgg), isSelectedTermsAggregation(nestedAgg.getName())));
     return facetItems;
   }
 
@@ -84,6 +83,17 @@ public class ElasticsearchFacetConverter {
     return new FacetResult().facets(facets).totalRecords(facets.size());
   }
 
+  /**
+   * Merges selected and not-selected facets in the single key.
+   *
+   * <p><i>Implementation details:</i></p>
+   * <p>Selected facets are prefixed with 'selected_' value. This method should merge facets with prefix and without it
+   * into single {@link Facet} object. A 'totalRecords' value in {@link Facet} should be recalculated too after
+   * merge.</p>
+   *
+   * @param facets map with elastic
+   * @return {@link Map} object with key as the facet name, value as the {@link Facet} object
+   */
   private static Map<String, Facet> mergeSelectedAndNormalFacets(Map<String, Facet> facets) {
     var result = new LinkedHashMap<String, Facet>();
 
@@ -91,9 +101,9 @@ public class ElasticsearchFacetConverter {
       var isSelectedAggregation = isSelectedTermsAggregation(key);
       var finalKey = isSelectedAggregation ? key.substring(SELECTED_AGG_PREFIX.length()) : key;
       var facet = result.computeIfAbsent(finalKey, v -> facet(new ArrayList<>()));
-      var startIndex = isSelectedAggregation ? 0 : facet.getValues().size();
-      facet.getValues().addAll(startIndex, value.getValues());
-      facet.setTotalRecords(facet.getTotalRecords() + value.getValues().size());
+      var facetValues = value.getValues();
+      addToList(facet.getValues(), facetValues, isSelectedAggregation);
+      facet.setTotalRecords(facet.getTotalRecords() + facetValues.size());
     });
 
     return result;

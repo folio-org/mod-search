@@ -7,6 +7,13 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * This Jackson converter is used to post-process ResourceDescription after it has been deserialized.
+ * It does following actions:
+ * * Resolves types for object/plain fields. Type must be defined in {@code fieldTypes} section of the
+ * resource description and than it can be referenced in actual type via $type: [type] property.
+ * * Builds flattened map of field path and field description pairs.
+ */
 public class PostProcessResourceDescriptionConverter extends StdConverter<ResourceDescription, ResourceDescription> {
   @Override
   public ResourceDescription convert(ResourceDescription value) {

@@ -1,6 +1,13 @@
 {
   "name": "instance",
   "languageSourcePaths": [ "$.languages" ],
+  "fieldTypes": {
+    "suppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    }
+  },
   "fields": {
     "id": {
       "index": "keyword",
@@ -178,14 +185,10 @@
       }
     },
     "staffSuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool",
-      "default": false
+      "$type": "suppress"
     },
     "discoverySuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool",
-      "default": false
+      "$type": "suppress"
     },
     "items": {
       "type": "object",
@@ -282,9 +285,7 @@
           "index": "keyword"
         },
         "discoverySuppress": {
-          "searchTypes": [ "facet", "filter" ],
-          "index": "bool",
-          "default": false
+          "$type": "suppress"
         },
         "hrid": {
           "index": "keyword"

@@ -1,5 +1,6 @@
 package org.folio.search.model.metadata;
 
+import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -18,7 +19,7 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
   @Override
   public ResourceDescription convert(ResourceDescription value) {
     resolveFieldByType(value, value.getFields());
-    value.setFlattenFields(flattenFields(value));
+    value.setFlattenFields(unmodifiableMap(flattenFields(value)));
 
     return value;
   }

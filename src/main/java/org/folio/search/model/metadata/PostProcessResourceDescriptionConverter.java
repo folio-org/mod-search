@@ -25,13 +25,15 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
 
   private void resolveFieldByType(ResourceDescription desc, Map<String, FieldDescription> fields) {
     for (var entry : fields.entrySet()) {
-      if (isNotBlank(entry.getValue().getFieldType())) {
-        entry.setValue(getFieldByType(desc, entry.getValue().getFieldType()));
+      var fieldType = entry.getValue().getFieldType();
+      if (isNotBlank(fieldType)) {
+        entry.setValue(getFieldByType(desc, fieldType));
       }
 
       // Resolve nested properties recursively
-      if (entry.getValue() instanceof ObjectFieldDescription) {
-        resolveFieldByType(desc, ((ObjectFieldDescription) entry.getValue()).getProperties());
+      var field = entry.getValue();
+      if (field instanceof ObjectFieldDescription) {
+        resolveFieldByType(desc, ((ObjectFieldDescription) field).getProperties());
       }
     }
   }

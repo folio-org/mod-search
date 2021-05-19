@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.folio.search.model.types.FieldType;
 
 @Data
@@ -33,7 +30,5 @@ public abstract class FieldDescription {
    * Pre-defined type for the field, if applicable.
    */
   @JsonProperty("$type")
-  @Getter(AccessLevel.PACKAGE)
-  @Setter(AccessLevel.PACKAGE)
   private String fieldType;
 }

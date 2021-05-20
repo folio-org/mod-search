@@ -92,7 +92,7 @@ must have at least following permissions:
 
 The data nodes Elasticsearch configuration completely depends on the data.
 If there are 7 mln of instances the configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well.
-We performed performance tests for this configuration, and it showed good results.
+The nodes were both master and data node. We performed performance tests for this configuration, and it showed good results.
 We would recommend to performing additional performance testing (try to reindex and search with different configurations)
 with different type of nodes, and see what configuration is sufficient for what data volume.
 

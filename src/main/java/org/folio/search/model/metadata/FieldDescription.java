@@ -1,5 +1,6 @@
 package org.folio.search.model.metadata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,4 +25,10 @@ public abstract class FieldDescription {
    * Field type.
    */
   private FieldType type;
+
+  /**
+   * Pre-defined type for the field, if applicable.
+   */
+  @JsonProperty("$type")
+  private String fieldType;
 }

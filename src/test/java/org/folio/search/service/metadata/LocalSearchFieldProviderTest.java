@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.metadata.PostProcessResourceDescriptionConverter;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.metadata.SearchFieldType;
@@ -38,6 +39,8 @@ class LocalSearchFieldProviderTest {
 
   @InjectMocks private LocalSearchFieldProvider searchFieldProvider;
   @Mock private LocalResourceProvider localResourceProvider;
+  private final PostProcessResourceDescriptionConverter converter =
+    new PostProcessResourceDescriptionConverter();
 
   @BeforeEach
   void setUp() {
@@ -135,8 +138,8 @@ class LocalSearchFieldProviderTest {
     assertThat(actual).isEmpty();
   }
 
-  private static List<ResourceDescription> resourceDescriptions() {
-    return List.of(
+  private List<ResourceDescription> resourceDescriptions() {
+    return List.of(converter.convert(
       resourceDescription(mapOf(
         "id", plainField("keyword", true),
         "title1", plainField("multilang", true, TITLE_SEARCH_TYPE),
@@ -150,9 +153,11 @@ class LocalSearchFieldProviderTest {
         mapOf(
           "search1", searchField(TITLE_SEARCH_TYPE),
           "search2", searchField()))
-    );
+    ));
   }
 
+  // Data provider for a test
+  @SuppressWarnings("unused")
   private static Stream<Arguments> getFieldsByPathDataProvider() {
     return Stream.of(
       arguments("id", plainField("keyword", true)),

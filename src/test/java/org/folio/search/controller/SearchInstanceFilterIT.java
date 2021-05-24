@@ -237,6 +237,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("languages==eng", array("languages:2"), mapOf(
         "languages", facet(facetItem("eng", 3), facetItem("fra", 2)))),
 
+      arguments("languages==(rus or ukr)", array("languages:4"), mapOf(
+        "languages", facet(facetItem("rus", 1), facetItem("ukr", 1), facetItem("eng", 3), facetItem("fra", 2)))),
+
       arguments("languages==(\"eng\" or \"fra\")", array("languages:5"), mapOf(
         "languages", facet(facetItem("eng", 3), facetItem("fra", 2), facetItem("ita", 2),
           facetItem("ger", 1), facetItem("rus", 1)))),

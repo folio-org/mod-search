@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.apache.commons.collections4.MapUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CollectionUtils {
+
   public static <K, V> Map<K, V> nullIfEmpty(Map<K, V> map) {
     return MapUtils.isEmpty(map) ? null : map;
   }
@@ -23,5 +25,21 @@ public final class CollectionUtils {
     }
 
     return nullIfEmpty(baseMap);
+  }
+
+  /**
+   * Adds all values from the passed list to the initial. Does nothing if initial or given list is null.
+   *
+   * @param initial initial list, where values should be added
+   * @param sourceValues list with source values
+   * @param addToTop boolean property, which specifies if values should be added to the beginning of the list or not
+   * @param <T> generic type for list values
+   */
+  public static <T> void addToList(List<T> initial, List<T> sourceValues, boolean addToTop) {
+    if (initial == null || sourceValues == null) {
+      return;
+    }
+    var startIndex = addToTop ? 0 : initial.size();
+    initial.addAll(startIndex, sourceValues);
   }
 }

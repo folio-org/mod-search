@@ -14,12 +14,12 @@ import lombok.Data;
 public class Pair<L, R> {
 
   /**
-   * Left value of pair object.
+   * First value of pair object.
    */
-  private L left;
+  private L first;
 
   /**
-   * Right value of pair object.
+   * Second value of pair object.
    */
-  private R right;
+  private R second;
 }

@@ -13,8 +13,7 @@ import org.apache.commons.lang3.SerializationException;
 import org.springframework.stereotype.Component;
 
 /**
- * A Spring component for serialization and deserialization operations basing on jackson
- * objectMapper.
+ * A Spring component for serialization and deserialization operations basing on jackson objectMapper.
  */
 @Log4j2
 @Component
@@ -190,14 +189,30 @@ public class JsonConverter {
     }
   }
 
-  public <T> T convert(Object value, TypeReference<T> type) {
+  /**
+   * Converts object value to the given type.
+   *
+   * @param value object value to convert
+   * @param type target type
+   * @param <T> generic type for target class
+   * @return converted value
+   */
+  public <T> T convert(Object value, Class<T> type) {
     if (value == null) {
       return null;
     }
     return objectMapper.convertValue(value, type);
   }
 
-  public <T> T convert(Object value, Class<T> type) {
+  /**
+   * Converts object value to the given type, specified in {@link TypeReference} object.
+   *
+   * @param value object value to convert
+   * @param type target type as {@link TypeReference} object
+   * @param <T> generic type for target class
+   * @return converted value
+   */
+  public <T> T convert(Object value, TypeReference<T> type) {
     if (value == null) {
       return null;
     }

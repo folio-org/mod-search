@@ -35,6 +35,15 @@ class SearchFieldProcessorTest {
   @Autowired SearchFieldProcessor searchFieldProcessor;
 
   @Test
+  void getSearchFields_positive_emptySearchFields() {
+    var desc = description(Instance.class, emptyMap());
+    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
+    var actual = searchFieldProcessor.getSearchFields(ctx);
+    assertThat(actual).isEqualTo(emptyMap());
+  }
+
+
+  @Test
   void getSearchFields_positive_instanceWithKeywordField() {
     var desc = description(Instance.class, mapOf(FIELD, searchField("instanceTitleProcessor", "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());

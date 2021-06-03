@@ -135,9 +135,9 @@ public class ResourceDescriptionService {
       return singletonList("Generic class for field processor not found" + errorInfo);
     }
     if (!requiredClass.isAssignableFrom(resolvedClass)) {
-      return singletonList(format("Invalid generic type in field processor, "
-          + "must be instance of '%s', resolved value was '%s'" + errorInfo,
-        requiredClass.getName(), resolvedClass.getName()));
+      return singletonList(format(
+        "Invalid generic type in field processor, must be instance of '%s', resolved value was '%s'%s",
+        requiredClass.getName(), resolvedClass.getName(), errorInfo));
     }
     return emptyList();
   }

@@ -13,7 +13,6 @@ import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,8 +61,8 @@ class ResourceFetchServiceTest {
       eventBody(INSTANCE_RESOURCE, mapOf("id", instance1.getInstance().getId(), "title", "instance1")),
       eventBody(INSTANCE_RESOURCE, mapOf("id", instance2.getInstance().getId(), "title", "instance2"))));
 
-    verify(jsonConverter).convert(eq(instance1.toInstance()), eq(MAP_TYPE_REFERENCE));
-    verify(jsonConverter).convert(eq(instance2.toInstance()), eq(MAP_TYPE_REFERENCE));
+    verify(jsonConverter).convert(instance1.toInstance(), MAP_TYPE_REFERENCE);
+    verify(jsonConverter).convert(instance2.toInstance(), MAP_TYPE_REFERENCE);
   }
 
   private static List<ResourceIdEvent> resourceIdEvents() {

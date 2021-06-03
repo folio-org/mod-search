@@ -37,7 +37,7 @@ application:
       events:
         concurrency: 1
         topics: inventory.instance,inventory.item,inventory.holdings-record
-        group-id: mod-search-events-group
+        group-id: ${ENV:folio}-mod-search-events-group
 
 server.port: 8081
 management.endpoints.web:

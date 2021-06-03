@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.SearchApplication;
+import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.TenantNotInitializedException;
@@ -75,6 +76,12 @@ class KafkaMessageListenerIT {
     assertThat(handledException)
       .isInstanceOf(TenantNotInitializedException.class)
       .hasMessage("Following tenants might not be initialized yet: [not_existent_tenant]");
+  }
+
+  @Test
+  void shouldAddEnvPrefixForConsumerGroup(@Autowired FolioKafkaProperties kafkaProperties) {
+    kafkaProperties.getListener().values().forEach(
+      listenerProperties -> assertThat(listenerProperties.getGroupId()).startsWith("folio-"));
   }
 
   private Exception runAndReturnException(Callable<?> job) {

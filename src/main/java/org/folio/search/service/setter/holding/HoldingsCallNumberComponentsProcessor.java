@@ -1,39 +1,30 @@
 package org.folio.search.service.setter.holding;
 
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
+import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.service.setter.FieldProcessor;
-import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class HoldingsCallNumberComponentsProcessor implements FieldProcessor<Set<String>> {
-  private final JsonConverter jsonConverter;
+public class HoldingsCallNumberComponentsProcessor implements FieldProcessor<Instance, Set<String>> {
 
   @Override
-  public Set<String> getFieldValue(Map<String, Object> eventBody) {
-    var holdings = jsonConverter.convert(eventBody.get("holdings"), new TypeReference<List<Holding>>() {});
-
-    if (holdings == null) {
+  public Set<String> getFieldValue(Instance instance) {
+    var holdings = instance.getHoldings();
+    if (CollectionUtils.isEmpty(holdings)) {
       return emptySet();
     }
 
     return holdings.stream()
-      .map(hr -> Stream.of(hr.getCallNumberPrefix(), hr.getCallNumber(), hr.getCallNumberSuffix())
-        .filter(StringUtils::isNotBlank)
-        .map(String::trim)
-        .collect(joining(" ")))
+      .map(hr -> getEffectiveCallNumber(hr.getCallNumberPrefix(), hr.getCallNumber(), hr.getCallNumberSuffix()))
       .filter(StringUtils::isNotBlank)
       .collect(toSet());
   }

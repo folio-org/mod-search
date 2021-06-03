@@ -2,20 +2,24 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toCollection;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid13DigitNumber;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
-import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class IsbnProcessor extends AbstractIdentifierProcessor {
   static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
-  private static final String SEP = "(?:[-\\s])";
+  private static final String SEP = "[-\\s]";
   private static final String GROUP_1 = "(\\d{1,5})";
   private static final String GROUP_2 = "(\\d{1,7})";
   private static final String GROUP_3 = "(\\d{1,6})";
@@ -37,33 +41,32 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
    * characters, second 1-7, third 1-6, and fourth is 1 digit or an X.
    */
   private static final Pattern ISBN10_REGEX = Pattern.compile(
-    "^(?:(\\d{9}[0-9X])|(?:" + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9X])))");
+    "^(?:(\\d{9}[0-9X])|(" + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9X])))");
 
   /**
    * ISBN-13 consists of 5 groups of numbers separated by either dashes (-) or spaces.  The first group is 978 or 979,
    * the second group is 1-5 characters, third 1-7, fourth 1-6, and fifth is 1 digit.
    */
   private static final Pattern ISBN13_REGEX = Pattern.compile(
-    "^(978|979)(?:(\\d{10})|(?:" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
+    "^(978|979)(?:(\\d{10})|(" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
 
   /**
    * Used by dependency injection.
    *
-   * @param jsonConverter {@link JsonConverter} bean
+   * @param cache {@link InstanceIdentifierTypeCache} bean
    */
-  public IsbnProcessor(JsonConverter jsonConverter, InstanceIdentifierTypeCache cache) {
-    super(jsonConverter, cache);
+  public IsbnProcessor(InstanceIdentifierTypeCache cache) {
+    super(cache);
   }
 
   @Override
-  public List<String> getFieldValue(Map<String, Object> eventBody) {
-    var isbnIdentifiers = new LinkedHashSet<String>();
-
-    for (var identifier : getInstanceIdentifiers(eventBody)) {
-      isbnIdentifiers.addAll(normalizeIsbn(identifier.getValue()));
-    }
-
-    return new ArrayList<>(isbnIdentifiers);
+  public Set<String> getFieldValue(Instance instance) {
+    return getInstanceIdentifiers(instance).stream()
+      .map(InstanceIdentifiers::getValue)
+      .filter(Objects::nonNull)
+      .map(this::normalizeIsbn)
+      .flatMap(Collection::stream)
+      .collect(toCollection(LinkedHashSet::new));
   }
 
   @Override

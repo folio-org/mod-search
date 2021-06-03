@@ -1,5 +1,6 @@
 package org.folio.search.service.converter;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -19,7 +20,6 @@ import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.folio.search.utils.TestUtils.searchField;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,14 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +51,7 @@ class SearchDocumentConverterTest {
   @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
   @Mock private LanguageConfigService languageConfigService;
+  @Mock private SearchFieldProcessor searchFieldProcessor;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
@@ -186,30 +186,18 @@ class SearchDocumentConverterTest {
 
   @Test
   void shouldConvertExtendedFields() {
-    Map<String, FieldProcessor<?>> setters = Map.of("testProcessor",
-      map -> MapUtils.getString(map, "baseProperty"));
-
-    documentMapper = new SearchDocumentConverter(jsonConverter, languageConfigService,
-      descriptionService, setters);
-
     var id = randomId();
-    var resourceDescription = resourceDescription(mapOf("id", keywordField(),
-      "baseProperty", keywordField()));
-    resourceDescription.setSearchFields(Map.of("extendedField",
-      searchField("testProcessor")));
-
-    var resourceEventBody = eventBody(RESOURCE_NAME, mapOf("id", id,
-      "baseProperty", "base property value"));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    var desc = resourceDescription(mapOf("id", keywordField(), "base", keywordField()));
+    var resourceData = TestUtils.<String, Object>mapOf("id", id, "base", "base value");
+    var resourceEventBody = eventBody(RESOURCE_NAME, resourceData);
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
+    var expectedContext = ConversionContext.of(TENANT_ID, resourceData, desc, emptyList());
+    when(searchFieldProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));
 
     var actual = convert(resourceEventBody);
 
-    var expectedJson = asJsonString(jsonObject("id", id,
-      "baseProperty", "base property value",
-      "extendedField", "base property value"));
-
-    assertThat(actual)
-      .isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson, INDEX));
+    var expectedJson = asJsonString(jsonObject("id", id, "base", "base value", "generated", "generated value"));
+    assertThat(actual).isEqualTo(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, expectedJson, INDEX));
   }
 
   @Test

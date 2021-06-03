@@ -28,6 +28,11 @@ public class ResourceDescription {
   private String index;
 
   /**
+   * Related java class for event body.
+   */
+  private Class<?> eventBodyJavaClass;
+
+  /**
    * Contains list of json path expressions to extract languages values in ISO-639 format.
    */
   private List<String> languageSourcePaths = Collections.emptyList();

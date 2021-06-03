@@ -1,65 +1,44 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toCollection;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.service.setter.FieldProcessor;
-import org.folio.search.utils.JsonConverter;
 
 @RequiredArgsConstructor
-public abstract class AbstractTagsProcessor implements FieldProcessor<List<String>> {
-
-  protected static final TypeReference<Tags> TAGS_TYPE_REFERENCE = new TypeReference<>() {};
-  protected final JsonConverter jsonConverter;
+public abstract class AbstractTagsProcessor implements FieldProcessor<Instance, Set<String>> {
 
   @Override
-  public List<String> getFieldValue(Map<String, Object> eventBody) {
-    return getTags(eventBody).stream()
+  public Set<String> getFieldValue(Instance instance) {
+    return getTagsValuesAsStream(instance)
       .filter(StringUtils::isNotBlank)
-      .map(StringUtils::trim)
-      .distinct()
-      .collect(toList());
+      .map(String::trim)
+      .collect(toCollection(LinkedHashSet::new));
   }
 
   /**
    * Returns list of tags from event body.
    *
-   * @param eventBody resource event body as {@link Map}
+   * @param instance resource event body as {@link Map}
    * @return list with tag values
    */
-  protected abstract List<String> getTags(Map<String, Object> eventBody);
+  protected abstract Stream<Tags> getTags(Instance instance);
 
-  protected List<String> getTagsAsObjectFromValueByKey(Map<String, Object> eventBody, String key) {
-    return getValueAsList(eventBody, key).stream()
-      .map(this::getTagFromInnerResource)
-      .flatMap(Collection::stream)
-      .collect(toList());
-  }
-
-  @SuppressWarnings("unchecked")
-  private static List<Object> getValueAsList(Map<String, Object> eventBody, String key) {
-    if (eventBody == null) {
-      return emptyList();
-    }
-    var value = eventBody.get(key);
-    return (value instanceof List) ? (List<Object>) value : emptyList();
-  }
-
-  private List<String> getTagFromInnerResource(Object resourceValue) {
-    if (!(resourceValue instanceof Map)) {
-      return emptyList();
-    }
-    var tagsValue = ((Map<?, ?>) resourceValue).get("tags");
-    return Optional.ofNullable(jsonConverter.convert(tagsValue, TAGS_TYPE_REFERENCE))
+  private Stream<String> getTagsValuesAsStream(Instance instance) {
+    return getTags(instance)
+      .filter(Objects::nonNull)
       .map(Tags::getTagList)
-      .orElse(emptyList());
+      .filter(CollectionUtils::isNotEmpty)
+      .flatMap(Collection::stream);
   }
 }

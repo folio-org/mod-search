@@ -1,28 +1,21 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.MapUtils;
-import org.folio.search.domain.dto.InstanceContributors;
+import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.service.setter.FieldProcessor;
-import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public final class SortContributorsProcessor implements FieldProcessor<String> {
-  private final JsonConverter jsonConverter;
+public final class SortContributorsProcessor implements FieldProcessor<Instance, String> {
 
   @Override
-  public String getFieldValue(Map<String, Object> eventBody) {
-    final var contributors = getContributors(eventBody);
-    if (contributors.isEmpty()) {
+  public String getFieldValue(Instance instance) {
+    var contributors = instance.getContributors();
+    if (CollectionUtils.isEmpty(contributors)) {
       return null;
     }
 
@@ -32,13 +25,5 @@ public final class SortContributorsProcessor implements FieldProcessor<String> {
       .orElse(contributors.get(0));
 
     return mainContributor.getName();
-  }
-
-  private List<InstanceContributors> getContributors(Map<String, Object> eventBody) {
-    final var contributors = MapUtils.getObject(eventBody, "contributors");
-
-    return ofNullable(jsonConverter.convert(contributors,
-      new TypeReference<List<InstanceContributors>>() {}))
-      .orElse(emptyList());
   }
 }

@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
@@ -18,9 +19,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -29,10 +33,12 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.SearchResult;
+import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -95,7 +101,7 @@ public class TestUtils {
     return rq;
   }
 
-  public static CqlFacetServiceRequest facetServiceRequest(String query, String...facets) {
+  public static CqlFacetServiceRequest facetServiceRequest(String query, String... facets) {
     var request = new CqlFacetServiceRequest();
     request.setQuery(query);
     request.setResource(INSTANCE_RESOURCE);
@@ -137,6 +143,11 @@ public class TestUtils {
       map.put((K) key, (V) value);
     }
     return map;
+  }
+
+  @SafeVarargs
+  public static <T> Set<T> setOf(T... values) {
+    return Arrays.stream(values).collect(toCollection(LinkedHashSet::new));
   }
 
   @SafeVarargs
@@ -184,7 +195,7 @@ public class TestUtils {
     return fieldDescription;
   }
 
-  public static PlainFieldDescription keywordField(SearchType ... searchTypes) {
+  public static PlainFieldDescription keywordField(SearchType... searchTypes) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setType(PLAIN);
     fieldDescription.setIndex("keyword");
@@ -268,5 +279,17 @@ public class TestUtils {
 
   public static LanguageConfigs languageConfigs(List<LanguageConfig> configs) {
     return new LanguageConfigs().languageConfigs(configs).totalRecords(configs.size());
+  }
+
+  public static Tags tags(String... tagValues) {
+    return new Tags().tagList(tagValues != null ? asList(tagValues) : null);
+  }
+
+  public static InstanceIdentifiers identifier(String id, String value) {
+    return new InstanceIdentifiers().identifierTypeId(id).value(value);
+  }
+
+  public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
+    return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 }

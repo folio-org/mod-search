@@ -1,13 +1,20 @@
 package org.folio.search.utils;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
 import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.service.ResourceIdEvent;
+import org.folio.search.service.converter.ConversionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -101,5 +108,41 @@ public class SearchUtils {
     return dotIndex < 0
       ? PLAIN_MULTILANG_PREFIX + path
       : path.substring(0, dotIndex) + DOT + PLAIN_MULTILANG_PREFIX + path.substring(dotIndex + 1);
+  }
+
+  /**
+   * Creates call number for passed prefix, call number and suffix.
+   *
+   * @param prefix call number prefix
+   * @param callNumber call number value
+   * @param suffix call number suffix
+   * @return created effective call number as {@link String} value
+   */
+  public static String getEffectiveCallNumber(String prefix, String callNumber, String suffix) {
+    return Stream.of(prefix, callNumber, suffix)
+      .filter(StringUtils::isNotBlank)
+      .map(String::trim)
+      .collect(joining(" "));
+  }
+
+  /**
+   * Generates multi-language field value for passed key, value and conversion context with supported languages.
+   *
+   * @param key name of multi-language field as {@link String} object
+   * @param value multi-language field value as {@link Object} object
+   * @param ctx conversion context with languages as {@link ConversionContext} object
+   * @return created multi-language value as {@link Map}
+   */
+  public static Map<String, Object> getMultilangValue(String key, Object value, ConversionContext ctx) {
+    var multilangValueMap = new LinkedHashMap<String, Object>();
+    var languages = ctx.getLanguages();
+    languages.forEach(language -> multilangValueMap.put(language, value));
+    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, value);
+
+    var resultMap = new LinkedHashMap<String, Object>(2);
+    resultMap.put(key, multilangValueMap);
+    resultMap.put(PLAIN_MULTILANG_PREFIX + key, value);
+
+    return resultMap;
   }
 }

@@ -4,13 +4,12 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
@@ -52,7 +51,7 @@ public class ResourceFetchService {
 
       return instanceResultList.getResult().stream()
         .map(InventoryViewClient.InstanceView::toInstance)
-        .map(instance -> jsonConverter.convert(instance, new TypeReference<Map<String, Object>>() {}))
+        .map(instance -> jsonConverter.convert(instance, MAP_TYPE_REFERENCE))
         .map(instanceMap -> new ResourceEventBody()._new(instanceMap).tenant(tenantId)
           .resourceName(INSTANCE_RESOURCE).type(TypeEnum.CREATE))
         .collect(toList());

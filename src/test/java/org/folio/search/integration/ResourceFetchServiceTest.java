@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -61,8 +62,8 @@ class ResourceFetchServiceTest {
       eventBody(INSTANCE_RESOURCE, mapOf("id", instance1.getInstance().getId(), "title", "instance1")),
       eventBody(INSTANCE_RESOURCE, mapOf("id", instance2.getInstance().getId(), "title", "instance2"))));
 
-    verify(jsonConverter).convert(eq(instance1.toInstance()), any());
-    verify(jsonConverter).convert(eq(instance2.toInstance()), any());
+    verify(jsonConverter).convert(eq(instance1.toInstance()), eq(MAP_TYPE_REFERENCE));
+    verify(jsonConverter).convert(eq(instance2.toInstance()), eq(MAP_TYPE_REFERENCE));
   }
 
   private static List<ResourceIdEvent> resourceIdEvents() {

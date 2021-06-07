@@ -8,10 +8,12 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 
 import java.io.IOException;
+import java.util.List;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
@@ -92,5 +94,14 @@ class SearchUtilsTest {
   void getPathToPlainMultilangValue_parameterized(String given, String expected) {
     var actual = SearchUtils.getPathToPlainMultilangValue(given);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void getMultilangValue_positive() {
+    var value = "value";
+    var actual = SearchUtils.getMultilangValue("field", value, List.of("eng", "ger"));
+    assertThat(actual).isEqualTo(mapOf(
+      "field", mapOf("eng", value, "ger", value, "src", value),
+      "plain_field", value));
   }
 }

@@ -55,7 +55,6 @@ class LocalFileProviderTest {
     verify(jsonConverter).readJson(any(InputStream.class), eq(TestType.class));
   }
 
-
   @Test
   void readAsObjectForType_positive() {
     var actual = resourceService.readAsObject("test-resources/test-json.json", MAP_TYPE_REFERENCE);

@@ -51,7 +51,7 @@ class SearchDocumentConverterTest {
   @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;
   @Mock private LanguageConfigService languageConfigService;
-  @Mock private SearchFieldProcessor searchFieldProcessor;
+  @Mock private SearchFieldsProcessor searchFieldsProcessor;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
@@ -192,7 +192,7 @@ class SearchDocumentConverterTest {
     var resourceEventBody = eventBody(RESOURCE_NAME, resourceData);
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
     var expectedContext = ConversionContext.of(TENANT_ID, resourceData, desc, emptyList());
-    when(searchFieldProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));
+    when(searchFieldsProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));
 
     var actual = convert(resourceEventBody);
 

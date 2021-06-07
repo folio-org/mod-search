@@ -5,6 +5,7 @@ import static java.util.Collections.singletonMap;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,10 +18,9 @@ import org.springframework.stereotype.Component;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class SearchFieldProcessor {
+public class SearchFieldsProcessor {
 
-  @SuppressWarnings("rawtypes")
-  private final Map<String, FieldProcessor> fieldProcessors;
+  private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
   private final JsonConverter jsonConverter;
 
   public Map<String, Object> getSearchFields(ConversionContext ctx) {
@@ -34,19 +34,20 @@ public class SearchFieldProcessor {
     var resourceObject = resourceClass != null ? jsonConverter.convert(data, resourceClass) : data;
 
     var resultMap = new LinkedHashMap<String, Object>();
-    searchFields.forEach((name, desc) -> resultMap.putAll(getSearchFieldValue(resourceObject, ctx, name, desc)));
+    var languages = ctx.getLanguages();
+    searchFields.forEach((name, desc) -> resultMap.putAll(getSearchFieldValue(resourceObject, languages, name, desc)));
     return resultMap;
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> getSearchFieldValue(Object resourceObject, ConversionContext ctx,
-    String name, SearchFieldDescriptor descriptor) {
-    var fieldProcessor = fieldProcessors.get(descriptor.getProcessor());
+  private Map<String, Object> getSearchFieldValue(
+    Object resource, List<String> languages, String name, SearchFieldDescriptor descriptor) {
 
+    var fieldProcessor = (FieldProcessor<Object, ?>) fieldProcessors.get(descriptor.getProcessor());
     try {
-      var value = fieldProcessor.getFieldValue(resourceObject);
+      var value = fieldProcessor.getFieldValue(resource);
       if (value != null) {
-        return descriptor.isMultilang() ? getMultilangValue(name, value, ctx) : singletonMap(name, value);
+        return descriptor.isMultilang() ? getMultilangValue(name, value, languages) : singletonMap(name, value);
       }
     } catch (Exception e) {
       log.warn("Failed to retrieve field value", e);

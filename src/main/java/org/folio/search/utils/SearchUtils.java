@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.stream.Collectors.joining;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
 import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.search.service.converter.ConversionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -130,12 +130,11 @@ public class SearchUtils {
    *
    * @param key name of multi-language field as {@link String} object
    * @param value multi-language field value as {@link Object} object
-   * @param ctx conversion context with languages as {@link ConversionContext} object
+   * @param languages list of languages for multilang field
    * @return created multi-language value as {@link Map}
    */
-  public static Map<String, Object> getMultilangValue(String key, Object value, ConversionContext ctx) {
+  public static Map<String, Object> getMultilangValue(String key, Object value, List<String> languages) {
     var multilangValueMap = new LinkedHashMap<String, Object>();
-    var languages = ctx.getLanguages();
     languages.forEach(language -> multilangValueMap.put(language, value));
     multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, value);
 

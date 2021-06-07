@@ -15,7 +15,7 @@ import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.service.converter.SearchFieldProcessorTest.TestContextConfiguration;
+import org.folio.search.service.converter.SearchFieldsProcessorTest.TestContextConfiguration;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
@@ -28,26 +28,25 @@ import org.springframework.context.annotation.Import;
 
 @UnitTest
 @Import(TestContextConfiguration.class)
-@SpringBootTest(classes = SearchFieldProcessor.class, webEnvironment = NONE)
-class SearchFieldProcessorTest {
+@SpringBootTest(classes = SearchFieldsProcessor.class, webEnvironment = NONE)
+class SearchFieldsProcessorTest {
 
   private static final String FIELD = "generated";
-  @Autowired SearchFieldProcessor searchFieldProcessor;
+  @Autowired SearchFieldsProcessor searchFieldsProcessor;
 
   @Test
   void getSearchFields_positive_emptySearchFields() {
     var desc = description(Instance.class, emptyMap());
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(emptyMap());
   }
-
 
   @Test
   void getSearchFields_positive_instanceWithKeywordField() {
     var desc = description(Instance.class, mapOf(FIELD, searchField("instanceTitleProcessor", "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(mapOf(FIELD, "instance_title"));
   }
 
@@ -55,18 +54,19 @@ class SearchFieldProcessorTest {
   void getSearchFields_positive_instanceWithMultilangField() {
     var searchField = searchField("instanceTitleProcessor", MULTILANG_FIELD_TYPE);
     var desc = description(Instance.class, mapOf(FIELD, searchField));
-    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, singletonList("eng"));
+    var languages = singletonList("eng");
+    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, languages);
 
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
 
-    assertThat(actual).isEqualTo(getMultilangValue(FIELD, "instance_title", ctx));
+    assertThat(actual).isEqualTo(getMultilangValue(FIELD, "instance_title", languages));
   }
 
   @Test
   void getSearchFields_positive_testClass() {
     var desc = description(TestClass.class, mapOf(FIELD, searchField("testClassProcessor", "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(mapOf(FIELD, "test_class_value"));
   }
 
@@ -74,7 +74,7 @@ class SearchFieldProcessorTest {
   void getSearchFields_positive_rawMapResource() {
     var desc = description(null, mapOf(FIELD, searchField("mapFieldProcessor", "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(mapOf(FIELD, "map_field"));
   }
 
@@ -82,7 +82,7 @@ class SearchFieldProcessorTest {
   void getSearchFields_negative_rawMapResourceWithInvalidProcessor() {
     var desc = description(null, mapOf(FIELD, searchField("testClassProcessor", "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
-    var actual = searchFieldProcessor.getSearchFields(ctx);
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(emptyMap());
   }
 

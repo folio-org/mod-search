@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 public class SearchDocumentConverter {
 
   private final JsonConverter jsonConverter;
-  private final SearchFieldProcessor searchFieldProcessor;
+  private final SearchFieldsProcessor searchFieldsProcessor;
   private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService descriptionService;
 
@@ -57,7 +57,7 @@ public class SearchDocumentConverter {
     var resourceData = context.getResourceData();
     var resourceDescriptionFields = context.getResourceDescription().getFields();
     var baseFields = convertMapUsingResourceFields(resourceData, resourceDescriptionFields, context);
-    var searchFields = searchFieldProcessor.getSearchFields(context);
+    var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
 
     return SearchDocumentBody.builder()
@@ -123,7 +123,7 @@ public class SearchDocumentConverter {
     if (value == null) {
       return emptyMap();
     }
-    return desc.isMultilang() ? getMultilangValue(fieldName, value, ctx) : singletonMap(fieldName, value);
+    return desc.isMultilang() ? getMultilangValue(fieldName, value, ctx.getLanguages()) : singletonMap(fieldName, value);
   }
 
   @SuppressWarnings("unchecked")

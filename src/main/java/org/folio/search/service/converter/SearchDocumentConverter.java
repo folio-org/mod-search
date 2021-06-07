@@ -114,16 +114,17 @@ public class SearchDocumentConverter {
 
   private static Map<String, Object> getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
-    var fieldName = fieldEntry.getKey();
+    var name = fieldEntry.getKey();
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (desc.isNotIndexed()) {
       return emptyMap();
     }
-    var value = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
+
+    var value = MapUtils.getObject(fieldData, name, desc.getDefaultValue());
     if (value == null) {
       return emptyMap();
     }
-    return desc.isMultilang() ? getMultilangValue(fieldName, value, ctx.getLanguages()) : singletonMap(fieldName, value);
+    return desc.isMultilang() ? getMultilangValue(name, value, ctx.getLanguages()) : singletonMap(name, value);
   }
 
   @SuppressWarnings("unchecked")

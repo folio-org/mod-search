@@ -240,6 +240,26 @@
         "value": "9092"
       },
       {
+        "name": "KAFKA_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT"
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_LOCATION",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_PASSWORD",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_LOCATION",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD",
+        "value": ""
+      },
+      {
         "name": "ELASTICSEARCH_HOST",
         "value": "elasticsearch"
       },

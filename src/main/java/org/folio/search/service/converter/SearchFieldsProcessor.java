@@ -23,6 +23,12 @@ public class SearchFieldsProcessor {
   private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
   private final JsonConverter jsonConverter;
 
+  /**
+   * Provides search fields as {@link Map} for given resource in the {@link ConversionContext} object.
+   *
+   * @param ctx resource conversion context as {@link ConversionContext} object
+   * @return map with retrieved search fields
+   */
   public Map<String, Object> getSearchFields(ConversionContext ctx) {
     var resourceDescription = ctx.getResourceDescription();
     var searchFields = resourceDescription.getSearchFields();
@@ -34,8 +40,8 @@ public class SearchFieldsProcessor {
     var resourceObject = resourceClass != null ? jsonConverter.convert(data, resourceClass) : data;
 
     var resultMap = new LinkedHashMap<String, Object>();
-    var languages = ctx.getLanguages();
-    searchFields.forEach((name, desc) -> resultMap.putAll(getSearchFieldValue(resourceObject, languages, name, desc)));
+    searchFields.forEach((name, desc) -> resultMap.putAll(
+      getSearchFieldValue(resourceObject, ctx.getLanguages(), name, desc)));
     return resultMap;
   }
 

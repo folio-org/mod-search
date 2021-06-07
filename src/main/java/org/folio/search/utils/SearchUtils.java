@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
@@ -28,6 +29,7 @@ public class SearchUtils {
   public static final String DOT = ".";
 
   public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
+  public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
@@ -134,14 +136,25 @@ public class SearchUtils {
    * @return created multi-language value as {@link Map}
    */
   public static Map<String, Object> getMultilangValue(String key, Object value, List<String> languages) {
-    var multilangValueMap = new LinkedHashMap<String, Object>();
+    var multilangValueMap = new LinkedHashMap<String, Object>(languages.size(), CONST_SIZE_LOAD_FACTOR);
     languages.forEach(language -> multilangValueMap.put(language, value));
     multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, value);
 
-    var resultMap = new LinkedHashMap<String, Object>(2);
+    var resultMap = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     resultMap.put(key, multilangValueMap);
     resultMap.put(PLAIN_MULTILANG_PREFIX + key, value);
 
     return resultMap;
+  }
+
+  /**
+   * Returns nullableList if it is not null or empty, defaultList otherwise.
+   *
+   * @param nullableList nullable value to check
+   * @param <T> generic type for value
+   * @return nullableList if it is not null or empty, defaultList otherwise.
+   */
+  public static <T> Stream<T> toSafeStream(List<T> nullableList) {
+    return CollectionUtils.isNotEmpty(nullableList) ? nullableList.stream() : Stream.empty();
   }
 }

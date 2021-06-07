@@ -1,8 +1,7 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.folio.search.utils.SearchUtils.toSafeStream;
 
 import java.util.List;
 import java.util.Set;
@@ -24,14 +23,9 @@ public abstract class AbstractIdentifierProcessor implements FieldProcessor<Inst
    * @return {@link List} of {@link InstanceIdentifiers} objects
    */
   protected List<InstanceIdentifiers> getInstanceIdentifiers(Instance instance) {
-    var instanceIdentifiers = instance.getIdentifiers();
-    if (isEmpty(instanceIdentifiers)) {
-      return emptyList();
-    }
-
     var identifierTypeIds = identifierTypeCache.fetchIdentifierIds(getIdentifierNames());
-    return instanceIdentifiers.stream()
-      .filter(instanceIdentifier -> identifierTypeIds.contains(instanceIdentifier.getIdentifierTypeId()))
+    return toSafeStream(instance.getIdentifiers())
+      .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
       .collect(toList());
   }
 

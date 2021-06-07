@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.holding;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.folio.search.utils.SearchUtils.toSafeStream;
 
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Holding;
@@ -14,7 +14,6 @@ public class HoldingTagsProcessor extends AbstractTagsProcessor {
 
   @Override
   protected Stream<Tags> getTags(Instance instance) {
-    var holdings = instance.getHoldings();
-    return isNotEmpty(holdings) ? holdings.stream().map(Holding::getTags) : Stream.empty();
+    return toSafeStream(instance.getHoldings()).map(Holding::getTags);
   }
 }

@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
 
@@ -72,7 +71,7 @@ public class SearchDocumentConverter {
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
     var supportedLanguages = languageConfigService.getAllLanguageCodes();
     return languageSource.stream()
-      .map(sourcePath -> getMapValueByPath(sourcePath, resourceData))
+      .map(sourcePath -> SearchConverterUtils.getMapValueByPath(sourcePath, resourceData))
       .flatMap(SearchConverterUtils::getStringStreamFromValue)
       .distinct()
       .filter(supportedLanguages::contains)
@@ -114,17 +113,19 @@ public class SearchDocumentConverter {
 
   private static Map<String, Object> getPlainFieldValue(Map<String, Object> fieldData,
     Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
-    var name = fieldEntry.getKey();
+    var fieldName = fieldEntry.getKey();
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (desc.isNotIndexed()) {
       return emptyMap();
     }
 
-    var value = MapUtils.getObject(fieldData, name, desc.getDefaultValue());
-    if (value == null) {
+    var plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
+    if (plainFieldValue == null) {
       return emptyMap();
     }
-    return desc.isMultilang() ? getMultilangValue(name, value, ctx.getLanguages()) : singletonMap(name, value);
+    return desc.isMultilang()
+      ? getMultilangValue(fieldName, plainFieldValue, ctx.getLanguages())
+      : singletonMap(fieldName, plainFieldValue);
   }
 
   @SuppressWarnings("unchecked")

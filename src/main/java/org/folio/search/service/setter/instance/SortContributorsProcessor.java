@@ -19,11 +19,10 @@ public final class SortContributorsProcessor implements FieldProcessor<Instance,
       return null;
     }
 
-    final var mainContributor = contributors.stream()
+    return contributors.stream()
       .filter(contributor -> isTrue(contributor.getPrimary()))
       .findFirst()
-      .orElse(contributors.get(0));
-
-    return mainContributor.getName();
+      .orElse(contributors.get(0))
+      .getName();
   }
 }

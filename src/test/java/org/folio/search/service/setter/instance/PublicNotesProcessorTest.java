@@ -1,58 +1,52 @@
 package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import org.folio.search.utils.JsonConverter;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceNotes;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@ExtendWith(MockitoExtension.class)
 class PublicNotesProcessorTest {
+  private final PublicNotesProcessor publicNotesProcessor = new PublicNotesProcessor();
 
-  @InjectMocks private PublicNotesProcessor publicNotesProcessor;
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
-
-  @MethodSource("testDataProvider")
-  @DisplayName("should extract public notes from incoming event body")
-  @ParameterizedTest(name = "[{index}] resourceBody={0}, expected={1}")
-  void shouldExtractOnlyPublicNotes(Map<String, Object> eventBody, List<String> expected) {
+  @MethodSource("notesDataProvider")
+  @DisplayName("getFieldValue_parameterized")
+  @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
+  void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance eventBody, List<String> expected) {
     var actual = publicNotesProcessor.getFieldValue(eventBody);
-    assertThat(actual).isEqualTo(expected);
-    if (eventBody.get("notes") != null) {
-      verify(jsonConverter).convert(eq(eventBody.get("notes")), any());
-    }
+    assertThat(actual).containsExactlyElementsOf(expected);
   }
 
-  private static Stream<Arguments> testDataProvider() {
+  private static Stream<Arguments> notesDataProvider() {
     return Stream.of(
-      arguments(mapOf("notes", List.of(mapOf("note", "value"))), List.of("value")),
-      arguments(mapOf("notes", List.of(mapOf("staffOnly", false, "note", "value"))), List.of("value")),
-      arguments(mapOf("notes", List.of(mapOf("staffOnly", null, "note", "value"))), List.of("value")),
-      arguments(mapOf("notes", List.of(mapOf("staffOnly", true, "note", "value"))), emptyList()),
-      arguments(mapOf("notes", List.of(mapOf("staffOnly", false))), emptyList()),
-      arguments(mapOf("id", randomId()), emptyList()),
-      arguments(mapOf("id", randomId(), "notes", null), emptyList()),
-      arguments(mapOf("id", randomId(), "notes", emptyList()), emptyList()),
-      arguments(mapOf("notes", mapOf("staffOnly", true, "note", "value")), emptyList())
+      arguments("all empty fields", new Instance(), emptyList()),
+      arguments("empty notes", instanceWithNotes(), emptyList()),
+      arguments("null notes", instanceWithNotes((InstanceNotes) null), emptyList()),
+      arguments("null value in notes", instanceWithNotes((InstanceNotes[]) null), emptyList()),
+      arguments("note(staffOnly=null)", instanceWithNotes(note("value", null)), List.of("value")),
+      arguments("note(staffOnly=false)", instanceWithNotes(note("value", false)), List.of("value")),
+      arguments("2 notes(staffOnly=false and null)",
+        instanceWithNotes(note("value1", null), note("value2", false)), List.of("value1", "value2")),
+      arguments("note(staffOnly=true)", instanceWithNotes(note("value", true)), emptyList()),
+      arguments("note(value=null,staffOnly=false)", instanceWithNotes(note(null, false)), emptyList())
     );
+  }
+
+  private static Instance instanceWithNotes(InstanceNotes... notes) {
+    return new Instance().notes(notes != null ? Arrays.asList(notes) : null);
+  }
+
+  private static InstanceNotes note(String value, Boolean staffOnly) {
+    return new InstanceNotes().note(value).staffOnly(staffOnly);
   }
 }

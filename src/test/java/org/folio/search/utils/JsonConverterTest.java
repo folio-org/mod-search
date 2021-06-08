@@ -3,7 +3,9 @@ package org.folio.search.utils;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,8 +32,8 @@ class JsonConverterTest {
 
   private static final String JSON_BODY = "{\"field\":\"value\"}";
   private static final String WRONG_JSON_BODY = "{\"field\":value}";
-  private static final TypeReference<Map<String, String>> MAP_TYPE = new TypeReference<>() {};
   private static final String FIELD_VALUE = "value";
+
   @Spy private final ObjectMapper objectMapper = new ObjectMapper();
   @InjectMocks private JsonConverter jsonConverter;
 
@@ -79,20 +81,20 @@ class JsonConverterTest {
 
   @Test
   void fromJsonForType_positive() throws JsonProcessingException {
-    var actual = jsonConverter.fromJson(JSON_BODY, MAP_TYPE);
+    var actual = jsonConverter.fromJson(JSON_BODY, MAP_TYPE_REFERENCE);
     assertThat(actual).isEqualTo(Map.of("field", FIELD_VALUE));
-    verify(objectMapper).readValue(JSON_BODY, MAP_TYPE);
+    verify(objectMapper).readValue(JSON_BODY, MAP_TYPE_REFERENCE);
   }
 
   @Test
   void fromJsonForType_positive_null() {
-    var actual = jsonConverter.fromJson(null, MAP_TYPE);
+    var actual = jsonConverter.fromJson(null, MAP_TYPE_REFERENCE);
     assertThat(actual).isNull();
   }
 
   @Test
   void fromJsonForType_negative_throwsException() {
-    assertThatThrownBy(() -> jsonConverter.fromJson(WRONG_JSON_BODY, MAP_TYPE))
+    assertThatThrownBy(() -> jsonConverter.fromJson(WRONG_JSON_BODY, MAP_TYPE_REFERENCE))
       .isInstanceOf(SerializationException.class)
       .hasMessageContaining("Failed to deserialize value");
   }
@@ -122,21 +124,21 @@ class JsonConverterTest {
   @Test
   void fromJsonInputStreamForType_positive() throws IOException {
     InputStream is = new ByteArrayInputStream(JSON_BODY.getBytes(UTF_8));
-    var actual = jsonConverter.readJson(is, MAP_TYPE);
+    var actual = jsonConverter.readJson(is, MAP_TYPE_REFERENCE);
     assertThat(actual).isEqualTo(Map.of("field", FIELD_VALUE));
-    verify(objectMapper).readValue(is, MAP_TYPE);
+    verify(objectMapper).readValue(is, MAP_TYPE_REFERENCE);
   }
 
   @Test
   void fromJsonInputStreamForType_positive_null() {
-    var actual = jsonConverter.readJson(null, MAP_TYPE);
+    var actual = jsonConverter.readJson(null, MAP_TYPE_REFERENCE);
     assertThat(actual).isNull();
   }
 
   @Test
   void fromJsonInputStreamForType_negative_throwsException() {
     InputStream is = new ByteArrayInputStream(WRONG_JSON_BODY.getBytes(UTF_8));
-    assertThatThrownBy(() -> jsonConverter.readJson(is, MAP_TYPE))
+    assertThatThrownBy(() -> jsonConverter.readJson(is, MAP_TYPE_REFERENCE))
       .isInstanceOf(SerializationException.class)
       .hasMessageContaining("Failed to deserialize value");
   }
@@ -211,16 +213,38 @@ class JsonConverterTest {
     assertThat(actual).isFalse();
   }
 
+  @Test
+  void convert_positive_class() {
+    var actual = jsonConverter.convert(mapOf("field", FIELD_VALUE), TestClass.class);
+    assertThat(actual).isEqualTo(TestClass.of(FIELD_VALUE));
+  }
+
+  @Test
+  void convert_positive_classNullValue() {
+    var actual = jsonConverter.convert(null, TestClass.class);
+    assertThat(actual).isNull();
+  }
+
+  @Test
+  void convert_positive_typeReference() {
+    var actual = jsonConverter.convert(mapOf("field", FIELD_VALUE), new TypeReference<TestClass>() {});
+    assertThat(actual).isEqualTo(TestClass.of(FIELD_VALUE));
+  }
+
+  @Test
+  void convert_positive_typeReferenceNullValue() {
+    var actual = jsonConverter.convert(null, new TypeReference<TestClass>() {});
+    assertThat(actual).isNull();
+  }
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor(staticName = "of")
   private static class TestClass {
-
     private String field;
   }
 
   private static class NonSerializableByJacksonClass {
-
     private final NonSerializableByJacksonClass self = this;
 
     @SuppressWarnings("unused")

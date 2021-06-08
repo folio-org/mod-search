@@ -1,7 +1,18 @@
 package org.folio.search.service.setter;
 
-import java.util.Map;
+/**
+ * Generic interface for field processors.
+ *
+ * @param <T> generic type for input value
+ * @param <R> generic type for return value
+ */
+public interface FieldProcessor<T, R> {
 
-public interface FieldProcessor<T> {
-  T getFieldValue(Map<String, Object> eventBody);
+  /**
+   * Extract field value as {@link T} from {@link R} event body.
+   *
+   * @param eventBody event body as {@link R} object
+   * @return extracted value as {@link T} object
+   */
+  R getFieldValue(T eventBody);
 }

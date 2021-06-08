@@ -6,24 +6,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
 import org.springframework.stereotype.Component;
 
 /**
- * A Spring component for serialization and deserialization operations basing on jackson
- * objectMapper.
+ * A Spring component for serialization and deserialization operations basing on jackson objectMapper.
  */
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class JsonConverter {
 
-  public static final String SERIALIZATION_ERROR_MSG_TEMPLATE =
-    "Failed to serialize value [message: %s]";
-  public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE =
-    "Failed to deserialize value [value: {}]";
+  public static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<>() {};
+  public static final String SERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to serialize value [message: %s]";
+  public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to deserialize value [value: {}]";
 
   private final ObjectMapper objectMapper;
 
@@ -190,6 +189,29 @@ public class JsonConverter {
     }
   }
 
+  /**
+   * Converts object value to the given type.
+   *
+   * @param value object value to convert
+   * @param type target type
+   * @param <T> generic type for target class
+   * @return converted value
+   */
+  public <T> T convert(Object value, Class<T> type) {
+    if (value == null) {
+      return null;
+    }
+    return objectMapper.convertValue(value, type);
+  }
+
+  /**
+   * Converts object value to the given type, specified in {@link TypeReference} object.
+   *
+   * @param value object value to convert
+   * @param type target type as {@link TypeReference} object
+   * @param <T> generic type for target class
+   * @return converted value
+   */
   public <T> T convert(Object value, TypeReference<T> type) {
     if (value == null) {
       return null;

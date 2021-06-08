@@ -1,13 +1,13 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.InputStream;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -55,13 +55,11 @@ class LocalFileProviderTest {
     verify(jsonConverter).readJson(any(InputStream.class), eq(TestType.class));
   }
 
-
   @Test
   void readAsObjectForType_positive() {
-    var mapType = new TypeReference<Map<String, String>>() {};
-    var actual = resourceService.readAsObject("test-resources/test-json.json", mapType);
+    var actual = resourceService.readAsObject("test-resources/test-json.json", MAP_TYPE_REFERENCE);
     assertThat(actual).isEqualTo(Map.of("key", "value"));
-    verify(jsonConverter).readJson(any(InputStream.class), eq(mapType));
+    verify(jsonConverter).readJson(any(InputStream.class), eq(MAP_TYPE_REFERENCE));
   }
 
   @Data

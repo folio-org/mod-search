@@ -6,17 +6,14 @@ import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getMultilangValue;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -25,10 +22,8 @@ import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
 import org.springframework.stereotype.Component;
@@ -39,9 +34,9 @@ import org.springframework.stereotype.Component;
 public class SearchDocumentConverter {
 
   private final JsonConverter jsonConverter;
+  private final SearchFieldsProcessor searchFieldsProcessor;
   private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService descriptionService;
-  private final Map<String, FieldProcessor<?>> fieldProcessors;
 
   /**
    * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
@@ -57,23 +52,16 @@ public class SearchDocumentConverter {
       .collect(toList());
   }
 
-  /**
-   * Converts single {@link ResourceEventBody} object to the {@link SearchDocumentBody} object with all required data
-   * for elasticsearch index operation.
-   *
-   * @param context - conversion context.
-   * @return elasticsearch document
-   */
   private SearchDocumentBody convert(ConversionContext context) {
     var resourceData = context.getResourceData();
     var resourceDescriptionFields = context.getResourceDescription().getFields();
     var baseFields = convertMapUsingResourceFields(resourceData, resourceDescriptionFields, context);
-    var searchFields = generateSearchFields(context);
+    var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
 
     return SearchDocumentBody.builder()
       .id(context.getId())
-      .index(getElasticsearchIndexName(context.getResourceName(), context.getTenant()))
+      .index(getElasticsearchIndexName(context.getResourceDescription().getName(), context.getTenant()))
       .routing(context.getTenant())
       .rawJson(jsonConverter.toJson(resultDocument))
       .action(INDEX)
@@ -94,31 +82,12 @@ public class SearchDocumentConverter {
     return resourceEventBody.getNew() instanceof Map;
   }
 
+  @SuppressWarnings("unchecked")
   private ConversionContext buildConvertContext(ResourceEventBody event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
-    var resourceDataAsMap = getResourceDataAsMap(event);
-    var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceDataAsMap);
-
-    return new ConversionContext(event.getTenant(), event.getResourceName(), resourceDataAsMap,
-      resourceDescription, resourceLanguages);
-  }
-
-  private Map<String, Object> generateSearchFields(ConversionContext ctx) {
-    var resultMap = new LinkedHashMap<String, Object>();
-
-    ctx.getResourceDescription().getSearchFields().forEach((name, desc) -> {
-      var fieldProcessor = fieldProcessors.get(desc.getProcessor());
-      var value = fieldProcessor.getFieldValue(ctx.getResourceData());
-      if (value != null) {
-        resultMap.putAll(desc.isMultilang() ? getMultilangValue(name, value, ctx) : Map.of(name, value));
-      }
-    });
-
-    return nullIfEmpty(resultMap);
-  }
-
-  private Map<String, Object> getResourceDataAsMap(ResourceEventBody event) {
-    return jsonConverter.convert(event.getNew(), new TypeReference<>() {});
+    var resourceData = (Map<String, Object>) event.getNew();
+    var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
+    return ConversionContext.of(event.getTenant(), resourceData, resourceDescription, resourceLanguages);
   }
 
   private static Map<String, Object> convertMapUsingResourceFields(
@@ -149,12 +118,13 @@ public class SearchDocumentConverter {
     if (desc.isNotIndexed()) {
       return emptyMap();
     }
+
     var plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
     if (plainFieldValue == null) {
       return emptyMap();
     }
     return desc.isMultilang()
-      ? getMultilangValue(fieldName, plainFieldValue, ctx)
+      ? getMultilangValue(fieldName, plainFieldValue, ctx.getLanguages())
       : singletonMap(fieldName, plainFieldValue);
   }
 
@@ -173,39 +143,5 @@ public class SearchDocumentConverter {
     }
 
     return null;
-  }
-
-  private static Map<String, Object> getMultilangValue(String key, Object plainFieldValue, ConversionContext ctx) {
-    var multilangValueMap = new LinkedHashMap<String, Object>();
-    var languages = ctx.getLanguages();
-    languages.forEach(language -> multilangValueMap.put(language, plainFieldValue));
-    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, plainFieldValue);
-
-    var resultMap = new LinkedHashMap<String, Object>(2);
-    resultMap.put(key, multilangValueMap);
-    resultMap.put(PLAIN_MULTILANG_PREFIX + key, plainFieldValue);
-
-    return resultMap;
-  }
-
-  /**
-   * The conversion context object.
-   */
-  @Getter
-  @RequiredArgsConstructor
-  private static class ConversionContext {
-
-    private final String tenant;
-    private final String resourceName;
-    private final Map<String, Object> resourceData;
-    private final ResourceDescription resourceDescription;
-    /**
-     * List of supported language for resource.
-     */
-    private final List<String> languages;
-
-    private String getId() {
-      return MapUtils.getString(resourceData, "id");
-    }
   }
 }

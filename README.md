@@ -123,7 +123,7 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | INITIAL_LANGUAGES             | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
 | SYSTEM_USER_PASSWORD          | -                         | Password for `mod-search` system user (not required for dev envs) |
 | OKAPI_URL                     | -                         | OKAPI URL used to login system user, required                     |
-| ENV                           | folio                     | Logical name of the deployment, must be set if Kafka/Elasticsearch are shared for environments |
+| ENV                           | folio                     | Logical name of the deployment, must be set if Kafka/Elasticsearch are shared for environments, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed|
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

@@ -59,7 +59,7 @@ class KafkaMessageListenerIT {
         new ResourceEventBody().type(CREATE)
           .tenant(tenantName)._new(Map.of("id", randomId()))));
 
-    when(indexRepository.indexExists("instance_" + tenantName)).thenReturn(true);
+    when(indexRepository.indexExists("folio_instance_" + tenantName)).thenReturn(true);
     when(inventoryViewClient.getInstances(any(), anyInt()))
       .thenReturn(asSinglePage(new InventoryViewClient.InstanceView(
         instance, emptyList(), emptyList())));

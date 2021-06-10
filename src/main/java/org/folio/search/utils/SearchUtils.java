@@ -78,7 +78,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getElasticsearchIndexName(String resource, String tenantId) {
-    return getFolioEnvAndMakeValidEsIdentifier() + "_" + resource + "_" + tenantId;
+    return getFolioEnvName().toLowerCase() + "_" + resource + "_" + tenantId;
   }
 
   /**
@@ -157,9 +157,5 @@ public class SearchUtils {
    */
   public static <T> Stream<T> toSafeStream(List<T> nullableList) {
     return CollectionUtils.isNotEmpty(nullableList) ? nullableList.stream() : Stream.empty();
-  }
-
-  private static String getFolioEnvAndMakeValidEsIdentifier() {
-    return getFolioEnvName().replace("-", "_").toLowerCase();
   }
 }

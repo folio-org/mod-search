@@ -64,14 +64,6 @@ class SearchUtilsTest {
   }
 
   @Test
-  void getElasticsearchIndexName_resourceNameAndTenantId_replaceHyphenWithUnderscore() {
-    setEnvProperty("dev-qa");
-
-    var actual = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
-    assertThat(actual).isEqualTo("dev_qa_" + RESOURCE_NAME + "_" + TENANT_ID);
-  }
-
-  @Test
   void getElasticsearchIndexName_positive_resourceIdEvent() {
     var idEvent = ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, IndexActionType.INDEX);
     var actual = getElasticsearchIndexName(idEvent);

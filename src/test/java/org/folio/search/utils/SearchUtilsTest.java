@@ -12,7 +12,6 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
-import static org.folio.search.utils.TestUtils.setEnvProperty;
 
 import java.io.IOException;
 import java.util.List;

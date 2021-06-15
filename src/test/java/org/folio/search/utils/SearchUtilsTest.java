@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,6 +27,11 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 @UnitTest
 class SearchUtilsTest {
+
+  @AfterEach
+  void resetEnvPropertyValue() {
+    removeEnvProperty();
+  }
 
   @Test
   void performExceptionalOperation_positive() {

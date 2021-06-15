@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import static java.util.stream.Collectors.joining;
+import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,7 +78,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getElasticsearchIndexName(String resource, String tenantId) {
-    return resource + "_" + tenantId;
+    return getFolioEnvName().toLowerCase() + "_" + resource + "_" + tenantId;
   }
 
   /**

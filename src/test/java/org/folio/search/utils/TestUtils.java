@@ -1,5 +1,7 @@
 package org.folio.search.utils;
 
+import static java.lang.System.clearProperty;
+import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
@@ -291,5 +293,13 @@ public class TestUtils {
 
   public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
+  }
+
+  public static void setEnvProperty(String value) {
+    setProperty("env", value);
+  }
+
+  public static void removeEnvProperty() {
+    clearProperty("env");
   }
 }

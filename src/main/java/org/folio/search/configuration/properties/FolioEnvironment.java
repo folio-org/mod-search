@@ -2,22 +2,13 @@ package org.folio.search.configuration.properties;
 
 import static java.lang.System.getProperty;
 import static java.lang.System.getenv;
+import static lombok.AccessLevel.PRIVATE;
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Component
-public class FolioEnvironment {
-  private final String okapiUrl;
-  private final String env;
-
-  public FolioEnvironment(@Value("${okapi.url}") String okapiUrl) {
-    this.okapiUrl = okapiUrl;
-    this.env = getFolioEnvName();
-  }
+@NoArgsConstructor(access = PRIVATE)
+public final class FolioEnvironment {
 
   public static String getFolioEnvName() {
     return validateFolioEnv(firstNonBlank(getenv("ENV"), getProperty("env"), "folio"));

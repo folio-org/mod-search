@@ -6,17 +6,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.converter.SearchRequestConverter;
 import org.folio.search.domain.dto.CqlFacetRequest;
 import org.folio.search.domain.dto.CqlSearchRequest;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.SearchResult;
+import org.folio.search.domain.dto.SuggestRequest;
+import org.folio.search.domain.dto.SuggestResult;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.mapper.SearchRequestMapper;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.rest.resource.InstancesApi;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.SuggestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -36,18 +39,19 @@ public class SearchController implements InstancesApi {
 
   private final FacetService facetService;
   private final SearchService searchService;
+  private final SuggestService suggestService;
   private final ResourceIdService resourceIdService;
-  private final SearchRequestMapper searchRequestMapper;
+  private final SearchRequestConverter searchRequestConverter;
 
   @Override
   public ResponseEntity<SearchResult> searchInstances(CqlSearchRequest request, String tenantId) {
-    var searchRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+    var searchRequest = searchRequestConverter.convert(request, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(searchService.search(searchRequest));
   }
 
   @Override
   public ResponseEntity<FacetResult> getFacets(CqlFacetRequest request, String tenantId) {
-    var facetRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+    var facetRequest = searchRequestConverter.convert(request, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 
@@ -69,5 +73,17 @@ public class SearchController implements InstancesApi {
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);
     }
+  }
+
+  @Override
+  public ResponseEntity<SuggestResult> getSuggests(SuggestRequest request, String tenantId) {
+    var suggestRequest = searchRequestConverter.convert(request, INSTANCE_RESOURCE, tenantId);
+    return ResponseEntity.ok(suggestService.findSuggestions(suggestRequest));
+  }
+
+  @Override
+  public ResponseEntity<SuggestResult> getWildcardSuggests(SuggestRequest request, String tenantId) {
+    var suggestRequest = searchRequestConverter.convert(request, INSTANCE_RESOURCE, tenantId);
+    return ResponseEntity.ok(suggestService.findWildcardSuggestions(suggestRequest));
   }
 }

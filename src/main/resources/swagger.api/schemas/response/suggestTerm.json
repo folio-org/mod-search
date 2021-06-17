@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Suggest term",
+  "type": "object",
+  "properties": {
+    "id":{
+      "type": "string",
+      "description": "Instance id"
+    },
+    "term": {
+      "type": "string",
+      "description": "Suggest term"
+    }
+  }
+}

@@ -32,16 +32,17 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
+import org.folio.search.converter.SearchRequestConverterImpl;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.mapper.SearchRequestMapperImpl;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.SuggestService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @UnitTest
+@MockBean(SuggestService.class)
 @WebMvcTest(SearchController.class)
-@Import({ApiExceptionHandler.class, SearchRequestMapperImpl.class})
+@Import({ApiExceptionHandler.class, SearchRequestConverterImpl.class})
 class SearchControllerTest {
 
   @Autowired private MockMvc mockMvc;

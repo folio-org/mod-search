@@ -38,6 +38,19 @@
       "normalizer": "keyword_lowercase"
     }
   },
+  "suggest": {
+    "mapping": {
+      "type": "completion",
+      "analyzer": "simple",
+      "max_input_length": "50"
+    }
+  },
+  "wildcardSuggest": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase"
+    }
+  },
   "multilang": {
     "mapping": {
       "properties": {

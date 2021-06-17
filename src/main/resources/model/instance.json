@@ -411,6 +411,16 @@
       "index": "keyword",
       "inventorySearchTypes": "holdings.fullCallNumber",
       "processor": "holdingsCallNumberComponentsProcessor"
+    },
+    "suggestion": {
+      "type": "search",
+      "index": "suggest",
+      "processor": "suggestionProcessor"
+    },
+    "wildcardSuggestion": {
+      "type": "search",
+      "index": "wildcardSuggest",
+      "processor": "suggestionProcessor"
     }
   },
   "indexMappings": {}

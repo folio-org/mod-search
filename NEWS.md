@@ -1,3 +1,20 @@
+## 1.4.0 2021-06-18
+
+* Adds ASCII folding token filter (MSEARCH-67)
+* Allows using different Korean language analyzer (MSEARCH-89)
+* Supports remove and index requests as a single bulk request. (MSEARCH-94)
+* Allows custom prefix when creating index name (MSEARCH-95)
+* Adds documentation of query syntax (MSEARCH-102)
+* Adds Kafka TLS environment variables for consumers (MSEARCH-105)
+* Support holdings' keyword search within electronic access fields (MSEARCH-109)
+* Supports items keyword search within electronic access fields (MSEARCH-110)
+* Adds ability to recreate index before starting reindex (MSEARCH-121)
+* Simplifies resource specification for search (MSEARCH-122)
+* Retrieves facets values for selected facets (MSEARCH-125)
+* Optimizes indexing process for field processors (MSEARCH-126)
+* Adds list of specified plugins required for on-premise Elasticsearch (MSEARCH-127)
+* Makes consumer group name different per environment (MSEARCH-129)
+
 ## 1.3.0 2021-04-22
 
 * Makes sure ES index exists before indexing resources (MSEARCH-112)

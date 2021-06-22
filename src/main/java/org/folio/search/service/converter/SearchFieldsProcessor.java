@@ -1,8 +1,6 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
-import static org.folio.search.utils.SearchUtils.getMultilangValue;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +11,7 @@ import org.apache.commons.collections.MapUtils;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -53,7 +52,7 @@ public class SearchFieldsProcessor {
     try {
       var value = fieldProcessor.getFieldValue(resource);
       if (value != null) {
-        return descriptor.isMultilang() ? getMultilangValue(name, value, languages) : singletonMap(name, value);
+        return SearchUtils.getPlainFieldValue(descriptor, name, value, languages);
       }
     } catch (Exception e) {
       log.warn("Failed to retrieve field value", e);

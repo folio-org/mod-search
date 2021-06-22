@@ -89,6 +89,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
           .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())))
           .andExpect(jsonPath("instances[0].contributors[0].name", is("Antoniou, Grigoris")))
           .andExpect(jsonPath("instances[0].contributors[1].name", is("Van Harmelen, Frank")))),
+      arguments("search by contributors name", "contributors.name all {value}", array("franks"), zeroResultConsumer()),
       arguments("search by contributors alias", "contributors all {value}", array("grigoris"), null),
 
       arguments("search by hrid for exact match", "hrid={value}", array("inst000000000022"), null),

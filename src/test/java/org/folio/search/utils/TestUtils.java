@@ -3,8 +3,10 @@ package org.folio.search.utils;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
@@ -61,6 +63,8 @@ public class TestUtils {
     .setSerializationInclusion(Include.NON_NULL)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+  public static final String KEYWORD_FIELD_TYPE = "keyword";
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -176,33 +180,25 @@ public class TestUtils {
   }
 
   public static PlainFieldDescription plainField(String index) {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex(index);
-    return fieldDescription;
+    return plainField(PLAIN, index, emptyList());
   }
 
   public static PlainFieldDescription plainField(String index, ObjectNode mappings) {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex(index);
+    var fieldDescription = plainField(PLAIN, index, emptyList());
     fieldDescription.setMappings(mappings);
     return fieldDescription;
   }
 
-  public static PlainFieldDescription keywordField() {
+  public static PlainFieldDescription plainField(FieldType type, String index, List<SearchType> searchTypes) {
     var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex("keyword");
+    fieldDescription.setType(type);
+    fieldDescription.setIndex(index);
+    fieldDescription.setSearchTypes(searchTypes);
     return fieldDescription;
   }
 
   public static PlainFieldDescription keywordField(SearchType... searchTypes) {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex("keyword");
-    fieldDescription.setSearchTypes(asList(searchTypes));
-    return fieldDescription;
+    return plainField(PLAIN, KEYWORD_FIELD_TYPE, asList(searchTypes));
   }
 
   public static PlainFieldDescription keywordFieldWithDefaultValue(Object defaultValue) {
@@ -212,16 +208,15 @@ public class TestUtils {
   }
 
   public static PlainFieldDescription filterField() {
-    var fieldDescription = keywordField();
-    fieldDescription.setSearchTypes(List.of(SearchType.FILTER));
-    return fieldDescription;
+    return plainField(PLAIN, KEYWORD_FIELD_TYPE, List.of(SearchType.FILTER));
   }
 
   public static PlainFieldDescription multilangField() {
-    var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(PLAIN);
-    fieldDescription.setIndex(MULTILANG_FIELD_TYPE);
-    return fieldDescription;
+    return plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+  }
+
+  public static PlainFieldDescription standardFulltextField() {
+    return plainField(PLAIN, STANDARD_FIELD_TYPE, emptyList());
   }
 
   public static ObjectFieldDescription objectField(Map<String, FieldDescription> props) {

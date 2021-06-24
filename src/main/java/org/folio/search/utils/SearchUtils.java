@@ -142,15 +142,23 @@ public class SearchUtils {
       .collect(joining(" "));
   }
 
+  /**
+   * Returns plain field value for fulltext value.
+   * @param description plain field description as {@link PlainFieldDescription} object
+   * @param fieldName field name as {@link String} object
+   * @param fieldValue field value as {@link Object} object.
+   * @param languages list of supported languages for multi-language fields
+   * @return {@link Map} as a created field
+   */
   public static Map<String, Object> getPlainFieldValue(
-    PlainFieldDescription description, String key, Object value, List<String> languages) {
+    PlainFieldDescription description, String fieldName, Object fieldValue, List<String> languages) {
     if (description.isMultilang()) {
-      return getMultilangValue(key, value, languages);
+      return getMultilangValue(fieldName, fieldValue, languages);
     }
     if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
-      return getStandardFulltextValue(key, value, description.isIndexPlainValue());
+      return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
     }
-    return Collections.singletonMap(key, value);
+    return Collections.singletonMap(fieldName, fieldValue);
   }
 
   /**

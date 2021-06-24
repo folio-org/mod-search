@@ -2,7 +2,9 @@ package org.folio.search.utils;
 
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
+import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -93,10 +96,21 @@ public class SearchUtils {
   }
 
   /**
+   * Updates path for fulltext field.
+   *
+   * @param description plain field description as {@link PlainFieldDescription} object
+   * @param path path to field
+   * @return updated path as {@link String} object
+   */
+  public static String updatePathForFulltextField(PlainFieldDescription description, String path) {
+    return description.isMultilang() ? updatePathForMultilangField(path) : path;
+  }
+
+  /**
    * Updates path for multilang field.
    *
    * @param path path to field
-   * @return updated path as {@link String}
+   * @return updated path as {@link String} object
    */
   public static String updatePathForMultilangField(String path) {
     return path + ".*";
@@ -129,6 +143,26 @@ public class SearchUtils {
   }
 
   /**
+   * Returns plain field value for fulltext value.
+   *
+   * @param description plain field description as {@link PlainFieldDescription} object
+   * @param fieldName field name as {@link String} object
+   * @param fieldValue field value as {@link Object} object.
+   * @param languages list of supported languages for multi-language fields
+   * @return {@link Map} as a created field
+   */
+  public static Map<String, Object> getPlainFieldValue(
+    PlainFieldDescription description, String fieldName, Object fieldValue, List<String> languages) {
+    if (description.isMultilang()) {
+      return getMultilangValue(fieldName, fieldValue, languages);
+    }
+    if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
+      return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
+    }
+    return Collections.singletonMap(fieldName, fieldValue);
+  }
+
+  /**
    * Generates multi-language field value for passed key, value and conversion context with supported languages.
    *
    * @param key name of multi-language field as {@link String} object
@@ -146,6 +180,25 @@ public class SearchUtils {
     resultMap.put(PLAIN_MULTILANG_PREFIX + key, value);
 
     return resultMap;
+  }
+
+  /**
+   * Generates standard fulltext field value for passed key, value and boolean flag for plain field.
+   *
+   * @param key name of multi-language field as {@link String} object
+   * @param value multi-language field value as {@link Object} object
+   * @param indexPlainField boolean flag that specifies if plain value must be indexed or not
+   * @return created standard fulltext value as {@link Map} object
+   */
+  public static Map<String, Object> getStandardFulltextValue(String key, Object value, boolean indexPlainField) {
+    if (!indexPlainField) {
+      return Collections.singletonMap(key, value);
+    }
+    var fulltextValue = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
+    fulltextValue.put(key, value);
+    fulltextValue.put(PLAIN_MULTILANG_PREFIX + key, value);
+
+    return fulltextValue;
   }
 
   /**

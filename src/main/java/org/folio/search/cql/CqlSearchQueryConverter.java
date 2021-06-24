@@ -108,7 +108,7 @@ public class CqlSearchQueryConverter {
   private QueryBuilder convertToTermQuery(CQLTermNode node, String resource) {
     var fieldName = node.getIndex();
     var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
-    var fieldList = fieldsGroup.isEmpty() ? getFieldsForMultilangField(fieldName, resource) : fieldsGroup;
+    var fieldList = fieldsGroup.isEmpty() ? getFieldsForFulltextField(fieldName, resource) : fieldsGroup;
 
     var term = getSearchTerm(node.getTerm(), fieldName, resource);
     if (term.contains(ASTERISKS_SIGN)) {
@@ -249,9 +249,9 @@ public class CqlSearchQueryConverter {
       .orElse(term);
   }
 
-  private List<String> getFieldsForMultilangField(String fieldName, String resource) {
+  private List<String> getFieldsForFulltextField(String fieldName, String resource) {
     return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
-      .filter(PlainFieldDescription::isFulltext)
+      .filter(PlainFieldDescription::hasFulltextIndex)
       .map(desc -> updatePathForFulltextField(desc, fieldName))
       .map(Collections::singletonList)
       .orElse(emptyList());

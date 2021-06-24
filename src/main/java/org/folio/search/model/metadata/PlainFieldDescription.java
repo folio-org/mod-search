@@ -92,22 +92,12 @@ public class PlainFieldDescription extends FieldDescription {
   }
 
   /**
-   * Checks if resource description field is standard full-text.
+   * Checks if resource description field can be considered as fulltext.
    *
-   * @return true if field is standard full text, false - otherwise
-   */
-  @JsonIgnore
-  public boolean isStandardFulltext() {
-    return STANDARD_FIELD_TYPE.equals(index);
-  }
-
-  /**
-   * Checks if resource description field is full-text.
-   *
-   * @return true if field is standard full text, false - otherwise
+   * @return true if field can be considered as a fulltext, false - otherwise
    */
   @JsonProperty
-  public boolean isFulltext() {
+  public boolean hasFulltextIndex() {
     return FULLTEXT_FIELD_TYPES.contains(index);
   }
 

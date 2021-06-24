@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -146,7 +147,7 @@ public class SearchUtils {
     if (description.isMultilang()) {
       return getMultilangValue(key, value, languages);
     }
-    if (description.isStandardFulltext()) {
+    if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
       return getStandardFulltextValue(key, value, description.isIndexPlainValue());
     }
     return Collections.singletonMap(key, value);

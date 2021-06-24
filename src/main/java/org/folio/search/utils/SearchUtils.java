@@ -144,6 +144,7 @@ public class SearchUtils {
 
   /**
    * Returns plain field value for fulltext value.
+   *
    * @param description plain field description as {@link PlainFieldDescription} object
    * @param fieldName field name as {@link String} object
    * @param fieldValue field value as {@link Object} object.

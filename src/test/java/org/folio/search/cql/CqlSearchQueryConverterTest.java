@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
+import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -301,8 +302,8 @@ class CqlSearchQueryConverterTest {
 
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
-      arguments("keyword all \"test-query\"",
-        searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
+      arguments("keyword all \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
+      arguments("keyword any \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(OR))),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
         searchSource().query(matchQuery("identifiers", "test-query").operator(AND))),

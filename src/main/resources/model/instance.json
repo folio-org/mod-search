@@ -64,7 +64,7 @@
       "properties": {
         "name": {
           "inventorySearchTypes": [ "contributors", "keyword" ],
-          "index": "multilang",
+          "index": "standard",
           "showInResponse": true
         },
         "primary": {
@@ -339,7 +339,8 @@
       "type": "search",
       "processor": "isbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard"
+      "index": "standard",
+      "indexPlainValue": false
     },
     "issn": {
       "type": "search",

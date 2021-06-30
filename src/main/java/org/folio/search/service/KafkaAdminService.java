@@ -1,17 +1,21 @@
 package org.folio.search.service;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.folio.spring.FolioExecutionContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +24,39 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaAdminService {
 
+  public static final String EVENT_LISTENER_ID = "mod-search-events-listener";
   private static final String KAFKA_TOPICS_FILE = "kafka/kafka-topics.json";
 
-  private final LocalFileProvider localFileProvider;
-  private final KafkaAdmin kafkaAdminClient;
+  private final KafkaAdmin kafkaAdmin;
   private final BeanFactory beanFactory;
+  private final LocalFileProvider localFileProvider;
+  private final FolioExecutionContext folioExecutionContext;
+  private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+  private KafkaTopics kafkaTopics;
 
+  /**
+   * Returns list of tenant related topics names.
+   *
+   * @return list of tenant specific topics names as {@link String} object
+   */
+  public List<String> getDefaultTenantKafkaTopics() {
+    var tenantId = folioExecutionContext.getTenantId();
+    var env = getFolioEnvName();
+    return getKafkaTopicsFromLocalConfig().getTopics().stream()
+      .map(KafkaTopic::getName)
+      .map(topicName -> getTenantTopicName(topicName, tenantId, env))
+      .collect(toList());
+  }
+
+  /**
+   * Creates kafka topics using existing configuration in kafka/kafka-topics.json.
+   */
   public void createKafkaTopics() {
-    var newTopics = readTopics();
+    var newTopics = new ArrayList<>(readTopics());
+    var tenantId = folioExecutionContext.getTenantId();
+    var topics = readAsTenantSpecificTopic(getFolioEnvName(), tenantId);
+    newTopics.addAll(topics);
+
     log.info("Creating topics for kafka [topics: {}]", newTopics);
     var configurableBeanFactory = (ConfigurableBeanFactory) beanFactory;
     newTopics.forEach(newTopic -> {
@@ -36,14 +65,41 @@ public class KafkaAdminService {
         configurableBeanFactory.registerSingleton(beanName, newTopic);
       }
     });
-    kafkaAdminClient.initialize();
+    kafkaAdmin.initialize();
+  }
+
+  /**
+   * Restarts kafka event listeners in mod-search application.
+   */
+  public void restartEventListeners() {
+    log.info("Restarting kafka consumer to start listening created topics [id: {}]", EVENT_LISTENER_ID);
+    var listenerContainer = kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID);
+    listenerContainer.stop();
+    listenerContainer.start();
   }
 
   private List<NewTopic> readTopics() {
-    var kafkaTopics = localFileProvider.readAsObject(KAFKA_TOPICS_FILE, KafkaTopics.class);
-    return kafkaTopics.getTopics().stream()
+    return getKafkaTopicsFromLocalConfig().getTopics().stream()
       .map(KafkaTopic::toKafkaTopic)
-      .collect(Collectors.toList());
+      .collect(toList());
+  }
+
+  private List<NewTopic> readAsTenantSpecificTopic(String env, String tenantId) {
+    return getKafkaTopicsFromLocalConfig().getTopics().stream()
+      .map(topic -> topic.toKafkaTopic(env, tenantId))
+      .collect(toList());
+  }
+
+  private KafkaTopics getKafkaTopicsFromLocalConfig() {
+    if (kafkaTopics == null) {
+      kafkaTopics = localFileProvider.readAsObject(KAFKA_TOPICS_FILE, KafkaTopics.class);
+      return kafkaTopics;
+    }
+    return kafkaTopics;
+  }
+
+  private static String getTenantTopicName(String initialName, String tenantId, String env) {
+    return String.format("%s.%s.%s", env, tenantId, initialName);
   }
 
   @Data
@@ -60,13 +116,15 @@ public class KafkaAdminService {
   static class KafkaTopic {
 
     private String name;
-
     private Integer numPartitions = 1;
-
     private Short replicationFactor = 1;
 
     NewTopic toKafkaTopic() {
       return new NewTopic(name, numPartitions, replicationFactor);
+    }
+
+    NewTopic toKafkaTopic(String env, String tenantId) {
+      return new NewTopic(getTenantTopicName(name, tenantId, env), numPartitions, replicationFactor);
     }
   }
 }

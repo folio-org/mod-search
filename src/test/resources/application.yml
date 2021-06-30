@@ -33,6 +33,6 @@ application:
   kafka:
     listener:
       events:
-        concurrency: 1
-        topics: inventory.instance,inventory.item,inventory.holdings-record
+        concurrency: 2
+        topic-pattern: (${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)
         group-id: ${ENV:folio}-mod-search-events-group

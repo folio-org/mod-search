@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.search.service.KafkaAdminService.KafkaTopic.getTenantTopicName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +42,9 @@ public class KafkaAdminService {
    */
   public List<String> getDefaultTenantKafkaTopics() {
     var tenantId = folioExecutionContext.getTenantId();
-    var env = getFolioEnvName();
     return getKafkaTopicsFromLocalConfig().getTopics().stream()
       .map(KafkaTopic::getName)
-      .map(topicName -> getTenantTopicName(topicName, tenantId, env))
+      .map(topicName -> getTenantTopicName(topicName, tenantId))
       .collect(toList());
   }
 
@@ -54,7 +54,7 @@ public class KafkaAdminService {
   public void createKafkaTopics() {
     var newTopics = new ArrayList<>(readTopics());
     var tenantId = folioExecutionContext.getTenantId();
-    var topics = readAsTenantSpecificTopic(getFolioEnvName(), tenantId);
+    var topics = readAsTenantSpecificTopic(tenantId);
     newTopics.addAll(topics);
 
     log.info("Creating topics for kafka [topics: {}]", newTopics);
@@ -84,9 +84,9 @@ public class KafkaAdminService {
       .collect(toList());
   }
 
-  private List<NewTopic> readAsTenantSpecificTopic(String env, String tenantId) {
+  private List<NewTopic> readAsTenantSpecificTopic(String tenantId) {
     return getKafkaTopicsFromLocalConfig().getTopics().stream()
-      .map(topic -> topic.toKafkaTopic(env, tenantId))
+      .map(topic -> topic.toKafkaTopic(tenantId))
       .collect(toList());
   }
 
@@ -96,10 +96,6 @@ public class KafkaAdminService {
       return kafkaTopics;
     }
     return kafkaTopics;
-  }
-
-  private static String getTenantTopicName(String initialName, String tenantId, String env) {
-    return String.format("%s.%s.%s", env, tenantId, initialName);
   }
 
   @Data
@@ -123,8 +119,19 @@ public class KafkaAdminService {
       return new NewTopic(name, numPartitions, replicationFactor);
     }
 
-    NewTopic toKafkaTopic(String env, String tenantId) {
-      return new NewTopic(getTenantTopicName(name, tenantId, env), numPartitions, replicationFactor);
+    NewTopic toKafkaTopic(String tenantId) {
+      return new NewTopic(getTenantTopicName(name, tenantId), numPartitions, replicationFactor);
+    }
+
+    /**
+     * Returns topic name in the format - `{env}.{tenant}.inventory.{resource-type}`
+     *
+     * @param initialName initial topic name as {@link String}
+     * @param tenantId tenant id as {@link String}
+     * @return topic name as {@link String} object
+     */
+    static String getTenantTopicName(String initialName, String tenantId) {
+      return String.format("%s.%s.%s", getFolioEnvName(), tenantId, initialName);
     }
   }
 }

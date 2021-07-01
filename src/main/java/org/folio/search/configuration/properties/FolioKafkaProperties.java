@@ -29,16 +29,6 @@ public class FolioKafkaProperties {
   private long retryDeliveryAttempts;
 
   /**
-   * List of default topics to maintain backward compatibility.
-   */
-  private String topicsRegexp;
-
-  /**
-   * Default group id for message listener.
-   */
-  private String defaultGroupId;
-
-  /**
    * Contains set of settings for specific kafka listener.
    */
   @Data

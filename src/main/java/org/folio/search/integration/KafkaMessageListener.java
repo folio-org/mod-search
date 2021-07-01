@@ -22,6 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.KafkaAdminService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -38,11 +39,11 @@ public class KafkaMessageListener {
   private final IndexService indexService;
 
   @KafkaListener(
-    id = "mod-search-events-listener",
+    id = KafkaAdminService.EVENT_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
-    topics = "#{'${application.kafka.listener.events.topics}'.split(',')}",
-    groupId = "${application.kafka.listener.events.group-id}",
-    concurrency = "${application.kafka.listener.events.concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['events'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['events'].concurrency}",
     errorHandler = "kafkaErrorHandler")
   public void handleEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]",

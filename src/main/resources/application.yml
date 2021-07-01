@@ -35,9 +35,9 @@ application:
     retry-delivery-attempts: 10
     listener:
       events:
-        concurrency: 1
-        topics: inventory.instance,inventory.item,inventory.holdings-record
-        group-id: mod-search-events-group
+        concurrency: 2
+        topic-pattern: (${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)
+        group-id: ${ENV:folio}-mod-search-events-group
 
 server.port: 8081
 management.endpoints.web:

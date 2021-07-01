@@ -3,8 +3,8 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
-import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.REINDEX;
+import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -16,9 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.search.model.types.IndexActionType;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.KafkaAdminService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -34,11 +35,11 @@ public class KafkaMessageListener {
   private final IndexService indexService;
 
   @KafkaListener(
-    id = "mod-search-events-listener",
+    id = KafkaAdminService.EVENT_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
-    topics = "#{'${application.kafka.listener.events.topics}'.split(',')}",
-    groupId = "${application.kafka.listener.events.group-id}",
-    concurrency = "${application.kafka.listener.events.concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['events'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['events'].concurrency}",
     errorHandler = "kafkaErrorHandler")
   public void handleEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
@@ -60,7 +61,7 @@ public class KafkaMessageListener {
       log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\n", ""));
       return null;
     }
-    var operation = value.getType() == DELETE && isInstanceResource(consumerRecord) ? IndexActionType.DELETE : INDEX;
+    var operation = value.getType() == TypeEnum.DELETE && isInstanceResource(consumerRecord) ? DELETE : INDEX;
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
   }
 
@@ -74,6 +75,6 @@ public class KafkaMessageListener {
   }
 
   private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
-    return INVENTORY_INSTANCE_TOPIC.equals(consumerRecord.topic());
+    return consumerRecord.topic().endsWith(INVENTORY_INSTANCE_TOPIC);
   }
 }

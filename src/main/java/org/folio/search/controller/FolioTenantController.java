@@ -30,6 +30,8 @@ public class FolioTenantController extends TenantController {
   @Override
   public ResponseEntity<String> postTenant(TenantAttributes tenantAttributes) {
     kafkaAdminService.createKafkaTopics();
+    kafkaAdminService.restartEventListeners();
+
     var tenantInit = super.postTenant(tenantAttributes);
 
     if (tenantInit.getStatusCode() == HttpStatus.OK) {

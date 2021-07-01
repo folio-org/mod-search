@@ -3,11 +3,13 @@ package org.folio.search.configuration.properties;
 import java.util.Map;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Application properties for kafka message consumer.
  */
 @Data
+@Component
 @ConfigurationProperties("application.kafka")
 public class FolioKafkaProperties {
 
@@ -35,12 +37,12 @@ public class FolioKafkaProperties {
     /**
      * List of topic to listen.
      */
-    private String topics;
+    private String topicPattern;
 
     /**
      * Number of concurrent consumers in service.
      */
-    private String concurrency;
+    private Integer concurrency = 5;
 
     /**
      * The group id.

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceNotes;
+import org.folio.search.domain.dto.Note;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
 class PublicNotesProcessorTest {
+
   private final PublicNotesProcessor publicNotesProcessor = new PublicNotesProcessor();
 
   @MethodSource("notesDataProvider")
@@ -31,8 +32,8 @@ class PublicNotesProcessorTest {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),
       arguments("empty notes", instanceWithNotes(), emptyList()),
-      arguments("null notes", instanceWithNotes((InstanceNotes) null), emptyList()),
-      arguments("null value in notes", instanceWithNotes((InstanceNotes[]) null), emptyList()),
+      arguments("null notes", instanceWithNotes((Note) null), emptyList()),
+      arguments("null value in notes", instanceWithNotes((Note[]) null), emptyList()),
       arguments("note(staffOnly=null)", instanceWithNotes(note("value", null)), List.of("value")),
       arguments("note(staffOnly=false)", instanceWithNotes(note("value", false)), List.of("value")),
       arguments("2 notes(staffOnly=false and null)",
@@ -42,11 +43,11 @@ class PublicNotesProcessorTest {
     );
   }
 
-  private static Instance instanceWithNotes(InstanceNotes... notes) {
+  private static Instance instanceWithNotes(Note... notes) {
     return new Instance().notes(notes != null ? Arrays.asList(notes) : null);
   }
 
-  private static InstanceNotes note(String value, Boolean staffOnly) {
-    return new InstanceNotes().note(value).staffOnly(staffOnly);
+  private static Note note(String value, Boolean staffOnly) {
+    return new Note().note(value).staffOnly(staffOnly);
   }
 }

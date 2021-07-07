@@ -41,7 +41,23 @@
         "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
       }
     ],
-    "notes": [],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index of holdings.",
+        "staffOnly": false,
+        "holdingsNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian public note for holding",
+        "staffOnly": false,
+        "holdingsNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note for holding",
+        "staffOnly": true,
+        "holdingsNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
     "holdingsStatements": [],
     "holdingsStatementsForIndexes": [],
     "holdingsStatementsForSupplements": [],

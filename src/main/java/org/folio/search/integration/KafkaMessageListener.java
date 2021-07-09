@@ -117,6 +117,6 @@ public class KafkaMessageListener {
   }
 
   private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
-    return "inventory.instance".equals(consumerRecord.topic());
+    return consumerRecord.topic().endsWith("inventory.instance");
   }
 }

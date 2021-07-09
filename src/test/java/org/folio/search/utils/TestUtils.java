@@ -1,5 +1,7 @@
 package org.folio.search.utils;
 
+import static java.lang.System.clearProperty;
+import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.PLAIN;
@@ -233,5 +235,13 @@ public class TestUtils {
 
   public static FacetResult facetResult(Map<String, Facet> facets) {
     return new FacetResult().facets(facets).totalRecords(facets.size());
+  }
+
+  public static void setEnvProperty(String value) {
+    setProperty("env", value);
+  }
+
+  public static void removeEnvProperty() {
+    clearProperty("env");
   }
 }

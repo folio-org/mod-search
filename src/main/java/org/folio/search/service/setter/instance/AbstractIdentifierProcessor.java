@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.instance;
 
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.utils.SearchUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toSafeStream;
 
 import java.util.List;
 import java.util.Set;

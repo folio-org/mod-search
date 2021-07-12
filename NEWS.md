@@ -1,3 +1,9 @@
+## 1.3.1 2021-07-12
+
+* Makes consumer group name different per environment (MSEARCH-129)
+* Allows custom prefix when creating index name (MSEARCH-95)
+* Provides kafka topics names created by pattern: `${env}.${tenantId}.inventory.(instance|item|holdings-record)`
+
 ## 1.3.0 2021-04-22
 
 * Makes sure ES index exists before indexing resources (MSEARCH-112)

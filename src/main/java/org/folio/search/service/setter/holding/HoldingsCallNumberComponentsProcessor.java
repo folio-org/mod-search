@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.holding;
 
 import static java.util.stream.Collectors.toSet;
-import static org.folio.search.utils.CollectionUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.Set;
@@ -15,7 +15,7 @@ public class HoldingsCallNumberComponentsProcessor implements FieldProcessor<Ins
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return toSafeStream(instance.getHoldings())
+    return toStreamSafe(instance.getHoldings())
       .map(hr -> getEffectiveCallNumber(hr.getCallNumberPrefix(), hr.getCallNumber(), hr.getCallNumberSuffix()))
       .filter(StringUtils::isNotBlank)
       .collect(toSet());

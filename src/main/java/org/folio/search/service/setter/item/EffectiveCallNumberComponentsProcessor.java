@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.item;
 
 import static java.util.stream.Collectors.toSet;
-import static org.folio.search.utils.CollectionUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.Objects;
@@ -17,7 +17,7 @@ public class EffectiveCallNumberComponentsProcessor implements FieldProcessor<In
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return toSafeStream(instance.getItems())
+    return toStreamSafe(instance.getItems())
       .map(Item::getEffectiveCallNumberComponents)
       .filter(Objects::nonNull)
       .map(cn -> getEffectiveCallNumber(cn.getPrefix(), cn.getCallNumber(), cn.getSuffix()))

@@ -53,7 +53,7 @@ public final class CollectionUtils {
    * @param <T> generic type for value
    * @return nullableList if it is not null or empty, defaultList otherwise.
    */
-  public static <T> Stream<T> toSafeStream(List<T> nullableList) {
-    return org.apache.commons.collections.CollectionUtils.isNotEmpty(nullableList) ? nullableList.stream() : empty();
+  public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
+    return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream() : empty();
   }
 }

@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.holding;
 
-import static org.folio.search.utils.CollectionUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -16,7 +16,7 @@ public class HoldingPublicNotesProcessor extends AbstractPublicNotesProcessor {
 
   @Override
   protected Stream<Note> getNotes(Instance instance) {
-    return toSafeStream(instance.getHoldings())
+    return toStreamSafe(instance.getHoldings())
       .map(Holding::getNotes)
       .filter(CollectionUtils::isNotEmpty)
       .flatMap(Collection::stream);

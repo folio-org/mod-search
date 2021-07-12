@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.instance;
 
-import static org.folio.search.utils.CollectionUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
@@ -12,6 +12,6 @@ public class PublicNotesProcessor extends AbstractPublicNotesProcessor {
 
   @Override
   protected Stream<Note> getNotes(Instance instance) {
-    return toSafeStream(instance.getNotes());
+    return toStreamSafe(instance.getNotes());
   }
 }

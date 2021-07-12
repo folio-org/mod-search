@@ -87,19 +87,19 @@ class CollectionUtilsTest {
 
   @Test
   void toSafeStream_positive() {
-    var actual = CollectionUtils.toSafeStream(List.of(1, 2)).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(List.of(1, 2)).collect(toList());
     assertThat(actual).containsExactly(1, 2);
   }
 
   @Test
   void toSafeStream_positive_nullValue() {
-    var actual = CollectionUtils.toSafeStream(null).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(null).collect(toList());
     assertThat(actual).isEmpty();
   }
 
   @Test
   void toSafeStream_positive_emptyCollection() {
-    var actual = CollectionUtils.toSafeStream(emptyList()).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(emptyList()).collect(toList());
     assertThat(actual).isEmpty();
   }
 }

@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.item;
 
-import static org.folio.search.utils.CollectionUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -16,7 +16,7 @@ public class ItemPublicNotesProcessor extends AbstractPublicNotesProcessor {
 
   @Override
   protected Stream<Note> getNotes(Instance instance) {
-    return toSafeStream(instance.getItems())
+    return toStreamSafe(instance.getItems())
       .map(Item::getNotes)
       .filter(CollectionUtils::isNotEmpty)
       .flatMap(Collection::stream);

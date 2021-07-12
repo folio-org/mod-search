@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
@@ -201,14 +200,4 @@ public class SearchUtils {
     return fulltextValue;
   }
 
-  /**
-   * Returns nullableList if it is not null or empty, defaultList otherwise.
-   *
-   * @param nullableList nullable value to check
-   * @param <T> generic type for value
-   * @return nullableList if it is not null or empty, defaultList otherwise.
-   */
-  public static <T> Stream<T> toSafeStream(List<T> nullableList) {
-    return CollectionUtils.isNotEmpty(nullableList) ? nullableList.stream() : Stream.empty();
-  }
 }

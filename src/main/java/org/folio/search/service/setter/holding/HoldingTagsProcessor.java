@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.holding;
 
-import static org.folio.search.utils.SearchUtils.toSafeStream;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Holding;
@@ -14,6 +14,6 @@ public class HoldingTagsProcessor extends AbstractTagsProcessor {
 
   @Override
   protected Stream<Tags> getTags(Instance instance) {
-    return toSafeStream(instance.getHoldings()).map(Holding::getTags);
+    return toStreamSafe(instance.getHoldings()).map(Holding::getTags);
   }
 }

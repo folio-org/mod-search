@@ -1,8 +1,11 @@
 package org.folio.search.utils;
 
+import static java.util.stream.Stream.empty;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
@@ -41,5 +44,16 @@ public final class CollectionUtils {
     }
     var startIndex = addToTop ? 0 : initial.size();
     initial.addAll(startIndex, sourceValues);
+  }
+
+  /**
+   * Returns nullableList if it is not null or empty, defaultList otherwise.
+   *
+   * @param nullableList nullable value to check
+   * @param <T> generic type for value
+   * @return nullableList if it is not null or empty, defaultList otherwise.
+   */
+  public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
+    return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream() : empty();
   }
 }

@@ -272,6 +272,7 @@ Here is a table with supported search options.
 | `staffSuppress`                           | term      | `staffSuppress==true`                             | Matches instances that are staff suppressed |
 | `discoverySuppress`                       | term      | `discoverySuppress==true`                         | Matches instances that are suppressed from discovery|
 | `publicNotes`                             | full text | `publicNotes all "public note"`                   | Matches instances that have a public note (i.e. `note.staffOnly` is `false`) |
+| `notes.note`                              | full text | `notes.note all "librarian note"`                 | Search by instance notes (include staffOnly) |
 | `isbn`                                    | term      | `isbn="1234*943"`                                 | Matches instances that have an ISBN  identifier with the given value |
 | `issn`                                    | term      | `issn="1234*943"`                                 | Matches instances that have an ISSN  identifier with the given value |
 
@@ -291,6 +292,8 @@ Here is a table with supported search options.
 | `holdings.electronicAccess.linkText`               | full text | `holdings.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
 | `holdings.electronicAccess.materialsSpecification` | full text | `holdings.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
+| `holdings.notes.note`                              | full text | `holdings.notes.note all "librarian note"`                 | Search by holdings notes |
+| `holdingPublicNotes`                               | full text | `holdingPublicNotes all "public note"`                     | Search by holdings public notes |
 
 
 #### Items search options
@@ -311,6 +314,9 @@ Here is a table with supported search options.
 | `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
 | `items.electronicAccess.materialsSpecification` | full text | `items.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
+| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                 | Search by item notes |
+| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                     | Search by item public notes |
+
 
 ### Search Facets
 

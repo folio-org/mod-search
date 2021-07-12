@@ -36,3 +36,7 @@ application:
         concurrency: 2
         topic-pattern: (${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)
         group-id: ${ENV:folio}-mod-search-events-group
+
+logging:
+  level:
+    org.apache.kafka.clients.consumer.*: warn

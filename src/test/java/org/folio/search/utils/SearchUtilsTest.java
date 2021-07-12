@@ -1,8 +1,6 @@
 package org.folio.search.utils;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
@@ -118,24 +116,6 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(mapOf(
       "field", mapOf("eng", value, "ger", value, "src", value),
       "plain_field", value));
-  }
-
-  @Test
-  void toSafeStream_positive() {
-    var actual = SearchUtils.toSafeStream(List.of(1, 2)).collect(toList());
-    assertThat(actual).containsExactly(1, 2);
-  }
-
-  @Test
-  void toSafeStream_positive_nullValue() {
-    var actual = SearchUtils.toSafeStream(null).collect(toList());
-    assertThat(actual).isEmpty();
-  }
-
-  @Test
-  void toSafeStream_positive_emptyCollection() {
-    var actual = SearchUtils.toSafeStream(emptyList()).collect(toList());
-    assertThat(actual).isEmpty();
   }
 
   @Test

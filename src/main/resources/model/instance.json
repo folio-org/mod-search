@@ -154,7 +154,7 @@
       "type": "object",
       "properties": {
         "note": {
-          "index": "source"
+          "index": "multilang"
         },
         "staffOnly": {
           "index": "bool"
@@ -269,6 +269,17 @@
               "index": "multilang"
             }
           }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "index": "multilang"
+            },
+            "staffOnly": {
+              "index": "bool"
+            }
+          }
         }
       }
     },
@@ -316,6 +327,17 @@
               "index": "multilang"
             }
           }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "index": "multilang"
+            },
+            "staffOnly": {
+              "index": "bool"
+            }
+          }
         }
       }
     }
@@ -337,6 +359,16 @@
       "type": "search",
       "index": "multilang",
       "processor": "publicNotesProcessor"
+    },
+    "itemPublicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "itemPublicNotesProcessor"
+    },
+    "holdingPublicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "holdingPublicNotesProcessor"
     },
     "isbn": {
       "type": "search",

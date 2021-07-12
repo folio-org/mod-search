@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -295,7 +296,7 @@ class SearchDocumentConverterTest {
 
   private static SearchDocumentBody deleteSearchDocument(String id, String tenant) {
     return SearchDocumentBody.builder()
-      .id(id).index(RESOURCE_NAME + "_" + tenant).routing(tenant)
+      .id(id).index(getElasticsearchIndexName(RESOURCE_NAME, tenant)).routing(tenant)
       .build();
   }
 

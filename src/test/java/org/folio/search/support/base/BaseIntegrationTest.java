@@ -55,7 +55,6 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
-
     inventoryApi = new InventoryApi(kafkaTemplate);
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
   }

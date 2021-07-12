@@ -41,7 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IndexServiceTest {
   private static final String INDEX_NOT_EXISTS_MESSAGE =
-    String.format(INDEX_NOT_EXISTS_ERROR, List.of("test-resource_test_tenant"));
+    String.format(INDEX_NOT_EXISTS_ERROR, List.of("folio_test-resource_test_tenant"));
 
   private static final String EMPTY_OBJECT = "{}";
   @Mock private IndexRepository indexRepository;

@@ -12,7 +12,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -30,7 +29,6 @@ import org.springframework.util.backoff.FixedBackOff;
 @Log4j2
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties({FolioKafkaProperties.class})
 public class KafkaConfiguration {
 
   private final KafkaProperties kafkaProperties;
@@ -52,9 +50,8 @@ public class KafkaConfiguration {
   }
 
   /**
-   * Constructs a batch handler that tries to deliver messages 10 times with
-   * configured interval, if exception is not resolved than messages will be redelivered
-   * by next poll() call.
+   * Constructs a batch handler that tries to deliver messages 10 times with configured interval, if exception is not
+   * resolved than messages will be redelivered by next poll() call.
    */
   private BatchErrorHandler kafkaFactoryErrorHandler() {
     return new RecoveringBatchErrorHandler(new FixedBackOff(

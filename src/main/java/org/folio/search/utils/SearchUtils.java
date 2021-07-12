@@ -1,17 +1,10 @@
 package org.folio.search.utils;
 
-import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
@@ -26,11 +19,9 @@ public class SearchUtils {
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
   public static final String PLAIN_MULTILANG_PREFIX = "plain_";
-  public static final String SELECTED_AGG_PREFIX = "selected_";
   public static final String DOT = ".";
 
   public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
-  public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
   /**
    * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
@@ -111,51 +102,5 @@ public class SearchUtils {
     return dotIndex < 0
       ? PLAIN_MULTILANG_PREFIX + path
       : path.substring(0, dotIndex) + DOT + PLAIN_MULTILANG_PREFIX + path.substring(dotIndex + 1);
-  }
-
-  /**
-   * Creates call number for passed prefix, call number and suffix.
-   *
-   * @param prefix call number prefix
-   * @param callNumber call number value
-   * @param suffix call number suffix
-   * @return created effective call number as {@link String} value
-   */
-  public static String getEffectiveCallNumber(String prefix, String callNumber, String suffix) {
-    return Stream.of(prefix, callNumber, suffix)
-      .filter(StringUtils::isNotBlank)
-      .map(String::trim)
-      .collect(joining(" "));
-  }
-
-  /**
-   * Generates multi-language field value for passed key, value and conversion context with supported languages.
-   *
-   * @param key name of multi-language field as {@link String} object
-   * @param value multi-language field value as {@link Object} object
-   * @param languages list of languages for multilang field
-   * @return created multi-language value as {@link Map}
-   */
-  public static Map<String, Object> getMultilangValue(String key, Object value, List<String> languages) {
-    var multilangValueMap = new LinkedHashMap<String, Object>(languages.size(), CONST_SIZE_LOAD_FACTOR);
-    languages.forEach(language -> multilangValueMap.put(language, value));
-    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, value);
-
-    var resultMap = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
-    resultMap.put(key, multilangValueMap);
-    resultMap.put(PLAIN_MULTILANG_PREFIX + key, value);
-
-    return resultMap;
-  }
-
-  /**
-   * Returns nullableList if it is not null or empty, defaultList otherwise.
-   *
-   * @param nullableList nullable value to check
-   * @param <T> generic type for value
-   * @return nullableList if it is not null or empty, defaultList otherwise.
-   */
-  public static <T> Stream<T> toSafeStream(List<T> nullableList) {
-    return CollectionUtils.isNotEmpty(nullableList) ? nullableList.stream() : Stream.empty();
   }
 }

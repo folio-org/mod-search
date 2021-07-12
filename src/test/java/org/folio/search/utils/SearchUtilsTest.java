@@ -12,6 +12,7 @@ import static org.folio.search.utils.TestUtils.searchServiceRequest;
 
 import java.io.IOException;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,5 +83,11 @@ class SearchUtilsTest {
   void getPathToPlainMultilangValue_parameterized(String given, String expected) {
     var actual = SearchUtils.getPathToPlainMultilangValue(given);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void getElasticsearchIndexName_positive_resourceIdEvent() {
+    var actual = getElasticsearchIndexName(ResourceIdEvent.of(null, RESOURCE_NAME, TENANT_ID));
+    assertThat(actual).isEqualTo(INDEX_NAME);
   }
 }

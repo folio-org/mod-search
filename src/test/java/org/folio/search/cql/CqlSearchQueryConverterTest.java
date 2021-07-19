@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -78,6 +79,14 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void convert_positive_searchByGroupOfOneField() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
+    var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
+    var expectedQuery = multiMatchQuery("value", "field").operator(AND).type(CROSS_FIELDS);
+    assertThat(actual).isEqualTo(searchSource().query(expectedQuery));
   }
 
   @Test

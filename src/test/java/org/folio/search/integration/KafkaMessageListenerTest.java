@@ -1,5 +1,8 @@
 package org.folio.search.integration;
 
+import static java.util.Collections.emptyMap;
+import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
@@ -9,7 +12,11 @@ import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
@@ -33,6 +41,8 @@ class KafkaMessageListenerTest {
 
   @InjectMocks private KafkaMessageListener messageListener;
   @Mock private IndexService indexService;
+  @Spy private final FolioMessageBatchProcessor batchProcessor =
+    new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
 
   @Test
   void handleEvents() {
@@ -45,11 +55,6 @@ class KafkaMessageListenerTest {
     var holdingBody1 = eventBody(null, mapOf("id", randomId(), "instanceId", instanceId3));
     var holdingBody2 = eventBody(null, mapOf("id", randomId(), "instanceId", null));
 
-    var resourceIdEvents = List.of(
-      ResourceIdEvent.of(instanceId1, INSTANCE_RESOURCE, TENANT_ID, INDEX),
-      ResourceIdEvent.of(instanceId2, INSTANCE_RESOURCE, TENANT_ID, INDEX),
-      ResourceIdEvent.of(instanceId3, INSTANCE_RESOURCE, TENANT_ID, INDEX));
-
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>("inventory.instance", 0, 0, instanceId1, instanceBody1),
       new ConsumerRecord<>("inventory.instance", 0, 0, instanceId2, instanceBody2),
@@ -58,22 +63,41 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.holding-record", 0, 0, null, holdingBody2)
     ));
 
-    verify(indexService).indexResourcesById(resourceIdEvents);
+    var expectedEvents = List.of(
+      ResourceIdEvent.of(instanceId1, INSTANCE_RESOURCE, TENANT_ID, INDEX),
+      ResourceIdEvent.of(instanceId2, INSTANCE_RESOURCE, TENANT_ID, INDEX),
+      ResourceIdEvent.of(instanceId3, INSTANCE_RESOURCE, TENANT_ID, INDEX));
+
+    verify(indexService).indexResourcesById(expectedEvents);
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
-  @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX"})
   @ParameterizedTest
+  @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX", "DELETE"})
   void handleEventsOnlyOfKnownTypes(String eventType) {
-    var resourceBody = new ResourceEventBody()
-      .type(ResourceEventBody.TypeEnum.fromValue(eventType))
-      .tenant(TENANT_ID)
-      ._new(null);
-
+    var eventTypeEnumValue = TypeEnum.fromValue(eventType);
+    var instanceId = randomId();
+    var resourceBody = new ResourceEventBody().type(eventTypeEnumValue).tenant(TENANT_ID)._new(mapOf("id", instanceId));
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0,
-        UUID.randomUUID().toString(), resourceBody)));
+        instanceId, resourceBody)));
 
-    verify(indexService).indexResourcesById(any());
+    var actionType = eventTypeEnumValue != TypeEnum.DELETE ? INDEX : DELETE;
+    var expectedEvents = List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID, actionType));
+
+    verify(indexService).indexResourcesById(expectedEvents);
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleEvents_negative_shouldLogFailedEvent() {
+    var instanceId = randomId();
+    var eventBody = eventBody(INSTANCE_RESOURCE, mapOf("id", instanceId));
+    var idEvent = ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID, INDEX);
+    when(indexService.indexResourcesById(List.of(idEvent))).thenThrow(new RuntimeException("failed to save"));
+
+    messageListener.handleEvents(List.of(new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0, instanceId, eventBody)));
+    verify(indexService, times(3)).indexResourcesById(List.of(idEvent));
   }
 
   @Test
@@ -89,8 +113,9 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.instance", 0, 0,
         instanceId, resourceBody)));
 
-    var expectedEvent = ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID, INDEX);
-    verify(indexService).indexResourcesById(List.of(expectedEvent));
+    var expectedEvents = List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID, INDEX));
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+    verify(indexService).indexResourcesById(expectedEvents);
   }
 
   @Test
@@ -104,7 +129,8 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>("inventory.item", 0, 0, RESOURCE_ID, itemBody),
       new ConsumerRecord<>("inventory.holding-record", 0, 0, RESOURCE_ID, holdingBody)));
 
-    var expectedEvent = ResourceIdEvent.of(RESOURCE_ID, INSTANCE_RESOURCE, TENANT_ID, INDEX);
-    verify(indexService).indexResourcesById(List.of(expectedEvent));
+    var expectedEvents = List.of(ResourceIdEvent.of(RESOURCE_ID, INSTANCE_RESOURCE, TENANT_ID, INDEX));
+    verify(indexService).indexResourcesById(expectedEvents);
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 }

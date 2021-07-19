@@ -21,12 +21,12 @@ public class FolioKafkaProperties {
   /**
    * Specifies time to wait before reattempting delivery.
    */
-  private long retryIntervalMs;
+  private long retryIntervalMs = 1000;
 
   /**
    * How many delivery attempts to perform when message failed.
    */
-  private long retryDeliveryAttempts;
+  private long retryDeliveryAttempts = 5;
 
   /**
    * Contains set of settings for specific kafka listener.

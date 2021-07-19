@@ -3,6 +3,7 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
+import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 public class KafkaMessageListener {
 
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
+  private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final IndexService indexService;
 
   @KafkaListener(
@@ -39,11 +41,12 @@ public class KafkaMessageListener {
     containerFactory = "kafkaListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['events'].concurrency}",
-    errorHandler = "kafkaErrorHandler")
+    concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
-    indexService.indexResourcesById(getResourceIdRecords(consumerRecords));
+    var batch = getResourceIdRecords(consumerRecords);
+    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      indexService::indexResourcesById, KafkaMessageListener::logFailedEvent);
   }
 
   private List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEventBody>> events) {
@@ -76,5 +79,10 @@ public class KafkaMessageListener {
 
   private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
     return consumerRecord.topic().endsWith(INVENTORY_INSTANCE_TOPIC);
+  }
+
+  private static void logFailedEvent(ResourceIdEvent event, Exception e) {
+    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
+      event.getAction().getValue(), event.getType(), event.getTenant(), event.getId(), e);
   }
 }

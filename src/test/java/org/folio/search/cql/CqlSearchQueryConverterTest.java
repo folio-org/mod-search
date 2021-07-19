@@ -81,6 +81,14 @@ class CqlSearchQueryConverterTest {
   }
 
   @Test
+  void convert_positive_searchByGroupOfOneField() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
+    var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
+    var expectedQuery = multiMatchQuery("value", "field").operator(AND).type(CROSS_FIELDS);
+    assertThat(actual).isEqualTo(searchSource().query(expectedQuery));
+  }
+
+  @Test
   void convert_negative_unsupportedBoolOperator() {
     var cqlQuery = "title all \"test-query\" prox contributors = \"value\"";
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))

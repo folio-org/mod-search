@@ -1,13 +1,11 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
-import static org.folio.search.utils.SearchUtils.getMultilangValue;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +24,7 @@ import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -123,9 +122,8 @@ public class SearchDocumentConverter {
     if (plainFieldValue == null) {
       return emptyMap();
     }
-    return desc.isMultilang()
-      ? getMultilangValue(fieldName, plainFieldValue, ctx.getLanguages())
-      : singletonMap(fieldName, plainFieldValue);
+
+    return SearchUtils.getPlainFieldValue(desc, fieldName, plainFieldValue, ctx.getLanguages());
   }
 
   @SuppressWarnings("unchecked")

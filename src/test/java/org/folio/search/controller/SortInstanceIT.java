@@ -65,10 +65,10 @@ class SortInstanceIT extends BaseIntegrationTest {
       .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].title", is("Aaa")))
-      .andExpect(jsonPath("instances[1].title", is("Ccc")))
-      .andExpect(jsonPath("instances[2].title", is("www")))
-      .andExpect(jsonPath("instances[3].title", is("Zzz")));
+      .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
+      .andExpect(jsonPath("instances[1].title", is("Animal farm")))
+      .andExpect(jsonPath("instances[2].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("instances[3].title", is("Zero Minus Ten")));
   }
 
   @Test
@@ -77,10 +77,10 @@ class SortInstanceIT extends BaseIntegrationTest {
       .headers(defaultHeaders(TENANT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].title", is("Zzz")))
-      .andExpect(jsonPath("instances[1].title", is("www")))
-      .andExpect(jsonPath("instances[2].title", is("Ccc")))
-      .andExpect(jsonPath("instances[3].title", is("Aaa")));
+      .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
+      .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("instances[2].title", is("Animal farm")))
+      .andExpect(jsonPath("instances[3].title", is("Calling Me Home")));
   }
 
   private static Instance[] createFourInstances() {
@@ -91,20 +91,24 @@ class SortInstanceIT extends BaseIntegrationTest {
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>())};
 
     instances[0]
-      .title("Aaa")
+      .title("Animal farm")
+      .indexTitle("B1 Animal farm")
       .addContributorsItem(new InstanceContributors().name("yyy zzz"));
 
     instances[1]
-      .title("Zzz")
+      .title("Zero Minus Ten")
+      .indexTitle(null)
       .addContributorsItem(new InstanceContributors().name("aaa bbb").primary(false))
       .addContributorsItem(new InstanceContributors().name("bbb ccc").primary(true));
 
     instances[2]
-      .title("Ccc")
+      .title("Calling Me Home")
+      .indexTitle("A1 Calling Me Home")
       .addContributorsItem(new InstanceContributors().name("bcc ccc"));
 
     instances[3]
-      .title("www")
+      .title("Walk in My Soul")
+      .indexTitle(null)
       .addContributorsItem(new InstanceContributors().name("1111 2222").primary(true));
 
     return instances;

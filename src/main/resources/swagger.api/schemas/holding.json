@@ -41,6 +41,13 @@
       "items": {
         "$ref": "electronicAccess.json"
       }
+    },
+    "notes": {
+      "type": "array",
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+        "$ref": "note.json"
+      }
     }
   }
 }

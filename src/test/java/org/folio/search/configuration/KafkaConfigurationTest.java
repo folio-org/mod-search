@@ -27,4 +27,12 @@ class KafkaConfigurationTest {
     var containerFactory = kafkaConfiguration.kafkaListenerContainerFactory();
     assertThat(containerFactory).isNotNull();
   }
+
+  @Test
+  void kafkaMessageListenerRetryTemplate() {
+    when(folioKafkaProperties.getRetryIntervalMs()).thenReturn(100L);
+    when(folioKafkaProperties.getRetryDeliveryAttempts()).thenReturn(5L);
+    var retryTemplate = kafkaConfiguration.kafkaMessageListenerRetryTemplate();
+    assertThat(retryTemplate).isNotNull();
+  }
 }

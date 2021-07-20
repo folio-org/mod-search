@@ -1,3 +1,14 @@
+## 1.4.1 2021-07-20
+
+* Supports full-text search for all instance notes (MSEARCH-116)
+* Supports full-text search for public and all holding records notes (MSEARECH-117)
+* Supports full-text search for public and all item notes (MSEARCH-118)
+* Provides kafka topics names using ENV variable and tenant id (MSEARCH-132)
+* Documents list of available facets (MSEARCH-133)
+* Removes multi-language support from the contributors field (MSEARCH-134)
+* Adds sorting adjustment by title using index title (MSEARCH-136)
+* Handles gracefully Kafka message processing failures (MSEARCH-155)
+
 ## 1.4.0 2021-06-18
 
 * Adds ASCII folding token filter (MSEARCH-67)

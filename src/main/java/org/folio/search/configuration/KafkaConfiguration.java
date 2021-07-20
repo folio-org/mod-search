@@ -12,16 +12,13 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.BatchErrorHandler;
-import org.springframework.kafka.listener.RecoveringBatchErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.retry.support.RetryTemplate;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
@@ -30,9 +27,9 @@ import org.springframework.util.backoff.FixedBackOff;
 @Log4j2
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties({FolioKafkaProperties.class})
 public class KafkaConfiguration {
 
+  public static final String KAFKA_RETRY_TEMPLATE_NAME = "kafkaMessageListenerRetryTemplate";
   private final KafkaProperties kafkaProperties;
   private final FolioKafkaProperties folioKafkaProperties;
 
@@ -47,18 +44,22 @@ public class KafkaConfiguration {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEventBody>();
     factory.setBatchListener(true);
     factory.setConsumerFactory(jsonNodeConsumerFactory());
-    factory.setBatchErrorHandler(kafkaFactoryErrorHandler());
     return factory;
   }
 
   /**
-   * Constructs a batch handler that tries to deliver messages 10 times with
-   * configured interval, if exception is not resolved than messages will be redelivered
-   * by next poll() call.
+   * Constructs a batch handler that tries to deliver messages 10 times with configured interval, if exception is not
+   * resolved than messages will be redelivered by next poll() call. Creates retry template to consume messages from
+   * kafka.
+   *
+   * @return created {@link RetryTemplate} object
    */
-  private BatchErrorHandler kafkaFactoryErrorHandler() {
-    return new RecoveringBatchErrorHandler(new FixedBackOff(
-      folioKafkaProperties.getRetryIntervalMs(), folioKafkaProperties.getRetryDeliveryAttempts()));
+  @Bean(name = KAFKA_RETRY_TEMPLATE_NAME)
+  public RetryTemplate kafkaMessageListenerRetryTemplate() {
+    return RetryTemplate.builder()
+      .maxAttempts((int) folioKafkaProperties.getRetryDeliveryAttempts())
+      .fixedBackoff(folioKafkaProperties.getRetryIntervalMs())
+      .build();
   }
 
   /**

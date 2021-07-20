@@ -19,7 +19,10 @@ import org.folio.search.service.converter.SearchFieldsProcessorTest.TestContextC
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -78,9 +81,11 @@ class SearchFieldsProcessorTest {
     assertThat(actual).isEqualTo(mapOf(FIELD, "map_field"));
   }
 
-  @Test
-  void getSearchFields_negative_rawMapResourceWithInvalidProcessor() {
-    var desc = description(null, mapOf(FIELD, searchField("testClassProcessor", "keyword")));
+  @DisplayName("getSearchFields_negative_parameterized")
+  @ParameterizedTest(name = "[{index}] given={0}, expected=empty map")
+  @CsvSource({"testClassProcessor", "throwingExceptionProcessor", "nullValueProcessor"})
+  void getSearchFields_negative_parameterized(String processorName) {
+    var desc = description(null, mapOf(FIELD, searchField(processorName, "keyword")));
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
     var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(emptyMap());
@@ -121,6 +126,18 @@ class SearchFieldsProcessorTest {
     @Bean
     FieldProcessor<TestClass, String> testClassProcessor() {
       return test -> "test_class_value";
+    }
+
+    @Bean
+    FieldProcessor<Map<String, Object>, String> throwingExceptionProcessor() {
+      return test -> {
+        throw new RuntimeException("error");
+      };
+    }
+
+    @Bean
+    FieldProcessor<Map<String, Object>, String> nullValueProcessor() {
+      return test -> null;
     }
   }
 

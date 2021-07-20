@@ -64,7 +64,23 @@
     "enumeration": "",
     "chronology": "",
     "yearCaption": [],
-    "notes": [],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index of item.",
+        "staffOnly": false,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian public note for item",
+        "staffOnly": false,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note for item",
+        "staffOnly": true,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
     "circulationNotes": [],
     "status": {
       "name": "Available",

@@ -1,3 +1,11 @@
+## 1.4.1 2021-07-20
+
+* Handles gracefully Kafka message processing failures (MSEARCH-155)
+* Adds sorting adjustment by title using index title (MSEARCH-136)
+* Removes multi-language support from the contributors field (MSEARCH-134)
+* Documents list of available facets (MSEARCH-133)
+* Provides kafka topics names created by pattern: `${env}.${tenantId}.inventory.(instance|item|holdings-record)` (MSEARCH-154)
+
 ## 1.4.0 2021-06-18
 
 * Adds ASCII folding token filter (MSEARCH-67)

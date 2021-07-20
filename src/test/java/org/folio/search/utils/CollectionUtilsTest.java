@@ -1,6 +1,8 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
@@ -81,5 +83,23 @@ class CollectionUtilsTest {
     List<Integer> initial = new ArrayList<>(List.of(3, 5));
     addToList(initial, null, true);
     assertThat(initial).contains(3, 5);
+  }
+
+  @Test
+  void toSafeStream_positive() {
+    var actual = CollectionUtils.toStreamSafe(List.of(1, 2)).collect(toList());
+    assertThat(actual).containsExactly(1, 2);
+  }
+
+  @Test
+  void toSafeStream_positive_nullValue() {
+    var actual = CollectionUtils.toStreamSafe(null).collect(toList());
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void toSafeStream_positive_emptyCollection() {
+    var actual = CollectionUtils.toStreamSafe(emptyList()).collect(toList());
+    assertThat(actual).isEmpty();
   }
 }

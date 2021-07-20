@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.folio.search.model.types.SearchType;
@@ -19,7 +20,10 @@ import org.folio.search.model.types.SearchType;
 public class PlainFieldDescription extends FieldDescription {
 
   public static final String NONE_FIELD_TYPE = "none";
+
   public static final String MULTILANG_FIELD_TYPE = "multilang";
+  public static final String STANDARD_FIELD_TYPE = "standard";
+  public static final Set<String> FULLTEXT_FIELD_TYPES = Set.of(MULTILANG_FIELD_TYPE, STANDARD_FIELD_TYPE);
   public static final String PLAIN_MULTILANG_FIELD_TYPE = PLAIN_MULTILANG_PREFIX + "multilang";
 
   /**
@@ -66,17 +70,35 @@ public class PlainFieldDescription extends FieldDescription {
   @JsonProperty("default")
   private Object defaultValue;
 
+  /**
+   * Specifies if plain keyword value should be indexed with field or not. Works only for fulltext fields.
+   */
+  private boolean indexPlainValue = true;
+
+  /**
+   * Provides sort description for field. If not specified - standard rules will be applied for sort field.
+   */
   @JsonProperty("sort")
   private SortDescription sortDescription;
 
   /**
    * Checks if resource description field is multi-language.
    *
-   * @return true if field is must be indexed, false - otherwise
+   * @return true if field is multi-language, false - otherwise
    */
   @JsonIgnore
   public boolean isMultilang() {
     return MULTILANG_FIELD_TYPE.equals(index);
+  }
+
+  /**
+   * Checks if resource description field can be considered as fulltext.
+   *
+   * @return true if field can be considered as a fulltext, false - otherwise
+   */
+  @JsonProperty
+  public boolean hasFulltextIndex() {
+    return FULLTEXT_FIELD_TYPES.contains(index);
   }
 
   /**

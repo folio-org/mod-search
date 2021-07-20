@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
+import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -77,6 +78,14 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void convert_positive_searchByGroupOfOneField() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
+    var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
+    var expectedQuery = multiMatchQuery("value", "field").operator(AND).type(CROSS_FIELDS);
+    assertThat(actual).isEqualTo(searchSource().query(expectedQuery));
   }
 
   @Test
@@ -301,8 +310,8 @@ class CqlSearchQueryConverterTest {
 
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
-      arguments("keyword all \"test-query\"",
-        searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
+      arguments("keyword all \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
+      arguments("keyword any \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(OR))),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
         searchSource().query(matchQuery("identifiers", "test-query").operator(AND))),

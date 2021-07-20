@@ -3,9 +3,9 @@ package org.folio.search.support.api;
 import static java.util.Collections.emptyMap;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.INVENTORY_HOLDING_TOPIC;
-import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
-import static org.folio.search.utils.TestConstants.INVENTORY_ITEM_TOPIC;
+import static org.folio.search.utils.TestConstants.getInventoryHoldingTopic;
+import static org.folio.search.utils.TestConstants.getInventoryInstanceTopic;
+import static org.folio.search.utils.TestConstants.getInventoryItemTopic;
 import static org.folio.search.utils.TestUtils.eventBody;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
@@ -35,7 +35,7 @@ public class InventoryApi {
     INSTANCE_STORE.computeIfAbsent(tenantName, k -> new HashMap<>())
       .put(instance.getId(), instance);
 
-    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, instance.getId(),
+    kafkaTemplate.send(getInventoryInstanceTopic(tenantName), instance.getId(),
       eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
 
     if (instance.getHoldings() != null) {
@@ -56,7 +56,7 @@ public class InventoryApi {
     HOLDING_STORE.computeIfAbsent(tenant, k -> new HashMap<>())
       .put(holding.getId(), event);
 
-    kafkaTemplate.send(INVENTORY_HOLDING_TOPIC, instanceId,
+    kafkaTemplate.send(getInventoryHoldingTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
@@ -65,28 +65,28 @@ public class InventoryApi {
     ITEM_STORE.computeIfAbsent(tenant, k -> new HashMap<>())
       .put(item.getId(), event);
 
-    kafkaTemplate.send(INVENTORY_ITEM_TOPIC, instanceId,
+    kafkaTemplate.send(getInventoryItemTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
   public void deleteItem(String tenant, String id) {
     var item = ITEM_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(INVENTORY_ITEM_TOPIC, item.getInstanceId(),
+    kafkaTemplate.send(getInventoryItemTopic(tenant), item.getInstanceId(),
       eventBody(INSTANCE_RESOURCE, null).old(item).tenant(tenant).type(DELETE));
   }
 
   public void deleteHolding(String tenant, String id) {
     var hr = HOLDING_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(INVENTORY_HOLDING_TOPIC, hr.getInstanceId(),
+    kafkaTemplate.send(getInventoryHoldingTopic(tenant), hr.getInstanceId(),
       eventBody(INSTANCE_RESOURCE, null).old(hr).tenant(tenant).type(DELETE));
   }
 
   public void deleteInstance(String tenant, String id) {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(INVENTORY_INSTANCE_TOPIC, instance.getId(),
+    kafkaTemplate.send(getInventoryInstanceTopic(tenant), instance.getId(),
       eventBody(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
   }
 

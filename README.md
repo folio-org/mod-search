@@ -235,6 +235,8 @@ Here is table of supported operators.
 
 Here is a table with supported search options.
 
+### Search Options
+
 #### Instance search options
 
 | Option                                    | Type      |Example                                            | Description                  |
@@ -270,6 +272,7 @@ Here is a table with supported search options.
 | `staffSuppress`                           | term      | `staffSuppress==true`                             | Matches instances that are staff suppressed |
 | `discoverySuppress`                       | term      | `discoverySuppress==true`                         | Matches instances that are suppressed from discovery|
 | `publicNotes`                             | full text | `publicNotes all "public note"`                   | Matches instances that have a public note (i.e. `note.staffOnly` is `false`) |
+| `notes.note`                              | full text | `notes.note all "librarian note"`                 | Search by instance notes (include staffOnly) |
 | `isbn`                                    | term      | `isbn="1234*943"`                                 | Matches instances that have an ISBN  identifier with the given value |
 | `issn`                                    | term      | `issn="1234*943"`                                 | Matches instances that have an ISSN  identifier with the given value |
 
@@ -289,6 +292,8 @@ Here is a table with supported search options.
 | `holdings.electronicAccess.linkText`               | full text | `holdings.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
 | `holdings.electronicAccess.materialsSpecification` | full text | `holdings.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
+| `holdings.notes.note`                              | full text | `holdings.notes.note all "librarian note"`                 | Search by holdings notes |
+| `holdingPublicNotes`                               | full text | `holdingPublicNotes all "public note"`                     | Search by holdings public notes |
 
 
 #### Items search options
@@ -309,7 +314,62 @@ Here is a table with supported search options.
 | `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
 | `items.electronicAccess.materialsSpecification` | full text | `items.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
+| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                 | Search by item notes |
+| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                     | Search by item public notes |
 
+
+### Search Facets
+
+Facets can be retrieved by using following API `GET /instances/facets`. It consumes following request parameters:
+
+| Name          | Required | Description |
+| :-------------| :--------|:------------|
+| query         | Yes      | A CQL query to execute |
+| facet         | Yes      | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
+
+Spring Boot supports 2 forms of query parameters for the `facet` parameter:
+
+```text
+GET /instances/facets?query=title all book&facet=source:5&facet=discoverySuppress:2
+```
+
+or
+
+```text
+GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
+```
+
+#### Instance facets
+
+| Option                   | Type    | Description |
+| :------------------------|:--------|:-------------|
+| `source`                 | term    | Requests a source facet |
+| `instanceTypeId`         | term    | Requests a type id facet |
+| `instanceFormatId`       | term    | Requests a format id facet |
+| `modeOfIssuanceId`       | term    | Requests a mode of issuance id facet |
+| `natureOfContentTermIds` | term    | Requests a nature of content terms id facet |
+| `languages`              | term    | Requests a language code facet |
+| `instanceTags`           | term    | Requests a tags facet |
+| `staffSuppress`          | boolean | Requests a staff suppress facet |
+| `discoverySuppress`      | boolean | Requests a discovery suppress facet |
+
+#### Holding facets
+
+| Option                         | Type    | Description |
+| :------------------------------|:--------|:-------------|
+| `holdings.permanentLocationId` | term    | Requests a holding permanent location id facet |
+| `holdings.discoverySuppress`   | term    | Requests a holding discovery suppress facet |
+| `holdingTags`                  | term    | Requests a holding tag facet |
+
+#### Item facets
+
+| Option                      | Type    | Description |
+| :---------------------------|:--------|:-------------|
+| `items.effectiveLocationId` | term    | Requests an item effective location id facet |
+| `items.status.name`         | term    | Requests an item status facet |
+| `items.materialTypeId`      | term    | Requests an item material type id facet |
+| `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet |
+| `itemTags`                  | term    | Requests an item tag facet |
 
 ### Sorting results
 

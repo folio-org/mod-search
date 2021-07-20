@@ -25,10 +25,7 @@
       "searchTypes": "sort",
       "inventorySearchTypes": [ "title", "keyword" ],
       "index": "multilang",
-      "showInResponse": true,
-      "mappings": {
-        "copy_to": [ "sort_title" ]
-      }
+      "showInResponse": true
     },
     "alternativeTitles": {
       "type": "object",
@@ -64,7 +61,7 @@
       "properties": {
         "name": {
           "inventorySearchTypes": [ "contributors", "keyword" ],
-          "index": "multilang",
+          "index": "standard",
           "showInResponse": true
         },
         "primary": {
@@ -157,7 +154,7 @@
       "type": "object",
       "properties": {
         "note": {
-          "index": "source"
+          "index": "multilang"
         },
         "staffOnly": {
           "index": "bool"
@@ -272,6 +269,17 @@
               "index": "multilang"
             }
           }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "index": "multilang"
+            },
+            "staffOnly": {
+              "index": "bool"
+            }
+          }
         }
       }
     },
@@ -319,11 +327,28 @@
               "index": "multilang"
             }
           }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "index": "multilang"
+            },
+            "staffOnly": {
+              "index": "bool"
+            }
+          }
         }
       }
     }
   },
   "searchFields": {
+    "sort_title": {
+      "searchTypes": "sort",
+      "type": "search",
+      "index": "lowercase_sort",
+      "processor": "sortTitleProcessor"
+    },
     "sort_contributors": {
       "searchTypes": "sort",
       "type": "search",
@@ -335,11 +360,22 @@
       "index": "multilang",
       "processor": "publicNotesProcessor"
     },
+    "itemPublicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "itemPublicNotesProcessor"
+    },
+    "holdingPublicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "holdingPublicNotesProcessor"
+    },
     "isbn": {
       "type": "search",
       "processor": "isbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard"
+      "index": "standard",
+      "indexPlainValue": false
     },
     "issn": {
       "type": "search",
@@ -377,12 +413,5 @@
       "processor": "holdingsCallNumberComponentsProcessor"
     }
   },
-  "indexMappings": {
-    "sort_title": {
-      "type": "keyword",
-      "normalizer": "keyword_lowercase",
-      "index": false,
-      "doc_values": true
-    }
-  }
+  "indexMappings": {}
 }

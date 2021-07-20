@@ -14,8 +14,8 @@ class FolioKafkaPropertiesTest {
   @Test
   void constructorTest() {
     var kafkaListenerProperties = new KafkaListenerProperties();
-    kafkaListenerProperties.setConcurrency("1");
-    kafkaListenerProperties.setTopics("test-topic");
+    kafkaListenerProperties.setConcurrency(5);
+    kafkaListenerProperties.setTopicPattern("test-topic");
     kafkaListenerProperties.setGroupId("test-group");
 
     var folioKafkaProperties = new FolioKafkaProperties();

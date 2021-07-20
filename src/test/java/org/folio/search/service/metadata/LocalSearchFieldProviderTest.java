@@ -138,6 +138,13 @@ class LocalSearchFieldProviderTest {
     assertThat(actual).isEmpty();
   }
 
+  @Test
+  void getFieldByPath_negative_resourceDescriptionNotFound() {
+    when(localResourceProvider.getResourceDescription(RESOURCE_NAME)).thenReturn(Optional.empty());
+    var actual = searchFieldProvider.getFieldByPath(RESOURCE_NAME, "id");
+    assertThat(actual).isEmpty();
+  }
+
   private List<ResourceDescription> resourceDescriptions() {
     return List.of(converter.convert(
       resourceDescription(mapOf(

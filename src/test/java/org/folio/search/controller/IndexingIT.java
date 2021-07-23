@@ -1,6 +1,8 @@
 package org.folio.search.controller;
 
+import static java.util.stream.Collectors.toList;
 import static org.awaitility.Awaitility.await;
+import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -8,6 +10,7 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
+import java.util.stream.IntStream;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -17,73 +20,66 @@ import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 class IndexingIT extends BaseIntegrationTest {
+
+  private static final List<String> INSTANCE_IDS = getRandomIds(3);
+  private static final List<String> ITEM_IDS = getRandomIds(2);
+  private static final List<String> HOLDING_IDS = getRandomIds(4);
+
   @Test
   void shouldRemoveItem() {
-    var instances = createInstances();
-    var instanceToUse = instances.get(0);
-    var itemToRemove = instanceToUse.getItems().get(1).getId();
-
-    instanceToUse.getItems().forEach(item -> {
-      if (item.getId().equals(itemToRemove)) {
-        inventoryApi.deleteItem(TENANT_ID, item.getId());
-        getByQuery("items.id=={value}", item.getId(), 0);
-      } else {
-        getByQuery("items.id=={value}", item.getId(), 1);
-      }
-    });
+    createInstances();
+    var itemIdToDelete = ITEM_IDS.get(1);
+    inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
+    assertCountByQuery("items.id=={value}", itemIdToDelete, 0);
+    assertCountByQuery("items.id=={value}", ITEM_IDS.get(0), 1);
   }
 
   @Test
   void shouldRemoveHolding() {
-    var instances = createInstances();
-    var instanceToUse = instances.get(0);
-    var hrToRemove = instanceToUse.getHoldings().get(0).getId();
-
-    instanceToUse.getHoldings().forEach(hr -> {
-      if (hr.getId().equals(hrToRemove)) {
-        inventoryApi.deleteHolding(TENANT_ID, hr.getId());
-        getByQuery("holdings.id=={value}", hr.getId(), 0);
-      } else {
-        getByQuery("holdings.id=={value}", hr.getId(), 1);
-      }
-    });
+    createInstances();
+    inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
+    assertCountByQuery("holdings.id=={value}", HOLDING_IDS.get(0), 0);
+    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery("holdings.id=={value}", id, 1));
   }
 
   @Test
   void shouldRemoveInstance() {
-    var instances = createInstances();
-    var instanceToRemove = instances.get(0).getId();
-
-    instances.forEach(instance -> {
-      if (instance.getId().equals(instanceToRemove)) {
-        inventoryApi.deleteInstance(TENANT_ID, instance.getId());
-        getByQuery("id=={value}", instance.getId(), 0);
-      } else {
-        getByQuery("id=={value}", instance.getId(), 1);
-      }
-    });
+    createInstances();
+    var instanceIdToDelete = INSTANCE_IDS.get(0);
+    inventoryApi.deleteInstance(TENANT_ID, instanceIdToDelete);
+    assertCountByQuery("id=={value}", instanceIdToDelete, 0);
+    INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery("id=={value}", id, 1));
   }
 
-  private List<Instance> createInstances() {
-    var instances = List.of(new Instance().id(randomId()),
-      new Instance().id(randomId()),
-      new Instance().id(randomId()));
+  private void createInstances() {
+    var instances = INSTANCE_IDS.stream()
+      .map(id -> new Instance().id(id))
+      .collect(toList());
 
     instances.get(0)
-      .holdings(List.of(new Holding().id(randomId()), new Holding().id(randomId())))
-      .items(List.of(new Item().id(randomId()), new Item().id(randomId())));
+      .holdings(List.of(holding(0), holding(1)))
+      .items(List.of(item(0), item(1)));
 
-    instances.get(1)
-      .holdings(List.of(new Holding().id(randomId()), new Holding().id(randomId())));
+    instances.get(1).holdings(List.of(holding(2), holding(3)));
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    getByQuery("id=={value}", instances.get(2).getId(), 1);
-
-    return instances;
+    assertCountByQuery("{value}", exactMatchAny("id", INSTANCE_IDS), 3);
   }
 
-  private void getByQuery(String query, String value, int expectedCount) {
+  private static Item item(int i) {
+    return new Item().id(ITEM_IDS.get(i));
+  }
+
+  private static Holding holding(int i) {
+    return new Holding().id(HOLDING_IDS.get(i));
+  }
+
+  private void assertCountByQuery(String query, Object value, int expectedCount) {
     await().untilAsserted(() -> doGet(searchInstancesByQuery(query), value)
       .andExpect(jsonPath("totalRecords", is(expectedCount))));
+  }
+
+  private static List<String> getRandomIds(int count) {
+    return IntStream.range(0, count).mapToObj(index -> randomId()).collect(toList());
   }
 }

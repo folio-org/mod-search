@@ -3,7 +3,7 @@ package org.folio.search.service.systemuser;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.folio.search.configuration.CacheConfiguration.SYSTEM_USER_CACHE;
+import static org.folio.search.configuration.SearchCacheNames.SYSTEM_USER_CACHE;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

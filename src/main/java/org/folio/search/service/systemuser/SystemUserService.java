@@ -1,6 +1,6 @@
 package org.folio.search.service.systemuser;
 
-import static org.folio.search.configuration.CacheConfiguration.SYSTEM_USER_CACHE;
+import static org.folio.search.configuration.SearchCacheNames.SYSTEM_USER_CACHE;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

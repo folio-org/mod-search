@@ -1,11 +1,10 @@
 package org.folio.search.configuration;
 
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Configuration;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@Configuration
-@EnableCaching
-public class CacheConfiguration {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class SearchCacheNames {
 
   public static final String ES_INDICES_CACHE = "es-indices";
   public static final String IDENTIFIER_IDS_CACHE = "identifier-types";

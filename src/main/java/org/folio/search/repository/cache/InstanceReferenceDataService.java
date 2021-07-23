@@ -2,8 +2,8 @@ package org.folio.search.repository.cache;
 
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
-import static org.folio.search.configuration.CacheConfiguration.ALTERNATIVE_TITLE_TYPES_CACHE;
-import static org.folio.search.configuration.CacheConfiguration.IDENTIFIER_IDS_CACHE;
+import static org.folio.search.configuration.SearchCacheNames.ALTERNATIVE_TITLE_TYPES_CACHE;
+import static org.folio.search.configuration.SearchCacheNames.IDENTIFIER_IDS_CACHE;
 
 import java.util.Collection;
 import java.util.Set;

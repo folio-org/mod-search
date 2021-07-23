@@ -1,7 +1,7 @@
 package org.folio.search.repository;
 
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
-import static org.folio.search.configuration.CacheConfiguration.ES_INDICES_CACHE;
+import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;

@@ -1,5 +1,7 @@
 package org.folio.search.service.systemuser;
 
+import static org.folio.search.configuration.CacheConfiguration.SYSTEM_USER_CACHE;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SystemUserService {
-  public static final String SYSTEM_USER_CACHE = "system-user-cache";
 
   private final PrepareSystemUserService prepareSystemUserService;
   private final FolioSystemUserProperties folioSystemUserConf;

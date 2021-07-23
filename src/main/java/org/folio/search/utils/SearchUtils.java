@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,4 +201,19 @@ public class SearchUtils {
     return fulltextValue;
   }
 
+  /**
+   * Checks if passed value null or empty collection or map.
+   *
+   * @param object - value to check
+   * @return true if null or empty, false - otherwise.
+   */
+  public static boolean isNotNullOrEmpty(Object object) {
+    if (object instanceof Collection) {
+      return !((Collection<?>) object).isEmpty();
+    }
+    if (object instanceof Map) {
+      return !((Map<?, ?>) object).isEmpty();
+    }
+    return object != null;
+  }
 }

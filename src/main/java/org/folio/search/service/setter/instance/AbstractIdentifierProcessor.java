@@ -8,13 +8,13 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
+import org.folio.search.repository.cache.InstanceReferenceDataService;
 import org.folio.search.service.setter.FieldProcessor;
 
 @RequiredArgsConstructor
 public abstract class AbstractIdentifierProcessor implements FieldProcessor<Instance, Set<String>> {
 
-  private final InstanceIdentifierTypeCache identifierTypeCache;
+  private final InstanceReferenceDataService identifierTypeCache;
 
   /**
    * Returns instance identifiers from event body by specified set of types.

@@ -1,6 +1,7 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static org.folio.search.utils.SearchUtils.isNotNullOrEmpty;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class SearchFieldsProcessor {
     var fieldProcessor = (FieldProcessor<Object, ?>) fieldProcessors.get(descriptor.getProcessor());
     try {
       var value = fieldProcessor.getFieldValue(resource);
-      if (value != null) {
+      if (isNotNullOrEmpty(value)) {
         return SearchUtils.getPlainFieldValue(descriptor, name, value, languages);
       }
     } catch (Exception e) {

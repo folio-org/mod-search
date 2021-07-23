@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
+import org.folio.search.repository.cache.InstanceReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class IsbnProcessorTest {
 
   @InjectMocks private IsbnProcessor isbnProcessor;
-  @Mock private InstanceIdentifierTypeCache cache;
+  @Mock private InstanceReferenceDataService referenceDataService;
 
   @MethodSource("isbnDataProvider")
   @DisplayName("getFieldValue_parameterized")
@@ -40,7 +40,7 @@ class IsbnProcessorTest {
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
       var isbnIdentifierIds = setOf(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
-      when(cache.fetchIdentifierIds(ISBN_IDENTIFIER_NAMES)).thenReturn(isbnIdentifierIds);
+      when(referenceDataService.fetchIdentifierIds(ISBN_IDENTIFIER_NAMES)).thenReturn(isbnIdentifierIds);
     }
 
     var actual = isbnProcessor.getFieldValue(instance);

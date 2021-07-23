@@ -1,6 +1,7 @@
 package org.folio.search.repository;
 
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
+import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
@@ -47,7 +48,7 @@ public class IndexRepository {
    * @param mappings mappings JSON {@link String} object
    * @return {@link FolioCreateIndexResponse} object
    */
-  @CacheEvict(cacheNames = "esIndicesCache", key = "#index")
+  @CacheEvict(cacheNames = ES_INDICES_CACHE, key = "#index")
   public FolioCreateIndexResponse createIndex(String index, String settings, String mappings) {
     var createIndexRequest = new CreateIndexRequest(index)
       .settings(settings, JSON)
@@ -112,7 +113,7 @@ public class IndexRepository {
    * @param index elasticsearch index name
    * @return true if index exists, false - otherwise
    */
-  @Cacheable(value = "esIndicesCache", key = "#index", unless = "#result == false")
+  @Cacheable(value = ES_INDICES_CACHE, key = "#index", unless = "#result == false")
   public boolean indexExists(String index) {
     log.info("Checking that index exists [index: {}]", index);
     var request = new GetIndexRequest(index);
@@ -126,7 +127,7 @@ public class IndexRepository {
    *
    * @param index elasticsearch index name
    */
-  @CacheEvict(cacheNames = "esIndicesCache", key = "#index")
+  @CacheEvict(cacheNames = ES_INDICES_CACHE, key = "#index")
   public void dropIndex(String index) {
     var request = new DeleteIndexRequest(index);
 

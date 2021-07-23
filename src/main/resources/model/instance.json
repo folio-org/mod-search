@@ -30,6 +30,9 @@
     "alternativeTitles": {
       "type": "object",
       "properties": {
+        "alternativeTitleTypeId": {
+          "index": "source"
+        },
         "alternativeTitle": {
           "inventorySearchTypes": [ "title", "keyword" ],
           "index": "multilang"
@@ -173,8 +176,7 @@
           "index": "multilang"
         },
         "materialsSpecification": {
-          "inventorySearchTypes": "electronicAccess",
-          "index": "multilang"
+          "index": "none"
         },
         "publicNote": {
           "inventorySearchTypes": "electronicAccess",
@@ -261,8 +263,7 @@
               "index": "multilang"
             },
             "materialsSpecification": {
-              "inventorySearchTypes": "items.electronicAccess",
-              "index": "multilang"
+              "index": "none"
             },
             "publicNote": {
               "inventorySearchTypes": "items.electronicAccess",
@@ -319,8 +320,7 @@
               "index": "multilang"
             },
             "materialsSpecification": {
-              "inventorySearchTypes": "holdings.electronicAccess",
-              "index": "multilang"
+              "index": "none"
             },
             "publicNote": {
               "inventorySearchTypes": "holdings.electronicAccess",
@@ -411,6 +411,11 @@
       "index": "keyword",
       "inventorySearchTypes": "holdings.fullCallNumber",
       "processor": "holdingsCallNumberComponentsProcessor"
+    },
+    "uniformTitle": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "uniformTitleProcessor"
     }
   },
   "indexMappings": {}

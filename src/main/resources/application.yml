@@ -29,6 +29,10 @@ spring:
     url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
+  cache:
+    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=3600s
 
 application:
   search-config:

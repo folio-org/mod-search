@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Item;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
@@ -42,19 +43,32 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("totalRecords", is(1)));
 
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
+
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
       .map(hr -> hr.discoverySuppress(false))
-      .map(this::removeUnexpectedProperties)
+      .map(EsInstanceToInventoryInstanceIT::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
+
     assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
-      .map(item -> item.discoverySuppress(false))
+      .map(EsInstanceToInventoryInstanceIT::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
 
     assertThat(actual.holdings(null).items(null),
-      is(expected.staffSuppress(false).discoverySuppress(false).items(null).holdings(null)));
+      is(removeUnexpectedProperties(expected)));
   }
 
-  private Holding removeUnexpectedProperties(Holding holding) {
+  private static Holding removeUnexpectedProperties(Holding holding) {
+    holding.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
     return holding.callNumberSuffix(null).callNumber(null).callNumberPrefix(null);
+  }
+
+  private static Item removeUnexpectedProperties(Item item) {
+    item.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
+    return item.discoverySuppress(false);
+  }
+
+  private static Instance removeUnexpectedProperties(Instance instance) {
+    instance.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
+    return instance.staffSuppress(false).discoverySuppress(false).items(null).holdings(null);
   }
 }

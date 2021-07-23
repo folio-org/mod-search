@@ -19,7 +19,7 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
+import org.folio.search.repository.cache.InstanceReferenceDataService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,10 +53,10 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   /**
    * Used by dependency injection.
    *
-   * @param cache {@link InstanceIdentifierTypeCache} bean
+   * @param referenceDataService {@link InstanceReferenceDataService} bean
    */
-  public IsbnProcessor(InstanceIdentifierTypeCache cache) {
-    super(cache);
+  public IsbnProcessor(InstanceReferenceDataService referenceDataService) {
+    super(referenceDataService);
   }
 
   @Override

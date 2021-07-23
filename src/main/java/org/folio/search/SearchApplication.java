@@ -8,9 +8,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 /**
  * Folio search application.
  */
-@SpringBootApplication
-@EnableFeignClients
 @EnableCaching
+@EnableFeignClients
+@SpringBootApplication
 public class SearchApplication {
 
   /**

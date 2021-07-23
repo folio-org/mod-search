@@ -23,7 +23,8 @@
   },
   "source": {
     "mapping": {
-      "type": "keyword"
+      "type": "keyword",
+      "index": false
     }
   },
   "standard": {

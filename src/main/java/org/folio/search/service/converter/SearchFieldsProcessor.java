@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -51,7 +52,7 @@ public class SearchFieldsProcessor {
     var fieldProcessor = (FieldProcessor<Object, ?>) fieldProcessors.get(descriptor.getProcessor());
     try {
       var value = fieldProcessor.getFieldValue(resource);
-      if (value != null) {
+      if (ObjectUtils.isNotEmpty(value)) {
         return SearchUtils.getPlainFieldValue(descriptor, name, value, languages);
       }
     } catch (Exception e) {

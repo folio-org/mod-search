@@ -7,7 +7,9 @@
       },
       "response": {
         "status": 200,
-        "transformers": ["inventory-view-transformer"],
+        "transformers": [
+          "inventory-view-transformer"
+        ],
         "headers": {
           "Content-Type": "application/json"
         }
@@ -20,7 +22,18 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"identifierTypes\": [{\"id\" : \"3cb3e0cd-ccd9-47af-a570-6f3851571dca\",\"name\" : \"Invalid ISSN\"}, {\"id\" : \"913300b2-03ed-469a-8179-c1092c991227\",\"name\" : \"ISSN\"}]}",
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "3cb3e0cd-ccd9-47af-a570-6f3851571dca",
+              "name": "Invalid ISSN"
+            },
+            {
+              "id": "913300b2-03ed-469a-8179-c1092c991227",
+              "name": "ISSN"
+            }
+          ]
+        },
         "headers": {
           "Content-Type": "application/json"
         }
@@ -33,7 +46,39 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"identifierTypes\": [{\"id\" : \"9024e225-7a68-4f2c-bcf1-81013fb8a6f0\",\"name\" : \"Invalid ISBN\"}, {\"id\" : \"8261054f-be78-422d-bd51-4ed9f33c3422\",\"name\" : \"ISBN\"}]}",
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "9024e225-7a68-4f2c-bcf1-81013fb8a6f0",
+              "name": "Invalid ISBN"
+            },
+            {
+              "id": "8261054f-be78-422d-bd51-4ed9f33c3422",
+              "name": "ISBN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "alternativeTitleTypes": [
+            {
+              "id": "9d968396-0cce-4e9f-8867-c4d04c01f535",
+              "name": "Uniform Title",
+              "source": "local"
+            }
+          ]
+        },
         "headers": {
           "Content-Type": "application/json"
         }

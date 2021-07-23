@@ -2,6 +2,7 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
@@ -12,6 +13,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
@@ -82,11 +84,20 @@ class SearchFieldsProcessorTest {
   }
 
   @DisplayName("getSearchFields_negative_parameterized")
-  @ParameterizedTest(name = "[{index}] given={0}, expected=empty map")
-  @CsvSource({"testClassProcessor", "throwingExceptionProcessor", "nullValueProcessor"})
-  void getSearchFields_negative_parameterized(String processorName) {
+  @ParameterizedTest(name = "[{index}] given={0}, type={1}, expected='{}'")
+  @CsvSource({
+    "testClassProcessor,object",
+    "throwingExceptionProcessor,object",
+    "emptyValueProcessor,object",
+    "emptyValueProcessor,list",
+    "emptyValueProcessor,array",
+    "emptyValueProcessor,set",
+    "emptyValueProcessor,string",
+    "emptyValueProcessor,map"
+  })
+  void getSearchFields_negative_parameterized(String processorName, String type) {
     var desc = description(null, mapOf(FIELD, searchField(processorName, "keyword")));
-    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
+    var ctx = ConversionContext.of(TENANT_ID, mapOf("type", type), desc, emptyList());
     var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(emptyMap());
   }
@@ -136,8 +147,24 @@ class SearchFieldsProcessorTest {
     }
 
     @Bean
-    FieldProcessor<Map<String, Object>, String> nullValueProcessor() {
-      return test -> null;
+    FieldProcessor<Map<String, Object>, Object> emptyValueProcessor() {
+      return value -> {
+        var type = MapUtils.getString(value, "type");
+        switch (type) {
+          case "array":
+            return new String[] {};
+          case "list":
+            return emptyList();
+          case "map":
+            return emptyMap();
+          case "set":
+            return emptySet();
+          case "string":
+            return "";
+          default:
+            return null;
+        }
+      };
     }
   }
 

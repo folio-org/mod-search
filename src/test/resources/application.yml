@@ -18,6 +18,10 @@ spring:
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  cache:
+    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=3600s
 
 server.port: 8081
 folio.tenant.validation.enabled: true

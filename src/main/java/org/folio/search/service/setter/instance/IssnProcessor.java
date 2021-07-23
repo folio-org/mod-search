@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
+import org.folio.search.repository.cache.InstanceReferenceDataService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,10 +18,10 @@ public class IssnProcessor extends AbstractIdentifierProcessor {
   /**
    * Used by dependency injection.
    *
-   * @param cache {@link InstanceIdentifierTypeCache} bean
+   * @param referenceDataService {@link InstanceReferenceDataService} bean
    */
-  public IssnProcessor(InstanceIdentifierTypeCache cache) {
-    super(cache);
+  public IssnProcessor(InstanceReferenceDataService referenceDataService) {
+    super(referenceDataService);
   }
 
   @Override

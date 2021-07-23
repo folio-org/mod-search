@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceIdentifierTypeCache;
+import org.folio.search.repository.cache.InstanceReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class IssnProcessorTest {
 
   @InjectMocks private IssnProcessor issnProcessor;
-  @Mock private InstanceIdentifierTypeCache identifierTypeCache;
+  @Mock private InstanceReferenceDataService referenceDataService;
 
   @MethodSource("issnDataProvider")
   @DisplayName("getFieldValue_parameterized")
@@ -41,7 +41,7 @@ class IssnProcessorTest {
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
       var issnIdentifierId = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
-      when(identifierTypeCache.fetchIdentifierIds(ISSN_IDENTIFIER_NAMES)).thenReturn(issnIdentifierId);
+      when(referenceDataService.fetchIdentifierIds(ISSN_IDENTIFIER_NAMES)).thenReturn(issnIdentifierId);
     }
 
     var actual = issnProcessor.getFieldValue(instance);

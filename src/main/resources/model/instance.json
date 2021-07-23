@@ -30,6 +30,9 @@
     "alternativeTitles": {
       "type": "object",
       "properties": {
+        "alternativeTitleTypeId": {
+          "index": "source"
+        },
         "alternativeTitle": {
           "inventorySearchTypes": [ "title", "keyword" ],
           "index": "multilang"
@@ -408,6 +411,11 @@
       "index": "keyword",
       "inventorySearchTypes": "holdings.fullCallNumber",
       "processor": "holdingsCallNumberComponentsProcessor"
+    },
+    "uniformTitle": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "uniformTitleProcessor"
     }
   },
   "indexMappings": {}

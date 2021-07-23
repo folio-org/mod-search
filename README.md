@@ -247,6 +247,7 @@ Here is a table with supported search options.
 | `source`                                  | term      | `source=="MARC"`                                  | Matches instances with given source (FOLIO/MARC) |
 | `title`                                   | full text | `title all "semantic web"`                        | Matches instances with the given title, searches against `title`, `alternativeTitles`, `indexTitle`, `series` fields |
 | `alternativeTitles.alternativeTitle`      | full text | `alternativeTitles.alternativeTitle all "semantic web"` | Matches instances with the given alternative title |
+| `uniformTitle`                            | full text | `uniformTitle all "semantic web"`                 | Matches instances with the given uniform title |
 | `indexTitle`                              | full text | `indexTitle all "semantic web"`                   | Matches instances with the given index title |
 | `series`                                  | full text | `series all "series"`                             | Matches instance with given series value |
 | `identifiers.value`                       | term      | `identifiers.value = "1023*"`                     | Matches instances with the given identifier value |

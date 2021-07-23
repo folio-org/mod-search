@@ -1,10 +1,13 @@
 package org.folio.search.utils;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Stream.empty;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -44,6 +47,16 @@ public final class CollectionUtils {
     }
     var startIndex = addToTop ? 0 : initial.size();
     initial.addAll(startIndex, sourceValues);
+  }
+
+  /**
+   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashSet}, in encounter order.
+   *
+   * @param <T> the type of input elements
+   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashSet}, in encounter order
+   */
+  public static <T> Collector<T, ?, LinkedHashSet<T>> toLinkedHashSet() {
+    return toCollection(LinkedHashSet::new);
   }
 
   /**

@@ -173,8 +173,7 @@
           "index": "multilang"
         },
         "materialsSpecification": {
-          "inventorySearchTypes": "electronicAccess",
-          "index": "multilang"
+          "index": "none"
         },
         "publicNote": {
           "inventorySearchTypes": "electronicAccess",
@@ -261,8 +260,7 @@
               "index": "multilang"
             },
             "materialsSpecification": {
-              "inventorySearchTypes": "items.electronicAccess",
-              "index": "multilang"
+              "index": "none"
             },
             "publicNote": {
               "inventorySearchTypes": "items.electronicAccess",
@@ -319,8 +317,7 @@
               "index": "multilang"
             },
             "materialsSpecification": {
-              "inventorySearchTypes": "holdings.electronicAccess",
-              "index": "multilang"
+              "index": "none"
             },
             "publicNote": {
               "inventorySearchTypes": "holdings.electronicAccess",

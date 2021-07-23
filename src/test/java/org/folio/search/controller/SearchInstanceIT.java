@@ -114,7 +114,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by electronic access (link text)",
         "electronicAccess.linkText all {value}", array("access"), null),
       arguments("search by electronic access (materials specification)",
-        "electronicAccess.materialsSpecification all {value}", array("material"), null),
+        "electronicAccess.materialsSpecification all {value}", array("material"), zeroResultConsumer()),
       arguments("search by electronic access (public note)",
         "electronicAccess.publicNote all {value}", array("online"), null),
 
@@ -161,7 +161,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by items electronic access (link text)",
         "items.electronicAccess.linkText all {value}", array("links available"), null),
       arguments("search by items electronic access (materials specification)",
-        "items.electronicAccess.materialsSpecification all {value}", array("table"), null),
+        "items.electronicAccess.materialsSpecification all {value}", array("table"), zeroResultConsumer()),
       arguments("search by items electronic access (public note)",
         "items.electronicAccess.publicNote all {value}", array("table of contents"), null),
 
@@ -172,7 +172,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by items electronic access (link text)",
         "holdings.electronicAccess.linkText all {value}", array("link text"), null),
       arguments("search by items electronic access (materials specification)",
-        "holdings.electronicAccess.materialsSpecification all {value}", array("specification"), null),
+        "holdings.electronicAccess.materialsSpecification all {value}", array("specification"), zeroResultConsumer()),
       arguments("search by items electronic access (public note)",
         "holdings.electronicAccess.publicNote all {value}", array("note"), null)
     );

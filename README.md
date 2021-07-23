@@ -267,7 +267,6 @@ Here is a table with supported search options.
 | `electronicAccess`                        | full text | `electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `electronicAccess.uri`                    | term      | `electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
 | `electronicAccess.linkText`               | full text | `electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
-| `electronicAccess.materialsSpecification` | full text | `electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `electronicAccess.publicNote`             | full text | `electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 | `staffSuppress`                           | term      | `staffSuppress==true`                             | Matches instances that are staff suppressed |
 | `discoverySuppress`                       | term      | `discoverySuppress==true`                         | Matches instances that are suppressed from discovery|
@@ -290,7 +289,6 @@ Here is a table with supported search options.
 | `holdings.electronicAccess`                        | full text | `holdings.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `holdings.electronicAccess.uri`                    | term      | `holdings.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
 | `holdings.electronicAccess.linkText`               | full text | `holdings.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
-| `holdings.electronicAccess.materialsSpecification` | full text | `holdings.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 | `holdings.notes.note`                              | full text | `holdings.notes.note all "librarian note"`                 | Search by holdings notes |
 | `holdingPublicNotes`                               | full text | `holdingPublicNotes all "public note"`                     | Search by holdings public notes |
@@ -312,7 +310,6 @@ Here is a table with supported search options.
 | `items.electronicAccess`                        | full text | `items.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
 | `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
-| `items.electronicAccess.materialsSpecification` | full text | `items.electronicAccess.materialsSpecification="book"`  | Search by electronic access material specification |
 | `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 | `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                 | Search by item notes |
 | `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                     | Search by item public notes |

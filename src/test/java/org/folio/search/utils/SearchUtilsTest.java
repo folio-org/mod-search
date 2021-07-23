@@ -1,10 +1,5 @@
 package org.folio.search.utils;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,11 +18,9 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Stream;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
@@ -36,9 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
 class SearchUtilsTest {
@@ -188,27 +179,5 @@ class SearchUtilsTest {
   void getPlainFieldValue_positive_keywordFulltextField() {
     var actual = SearchUtils.getPlainFieldValue(keywordField(), "key", "v", List.of("eng"));
     assertThat(actual).isEqualTo(singletonMap("key", "v"));
-  }
-
-  @MethodSource("isNotNullOrEmptyDataProvider")
-  @ParameterizedTest(name = "[{index}] given={0}, expected={1}")
-  @DisplayName("isNotNullOrEmpty_parameterized")
-  void isNotNullOrEmpty_parameterized(Object given, boolean expected) {
-    var actual = SearchUtils.isNotNullOrEmpty(given);
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  private static Stream<Arguments> isNotNullOrEmptyDataProvider() {
-    return Stream.of(
-      arguments(null, false),
-      arguments(emptyMap(), false),
-      arguments(emptyList(), false),
-      arguments(emptySet(), false),
-      arguments("value", true),
-      arguments(singletonList("value"), true),
-      arguments(singleton("value"), true),
-      arguments(mapOf("key", "value"), true),
-      arguments(new Object(), true)
-    );
   }
 }

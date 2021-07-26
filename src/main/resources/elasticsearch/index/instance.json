@@ -4,7 +4,7 @@
     "number_of_replicas": 2,
     "refresh_interval": "1s",
     "codec": "best_compression",
-    "mapping.total_fields.limit": 250
+    "mapping.total_fields.limit": 1000
   },
   "analysis": {
     "char_filter": { },

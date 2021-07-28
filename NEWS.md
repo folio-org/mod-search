@@ -1,3 +1,6 @@
+## 1.4.2 2021-07-28
+* Fixed "Failed to create index: Limit of total fields [250] has been exceeded" error (MSEARCH-160)
+
 ## 1.4.1 2021-07-20
 
 * Supports full-text search for all instance notes (MSEARCH-116)

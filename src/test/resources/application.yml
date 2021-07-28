@@ -28,7 +28,7 @@ folio.tenant.validation.enabled: true
 
 application:
   search-config:
-    initial-languages: eng,fre,ita,spa
+    initial-languages: eng,fre,ita,spa,ger
   system-user:
     username: mod-search
     password: Mod-search-1-0-0

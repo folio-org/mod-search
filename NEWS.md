@@ -1,3 +1,6 @@
+## 1.4.3 2021-08-06
+* Added  environment variable to support custom subscription pattern (MSEARCH-164)
+
 ## 1.4.2 2021-07-28
 * Fixed "Failed to create index: Limit of total fields [250] has been exceeded" error (MSEARCH-160)
 

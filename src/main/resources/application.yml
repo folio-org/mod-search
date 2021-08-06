@@ -48,7 +48,7 @@ application:
     listener:
       events:
         concurrency: 2
-        topic-pattern: (${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)}
         group-id: ${ENV:folio}-mod-search-events-group
 
 server.port: 8081

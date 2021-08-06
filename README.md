@@ -119,7 +119,8 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | KAFKA_SSL_KEYSTORE_LOCATION   | -                         | The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client. |
 | KAFKA_SSL_KEYSTORE_PASSWORD   | -                         | The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured. |
 | KAFKA_SSL_TRUSTSTORE_LOCATION | -                         | The location of the Kafka trust store file. |
-| KAFKA_SSL_TRUSTSTORE_PASSWORD | -                         | he password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled. |
+| KAFKA_SSL_TRUSTSTORE_PASSWORD | -                         | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled. |
+| KAFKA_EVENTS_CONSUMER_PATTERN | -                         | Custom subscription pattern for Kafka consumers. |
 | INITIAL_LANGUAGES             | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
 | SYSTEM_USER_PASSWORD          | -                         | Password for `mod-search` system user (not required for dev envs) |
 | OKAPI_URL                     | -                         | OKAPI URL used to login system user, required                     |

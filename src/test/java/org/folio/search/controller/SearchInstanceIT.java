@@ -29,7 +29,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @MethodSource("positiveSearchTestDataProvider")
   @DisplayName("can search by instances (index with only 1 instance)")
   void canSearchByInstances(String testName, String query, Object[] queryArguments,
-                            ThrowingConsumer<ResultActions> extendedSearchResultMatcher) throws Throwable {
+    ThrowingConsumer<ResultActions> extendedSearchResultMatcher) throws Throwable {
     var searchResult = mockMvc.perform(get(searchInstancesByQuery(query), queryArguments).headers(defaultHeaders()));
     if (extendedSearchResultMatcher != null) {
       extendedSearchResultMatcher.accept(searchResult);

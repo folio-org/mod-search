@@ -16,6 +16,7 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.utils.SearchUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,13 @@ class LanguageConfigServiceTest {
   @Test
   void cannotAddConfigIfLanguageIsNotSupported() {
     final var languageConfig = new LanguageConfig().code(UNSUPPORTED_LANGUAGE_CODE);
+
+    assertThrows(ValidationException.class, () -> configService.create(languageConfig));
+  }
+
+  @Test
+  void cannotAddConfigIfLanguageIsSRC() {
+    final var languageConfig = new LanguageConfig().code(SearchUtils.MULTILANG_SOURCE_SUBFIELD);
 
     assertThrows(ValidationException.class, () -> configService.create(languageConfig));
   }

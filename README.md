@@ -294,27 +294,29 @@ Here is a table with supported search options.
 | `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 | `holdings.notes.note`                              | full text | `holdings.notes.note all "librarian note"`                 | Search by holdings notes |
 | `holdingPublicNotes`                               | full text | `holdingPublicNotes all "public note"`                     | Search by holdings public notes |
+| `holdingIdentifiers`                               | term      | `holdingIdentifiers == "ho00000000006"`                    | Search by holdings Identifiers (all) |
 
 
 #### Items search options
 
-| Option                                          | Type      |Example                                                  | Description                  |
-| :-----------------------------------------------|:---------:| :-------------------------------------------------------|:------------------------------|
-| `items.id`                                      | term      | `items.id=="1234567"`                                   | Matches instances that have an item with the id |
-| `items.hrid`                                    | term      | `items.hrid=="it001"`                                   | Matches instances that have an item with the HRID |
-| `items.barcode`                                 | term      | `items.barcode=="10011"`                                | Matches instances that have an item with the barcode |
-| `items.effectiveLocationId`                     | term      | `items.effectiveLocationId=="1212"`                     | Matches instances that have items with the effective location |
-| `items.status.name`                             | term      | `items.status.name=="Available"`                        | Matches instances that have items with given status |
-| `items.materialTypeId`                          | term      | `items.materialTypeId="23434"`                          | Matches instances that have items with given material type |
-| `items.discoverySuppress`                       | term      | `items.discoverySuppress=true`                          | Matches instances that have items suppressed/not suppressed from discovery |
-| `itemsFullCallNumbers`                          | term      | `itemsFullCallNumbers="cn*434"`                         | Matches instances that have items with given call number string (prefix + call number + suffix) |
-| `itemTags`                                      | term      | `itemTags="important"`                                  | Matches instances that have items with given tag |
-| `items.electronicAccess`                        | full text | `items.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
-| `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
-| `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
-| `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
-| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                 | Search by item notes |
-| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                     | Search by item public notes |
+| Option                                          | Type      |Example                                                       | Description                  |
+| :-----------------------------------------------|:---------:| :------------------------------------------------------------|:------------------------------|
+| `items.id`                                      | term      | `items.id=="1234567"`                                        | Matches instances that have an item with the id |
+| `items.hrid`                                    | term      | `items.hrid=="it001"`                                        | Matches instances that have an item with the HRID |
+| `items.barcode`                                 | term      | `items.barcode=="10011"`                                     | Matches instances that have an item with the barcode |
+| `items.effectiveLocationId`                     | term      | `items.effectiveLocationId=="1212"`                          | Matches instances that have items with the effective location |
+| `items.status.name`                             | term      | `items.status.name=="Available"`                             | Matches instances that have items with given status |
+| `items.materialTypeId`                          | term      | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type |
+| `items.discoverySuppress`                       | term      | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery |
+| `itemsFullCallNumbers`                          | term      | `itemsFullCallNumbers="cn*434"`                              | Matches instances that have items with given call number string (prefix + call number + suffix) |
+| `itemTags`                                      | term      | `itemTags="important"`                                       | Matches instances that have items with given tag |
+| `items.electronicAccess`                        | full text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
+| `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI|
+| `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text |
+| `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note |
+| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                      | Search by item notes |
+| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes |
+| `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers (all) |
 
 
 ### Search Facets

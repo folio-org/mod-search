@@ -11,6 +11,13 @@
       "type": "string",
       "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
     },
+    "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the item",
+      "items": {
+        "type": "string"
+      }
+    },
     "barcode": {
       "type": "string",
       "description": "Unique inventory control number for physical resources, used largely for circulation purposes"

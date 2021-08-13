@@ -19,6 +19,13 @@
       "type": "string",
       "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
     },
+    "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the holding",
+      "items": {
+        "type": "string"
+      }
+    },
     "tags": {
       "description": "arbitrary tags associated with this holding",
       "$ref": "tags.json"

@@ -3,7 +3,10 @@
     "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
     "hrid": "item000000000014",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
-    "formerIds": [],
+    "formerIds": [
+      "207b9372-127f-4bdd-83e0-147c9fe9bc16",
+      "81ae0f60-f2bc-450c-84c8-5a21096daed9"
+    ],
     "barcode": "10101",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "effectiveCallNumberComponents": {

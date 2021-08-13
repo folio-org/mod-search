@@ -199,6 +199,9 @@
         "hrid": {
           "index": "keyword"
         },
+        "formerIds": {
+          "index": "source"
+        },
         "barcode": {
           "index": "keyword"
         },
@@ -299,6 +302,9 @@
         },
         "hrid": {
           "index": "keyword"
+        },
+        "formerIds": {
+          "index": "source"
         },
         "tags": {
           "type": "object",
@@ -411,6 +417,16 @@
       "index": "keyword",
       "inventorySearchTypes": "holdings.fullCallNumber",
       "processor": "holdingsCallNumberComponentsProcessor"
+    },
+    "holdingIdentifiers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingIdentifiersProcessor"
+    },
+    "itemIdentifiers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "itemIdentifiersProcessor"
     },
     "uniformTitle": {
       "type": "search",

@@ -29,7 +29,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @MethodSource("positiveSearchTestDataProvider")
   @DisplayName("can search by instances (index with only 1 instance)")
   void canSearchByInstances(String testName, String query, Object[] queryArguments,
-    ThrowingConsumer<ResultActions> extendedSearchResultMatcher) throws Throwable {
+                            ThrowingConsumer<ResultActions> extendedSearchResultMatcher) throws Throwable {
     var searchResult = mockMvc.perform(get(searchInstancesByQuery(query), queryArguments).headers(defaultHeaders()));
     if (extendedSearchResultMatcher != null) {
       extendedSearchResultMatcher.accept(searchResult);
@@ -185,7 +185,19 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by items electronic access (materials specification)",
         "holdings.electronicAccess.materialsSpecification all {value}", array("specification"), zeroResultConsumer()),
       arguments("search by items electronic access (public note)",
-        "holdings.electronicAccess.publicNote all {value}", array("note"), null)
+        "holdings.electronicAccess.publicNote all {value}", array("note"), null),
+
+      arguments("search by holding Identifiers hrId (All)",
+        "holdingIdentifiers all {value}", array("hold000000000009"), null),
+      arguments("search by holding Identifiers formerIds (All)",
+        "holdingIdentifiers == {value}", array("1d76ee84-d776-48d2-ab96-140c24e39ac5"), null),
+      arguments("search by holding Identifiers formerIds multiple (All)",
+        "holdingIdentifiers all {value}", array("9b8ec096-fa2e-451b-8e7a-6d1c977ee946"), null),
+
+      arguments("search by item Identifiers hrId (All)",
+        "itemIdentifiers all {value}", array("item000000000014"), null),
+      arguments("search by item Identifiers formerId (All)",
+        "itemIdentifiers all {value}", array("81ae0f60-f2bc-450c-84c8-5a21096daed9"), null)
     );
   }
 

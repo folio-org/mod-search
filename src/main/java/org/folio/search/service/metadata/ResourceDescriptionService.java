@@ -6,6 +6,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.springframework.core.ResolvableType.forClass;
 
 import java.util.ArrayList;
@@ -96,7 +97,11 @@ public class ResourceDescriptionService {
     var indexFieldType = localSearchFieldProvider.getSearchFieldType(MULTILANG_FIELD_TYPE);
     var supportedLanguagesSet = new HashSet<String>();
     var mapping = indexFieldType.getMapping();
-    mapping.path("properties").fieldNames().forEachRemaining(supportedLanguagesSet::add);
+    mapping.path("properties").fieldNames().forEachRemaining(field -> {
+      if (!field.equals(MULTILANG_SOURCE_SUBFIELD)) {
+        supportedLanguagesSet.add(field);
+      }
+    });
     return supportedLanguagesSet;
   }
 

@@ -284,6 +284,14 @@
               "index": "bool"
             }
           }
+        },
+        "circulationNotes": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "index": "multilang"
+            }
+          }
         }
       }
     },

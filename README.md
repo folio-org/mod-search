@@ -299,7 +299,7 @@ Here is a table with supported search options.
 
 #### Items search options
 
-| Option                                          | Type      |Example                                                       | Description                  |
+| Option                                          | Type      |Example                                                       | Description                   |
 | :-----------------------------------------------|:---------:| :------------------------------------------------------------|:------------------------------|
 | `items.id`                                      | term      | `items.id=="1234567"`                                        | Matches instances that have an item with the id |
 | `items.hrid`                                    | term      | `items.hrid=="it001"`                                        | Matches instances that have an item with the HRID |
@@ -315,6 +315,7 @@ Here is a table with supported search options.
 | `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text |
 | `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note |
 | `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                      | Search by item notes |
+| `items.circulationNotes.note`                   | full text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes |
 | `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes |
 | `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers (all) |
 

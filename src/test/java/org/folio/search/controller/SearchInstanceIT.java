@@ -197,7 +197,18 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by item Identifiers hrId (All)",
         "itemIdentifiers all {value}", array("item000000000014"), null),
       arguments("search by item Identifiers formerId (All)",
-        "itemIdentifiers all {value}", array("81ae0f60-f2bc-450c-84c8-5a21096daed9"), null)
+        "itemIdentifiers all {value}", array("81ae0f60-f2bc-450c-84c8-5a21096daed9"), null),
+
+      arguments("search by items circulation notes wildcard",
+        "items.circulationNotes.note all {value}", array("*Note"), null),
+      arguments("search by items circulation notes wildcard",
+        "items.circulationNotes.note all {value}", array("test*"), null),
+      arguments("search by items circulation notes",
+        "items.circulationNotes.note == {value}", array("testNote"), null),
+      arguments("search by items circulation notes hyphens are treated",
+        "items.circulationNotes.note all {value}", array("first-record"), null),
+      arguments("search by items circulation notes case insensitive",
+        "items.circulationNotes.note all {value}", array("secondrecord"), null)
     );
   }
 

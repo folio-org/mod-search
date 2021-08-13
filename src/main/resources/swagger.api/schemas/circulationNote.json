@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Circulations note for item",
+  "type": "object",
+  "properties": {
+    "note": {
+      "type": "string",
+      "description": "Text to display"
+    }
+  }
+}

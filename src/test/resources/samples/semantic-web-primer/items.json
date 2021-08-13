@@ -21,7 +21,11 @@
     "yearCaption": [],
     "copyNumber": "Copy 2",
     "notes": [],
-    "circulationNotes": [],
+    "circulationNotes": [
+      {
+        "note": "testNote"
+      }
+    ],
     "status": {
       "name": "Available",
       "date": "2020-12-08T15:47:21.327+00:00"
@@ -84,7 +88,14 @@
         "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
       }
     ],
-    "circulationNotes": [],
+    "circulationNotes": [
+      {
+        "note": "first-record"
+      },
+      {
+        "note": "SecondRecord"
+      }
+    ],
     "status": {
       "name": "Available",
       "date": "2020-12-08T15:47:22.827+00:00"

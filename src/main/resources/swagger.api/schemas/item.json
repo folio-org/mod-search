@@ -79,6 +79,13 @@
       "items": {
         "$ref": "note.json"
       }
+    },
+    "circulationNotes": {
+      "type": "array",
+      "description": "Notes to be displayed in circulation processes.",
+      "items": {
+        "$ref": "circulationNote.json"
+      }
     }
   }
 }

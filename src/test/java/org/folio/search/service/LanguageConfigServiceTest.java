@@ -57,7 +57,7 @@ class LanguageConfigServiceTest {
   }
 
   @Test
-  void cannotAddConfigIfLanguageIsSRC() {
+  void cannotAddConfigIfLanguageIsSrc() {
     final var languageConfig = new LanguageConfig().code(SearchUtils.MULTILANG_SOURCE_SUBFIELD);
 
     assertThrows(ValidationException.class, () -> configService.create(languageConfig));

@@ -294,7 +294,7 @@ Here is a table with supported search options.
 | `holdings.electronicAccess.publicNote`             | full text | `holdings.electronicAccess.publicNote="a rare book"`       | Search by electronic access public note |
 | `holdings.notes.note`                              | full text | `holdings.notes.note all "librarian note"`                 | Search by holdings notes |
 | `holdingPublicNotes`                               | full text | `holdingPublicNotes all "public note"`                     | Search by holdings public notes |
-| `holdingIdentifiers`                               | term      | `holdingIdentifiers == "ho00000000006"`                    | Search by holdings Identifiers (all) |
+| `holdingIdentifiers`                               | term      | `holdingIdentifiers == "ho00000000006"`                    | Search by holdings Identifiers: HRID, former IDs |
 
 
 #### Items search options
@@ -317,7 +317,7 @@ Here is a table with supported search options.
 | `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                      | Search by item notes |
 | `items.circulationNotes.note`                   | full text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes |
 | `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes |
-| `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers (all) |
+| `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: HRID, former IDs |
 
 
 ### Search Facets

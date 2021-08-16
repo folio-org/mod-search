@@ -198,6 +198,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
         "itemIdentifiers all {value}", array("item000000000014"), null),
       arguments("search by item Identifiers formerId (All)",
         "itemIdentifiers all {value}", array("81ae0f60-f2bc-450c-84c8-5a21096daed9"), null),
+      arguments("search by item Identifiers accessionNumber (All)",
+        "itemIdentifiers all {value}", array("item_accession_number"), null),
 
       arguments("search by items circulation notes wildcard",
         "items.circulationNotes.note all {value}", array("*Note"), null),

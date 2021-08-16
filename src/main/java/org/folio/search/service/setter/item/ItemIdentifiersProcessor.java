@@ -16,7 +16,8 @@ public class ItemIdentifiersProcessor implements FieldProcessor<Instance, Set<St
   @Override
   public Set<String> getFieldValue(Instance instance) {
     return toStreamSafe(instance.getItems())
-      .flatMap(item -> Stream.concat(toStreamSafe(item.getFormerIds()), Stream.of(item.getHrid())))
+      .flatMap(item -> Stream.concat(Stream.concat(toStreamSafe(item.getFormerIds()), Stream.of(item.getHrid())),
+        Stream.of(item.getAccessionNumber())))
       .filter(StringUtils::isNotEmpty)
       .collect(Collectors.toSet());
   }

@@ -27,7 +27,7 @@
     <java.version>11</java.version>
     <folio-spring-base.version>1.0.3</folio-spring-base.version>
     <openapi-generator.version>5.1.0</openapi-generator.version>
-    <es-client.version>7.12.0</es-client.version>
+    <es-client.version>7.13.3</es-client.version>
     <mapstruct.version>1.4.1.Final</mapstruct.version>
     <spring-kafka.version>2.6.3</spring-kafka.version>
     <apache-commons-io.version>2.7</apache-commons-io.version>

@@ -199,6 +199,9 @@
         "hrid": {
           "index": "keyword"
         },
+        "accessionNumber": {
+          "index": "source"
+        },
         "formerIds": {
           "index": "source"
         },

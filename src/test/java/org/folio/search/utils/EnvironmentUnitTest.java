@@ -7,7 +7,7 @@ import static org.folio.search.utils.TestUtils.setEnvProperty;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-public class EnvironmentUnitTest {
+public abstract class EnvironmentUnitTest {
 
   @BeforeAll
   static void beforeAll() {

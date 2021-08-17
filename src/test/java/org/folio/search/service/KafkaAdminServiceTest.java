@@ -3,7 +3,6 @@ package org.folio.search.service;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.service.KafkaAdminService.EVENT_LISTENER_ID;
-import static org.folio.search.utils.TestConstants.ENV;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,16 +11,15 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.folio.search.configuration.properties.FolioEnvironment;
 import org.folio.search.service.KafkaAdminService.KafkaTopic;
 import org.folio.search.service.KafkaAdminService.KafkaTopics;
 import org.folio.search.service.KafkaAdminServiceTest.KafkaAdminServiceTestConfiguration;
-import org.folio.search.utils.TestUtils;
+import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +35,7 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 @UnitTest
 @Import(KafkaAdminServiceTestConfiguration.class)
 @SpringBootTest(classes = KafkaAdminService.class)
-class KafkaAdminServiceTest {
+class KafkaAdminServiceTest extends EnvironmentUnitTest {
 
   private final List<KafkaTopic> expectedTopics = List.of(
     KafkaTopic.of("topic1", 20, (short) 1),
@@ -55,16 +53,6 @@ class KafkaAdminServiceTest {
   @MockBean private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
   @MockBean private LocalFileProvider localFileProvider;
   @MockBean private KafkaAdmin kafkaAdmin;
-
-  @BeforeAll
-  static void beforeAll() {
-    TestUtils.setEnvProperty(ENV);
-  }
-
-  @AfterAll
-  static void afterAll() {
-    TestUtils.removeEnvProperty();
-  }
 
   @Test
   void createKafkaTopics() {
@@ -108,6 +96,13 @@ class KafkaAdminServiceTest {
     @Bean
     FolioExecutionContext folioExecutionContext() {
       return new DefaultFolioExecutionContext(null, Map.of(XOkapiHeaders.TENANT, List.of(TENANT_ID)));
+    }
+
+    @Bean
+    FolioEnvironment appConfigurationProperties() {
+      var config = new FolioEnvironment();
+      config.setEnvironment("folio");
+      return config;
     }
   }
 }

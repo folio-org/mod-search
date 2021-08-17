@@ -24,9 +24,9 @@ spring:
       spec: maximumSize=500,expireAfterAccess=3600s
 
 server.port: 8081
-folio.tenant.validation.enabled: true
 
 application:
+  environment: folio
   search-config:
     initial-languages: eng,fre,ita,spa,ger
   system-user:
@@ -38,8 +38,8 @@ application:
     listener:
       events:
         concurrency: 2
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${ENV:folio}\.)?(.*\.)?inventory.(instance|holdings-record|item)}
-        group-id: ${ENV:folio}-mod-search-events-group
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
+        group-id: ${application.environment}-mod-search-events-group
 
 logging:
   level:

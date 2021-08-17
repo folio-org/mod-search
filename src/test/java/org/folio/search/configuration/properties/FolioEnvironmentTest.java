@@ -1,11 +1,12 @@
 package org.folio.search.configuration.properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @UnitTest
 class FolioEnvironmentTest {
+
   @AfterEach
   void resetEnvPropertyValue() {
     removeEnvProperty();
@@ -22,19 +24,18 @@ class FolioEnvironmentTest {
   @Test
   void shouldReturnFolioEnvFromProperties() {
     setEnvProperty("test-env");
-
     assertThat(getFolioEnvName()).isEqualTo("test-env");
   }
 
   @Test
   void shouldReturnDefaultFolioEnvIfPropertyNotSet() {
-    assertThat(getFolioEnvName()).isEqualTo("folio");
+    assertThat(getFolioEnvName()).isNull();
   }
 
   @Test
   void shouldReturnDefaultFolioEnvIfPropertyIsEmpty() {
     setEnvProperty("   ");
-    assertThat(getFolioEnvName()).isEqualTo("folio");
+    assertThat(getFolioEnvName()).isNull();
   }
 
   @ValueSource(strings = {"a", "Z", "0", "9", "_", "-"})
@@ -44,13 +45,14 @@ class FolioEnvironmentTest {
     assertThat(getFolioEnvName()).isEqualTo(env);
   }
 
-  @ValueSource(strings = {"!", "@", "%$$#", "def qa"})
   @ParameterizedTest
+  @ValueSource(strings = {"!", "@", "%$$#", "def qa"})
   void shouldThrowExceptionWhenEnvHasDisallowedChars(String env) {
-    setEnvProperty(env);
-
-    assertThatThrownBy(FolioEnvironment::getFolioEnvName)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Folio ENV must contain alphanumeric and '-', '_' symbols only");
+    var validator = Validation.buildDefaultValidatorFactory().getValidator();
+    var folioEnvironment = FolioEnvironment.of(env);
+    var validationResponse = validator.validate(folioEnvironment);
+    assertThat(validationResponse).isNotEmpty()
+      .map(ConstraintViolation::getMessage)
+      .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
   }
 }

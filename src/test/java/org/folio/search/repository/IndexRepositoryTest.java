@@ -76,15 +76,14 @@ class IndexRepositoryTest {
   @Test
   void createIndex_negative_throwsException() throws IOException {
     when(restHighLevelClient.indices()).thenReturn(indices);
-    when(indices.create(any(CreateIndexRequest.class), eq(DEFAULT)))
-      .thenThrow(new IOException("err"));
+    when(indices.create(any(CreateIndexRequest.class), eq(DEFAULT))).thenThrow(new IOException("err"));
 
     assertThatThrownBy(
       () -> indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT))
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=folio_test-resource_test_tenant, type=createIndexApi, message: err]");
+        + "[index=test_test-resource_test_tenant, type=createIndexApi, message: err]");
   }
 
   @Test
@@ -119,7 +118,7 @@ class IndexRepositoryTest {
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=folio_test-resource_test_tenant, type=putMappingsApi, message: err]");
+        + "[index=test_test-resource_test_tenant, type=putMappingsApi, message: err]");
   }
 
   @Test
@@ -162,14 +161,13 @@ class IndexRepositoryTest {
   void indexResources_negative_throwsException() throws IOException {
     var documentBody = searchDocumentBody();
     var documentBodies = singletonList(documentBody);
-    when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT)))
-      .thenThrow(new IOException("err"));
+    when(restHighLevelClient.bulk(any(BulkRequest.class), eq(DEFAULT))).thenThrow(new IOException("err"));
 
     assertThatThrownBy(() -> indexRepository.indexResources(documentBodies))
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=folio_test-resource_test_tenant, type=bulkApi, message: err]");
+        + "[index=test_test-resource_test_tenant, type=bulkApi, message: err]");
   }
 
   @Test

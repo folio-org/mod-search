@@ -2,6 +2,8 @@ package org.folio.search.controller;
 
 import static java.util.stream.Collectors.toList;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -75,8 +77,9 @@ class IndexingIT extends BaseIntegrationTest {
   }
 
   private void assertCountByQuery(String query, Object value, int expectedCount) {
-    await().untilAsserted(() -> doGet(searchInstancesByQuery(query), value)
-      .andExpect(jsonPath("totalRecords", is(expectedCount))));
+    await().atMost(ONE_MINUTE).pollInterval(FIVE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      doGet(searchInstancesByQuery(query), value)
+        .andExpect(jsonPath("totalRecords", is(expectedCount))));
   }
 
   private static List<String> getRandomIds(int count) {

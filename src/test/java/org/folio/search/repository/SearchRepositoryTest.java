@@ -35,9 +35,8 @@ import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class SearchRepositoryTest {
+class SearchRepositoryTest extends EnvironmentUnitTest {
 
   private static final String SCROLL_ID = randomId();
   private static final TimeValue KEEP_ALIVE_INTERVAL = timeValueMinutes(1L);
@@ -58,15 +57,10 @@ class SearchRepositoryTest {
 
   @Test
   void search_positive() throws IOException {
-    var totalResults = 20;
     var searchSource = searchSource();
     var esSearchRequest = new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource);
 
     when(esClient.search(esSearchRequest, DEFAULT)).thenReturn(searchResponse);
-
-    var expectedResult = new SearchResult();
-    expectedResult.setTotalRecords(totalResults);
-    expectedResult.setInstances(List.of(new Instance()));
 
     var searchRequest = searchServiceRequest(RESOURCE_NAME, "query");
     var actual = searchRepository.search(searchRequest, searchSource);

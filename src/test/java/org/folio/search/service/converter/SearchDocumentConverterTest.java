@@ -34,6 +34,7 @@ import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
@@ -46,7 +47,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class SearchDocumentConverterTest {
+class SearchDocumentConverterTest extends EnvironmentUnitTest {
 
   @InjectMocks private SearchDocumentConverter documentMapper;
   @Mock private ResourceDescriptionService descriptionService;

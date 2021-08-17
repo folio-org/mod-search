@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
@@ -80,7 +81,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getElasticsearchIndexName(String resource, String tenantId) {
-    return getFolioEnvName().toLowerCase() + "_" + resource + "_" + tenantId;
+    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
   }
 
   /**

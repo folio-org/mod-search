@@ -46,9 +46,9 @@ import org.springframework.test.web.servlet.ResultActions;
 @EnableOkapi
 @EnableKafka
 @EnablePostgres
+@SpringBootTest
 @EnableElasticSearch
 @AutoConfigureMockMvc
-@SpringBootTest(properties = {"ENV=folio"})
 public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   private static OkapiConfiguration okapi;
@@ -57,7 +57,7 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
-    setEnvProperty("folio");
+    setEnvProperty("folio-test");
     inventoryApi = new InventoryApi(kafkaTemplate);
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
   }

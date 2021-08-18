@@ -15,7 +15,6 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
 
@@ -25,19 +24,13 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @UnitTest
-class SearchUtilsTest {
-
-  @AfterEach
-  void resetEnvPropertyValue() {
-    removeEnvProperty();
-  }
+class SearchUtilsTest extends EnvironmentUnitTest {
 
   @Test
   void performExceptionalOperation_positive() {

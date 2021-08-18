@@ -1,11 +1,13 @@
 package org.folio.search.support.base;
 
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Duration.ONE_MINUTE;
+import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -19,7 +21,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.awaitility.Duration;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.extension.EnableElasticSearch;
@@ -42,12 +43,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @Log4j2
-@SpringBootTest
-@AutoConfigureMockMvc
-@EnablePostgres
-@EnableKafka
-@EnableElasticSearch
 @EnableOkapi
+@EnableKafka
+@EnablePostgres
+@SpringBootTest
+@EnableElasticSearch
+@AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   private static OkapiConfiguration okapi;
@@ -56,6 +57,7 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
+    setEnvProperty("folio-test");
     inventoryApi = new InventoryApi(kafkaTemplate);
     setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
   }
@@ -86,15 +88,12 @@ public abstract class BaseIntegrationTest {
     return httpHeaders;
   }
 
-  private static void checkThatElasticsearchAcceptResourcesFromKafka(
-    String tenant, MockMvc mockMvc, String id) {
-
-    await().atMost(Duration.ONE_MINUTE).pollInterval(Duration.ONE_SECOND).untilAsserted(() ->
-      mockMvc.perform(get(searchInstancesByQuery("id={value}"), id)
-        .headers(defaultHeaders(tenant)))
+  private static void checkThatElasticsearchAcceptResourcesFromKafka(String tenant, MockMvc mockMvc, int size) {
+    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      mockMvc.perform(get("/search/instances").param("query", "id=*").param("limit", "1")
+          .headers(defaultHeaders(tenant)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("totalRecords", is(1)))
-        .andExpect(jsonPath("instances[0].id", is(id))));
+        .andExpect(jsonPath("$.totalRecords", is(size))));
   }
 
   @SneakyThrows
@@ -163,8 +162,7 @@ public abstract class BaseIntegrationTest {
     }
 
     if (instances.length > 0) {
-      checkThatElasticsearchAcceptResourcesFromKafka(tenantName, mockMvc,
-        instances[instances.length - 1].getId());
+      checkThatElasticsearchAcceptResourcesFromKafka(tenantName, mockMvc, instances.length);
     }
   }
 

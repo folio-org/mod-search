@@ -35,7 +35,7 @@ spring:
       spec: maximumSize=500,expireAfterAccess=3600s
 
 application:
-  environment: ${ENV:}
+  environment: ${ENV:folio}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
   system-user:

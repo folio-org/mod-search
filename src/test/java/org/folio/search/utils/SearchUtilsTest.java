@@ -30,7 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @UnitTest
-class SearchUtilsTest extends EnvironmentUnitTest {
+class SearchUtilsTest {
 
   @Test
   void performExceptionalOperation_positive() {

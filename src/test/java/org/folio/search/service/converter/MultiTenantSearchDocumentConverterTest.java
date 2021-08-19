@@ -27,7 +27,6 @@ import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.service.TenantScopedExecutionService;
-import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class MultiTenantSearchDocumentConverterTest extends EnvironmentUnitTest {
+class MultiTenantSearchDocumentConverterTest {
 
   @Mock private SearchDocumentConverter searchDocumentConverter;
   @Mock private TenantScopedExecutionService executionService;

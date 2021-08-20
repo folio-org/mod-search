@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,6 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.IndexRequestBody;
@@ -26,6 +30,8 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -173,6 +179,40 @@ class IndexControllerTest {
       .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
+  }
+
+  @Test
+  void reindexInventoryRecords_negative_emptyContentTypeAndBody() throws Exception {
+    var jobId = randomId();
+    var request = new ReindexRequest().recreateIndex(true);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .param("recreateIndex", "true"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Content type '' not supported")))
+      .andExpect(jsonPath("$.errors[0].type", is("HttpMediaTypeNotSupportedException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void reindexInventoryRecords_negative_constraintViolationException() throws Exception {
+    var constraintViolation = mock(ConstraintViolationImpl.class);
+    when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("recreateIndices"));
+    when(constraintViolation.getMessage()).thenReturn("must be boolean");
+    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(
+      new ConstraintViolationException("error", Set.<ConstraintViolation<?>>of(constraintViolation)));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("recreateIndices must be boolean")))
+      .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 
   private static MockHttpServletRequestBuilder preparePostRequest(String endpoint, String requestBody) {

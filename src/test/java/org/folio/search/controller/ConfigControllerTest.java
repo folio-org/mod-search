@@ -7,11 +7,13 @@ import static org.folio.search.utils.TestUtils.languageConfig;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import javax.persistence.EntityNotFoundException;
+import org.folio.search.exception.ValidationException;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.utils.types.UnitTest;
@@ -63,5 +65,37 @@ class ConfigControllerTest {
       .andExpect(jsonPath("errors[0].code", is("not_found_error")))
       .andExpect(jsonPath("errors[0].type", is("EntityNotFoundException")))
       .andExpect(jsonPath("errors[0].message", is(errorMessage)));
+  }
+
+  @Test
+  void updateLanguageConfig_negative_invalidCode() throws Exception {
+    mockMvc.perform(post(ApiEndpoints.languageConfig())
+        .content(asJsonString(languageConfig("english", "english")))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("total_records", is(1)))
+      .andExpect(jsonPath("errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("errors[0].type", is("MethodArgumentNotValidException")))
+      .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
+      .andExpect(jsonPath("errors[0].parameters[0].value", is("english")));
+  }
+
+  @Test
+  void updateLanguageConfig_negative_invalidLanguageAnalyzer() throws Exception {
+    var languageConfig = languageConfig("ita");
+    when(languageConfigService.create(languageConfig)).thenThrow(
+      new ValidationException("Language has no analyzer available", "code", "ita"));
+
+    mockMvc.perform(post(ApiEndpoints.languageConfig())
+        .content(asJsonString(languageConfig))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("total_records", is(1)))
+      .andExpect(jsonPath("errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
+      .andExpect(jsonPath("errors[0].parameters[0].value", is("ita")));
   }
 }

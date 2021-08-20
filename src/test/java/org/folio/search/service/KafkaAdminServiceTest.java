@@ -15,7 +15,6 @@ import org.folio.search.configuration.properties.FolioEnvironment;
 import org.folio.search.service.KafkaAdminService.KafkaTopic;
 import org.folio.search.service.KafkaAdminService.KafkaTopics;
 import org.folio.search.service.KafkaAdminServiceTest.KafkaAdminServiceTestConfiguration;
-import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -35,15 +34,15 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 @UnitTest
 @Import(KafkaAdminServiceTestConfiguration.class)
 @SpringBootTest(classes = KafkaAdminService.class)
-class KafkaAdminServiceTest extends EnvironmentUnitTest {
+class KafkaAdminServiceTest {
 
   private final List<KafkaTopic> expectedTopics = List.of(
     KafkaTopic.of("topic1", 20, (short) 1),
     KafkaTopic.of("topic2", 50, (short) 3),
     KafkaTopic.of("topic3", 40, (short) 2),
-    KafkaTopic.of("test.test_tenant.topic1", 20, (short) 1),
-    KafkaTopic.of("test.test_tenant.topic2", 50, (short) 3),
-    KafkaTopic.of("test.test_tenant.topic3", 40, (short) 2));
+    KafkaTopic.of("folio.test_tenant.topic1", 20, (short) 1),
+    KafkaTopic.of("folio.test_tenant.topic2", 50, (short) 3),
+    KafkaTopic.of("folio.test_tenant.topic3", 40, (short) 2));
 
   private final List<KafkaTopic> initialKafkaTopics = List.of(
     expectedTopics.get(0), expectedTopics.get(1), expectedTopics.get(2));
@@ -73,7 +72,7 @@ class KafkaAdminServiceTest extends EnvironmentUnitTest {
       .thenReturn(KafkaTopics.of(initialKafkaTopics));
     var tenantKafkaTopics = kafkaAdminService.getDefaultTenantKafkaTopics();
     assertThat(tenantKafkaTopics).isEqualTo(List.of(
-      "test.test_tenant.topic1", "test.test_tenant.topic2", "test.test_tenant.topic3"));
+      "folio.test_tenant.topic1", "folio.test_tenant.topic2", "folio.test_tenant.topic3"));
   }
 
   @Test

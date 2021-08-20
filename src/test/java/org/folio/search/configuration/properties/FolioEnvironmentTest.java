@@ -29,13 +29,13 @@ class FolioEnvironmentTest {
 
   @Test
   void shouldReturnDefaultFolioEnvIfPropertyNotSet() {
-    assertThat(getFolioEnvName()).isNull();
+    assertThat(getFolioEnvName()).isEqualTo("folio");
   }
 
   @Test
   void shouldReturnDefaultFolioEnvIfPropertyIsEmpty() {
     setEnvProperty("   ");
-    assertThat(getFolioEnvName()).isNull();
+    assertThat(getFolioEnvName()).isEqualTo("folio");
   }
 
   @ValueSource(strings = {"a", "Z", "0", "9", "_", "-"})

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestConstants {
 
-  public static final String ENV = "test";
+  public static final String ENV = "folio";
   public static final String TENANT_ID = "test_tenant";
   public static final String RESOURCE_ID = "test_tenant";
   public static final String EMPTY_OBJECT = "{}";

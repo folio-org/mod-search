@@ -38,7 +38,6 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
-import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class IndexServiceTest extends EnvironmentUnitTest {
+class IndexServiceTest {
 
   private static final String INDEX_NOT_EXISTS_MESSAGE = String.format(INDEX_NOT_EXISTS_ERROR, List.of(INDEX_NAME));
 

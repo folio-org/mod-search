@@ -228,6 +228,10 @@
     },
     "env": [
       {
+        "name": "ENV",
+        "value": "folio"
+      },
+      {
         "name": "JAVA_OPTIONS",
         "value": "-XX:MaxRAMPercentage=66.0"
       },

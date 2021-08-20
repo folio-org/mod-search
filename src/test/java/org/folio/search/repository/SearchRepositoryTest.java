@@ -36,7 +36,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.folio.search.utils.EnvironmentUnitTest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +45,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class SearchRepositoryTest extends EnvironmentUnitTest {
+class SearchRepositoryTest {
 
   private static final String SCROLL_ID = randomId();
   private static final TimeValue KEEP_ALIVE_INTERVAL = timeValueMinutes(1L);

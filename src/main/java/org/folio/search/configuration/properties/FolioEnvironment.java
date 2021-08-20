@@ -31,6 +31,6 @@ public class FolioEnvironment {
    * @return folio env name.
    */
   public static String getFolioEnvName() {
-    return firstNonBlank(getenv("ENV"), getProperty("env"));
+    return firstNonBlank(getenv("ENV"), getProperty("env"), "folio");
   }
 }

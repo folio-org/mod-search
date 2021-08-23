@@ -302,6 +302,14 @@ class CqlSearchQueryConverterTest {
     assertThat(actual).isEqualTo(searchSource().query(termQuery(FIELD, "value")).sort(expectedSort));
   }
 
+  @Test
+  void convert_positive_groupOfOneField() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "contributors")).thenReturn(List.of("contributors.name"));
+    var actual = cqlSearchQueryConverter.convert("contributors any joh*", RESOURCE_NAME);
+    var query = wildcardQuery("contributors.name", "joh*").rewrite("constant_score");
+    assertThat(actual).isEqualTo(searchSource().query(query));
+  }
+
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(
@@ -311,7 +319,9 @@ class CqlSearchQueryConverterTest {
       arguments("id==" + resourceId, searchSource().query(termQuery("id", resourceId))),
 
       arguments("keyword all \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
+      arguments("keyword adj \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(AND))),
       arguments("keyword any \"test-query\"", searchSource().query(matchQuery("keyword", "test-query").operator(OR))),
+      arguments("keyword == \"test-query\"", searchSource().query(termQuery("keyword", "test-query"))),
 
       arguments("(identifiers =/@value \"test-query\") sortby title",
         searchSource().query(matchQuery("identifiers", "test-query").operator(AND))),
@@ -355,6 +365,13 @@ class CqlSearchQueryConverterTest {
 
       arguments("title any \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
+
+      arguments("title adj \"test-query\"",
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new))
+          .operator(AND).type(CROSS_FIELDS))),
+
+      arguments("title == \"test-query\"",
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).type(PHRASE))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSource().query(boolQuery()

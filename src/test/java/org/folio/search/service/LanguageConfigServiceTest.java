@@ -1,15 +1,20 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.languageConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import javax.persistence.EntityNotFoundException;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ValidationException;
@@ -30,12 +35,11 @@ class LanguageConfigServiceTest {
 
   private static final String SUPPORTED_LANGUAGE_CODE = "supported";
   private static final String UNSUPPORTED_LANGUAGE_CODE = "unsupported";
-  @Mock
-  private LanguageConfigRepository configRepository;
-  @Mock
-  private ResourceDescriptionService descriptionService;
-  @InjectMocks
-  private LanguageConfigService configService;
+
+  @InjectMocks private LanguageConfigService configService;
+  @Mock private LanguageConfigRepository configRepository;
+  @Mock private ResourceDescriptionService descriptionService;
+  @Mock private TenantScopedExecutionService tenantScopedExecutionService;
 
   @Test
   void canAddLanguageConfig() {
@@ -108,5 +112,15 @@ class LanguageConfigServiceTest {
   void update_negative_diffLanguageCodes() {
     var languageConfig = languageConfig(SUPPORTED_LANGUAGE_CODE);
     assertThrows(ValidationException.class, () -> configService.update(UNSUPPORTED_LANGUAGE_CODE, languageConfig));
+  }
+
+  @Test
+  void getAllLanguagesForTenant_positive() {
+    var entities = List.of(new LanguageConfigEntity("eng", null), new LanguageConfigEntity("kor", "nori"));
+    when(configRepository.findAll()).thenReturn(entities);
+    when(tenantScopedExecutionService.executeTenantScoped(eq(TENANT_ID), any()))
+      .then(inv -> inv.<Callable<Set<String>>>getArgument(1).call());
+    var actual = configService.getAllLanguagesForTenant(TENANT_ID);
+    assertThat(actual, is(Set.of("eng", "kor")));
   }
 }

@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -153,6 +154,8 @@ public class ApiExceptionHandler {
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
     var error = new Error()
+      .type(ValidationException.class.getSimpleName())
+      .code(VALIDATION_ERROR.getValue())
       .message(exception.getMessage())
       .parameters(List.of(new Parameter().key(exception.getKey()).value(exception.getValue())));
     var errorResponse = new ErrorResponse().errors(List.of(error)).totalRecords(1);
@@ -160,7 +163,7 @@ public class ApiExceptionHandler {
   }
 
   /**
-   * Catches and handles all exceptions of type {@link IllegalArgumentException}.
+   * Catches and handles all {@link IllegalArgumentException} exceptions.
    *
    * @param exception {@link IllegalArgumentException} to process
    * @return {@link ResponseEntity} with {@link ValidationException} body
@@ -172,15 +175,27 @@ public class ApiExceptionHandler {
   }
 
   /**
-   * Handles all uncaught exceptions.
+   * Handles all {@link EntityNotFoundException} exceptions.
    *
-   * @param exception {@link Exception} object
+   * @param exception {@link EntityNotFoundException} object
    * @return {@link ResponseEntity} with {@link ErrorResponse} body.
    */
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException exception) {
     logException(WARN, exception);
     return buildResponseEntity(exception, NOT_FOUND, NOT_FOUND_ERROR);
+  }
+
+  /**
+   * Handles all {@link HttpMediaTypeNotSupportedException} exceptions.
+   *
+   * @param e {@link HttpMediaTypeNotSupportedException} object
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body.
+   */
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+    logException(DEBUG, e);
+    return buildResponseEntity(e, BAD_REQUEST, VALIDATION_ERROR);
   }
 
   /**

@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -11,10 +12,10 @@ import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -114,14 +115,14 @@ public class IndexService {
       return getSuccessIndexOperationResponse();
     }
 
-    checkThatResourceIdsCanBeIndexed(resourceIdEvents);
+    var eventsToIndex = getResourceIdsThatCanBeIndexed(resourceIdEvents);
 
-    var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceIdEvent::getAction));
+    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceIdEvent::getAction));
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
     var indexDocuments = multiTenantSearchDocumentConverter.convertIndexEventsAsMap(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convertDeleteEventsAsMap(groupedByOperation.get(DELETE));
 
-    var searchDocumentBodies = resourceIdEvents.stream()
+    var searchDocumentBodies = eventsToIndex.stream()
       .map(evt -> evt.getAction() == INDEX ? indexDocuments.get(evt.getId()) : removeDocuments.get(evt.getId()))
       .filter(Objects::nonNull)
       .collect(toList());
@@ -133,6 +134,12 @@ public class IndexService {
     return response;
   }
 
+  /**
+   * Creates Elasticsearch index if it is not exist.
+   *
+   * @param resourceName - resource name as {@link String} object.
+   * @param tenantId - tenant id as {@link String} object
+   */
   public void createIndexIfNotExist(String resourceName, String tenantId) {
     var index = getElasticsearchIndexName(resourceName, tenantId);
     if (!indexRepository.indexExists(index)) {
@@ -140,6 +147,12 @@ public class IndexService {
     }
   }
 
+  /**
+   * Runs reindex request for mod-inventory-storage.
+   *
+   * @param tenantId - tenant id as {@link String} object
+   * @param reindexRequest - reindex request as {@link ReindexRequest} object
+   */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
       log.info("Recreating indices during reindex operation [tenant: {}]", tenantId);
@@ -149,6 +162,12 @@ public class IndexService {
     return instanceStorageClient.submitReindex();
   }
 
+  /**
+   * Drops Elasticsearch index for given resource name and tenant id.
+   *
+   * @param resource - resource name as {@link String} object.
+   * @param tenant - tenant id as {@link String} object
+   */
   public void dropIndex(String resource, String tenant) {
     var index = getElasticsearchIndexName(resource, tenant);
     if (indexRepository.indexExists(index)) {
@@ -156,16 +175,33 @@ public class IndexService {
     }
   }
 
-  private void checkThatResourceIdsCanBeIndexed(List<ResourceIdEvent> events) {
-    checkThatDocumentsCanBeIndexed(events.stream()
-      .map(SearchUtils::getElasticsearchIndexName)
-      .collect(Collectors.toSet()));
+  private List<ResourceIdEvent> getResourceIdsThatCanBeIndexed(List<ResourceIdEvent> events) {
+    var esIndices = events.stream().map(SearchUtils::getElasticsearchIndexName).collect(toSet());
+    var existingIndices = esIndices.stream().filter(indexRepository::indexExists).collect(toSet());
+    var eventsToIndex = new ArrayList<ResourceIdEvent>();
+    var unknownEvents = new ArrayList<ResourceIdEvent>();
+
+    for (ResourceIdEvent event : events) {
+      if (existingIndices.contains(getElasticsearchIndexName(event))) {
+        eventsToIndex.add(event);
+      } else {
+        unknownEvents.add(event);
+      }
+    }
+
+    if (!unknownEvents.isEmpty()) {
+      var absentIndexNames = unknownEvents.stream().map(SearchUtils::getElasticsearchIndexName).collect(toSet());
+      log.warn("Ignoring incoming events [cause: Tenant(s) not initialized, indices {} are not exist, events: {}]",
+        absentIndexNames, unknownEvents);
+    }
+
+    return eventsToIndex;
   }
 
   private void checkThatResourceEventsCanBeIndexed(List<ResourceEventBody> events) {
     checkThatDocumentsCanBeIndexed(events.stream()
       .map(id -> getElasticsearchIndexName(id.getResourceName(), id.getTenant()))
-      .collect(Collectors.toSet()));
+      .collect(toSet()));
   }
 
   private void checkThatDocumentsCanBeIndexed(Set<String> indexes) {

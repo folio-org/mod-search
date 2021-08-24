@@ -231,13 +231,15 @@ class IndexServiceTest {
   @Test
   void cannotIndexResourcesById_indexNotExist() {
     var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, INDEX));
+
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
+    when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
+    when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
+    when(searchDocumentConverter.convertIndexEventsAsMap(emptyList())).thenReturn(emptyMap());
+    when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
 
-    assertThatThrownBy(() -> indexService.indexResourcesById(eventIds))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
+    var actual = indexService.indexResourcesById(eventIds);
 
-    verifyNoInteractions(searchDocumentConverter);
-    verify(indexRepository, times(0)).indexResources(any());
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 }

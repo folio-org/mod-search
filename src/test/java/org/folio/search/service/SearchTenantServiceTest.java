@@ -5,6 +5,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -13,6 +14,8 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.tenant.domain.dto.Parameter;
+import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class SearchTenantServiceTest {
+
+  private static final TenantAttributes TENANT_ATTRIBUTES = new TenantAttributes()
+    .moduleTo("mod-search-1.0.0");
 
   @InjectMocks private SearchTenantService searchTenantService;
   @Mock private IndexService indexService;
@@ -54,5 +60,19 @@ class SearchTenantServiceTest {
     verify(languageConfigService, times(0)).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
     verify(indexService).createIndexIfNotExist(INSTANCE.getName(), TENANT_ID);
+  }
+
+  @Test
+  void shouldRunReindexOnTenantParamPresent() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
+    searchTenantService.reIndexInstances(attributes);
+    verify(indexService).reindexInventory(TENANT_ID, null);
+  }
+
+  @Test
+  void shouldNotRunReindexOnTenantParamNotPresent() {
+    searchTenantService.reIndexInstances(TENANT_ATTRIBUTES);
+    verifyNoInteractions(indexService);
   }
 }

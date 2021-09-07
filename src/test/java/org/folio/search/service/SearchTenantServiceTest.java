@@ -5,7 +5,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -42,10 +41,11 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     doNothing().when(systemUserService).prepareSystemUser();
 
-    searchTenantService.initializeTenant();
+    searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(INSTANCE.getName(), TENANT_ID);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
   }
 
   @Test
@@ -55,7 +55,7 @@ class SearchTenantServiceTest {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     doNothing().when(systemUserService).prepareSystemUser();
 
-    searchTenantService.initializeTenant();
+    searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 
     verify(languageConfigService, times(0)).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
@@ -66,13 +66,23 @@ class SearchTenantServiceTest {
   void shouldRunReindexOnTenantParamPresent() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
-    searchTenantService.reIndexInstances(attributes);
+    searchTenantService.initializeTenant(attributes);
     verify(indexService).reindexInventory(TENANT_ID, null);
   }
 
   @Test
-  void shouldNotRunReindexOnTenantParamNotPresent() {
-    searchTenantService.reIndexInstances(TENANT_ATTRIBUTES);
-    verifyNoInteractions(indexService);
+  void shouldNotRunReindexOnTenantParamPresentFalse() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("false"));
+    searchTenantService.initializeTenant(attributes);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
+  }
+
+  @Test
+  void shouldNotRunReindexOnTenantParamPresentWrong() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindexx").value("true"));
+    searchTenantService.initializeTenant(attributes);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
   }
 }

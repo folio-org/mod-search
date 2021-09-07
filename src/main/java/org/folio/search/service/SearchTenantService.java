@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import static java.lang.Boolean.parseBoolean;
+
 import java.util.Collection;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class SearchTenantService {
   private final LanguageConfigService languageConfigService;
   private final SearchConfigurationProperties searchConfigurationProperties;
 
-  public void initializeTenant() {
+  public void initializeTenant(TenantAttributes tenantAttributes) {
     systemUserService.prepareSystemUser();
 
     var existingLanguages = languageConfigService.getAllLanguageCodes();
@@ -40,6 +42,9 @@ public class SearchTenantService {
     for (SearchResource resource : SearchResource.values()) {
       indexService.createIndexIfNotExist(resource.getName(), context.getTenantId());
     }
+    Stream.ofNullable(tenantAttributes.getParameters()).flatMap(Collection::stream)
+      .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
+      .findFirst().ifPresent(parameter -> indexService.reindexInventory(context.getTenantId(), null));
   }
 
   public void removeElasticsearchIndexes() {
@@ -49,12 +54,5 @@ public class SearchTenantService {
 
       indexService.dropIndex(resource.getName(), context.getTenantId());
     }
-  }
-
-  public void reIndexInstances(TenantAttributes tenantAttributes) {
-    Stream.ofNullable(tenantAttributes.getParameters()).flatMap(Collection::stream)
-      .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME)
-        && Boolean.parseBoolean(parameter.getValue()))
-      .findFirst().ifPresent(parameter -> indexService.reindexInventory(context.getTenantId(), null));
   }
 }

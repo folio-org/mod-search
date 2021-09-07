@@ -34,8 +34,7 @@ public class FolioTenantController extends TenantController {
     var tenantInit = super.postTenant(tenantAttributes);
 
     if (tenantInit.getStatusCode() == HttpStatus.OK) {
-      tenantService.initializeTenant();
-      tenantService.reIndexInstances(tenantAttributes);
+      tenantService.initializeTenant(tenantAttributes);
     }
 
     log.info("Tenant init has been completed [response={}]", tenantInit);

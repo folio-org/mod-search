@@ -19,9 +19,8 @@ public class FolioTenantController extends TenantController {
   private final KafkaAdminService kafkaAdminService;
   private final SearchTenantService tenantService;
 
-  public FolioTenantController(TenantService baseTenantService,
-    KafkaAdminService kafkaAdminService, SearchTenantService tenantService) {
-
+  public FolioTenantController(TenantService baseTenantService, KafkaAdminService kafkaAdminService,
+                               SearchTenantService tenantService) {
     super(baseTenantService);
     this.kafkaAdminService = kafkaAdminService;
     this.tenantService = tenantService;
@@ -35,7 +34,7 @@ public class FolioTenantController extends TenantController {
     var tenantInit = super.postTenant(tenantAttributes);
 
     if (tenantInit.getStatusCode() == HttpStatus.OK) {
-      tenantService.initializeTenant();
+      tenantService.initializeTenant(tenantAttributes);
     }
 
     log.info("Tenant init has been completed [response={}]", tenantInit);

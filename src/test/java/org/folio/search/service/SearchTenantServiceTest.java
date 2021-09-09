@@ -13,6 +13,8 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.tenant.domain.dto.Parameter;
+import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +24,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class SearchTenantServiceTest {
+
+  private static final TenantAttributes TENANT_ATTRIBUTES = new TenantAttributes()
+    .moduleTo("mod-search-1.0.0");
 
   @InjectMocks private SearchTenantService searchTenantService;
   @Mock private IndexService indexService;
@@ -36,10 +41,11 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     doNothing().when(systemUserService).prepareSystemUser();
 
-    searchTenantService.initializeTenant();
+    searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(INSTANCE.getName(), TENANT_ID);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
   }
 
   @Test
@@ -49,10 +55,34 @@ class SearchTenantServiceTest {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     doNothing().when(systemUserService).prepareSystemUser();
 
-    searchTenantService.initializeTenant();
+    searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 
     verify(languageConfigService, times(0)).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
     verify(indexService).createIndexIfNotExist(INSTANCE.getName(), TENANT_ID);
+  }
+
+  @Test
+  void shouldRunReindexOnTenantParamPresent() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
+    searchTenantService.initializeTenant(attributes);
+    verify(indexService).reindexInventory(TENANT_ID, null);
+  }
+
+  @Test
+  void shouldNotRunReindexOnTenantParamPresentFalse() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("false"));
+    searchTenantService.initializeTenant(attributes);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
+  }
+
+  @Test
+  void shouldNotRunReindexOnTenantParamPresentWrong() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindexx").value("true"));
+    searchTenantService.initializeTenant(attributes);
+    verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
   }
 }

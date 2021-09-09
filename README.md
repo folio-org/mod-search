@@ -288,6 +288,7 @@ Here is a table with supported search options.
 | `holdings.hrid`                                    | term      | `holdings.hrid=="hr10*3"`                                  | Matches instances that have a holding with given HRID |
 | `holdingTags`                                      | term      | `holdingTags=="important"`                                 | Matches instances that have holdings with given tags |
 | `holdingsFullCallNumbers`                          | term      | `holdingsFullCallNumbers="cn*434"`                         | Matches instances that have holdings with given call number string (prefix + call number + suffix) |
+| `holdingsNormalizedCallNumbers`                    | term      | `holdingsNormalizedCallNumbers="cn434"`                    | Matches instances that have holdings with given call number and might not be formatted correctly  |
 | `holdings.electronicAccess`                        | full text | `holdings.electronicAccess any "resource"`                 | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `holdings.electronicAccess.uri`                    | term      | `holdings.electronicAccess.uri="http://folio.org*"`        | Search by electronic access URI|
 | `holdings.electronicAccess.linkText`               | full text | `holdings.electronicAccess.linkText="Folio website"`       | Search by electronic access link text |
@@ -309,6 +310,7 @@ Here is a table with supported search options.
 | `items.materialTypeId`                          | term      | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type |
 | `items.discoverySuppress`                       | term      | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery |
 | `itemsFullCallNumbers`                          | term      | `itemsFullCallNumbers="cn*434"`                              | Matches instances that have items with given call number string (prefix + call number + suffix) |
+| `itemsNormalizedCallNumbers`                    | term      | `itemsNormalizedCallNumbers="cn434"`                         | Matches instances that have items with given call number and might not be formatted correctly  |
 | `itemTags`                                      | term      | `itemTags="important"`                                       | Matches instances that have items with given tag |
 | `items.electronicAccess`                        | full text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`|
 | `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI|

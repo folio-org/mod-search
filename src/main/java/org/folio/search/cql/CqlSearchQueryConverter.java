@@ -57,7 +57,7 @@ import org.z3950.zing.cql.CQLTermNode;
 @RequiredArgsConstructor
 public class CqlSearchQueryConverter {
 
-  private static final String ASTERISKS_SIGN = "*";
+  static final String ASTERISKS_SIGN = "*";
 
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;

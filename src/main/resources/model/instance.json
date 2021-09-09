@@ -429,6 +429,18 @@
       "inventorySearchTypes": "holdings.fullCallNumber",
       "processor": "holdingsCallNumberComponentsProcessor"
     },
+    "itemsNormalizedCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "itemsNormalizedCallNumbersProcessor",
+      "searchTermProcessor": "callNumberSearchTermProcessor"
+    },
+    "holdingsNormalizedCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsNormalizedCallNumbersProcessor",
+      "searchTermProcessor": "callNumberSearchTermProcessor"
+    },
     "holdingIdentifiers": {
       "type": "search",
       "index": "keyword",

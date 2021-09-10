@@ -49,4 +49,18 @@ class SearchHoldingsIT extends BaseIntegrationTest {
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
   }
+
+  @ParameterizedTest(name = "[{index}] {0}: {1}")
+  @CsvSource({
+    "holdingsNormalizedCallNumbers==\"{value}\", fix",
+    "holdingsNormalizedCallNumbers==\"{value}\", number",
+    "holdingsNormalizedCallNumbers==\"{value}\", c number",
+    "holdingsNormalizedCallNumbers==\"{value}\", call suffix",
+    "holdingsNormalizedCallNumbers==\"{value}\", CAL/number suffix",
+    "holdingsNormalizedCallNumbers==\"{value}\", prefix number"
+  })
+  void canSearchByHoldings_negative(String query, String value) throws Exception {
+    doGet(searchInstancesByQuery(query), value)
+      .andExpect(jsonPath("totalRecords", is(0)));
+  }
 }

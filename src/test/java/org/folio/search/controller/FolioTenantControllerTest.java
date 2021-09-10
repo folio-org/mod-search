@@ -31,7 +31,7 @@ class FolioTenantControllerTest {
   void postTenant_shouldCallTenantInitialize() {
     tenantController.postTenant(TENANT_ATTRIBUTES);
 
-    verify(tenantService).initializeTenant();
+    verify(tenantService).initializeTenant(TENANT_ATTRIBUTES);
     verify(kafkaAdminService).createKafkaTopics();
     verify(kafkaAdminService).restartEventListeners();
   }

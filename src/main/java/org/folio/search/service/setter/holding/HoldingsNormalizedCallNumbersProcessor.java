@@ -1,12 +1,11 @@
 package org.folio.search.service.setter.holding;
 
-import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 import static org.folio.search.utils.SearchUtils.getNormalizedCallNumber;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
@@ -16,13 +15,14 @@ public class HoldingsNormalizedCallNumbersProcessor implements FieldProcessor<In
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return toStreamSafe(instance.getHoldings())
-      .filter(holding ->
-        StringUtils.isNotEmpty(holding.getCallNumber()) || StringUtils.isNotEmpty(holding.getCallNumberPrefix()))
-      .flatMap(holding -> Stream.concat(
-        Stream.ofNullable(getNormalizedCallNumber(holding.getCallNumberPrefix(), holding.getCallNumber(),
-          holding.getCallNumberSuffix())),
-        Stream.ofNullable(getNormalizedCallNumber(holding.getCallNumber(), holding.getCallNumberSuffix()))))
-      .collect(toSet());
+    var result = new HashSet<String>();
+    toStreamSafe(instance.getHoldings())
+      .filter(holding -> isNotEmpty(holding.getCallNumber()) || isNotEmpty(holding.getCallNumberPrefix()))
+      .forEach(holding -> {
+        result.add(getNormalizedCallNumber(holding.getCallNumberPrefix(), holding.getCallNumber(),
+          holding.getCallNumberSuffix()));
+        result.add(getNormalizedCallNumber(holding.getCallNumber(), holding.getCallNumberSuffix()));
+      });
+    return result;
   }
 }

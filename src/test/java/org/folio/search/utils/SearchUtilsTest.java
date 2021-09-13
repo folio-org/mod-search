@@ -173,4 +173,16 @@ class SearchUtilsTest {
     var actual = SearchUtils.getPlainFieldValue(keywordField(), "key", "v", List.of("eng"));
     assertThat(actual).isEqualTo(singletonMap("key", "v"));
   }
+
+  @Test
+  void getNormalizedCallNumber_positive() {
+    var actual = SearchUtils.getNormalizedCallNumber(null, "94 NF 14/1:3792-3835", null);
+    assertThat(actual).isEqualTo("94nf14137923835");
+  }
+
+  @Test
+  void getNormalizedCallNumber_with_suffix_prefix_positive() {
+    var actual = SearchUtils.getNormalizedCallNumber("prefix", "94 NF 14/1:3792-3835", "suffix");
+    assertThat(actual).isEqualTo("prefix94nf14137923835suffix");
+  }
 }

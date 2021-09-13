@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -140,6 +141,19 @@ public class SearchUtils {
       .filter(StringUtils::isNotBlank)
       .map(String::trim)
       .collect(joining(" "));
+  }
+
+  /**
+   * Creates normalized call number for passed call number parts (prefix, call number and suffix).
+   *
+   * @param callNumberValues array with full call number parts (prefix, call number and suffix)
+   * @return created normalized call number as {@link String} value
+   */
+  public static String getNormalizedCallNumber(String ... callNumberValues) {
+    return Stream.of(callNumberValues)
+      .filter(StringUtils::isNotBlank)
+      .map(s -> s.toLowerCase().replaceAll("[^a-z0-9]", ""))
+      .collect(Collectors.joining(""));
   }
 
   /**

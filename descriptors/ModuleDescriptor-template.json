@@ -118,7 +118,8 @@
             "users.item.post",
             "login.item.post",
             "perms.users.item.post",
-            "perms.users.get"
+            "perms.users.get",
+            "inventory-storage.instance.reindex.post"
           ]
         },
         {

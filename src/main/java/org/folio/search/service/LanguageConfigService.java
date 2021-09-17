@@ -1,5 +1,6 @@
 package org.folio.search.service;
 
+import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_CACHE;
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
 
@@ -16,7 +17,9 @@ import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
-import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.metadata.LocalSearchFieldProvider;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -25,27 +28,41 @@ import org.springframework.stereotype.Service;
 public class LanguageConfigService {
 
   private final LanguageConfigRepository configRepository;
-  private final ResourceDescriptionService descriptionService;
+  private final LocalSearchFieldProvider searchFieldProvider;
   private final TenantScopedExecutionService executionService;
 
+  /**
+   * Creates tenant's language configuration using given {@link LanguageConfig} dto object.
+   *
+   * @param languageConfig language config dto as {@link LanguageConfig} object
+   * @return created {@link LanguageConfig} dto.
+   */
+  @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public LanguageConfig create(LanguageConfig languageConfig) {
-    final var entity = toLanguageConfigEntity(languageConfig);
+    var entity = toLanguageConfigEntity(languageConfig);
+    var languageCode = languageConfig.getCode();
 
-    if (!descriptionService.isSupportedLanguage(languageConfig.getCode())) {
-      log.warn("There is no language analyzer configured for language {}", languageConfig.getCode());
-      throw new ValidationException("Language has no analyzer available",
-        "code", languageConfig.getCode());
+    if (!searchFieldProvider.isSupportedLanguage(languageCode)) {
+      log.warn("There is no language analyzer configured for language {}", languageCode);
+      throw new ValidationException("Language has no analyzer available", "code", languageCode);
     }
 
     if (configRepository.count() > 4) {
       log.warn("Tenant is allowed to have only 5 languages configured");
-      throw new ValidationException("Tenant is allowed to have only 5 languages configured",
-        "code", languageConfig.getCode());
+      throw new ValidationException("Tenant is allowed to have only 5 languages configured", "code", languageCode);
     }
 
     return toLanguageConfig(configRepository.save(entity));
   }
 
+  /**
+   * Updates tenant's language configuration by given code and {@link LanguageConfig} dto.
+   *
+   * @param code language code as {@link String} object
+   * @param languageConfig language config dto as {@link LanguageConfig} object
+   * @return updated {@link LanguageConfig} dto.
+   */
+  @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public LanguageConfig update(String code, LanguageConfig languageConfig) {
     var entity = toLanguageConfigEntity(languageConfig);
 
@@ -64,10 +81,21 @@ public class LanguageConfigService {
     return toLanguageConfig(configRepository.save(entity));
   }
 
+  /**
+   * Deletes tenant's language configuration by language code.
+   *
+   * @param code language code as {@link String} object
+   */
+  @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public void delete(String code) {
     configRepository.deleteById(code);
   }
 
+  /**
+   * Returns all existing language configs for tenant.
+   *
+   * @return all existing language configs as {@link LanguageConfigs} object.
+   */
   public LanguageConfigs getAll() {
     final List<LanguageConfig> languageConfigs = configRepository.findAll().stream()
       .map(LanguageConfigConverter::toLanguageConfig)
@@ -78,12 +106,24 @@ public class LanguageConfigService {
       .totalRecords(languageConfigs.size());
   }
 
+  /**
+   * Returns all language configuration codes.
+   *
+   * @return {@link Set} with language configuration codes.
+   */
+  @Cacheable(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public Set<String> getAllLanguageCodes() {
     return getAll().getLanguageConfigs().stream()
       .map(LanguageConfig::getCode)
       .collect(Collectors.toSet());
   }
 
+  /**
+   * Returns all supported language codes for tenant.
+   *
+   * @param tenant tenant id as {@link String} object
+   * @return {@link Set} with language configuration codes.
+   */
   public Set<String> getAllLanguagesForTenant(String tenant) {
     return executionService.executeTenantScoped(tenant,
       () -> configRepository.findAll().stream()

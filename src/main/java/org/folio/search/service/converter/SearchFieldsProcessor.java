@@ -1,6 +1,9 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.folio.search.utils.CollectionUtils.noneMatch;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -20,8 +24,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SearchFieldsProcessor {
 
-  private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
   private final JsonConverter jsonConverter;
+  private final SearchConfigurationProperties searchConfiguration;
+  private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
 
   /**
    * Provides search fields as {@link Map} for given resource in the {@link ConversionContext} object.
@@ -40,8 +45,14 @@ public class SearchFieldsProcessor {
     var resourceObject = resourceClass != null ? jsonConverter.convert(data, resourceClass) : data;
 
     var resultMap = new LinkedHashMap<String, Object>();
-    searchFields.forEach((name, desc) -> resultMap.putAll(
-      getSearchFieldValue(resourceObject, ctx.getLanguages(), name, desc)));
+    searchFields.forEach((name, fieldDescriptor) -> {
+      var value = fieldDescriptor.isRawProcessing() ? data : resourceObject;
+      if (isSearchProcessorEnabled(resourceDescription.getName(), name, fieldDescriptor)) {
+        resultMap.putAll(getSearchFieldValue(value, ctx.getLanguages(), name, fieldDescriptor));
+      } else {
+        log.debug("Search processor has been ignored [processor: {}]", fieldDescriptor.getProcessor());
+      }
+    });
     return resultMap;
   }
 
@@ -60,5 +71,14 @@ public class SearchFieldsProcessor {
     }
 
     return emptyMap();
+  }
+
+  private boolean isSearchProcessorEnabled(String resourceName, String name, SearchFieldDescriptor desc) {
+    var disabledSearchOptions = searchConfiguration.getDisabledSearchOptions();
+    var resourceDisabledOptions = disabledSearchOptions.getOrDefault(resourceName, emptySet());
+    var searchTypes = desc.getInventorySearchTypes();
+    return isNotEmpty(searchTypes)
+      ? noneMatch(searchTypes, resourceDisabledOptions::contains)
+      : !resourceDisabledOptions.contains(name);
   }
 }

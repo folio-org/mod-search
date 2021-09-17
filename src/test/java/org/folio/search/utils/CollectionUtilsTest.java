@@ -2,10 +2,13 @@ package org.folio.search.utils;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
+import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 
 import java.util.ArrayList;
@@ -101,5 +104,23 @@ class CollectionUtilsTest {
   void toSafeStream_positive_emptyCollection() {
     var actual = CollectionUtils.toStreamSafe(emptyList()).collect(toList());
     assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void mergeSafelyToSet_positive() {
+    var actual = mergeSafelyToSet(List.of(1, 2, 3), List.of(3, 1, 2), List.of(5), null, emptySet());
+    assertThat(actual).containsExactly(1, 2, 3, 5);
+  }
+
+  @Test
+  void anyMatchTest_positive() {
+    var given = List.of(1, 2, 3);
+    assertThat(anyMatch(given, e -> e == 2)).isTrue();
+  }
+
+  @Test
+  void anyMatchTest_negative() {
+    var given = List.of(1, 2, 3);
+    assertThat(anyMatch(given, e -> e == 5)).isFalse();
   }
 }

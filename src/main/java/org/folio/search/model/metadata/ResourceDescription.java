@@ -65,6 +65,14 @@ public class ResourceDescription {
    */
   private Map<String, FieldDescription> fieldTypes = Collections.emptyMap();
 
+  /**
+   * Mappings source definition.
+   */
+  private Map<String, List<String>> mappingsSource;
+
+  /**
+   * Map with field description where key is the flattened path.
+   */
   @JsonIgnore
   @Setter(AccessLevel.PACKAGE)
   private Map<String, PlainFieldDescription> flattenFields;

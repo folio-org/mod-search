@@ -3,10 +3,13 @@ package org.folio.search.utils;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -21,6 +24,7 @@ import static org.folio.search.utils.TestUtils.standardFulltextField;
 import java.io.IOException;
 import java.util.List;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
@@ -102,13 +106,11 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test
-  void getMultilangValue_positive() {
-    var value = "value";
-    var actual = SearchUtils.getMultilangValue("field", value, List.of("eng", "ger"));
-    assertThat(actual).isEqualTo(mapOf(
-      "field", mapOf("eng", value, "ger", value, "src", value),
-      "plain_field", value));
+  @ParameterizedTest
+  @CsvSource({"field,field", "plain_field, field"})
+  @DisplayName("updateMultilangPlainFieldKey_parameterized")
+  void updateMultilangPlainFieldKey_positive(String given, String expected) {
+    assertThat(updateMultilangPlainFieldKey(given)).isEqualTo(expected);
   }
 
   @Test
@@ -184,5 +186,30 @@ class SearchUtilsTest {
   void getNormalizedCallNumber_with_suffix_prefix_positive() {
     var actual = SearchUtils.getNormalizedCallNumber("prefix", "94 NF 14/1:3792-3835", "suffix");
     assertThat(actual).isEqualTo("prefix94nf14137923835suffix");
+  }
+
+  @Test
+  void getMultilangValue_positive_stringValue() {
+    var value = "fieldValue";
+    var actual = SearchUtils.getMultilangValue("key", value, List.of("eng"));
+    assertThat(actual).isEqualTo(mapOf("plain_key", value, "key", mapOf("eng", value, "src", value)));
+  }
+
+  @Test
+  void getMultilangValue_positive_collectionValue() {
+    var value = List.of("fieldValue1", "fieldValue2");
+    var actual = SearchUtils.getMultilangValue("key", value, List.of("eng"));
+    assertThat(actual).isEqualTo(mapOf("plain_key", value, "key", mapOf("eng", value, "src", value)));
+  }
+
+  @Test
+  void getMultilangValue_positive_multilangValue() {
+    var plainValues = newLinkedHashSet("pv1", "pv2");
+    var multilangValues = newLinkedHashSet("mv1", "mv2");
+    var value = MultilangValue.of(plainValues, multilangValues);
+    var actual = SearchUtils.getMultilangValue("key", value, List.of("eng"));
+    assertThat(actual).isEqualTo(mapOf(
+      "plain_key", mergeSafelyToSet(multilangValues, plainValues),
+      "key", mapOf("eng", multilangValues, "src", multilangValues)));
   }
 }

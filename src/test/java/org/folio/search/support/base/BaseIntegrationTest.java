@@ -39,6 +39,8 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -49,7 +51,9 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @EnableElasticSearch
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public abstract class BaseIntegrationTest {
+
   protected static InventoryApi inventoryApi;
   private static OkapiConfiguration okapi;
   @Autowired protected MockMvc mockMvc;
@@ -132,8 +136,8 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doGet(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(get(uri, args)
-      .headers(defaultHeaders())
-      .header("Accept", "application/json;charset=UTF-8"))
+        .headers(defaultHeaders())
+        .header("Accept", "application/json;charset=UTF-8"))
       .andExpect(status().isOk());
   }
 
@@ -145,16 +149,16 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doDelete(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(delete(uri, args)
-      .headers(defaultHeaders()))
+        .headers(defaultHeaders()))
       .andExpect(status().isNoContent());
   }
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance... instances) {
     mockMvc.perform(post("/_/tenant")
-      .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
-      .headers(defaultHeaders(tenantName))
-      .contentType(APPLICATION_JSON))
+        .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
+        .headers(defaultHeaders(tenantName))
+        .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
     for (Instance instance : instances) {
@@ -169,7 +173,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void removeTenant(MockMvc mockMvc, String tenant) {
     mockMvc.perform(delete("/_/tenant")
-      .headers(defaultHeaders(tenant)))
+        .headers(defaultHeaders(tenant)))
       .andExpect(status().isNoContent());
   }
 

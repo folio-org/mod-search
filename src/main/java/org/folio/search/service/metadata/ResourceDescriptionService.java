@@ -4,17 +4,12 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
-import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.springframework.core.ResolvableType.forClass;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
@@ -35,12 +31,23 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResourceDescriptionService {
 
-  private final LocalSearchFieldProvider localSearchFieldProvider;
   private final LocalResourceProvider localResourceProvider;
-
   private final Map<String, FieldProcessor<?, ?>> availableProcessors;
   private Map<String, ResourceDescription> resourceDescriptions;
-  private Set<String> supportedLanguages;
+
+  /**
+   * Initializes bean after constructor call and loads required resources from local files.
+   */
+  @PostConstruct
+  public void init() {
+    var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
+    var resourceDescriptions = localResourceProvider.getResourceDescriptions();
+
+    validateResourceDescriptions(resourceDescriptions);
+
+    resourceDescriptions.forEach(desc -> mapBuilder.put(desc.getName(), desc));
+    this.resourceDescriptions = unmodifiableMap(mapBuilder);
+  }
 
   /**
    * Provides {@link ResourceDescription} object for given resource name.
@@ -55,54 +62,6 @@ public class ResourceDescriptionService {
         "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
-  }
-
-  /**
-   * Returns all existing resource descriptions as list.
-   *
-   * @return {@link List} with {@link ResourceDescription} objects.
-   */
-  public List<ResourceDescription> getAll() {
-    return new ArrayList<>(resourceDescriptions.values());
-  }
-
-  /**
-   * Checks if passed language is supported by mod-search application.
-   *
-   * @param language language value as {@link String}
-   * @return true if language is supported, false - otherwise
-   */
-  public boolean isSupportedLanguage(String language) {
-    return supportedLanguages.contains(language);
-  }
-
-  /**
-   * Initializes bean after constructor call and loads required resources from local files.
-   */
-  @PostConstruct
-  public void init() {
-    var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
-    var resources = localResourceProvider.getResourceDescriptions();
-
-    validateResourceDescriptions(resources);
-
-    for (var description : resources) {
-      mapBuilder.put(description.getName(), description);
-    }
-    this.resourceDescriptions = unmodifiableMap(mapBuilder);
-    this.supportedLanguages = unmodifiableSet(getSupportedLanguages());
-  }
-
-  private Set<String> getSupportedLanguages() {
-    var indexFieldType = localSearchFieldProvider.getSearchFieldType(MULTILANG_FIELD_TYPE);
-    var supportedLanguagesSet = new HashSet<String>();
-    var mapping = indexFieldType.getMapping();
-    mapping.path("properties").fieldNames().forEachRemaining(field -> {
-      if (!field.equals(MULTILANG_SOURCE_SUBFIELD)) {
-        supportedLanguagesSet.add(field);
-      }
-    });
-    return supportedLanguagesSet;
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
@@ -120,30 +79,35 @@ public class ResourceDescriptionService {
     }
   }
 
-  private List<String> checkIfProcessorExistForSearchFields(ResourceDescription resourceDescription) {
+  private List<String> checkIfProcessorExistForSearchFields(ResourceDescription description) {
     var validationErrors = new ArrayList<String>();
-    var eventBodyClass = resourceDescription.getEventBodyJavaClass();
-    resourceDescription.getSearchFields().forEach((name, fieldDesc) ->
-      validationErrors.addAll(checkThatFieldProcessorIsApplicable(name, eventBodyClass, fieldDesc.getProcessor())));
+    var eventBodyClass = description.getEventBodyJavaClass();
+    description.getSearchFields().forEach((name, fieldDesc) ->
+      validationErrors.addAll(checkThatFieldProcessorIsApplicable(name, eventBodyClass, fieldDesc)));
     return validationErrors;
   }
 
-  private List<String> checkThatFieldProcessorIsApplicable(String field, Class<?> eventBodyClass, String processor) {
+  private List<String> checkThatFieldProcessorIsApplicable(
+    String field, Class<?> eventBodyClass, SearchFieldDescriptor descriptor) {
+    var processor = descriptor.getProcessor();
     var errorInfo = format(" [field: '%s', processorName: '%s']", field, processor);
     FieldProcessor<?, ?> fieldProcessor = availableProcessors.get(processor);
     if (fieldProcessor == null) {
       return singletonList("Field processor not found" + errorInfo);
     }
+
     Class<?> resolvedClass = forClass(FieldProcessor.class, fieldProcessor.getClass()).resolveGeneric(0);
-    Class<?> requiredClass = eventBodyClass == null ? Map.class : eventBodyClass;
     if (resolvedClass == null) {
       return singletonList("Generic class for field processor not found" + errorInfo);
     }
-    if (!requiredClass.isAssignableFrom(resolvedClass)) {
+
+    Class<?> requiredClass = eventBodyClass == null ? Map.class : eventBodyClass;
+    if (!(descriptor.isRawProcessing() || requiredClass.isAssignableFrom(resolvedClass))) {
       return singletonList(format(
         "Invalid generic type in field processor, must be instance of '%s', resolved value was '%s'%s",
         requiredClass.getName(), resolvedClass.getName(), errorInfo));
     }
+
     return emptyList();
   }
 }

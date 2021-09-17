@@ -53,6 +53,11 @@ public class SearchMappingsHelper {
     var mappingProperties = new LinkedHashMap<String, Object>();
     indexMappings.put(MAPPING_PROPERTIES_FIELD, mappingProperties);
 
+    var mappingsSource = description.getMappingsSource();
+    if (MapUtils.isNotEmpty(mappingsSource)) {
+      indexMappings.put("_source", mappingsSource);
+    }
+
     mappingProperties.putAll(createMappingsForFields(description.getFields()));
     mappingProperties.putAll(createMappingsForFields(description.getSearchFields()));
     var customIndexMappings = description.getIndexMappings();
@@ -131,10 +136,6 @@ public class SearchMappingsHelper {
   }
 
   private void removeUnsupportedLanguages(ObjectNode mappings) {
-    if (mappings == null) {
-      return;
-    }
-
     var languageConfigsMap = languageConfigService.getAll().getLanguageConfigs().stream()
       .collect(toMap(LanguageConfig::getCode, Function.identity()));
 

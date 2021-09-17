@@ -4,6 +4,8 @@ import static java.util.Arrays.asList;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.readJsonFromFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.Holding;
@@ -16,6 +18,10 @@ public class SampleInstances {
 
   public static Instance getSemanticWeb() {
     return OBJECT_MAPPER.convertValue(SEMANTIC_WEB, Instance.class);
+  }
+
+  public static Map<String, Object> getSemanticWebAsMap() {
+    return OBJECT_MAPPER.convertValue(SEMANTIC_WEB, new TypeReference<>() {});
   }
 
   private static Instance readSampleInstance(String sampleName) {

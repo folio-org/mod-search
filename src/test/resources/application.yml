@@ -19,7 +19,7 @@ spring:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   cache:
-    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache
+    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache,tenant-languages
     caffeine:
       spec: maximumSize=500,expireAfterAccess=3600s
 
@@ -29,6 +29,8 @@ application:
   environment: folio-test
   search-config:
     initial-languages: eng,fre,ita,spa,ger
+    disabled-search-options:
+      instance: cql.all
   system-user:
     username: mod-search
     password: Mod-search-1-0-0

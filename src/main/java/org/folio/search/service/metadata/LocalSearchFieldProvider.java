@@ -2,23 +2,29 @@ package org.folio.search.service.metadata;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableMap;
+import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.utils.SearchUtils.CQL_META_FIELD_PREFIX;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 import static org.folio.search.utils.SearchUtils.getPathToPlainMultilangValue;
 import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.model.metadata.FieldDescription;
-import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
@@ -33,19 +39,22 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private final MetadataResourceProvider metadataResourceProvider;
 
+  private Set<String> supportedLanguages;
+  private Map<String, List<String>> sourceFields;
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
   private Map<String, Map<String, List<String>>> fieldBySearchType;
-  private Map<String, List<String>> sourceFields;
 
   /**
    * Loads local defined elasticsearch field type from json.
    */
   @PostConstruct
   public void init() {
-    elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     var resourceDescriptions = metadataResourceProvider.getResourceDescriptions();
-    fieldBySearchType = collectFieldsBySearchType(resourceDescriptions);
+    elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     sourceFields = collectSourceFields(resourceDescriptions);
+    supportedLanguages = getSupportedLanguages();
+    fieldBySearchType = resourceDescriptions.stream().collect(toUnmodifiableMap(
+      ResourceDescription::getName, desc -> collectFieldsBySearchType(desc.getFlattenFields())));
   }
 
   @Override
@@ -60,7 +69,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public List<String> getFields(String resource, String searchType) {
-    final List<String> fieldList = new ArrayList<>(fieldBySearchType
+    var fieldList = new ArrayList<>(fieldBySearchType
       .getOrDefault(resource, emptyMap())
       .getOrDefault(searchType, emptyList()));
 
@@ -68,9 +77,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       fieldList.add(updatePathForMultilangField(searchType));
     }
 
-    return fieldList.stream()
-      .distinct()
-      .collect(Collectors.toList());
+    return fieldList.stream().distinct().collect(toList());
   }
 
   @Override
@@ -79,85 +86,53 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public Optional<FieldDescription> getFieldByPath(String resource, String path) {
-    var optResourceDescription = metadataResourceProvider.getResourceDescription(resource);
-    if (optResourceDescription.isEmpty() || StringUtils.isBlank(path)) {
-      return Optional.empty();
-    }
-    var resourceDescription = optResourceDescription.get();
-    return findFieldByPath(resourceDescription.getFields(), path)
-      .or(() -> findFieldByPath(resourceDescription.getSearchFields(), path));
+  public Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path) {
+    return metadataResourceProvider.getResourceDescription(resource)
+      .map(ResourceDescription::getFlattenFields)
+      .map(flattenFields -> flattenFields.get(path));
   }
 
   @Override
-  public Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path) {
-    return getFieldByPath(resource, path)
-      .filter(PlainFieldDescription.class::isInstance)
-      .map(PlainFieldDescription.class::cast);
+  public boolean isSupportedLanguage(String languageCode) {
+    return supportedLanguages.contains(languageCode);
   }
 
-  private static Optional<FieldDescription> findFieldByPath(
-    Map<String, ? extends FieldDescription> fields, String path) {
-    var pathValues = path.split("\\.");
-    FieldDescription currentField = fields.get(pathValues[0]);
-    for (var i = 1; i < pathValues.length; i++) {
-      if (currentField instanceof ObjectFieldDescription) {
-        currentField = ((ObjectFieldDescription) currentField).getProperties().get(pathValues[i]);
-      } else {
-        return Optional.empty();
+  @Override
+  public boolean isMultilangField(String resourceName, String path) {
+    return getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
+  }
+
+  private static Map<String, List<String>> collectFieldsBySearchType(Map<String, PlainFieldDescription> fields) {
+    var result = new LinkedHashMap<String, List<String>>();
+
+    for (var entry : fields.entrySet()) {
+      var fieldDescription = entry.getValue();
+      if (CollectionUtils.isEmpty(fieldDescription.getInventorySearchTypes())) {
+        continue;
       }
-    }
-    return Optional.ofNullable(currentField);
-  }
 
-  private boolean isMultilangField(String resourceName, String path) {
-    return metadataResourceProvider.getResourceDescription(resourceName)
-      .map(ResourceDescription::getFlattenFields)
-      .map(map -> map.get(path))
-      .map(PlainFieldDescription::isMultilang)
-      .orElse(false);
-  }
-
-  private static Map<String, Map<String, List<String>>> collectFieldsBySearchType(
-    List<ResourceDescription> resourceDescriptions) {
-
-    var resultMap = new LinkedHashMap<String, Map<String, List<String>>>();
-    for (ResourceDescription desc : resourceDescriptions) {
-      resultMap.put(desc.getName(), collectFieldsBySearchType(desc));
+      var fieldPath = entry.getKey();
+      var updatedPath = fieldDescription.isMultilang() ? updatePathForMultilangField(fieldPath) : fieldPath;
+      fieldDescription.getInventorySearchTypes().forEach(type ->
+        result.computeIfAbsent(type, k -> new ArrayList<>()).addAll(getFieldsForSearchType(type, updatedPath)));
     }
 
-    return unmodifiableMap(resultMap);
+    return unmodifiableMap(result);
   }
 
-  private static Map<String, List<String>> collectFieldsBySearchType(ResourceDescription description) {
-    var fieldsBySearchType = new LinkedHashMap<String, List<String>>();
-
-    collectFieldsBySearchType(fieldsBySearchType, description.getFlattenFields());
-    collectFieldsBySearchType(fieldsBySearchType, description.getSearchFields());
-
-    return fieldsBySearchType;
-  }
-
-  private static void collectFieldsBySearchType(
-    Map<String, List<String>> fieldsBySearchType, Map<String, ? extends PlainFieldDescription> fields) {
-
-    fields.forEach((fieldPath, currentFieldDesc) -> {
-      final var updatedPath = currentFieldDesc.isMultilang()
-        ? updatePathForMultilangField(fieldPath) : fieldPath;
-
-      currentFieldDesc.getInventorySearchTypes().stream()
-        .map(type -> fieldsBySearchType.computeIfAbsent(type, k -> new ArrayList<>()))
-        .forEach(list -> list.add(updatedPath));
-    });
+  private static List<String> getFieldsForSearchType(String searchType, String path) {
+    return searchType.startsWith(CQL_META_FIELD_PREFIX)
+      ? List.of(path, PLAIN_MULTILANG_PREFIX + path.substring(0, path.length() - 2))
+      : singletonList(path);
   }
 
   private static Map<String, List<String>> collectSourceFields(List<ResourceDescription> descriptions) {
     var sourceFieldPerResource = new LinkedHashMap<String, List<String>>();
     for (ResourceDescription desc : descriptions) {
-      final List<String> sourcePaths = desc.getFlattenFields().entrySet().stream()
+      List<String> sourcePaths = desc.getFlattenFields().entrySet().stream()
         .filter(entry -> entry.getValue().isShowInResponse())
-        .map(LocalSearchFieldProvider::getSourcePath)
-        .collect(Collectors.toList());
+        .map(entry -> entry.getValue().isMultilang() ? getPathToPlainMultilangValue(entry.getKey()) : entry.getKey())
+        .collect(toList());
 
       sourceFieldPerResource.put(desc.getName(), sourcePaths);
     }
@@ -165,8 +140,15 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return unmodifiableMap(sourceFieldPerResource);
   }
 
-  private static String getSourcePath(Entry<String, PlainFieldDescription> entry) {
-    var path = entry.getKey();
-    return entry.getValue().isMultilang() ? getPathToPlainMultilangValue(path) : path;
+  private Set<String> getSupportedLanguages() {
+    var indexFieldType = elasticsearchFieldTypes.get(MULTILANG_FIELD_TYPE);
+    var supportedLanguagesSet = new LinkedHashSet<String>();
+    var mapping = indexFieldType.getMapping();
+    mapping.path("properties").fieldNames().forEachRemaining(field -> {
+      if (!field.equals(MULTILANG_SOURCE_SUBFIELD)) {
+        supportedLanguagesSet.add(field);
+      }
+    });
+    return unmodifiableSet(supportedLanguagesSet);
   }
 }

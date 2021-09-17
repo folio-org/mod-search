@@ -7,13 +7,18 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.MapUtils;
+import java.util.Set;
+import org.apache.commons.collections.MapUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
@@ -28,6 +33,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -37,7 +43,8 @@ import org.springframework.context.annotation.Import;
 class SearchFieldsProcessorTest {
 
   private static final String FIELD = "generated";
-  @Autowired SearchFieldsProcessor searchFieldsProcessor;
+  @Autowired private SearchFieldsProcessor searchFieldsProcessor;
+  @MockBean private SearchConfigurationProperties searchConfigurationProperties;
 
   @Test
   void getSearchFields_positive_emptySearchFields() {
@@ -53,6 +60,43 @@ class SearchFieldsProcessorTest {
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
     var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(mapOf(FIELD, "instance_title"));
+  }
+
+  @Test
+  void getSearchFields_positive_instanceWithMapFieldProcessor() {
+    var searchFieldDescriptor = searchField("mapFieldProcessor", "keyword");
+    searchFieldDescriptor.setRawProcessing(true);
+    var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
+    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
+
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
+
+    assertThat(actual).isEqualTo(mapOf(FIELD, "map_field"));
+  }
+
+  @Test
+  void getSearchFields_positive_instanceWithKeywordField_disabled() {
+    var searchFieldDescriptor = searchField("instanceTitleProcessor", "keyword");
+    searchFieldDescriptor.setInventorySearchTypes(List.of("cql.all", "cql.allKeyword"));
+    var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
+    var disabledSearchFields = mapOf(RESOURCE_NAME, Set.of("cql.all"));
+    when(searchConfigurationProperties.getDisabledSearchOptions()).thenReturn(disabledSearchFields);
+    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
+
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
+
+    assertThat(actual).isEqualTo(emptyMap());
+  }
+
+  @Test
+  void getSearchFields_positive_instanceWithKeywordField_disabledByName() {
+    var searchFieldDescriptor = searchField("instanceTitleProcessor", "keyword");
+    var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
+    when(searchConfigurationProperties.getDisabledSearchOptions()).thenReturn(mapOf(RESOURCE_NAME, Set.of(FIELD)));
+
+    var actual = searchFieldsProcessor.getSearchFields(ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList()));
+
+    assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
@@ -106,6 +150,7 @@ class SearchFieldsProcessorTest {
     var resourceDescription = new ResourceDescription();
     resourceDescription.setEventBodyJavaClass(clazz);
     resourceDescription.setSearchFields(searchFields);
+    resourceDescription.setName(RESOURCE_NAME);
     return resourceDescription;
   }
 

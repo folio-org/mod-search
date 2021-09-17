@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -41,7 +42,7 @@ class ResourceDescriptionServiceTest {
   private static final String FIELD = "field";
 
   @Autowired private ResourceDescriptionService descriptionService;
-  @Autowired private LocalResourceProvider localResourceProvider;
+  @MockBean private LocalResourceProvider localResourceProvider;
 
   @BeforeEach
   void setUp() {
@@ -60,22 +61,6 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.get("not_existing_resource"))
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Resource description not found [resourceName: not_existing_resource]");
-  }
-
-  @Test
-  void getAll_positive() {
-    var actual = descriptionService.getAll();
-    assertThat(actual).isEqualTo(List.of(resourceDescription()));
-  }
-
-  @Test
-  void isSupportedLanguage_positive() {
-    assertThat(descriptionService.isSupportedLanguage("eng")).isTrue();
-  }
-
-  @Test
-  void isSupportedLanguage_negative() {
-    assertThat(descriptionService.isSupportedLanguage("rus")).isFalse();
   }
 
   @Test
@@ -141,6 +126,16 @@ class ResourceDescriptionServiceTest {
         + "test-resource: ('Invalid generic type in field processor, "
         + "must be instance of 'org.folio.search.service.metadata.ResourceDescriptionServiceTest$TestEntityClass'"
         + ", resolved value was 'java.util.Map' [field: 'field', processorName: 'testProcessor']')");
+  }
+
+  @Test
+  void initService_negative_testEntityClassProcessorValidForRawProcessing() {
+    var testProcessor = searchField("testProcessor");
+    testProcessor.setRawProcessing(true);
+    var resourceDescription = resourceDescription(TestEntityClass.class, mapOf(FIELD, testProcessor));
+    when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
+    descriptionService.init();
+    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields()).containsKey(FIELD);
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

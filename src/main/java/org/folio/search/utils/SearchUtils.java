@@ -1,11 +1,12 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.singletonMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.CqlSearchServiceRequest;
+import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
 
@@ -27,6 +29,7 @@ import org.folio.spring.integration.XOkapiHeaders;
 public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = SearchResource.INSTANCE.getName();
+  public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
   public static final String PLAIN_MULTILANG_PREFIX = "plain_";
@@ -37,12 +40,12 @@ public class SearchUtils {
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
   /**
-   * Performs elasticsearch exceptional operation and returns the result if it was positive or throws {@link
-   * RuntimeException}.
+   * Performs elasticsearch exceptional operation and returns the received result.
    *
    * @param func exceptional operation as {@link Callable} lambda.
    * @param index elasticsearch index for error message.
    * @param type operation type for error message.
+   * @throws SearchOperationException if function call throws an exception during execution.
    */
   public static <T> T performExceptionalOperation(Callable<T> func, String index, String type) {
     try {
@@ -117,6 +120,12 @@ public class SearchUtils {
     return path + ".*";
   }
 
+  /**
+   * Updates path for field at term-level queries.
+   *
+   * @param path path to field
+   * @return updated path as {@link String} object
+   */
   public static String updatePathForTermQueries(String path) {
     return path.endsWith(".*") ? getPathToPlainMultilangValue(path.substring(0, path.length() - 2)) : path;
   }
@@ -149,7 +158,7 @@ public class SearchUtils {
    * @param callNumberValues array with full call number parts (prefix, call number and suffix)
    * @return created normalized call number as {@link String} value
    */
-  public static String getNormalizedCallNumber(String ... callNumberValues) {
+  public static String getNormalizedCallNumber(String... callNumberValues) {
     return Stream.of(callNumberValues)
       .filter(StringUtils::isNotBlank)
       .map(s -> s.toLowerCase().replaceAll("[^a-z0-9]", ""))
@@ -173,7 +182,7 @@ public class SearchUtils {
     if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
       return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
     }
-    return Collections.singletonMap(fieldName, fieldValue);
+    return singletonMap(fieldName, fieldValue);
   }
 
   /**
@@ -186,12 +195,14 @@ public class SearchUtils {
    */
   public static Map<String, Object> getMultilangValue(String key, Object value, List<String> languages) {
     var multilangValueMap = new LinkedHashMap<String, Object>(languages.size(), CONST_SIZE_LOAD_FACTOR);
-    languages.forEach(language -> multilangValueMap.put(language, value));
-    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, value);
+    var multilangValue = getMultilangValueObject(value);
+
+    languages.forEach(language -> multilangValueMap.put(language, multilangValue));
+    multilangValueMap.put(MULTILANG_SOURCE_SUBFIELD, multilangValue);
 
     var resultMap = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     resultMap.put(key, multilangValueMap);
-    resultMap.put(PLAIN_MULTILANG_PREFIX + key, value);
+    resultMap.put(PLAIN_MULTILANG_PREFIX + key, getPlainValueObject(value));
 
     return resultMap;
   }
@@ -206,12 +217,34 @@ public class SearchUtils {
    */
   public static Map<String, Object> getStandardFulltextValue(String key, Object value, boolean indexPlainField) {
     if (!indexPlainField) {
-      return Collections.singletonMap(key, value);
+      return singletonMap(key, value);
     }
     var fulltextValue = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     fulltextValue.put(key, value);
     fulltextValue.put(PLAIN_MULTILANG_PREFIX + key, value);
 
     return fulltextValue;
+  }
+
+  /**
+   * Removes 'plain_' prefix from key if it's starting from it, returns given key otherwise.
+   *
+   * @param key field name to analyze
+   * @return key without '_plain' prefix if it's starting from it.
+   */
+  public static String updateMultilangPlainFieldKey(String key) {
+    return key.startsWith(PLAIN_MULTILANG_PREFIX) ? key.substring(PLAIN_MULTILANG_PREFIX.length()) : key;
+  }
+
+  private static Object getMultilangValueObject(Object value) {
+    return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
+  }
+
+  private static Object getPlainValueObject(Object value) {
+    if (value instanceof MultilangValue) {
+      var multilangValue = (MultilangValue) value;
+      return mergeSafelyToSet(multilangValue.getMultilangValues(), multilangValue.getPlainValues());
+    }
+    return value;
   }
 }

@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.Instance;
@@ -63,6 +64,12 @@ class ResourceFetchServiceTest {
 
     verify(jsonConverter).convert(instance1.toInstance(), MAP_TYPE_REFERENCE);
     verify(jsonConverter).convert(instance2.toInstance(), MAP_TYPE_REFERENCE);
+  }
+
+  @Test
+  void fetchInstancesByIds_positive_emptyListOfIds() {
+    var actual = resourceFetchService.fetchInstancesByIds(Collections.emptyList());
+    assertThat(actual).isEmpty();
   }
 
   private static List<ResourceIdEvent> resourceIdEvents() {

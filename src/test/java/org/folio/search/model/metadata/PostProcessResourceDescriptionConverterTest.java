@@ -15,9 +15,8 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-class PostProcessResourceDescriptionConverterTest {
-  private final PostProcessResourceDescriptionConverter converter =
-    new PostProcessResourceDescriptionConverter();
+public class PostProcessResourceDescriptionConverterTest {
+  private final PostProcessResourceDescriptionConverter converter = new PostProcessResourceDescriptionConverter();
 
   @Test
   void canFlattenNestedObjectFields() {

@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 @IntegrationTest
 @TestPropertySource(properties = "application.search-config.disabled-search-options.instance=")
-public class SearchByAllFieldsIT extends BaseIntegrationTest {
+class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   private static final String TENANT = "search_all";
 

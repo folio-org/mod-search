@@ -41,11 +41,11 @@ public class ResourceDescriptionService {
   @PostConstruct
   public void init() {
     var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
-    var resourceDescriptions = localResourceProvider.getResourceDescriptions();
+    var loadedResourceDescriptions = localResourceProvider.getResourceDescriptions();
 
-    validateResourceDescriptions(resourceDescriptions);
+    validateResourceDescriptions(loadedResourceDescriptions);
 
-    resourceDescriptions.forEach(desc -> mapBuilder.put(desc.getName(), desc));
+    loadedResourceDescriptions.forEach(desc -> mapBuilder.put(desc.getName(), desc));
     this.resourceDescriptions = unmodifiableMap(mapBuilder);
   }
 

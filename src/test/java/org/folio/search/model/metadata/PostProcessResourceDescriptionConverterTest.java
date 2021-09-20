@@ -15,7 +15,7 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-public class PostProcessResourceDescriptionConverterTest {
+class PostProcessResourceDescriptionConverterTest {
   private final PostProcessResourceDescriptionConverter converter = new PostProcessResourceDescriptionConverter();
 
   @Test

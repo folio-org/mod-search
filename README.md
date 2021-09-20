@@ -139,6 +139,13 @@ In order to configure connection to elasticsearch you have to provide following 
   [official guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-security.html)
   for more details about ES security).
 
+### Tenant attributes
+It is possible to define specific tenant parameters during module's initialization for particular tenant.
+
+| Tenant parameter           | Default value          | Description                                                                        |
+| :--------------------------| :---------------------:|:-----------------------------------------------------------------------------------|
+| runReindex                 | false                  | SStart reindex procedure automatically after module will be enabled for the tenant |
+
 ## Indexing
 
 ### Recreating Elasticsearch index

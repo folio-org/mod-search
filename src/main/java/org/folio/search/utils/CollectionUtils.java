@@ -28,7 +28,7 @@ public final class CollectionUtils {
    * @return map itself if it's not empty, null - otherwise
    */
   public static <K, V> Map<K, V> nullIfEmpty(Map<K, V> map) {
-    return MapUtils.isNotEmpty(map) ? map : null;
+    return MapUtils.isEmpty(map) ? null : map;
   }
 
   /**
@@ -43,8 +43,8 @@ public final class CollectionUtils {
   public static <K, V> Map<K, V> mergeSafely(Map<K, V>... maps) {
     Map<K, V> baseMap = new LinkedHashMap<>();
 
-    for (var map : maps) {
-      if (MapUtils.isNotEmpty(map)) {
+    for (Map<K, V> map : maps) {
+      if (map != null) {
         baseMap.putAll(map);
       }
     }

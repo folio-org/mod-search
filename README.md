@@ -335,7 +335,7 @@ Here is a table with supported search options.
 Search by all feature is optional and can be disabled by passing to the server configuration following ENV variable
 
 ```
-INSTANCE_SEARCH_DISABLED=
+INSTANCE_DISABLED_SEARCH_OPTIONS=
 ```
 
 By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and

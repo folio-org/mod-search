@@ -144,7 +144,7 @@ It is possible to define specific tenant parameters during module's initializati
 
 | Tenant parameter           | Default value          | Description                                                                        |
 | :--------------------------| :---------------------:|:-----------------------------------------------------------------------------------|
-| runReindex                 | false                  | SStart reindex procedure automatically after module will be enabled for the tenant |
+| runReindex                 | false                  | Start reindex procedure automatically after module will be enabled for the tenant |
 
 ## Indexing
 

@@ -79,6 +79,13 @@ public class TestUtils {
   }
 
   @SneakyThrows
+  public static <T> T readJsonFromFile(String path, TypeReference<T> type) {
+    try (var resource = TestUtils.class.getResourceAsStream(path)) {
+      return OBJECT_MAPPER.readValue(resource, type);
+    }
+  }
+
+  @SneakyThrows
   public static <T> T parseResponse(ResultActions result, Class<T> type) {
     return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
       .getContentAsString(), type);

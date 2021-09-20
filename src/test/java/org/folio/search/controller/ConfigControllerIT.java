@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static org.awaitility.Awaitility.await;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -29,15 +30,28 @@ import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class ConfigControllerIT extends BaseIntegrationTest {
 
   @Autowired
   private RestHighLevelClient elasticsearchClient;
+
+  @BeforeAll
+  static void createTenant(@Autowired MockMvc mockMvc) {
+    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  }
+
+  @AfterAll
+  static void removeTenant(@Autowired MockMvc mockMvc) {
+    removeTenant(mockMvc, TENANT_ID);
+  }
 
   @BeforeEach
   void removeConfigs() {

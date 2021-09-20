@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.verify;
 
@@ -34,7 +35,7 @@ class JsonConverterTest {
   private static final String WRONG_JSON_BODY = "{\"field\":value}";
   private static final String FIELD_VALUE = "value";
 
-  @Spy private final ObjectMapper objectMapper = new ObjectMapper();
+  @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
   @InjectMocks private JsonConverter jsonConverter;
 
   @Test

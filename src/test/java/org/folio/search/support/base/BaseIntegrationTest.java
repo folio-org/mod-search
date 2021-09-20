@@ -1,9 +1,9 @@
 package org.folio.search.support.base;
 
+import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -18,7 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Instance;
@@ -30,13 +32,10 @@ import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -59,23 +58,9 @@ public abstract class BaseIntegrationTest {
   @Autowired protected MockMvc mockMvc;
 
   @BeforeAll
-  static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
+  static void setUpDefaultTenant(@Autowired KafkaTemplate<String, Object> kafkaTemplate) {
     setEnvProperty("folio-test");
     inventoryApi = new InventoryApi(kafkaTemplate);
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
-  }
-
-  @BeforeAll
-  public static void evictAllCaches(@Autowired CacheManager cacheManager) {
-    for (String cacheName : cacheManager.getCacheNames()) {
-      Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear);
-    }
-  }
-
-  @AfterAll
-  static void removeDefaultTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -155,18 +140,27 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance... instances) {
+    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, MockMvc mockMvc, Map<String, Object>... instances) {
+    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+  }
+
+  private static <T> void setUpTenant(
+    String tenant, MockMvc mockMvc, List<T> instances, Consumer<T> consumer) throws Exception {
     mockMvc.perform(post("/_/tenant")
         .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
-        .headers(defaultHeaders(tenantName))
+        .headers(defaultHeaders(tenant))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
-    for (Instance instance : instances) {
-      inventoryApi.createInstance(tenantName, instance);
-    }
+    instances.forEach(consumer);
 
-    if (instances.length > 0) {
-      checkThatElasticsearchAcceptResourcesFromKafka(tenantName, mockMvc, instances.length);
+    if (instances.size() > 0) {
+      checkThatElasticsearchAcceptResourcesFromKafka(tenant, mockMvc, instances.size());
     }
   }
 

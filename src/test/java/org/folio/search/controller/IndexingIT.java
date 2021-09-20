@@ -5,6 +5,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
+import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -18,7 +19,11 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class IndexingIT extends BaseIntegrationTest {
@@ -26,6 +31,16 @@ class IndexingIT extends BaseIntegrationTest {
   private static final List<String> INSTANCE_IDS = getRandomIds(3);
   private static final List<String> ITEM_IDS = getRandomIds(2);
   private static final List<String> HOLDING_IDS = getRandomIds(4);
+
+  @BeforeAll
+  static void createTenant(@Autowired MockMvc mockMvc) {
+    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  }
+
+  @AfterAll
+  static void removeTenant(@Autowired MockMvc mockMvc) {
+    removeTenant(mockMvc, TENANT_ID);
+  }
 
   @Test
   void shouldRemoveItem() {

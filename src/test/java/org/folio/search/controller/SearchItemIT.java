@@ -1,17 +1,33 @@
 package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchItemIT extends BaseIntegrationTest {
+
+  @BeforeAll
+  static void createTenant(@Autowired MockMvc mockMvc) {
+    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  }
+
+  @AfterAll
+  static void removeTenant(@Autowired MockMvc mockMvc) {
+    removeTenant(mockMvc, TENANT_ID);
+  }
 
   @CsvSource({
     "items.fullCallNumber=={value}, prefix-90000 TK51*",

@@ -6,6 +6,7 @@ import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_MULTIL
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.languageConfig;
 import static org.folio.search.utils.TestUtils.languageConfigs;
@@ -19,7 +20,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +48,10 @@ class SearchMappingsHelperTest {
   private static final String KEYWORD_TYPE = "keyword";
 
   @InjectMocks private SearchMappingsHelper mappingsHelper;
-
-  @Spy private final ObjectMapper objectMapper = new ObjectMapper();
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(objectMapper);
-
   @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private LanguageConfigService languageConfigService;
+  @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
   void getMappings_positive() {

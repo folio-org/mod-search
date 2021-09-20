@@ -8,7 +8,6 @@ import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,11 +33,10 @@ public class SearchMappingsHelper {
 
   private static final String MAPPING_PROPERTIES_FIELD = "properties";
 
-  private final ResourceDescriptionService resourceDescriptionService;
-  private final SearchFieldProvider searchFieldProvider;
   private final JsonConverter jsonConverter;
-  private final ObjectMapper objectMapper;
+  private final SearchFieldProvider searchFieldProvider;
   private final LanguageConfigService languageConfigService;
+  private final ResourceDescriptionService resourceDescriptionService;
 
   /**
    * Provides elasticsearch mappings for given resource name.
@@ -132,7 +130,7 @@ public class SearchMappingsHelper {
     var mappingProps = new LinkedHashMap<String, JsonNode>();
     fieldDescription.getProperties().forEach((name, desc) -> mappingProps.putAll(getMappingForField(name, desc)));
     var objectNodeMappings = singletonMap(MAPPING_PROPERTIES_FIELD, mappingProps);
-    return singletonMap(fieldName, objectMapper.valueToTree(objectNodeMappings));
+    return singletonMap(fieldName, jsonConverter.toJsonTree(objectNodeMappings));
   }
 
   private void removeUnsupportedLanguages(ObjectNode mappings) {

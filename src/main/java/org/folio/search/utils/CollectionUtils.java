@@ -44,7 +44,7 @@ public final class CollectionUtils {
     Map<K, V> baseMap = new LinkedHashMap<>();
 
     for (Map<K, V> map : maps) {
-      if (map != null) {
+      if (map != null && !map.isEmpty()) {
         baseMap.putAll(map);
       }
     }

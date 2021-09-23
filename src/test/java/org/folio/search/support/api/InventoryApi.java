@@ -15,6 +15,7 @@ import static org.folio.search.utils.TestUtils.eventBody;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;

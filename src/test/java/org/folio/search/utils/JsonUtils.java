@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -11,8 +12,12 @@ import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.List;
+import java.util.Map;
 
 public class JsonUtils {
+
+  public static final TypeReference<List<Map<String, Object>>> LIST_OF_MAPS_TYPE_REFERENCE = new TypeReference<>() {};
 
   public static ObjectNode jsonObject() {
     return OBJECT_MAPPER.createObjectNode();

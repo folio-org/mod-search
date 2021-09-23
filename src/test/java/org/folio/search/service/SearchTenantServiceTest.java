@@ -5,6 +5,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -84,5 +85,14 @@ class SearchTenantServiceTest {
     TenantAttributes attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindexx").value("true"));
     searchTenantService.initializeTenant(attributes);
     verify(indexService, times(0)).reindexInventory(TENANT_ID, null);
+  }
+
+  @Test
+  void removeElasticsearchIndices_positive() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    searchTenantService.removeElasticsearchIndexes();
+
+    verify(indexService).dropIndex(INSTANCE.getName(), TENANT_ID);
+    verifyNoMoreInteractions(indexService);
   }
 }

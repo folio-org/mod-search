@@ -79,6 +79,13 @@ public class TestUtils {
   }
 
   @SneakyThrows
+  public static <T> T readJsonFromFile(String path, TypeReference<T> type) {
+    try (var resource = TestUtils.class.getResourceAsStream(path)) {
+      return OBJECT_MAPPER.readValue(resource, type);
+    }
+  }
+
+  @SneakyThrows
   public static <T> T parseResponse(ResultActions result, Class<T> type) {
     return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
       .getContentAsString(), type);
@@ -215,6 +222,12 @@ public class TestUtils {
     return plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
   }
 
+  public static PlainFieldDescription multilangField(String... inventorySearchType) {
+    var field = plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+    field.setInventorySearchTypes(List.of(inventorySearchType));
+    return field;
+  }
+
   public static PlainFieldDescription standardFulltextField() {
     return plainField(PLAIN, STANDARD_FIELD_TYPE, emptyList());
   }
@@ -288,6 +301,10 @@ public class TestUtils {
 
   public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
+  }
+
+  public static Map<String, Object> toMap(Instance instance) {
+    return OBJECT_MAPPER.convertValue(instance, new TypeReference<>() {});
   }
 
   public static void setEnvProperty(String value) {

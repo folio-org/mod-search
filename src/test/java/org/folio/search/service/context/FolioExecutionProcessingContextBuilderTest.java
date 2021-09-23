@@ -9,7 +9,7 @@ import org.folio.spring.FolioModuleMetadata;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-class FolioExecutionContextBuilderTest {
+class FolioExecutionProcessingContextBuilderTest {
   private final FolioExecutionContextBuilder builder =
     new FolioExecutionContextBuilder(mock(FolioModuleMetadata.class));
 

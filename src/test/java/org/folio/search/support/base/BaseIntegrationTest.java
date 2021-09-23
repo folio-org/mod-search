@@ -1,9 +1,9 @@
 package org.folio.search.support.base;
 
+import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -18,7 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Instance;
@@ -30,15 +32,14 @@ import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -49,29 +50,17 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @EnableElasticSearch
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public abstract class BaseIntegrationTest {
+
   protected static InventoryApi inventoryApi;
   private static OkapiConfiguration okapi;
   @Autowired protected MockMvc mockMvc;
 
   @BeforeAll
-  static void setUpDefaultTenant(@Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
+  static void setUpDefaultTenant(@Autowired KafkaTemplate<String, Object> kafkaTemplate) {
     setEnvProperty("folio-test");
     inventoryApi = new InventoryApi(kafkaTemplate);
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWeb());
-  }
-
-  @BeforeAll
-  public static void evictAllCaches(@Autowired CacheManager cacheManager) {
-    for (String cacheName : cacheManager.getCacheNames()) {
-      Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear);
-    }
-  }
-
-  @AfterAll
-  static void removeDefaultTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -132,8 +121,8 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doGet(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(get(uri, args)
-      .headers(defaultHeaders())
-      .header("Accept", "application/json;charset=UTF-8"))
+        .headers(defaultHeaders())
+        .header("Accept", "application/json;charset=UTF-8"))
       .andExpect(status().isOk());
   }
 
@@ -145,31 +134,40 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doDelete(MockMvc mockMvc, String uri, Object... args) {
     return mockMvc.perform(delete(uri, args)
-      .headers(defaultHeaders()))
+        .headers(defaultHeaders()))
       .andExpect(status().isNoContent());
   }
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance... instances) {
+    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, MockMvc mockMvc, Map<String, Object>... instances) {
+    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+  }
+
+  private static <T> void setUpTenant(
+    String tenant, MockMvc mockMvc, List<T> instances, Consumer<T> consumer) throws Exception {
     mockMvc.perform(post("/_/tenant")
-      .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
-      .headers(defaultHeaders(tenantName))
-      .contentType(APPLICATION_JSON))
+        .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
+        .headers(defaultHeaders(tenant))
+        .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
-    for (Instance instance : instances) {
-      inventoryApi.createInstance(tenantName, instance);
-    }
+    instances.forEach(consumer);
 
-    if (instances.length > 0) {
-      checkThatElasticsearchAcceptResourcesFromKafka(tenantName, mockMvc, instances.length);
+    if (instances.size() > 0) {
+      checkThatElasticsearchAcceptResourcesFromKafka(tenant, mockMvc, instances.size());
     }
   }
 
   @SneakyThrows
   protected static void removeTenant(MockMvc mockMvc, String tenant) {
     mockMvc.perform(delete("/_/tenant")
-      .headers(defaultHeaders(tenant)))
+        .headers(defaultHeaders(tenant)))
       .andExpect(status().isNoContent());
   }
 

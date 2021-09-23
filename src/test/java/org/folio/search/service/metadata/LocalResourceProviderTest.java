@@ -7,6 +7,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,17 +32,18 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 @ExtendWith(MockitoExtension.class)
 class LocalResourceProviderTest {
 
+  @InjectMocks private LocalResourceProvider localResourceProvider;
+
   @Mock private JsonConverter jsonConverter;
   @Mock private LocalFileProvider localFileProvider;
   @Mock private ResourcePatternResolver patternResolver;
-  @InjectMocks private LocalResourceProvider localResourceProvider;
 
   @Test
   void getResourceDescriptions_positive() throws IOException {
     var r1 = mock(Resource.class);
     var r2 = mock(Resource.class);
-    var r1InputStream = mock(InputStream.class);
     var desc = new ResourceDescription();
+    var r1InputStream = mock(InputStream.class);
 
     when(r1.isReadable()).thenReturn(true);
     when(r2.isReadable()).thenReturn(false);
@@ -51,12 +53,17 @@ class LocalResourceProviderTest {
 
     var resourceDescriptions = localResourceProvider.getResourceDescriptions();
     assertThat(resourceDescriptions).isEqualTo(List.of(desc));
+
+    // second call must return locally cached resource descriptions
+    var resourceDescriptions2 = localResourceProvider.getResourceDescriptions();
+    assertThat(resourceDescriptions2).isEqualTo(List.of(desc));
+
+    verify(patternResolver).getResources("classpath*:/model/*.json");
   }
 
   @Test
   void getResourceDescriptions_negative_throwsException() throws IOException {
-    when(patternResolver.getResources("classpath*:/model/*.json"))
-      .thenThrow(new IOException("error"));
+    when(patternResolver.getResources("classpath*:/model/*.json")).thenThrow(new IOException("error"));
 
     assertThatThrownBy(() -> localResourceProvider.getResourceDescriptions())
       .isInstanceOf(ResourceDescriptionException.class)

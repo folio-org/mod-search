@@ -30,7 +30,7 @@ spring:
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
   cache:
-    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache
+    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache,tenant-languages
     caffeine:
       spec: maximumSize=500,expireAfterAccess=3600s
 
@@ -48,7 +48,7 @@ application:
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
     listener:
       events:
-        concurrency: 2
+        concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
         group-id: ${application.environment}-mod-search-events-group
 

@@ -1,8 +1,10 @@
 package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.instanceIds;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -13,16 +15,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.stream.Stream;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @IntegrationTest
 class SearchInstanceIT extends BaseIntegrationTest {
+
+  @BeforeAll
+  static void createTenant(@Autowired MockMvc mockMvc) {
+    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  }
+
+  @AfterAll
+  static void removeTenant(@Autowired MockMvc mockMvc) {
+    removeTenant(mockMvc, TENANT_ID);
+  }
 
   @SuppressWarnings("unused")
   @ParameterizedTest(name = "[{index}] {0}")

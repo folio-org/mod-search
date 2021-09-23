@@ -20,7 +20,7 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
-import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.SearchUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -38,13 +38,13 @@ class LanguageConfigServiceTest {
 
   @InjectMocks private LanguageConfigService configService;
   @Mock private LanguageConfigRepository configRepository;
-  @Mock private ResourceDescriptionService descriptionService;
+  @Mock private LocalSearchFieldProvider searchFieldProvider;
   @Mock private TenantScopedExecutionService tenantScopedExecutionService;
 
   @Test
   void canAddLanguageConfig() {
     when(configRepository.count()).thenReturn(0L);
-    when(descriptionService.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
+    when(searchFieldProvider.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
     when(configRepository.save(any(LanguageConfigEntity.class)))
       .thenReturn(new LanguageConfigEntity(SUPPORTED_LANGUAGE_CODE, null));
 
@@ -72,7 +72,7 @@ class LanguageConfigServiceTest {
     final var languageConfig = new LanguageConfig().code(SUPPORTED_LANGUAGE_CODE);
 
     when(configRepository.count()).thenReturn(5L);
-    when(descriptionService.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
+    when(searchFieldProvider.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
 
     assertThrows(ValidationException.class, () -> configService.create(languageConfig));
   }

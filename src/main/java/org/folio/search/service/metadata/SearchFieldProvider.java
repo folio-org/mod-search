@@ -2,7 +2,6 @@ package org.folio.search.service.metadata;
 
 import java.util.List;
 import java.util.Optional;
-import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 
@@ -30,15 +29,6 @@ public interface SearchFieldProvider {
   List<String> getFields(String resource, String searchType);
 
   /**
-   * Provides field for given path.
-   *
-   * @param resource resource type as {@link String}
-   * @param path path to field as {@link String}
-   * @return {@link Optional} of resource field description by path, it would be empty if field by path not found.
-   */
-  Optional<FieldDescription> getFieldByPath(String resource, String path);
-
-  /**
    * Provides plain field description for given path.
    *
    * @param resource resource type as {@link String}
@@ -54,4 +44,20 @@ public interface SearchFieldProvider {
    * @return list of fields.
    */
   List<String> getSourceFields(String resource);
+
+  /**
+   * Checks if given language is supported.
+   *
+   * @return true if language is supported by system, false - otherwise.
+   */
+  boolean isSupportedLanguage(String languageCode);
+
+  /**
+   * Checks if field by path is multi-language or not.
+   *
+   * @param resourceName resource name as {@link String} object
+   * @param path path to the field as {@link String} object
+   * @return true if field by path is multi-language, false - otherwise
+   */
+  boolean isMultilangField(String resourceName, String path);
 }

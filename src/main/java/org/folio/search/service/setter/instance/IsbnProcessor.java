@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
-import static org.folio.isbn.IsbnUtil.isValid13DigitNumber;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -86,7 +85,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
       return emptyList();
     }
     var isbn13Matcher = ISBN13_REGEX.matcher(isbnValue);
-    if (isbn13Matcher.find() && isValid13DigitNumber(isbn13Matcher.group(0))) {
+    if (isbn13Matcher.find()) {
       return getNormalizedIsbnValue(isbn13Matcher, singletonList(isbn13Matcher.group(0)));
     }
 

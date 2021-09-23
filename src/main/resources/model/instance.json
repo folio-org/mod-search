@@ -420,7 +420,7 @@
     "itemsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "inventorySearchTypes": ["items.effectiveCallNumberComponents", "items.fullCallNumber"],
+      "inventorySearchTypes": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
@@ -455,7 +455,36 @@
       "type": "search",
       "index": "multilang",
       "processor": "uniformTitleProcessor"
+    },
+    "allInstance": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "instanceAllFieldValuesProcessor",
+      "rawProcessing": true,
+      "inventorySearchTypes": [ "cql.all", "cql.allInstance" ]
+    },
+    "allItems": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "itemAllFieldValuesProcessor",
+      "rawProcessing": true,
+      "inventorySearchTypes": [ "cql.all", "cql.allItems" ]
+    },
+    "allHoldings": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "holdingAllFieldValuesProcessor",
+      "rawProcessing": true,
+      "inventorySearchTypes": [ "cql.all", "cql.allHoldings" ]
     }
   },
-  "indexMappings": {}
+  "mappingsSource": {
+    "excludes": [
+      "allInstance.*", "plain_allInstance",
+      "allItems.*", "plain_allItems",
+      "allHoldings.*", "plain_allHoldings",
+      "sort_title", "sort_contributors"
+    ]
+  },
+  "indexMappings": { }
 }

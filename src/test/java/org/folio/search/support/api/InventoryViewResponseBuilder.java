@@ -1,7 +1,6 @@
 package org.folio.search.support.api;
 
 import static com.github.tomakehurst.wiremock.http.Response.Builder.like;
-import static java.util.Arrays.stream;
 import static org.folio.search.support.api.InventoryApi.getInventoryView;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
@@ -14,34 +13,30 @@ import com.github.tomakehurst.wiremock.http.Response;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.collections.MapUtils;
 
 @RequiredArgsConstructor
 public class InventoryViewResponseBuilder extends ResponseTransformer {
+
   @Override
   @SneakyThrows
   public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
     var tenant = request.header(TENANT).firstValue();
-    var instanceViews = stream(request.queryParameter("query").firstValue()
-      .replaceAll("id==\\(", "")
-      .replaceAll("\"", "")
-      .replace(")", "")
-      .split(" or "))
-      .map(String::trim)
+    var instanceViews = getInstanceIdsFromRequest(request)
       .map(id -> getInventoryView(tenant, id))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .map(instance -> Map.of(
         "instance", instance,
-        "holdingsRecords", instance.getHoldings(),
-        "items", instance.getItems()))
+        "holdingsRecords", MapUtils.getObject(instance, "holdings"),
+        "items", MapUtils.getObject(instance, "items")))
       .limit(Integer.parseInt(request.queryParameter("limit").firstValue()))
       .collect(Collectors.toList());
 
-    return like(response)
-      .body(OBJECT_MAPPER.writeValueAsString(Map.of("instances", instanceViews)))
-      .build();
+    return like(response).body(OBJECT_MAPPER.writeValueAsString(Map.of("instances", instanceViews))).build();
   }
 
   @Override
@@ -52,5 +47,14 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
   @Override
   public boolean applyGlobally() {
     return false;
+  }
+
+  private static Stream<String> getInstanceIdsFromRequest(Request request) {
+    return Stream.of(request.queryParameter("query").firstValue()
+        .replaceAll("id==\\(", "")
+        .replaceAll("\"", "")
+        .replace(")", "")
+        .split(" or "))
+      .map(String::trim);
   }
 }

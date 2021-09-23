@@ -1,69 +1,77 @@
 package org.folio.search.support.api;
 
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.collections.MapUtils.getString;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.getInventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.getInventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.getInventoryItemTopic;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.eventBody;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.Holding;
+import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @RequiredArgsConstructor
 public class InventoryApi {
-  private static final Map<String, Map<String, Instance>> INSTANCE_STORE = new HashMap<>();
+
+  private static final Map<String, Map<String, Map<String, Object>>> INSTANCE_STORE = new HashMap<>();
   private static final Map<String, Map<String, HoldingEvent>> HOLDING_STORE = new HashMap<>();
   private static final Map<String, Map<String, ItemEvent>> ITEM_STORE = new HashMap<>();
+  private static final String ID_FIELD = "id";
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
   public void createInstance(String tenantName, Instance instance) {
-    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new HashMap<>())
-      .put(instance.getId(), instance);
+    createInstance(tenantName, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
+  }
 
-    kafkaTemplate.send(getInventoryInstanceTopic(tenantName), instance.getId(),
+  public void createInstance(String tenantName, Map<String, Object> instance) {
+    var instanceId = getString(instance, "id");
+    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new HashMap<>()).put(instanceId, instance);
+
+    kafkaTemplate.send(getInventoryInstanceTopic(tenantName), instanceId,
       eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
+    createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantName, instanceId, hr));
+    createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantName, instanceId, item));
+  }
 
-    if (instance.getHoldings() != null) {
-      for (Holding holdingsRecord : instance.getHoldings()) {
-        createHolding(tenantName, instance.getId(), holdingsRecord);
-      }
-    }
-
-    if (instance.getItems() != null) {
-      for (Item item : instance.getItems()) {
-        createItem(tenantName, instance.getId(), item);
-      }
+  @SuppressWarnings("unchecked")
+  private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
+    var items = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
+    if (items != null) {
+      items.forEach(consumer);
     }
   }
 
-  public void createHolding(String tenant, String instanceId, Holding holding) {
+  public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
     var event = new HoldingEvent(holding, instanceId);
-    HOLDING_STORE.computeIfAbsent(tenant, k -> new HashMap<>())
-      .put(holding.getId(), event);
+    HOLDING_STORE.computeIfAbsent(tenant, k -> new HashMap<>()).put(getString(holding, ID_FIELD), event);
 
     kafkaTemplate.send(getInventoryHoldingTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
-  public void createItem(String tenant, String instanceId, Item item) {
+  public void createItem(String tenant, String instanceId, Map<String, Object> item) {
     var event = new ItemEvent(item, instanceId);
-    ITEM_STORE.computeIfAbsent(tenant, k -> new HashMap<>())
-      .put(item.getId(), event);
+    ITEM_STORE.computeIfAbsent(tenant, k -> new HashMap<>()).put(getString(item, ID_FIELD), event);
 
     kafkaTemplate.send(getInventoryItemTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
@@ -86,11 +94,11 @@ public class InventoryApi {
   public void deleteInstance(String tenant, String id) {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(getInventoryInstanceTopic(tenant), instance.getId(),
+    kafkaTemplate.send(getInventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
       eventBody(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
   }
 
-  public static Optional<Instance> getInventoryView(String tenant, String id) {
+  public static Optional<Map<String, Object>> getInventoryView(String tenant, String id) {
     var instance = INSTANCE_STORE.getOrDefault(tenant, emptyMap()).get(id);
 
     var hrs = HOLDING_STORE.getOrDefault(tenant, emptyMap()).values().stream()
@@ -104,16 +112,22 @@ public class InventoryApi {
       .collect(Collectors.toList());
 
     return Optional.ofNullable(instance)
-      .map(inst -> inst.holdings(hrs))
-      .map(inst -> inst.items(items));
+      .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))
+      .map(inst -> putField(inst, INSTANCE_ITEM_FIELD_NAME, items));
+  }
+
+  private static Map<String, Object> putField(Map<String, Object> instance, String key, Object subResources) {
+    instance.put(key, subResources);
+    return instance;
   }
 
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
   private static class HoldingEvent {
+
     @JsonUnwrapped
-    private Holding holding;
+    private Map<String, Object> holding;
     private String instanceId;
   }
 
@@ -122,8 +136,9 @@ public class InventoryApi {
   @NoArgsConstructor
   @Builder
   private static class ItemEvent {
+
     @JsonUnwrapped
-    private Item item;
+    private Map<String, Object> item;
     private String instanceId;
   }
 }

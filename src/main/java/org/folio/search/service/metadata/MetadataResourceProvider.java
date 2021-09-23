@@ -18,6 +18,12 @@ public interface MetadataResourceProvider {
    */
   List<ResourceDescription> getResourceDescriptions();
 
+  /**
+   * Finds resource description by given resource name.
+   *
+   * @param resourceName resource name as {@link String} value.
+   * @return {@link Optional} of {@link ResourceDescription} if it has been found, it would be empty otherwise.
+   */
   default Optional<ResourceDescription> getResourceDescription(String resourceName) {
     return getResourceDescriptions().stream()
       .filter(desc -> desc.getName().equals(resourceName))

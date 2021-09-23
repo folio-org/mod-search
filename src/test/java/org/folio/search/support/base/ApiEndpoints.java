@@ -6,7 +6,11 @@ import org.folio.cql2pgjson.model.CqlSort;
 @UtilityClass
 public class ApiEndpoints {
 
-  public static String searchInstancesByQuery(String query, Object ... args) {
+  public static String instanceSearchPath() {
+    return "/search/instances";
+  }
+
+  public static String searchInstancesByQuery(String query, Object... args) {
     final var formattedQuery = String.format(query, args);
     return String.format("/search/instances?query=%s&limit=%s&offset=%s", formattedQuery, 100, 0);
   }

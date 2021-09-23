@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
-import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.ArrayList;
@@ -15,9 +14,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.integration.inventory.InventoryViewClient;
+import org.folio.search.integration.inventory.InventoryViewClient.InstanceView;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.TenantScopedExecutionService;
-import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,9 +24,14 @@ import org.springframework.stereotype.Service;
 public class ResourceFetchService {
 
   private final InventoryViewClient inventoryClient;
-  private final JsonConverter jsonConverter;
   private final TenantScopedExecutionService tenantScopedExecutionService;
 
+  /**
+   * Fetches instances from inventory-storage module using CQL query.
+   *
+   * @param events list of {@link ResourceIdEvent} objects to fetch
+   * @return {@link List} of {@link ResourceEventBody} object with fetched data.
+   */
   public List<ResourceEventBody> fetchInstancesByIds(List<ResourceIdEvent> events) {
     if (CollectionUtils.isEmpty(events)) {
       return Collections.emptyList();
@@ -46,12 +50,9 @@ public class ResourceFetchService {
 
   private List<ResourceEventBody> fetchInstances(String tenantId, List<String> instanceIds) {
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      var instanceResultList = inventoryClient.getInstances(
-        exactMatchAny("id", instanceIds), instanceIds.size());
-
+      var instanceResultList = inventoryClient.getInstances(exactMatchAny("id", instanceIds), instanceIds.size());
       return instanceResultList.getResult().stream()
-        .map(InventoryViewClient.InstanceView::toInstance)
-        .map(instance -> jsonConverter.convert(instance, MAP_TYPE_REFERENCE))
+        .map(InstanceView::toInstance)
         .map(instanceMap -> new ResourceEventBody()._new(instanceMap).tenant(tenantId)
           .resourceName(INSTANCE_RESOURCE).type(TypeEnum.CREATE))
         .collect(toList());

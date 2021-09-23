@@ -10,21 +10,26 @@ import java.util.Map;
 
 /**
  * This Jackson converter is used to post-process ResourceDescription after it has been deserialized.
- * It does following actions:
- * * Resolves types for object/plain fields. Type must be defined in {@code fieldTypes} section of the
- * resource description and than it can be referenced in actual type via $type: [type] property.
- * * Builds flattened map of field path and field description pairs.
+ *
+ * <p>It does the following actions:</p>
+ * <ul>
+ * <li>Resolves types for object/plain fields. Type must be defined in {@code fieldTypes} section of the resource
+ * description, and then it can be referenced in actual type via $type: [type] property.</li>
+ * <li>Builds flattened map of field path and field description pairs.</li>
+ * </ul>
+ *
  */
 public class PostProcessResourceDescriptionConverter extends StdConverter<ResourceDescription, ResourceDescription> {
+
   @Override
   public ResourceDescription convert(ResourceDescription value) {
     resolveFieldByType(value, value.getFields());
-    value.setFlattenFields(unmodifiableMap(flattenFields(value)));
+    value.setFlattenFields(getFlattenFields(value));
 
     return value;
   }
 
-  private void resolveFieldByType(ResourceDescription desc, Map<String, FieldDescription> fields) {
+  private static void resolveFieldByType(ResourceDescription desc, Map<String, FieldDescription> fields) {
     for (var entry : fields.entrySet()) {
       var fieldType = entry.getValue().getFieldType();
       if (isNotBlank(fieldType)) {
@@ -39,7 +44,7 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
     }
   }
 
-  private FieldDescription getFieldByType(ResourceDescription desc, String fieldType) {
+  private static FieldDescription getFieldByType(ResourceDescription desc, String fieldType) {
     if (!desc.getFieldTypes().containsKey(fieldType)) {
       throw new IllegalStateException("No field type found: " + fieldType);
     }
@@ -47,28 +52,32 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
     return desc.getFieldTypes().get(fieldType);
   }
 
-  private Map<String, PlainFieldDescription> flattenFields(ResourceDescription desc) {
-    return flattenFields(null, new LinkedHashMap<>(), desc.getFields());
+  private static Map<String, PlainFieldDescription> getFlattenFields(ResourceDescription desc) {
+    var result = new LinkedHashMap<String, PlainFieldDescription>();
+    result.putAll(getFlattenFields(null, desc.getFields()));
+    result.putAll(getFlattenFields(null, desc.getSearchFields()));
+    return unmodifiableMap(result);
   }
 
-  private Map<String, PlainFieldDescription> flattenFields(
-    String parentPath, Map<String, PlainFieldDescription> flattenFields,
-    Map<String, FieldDescription> originFields) {
-
-    originFields.forEach((currentName, desc) -> {
-      final var currentPath = getFieldPath(parentPath, currentName);
+  private static Map<String, PlainFieldDescription> getFlattenFields(
+    String path, Map<String, ? extends FieldDescription> fields) {
+    var result = new LinkedHashMap<String, PlainFieldDescription>();
+    fields.forEach((currentName, desc) -> {
+      var currentPath = getFieldPath(path, currentName);
 
       if (desc instanceof ObjectFieldDescription) {
-        flattenFields(currentPath, flattenFields, ((ObjectFieldDescription) desc).getProperties());
-      } else if (desc instanceof PlainFieldDescription) {
-        flattenFields.put(currentPath, (PlainFieldDescription) desc);
+        result.putAll(getFlattenFields(currentPath, ((ObjectFieldDescription) desc).getProperties()));
+      }
+
+      if (desc instanceof PlainFieldDescription) {
+        result.put(currentPath, (PlainFieldDescription) desc);
       }
     });
 
-    return flattenFields;
+    return unmodifiableMap(result);
   }
 
-  private String getFieldPath(String parentPath, String currentName) {
+  private static String getFieldPath(String parentPath, String currentName) {
     return isBlank(parentPath) ? currentName : parentPath + "." + currentName;
   }
 }

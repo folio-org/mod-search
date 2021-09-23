@@ -79,10 +79,10 @@ public class ResourceDescriptionService {
     }
   }
 
-  private List<String> checkIfProcessorExistForSearchFields(ResourceDescription description) {
+  private List<String> checkIfProcessorExistForSearchFields(ResourceDescription resourceDescription) {
     var validationErrors = new ArrayList<String>();
-    var eventBodyClass = description.getEventBodyJavaClass();
-    description.getSearchFields().forEach((name, fieldDesc) ->
+    var eventBodyClass = resourceDescription.getEventBodyJavaClass();
+    resourceDescription.getSearchFields().forEach((name, fieldDesc) ->
       validationErrors.addAll(checkThatFieldProcessorIsApplicable(name, eventBodyClass, fieldDesc)));
     return validationErrors;
   }

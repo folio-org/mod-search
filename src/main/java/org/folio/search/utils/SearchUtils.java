@@ -1,12 +1,12 @@
 package org.folio.search.utils;
 
-import static java.util.Collections.singletonMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +132,12 @@ public class SearchUtils {
     return path.endsWith(".*") ? getPathToPlainMultilangValue(path.substring(0, path.length() - 2)) : path;
   }
 
+  /**
+   * Returns path to plain multilang value using given path.
+   *
+   * @param path - path to analyze and update as {@link String} object.
+   * @return plain path to the multilang value.
+   */
   public static String getPathToPlainMultilangValue(String path) {
     var dotIndex = path.lastIndexOf('.');
     return dotIndex < 0
@@ -184,7 +190,7 @@ public class SearchUtils {
     if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
       return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
     }
-    return singletonMap(fieldName, fieldValue);
+    return Collections.singletonMap(fieldName, fieldValue);
   }
 
   /**
@@ -219,7 +225,7 @@ public class SearchUtils {
    */
   public static Map<String, Object> getStandardFulltextValue(String key, Object value, boolean indexPlainField) {
     if (!indexPlainField) {
-      return singletonMap(key, value);
+      return Collections.singletonMap(key, value);
     }
     var fulltextValue = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     fulltextValue.put(key, value);

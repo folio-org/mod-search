@@ -1,7 +1,6 @@
 package org.folio.search.support.api;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.MapUtils.getString;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -104,12 +104,12 @@ public class InventoryApi {
     var hrs = HOLDING_STORE.getOrDefault(tenant, emptyMap()).values().stream()
       .filter(hr -> hr.getInstanceId().equals(id))
       .map(HoldingEvent::getHolding)
-      .collect(toList());
+      .collect(Collectors.toList());
 
     var items = ITEM_STORE.getOrDefault(tenant, emptyMap()).values().stream()
       .filter(item -> item.getInstanceId().equals(id))
       .map(ItemEvent::getItem)
-      .collect(toList());
+      .collect(Collectors.toList());
 
     return Optional.ofNullable(instance)
       .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))

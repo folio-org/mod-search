@@ -6,6 +6,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.CQL_META_FIELD_PREFIX;
@@ -103,7 +104,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   private static Map<String, List<String>> collectFieldsBySearchType(Map<String, PlainFieldDescription> fields) {
-    var result = new LinkedHashMap<String, List<String>>();
+    var resultMap = new LinkedHashMap<String, List<String>>();
 
     for (var entry : fields.entrySet()) {
       var fieldDescription = entry.getValue();
@@ -114,10 +115,10 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       var fieldPath = entry.getKey();
       var updatedPath = fieldDescription.isMultilang() ? updatePathForMultilangField(fieldPath) : fieldPath;
       fieldDescription.getInventorySearchTypes().forEach(type ->
-        result.computeIfAbsent(type, k -> new ArrayList<>()).addAll(getFieldsForSearchType(type, updatedPath)));
+        resultMap.computeIfAbsent(type, k -> new ArrayList<>()).addAll(getFieldsForSearchType(type, updatedPath)));
     }
 
-    return unmodifiableMap(result);
+    return unmodifiableMap(resultMap);
   }
 
   private static List<String> getFieldsForSearchType(String searchType, String path) {
@@ -132,7 +133,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       List<String> sourcePaths = desc.getFlattenFields().entrySet().stream()
         .filter(entry -> entry.getValue().isShowInResponse())
         .map(entry -> entry.getValue().isMultilang() ? getPathToPlainMultilangValue(entry.getKey()) : entry.getKey())
-        .collect(toList());
+        .collect(toUnmodifiableList());
 
       sourceFieldPerResource.put(desc.getName(), sourcePaths);
     }

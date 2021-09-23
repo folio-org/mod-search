@@ -14,7 +14,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CollectionUtils {

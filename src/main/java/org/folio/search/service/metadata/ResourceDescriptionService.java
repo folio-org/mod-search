@@ -88,7 +88,7 @@ public class ResourceDescriptionService {
   }
 
   private List<String> checkThatFieldProcessorIsApplicable(
-    String field, Class<?> eventClass, SearchFieldDescriptor descriptor) {
+    String field, Class<?> eventBodyClass, SearchFieldDescriptor descriptor) {
     var processor = descriptor.getProcessor();
     var errorInfo = format(" [field: '%s', processorName: '%s']", field, processor);
     FieldProcessor<?, ?> fieldProcessor = availableProcessors.get(processor);
@@ -101,7 +101,7 @@ public class ResourceDescriptionService {
       return singletonList("Generic class for field processor not found" + errorInfo);
     }
 
-    Class<?> requiredClass = eventClass == null ? Map.class : eventClass;
+    Class<?> requiredClass = eventBodyClass == null ? Map.class : eventBodyClass;
     if (!(descriptor.isRawProcessing() || requiredClass.isAssignableFrom(resolvedClass))) {
       return singletonList(format(
         "Invalid generic type in field processor, must be instance of '%s', resolved value was '%s'%s",

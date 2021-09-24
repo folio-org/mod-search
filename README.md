@@ -339,14 +339,14 @@ INSTANCE_DISABLED_SEARCH_OPTIONS=
 ```
 
 By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and
-does not produce any values, so the following search options will return empty result.
+does not produce any values, so the following search options will return an empty result.
 
-| Option             | Type              |Example                          | Description                    |
-| :------------------|:-----------------:| :------------------------------:|:------------------------------:|
-| `cql.all`          | full-text or term | `cql.all all "web semantic"`    | Matches instances that have instance, items and holdings field values with given text |
-| `cql.allItems`     | full-text or term | `cql.allInstance all "book"`    | Matches instances that have field values with given text |
-| `cql.allHoldings`  | full-text or term | `cql.allItems all "it001"`      | Matches instances that have items field values with given text |
-| `cql.allInstances` | full-text or term | `cql.allHoldings any "1234567"` | Matches instances that have holdings field values with given text |
+| Option             | Type              |Example                           | Description                    |
+| :------------------|:-----------------:| :-------------------------------:|:------------------------------:|
+| `cql.all`          | full-text or term | `cql.all all "web semantic"`     | Matches instances that have given text in instance, item and holding field values |
+| `cql.allItems`     | full-text or term | `cql.allItems all "book"`        | Matches instances that have given text in item field values |
+| `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values |
+| `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values |
 
 ### Search Facets
 

@@ -456,12 +456,12 @@
       "index": "multilang",
       "processor": "uniformTitleProcessor"
     },
-    "allInstance": {
+    "allInstances": {
       "type": "search",
       "index": "multilang",
       "processor": "instanceAllFieldValuesProcessor",
       "rawProcessing": true,
-      "inventorySearchTypes": [ "cql.all", "cql.allInstance" ]
+      "inventorySearchTypes": [ "cql.all", "cql.allInstances" ]
     },
     "allItems": {
       "type": "search",

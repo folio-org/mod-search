@@ -38,6 +38,8 @@ application:
   environment: ${ENV:folio}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
+    disabled-search-options:
+      instance: ${INSTANCE_DISABLED_SEARCH_OPTIONS:cql.all}
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

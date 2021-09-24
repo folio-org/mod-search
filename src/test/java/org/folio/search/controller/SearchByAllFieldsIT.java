@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
@@ -68,7 +67,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
     mockMvc.perform(searchRequest("cql.all=\"{0}\"", cqlQuery))
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
 
   @ValueSource(strings = {
@@ -80,11 +79,13 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "2003065165",
     "Antoniou, Grigoris",
     "TK5105.88815 .A58 2004",
-    "Cambridge, Mass."
+    "Cambridge, Mass.",
+    "2020-12-08T15:47:13.625+00:00",
+    "2020-12-08T15:47:13.625+0000"
   })
-  @ParameterizedTest(name = "[{index}] cql.allInstance='{query}', query=''{0}''")
+  @ParameterizedTest(name = "[{index}] cql.allInstances='{query}', query=''{0}''")
   void canSearchByInstanceFieldValues_positive(String cqlQuery) throws Throwable {
-    mockMvc.perform(searchRequest("cql.allInstance=\"{0}\"", cqlQuery))
+    mockMvc.perform(searchRequest("cql.allInstances=\"{0}\"", cqlQuery))
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }

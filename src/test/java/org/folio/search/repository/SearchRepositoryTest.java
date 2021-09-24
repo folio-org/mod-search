@@ -5,7 +5,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.core.TimeValue.timeValueMinutes;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -32,7 +31,7 @@ import org.elasticsearch.action.search.SearchResponseSections;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.core.TimeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -48,7 +47,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SearchRepositoryTest {
 
   private static final String SCROLL_ID = randomId();
-  private static final TimeValue KEEP_ALIVE_INTERVAL = timeValueMinutes(1L);
+  private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
 
   @InjectMocks private SearchRepository searchRepository;
   @Mock private RestHighLevelClient esClient;

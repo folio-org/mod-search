@@ -4,7 +4,6 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.core.TimeValue.timeValueMinutes;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
@@ -17,7 +16,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.core.TimeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class SearchRepository {
 
-  private static final TimeValue KEEP_ALIVE_INTERVAL = timeValueMinutes(1L);
+  private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
   private final RestHighLevelClient elasticsearchClient;
 
   /**

@@ -11,10 +11,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import org.elasticsearch.common.collect.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
 import org.folio.search.domain.dto.InstanceIdentifiers;

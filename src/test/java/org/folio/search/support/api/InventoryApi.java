@@ -14,7 +14,7 @@ import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.eventBody;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,9 +32,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 @RequiredArgsConstructor
 public class InventoryApi {
 
-  private static final Map<String, Map<String, Map<String, Object>>> INSTANCE_STORE = new HashMap<>();
-  private static final Map<String, Map<String, HoldingEvent>> HOLDING_STORE = new HashMap<>();
-  private static final Map<String, Map<String, ItemEvent>> ITEM_STORE = new HashMap<>();
+  private static final Map<String, Map<String, Map<String, Object>>> INSTANCE_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, HoldingEvent>> HOLDING_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, ItemEvent>> ITEM_STORE = new LinkedHashMap<>();
   private static final String ID_FIELD = "id";
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -45,7 +45,7 @@ public class InventoryApi {
 
   public void createInstance(String tenantName, Map<String, Object> instance) {
     var instanceId = getString(instance, "id");
-    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new HashMap<>()).put(instanceId, instance);
+    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
     kafkaTemplate.send(getInventoryInstanceTopic(tenantName), instanceId,
       eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
@@ -63,16 +63,14 @@ public class InventoryApi {
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
     var event = new HoldingEvent(holding, instanceId);
-    HOLDING_STORE.computeIfAbsent(tenant, k -> new HashMap<>()).put(getString(holding, ID_FIELD), event);
-
+    HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(holding, ID_FIELD), event);
     kafkaTemplate.send(getInventoryHoldingTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {
     var event = new ItemEvent(item, instanceId);
-    ITEM_STORE.computeIfAbsent(tenant, k -> new HashMap<>()).put(getString(item, ID_FIELD), event);
-
+    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(item, ID_FIELD), event);
     kafkaTemplate.send(getInventoryItemTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }

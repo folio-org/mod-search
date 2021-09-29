@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.MAX_ELASTICSEARCH_QUERY_SIZE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -50,13 +51,12 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
-    resourceIdService.streamResourceIds(request, outputStream);
+    resourceIdService.streamResourceIds(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(List.of(new ResourceId().id(RANDOM_ID))).totalRecords(1));
@@ -64,41 +64,38 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds_negative_throwException() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
     when(objectMapper.createGenerator(outputStream)).thenThrow(new IOException("Failed to create generator"));
 
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request(), outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write data into json [reason: Failed to create generator]");
   }
 
   @Test
   void streamResourceIds_negative_throwExceptionOnWritingIdField() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
     var generator = spy(objectMapper.createGenerator(outputStream));
 
     mockSearchRepositoryCall(List.of(RANDOM_ID));
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request(), outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
   }
 
   @Test
   void streamResourceIds_positive_emptyCollectionProvided() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
 
-    resourceIdService.streamResourceIds(request, outputStream);
+    resourceIdService.streamResourceIds(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
@@ -113,10 +110,12 @@ class ResourceIdServiceTest {
   }
 
   private static CqlResourceIdsRequest request() {
-    return CqlResourceIdsRequest.of(TEST_QUERY, RESOURCE_NAME, TENANT_ID);
+    return CqlResourceIdsRequest.of(TEST_QUERY, RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
   }
 
   private static SearchSourceBuilder searchSource() {
-    return SearchSourceBuilder.searchSource().query(termQuery("id", RANDOM_ID));
+    return SearchSourceBuilder.searchSource()
+      .query(termQuery("id", RANDOM_ID))
+      .fetchSource(new String[] {"id"}, null);
   }
 }

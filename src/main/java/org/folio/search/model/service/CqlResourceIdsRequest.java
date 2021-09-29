@@ -10,6 +10,9 @@ import org.folio.search.model.ResourceRequest;
 @AllArgsConstructor(staticName = "of")
 public class CqlResourceIdsRequest implements ResourceRequest {
 
+  public static final String INSTANCE_ID_PATH = "id";
+  public static final String HOLDING_ID_PATH = "holdings.id";
+
   /**
    * CQL query.
    */
@@ -24,4 +27,9 @@ public class CqlResourceIdsRequest implements ResourceRequest {
    * Request tenant id.
    */
   private String tenantId;
+
+  /**
+   * Field path to the id field of the document.
+   */
+  private String sourceFieldPath;
 }

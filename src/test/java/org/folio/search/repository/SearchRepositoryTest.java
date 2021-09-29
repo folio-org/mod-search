@@ -1,15 +1,18 @@
 package org.folio.search.repository;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.elasticsearch.search.SearchHit.createFromMap;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
+import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +33,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchResponseSections;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -72,9 +75,9 @@ class SearchRepositoryTest {
 
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
-    doReturn(clearScrollResponse(true)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
+    doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID);
+    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
     var actualIds = new ArrayList<List<String>>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::add);
@@ -87,9 +90,9 @@ class SearchRepositoryTest {
     var searchIds = randomIds();
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
-    doReturn(clearScrollResponse(false)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
+    doReturn(new ClearScrollResponse(false, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID);
+    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
     var actualIds = new ArrayList<String>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::addAll);
@@ -112,18 +115,11 @@ class SearchRepositoryTest {
 
   private static SearchResponse searchResponse(List<String> ids) {
     var totalHits = new TotalHits(20L, Relation.EQUAL_TO);
-    var searchHits = new SearchHits(searchHits(ids), totalHits, 10.0f);
+    var searchHitsArray = ids.stream()
+      .map(id -> createFromMap(mapOf("_id", id, "_source", new BytesArray(asJsonString(mapOf("id", id))))))
+      .toArray(SearchHit[]::new);
+    var searchHits = new SearchHits(searchHitsArray, totalHits, 10.0f);
     var searchResponseSections = new SearchResponseSections(searchHits, null, null, false, false, null, 0);
     return new SearchResponse(searchResponseSections, SCROLL_ID, 1, 1, 0, 100, array(), null);
-  }
-
-  private static SearchHit[] searchHits(List<String> ids) {
-    return ids.stream()
-      .map(id -> new SearchHit(0, id, new Text("_doc"), emptyMap(), emptyMap()))
-      .toArray(SearchHit[]::new);
-  }
-
-  private static ClearScrollResponse clearScrollResponse(boolean isSucceeded) {
-    return new ClearScrollResponse(isSucceeded, 0);
   }
 }

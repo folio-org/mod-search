@@ -58,6 +58,7 @@ public class ResourceIdService {
     var resource = request.getResource();
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(SearchUtils.MAX_ELASTICSEARCH_QUERY_SIZE)
+      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
       .sort(List.of(fieldSort("_doc")));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);

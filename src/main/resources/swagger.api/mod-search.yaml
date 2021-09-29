@@ -40,7 +40,25 @@ paths:
           description: 'Instance ids as json stream'
           content:
             application/json:
-              example: examples/ResourceIdsResult.sample
+              example: examples/InstanceIdsResult.sample
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /holdings/ids:
+    get:
+      operationId: getHoldingIds
+      description: Get a list of holding ids linked to instances found by the CQL query
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Instance ids as json stream'
+          content:
+            application/json:
+              example: examples/HoldingIdsResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':

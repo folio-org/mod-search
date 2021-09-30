@@ -10,12 +10,19 @@ import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.TestUtils.mapOf;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
 class CollectionUtilsTest {
@@ -122,5 +129,57 @@ class CollectionUtilsTest {
   void anyMatchTest_negative() {
     var given = List.of(1, 2, 3);
     assertThat(anyMatch(given, e -> e == 5)).isFalse();
+  }
+
+  @DisplayName("getValueBy_parameterized")
+  @MethodSource("getValueByPathTestDataProvider")
+  @ParameterizedTest(name = "[{index}] path=''{0}'', expected={2}")
+  void getValueByPath_positive(String path, Map<String, Object> map, List<String> expected) {
+    var actual = CollectionUtils.getValuesByPath(map, path);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> getValueByPathTestDataProvider() {
+    var map = unstructuredMap();
+    return Stream.of(
+      arguments(null, emptyMap(), emptyList()),
+      arguments("", emptyMap(), emptyList()),
+      arguments(" ", emptyMap(), emptyList()),
+      arguments("key", emptyMap(), emptyList()),
+      arguments("key1.key2", emptyMap(), emptyList()),
+      arguments("unknown", map, emptyList()),
+      arguments("unknown1.unknown2.unknown2", map, emptyList()),
+      arguments("k1", map, List.of("str")),
+      arguments("k2", map, emptyList()),
+      arguments("k3", map, emptyList()),
+      arguments("k4", map, List.of("str1", "str2")),
+      arguments("k4.k41", map, emptyList()),
+      arguments("k5.k51", map, List.of("str")),
+      arguments("k5.k51.k511", map, emptyList()),
+      arguments("k6.k61", map, emptyList()),
+      arguments("k6.k61.k611", map, List.of("str")),
+      arguments("k7.k71", map, List.of("str1", "str2", "str3")),
+      arguments("k8.k81", map, emptyList()),
+      arguments("k8.k81.k811", map, List.of("str1", "str2", "str3")),
+      arguments("k9.k91", map, List.of("str1", "str4")),
+      arguments("k9.k91.k911", map, List.of("str3"))
+    );
+  }
+
+  private static Map<String, Object> unstructuredMap() {
+    return mapOf(
+      "k1", "str",
+      "k2", 123,
+      "k3", false,
+      "k4", List.of("str1", "str2"),
+      "k5", mapOf("k51", "str"),
+      "k6", mapOf("k61", mapOf("k611", "str")),
+      "k7", List.of(mapOf("k71", "str1"), mapOf("k71", "str2"), mapOf("k71", "str3")),
+      "k8", List.of(mapOf("k81", mapOf("k811", "str1")), mapOf("k81", mapOf("k811", "str2"))),
+      "k8", List.of(
+        mapOf("k81", List.of(mapOf("k811", "str1"), mapOf("k811", "str2"))),
+        mapOf("k81", List.of(mapOf("k811", "str3")))),
+      "k9", List.of(mapOf("k91", "str1"), List.of("str2"), mapOf("k91", mapOf("k911", "str3")), mapOf("k91", "str4"))
+    );
   }
 }

@@ -298,12 +298,17 @@ components:
       description: Limit the number of elements returned in the response.
       schema:
         type: integer
+        minimum: 0
+        maximum: 500
+        default: 100
     offset-param:
       in: query
       name: offset
       description: Skip over a number of elements by specifying an offset value for the query.
       schema:
         type: integer
+        minimum: 0
+        default: 0
     cql-query:
       name: query
       in: query

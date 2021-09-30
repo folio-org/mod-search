@@ -114,8 +114,8 @@ class SearchControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("limit value must be less than or equal to 500")))
-      .andExpect(jsonPath("$.errors[0].type", is("BindException")))
+      .andExpect(jsonPath("$.errors[0].message", is("searchInstances.limit must be less than or equal to 500")))
+      .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 

@@ -5,8 +5,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.CqlFacetRequest;
-import org.folio.search.domain.dto.CqlSearchRequest;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.mapper.SearchRequestMapper;
@@ -37,15 +35,13 @@ public class SearchController implements InstancesApi {
   @Override
   public ResponseEntity<SearchResult> searchInstances(String tenantId, String query, Integer limit, Integer offset,
                                                       Boolean expandAll) {
-    var requestWrapper = new CqlSearchRequest().query(query).limit(limit).offset(offset).expandAll(expandAll);
-    var searchRequest = searchRequestMapper.convert(requestWrapper, INSTANCE_RESOURCE, tenantId);
+    var searchRequest = searchRequestMapper.convert(query, limit, offset, expandAll, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(searchService.search(searchRequest));
   }
 
   @Override
   public ResponseEntity<FacetResult> getFacets(String query, List<String> facet, String tenantId) {
-    var requestWrapper = new CqlFacetRequest().query(query).facet(facet);
-    var facetRequest = searchRequestMapper.convert(requestWrapper, INSTANCE_RESOURCE, tenantId);
+    var facetRequest = searchRequestMapper.convert(query, facet, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 

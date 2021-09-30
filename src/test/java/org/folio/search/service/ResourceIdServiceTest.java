@@ -50,13 +50,12 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
-    resourceIdService.streamResourceIds(request, outputStream);
+    resourceIdService.streamResourceIds(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(List.of(new ResourceId().id(RANDOM_ID))).totalRecords(1));
@@ -64,11 +63,11 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds_negative_throwException() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
     when(objectMapper.createGenerator(outputStream)).thenThrow(new IOException("Failed to create generator"));
 
+    var request = request();
     assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write data into json [reason: Failed to create generator]");
@@ -76,15 +75,15 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds_negative_throwExceptionOnWritingIdField() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
     var generator = spy(objectMapper.createGenerator(outputStream));
 
     mockSearchRepositoryCall(List.of(RANDOM_ID));
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
+    var request = request();
     assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
@@ -96,7 +95,7 @@ class ResourceIdServiceTest {
     var outputStream = new ByteArrayOutputStream();
 
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convert(request.getQuery(), RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
 
     resourceIdService.streamResourceIds(request, outputStream);
 
@@ -117,6 +116,8 @@ class ResourceIdServiceTest {
   }
 
   private static SearchSourceBuilder searchSource() {
-    return SearchSourceBuilder.searchSource().query(termQuery("id", RANDOM_ID));
+    return SearchSourceBuilder.searchSource()
+      .query(termQuery("id", RANDOM_ID))
+      .fetchSource(new String[] {"id"}, null);
   }
 }

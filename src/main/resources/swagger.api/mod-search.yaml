@@ -13,8 +13,11 @@ paths:
       operationId: searchInstances
       description: Get a list of instances for CQL query
       parameters:
-        - $ref: '#/components/parameters/cql-search-request'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/offset-param'
+        - $ref: '#/components/parameters/expand-all-param'
       responses:
         '200':
           description: 'Instance search result'
@@ -69,7 +72,8 @@ paths:
       operationId: getFacets
       description: Provides list of facets for instance
       parameters:
-        - $ref: '#/components/parameters/cql-facet-request'
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/facet-param'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
@@ -288,6 +292,18 @@ components:
           example: examples/unknownError.sample
 
   parameters:
+    limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+    offset-param:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
     cql-query:
       name: query
       in: query
@@ -295,6 +311,22 @@ components:
       description: A CQL query string with search conditions.
       schema:
         type: string
+    expand-all-param:
+      in: query
+      name: expandAll
+      description: Whether to return only basic properties or entire instance.
+      schema:
+        type: boolean
+        default: false
+    facet-param:
+      in: query
+      name: facet
+      description: List of facet names.
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
     language-code:
       name: code
       in: path
@@ -303,20 +335,6 @@ components:
       schema:
         type: string
         pattern: '[a-zA-Z]{3}'
-    cql-search-request:
-      name: cqlSearchRequest
-      in: query
-      description: Search request parameters(query, size, limit and etc.) as object.
-      required: true
-      schema:
-        $ref: '#/components/schemas/cqlSearchRequest'
-    cql-facet-request:
-      name: cqlFacetRequest
-      in: query
-      description: Facet request parameters (cql query, facet names) as object.
-      required: true
-      schema:
-        $ref: '#/components/schemas/cqlFacetRequest'
     x-okapi-tenant-header:
       name: x-okapi-tenant
       in: header

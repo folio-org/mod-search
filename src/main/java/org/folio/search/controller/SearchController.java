@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.CqlFacetRequest;
 import org.folio.search.domain.dto.CqlSearchRequest;
@@ -34,14 +35,17 @@ public class SearchController implements InstancesApi {
   private final SearchRequestMapper searchRequestMapper;
 
   @Override
-  public ResponseEntity<SearchResult> searchInstances(CqlSearchRequest request, String tenantId) {
-    var searchRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+  public ResponseEntity<SearchResult> searchInstances(String tenantId, String query, Integer limit, Integer offset,
+                                                      Boolean expandAll) {
+    var requestWrapper = new CqlSearchRequest().query(query).limit(limit).offset(offset).expandAll(expandAll);
+    var searchRequest = searchRequestMapper.convert(requestWrapper, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(searchService.search(searchRequest));
   }
 
   @Override
-  public ResponseEntity<FacetResult> getFacets(CqlFacetRequest request, String tenantId) {
-    var facetRequest = searchRequestMapper.convert(request, INSTANCE_RESOURCE, tenantId);
+  public ResponseEntity<FacetResult> getFacets(String query, List<String> facet, String tenantId) {
+    var requestWrapper = new CqlFacetRequest().query(query).facet(facet);
+    var facetRequest = searchRequestMapper.convert(requestWrapper, INSTANCE_RESOURCE, tenantId);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 

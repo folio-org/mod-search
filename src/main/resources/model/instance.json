@@ -70,6 +70,10 @@
         "primary": {
           "index": "bool",
           "showInResponse": true
+        },
+        "contributorTypeId": {
+          "index": "source",
+          "showInResponse": true
         }
       }
     },

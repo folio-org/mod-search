@@ -68,7 +68,8 @@ class ResourceIdServiceTest {
 
     when(objectMapper.createGenerator(outputStream)).thenThrow(new IOException("Failed to create generator"));
 
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request(), outputStream))
+    var request = request();
+    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write data into json [reason: Failed to create generator]");
   }
@@ -83,7 +84,8 @@ class ResourceIdServiceTest {
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request(), outputStream))
+    var request = request();
+    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
   }

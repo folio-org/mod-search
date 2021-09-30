@@ -74,9 +74,9 @@
             "type": "string",
             "description": "Personal name, corporate name, meeting name"
           },
-          "contributorTypeId": {
+          "contributorNameTypeId": {
             "type": "string",
-            "description": "UUID for the contributor type term defined in controlled vocabulary"
+            "description": "UUID of contributor name type term defined by the MARC code list for relators"
           },
           "primary": {
             "type": "boolean",

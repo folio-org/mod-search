@@ -71,7 +71,7 @@
           "index": "bool",
           "showInResponse": true
         },
-        "contributorTypeId": {
+        "contributorNameTypeId": {
           "index": "source",
           "showInResponse": true
         }

@@ -27,10 +27,12 @@ class HoldingsNormalizedCallNumbersProcessorTest {
     var holdings = List.of(
       holdingWithCallNumber(null, "cn1", "suffix1"),
       holdingWithCallNumber("prefix2", "cn2", null),
-      holdingWithCallNumber(null, "cn3", null));
+      holdingWithCallNumber(null, "cn3", null),
+      holdingWithCallNumber("prefix3", null, null),
+      holdingWithCallNumber(null, null, null));
 
     assertThat(processor.getFieldValue(new Instance().holdings(holdings)))
-      .containsExactlyInAnyOrder("cn1suffix1", "prefix2cn2", "cn2", "cn3");
+      .containsExactlyInAnyOrder("cn1suffix1", "prefix2cn2", "cn2", "cn3", "prefix3", "");
   }
 
   @Test

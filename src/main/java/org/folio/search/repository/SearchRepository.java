@@ -4,9 +4,11 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -55,15 +58,15 @@ public class SearchRepository {
   /**
    * Executes scroll request to elasticsearch and transforms it to the list of instance ids.
    *
-   * @param request resource request as {@link ResourceRequest} object.
-   * @param source elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param req - request as {@link CqlResourceIdsRequest} object.
+   * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
-  public void streamResourceIds(ResourceRequest request, SearchSourceBuilder source, Consumer<List<String>> consumer) {
-    var index = getElasticsearchIndexName(request);
+  public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
+    var index = getElasticsearchIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
-      .routing(request.getTenantId())
-      .source(source)
+      .routing(req.getTenantId())
+      .source(src)
       .indices(index);
 
     var searchResponse = performExceptionalOperation(
@@ -72,7 +75,7 @@ public class SearchRepository {
     var searchHits = searchResponse.getHits().getHits();
 
     while (isNotEmpty(searchHits)) {
-      consumer.accept(stream(searchHits).map(SearchHit::getId).collect(toList()));
+      consumer.accept(getResourceIds(searchHits, req.getSourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
       var scrollResponse = performExceptionalOperation(
         () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi");
@@ -91,5 +94,13 @@ public class SearchRepository {
     if (!clearScrollResponse.isSucceeded()) {
       log.warn("Failed to clear scroll [index: {}, scrollId: '{}']", index, scrollId);
     }
+  }
+
+  private static List<String> getResourceIds(SearchHit[] searchHits, String sourceFieldPath) {
+    return stream(searchHits)
+      .map(SearchHit::getSourceAsMap)
+      .map(sourceMap -> getValuesByPath(sourceMap, sourceFieldPath))
+      .flatMap(Collection::stream)
+      .collect(toList());
   }
 }

@@ -24,14 +24,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class PrepareSystemUserServiceTest {
-  @Mock
-  private UsersClient usersClient;
-  @Mock
-  private AuthnClient authnClient;
-  @Mock
-  private PermissionsClient permissionsClient;
-  @Mock
-  private FolioExecutionContextBuilder contextBuilder;
+
+  @Mock private UsersClient usersClient;
+  @Mock private AuthnClient authnClient;
+  @Mock private PermissionsClient permissionsClient;
+  @Mock private FolioExecutionContextBuilder contextBuilder;
 
   @Test
   void shouldCreateSystemUserWhenNotExist() {

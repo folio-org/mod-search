@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.MAX_ELASTICSEARCH_QUERY_SIZE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -91,13 +92,12 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds_positive_emptyCollectionProvided() throws IOException {
-    var request = request();
     var outputStream = new ByteArrayOutputStream();
 
     mockSearchRepositoryCall(emptyList());
     when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
 
-    resourceIdService.streamResourceIds(request, outputStream);
+    resourceIdService.streamResourceIds(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
@@ -112,7 +112,7 @@ class ResourceIdServiceTest {
   }
 
   private static CqlResourceIdsRequest request() {
-    return CqlResourceIdsRequest.of(TEST_QUERY, RESOURCE_NAME, TENANT_ID);
+    return CqlResourceIdsRequest.of(TEST_QUERY, RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
   }
 
   private static SearchSourceBuilder searchSource() {

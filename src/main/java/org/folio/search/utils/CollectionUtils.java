@@ -1,7 +1,11 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.empty;
+import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 import java.util.Collection;
@@ -11,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CollectionUtils {
@@ -134,5 +140,65 @@ public final class CollectionUtils {
    */
   public static <T> boolean noneMatch(Iterable<T> collection, Predicate<T> checker) {
     return !anyMatch(collection, checker);
+  }
+
+  /**
+   * Returns {@link List} with {@link String} values by path from passed map.
+   *
+   * @param map - map with resource fields
+   * @param path - search path, where fields are separated with {@code .} character
+   * @return {@link List} with {@link String} values, it would be empty if map does not contain correct value by path.
+   */
+  public static List<String> getValuesByPath(Map<String, Object> map, String path) {
+    if (StringUtils.isBlank(path) || MapUtils.isEmpty(map)) {
+      return emptyList();
+    }
+    var pathValues = path.split("\\.");
+    var currentField = map.get(pathValues[0]);
+    for (var i = 1; i < pathValues.length; i++) {
+      if (currentField instanceof Map<?, ?>) {
+        currentField = ((Map<?, ?>) currentField).get(pathValues[i]);
+      } else if (isListContainingMaps(currentField)) {
+        currentField = getValueForList((Iterable<?>) currentField, pathValues[i]);
+      } else {
+        return emptyList();
+      }
+    }
+
+    return getStrings(currentField);
+  }
+
+  private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {
+    return stream(iterable.spliterator(), false)
+      .filter(Map.class::isInstance)
+      .map(value -> ((Map<?, ?>) value).get(pathValue))
+      .flatMap(CollectionUtils::unwrapIfPossible)
+      .collect(toList());
+  }
+
+  private static Stream<?> unwrapIfPossible(Object object) {
+    return isListContainingMaps(object) ? stream(((Iterable<?>) object).spliterator(), false) : Stream.of(object);
+  }
+
+  private static boolean isListContainingMaps(Object object) {
+    if (object instanceof Iterable<?>) {
+      return anyMatch((Iterable<?>) object, Map.class::isInstance);
+    }
+    return false;
+  }
+
+  private static List<String> getStrings(Object currentField) {
+    if (currentField instanceof String) {
+      return singletonList((String) currentField);
+    }
+
+    if (currentField instanceof Iterable<?>) {
+      return stream(((Iterable<?>) currentField).spliterator(), false)
+        .filter(String.class::isInstance)
+        .map(String.class::cast)
+        .collect(Collectors.toList());
+    }
+
+    return emptyList();
   }
 }

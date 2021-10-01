@@ -1,8 +1,8 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.folio.search.controller.IndexControllerTest.INDEX_NAME;
+import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -18,18 +18,14 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.ResourceId;
@@ -41,6 +37,7 @@ import org.folio.search.mapper.SearchRequestMapperImpl;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
+import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -49,16 +46,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @UnitTest
 @WebMvcTest(SearchController.class)
-@Import({ApiExceptionHandler.class, SearchRequestMapperImpl.class})
+@Import({ApiExceptionHandler.class, SearchRequestMapperImpl.class, ResourceIdsStreamHelper.class})
 class SearchControllerTest {
 
   @Autowired private MockMvc mockMvc;
-  @Autowired private SearchController searchController;
   @MockBean private SearchService searchService;
   @MockBean private FacetService facetService;
   @MockBean private ResourceIdService resourceIdService;
@@ -193,7 +187,7 @@ class SearchControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(cqlQuery, INSTANCE_RESOURCE, TENANT_ID);
+    var request = CqlResourceIdsRequest.of(cqlQuery, INSTANCE_RESOURCE, TENANT_ID, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -211,58 +205,5 @@ class SearchControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.ids[0].id", is(instanceId)));
-  }
-
-  @Test
-  void getInstanceIds_negative_illegalArgumentException() throws Exception {
-    var cqlQuery = "id=*";
-    var request = CqlResourceIdsRequest.of(cqlQuery, INSTANCE_RESOURCE, TENANT_ID);
-    var errorMsg = "HttpServletRequest must be non null";
-
-    doThrow(new IllegalArgumentException(errorMsg)).when(resourceIdService).streamResourceIds(eq(request), any());
-
-    var requestBuilder = get("/search/instances/ids")
-      .queryParam("query", cqlQuery)
-      .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is(errorMsg)))
-      .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
-  }
-
-  @Test
-  void getInstanceIds_negative_requestAttributesIsNull() {
-    RequestContextHolder.setRequestAttributes(null);
-    assertThatThrownBy(() -> searchController.getInstanceIds("query", TENANT_ID))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Request attributes must be not null");
-  }
-
-  @Test
-  void getInstanceIds_negative_responseIsNull() {
-    var servletRequestAttributes = mock(ServletRequestAttributes.class);
-    RequestContextHolder.setRequestAttributes(servletRequestAttributes);
-    when(servletRequestAttributes.getResponse()).thenReturn(null);
-    assertThatThrownBy(() -> searchController.getInstanceIds("query", TENANT_ID))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("HttpServletResponse must be not null");
-  }
-
-  @Test
-  void getInstanceIds_negative_responseOutputStreamException() throws IOException {
-    var servletRequestAttributes = mock(ServletRequestAttributes.class);
-    var response = mock(HttpServletResponse.class);
-    RequestContextHolder.setRequestAttributes(servletRequestAttributes);
-
-    when(servletRequestAttributes.getResponse()).thenReturn(response);
-    when(response.getOutputStream()).thenThrow(new IOException("Failed to read output stream"));
-
-    assertThatThrownBy(() -> searchController.getInstanceIds("query", TENANT_ID))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to get output stream from response");
   }
 }

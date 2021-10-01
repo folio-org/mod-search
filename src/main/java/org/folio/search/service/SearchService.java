@@ -11,7 +11,7 @@ import org.elasticsearch.search.SearchHit;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SearchResult;
-import org.folio.search.model.service.CqlSearchServiceRequest;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchHitConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -32,10 +32,10 @@ public class SearchService {
   /**
    * Prepares search query and executes search request to the search engine.
    *
-   * @param request cql search request as {@link CqlSearchServiceRequest} object
+   * @param request cql search request as {@link CqlSearchRequest} object
    * @return search result.
    */
-  public SearchResult search(CqlSearchServiceRequest request) {
+  public SearchResult search(CqlSearchRequest request) {
     var resource = request.getResource();
     var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
       .from(request.getOffset())

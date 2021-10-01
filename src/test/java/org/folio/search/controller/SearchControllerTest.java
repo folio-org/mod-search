@@ -33,7 +33,6 @@ import org.folio.search.domain.dto.ResourceIds;
 import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.mapper.SearchRequestMapperImpl;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
@@ -49,7 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @WebMvcTest(SearchController.class)
-@Import({ApiExceptionHandler.class, SearchRequestMapperImpl.class, ResourceIdsStreamHelper.class})
+@Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class})
 class SearchControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -163,7 +162,7 @@ class SearchControllerTest {
   @Test
   void getFacets_positive() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(cqlQuery, "source:5");
+    var expectedFacetRequest = facetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenReturn(
       facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
 
@@ -187,7 +186,7 @@ class SearchControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(cqlQuery, INSTANCE_RESOURCE, TENANT_ID, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

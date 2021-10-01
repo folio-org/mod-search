@@ -77,7 +77,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<List<String>>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::add);
@@ -92,7 +92,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(false, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of("query", RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<String>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::addAll);

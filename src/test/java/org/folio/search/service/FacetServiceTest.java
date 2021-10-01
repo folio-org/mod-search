@@ -6,7 +6,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.facetServiceRequest;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.model.service.CqlFacetServiceRequest;
+import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
 import org.folio.search.service.converter.FacetQueryBuilder;
@@ -78,12 +78,7 @@ class FacetServiceTest {
     assertThat(actual).isEqualTo(new FacetResult());
   }
 
-  private static CqlFacetServiceRequest facetRequest(String... facetNames) {
-    var request = new CqlFacetServiceRequest();
-    request.setQuery(QUERY);
-    request.setTenantId(TENANT_ID);
-    request.setResource(RESOURCE_NAME);
-    request.setFacet(List.of(facetNames));
-    return request;
+  private static CqlFacetRequest facetRequest(String... facetNames) {
+    return facetServiceRequest(RESOURCE_NAME, QUERY, facetNames);
   }
 }

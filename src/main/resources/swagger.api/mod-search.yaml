@@ -270,10 +270,6 @@ components:
       $ref: schemas/response/resourceIds.json
     errorResponse:
       $ref: schemas/errors.json
-    cqlSearchRequest:
-      $ref: schemas/request/cqlSearchRequest.json
-    cqlFacetRequest:
-      $ref: schemas/request/cqlFacetRequest.json
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
 

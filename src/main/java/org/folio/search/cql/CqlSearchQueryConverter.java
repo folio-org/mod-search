@@ -34,7 +34,6 @@ import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
@@ -64,7 +63,7 @@ public class CqlSearchQueryConverter {
   private final Map<String, SearchTermProcessor> searchTermProcessors;
 
   /**
-   * Parses {@link CqlSearchServiceRequest} object to the elasticsearch.
+   * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
    *
    * @param query cql query to parse
    * @param resource resource name

@@ -20,7 +20,6 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResource;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.service.CqlSearchServiceRequest;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -60,9 +59,9 @@ public class SearchUtils {
   }
 
   /**
-   * Creates index name for given {@link CqlSearchServiceRequest} object.
+   * Creates index name for given {@link ResourceRequest} object.
    *
-   * @param request resource name as {@link CqlSearchServiceRequest} object
+   * @param request - request as {@link ResourceRequest} object
    * @return generated index name.
    */
   public static String getElasticsearchIndexName(ResourceRequest request) {

@@ -8,7 +8,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.model.service.CqlFacetServiceRequest;
+import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
 import org.folio.search.service.converter.FacetQueryBuilder;
@@ -26,10 +26,10 @@ public class FacetService {
   /**
    * Prepares facet search query and executes facet request to the search engine.
    *
-   * @param request cql search request as {@link CqlFacetServiceRequest} object
+   * @param request cql search request as {@link CqlFacetRequest} object
    * @return facet result with found facets for given facet request.
    */
-  public FacetResult getFacets(CqlFacetServiceRequest request) {
+  public FacetResult getFacets(CqlFacetRequest request) {
     var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
     searchSource.size(0).from(0).fetchSource(false);
 

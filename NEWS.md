@@ -1,3 +1,17 @@
+## 1.5.0 2021-10-01
+* Add contributorNameTypeId field for contributors (MSEARCH-194)
+* Support search by all fields (MSEARCH-182)
+* Support normalized search for call numbers (MSEARCH-169)
+* Add Identifiers accessionNumber search option for items (MSEARCH-153)
+* Search by item's circulation notes search (MSEARCH-158)
+* Forbid to add language = 'src' for tenant configuration (MSEARCH-162)
+* Add Identifiers (all) search option for holding and items (MSEARCH-152/153)
+* Support search by series title (MSEARCH-150)
+* Support search by uniform title (MSEARCH-148)
+* Handle gracefully message processing failures (MSEARCH-155)
+* Support full text search for notes of linked holding-records (MSEARCH-117)
+* Remove multi-language support from the contributors fields (MSEARCH-134 )
+
 ## 1.4.0 2021-06-18
 
 * Adds ASCII folding token filter (MSEARCH-67)

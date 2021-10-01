@@ -46,7 +46,7 @@
     },
     {
       "id": "search",
-      "version": "0.5",
+      "version": "0.6",
       "handlers": [
         {
           "methods": [
@@ -68,6 +68,13 @@
           ],
           "pathPattern": "/search/instances/ids",
           "permissionsRequired": [ "search.instances.ids.collection.get" ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/holdings/ids",
+          "permissionsRequired": [ "search.holdings.ids.collection.get" ]
         }
       ]
     },
@@ -209,6 +216,11 @@
     {
       "permissionName": "search.instances.ids.collection.get",
       "displayName": "Search - returns list of resource ids for a cql query",
+      "description": "Returns list of resource ids for a cql query"
+    },
+    {
+      "permissionName": "search.holdings.ids.collection.get",
+      "displayName": "Search - returns a list of holding ids found for the CQL query by instances",
       "description": "Returns list of resource ids for a cql query"
     }
   ],

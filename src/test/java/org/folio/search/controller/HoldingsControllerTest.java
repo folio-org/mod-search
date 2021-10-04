@@ -42,7 +42,7 @@ class HoldingsControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(cqlQuery, INSTANCE_RESOURCE, TENANT_ID, HOLDING_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDING_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.Pair;
-import org.folio.search.model.service.CqlFacetServiceRequest;
+import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.SearchUtils;
@@ -47,13 +47,13 @@ public class FacetQueryBuilder {
   private final SearchFieldProvider searchFieldProvider;
 
   /**
-   * Provides list of aggregations for passed {@link CqlFacetServiceRequest} and elasticsearch query.
+   * Provides list of aggregations for passed {@link CqlFacetRequest} and elasticsearch query.
    *
-   * @param request facet request as {@link CqlFacetServiceRequest}
+   * @param request facet request as {@link CqlFacetRequest}
    * @param query elasticsearch query as {@link QueryBuilder}
    * @return {@link List} with elasticsearch {@link AggregationBuilder} values
    */
-  public List<AggregationBuilder> getFacetAggregations(CqlFacetServiceRequest request, QueryBuilder query) {
+  public List<AggregationBuilder> getFacetAggregations(CqlFacetRequest request, QueryBuilder query) {
     return request.getFacet().stream()
       .map(this::getFacetFieldAndLimitAsPair)
       .map(facet -> getFacetAggregation(request, query, facet))
@@ -61,7 +61,7 @@ public class FacetQueryBuilder {
       .collect(toList());
   }
 
-  private List<AggregationBuilder> getFacetAggregation(CqlFacetServiceRequest request,
+  private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,
     QueryBuilder query, Pair<String, Integer> facetAndLimit) {
     var field = facetAndLimit.getFirst();
     validateFacetField(field, request.getResource());

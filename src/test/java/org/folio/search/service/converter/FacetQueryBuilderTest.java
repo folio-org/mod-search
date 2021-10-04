@@ -22,8 +22,9 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.exception.ValidationException;
-import org.folio.search.model.service.CqlFacetServiceRequest;
+import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -168,11 +169,7 @@ class FacetQueryBuilderTest {
       .hasMessage("Facet name cannot be null");
   }
 
-  private static CqlFacetServiceRequest facetRequest(String... facets) {
-    var rq = new CqlFacetServiceRequest();
-    rq.setFacet(Arrays.asList(facets));
-    rq.setTenantId(TENANT_ID);
-    rq.setResource(RESOURCE_NAME);
-    return rq;
+  private static CqlFacetRequest facetRequest(String... facets) {
+    return TestUtils.facetServiceRequest(RESOURCE_NAME, TENANT_ID, facets);
   }
 }

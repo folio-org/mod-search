@@ -49,8 +49,8 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.model.service.CqlFacetServiceRequest;
-import org.folio.search.model.service.CqlSearchServiceRequest;
+import org.folio.search.model.service.CqlFacetRequest;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.FieldType;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.SearchType;
@@ -97,30 +97,20 @@ public class TestUtils {
       .getContentAsString(), type);
   }
 
-  public static CqlSearchServiceRequest searchServiceRequest(String query) {
+  public static CqlSearchRequest searchServiceRequest(String query) {
     return searchServiceRequest(INSTANCE_RESOURCE, query);
   }
 
-  public static CqlSearchServiceRequest searchServiceRequest(String resource, String query) {
+  public static CqlSearchRequest searchServiceRequest(String resource, String query) {
     return searchServiceRequest(resource, query, false);
   }
 
-  public static CqlSearchServiceRequest searchServiceRequest(String resource, String query, boolean expandAll) {
-    var rq = new CqlSearchServiceRequest();
-    rq.query(query).limit(100).offset(0);
-    rq.setResource(resource);
-    rq.setTenantId(TENANT_ID);
-    rq.setExpandAll(expandAll);
-    return rq;
+  public static CqlSearchRequest searchServiceRequest(String resource, String query, boolean expandAll) {
+    return CqlSearchRequest.of(resource, TENANT_ID, query, 100, 0, expandAll);
   }
 
-  public static CqlFacetServiceRequest facetServiceRequest(String query, String... facets) {
-    var request = new CqlFacetServiceRequest();
-    request.setQuery(query);
-    request.setResource(INSTANCE_RESOURCE);
-    request.setTenantId(TENANT_ID);
-    request.setFacet(asList(facets));
-    return request;
+  public static CqlFacetRequest facetServiceRequest(String resource, String query, String... facets) {
+    return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
   }
 
   public static String randomId() {

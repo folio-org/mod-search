@@ -112,7 +112,7 @@ class ResourceIdServiceTest {
   }
 
   private static CqlResourceIdsRequest request() {
-    return CqlResourceIdsRequest.of(TEST_QUERY, RESOURCE_NAME, TENANT_ID, INSTANCE_ID_PATH);
+    return CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, TEST_QUERY, INSTANCE_ID_PATH);
   }
 
   private static SearchSourceBuilder searchSource() {

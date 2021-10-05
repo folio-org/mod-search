@@ -41,7 +41,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -312,26 +311,6 @@ class CqlSearchQueryConverterTest {
     assertThat(actual).isEqualTo(searchSource().query(query));
   }
 
-  @CsvSource({
-    "cql.allRecords = 1",
-    "cql.allRecords=1",
-    "cql.allRecords= 1",
-    "cql.allRecords= \"1\""
-  })
-  @ParameterizedTest
-  void convert_positive_matchAllQuery(String query) {
-    var actual = cqlSearchQueryConverter.convert(query, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(matchAllQuery()));
-  }
-
-  @Test
-  void convert_positive_matchAllInBooleanQuery() {
-    var actual = cqlSearchQueryConverter.convert("cql.allRecords = 1 NOT subjects == english", RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
-      .must(matchAllQuery())
-      .mustNot(termQuery("subjects", "english"))));
-  }
-
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(
@@ -375,7 +354,14 @@ class CqlSearchQueryConverterTest {
 
       arguments("f1==v1 and f2==v2 and f3==v3 and f4==v4", searchSource().query(boolQuery()
         .must(termQuery("f1", "v1")).must(termQuery("f2", "v2"))
-        .must(termQuery("f3", "v3")).must(termQuery("f4", "v4"))))
+        .must(termQuery("f3", "v3")).must(termQuery("f4", "v4")))),
+
+      arguments("cql.allRecords = 1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords=1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords= 1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords= \"1\"", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords = 1 NOT subjects == english", searchSource().query(boolQuery()
+        .must(matchAllQuery()).mustNot(termQuery("subjects", "english"))))
     );
   }
 

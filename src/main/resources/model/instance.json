@@ -285,7 +285,8 @@
           "type": "object",
           "properties": {
             "note": {
-              "index": "multilang"
+              "index": "multilang",
+              "inventorySearchTypes": "items.notes.note"
             },
             "staffOnly": {
               "index": "bool"
@@ -296,7 +297,11 @@
           "type": "object",
           "properties": {
             "note": {
-              "index": "multilang"
+              "index": "multilang",
+              "inventorySearchTypes": "items.notes.note"
+            },
+            "staffOnly": {
+              "index": "bool"
             }
           }
         }

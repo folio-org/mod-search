@@ -132,8 +132,8 @@ class SearchUtilsTest {
   }
 
   @Test
-  void updatePathForMultilangField_positive_multilangField() {
-    var actual = SearchUtils.updatePathForMultilangField("field");
+  void getPathForMultilangField_positive_multilangField() {
+    var actual = SearchUtils.getPathForMultilangField("field");
     assertThat(actual).isEqualTo("field.*");
   }
 

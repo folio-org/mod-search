@@ -93,12 +93,6 @@ class LocalSearchFieldProviderTest {
     assertThat(actual).isEmpty();
   }
 
-  @Test
-  void shouldAddStarNotationForMultilangField() {
-    when(localResourceProvider.getResourceDescription(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription()));
-    assertThat(searchFieldProvider.getFields(RESOURCE_NAME, "title2.sub3.sub5")).containsExactly("title2.sub3.sub5.*");
-  }
-
   @MethodSource("getPlainFieldsByPathDataProvider")
   @ParameterizedTest(name = "[{index}] path={0}")
   void getPlainFieldByPath_positive_parameterized(String path, FieldDescription expected) {

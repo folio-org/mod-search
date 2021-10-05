@@ -1,6 +1,6 @@
 package org.folio.search.cql;
 
-import static org.folio.search.cql.CqlSearchQueryConverter.ASTERISKS_SIGN;
+import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 import static org.folio.search.utils.SearchUtils.getNormalizedCallNumber;
 
 import lombok.RequiredArgsConstructor;

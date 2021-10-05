@@ -5,15 +5,14 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.CQL_META_FIELD_PREFIX;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+import static org.folio.search.utils.SearchUtils.getPathForMultilangField;
 import static org.folio.search.utils.SearchUtils.getPathToPlainMultilangValue;
-import static org.folio.search.utils.SearchUtils.updatePathForMultilangField;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -70,15 +69,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public List<String> getFields(String resource, String searchType) {
-    var fieldList = new ArrayList<>(fieldBySearchType
-      .getOrDefault(resource, emptyMap())
-      .getOrDefault(searchType, emptyList()));
-
-    if (isMultilangField(resource, searchType)) {
-      fieldList.add(updatePathForMultilangField(searchType));
-    }
-
-    return fieldList.stream().distinct().collect(toList());
+    return fieldBySearchType.getOrDefault(resource, emptyMap()).getOrDefault(searchType, emptyList());
   }
 
   @Override
@@ -113,7 +104,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       }
 
       var fieldPath = entry.getKey();
-      var updatedPath = fieldDescription.isMultilang() ? updatePathForMultilangField(fieldPath) : fieldPath;
+      var updatedPath = fieldDescription.isMultilang() ? getPathForMultilangField(fieldPath) : fieldPath;
       fieldDescription.getInventorySearchTypes().forEach(type ->
         resultMap.computeIfAbsent(type, k -> new ArrayList<>()).addAll(getFieldsForSearchType(type, updatedPath)));
     }

@@ -25,6 +25,7 @@ import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.Error;
 import org.folio.search.domain.dto.ErrorResponse;
 import org.folio.search.domain.dto.Parameter;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.exception.ValidationException;
@@ -126,20 +127,27 @@ public class ApiExceptionHandler {
   }
 
   /**
-   * Catches and handles all exceptions of type {@link ValidationException}.
+   * Catches and handles all exceptions for type {@link ValidationException}.
    *
    * @param exception {@link ValidationException} to process
    * @return {@link ResponseEntity} with {@link ValidationException} body
    */
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
-    var error = new Error()
-      .type(ValidationException.class.getSimpleName())
-      .code(VALIDATION_ERROR.getValue())
-      .message(exception.getMessage())
-      .parameters(List.of(new Parameter().key(exception.getKey()).value(exception.getValue())));
-    var errorResponse = new ErrorResponse().errors(List.of(error)).totalRecords(1);
+    var errorResponse = buildValidationError(exception.getMessage(), exception.getKey(), exception.getValue());
     return buildResponseEntity(errorResponse, UNPROCESSABLE_ENTITY);
+  }
+
+  /**
+   * Catches and handles all exceptions for type {@link RequestValidationException}.
+   *
+   * @param exception {@link ValidationException} to process
+   * @return {@link ResponseEntity} with {@link ValidationException} body
+   */
+  @ExceptionHandler(RequestValidationException.class)
+  public ResponseEntity<ErrorResponse> handleRequestValidationException(RequestValidationException exception) {
+    var errorResponse = buildValidationError(exception.getMessage(), exception.getKey(), exception.getValue());
+    return buildResponseEntity(errorResponse, BAD_REQUEST);
   }
 
   /**
@@ -203,6 +211,15 @@ public class ApiExceptionHandler {
     }
     logException(WARN, exception);
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, ELASTICSEARCH_ERROR);
+  }
+
+  private static ErrorResponse buildValidationError(String message, String key, String value) {
+    var error = new Error()
+      .type(ValidationException.class.getSimpleName())
+      .code(VALIDATION_ERROR.getValue())
+      .message(message)
+      .parameters(List.of(new Parameter().key(key).value(value)));
+    return new ErrorResponse().errors(List.of(error)).totalRecords(1);
   }
 
   private static ResponseEntity<ErrorResponse> buildResponseEntity(Exception e, HttpStatus status, ErrorCode code) {

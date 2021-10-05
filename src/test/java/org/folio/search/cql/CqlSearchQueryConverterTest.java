@@ -8,12 +8,12 @@ import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -26,44 +26,50 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfiguration;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 @UnitTest
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {CqlSearchQueryConverter.class, ConverterTestConfiguration.class}, webEnvironment = NONE)
 class CqlSearchQueryConverterTest {
 
   private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
   private static final String TITLE_SEARCH_TYPE = "title";
   private static final String FIELD = "field";
 
-  @InjectMocks private CqlSearchQueryConverter cqlSearchQueryConverter;
-  @Mock private SearchFieldProvider searchFieldProvider;
-  @Mock private IsbnSearchTermProcessor isbnSearchTermProcessor;
-  @Mock private Map<String, SearchTermProcessor> searchTermProcessors;
-  @Mock private CqlSortProvider cqlSortProvider;
+  @Autowired private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @MockBean private LocalSearchFieldProvider searchFieldProvider;
+  @MockBean private CqlSortProvider cqlSortProvider;
 
   @MethodSource("convertCqlQueryDataProvider")
   @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void convert_positive_parameterized(String cqlQuery, SearchSourceBuilder expected) {
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(expected);
   }
@@ -73,9 +79,7 @@ class CqlSearchQueryConverterTest {
   @DisplayName("convert_positive_parameterizedSearchGroup")
   void convert_positive_parameterizedSearchGroup(String cqlQuery, SearchSourceBuilder expected) {
     when(searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE)).thenReturn(TITLE_FIELDS);
-    if (cqlQuery.contains("languages")) {
-      when(searchFieldProvider.getFields(RESOURCE_NAME, "languages")).thenReturn(emptyList());
-    }
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
 
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(expected);
@@ -155,11 +159,9 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_isbnSearch() {
-    when(searchTermProcessors.get("isbnSearchTermProcessor")).thenReturn(isbnSearchTermProcessor);
     when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("isbnSearchTermProcessor")));
-    when(isbnSearchTermProcessor.getSearchTerm("1 23")).thenReturn("123");
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", RESOURCE_NAME);
 
@@ -168,8 +170,6 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_negative_searchTermProcessorNotFound() {
-    when(searchTermProcessors.get("termProcessor")).thenReturn(null);
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("termProcessor")));
 
@@ -305,10 +305,18 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_groupOfOneField() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "contributors")).thenReturn(List.of("contributors.name"));
+    var field = "contributors.name";
+    when(searchFieldProvider.getFields(RESOURCE_NAME, "contributors")).thenReturn(List.of(field));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, field)).thenReturn(Optional.of(keywordField()));
     var actual = cqlSearchQueryConverter.convert("contributors any joh*", RESOURCE_NAME);
-    var query = wildcardQuery("contributors.name", "joh*").rewrite("constant_score");
-    assertThat(actual).isEqualTo(searchSource().query(query));
+    assertThat(actual).isEqualTo(searchSource().query(wildcardQuery(field, "joh*")));
+  }
+
+  @Test
+  void convert_negative_unsupportedField() {
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert("invalid_field all value", RESOURCE_NAME))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Invalid search field provided in the CQL query");
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {
@@ -331,7 +339,7 @@ class CqlSearchQueryConverterTest {
         searchSource().query(termQuery("identifiers", "test-query"))),
 
       arguments("identifiers =/@value \"*test-query\"",
-        searchSource().query(wildcardQuery("identifiers", "*test-query").rewrite("constant_score"))),
+        searchSource().query(wildcardQuery("identifiers", "*test-query"))),
 
       arguments("num > 2", searchSource().query(rangeQuery("num").gt("2"))),
       arguments("num >= 2", searchSource().query(rangeQuery("num").gte("2"))),
@@ -361,7 +369,12 @@ class CqlSearchQueryConverterTest {
       arguments("cql.allRecords= 1", searchSource().query(matchAllQuery())),
       arguments("cql.allRecords= \"1\"", searchSource().query(matchAllQuery())),
       arguments("cql.allRecords = 1 NOT subjects == english", searchSource().query(boolQuery()
-        .must(matchAllQuery()).mustNot(termQuery("subjects", "english"))))
+        .must(matchAllQuery()).mustNot(termQuery("subjects", "english")))),
+
+      arguments("title=\"\"", searchSource().query(existsQuery("title"))),
+      arguments("title==\"\"", searchSource().query(termQuery("title", ""))),
+      arguments("lang = \"\" NOT lang == \"*en*\"", searchSource().query(boolQuery()
+        .must(existsQuery("lang")).mustNot(wildcardQuery("lang", "*en*"))))
     );
   }
 
@@ -399,9 +412,9 @@ class CqlSearchQueryConverterTest {
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()
-          .should(wildcardQuery("plain_title", "*test-query").rewrite("constant_score"))
-          .should(wildcardQuery("plain_source", "*test-query").rewrite("constant_score"))
-          .should(wildcardQuery("source", "*test-query").rewrite("constant_score")))),
+          .should(wildcardQuery("plain_title", "*test-query"))
+          .should(wildcardQuery("plain_source", "*test-query"))
+          .should(wildcardQuery("source", "*test-query")))),
 
       arguments("title = \"test-query\"",
         searchSource().query(
@@ -413,9 +426,24 @@ class CqlSearchQueryConverterTest {
     return SearchSourceBuilder.searchSource();
   }
 
+  private static QueryBuilder wildcardQuery(String field, String query) {
+    return QueryBuilders.wildcardQuery(field, query).rewrite("constant_score");
+  }
+
   private static PlainFieldDescription keywordFieldWithProcessor(String processorName) {
     var fieldDescription = keywordField();
     fieldDescription.setSearchTermProcessor(processorName);
     return fieldDescription;
+  }
+
+  @TestConfiguration
+  @Import(CqlTermQueryConverter.class)
+  @ComponentScan("org.folio.search.cql.builders")
+  static class ConverterTestConfiguration {
+
+    @Bean
+    SearchTermProcessor isbnSearchTermProcessor() {
+      return inputTerm -> inputTerm.replaceAll("\\s+", "");
+    }
   }
 }

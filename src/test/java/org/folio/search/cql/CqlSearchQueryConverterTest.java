@@ -8,6 +8,7 @@ import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
@@ -353,7 +354,14 @@ class CqlSearchQueryConverterTest {
 
       arguments("f1==v1 and f2==v2 and f3==v3 and f4==v4", searchSource().query(boolQuery()
         .must(termQuery("f1", "v1")).must(termQuery("f2", "v2"))
-        .must(termQuery("f3", "v3")).must(termQuery("f4", "v4"))))
+        .must(termQuery("f3", "v3")).must(termQuery("f4", "v4")))),
+
+      arguments("cql.allRecords = 1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords=1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords= 1", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords= \"1\"", searchSource().query(matchAllQuery())),
+      arguments("cql.allRecords = 1 NOT subjects == english", searchSource().query(boolQuery()
+        .must(matchAllQuery()).mustNot(termQuery("subjects", "english"))))
     );
   }
 

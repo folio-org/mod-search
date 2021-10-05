@@ -160,8 +160,8 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
-      .contentType(APPLICATION_JSON))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
   }
@@ -173,10 +173,10 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
-      .contentType(APPLICATION_JSON)
-      .content(asJsonString(request))
-      .param("recreateIndex", "true"))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON)
+        .content(asJsonString(request))
+        .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
   }
@@ -212,6 +212,20 @@ class IndexControllerTest {
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("recreateIndices must be boolean")))
       .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void reindexInventoryRecords_negative_illegalArgumentException() throws Exception {
+    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(new IllegalArgumentException("invalid value"));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("invalid value")))
+      .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 

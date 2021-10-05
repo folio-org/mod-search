@@ -247,6 +247,15 @@ Here is a table with supported search options.
 
 ### Search Options
 
+#### Matching all records
+
+A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest option)
+or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query,
+for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending`
+
+- `cql.allRecords=1 NOT contributors=Smith` matches all records where contributors name does not contain `Smith`
+as a word.
+
 #### Instance search options
 
 | Option                                    | Type      |Example                                            | Description                  |

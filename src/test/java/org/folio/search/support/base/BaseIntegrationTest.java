@@ -79,7 +79,7 @@ public abstract class BaseIntegrationTest {
 
   private static void checkThatElasticsearchAcceptResourcesFromKafka(String tenant, MockMvc mockMvc, int size) {
     await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      mockMvc.perform(get("/search/instances").param("query", "id=*").param("limit", "1")
+      mockMvc.perform(get("/search/instances").param("query", "cql.allRecords = 1").param("limit", "1")
           .headers(defaultHeaders(tenant)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalRecords", is(size))));

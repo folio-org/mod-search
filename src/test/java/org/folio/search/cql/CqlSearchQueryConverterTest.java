@@ -8,6 +8,7 @@ import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.Operator.OR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -308,6 +310,26 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convert("contributors any joh*", RESOURCE_NAME);
     var query = wildcardQuery("contributors.name", "joh*").rewrite("constant_score");
     assertThat(actual).isEqualTo(searchSource().query(query));
+  }
+
+  @CsvSource({
+    "cql.allRecords = 1",
+    "cql.allRecords=1",
+    "cql.allRecords= 1",
+    "cql.allRecords= \"1\""
+  })
+  @ParameterizedTest
+  void convert_positive_matchAllQuery(String query) {
+    var actual = cqlSearchQueryConverter.convert(query, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(matchAllQuery()));
+  }
+
+  @Test
+  void convert_positive_matchAllInBooleanQuery() {
+    var actual = cqlSearchQueryConverter.convert("cql.allRecords = 1 NOT subjects == english", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .must(matchAllQuery())
+      .mustNot(termQuery("subjects", "english"))));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

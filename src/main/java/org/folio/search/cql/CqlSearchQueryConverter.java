@@ -6,6 +6,7 @@ import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FI
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
@@ -57,6 +58,7 @@ import org.z3950.zing.cql.CQLTermNode;
 public class CqlSearchQueryConverter {
 
   static final String ASTERISKS_SIGN = "*";
+  static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
 
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
@@ -105,6 +107,10 @@ public class CqlSearchQueryConverter {
   }
 
   private QueryBuilder convertToTermQuery(CQLTermNode node, String resource) {
+    if (MATCH_ALL_CQL_QUERY.equals(node.toCQL())) {
+      return matchAllQuery();
+    }
+
     var fieldName = node.getIndex();
     var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
     var fieldList = fieldsGroup.isEmpty() ? getFieldsForFulltextField(fieldName, resource) : fieldsGroup;

@@ -1,7 +1,7 @@
 package org.folio.search.controller;
 
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
+import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceIds;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -53,7 +53,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       searchResult
         .andExpect(status().isOk())
         .andExpect(jsonPath("totalRecords", is(1)))
-        .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+        .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
     }
   }
 
@@ -62,15 +62,16 @@ class SearchInstanceIT extends BaseIntegrationTest {
     mockMvc.perform(get(instanceIds("id=*")).headers(defaultHeaders()))
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("ids[0].id", is(getSemanticWeb().getId())));
+      .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
   }
 
   // Test source
   @SuppressWarnings("unused")
   private static Stream<Arguments> positiveSearchTestDataProvider() {
     return Stream.of(
-      arguments("search by instance id", "id={value}", array(getSemanticWeb().getId()), null),
-      arguments("search by instance id for exactMatch", "id=={value}", array(getSemanticWeb().getId()), null),
+      arguments("search by all instances", "cql.allRecords = 1", array(getSemanticWebId()), null),
+      arguments("search by instance id", "id={value}", array(getSemanticWebId()), null),
+      arguments("search by instance id for exactMatch", "id=={value}", array(getSemanticWebId()), null),
       arguments("search by instance id using wildcard", "id={value}", array("5bf370e0*a0a39"), null),
       arguments("search by instance title (title)", "title all {value}", array("semantic"), null),
       arguments("search by instance title (series)", "title all {value}", array("cooperative"), null),
@@ -113,7 +114,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by contributors name", "contributors.name all {value}", array("frank"),
         (ThrowingConsumer<ResultActions>) searchResult -> searchResult
           .andExpect(jsonPath("totalRecords", is(1)))
-          .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())))
+          .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())))
           .andExpect(jsonPath("instances[0].contributors[0].name", is("Antoniou, Grigoris")))
           .andExpect(jsonPath("instances[0].contributors[1].name", is("Van Harmelen, Frank")))),
       arguments("search by contributors name", "contributors.name all {value}", array("franks"), zeroResultConsumer()),

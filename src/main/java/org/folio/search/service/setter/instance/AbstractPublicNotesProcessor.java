@@ -15,18 +15,19 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return Stream.concat(
-      getCirculationNotes(instance)
-        .filter(Objects::nonNull)
-        .filter(note -> note.getStaffOnly() == null || !note.getStaffOnly())
-        .map(CirculationNote::getNote)
-        .filter(Objects::nonNull),
-      getNotes(instance).filter(Objects::nonNull)
-        .filter(note -> note.getStaffOnly() == null || !note.getStaffOnly())
-        .map(Note::getNote)
-        .filter(Objects::nonNull)
-    ).collect(toCollection(LinkedHashSet::new));
+    var result = new LinkedHashSet<String>();
+    result.addAll(getNotesAsList(getNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
+    result.addAll(getNotesAsList(getCirculationNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
+    return result;
+  }
+  
+  private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
+    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(toList());
+  }
 
+  private static String getNote(Boolean staffOnly, String value) {
+    return staffOnly == null || !staffOnly ? value : null;
+  }
   }
 
   /**

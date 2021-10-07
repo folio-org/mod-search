@@ -169,6 +169,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
         array("Librarian private note for item"), null),
       arguments("search by circulation notes in items.notes.note", "items.notes.note == {value}",
         array("testNote"), null),
+      arguments("search by circulation notes in items.notes.note", "items.notes.note == {value}",
+        array("first-record"), null),
 
       arguments("search by isbn10", "isbn = {value}", array("047144250X"), null),
       arguments("search by isbn10(wildcard)", "isbn = {value}", array("04714*"), null),

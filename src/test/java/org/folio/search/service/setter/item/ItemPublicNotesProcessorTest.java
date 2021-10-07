@@ -47,7 +47,7 @@ class ItemPublicNotesProcessorTest {
       arguments("items with notes and circulation notes", instance(item(
         List.of(note("regular note", false)),
         List.of(circulationNote("circ note", false), circulationNote("circ note2", false)))),
-        List.of("circ note", "circ note2", "regular note")
+        List.of("regular note", "circ note", "circ note2")
       ),
       arguments("items with private notes and circulation notes", instance(item(
         List.of(note("regular note", true), note("regular note2", true)),

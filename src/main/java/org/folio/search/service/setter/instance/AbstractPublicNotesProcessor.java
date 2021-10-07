@@ -1,6 +1,5 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 import java.util.LinkedHashSet;
@@ -24,14 +23,6 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
     return result;
   }
 
-  private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
-    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(toList());
-  }
-
-  private static String getNote(Boolean staffOnly, String value) {
-    return staffOnly == null || !staffOnly ? value : null;
-  }
-
   /**
    * Returns {@link Stream} with {@link CirculationNote} objects from holding/item.
    *
@@ -49,4 +40,12 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
    * @return {@link Stream} with {@link Note} object
    */
   protected abstract Stream<Note> getNotes(Instance instance);
+
+  private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
+    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(toList());
+  }
+
+  private static String getNote(Boolean staffOnly, String value) {
+    return staffOnly == null || !staffOnly ? value : null;
+  }
 }

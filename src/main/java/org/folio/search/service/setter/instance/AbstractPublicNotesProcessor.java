@@ -1,10 +1,13 @@
 package org.folio.search.service.setter.instance;
 
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.CirculationNote;
 import org.folio.search.domain.dto.Instance;
@@ -20,14 +23,13 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
     result.addAll(getNotesAsList(getCirculationNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
     return result;
   }
-  
+
   private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
     return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(toList());
   }
 
   private static String getNote(Boolean staffOnly, String value) {
     return staffOnly == null || !staffOnly ? value : null;
-  }
   }
 
   /**

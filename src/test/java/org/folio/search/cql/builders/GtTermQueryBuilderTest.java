@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class GtTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new GtTermQueryBuilder();
+  private final GtTermQueryBuilder queryBuilder = new GtTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -20,7 +20,7 @@ class GtTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getMultilangQuery("val", "field"))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [>], field(s): [field]]");
@@ -28,7 +28,7 @@ class GtTermQueryBuilderTest {
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(rangeQuery("field").gt("termValue"));
   }
 

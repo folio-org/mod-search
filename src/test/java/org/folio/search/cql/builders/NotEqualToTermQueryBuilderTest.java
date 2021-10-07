@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class NotEqualToTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new NotEqualToTermQueryBuilder();
+  private final NotEqualToTermQueryBuilder queryBuilder = new NotEqualToTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -21,7 +21,7 @@ class NotEqualToTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getMultilangQuery("val", "field"))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [<>], field(s): [field]]");
@@ -29,7 +29,7 @@ class NotEqualToTermQueryBuilderTest {
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(boolQuery().mustNot(termQuery("field", "termValue")));
   }
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class NotEqualToTermQueryBuilder implements TermQueryBuilder {
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName) {
+  public QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
     return QueryBuilders.boolQuery().mustNot(termQuery(fieldName, term));
   }
 

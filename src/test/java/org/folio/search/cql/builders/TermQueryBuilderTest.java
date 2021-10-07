@@ -20,7 +20,7 @@ class TermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getMultilangQuery("val", "field"))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [field]]");
@@ -28,7 +28,7 @@ class TermQueryBuilderTest {
 
   @Test
   void getTermLevelQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getTermLevelQuery("val", "field"))
+    assertThatThrownBy(() -> queryBuilder.getTermLevelQuery("val", "field", null))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [field]]");
   }

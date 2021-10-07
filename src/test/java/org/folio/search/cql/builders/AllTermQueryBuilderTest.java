@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class AllTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new AllTermQueryBuilder();
+  private final AllTermQueryBuilder queryBuilder = new AllTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -21,14 +21,14 @@ class AllTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     var actual = queryBuilder.getMultilangQuery("val", "field");
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*").operator(AND).type(CROSS_FIELDS));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(matchQuery("field", "termValue").operator(AND));
   }
 

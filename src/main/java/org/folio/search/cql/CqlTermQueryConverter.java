@@ -83,7 +83,7 @@ public class CqlTermQueryConverter {
 
     return plainFieldByPath.isMultilang()
       ? termQueryBuilder.getMultilangQuery(searchTerm, fieldName)
-      : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName);
+      : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, plainFieldByPath.getIndex());
   }
 
   private String getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {

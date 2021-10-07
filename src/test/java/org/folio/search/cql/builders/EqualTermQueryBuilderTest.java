@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class EqualTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new EqualTermQueryBuilder();
+  private final EqualTermQueryBuilder queryBuilder = new EqualTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -22,20 +22,26 @@ class EqualTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     var actual = queryBuilder.getMultilangQuery("val", "field");
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*").operator(AND).type(CROSS_FIELDS));
   }
 
   @Test
+  void getMultilangQuery_positive_emptyTermValue() {
+    var actual = queryBuilder.getMultilangQuery("", "field");
+    assertThat(actual).isEqualTo(existsQuery("plain_field"));
+  }
+
+  @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(matchQuery("field", "termValue").operator(AND));
   }
 
   @Test
   void getTermLevelQuery_positive_checkIfFieldExists() {
-    var actual = queryBuilder.getTermLevelQuery("", "field");
+    var actual = queryBuilder.getTermLevelQuery("", "field", null);
     assertThat(actual).isEqualTo(existsQuery("field"));
   }
 

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class AnyTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new AnyTermQueryBuilder();
+  private final AnyTermQueryBuilder queryBuilder = new AnyTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -19,14 +19,14 @@ class AnyTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     var actual = queryBuilder.getMultilangQuery("val", "field");
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*"));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(matchQuery("field", "termValue"));
   }
 

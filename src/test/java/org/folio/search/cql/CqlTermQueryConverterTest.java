@@ -94,7 +94,7 @@ class CqlTermQueryConverterTest {
   void getQuery_positive_singleKeywordField() {
     var expectedQuery = termQuery("subjects", "book");
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(keywordField()));
-    when(termQueryBuilder.getTermLevelQuery("book", "subjects")).thenReturn(expectedQuery);
+    when(termQueryBuilder.getTermLevelQuery("book", "subjects", "keyword")).thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
   }
@@ -107,7 +107,7 @@ class CqlTermQueryConverterTest {
 
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(fieldDescription));
     when(searchTermProcessor.getSearchTerm("book")).thenReturn("test-book");
-    when(termQueryBuilder.getTermLevelQuery("test-book", "subjects")).thenReturn(expectedQuery);
+    when(termQueryBuilder.getTermLevelQuery("test-book", "subjects", "keyword")).thenReturn(expectedQuery);
 
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
 

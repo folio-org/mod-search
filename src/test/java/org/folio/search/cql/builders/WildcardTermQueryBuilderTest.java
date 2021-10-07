@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class WildcardTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new WildcardTermQueryBuilder();
+  private final WildcardTermQueryBuilder queryBuilder = new WildcardTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -28,14 +28,14 @@ class WildcardTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     var actual = queryBuilder.getMultilangQuery("val*", "field");
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "val*"));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue*", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue*", "field", null);
     assertThat(actual).isEqualTo(wildcardQuery("field", "termValue*"));
   }
 

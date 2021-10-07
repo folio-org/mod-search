@@ -34,9 +34,10 @@ public interface TermQueryBuilder {
    *
    * @param term - search term as {@link String} object
    * @param fieldName - resource field name as {@link String} object
+   * @param fieldIndex - field index mappings as {@link String} object
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getTermLevelQuery(String term, String fieldName) {
+  default QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
     throw unsupportedException(fieldName);
   }
 

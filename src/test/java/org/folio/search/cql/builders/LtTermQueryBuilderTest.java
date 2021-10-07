@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 @UnitTest
 class LtTermQueryBuilderTest {
 
-  private final TermQueryBuilder queryBuilder = new LtTermQueryBuilder();
+  private final LtTermQueryBuilder queryBuilder = new LtTermQueryBuilder();
 
   @Test
   void getQuery_positive() {
@@ -20,7 +20,7 @@ class LtTermQueryBuilderTest {
   }
 
   @Test
-  void getFullTextQuery_positive() {
+  void getMultilangQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getMultilangQuery("val", "field"))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [<], field(s): [field]]");
@@ -28,7 +28,7 @@ class LtTermQueryBuilderTest {
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field");
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", null);
     assertThat(actual).isEqualTo(rangeQuery("field").lt("termValue"));
   }
 

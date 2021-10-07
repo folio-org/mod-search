@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class WildcardTermQueryBuilder implements TermQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(String term, String[] fields) {
+  public QueryBuilder getQuery(String term, String... fields) {
     if (fields.length == 1) {
       return getWildcardQuery(term, updatePathForTermQueries(fields[0]));
     }
@@ -33,7 +33,7 @@ public class WildcardTermQueryBuilder implements TermQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName) {
+  public QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
     return getWildcardQuery(term, fieldName);
   }
 

@@ -24,7 +24,7 @@ public class AllTermQueryBuilder implements TermQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName) {
+  public QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
     return matchQuery(fieldName, term).operator(AND);
   }
 

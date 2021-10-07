@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.extension.EnableElasticSearch;
 import org.folio.search.support.extension.EnableKafka;
@@ -36,10 +38,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -50,7 +51,6 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @EnableElasticSearch
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public abstract class BaseIntegrationTest {
 
   protected static InventoryApi inventoryApi;
@@ -61,6 +61,16 @@ public abstract class BaseIntegrationTest {
   static void setUpDefaultTenant(@Autowired KafkaTemplate<String, Object> kafkaTemplate) {
     setEnvProperty("folio-test");
     inventoryApi = new InventoryApi(kafkaTemplate);
+  }
+
+  @BeforeAll
+  static void cleanUpCaches(@Autowired CacheManager cacheManager) {
+    cacheManager.getCacheNames().forEach(name -> {
+      var cache = cacheManager.getCache(name);
+      if (cache != null) {
+        cache.clear();
+      }
+    });
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -97,6 +107,13 @@ public abstract class BaseIntegrationTest {
   public ResultActions attemptPut(String uri, Object body) {
     return mockMvc.perform(put(uri)
       .content(asJsonString(body))
+      .headers(defaultHeaders())
+      .contentType(APPLICATION_JSON));
+  }
+
+  @SneakyThrows
+  public ResultActions attemptDelete(String uri) {
+    return mockMvc.perform(delete(uri)
       .headers(defaultHeaders())
       .contentType(APPLICATION_JSON));
   }
@@ -140,28 +157,56 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc, Instance... instances) {
-    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+    setUpTenant(tenantName, mockMvc, () -> {}, asList(instances),
+      instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(String tenantName, MockMvc mockMvc, Map<String, Object>... instances) {
-    setUpTenant(tenantName, mockMvc, asList(instances), instance -> inventoryApi.createInstance(tenantName, instance));
+    setUpTenant(tenantName, mockMvc, () -> {}, asList(instances),
+      instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
-  private static <T> void setUpTenant(
-    String tenant, MockMvc mockMvc, List<T> instances, Consumer<T> consumer) throws Exception {
+  @SneakyThrows
+  protected static void setUpTenant(String tenant, MockMvc mockMvc,
+    Runnable postTenantAction, Instance... instances) {
+    setUpTenant(tenant, mockMvc, postTenantAction, asList(instances),
+      instance -> inventoryApi.createInstance(tenant, instance));
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(String tenant, MockMvc mockMvc,
+    Runnable postTenantAction, Map<String, Object>... instances) {
+    setUpTenant(tenant, mockMvc, postTenantAction, asList(instances),
+      instance -> inventoryApi.createInstance(tenant, instance));
+  }
+
+  @SneakyThrows
+  private static <T> void setUpTenant(String tenant, MockMvc mockMvc,
+    Runnable postTenantAction, List<T> instances, Consumer<T> consumer) {
     mockMvc.perform(post("/_/tenant")
         .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
         .headers(defaultHeaders(tenant))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());
 
+    postTenantAction.run();
+
     instances.forEach(consumer);
 
     if (instances.size() > 0) {
       checkThatElasticsearchAcceptResourcesFromKafka(tenant, mockMvc, instances.size());
     }
+  }
+
+  @SneakyThrows
+  protected static <T> void enableFeature(String tenant, TenantConfiguredFeature feature, MockMvc mockMvc) {
+    mockMvc.perform(post(ApiEndpoints.featureConfig())
+        .headers(defaultHeaders(tenant))
+        .content(asJsonString(new FeatureConfig().feature(feature).enabled(true))))
+      .andExpect(status().isOk());
   }
 
   @SneakyThrows

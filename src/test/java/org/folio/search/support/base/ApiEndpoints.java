@@ -2,6 +2,7 @@ package org.folio.search.support.base;
 
 import lombok.experimental.UtilityClass;
 import org.folio.cql2pgjson.model.CqlSort;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 
 @UtilityClass
 public class ApiEndpoints {
@@ -26,6 +27,14 @@ public class ApiEndpoints {
 
   public static String languageConfig() {
     return "/search/config/languages";
+  }
+
+  public static String featureConfig() {
+    return "/search/config/features";
+  }
+
+  public static String featureConfig(TenantConfiguredFeature feature) {
+    return featureConfig() + "/" + feature.getValue();
   }
 
   public static String createIndicesEndpoint() {

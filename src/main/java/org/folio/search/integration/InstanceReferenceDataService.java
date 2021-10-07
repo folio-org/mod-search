@@ -1,4 +1,4 @@
-package org.folio.search.repository.cache;
+package org.folio.search.integration;
 
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;

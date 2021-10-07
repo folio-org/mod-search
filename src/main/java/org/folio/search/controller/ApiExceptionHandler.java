@@ -32,6 +32,7 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.types.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -130,23 +131,23 @@ public class ApiExceptionHandler {
    * Catches and handles all exceptions for type {@link ValidationException}.
    *
    * @param exception {@link ValidationException} to process
-   * @return {@link ResponseEntity} with {@link ValidationException} body
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
    */
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
-    var errorResponse = buildValidationError(exception.getMessage(), exception.getKey(), exception.getValue());
+    var errorResponse = buildValidationError(exception, exception.getKey(), exception.getValue());
     return buildResponseEntity(errorResponse, UNPROCESSABLE_ENTITY);
   }
 
   /**
    * Catches and handles all exceptions for type {@link RequestValidationException}.
    *
-   * @param exception {@link ValidationException} to process
-   * @return {@link ResponseEntity} with {@link ValidationException} body
+   * @param exception {@link RequestValidationException} to process
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
    */
   @ExceptionHandler(RequestValidationException.class)
   public ResponseEntity<ErrorResponse> handleRequestValidationException(RequestValidationException exception) {
-    var errorResponse = buildValidationError(exception.getMessage(), exception.getKey(), exception.getValue());
+    var errorResponse = buildValidationError(exception, exception.getKey(), exception.getValue());
     return buildResponseEntity(errorResponse, BAD_REQUEST);
   }
 
@@ -154,7 +155,7 @@ public class ApiExceptionHandler {
    * Catches and handles all {@link IllegalArgumentException} exceptions.
    *
    * @param exception {@link IllegalArgumentException} to process
-   * @return {@link ResponseEntity} with {@link ValidationException} body
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
    */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
@@ -170,7 +171,7 @@ public class ApiExceptionHandler {
    */
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException exception) {
-    logException(WARN, exception);
+    logException(DEBUG, exception);
     return buildResponseEntity(exception, NOT_FOUND, NOT_FOUND_ERROR);
   }
 
@@ -184,6 +185,25 @@ public class ApiExceptionHandler {
   public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
     logException(DEBUG, e);
     return buildResponseEntity(e, BAD_REQUEST, VALIDATION_ERROR);
+  }
+
+  /**
+   * Handles all {@link HttpMessageNotReadableException} exceptions.
+   *
+   * @param e {@link HttpMessageNotReadableException} object
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body.
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    return Optional.ofNullable(e.getCause())
+      .map(Throwable::getCause)
+      .filter(IllegalArgumentException.class::isInstance)
+      .map(IllegalArgumentException.class::cast)
+      .map(this::handleIllegalArgumentException)
+      .orElseGet(() -> {
+        logException(DEBUG, e);
+        return buildResponseEntity(e, BAD_REQUEST, VALIDATION_ERROR);
+      });
   }
 
   /**
@@ -213,11 +233,11 @@ public class ApiExceptionHandler {
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, ELASTICSEARCH_ERROR);
   }
 
-  private static ErrorResponse buildValidationError(String message, String key, String value) {
+  private static ErrorResponse buildValidationError(Exception exception, String key, String value) {
     var error = new Error()
-      .type(ValidationException.class.getSimpleName())
+      .type(exception.getClass().getSimpleName())
       .code(VALIDATION_ERROR.getValue())
-      .message(message)
+      .message(exception.getMessage())
       .parameters(List.of(new Parameter().key(key).value(value)));
     return new ErrorResponse().errors(List.of(error)).totalRecords(1);
   }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
-import org.folio.search.repository.cache.InstanceReferenceDataService;
+import org.folio.search.integration.InstanceReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;

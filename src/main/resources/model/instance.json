@@ -470,6 +470,7 @@
       "index": "multilang",
       "processor": "instanceAllFieldValuesProcessor",
       "rawProcessing": true,
+      "dependsOnFeature": "search.all.fields",
       "inventorySearchTypes": [ "cql.all", "cql.allInstances" ]
     },
     "allItems": {
@@ -477,6 +478,7 @@
       "index": "multilang",
       "processor": "itemAllFieldValuesProcessor",
       "rawProcessing": true,
+      "dependsOnFeature": "search.all.fields",
       "inventorySearchTypes": [ "cql.all", "cql.allItems" ]
     },
     "allHoldings": {
@@ -484,6 +486,7 @@
       "index": "multilang",
       "processor": "holdingAllFieldValuesProcessor",
       "rawProcessing": true,
+      "dependsOnFeature": "search.all.fields",
       "inventorySearchTypes": [ "cql.all", "cql.allHoldings" ]
     }
   },

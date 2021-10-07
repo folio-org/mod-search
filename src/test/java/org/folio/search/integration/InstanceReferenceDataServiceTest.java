@@ -1,4 +1,4 @@
-package org.folio.search.service.setter.instance;
+package org.folio.search.integration;
 
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -23,10 +23,9 @@ import java.util.Set;
 import org.folio.search.client.AlternativeTitleTypesClient;
 import org.folio.search.client.IdentifierTypeClient;
 import org.folio.search.client.cql.CqlQuery;
+import org.folio.search.integration.InstanceReferenceDataServiceTest.TestContextConfiguration;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.repository.cache.InstanceReferenceDataService;
-import org.folio.search.service.setter.instance.InstanceReferenceDataServiceTest.TestContextConfiguration;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;

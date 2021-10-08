@@ -1,40 +1,21 @@
 package org.folio.search.cql;
 
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
-import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
-import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
-import static org.folio.search.utils.SearchUtils.updatePathForFulltextField;
-import static org.folio.search.utils.SearchUtils.updatePathForTermQueries;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
@@ -57,12 +38,9 @@ import org.z3950.zing.cql.CQLTermNode;
 @RequiredArgsConstructor
 public class CqlSearchQueryConverter {
 
-  static final String ASTERISKS_SIGN = "*";
-  static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
-
   private final CqlSortProvider cqlSortProvider;
+  private final CqlTermQueryConverter cqlTermQueryConverter;
   private final SearchFieldProvider searchFieldProvider;
-  private final Map<String, SearchTermProcessor> searchTermProcessors;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -88,7 +66,8 @@ public class CqlSearchQueryConverter {
       cqlSortProvider.getSort((CQLSortNode) node, resource).forEach(queryBuilder::sort);
     }
 
-    return queryBuilder.query(enhanceQuery(convertToQuery(node, resource), resource));
+    var boolQuery = convertToQuery(node, resource);
+    return queryBuilder.query(enhanceQuery(boolQuery, resource));
   }
 
   private QueryBuilder convertToQuery(CQLNode node, String resource) {
@@ -97,61 +76,13 @@ public class CqlSearchQueryConverter {
       cqlNode = ((CQLSortNode) node).getSubtree();
     }
     if (cqlNode instanceof CQLTermNode) {
-      return convertToTermQuery((CQLTermNode) cqlNode, resource);
+      return cqlTermQueryConverter.getQuery((CQLTermNode) cqlNode, resource);
     }
     if (cqlNode instanceof CQLBooleanNode) {
       return convertToBoolQuery((CQLBooleanNode) cqlNode, resource);
     }
     throw new UnsupportedOperationException(String.format(
       "Failed to parse CQL query. Node with type '%s' is not supported.", node.getClass().getSimpleName()));
-  }
-
-  private QueryBuilder convertToTermQuery(CQLTermNode node, String resource) {
-    if (MATCH_ALL_CQL_QUERY.equals(node.toCQL())) {
-      return matchAllQuery();
-    }
-
-    var fieldName = node.getIndex();
-    var fieldsGroup = searchFieldProvider.getFields(resource, fieldName);
-    var fieldList = fieldsGroup.isEmpty() ? getFieldsForFulltextField(fieldName, resource) : fieldsGroup;
-
-    var term = getSearchTerm(node.getTerm(), fieldName, resource);
-    if (term.contains(ASTERISKS_SIGN)) {
-      return prepareElasticsearchQuery(fieldList,
-        fields -> prepareQueryForFieldsGroup(fields, field -> prepareWildcardQuery(field, term)),
-        () -> prepareWildcardQuery(fieldName, term));
-    }
-
-    var comparator = StringUtils.lowerCase(node.getRelation().getBase());
-    switch (comparator) {
-      case "==":
-        return prepareElasticsearchQuery(fieldList,
-          fields -> multiMatchQuery(term, fields.toArray(String[]::new)).type(PHRASE),
-          () -> termQuery(fieldName, term));
-      case "=":
-      case "adj":
-      case "all":
-        return prepareElasticsearchQuery(fieldList,
-          fields -> multiMatchQuery(term, fields.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS),
-          () -> matchQuery(fieldName, term).operator(AND));
-      case "any":
-        return prepareElasticsearchQuery(fieldList,
-          fields -> multiMatchQuery(term, fields.toArray(String[]::new)),
-          () -> matchQuery(fieldName, term));
-      case "<>":
-        return boolQuery().mustNot(termQuery(fieldName, term));
-      case "<":
-        return rangeQuery(fieldName).lt(term);
-      case ">":
-        return rangeQuery(fieldName).gt(term);
-      case "<=":
-        return rangeQuery(fieldName).lte(term);
-      case ">=":
-        return rangeQuery(fieldName).gte(term);
-      default:
-        throw new UnsupportedOperationException(String.format(
-          "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
-    }
   }
 
   private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
@@ -229,40 +160,5 @@ public class CqlSearchQueryConverter {
     return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
       .filter(fieldDescription -> fieldDescription.hasType(SearchType.FILTER))
       .isPresent();
-  }
-
-  private static QueryBuilder prepareElasticsearchQuery(List<String> fieldsGroup,
-    Function<List<String>, QueryBuilder> groupQueryProducer, Supplier<QueryBuilder> defaultQuery) {
-    return isNotEmpty(fieldsGroup) ? groupQueryProducer.apply(fieldsGroup) : defaultQuery.get();
-  }
-
-  private static QueryBuilder prepareQueryForFieldsGroup(List<String> fieldsGroup,
-    Function<String, QueryBuilder> innerQueryProvider) {
-    var boolQueryBuilder = boolQuery();
-    if (fieldsGroup.size() == 1) {
-      return innerQueryProvider.apply(updatePathForTermQueries(fieldsGroup.get(0)));
-    }
-    fieldsGroup.forEach(field -> boolQueryBuilder.should(innerQueryProvider.apply(updatePathForTermQueries(field))));
-    return boolQueryBuilder;
-  }
-
-  private String getSearchTerm(String term, String fieldName, String resource) {
-    return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
-      .map(PlainFieldDescription::getSearchTermProcessor)
-      .map(searchTermProcessors::get)
-      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
-      .orElse(term);
-  }
-
-  private List<String> getFieldsForFulltextField(String fieldName, String resource) {
-    return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
-      .filter(PlainFieldDescription::hasFulltextIndex)
-      .map(desc -> updatePathForFulltextField(desc, fieldName))
-      .map(Collections::singletonList)
-      .orElse(emptyList());
-  }
-
-  private static WildcardQueryBuilder prepareWildcardQuery(String fieldName, String term) {
-    return wildcardQuery(fieldName, term).rewrite("constant_score");
   }
 }

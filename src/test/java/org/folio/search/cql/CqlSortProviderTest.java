@@ -17,7 +17,7 @@ import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.folio.search.exception.ValidationException;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SortDescription;
 import org.folio.search.model.types.SortFieldType;
@@ -99,7 +99,7 @@ class CqlSortProviderTest {
     var cqlSortNode = sortNode("(keyword all value) sortby field/sort.descending");
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(of(keywordField()));
     assertThatThrownBy(() -> cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME))
-      .isInstanceOf(ValidationException.class)
+      .isInstanceOf(RequestValidationException.class)
       .hasMessage("Sort field not found or cannot be used.");
   }
 

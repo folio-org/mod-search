@@ -256,6 +256,18 @@ for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending
 - `cql.allRecords=1 NOT contributors=Smith` matches all records where contributors name does not contain `Smith`
 as a word.
 
+#### Matching undefined or empty values
+
+A relation does not match if the value on the left-hand side is undefined.
+A negation (using NOT) of a relation matches if the value on the left-hand side is not defined or
+if it is defined but doesn't match.
+
+- `name=""` matches all records where name is defined.
+- `cql.allRecords=1 NOT name=""` matches all records where name is not defined.
+- `name==""` matches all records where name is defined and empty.
+- `cql.allRecords=1 NOT name==""` matches all records where name is defined and not empty or where name is not defined.
+- `name="" NOT name==""` matches all records where name is defined and not empty.
+
 #### Instance search options
 
 | Option                                    | Type      |Example                                            | Description                  |

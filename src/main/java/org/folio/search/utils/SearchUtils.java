@@ -35,7 +35,10 @@ public class SearchUtils {
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
   public static final String PLAIN_MULTILANG_PREFIX = "plain_";
   public static final String SELECTED_AGG_PREFIX = "selected_";
+  public static final String ASTERISKS_SIGN = "*";
   public static final String DOT = ".";
+  public static final String EMPTY_ARRAY = "[]";
+  public static final String KEYWORD_FIELD_INDEX = "keyword";
 
   public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
@@ -108,7 +111,7 @@ public class SearchUtils {
    * @return updated path as {@link String} object
    */
   public static String updatePathForFulltextField(PlainFieldDescription description, String path) {
-    return description.isMultilang() ? updatePathForMultilangField(path) : path;
+    return description.isMultilang() ? getPathForMultilangField(path) : path;
   }
 
   /**
@@ -117,7 +120,7 @@ public class SearchUtils {
    * @param path path to field
    * @return updated path as {@link String} object
    */
-  public static String updatePathForMultilangField(String path) {
+  public static String getPathForMultilangField(String path) {
     return path + ".*";
   }
 

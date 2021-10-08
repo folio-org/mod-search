@@ -22,7 +22,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
-import org.folio.search.exception.ValidationException;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.SortFieldType;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -85,7 +85,7 @@ public class CqlSortProvider {
   private PlainFieldDescription getValidSortField(String resource, String field) {
     return getSortFieldDescription(resource, field)
       .or(() -> getSortFieldDescription(resource, DEFAULT_SORT_FIELD_PREFIX + field))
-      .orElseThrow(() -> new ValidationException("Sort field not found or cannot be used.", "sortField", field));
+      .orElseThrow(() -> new RequestValidationException("Sort field not found or cannot be used.", "sortField", field));
   }
 
   private CqlModifiers getCqlModifiers(ModifierSet modifierSet) {

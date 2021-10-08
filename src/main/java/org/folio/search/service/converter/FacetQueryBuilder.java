@@ -27,7 +27,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.folio.search.exception.ValidationException;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.Pair;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.types.SearchType;
@@ -76,13 +76,13 @@ public class FacetQueryBuilder {
       .filter(fieldDescription -> fieldDescription.hasType(SearchType.FACET))
       .orElse(null);
     if (facetFieldDescription == null) {
-      throw new ValidationException("Invalid facet value", FACET_KEY, facetField);
+      throw new RequestValidationException("Invalid facet value", FACET_KEY, facetField);
     }
   }
 
   private Pair<String, Integer> getFacetFieldAndLimitAsPair(String facet) {
     if (facet == null) {
-      throw new ValidationException("Facet name cannot be null", FACET_KEY, null);
+      throw new RequestValidationException("Facet name cannot be null", FACET_KEY, null);
     }
     var matcher = FACET_FORMAT_REGEX.matcher(facet.trim());
     if (matcher.matches()) {
@@ -90,7 +90,7 @@ public class FacetQueryBuilder {
       return matcher.group(3) == null ? Pair.of(name, DEFAULT_FACET_SIZE) : Pair.of(name, parseInt(matcher.group(3)));
     }
 
-    throw new ValidationException(
+    throw new RequestValidationException(
       "Invalid facet name format, must be '{facetName}' or '{facetName}:{facetLimit}'", FACET_KEY, facet);
   }
 

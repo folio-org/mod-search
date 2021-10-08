@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
-import org.folio.search.exception.ValidationException;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.TestUtils;
@@ -147,7 +147,7 @@ class FacetQueryBuilderTest {
     var request = facetRequest(FIELD);
     var query = matchAllQuery();
     assertThatThrownBy(() -> facetQueryBuilder.getFacetAggregations(request, query))
-      .isInstanceOf(ValidationException.class)
+      .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid facet value");
   }
 
@@ -156,7 +156,7 @@ class FacetQueryBuilderTest {
     var request = facetRequest(FIELD + ":10.123");
     var query = matchAllQuery();
     assertThatThrownBy(() -> facetQueryBuilder.getFacetAggregations(request, query))
-      .isInstanceOf(ValidationException.class)
+      .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid facet name format, must be '{facetName}' or '{facetName}:{facetLimit}'");
   }
 
@@ -165,7 +165,7 @@ class FacetQueryBuilderTest {
     var request = facetRequest((String) null);
     var query = matchAllQuery();
     assertThatThrownBy(() -> facetQueryBuilder.getFacetAggregations(request, query))
-      .isInstanceOf(ValidationException.class)
+      .isInstanceOf(RequestValidationException.class)
       .hasMessage("Facet name cannot be null");
   }
 

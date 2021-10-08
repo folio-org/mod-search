@@ -34,6 +34,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -113,6 +114,18 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       assertThat(actualFacet.getValues())
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
+  }
+
+  @Test
+  void searchByInstances_negative_invalidFacetName() throws Exception {
+    mockMvc.perform(get(getFacets("cql.allRecords = 1", "unknownFacet:5")).headers(defaultHeaders(TENANT_ID)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("facet")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
   }
 
   private static Stream<Arguments> filteredSearchQueriesProvider() {

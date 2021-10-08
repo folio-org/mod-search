@@ -16,7 +16,7 @@ public class ApiEndpoints {
   }
 
   public static String allInstancesSortedBy(String sort, CqlSort order) {
-    return searchInstancesByQuery("id<>\"\" sortBy %s/sort.%s", sort, order);
+    return searchInstancesByQuery("cql.allRecords = 1 sortBy %s/sort.%s", sort, order);
   }
 
   public static String getFacets(String query, String... facets) {

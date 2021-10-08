@@ -65,12 +65,23 @@ class SearchInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
   }
 
-  // Test source
-  @SuppressWarnings("unused")
+  @Test
+  void search_negative_unknownField() throws Exception {
+    mockMvc.perform(get(searchInstancesByQuery("unknownField all book")).headers(defaultHeaders()))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid search field provided in the CQL query")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("field")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownField")));
+  }
+
   private static Stream<Arguments> positiveSearchTestDataProvider() {
     return Stream.of(
       arguments("search by all instances", "cql.allRecords = 1", array(getSemanticWebId()), null),
       arguments("search by instance id", "id={value}", array(getSemanticWebId()), null),
+      arguments("search by instance id (exists)", "id=\"\"", new String[] {}, null),
       arguments("search by instance id for exactMatch", "id=={value}", array(getSemanticWebId()), null),
       arguments("search by instance id using wildcard", "id={value}", array("5bf370e0*a0a39"), null),
       arguments("search by instance title (title)", "title all {value}", array("semantic"), null),

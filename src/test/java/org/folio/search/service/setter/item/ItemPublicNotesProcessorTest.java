@@ -7,6 +7,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.CirculationNote;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.Note;
@@ -42,8 +43,22 @@ class ItemPublicNotesProcessorTest {
       arguments("item with note(staffOnly=true)", instance(item(note("value", true))), emptyList()),
       arguments("item with note(value=null,staffOnly=false)", instance(item(note(null, false))), emptyList()),
       arguments("items with duplicated notes", instance(
-        item(note("note", false)), item(note("note", false)), item(note("note", true))), List.of("note"))
-    );
+        item(note("note", false)), item(note("note", false)), item(note("note", true))), List.of("note")),
+      arguments("items with notes and circulation notes", instance(item(
+        List.of(note("regular note", false)),
+        List.of(circulationNote("circ note", false), circulationNote("circ note2", false)))),
+        List.of("regular note", "circ note", "circ note2")
+      ),
+      arguments("items with private notes and circulation notes", instance(item(
+        List.of(note("regular note", true), note("regular note2", true)),
+        List.of(circulationNote("circ note", false)))),
+        List.of("circ note")
+      ),
+      arguments("item with notes and private circulation notes", instance(item(
+        List.of(note("regular note", false), note("regular note2", false)),
+        List.of(circulationNote("circ note", true), circulationNote("circ note2", true)))),
+        List.of("regular note", "regular note2")
+      ));
   }
 
   private static Instance instance(Item... items) {
@@ -54,7 +69,15 @@ class ItemPublicNotesProcessorTest {
     return new Item().notes(notes != null ? Arrays.asList(notes) : null);
   }
 
+  private static Item item(List<Note> notes, List<CirculationNote> circulationNotes) {
+    return new Item().notes(notes).circulationNotes(circulationNotes);
+  }
+
   private static Note note(String value, Boolean staffOnly) {
     return new Note().note(value).staffOnly(staffOnly);
+  }
+
+  private static CirculationNote circulationNote(String value, Boolean staffOnly) {
+    return new CirculationNote().note(value).staffOnly(staffOnly);
   }
 }

@@ -4,6 +4,7 @@
   "description": "Feature config request value",
   "properties": {
     "feature": {
+      "description": "The feature name",
       "$ref": "tenantConfiguredFeature.json"
     },
     "enabled": {

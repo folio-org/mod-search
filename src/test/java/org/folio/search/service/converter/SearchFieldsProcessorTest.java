@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -14,14 +15,12 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.collections.MapUtils;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.SearchFieldsProcessorTest.TestContextConfiguration;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -44,7 +43,7 @@ class SearchFieldsProcessorTest {
 
   private static final String FIELD = "generated";
   @Autowired private SearchFieldsProcessor searchFieldsProcessor;
-  @MockBean private SearchConfigurationProperties searchConfigurationProperties;
+  @MockBean private FeatureConfigService featureConfigService;
 
   @Test
   void getSearchFields_positive_emptySearchFields() {
@@ -75,26 +74,29 @@ class SearchFieldsProcessorTest {
   }
 
   @Test
-  void getSearchFields_positive_instanceWithKeywordField_disabled() {
+  void getSearchFields_positive_searchFieldForEnabledFeature() {
     var searchFieldDescriptor = searchField("instanceTitleProcessor", "keyword");
-    searchFieldDescriptor.setInventorySearchTypes(List.of("cql.all", "cql.allKeyword"));
+    searchFieldDescriptor.setDependsOnFeature(SEARCH_ALL_FIELDS);
+
     var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
-    var disabledSearchFields = mapOf(RESOURCE_NAME, Set.of("cql.all"));
-    when(searchConfigurationProperties.getDisabledSearchOptions()).thenReturn(disabledSearchFields);
+    when(featureConfigService.isEnabled(SEARCH_ALL_FIELDS)).thenReturn(true);
     var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
 
     var actual = searchFieldsProcessor.getSearchFields(ctx);
 
-    assertThat(actual).isEqualTo(emptyMap());
+    assertThat(actual).isEqualTo(mapOf("generated", "instance_title"));
   }
 
   @Test
-  void getSearchFields_positive_instanceWithKeywordField_disabledByName() {
+  void getSearchFields_positive_searchFieldForDisabledFeature() {
     var searchFieldDescriptor = searchField("instanceTitleProcessor", "keyword");
-    var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
-    when(searchConfigurationProperties.getDisabledSearchOptions()).thenReturn(mapOf(RESOURCE_NAME, Set.of(FIELD)));
+    searchFieldDescriptor.setDependsOnFeature(SEARCH_ALL_FIELDS);
 
-    var actual = searchFieldsProcessor.getSearchFields(ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList()));
+    var desc = description(Instance.class, mapOf(FIELD, searchFieldDescriptor));
+    when(featureConfigService.isEnabled(SEARCH_ALL_FIELDS)).thenReturn(false);
+    var ctx = ConversionContext.of(TENANT_ID, emptyMap(), desc, emptyList());
+
+    var actual = searchFieldsProcessor.getSearchFields(ctx);
 
     assertThat(actual).isEqualTo(emptyMap());
   }

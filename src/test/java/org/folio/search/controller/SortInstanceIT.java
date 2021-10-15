@@ -90,7 +90,7 @@ class SortInstanceIT extends BaseIntegrationTest {
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
-      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("sortField")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));

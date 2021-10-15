@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import lombok.Data;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +27,7 @@ public class SearchConfigurationProperties {
   private Set<String> initialLanguages = emptySet();
 
   /**
-   * Contains set of ignored search processor names for resource.
+   * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
-  private Map<String, Set<String>> disabledSearchOptions = emptyMap();
+  private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();
 }

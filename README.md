@@ -126,7 +126,7 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | SYSTEM_USER_PASSWORD             | -                         | Password for `mod-search` system user (not required for dev envs) |
 | OKAPI_URL                        | -                         | OKAPI URL used to login system user, required                     |
 | ENV                              | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
-| INSTANCE_DISABLED_SEARCH_OPTIONS | cql.all                   | Comma-separated list of disabled search options (fieldName or inventorySearchType) |
+| SEARCH_BY_ALL_FIELDS_ENABLED     | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting) |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -267,6 +267,7 @@ if it is defined but doesn't match.
 - `name==""` matches all records where name is defined and empty.
 - `cql.allRecords=1 NOT name==""` matches all records where name is defined and not empty or where name is not defined.
 - `name="" NOT name==""` matches all records where name is defined and not empty.
+- `languages == "[]"` for matching records where lang is defined and an empty array
 
 #### Instance search options
 
@@ -353,10 +354,20 @@ if it is defined but doesn't match.
 
 ### Search by all field values
 
-Search by all feature is optional and can be disabled by passing to the server configuration following ENV variable
+Search by all feature is optional and disabled by default. However, it can be enabled for tenant using
+following HTTP request:
+
+`POST /search/config/features`
+```json
+{
+  "feature": "search.all.fields",
+  "enabled": true
+}
+```
+Also, search by all fields can be enabled globally by passing to mod-search service following ENV variable:
 
 ```
-INSTANCE_DISABLED_SEARCH_OPTIONS=
+SEARCH_BY_ALL_FIELDS_ENABLED=true
 ```
 
 By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and

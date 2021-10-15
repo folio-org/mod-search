@@ -2,6 +2,7 @@ package org.folio.search.model.metadata;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,4 +19,9 @@ public class SearchFieldDescriptor extends PlainFieldDescription {
    * Marks if field processor can accept raw resource as {@link java.util.Map} or not.
    */
   private boolean rawProcessing;
+
+  /**
+   * Provides feature name, that should be checked before indexing search field.
+   */
+  private TenantConfiguredFeature dependsOnFeature;
 }

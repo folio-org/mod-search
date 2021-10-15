@@ -2,7 +2,9 @@ package org.folio.search.controller;
 
 import static org.awaitility.Awaitility.await;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
+import static org.folio.search.support.base.ApiEndpoints.featureConfig;
 import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -14,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,9 +27,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.IntegrationTest;
@@ -149,6 +154,65 @@ class ConfigControllerIT extends BaseIntegrationTest {
     assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
     assertThat(getMapValueByPath("title.fre", indexedInstance), nullValue());
+  }
+
+  @Test
+  void featureConfigurationWorkflow_positive() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    doPost(ApiEndpoints.featureConfig(), feature)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.enabled", is(true)));
+
+    var featureToUpdate = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(false);
+    doPut(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS), featureToUpdate)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.enabled", is(false)));
+
+    doDelete(featureConfig(SEARCH_ALL_FIELDS))
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void createFeatureConfig_negative() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    doPost(featureConfig(), feature)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.enabled", is(true)));
+
+    attemptPost(featureConfig(), feature)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is("Feature configuration already exists")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("feature")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("search.all.fields")));
+
+    doDelete(featureConfig(SEARCH_ALL_FIELDS)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  void createFeatureConfig_negative_bodyWithoutFields() throws Exception {
+    attemptPost(featureConfig(), new FeatureConfig())
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[*].parameters[*].key", containsInAnyOrder("enabled", "feature")));
+  }
+
+  @Test
+  void updateFeatureConfig_notExists() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    attemptPut(featureConfig(SEARCH_ALL_FIELDS), feature)
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
+  }
+
+  @Test
+  void deleteUnknownFeature_notExists() throws Exception {
+    attemptDelete(featureConfig(SEARCH_ALL_FIELDS))
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
   }
 
   @SneakyThrows

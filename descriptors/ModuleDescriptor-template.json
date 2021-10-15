@@ -109,6 +109,34 @@
           ],
           "pathPattern": "/search/config/languages/{id}",
           "permissionsRequired": [ "search.config.languages.item.delete" ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/config/features",
+          "permissionsRequired": [ "search.config.features.collection.get" ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/config/features",
+          "permissionsRequired": [ "search.config.features.item.post" ]
+        },
+        {
+          "methods": [
+            "PUT"
+          ],
+          "pathPattern": "/search/config/features/{id}",
+          "permissionsRequired": [ "search.config.features.item.put" ]
+        },
+        {
+          "methods": [
+            "DELETE"
+          ],
+          "pathPattern": "/search/config/features/{id}",
+          "permissionsRequired": [ "search.config.features.item.delete" ]
         }
       ]
     },
@@ -222,6 +250,26 @@
       "permissionName": "search.holdings.ids.collection.get",
       "displayName": "Search - returns a list of holding ids found for the CQL query by instances",
       "description": "Returns list of resource ids for a cql query"
+    },
+    {
+      "permissionName": "search.config.features.collection.get",
+      "displayName": "Search - returns list of tenant features configuration",
+      "description": "Returns list of all specified features"
+    },
+    {
+      "permissionName": "search.config.features.item.post",
+      "displayName": "Search - adds a feature configuration",
+      "description": "Adds feature configuration"
+    },
+    {
+      "permissionName": "search.config.features.item.put",
+      "displayName": "Search - updates a feature configuration",
+      "description": "Updates feature configuration"
+    },
+    {
+      "permissionName": "search.config.features.item.delete",
+      "displayName": "Search - removes feature configuration",
+      "description": "Removes feature configuration"
     }
   ],
   "launchDescriptor": {

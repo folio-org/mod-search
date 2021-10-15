@@ -1,8 +1,10 @@
 package org.folio.search.controller;
 
+import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,24 +17,20 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @IntegrationTest
-@TestPropertySource(properties = "application.search-config.disabled-search-options.instance=")
 class SearchByAllFieldsIT extends BaseIntegrationTest {
-
-  private static final String TENANT = "search_all";
 
   @BeforeAll
   static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT, mockMvc, getSemanticWebAsMap());
+    setUpTenant(TENANT_ID, mockMvc, () -> enableFeature(TENANT_ID, SEARCH_ALL_FIELDS, mockMvc), getSemanticWebAsMap());
   }
 
   @AfterAll
   static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT);
+    removeTenant(mockMvc, TENANT_ID);
   }
 
   @ValueSource(strings = {
@@ -124,6 +122,6 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     return get(instanceSearchPath())
       .param("query", MessageFormat.format(template, cqlQuery))
       .param("limit", "1")
-      .headers(defaultHeaders(TENANT));
+      .headers(defaultHeaders());
   }
 }

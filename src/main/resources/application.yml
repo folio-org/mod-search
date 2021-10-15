@@ -30,7 +30,13 @@ spring:
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
   cache:
-    cache-names: es-indices,identifier-types,alternative-title-types,system-user-cache,tenant-languages
+    cache-names:
+      - es-indices
+      - identifier-types
+      - alternative-title-types
+      - system-user-cache
+      - tenant-languages
+      - tenant-features
     caffeine:
       spec: maximumSize=500,expireAfterAccess=3600s
 
@@ -38,8 +44,8 @@ application:
   environment: ${ENV:folio}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
-    disabled-search-options:
-      instance: ${INSTANCE_DISABLED_SEARCH_OPTIONS:cql.all}
+    search-features:
+      search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

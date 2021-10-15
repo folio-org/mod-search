@@ -6,9 +6,13 @@ import static org.springframework.http.ResponseEntity.ok;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.FeatureConfig;
+import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.rest.resource.ConfigApi;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.LanguageConfigService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/search/")
 public class ConfigController implements ConfigApi {
+
   private final LanguageConfigService languageConfigService;
+  private final FeatureConfigService featureConfigService;
 
   @Override
   public ResponseEntity<LanguageConfig> createLanguageConfig(@Valid LanguageConfig languageConfig) {
@@ -44,5 +50,26 @@ public class ConfigController implements ConfigApi {
   @Override
   public ResponseEntity<LanguageConfigs> getAllLanguageConfigs() {
     return ok(languageConfigService.getAll());
+  }
+
+  @Override
+  public ResponseEntity<FeatureConfigs> getAllFeatures() {
+    return ok(featureConfigService.getAll());
+  }
+
+  @Override
+  public ResponseEntity<FeatureConfig> saveFeatureConfiguration(FeatureConfig featureConfig) {
+    return ResponseEntity.ok(featureConfigService.create(featureConfig));
+  }
+
+  @Override
+  public ResponseEntity<FeatureConfig> updateFeatureConfiguration(String feature, FeatureConfig featureConfig) {
+    return ResponseEntity.ok(featureConfigService.update(TenantConfiguredFeature.fromValue(feature), featureConfig));
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteFeatureConfigurationById(String feature) {
+    featureConfigService.delete(TenantConfiguredFeature.fromValue(feature));
+    return noContent().build();
   }
 }

@@ -23,4 +23,15 @@
       <column name="es_analyzer" type="varchar(255)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet id="04_create_feature_config_table" author="pavel_filippov@epam.com">
+    <createTable tableName="feature_config">
+      <column name="feature_id" type="varchar(32)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="enabled" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>

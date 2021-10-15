@@ -1,19 +1,30 @@
 package org.folio.search.controller;
 
+import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.languageConfig;
+import static org.folio.search.utils.TestUtils.mapOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import javax.persistence.EntityNotFoundException;
+import org.folio.search.domain.dto.FeatureConfig;
+import org.folio.search.domain.dto.FeatureConfigs;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.utils.types.UnitTest;
@@ -31,6 +42,7 @@ class ConfigControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private LanguageConfigService languageConfigService;
+  @MockBean private FeatureConfigService featureConfigService;
 
   @Test
   void updateLanguageConfig_positive() throws Exception {
@@ -40,9 +52,9 @@ class ConfigControllerTest {
     when(languageConfigService.update(code, languageConfig)).thenReturn(languageConfig(code, analyzer));
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
-      .content(asJsonString(languageConfig))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
-      .contentType(APPLICATION_JSON))
+        .content(asJsonString(languageConfig))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("code", is(code)))
       .andExpect(jsonPath("languageAnalyzer", is(analyzer)));
@@ -57,9 +69,9 @@ class ConfigControllerTest {
     when(languageConfigService.update(code, languageConfig)).thenThrow(new EntityNotFoundException(errorMessage));
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
-      .content(asJsonString(languageConfig))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
-      .contentType(APPLICATION_JSON))
+        .content(asJsonString(languageConfig))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("total_records", is(1)))
       .andExpect(jsonPath("errors[0].code", is("not_found_error")))
@@ -97,5 +109,114 @@ class ConfigControllerTest {
       .andExpect(jsonPath("errors[0].type", is("ValidationException")))
       .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
       .andExpect(jsonPath("errors[0].parameters[0].value", is("ita")));
+  }
+
+  @Test
+  void getAllFeatures_positive() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    when(featureConfigService.getAll()).thenReturn(new FeatureConfigs().features(List.of(feature)).totalRecords(1));
+
+    var request = get("/search/config/features")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.features[0].feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.features[0].enabled", is(true)));
+  }
+
+  @Test
+  void create_positive() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    when(featureConfigService.create(feature)).thenReturn(feature);
+
+    var request = post("/search/config/features")
+      .content(asJsonString(feature))
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.enabled", is(true)));
+  }
+
+  @Test
+  void create_negative_alreadyExists() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    when(featureConfigService.create(feature)).thenThrow(new RequestValidationException(
+      "Feature configuration already exists", "feature", SEARCH_ALL_FIELDS.getValue()));
+
+    var request = post("/search/config/features")
+      .content(asJsonString(feature))
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("feature")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(SEARCH_ALL_FIELDS.getValue())));
+  }
+
+  @Test
+  void create_negative_invalidFeatureName() throws Exception {
+    var request = post("/search/config/features")
+      .content(asJsonString(mapOf("feature", "unknown-feature-name", "enabled", true)))
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
+      .andExpect(jsonPath("$.errors[0].message", is("Unexpected value 'unknown-feature-name'")));
+  }
+
+  @Test
+  void create_negative_unexpectedBooleanValue() throws Exception {
+    var request = post("/search/config/features")
+      .content(asJsonString(mapOf("feature", SEARCH_ALL_FIELDS.getValue(), "enabled", "unknown")))
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].type", is("HttpMessageNotReadableException")))
+      .andExpect(jsonPath("$.errors[0].message", containsString(
+        "SON parse error: Cannot deserialize value of type `java.lang.Boolean` from String")));
+  }
+
+  @Test
+  void update_positive() throws Exception {
+    var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
+    when(featureConfigService.update(SEARCH_ALL_FIELDS, feature)).thenReturn(feature);
+
+    var request = put("/search/config/features/search.all.fields")
+      .content(asJsonString(feature))
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
+      .andExpect(jsonPath("$.enabled", is(true)));
+  }
+
+  @Test
+  void delete_positive() throws Exception {
+    doNothing().when(featureConfigService).delete(SEARCH_ALL_FIELDS);
+    var request = delete("/search/config/features/search.all.fields")
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request).andExpect(status().isNoContent());
   }
 }

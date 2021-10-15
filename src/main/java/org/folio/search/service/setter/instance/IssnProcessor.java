@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.repository.cache.InstanceReferenceDataService;
+import org.folio.search.integration.InstanceReferenceDataService;
 import org.springframework.stereotype.Component;
 
 @Component

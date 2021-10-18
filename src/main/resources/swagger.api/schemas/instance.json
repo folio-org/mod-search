@@ -96,7 +96,7 @@
       "type": "string",
       "description": "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined"
     },
-    "instanceFormatId": {
+    "instanceFormatIds": {
       "type": "array",
       "description": "UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined",
       "items": {

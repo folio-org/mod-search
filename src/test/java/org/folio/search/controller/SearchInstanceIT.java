@@ -181,6 +181,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("search by items hrid (start with)", "items.hrid = {value}", array("item*"), null),
       arguments("search by items hrid (ends with)", "items.hrid = {value}", array("*00014"), null),
       arguments("search by items hrid (wildcard)", "items.hrid = {value}", array("item*00014"), null),
+      arguments("search by instanceFormatIds",
+        "instanceFormatIds all {value}", array("7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"), null),
 
       arguments("search by items electronic access", "items.electronicAccess==\"{value}\"", array("table"), null),
       arguments("search by items electronic access (uri)", "items.electronicAccess.uri==\"{value}\"",

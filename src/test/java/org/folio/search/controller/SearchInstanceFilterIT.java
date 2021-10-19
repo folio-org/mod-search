@@ -136,11 +136,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[0]), List.of(IDS[1], IDS[2])),
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[1]), List.of(IDS[0], IDS[3], IDS[4])),
 
-      arguments(format("(id=* and instanceFormatId==\"%s\") sortby title", FORMATS[0]), List.of(IDS[3])),
-      arguments(format("(id=* and instanceFormatId==%s) sortby title", FORMATS[1]),
+      arguments(format("(id=* and instanceFormatIds==\"%s\") sortby title", FORMATS[0]), List.of(IDS[3])),
+      arguments(format("(id=* and instanceFormatIds==%s) sortby title", FORMATS[1]),
         List.of(IDS[0], IDS[1], IDS[3], IDS[4])),
-      arguments(format("(id=* and instanceFormatId==%s) sortby title", FORMATS[2]), List.of(IDS[0], IDS[2], IDS[3])),
-      arguments(format("(id=* and instanceFormatId==(%s or %s)) sortby title", FORMATS[1], FORMATS[2]), List.of(IDS)),
+      arguments(format("(id=* and instanceFormatIds==%s) sortby title", FORMATS[2]), List.of(IDS[0], IDS[2], IDS[3])),
+      arguments(format("(id=* and instanceFormatIds==(%s or %s)) sortby title", FORMATS[1], FORMATS[2]), List.of(IDS)),
 
       arguments("(id=* and staffSuppress==true) sortby title", List.of(IDS[0], IDS[1], IDS[2])),
       arguments("(id=* and staffSuppress==false) sortby title", List.of(IDS[3], IDS[4])),
@@ -204,7 +204,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array("discoverySuppress", "staffSuppress", "languages", "instanceTags", "source",
-      "instanceTypeId", "instanceFormatId", "items.effectiveLocationId", "items.status.name",
+      "instanceTypeId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name",
       "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
     return Stream.of(
       arguments("id=*", allFacets, mapOf(
@@ -216,7 +216,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           facetItem("casual", 1), facetItem("text", 1)),
         "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
         "instanceTypeId", facet(facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)),
-        "instanceFormatId", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
+        "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
 
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)),
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)),
@@ -260,14 +260,14 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("instanceTypeId"), mapOf("instanceTypeId", facet(
         facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)))),
 
-      arguments("id=*", array("instanceFormatId"), mapOf("instanceFormatId", facet(
+      arguments("id=*", array("instanceFormatIds"), mapOf("instanceFormatIds", facet(
         facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
 
-      arguments("instanceFormatId==" + FORMATS[0], array("instanceFormatId"), mapOf(
-        "instanceFormatId", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
+      arguments("instanceFormatIds==" + FORMATS[0], array("instanceFormatIds"), mapOf(
+        "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
 
-      arguments("source==MARC", array("instanceFormatId"), mapOf(
-        "instanceFormatId", facet(facetItem(FORMATS[1], 3), facetItem(FORMATS[2], 2), facetItem(FORMATS[0], 1)))),
+      arguments("source==MARC", array("instanceFormatIds"), mapOf(
+        "instanceFormatIds", facet(facetItem(FORMATS[1], 3), facetItem(FORMATS[2], 2), facetItem(FORMATS[0], 1)))),
 
       arguments("id=*", array("items.effectiveLocationId"), mapOf(
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
@@ -309,7 +309,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceTypeId(TYPES[1])
       .staffSuppress(true)
       .discoverySuppress(true)
-      .instanceFormatId(List.of(FORMATS[1], FORMATS[2]))
+      .instanceFormatIds(List.of(FORMATS[1], FORMATS[2]))
       .tags(tags("text", "science"))
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
       .items(List.of(
@@ -327,7 +327,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceTypeId(TYPES[0])
       .staffSuppress(true)
       .discoverySuppress(true)
-      .instanceFormatId(List.of(FORMATS[1]))
+      .instanceFormatIds(List.of(FORMATS[1]))
       .tags(tags("future"))
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
       .items(List.of(
@@ -344,7 +344,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .languages(List.of("rus", "ukr"))
       .instanceTypeId(TYPES[0])
       .staffSuppress(true)
-      .instanceFormatId(List.of(FORMATS[2]))
+      .instanceFormatIds(List.of(FORMATS[2]))
       .tags(tags("future", "science"))
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
       .items(List.of(
@@ -359,7 +359,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .instanceTypeId(TYPES[1])
-      .instanceFormatId(List.of(FORMATS))
+      .instanceFormatIds(List.of(FORMATS))
       .tags(tags("casual", "cooking"))
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
       .items(List.of(new Item().id(randomId())
@@ -374,7 +374,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .source("FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
-      .instanceFormatId(List.of(FORMATS[1]))
+      .instanceFormatIds(List.of(FORMATS[1]))
       .tags(tags("cooking"))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),

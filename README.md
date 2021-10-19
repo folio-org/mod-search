@@ -266,7 +266,7 @@ Here is a table with supported search options.
 | `contributors.primary`                    | term      | `contributors all "John" and contributors.primary==true` | Matches instances that have a primary `John` contributor |
 | `subjects`                                | full text | `subjects all "Chemistry"`                        | Matches instances that have a `Chemistry` subject |
 | `instanceTypeId`                          | term      | `instanceTypeId == "123"`                         | Matches instances with the `123` type |
-| `instanceFormatId`                        | term      | `instanceFormatId == "123"`                       | Matches instances with the `123` format id |
+| `instanceFormatIds`                       | term      | `instanceFormatIds == "123"`                      | Matches instances with the `123` format id |
 | `languages`                               | term      | `languages == "eng"`                              | Matches instances that have `eng` language |
 | `metadata.createdDate`                    | term      | `metadata.createdDate > "2020-12-12"`             | Matches instances that were created after  `2020-12-12`|
 | `metadata.updatedDate`                    | term      | `metadata.updatedDate > "2020-12-12"`             | Matches instances that were updated after  `2020-12-12`|
@@ -375,7 +375,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | :------------------------|:--------|:-------------|
 | `source`                 | term    | Requests a source facet |
 | `instanceTypeId`         | term    | Requests a type id facet |
-| `instanceFormatId`       | term    | Requests a format id facet |
+| `instanceFormatIds`      | term    | Requests a format id facet |
 | `modeOfIssuanceId`       | term    | Requests a mode of issuance id facet |
 | `natureOfContentTermIds` | term    | Requests a nature of content terms id facet |
 | `languages`              | term    | Requests a language code facet |

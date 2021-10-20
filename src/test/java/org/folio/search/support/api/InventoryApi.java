@@ -7,9 +7,9 @@ import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.getInventoryHoldingTopic;
-import static org.folio.search.utils.TestConstants.getInventoryInstanceTopic;
-import static org.folio.search.utils.TestConstants.getInventoryItemTopic;
+import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
+import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
+import static org.folio.search.utils.TestConstants.inventoryItemTopic;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.eventBody;
 
@@ -39,18 +39,17 @@ public class InventoryApi {
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
-  public void createInstance(String tenantName, Instance instance) {
-    createInstance(tenantName, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
+  public void createInstance(String tenantId, Instance instance) {
+    createInstance(tenantId, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
   }
 
-  public void createInstance(String tenantName, Map<String, Object> instance) {
+  public void createInstance(String tenantId, Map<String, Object> instance) {
     var instanceId = getString(instance, "id");
-    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new LinkedHashMap<>()).put(instanceId, instance);
+    INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-    kafkaTemplate.send(getInventoryInstanceTopic(tenantName), instanceId,
-      eventBody(INSTANCE_RESOURCE, instance).tenant(tenantName));
-    createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantName, instanceId, hr));
-    createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantName, instanceId, item));
+    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, eventBody(null, instance).tenant(tenantId));
+    createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
+    createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
   }
 
   @SuppressWarnings("unchecked")
@@ -64,35 +63,35 @@ public class InventoryApi {
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
     var event = new HoldingEvent(holding, instanceId);
     HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(holding, ID_FIELD), event);
-    kafkaTemplate.send(getInventoryHoldingTopic(tenant), instanceId,
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {
     var event = new ItemEvent(item, instanceId);
     ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(item, ID_FIELD), event);
-    kafkaTemplate.send(getInventoryItemTopic(tenant), instanceId,
+    kafkaTemplate.send(inventoryItemTopic(tenant), instanceId,
       eventBody(INSTANCE_RESOURCE, event).tenant(tenant));
   }
 
   public void deleteItem(String tenant, String id) {
     var item = ITEM_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(getInventoryItemTopic(tenant), item.getInstanceId(),
+    kafkaTemplate.send(inventoryItemTopic(tenant), item.getInstanceId(),
       eventBody(INSTANCE_RESOURCE, null).old(item).tenant(tenant).type(DELETE));
   }
 
   public void deleteHolding(String tenant, String id) {
     var hr = HOLDING_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(getInventoryHoldingTopic(tenant), hr.getInstanceId(),
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), hr.getInstanceId(),
       eventBody(INSTANCE_RESOURCE, null).old(hr).tenant(tenant).type(DELETE));
   }
 
   public void deleteInstance(String tenant, String id) {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
-    kafkaTemplate.send(getInventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
+    kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
       eventBody(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
   }
 

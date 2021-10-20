@@ -11,6 +11,7 @@ import static org.folio.search.service.KafkaAdminService.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -60,11 +61,13 @@ import org.springframework.retry.annotation.EnableRetry;
 @Import(KafkaListenerTestConfiguration.class)
 @SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class}, properties = {
   "ENV=kafka-listener-it",
-  "KAFKA_EVENTS_CONSUMER_PATTERN=(${ENV}\\.)(.*\\.)inventory\\.(instance|holdings-record|item)",
+  "KAFKA_EVENTS_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item)",
+  "application.environment=${ENV:folio}",
   "application.kafka.retry-interval-ms=10",
   "application.kafka.retry-delivery-attempts=3",
   "application.kafka.listener.events.concurrency=1",
-  "application.kafka.listener.events.group-id=${ENV:folio}-test-group",
+  "application.kafka.listener.events.group-id=${application.environment}-test-group",
+  "application.kafka.listener.authority-records.group-id=${application.environment}-authority-records",
   "logging.level.org.apache.kafka.clients.consumer=warn"
 })
 class KafkaMessageListenerIT {
@@ -90,7 +93,7 @@ class KafkaMessageListenerIT {
   @Test
   void handleEvents_positive() {
     var expectedEvent = idEvent(INSTANCE_ID);
-    kafkaTemplate.send(buildTopicNameForEvent(), INSTANCE_ID, instanceEventBody());
+    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody());
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService).indexResourcesById(List.of(expectedEvent)));
   }
@@ -102,7 +105,7 @@ class KafkaMessageListenerIT {
     when(indexService.indexResourcesById(List.of(idEvent))).thenThrow(
       new TenantNotInitializedException(array(TENANT_ID), null));
 
-    kafkaTemplate.send(buildTopicNameForEvent(), INSTANCE_ID, instanceEventBody()).get();
+    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService, times(3)).indexResourcesById(List.of(idEvent)));
@@ -115,7 +118,7 @@ class KafkaMessageListenerIT {
     when(indexService.indexResourcesById(List.of(idEvent))).thenThrow(
       new SQLGrammarException("could not extract ResultSet", new SQLException()));
 
-    kafkaTemplate.send(buildTopicNameForEvent(), INSTANCE_ID, instanceEventBody()).get();
+    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService, times(3)).indexResourcesById(List.of(idEvent)));
@@ -169,7 +172,7 @@ class KafkaMessageListenerIT {
   private void sendMessagesWithStoppedListenerContainer(List<String> ids) {
     var container = kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID);
     container.stop();
-    ids.forEach(id -> kafkaTemplate.send(buildTopicNameForEvent(), id, instanceEventBody(id)));
+    ids.forEach(id -> kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), id, instanceEventBody(id)));
     container.start();
   }
 
@@ -183,10 +186,6 @@ class KafkaMessageListenerIT {
 
   private static ResourceEventBody instanceEventBody(String instanceId) {
     return eventBody(INSTANCE_RESOURCE, mapOf("id", instanceId));
-  }
-
-  private static String buildTopicNameForEvent() {
-    return String.format("%s.%s.%s", KAFKA_LISTENER_IT_ENV, TENANT_ID, KafkaMessageListener.INVENTORY_INSTANCE_TOPIC);
   }
 
   @TestConfiguration

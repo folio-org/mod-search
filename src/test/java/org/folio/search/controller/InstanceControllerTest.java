@@ -28,9 +28,9 @@ import java.io.OutputStream;
 import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
-import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
@@ -39,6 +39,7 @@ import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@WebMvcTest(SearchController.class)
+@WebMvcTest(InstanceController.class)
 @Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class})
-class SearchControllerTest {
+class InstanceControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private SearchService searchService;
@@ -59,10 +60,10 @@ class SearchControllerTest {
 
   @Test
   void search_positive() throws Exception {
-    var expectedSearchResult = new SearchResult().totalRecords(0).instances(emptyList());
+    var expectedSearchResult = TestUtils.<Instance>searchResult();
 
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = searchServiceRequest(cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
 
     when(searchService.search(expectedSearchRequest)).thenReturn(expectedSearchResult);
 
@@ -81,7 +82,7 @@ class SearchControllerTest {
   @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = searchServiceRequest(cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
     var elasticsearchException = new ElasticsearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
@@ -122,7 +123,7 @@ class SearchControllerTest {
   @Test
   void search_negative_invalidCqlQuery() throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
     var exceptionMessage = String.format("Failed to parse CQL query [query: '%s']", cqlQuery);
     when(searchService.search(expectedSearchRequest)).thenThrow(new SearchServiceException(exceptionMessage));
 
@@ -142,7 +143,7 @@ class SearchControllerTest {
   @Test
   void search_negative_unsupportedCqlQueryModifier() throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
     var exceptionMessage = "Failed to parse CQL query. Comparator 'within' is not supported.";
     when(searchService.search(expectedSearchRequest)).thenThrow(
       new UnsupportedOperationException(exceptionMessage));

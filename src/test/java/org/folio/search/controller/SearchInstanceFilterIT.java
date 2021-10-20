@@ -4,8 +4,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.support.base.ApiEndpoints.getFacets;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
+import static org.folio.search.support.base.ApiEndpoints.instanceFacets;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -14,7 +13,6 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,8 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchInstanceFilterIT extends BaseIntegrationTest {
@@ -48,7 +44,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static final String AVAILABLE = "Available";
   private static final String CHECKED_OUT = "Checked out";
   private static final String MISSING = "Missing";
-  private static final String TENANT_ID = "filter_test_instance";
 
   private static final String[] IDS = array(
     "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
@@ -80,20 +75,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "3d413322-1dee-431b-bd73-b1e399063260");
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, instances());
+  static void prepare() {
+    setUpTenant(instances());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @MethodSource("filteredSearchQueriesProvider")
   @DisplayName("searchByInstances_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void searchByInstances_parameterized(String query, List<String> expectedIds) throws Exception {
-    mockMvc.perform(get(searchInstancesByQuery(query)).headers(defaultHeaders(TENANT_ID)))
+    doSearchByInstances(query)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
       .andExpect(jsonPath("instances[*].id", is(expectedIds)));
@@ -102,11 +97,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForInstances_parameterized")
-  void getFacetsForInstances_parameterized(String query, String[] facets, Map<String, Facet> expected)
-    throws Throwable {
-    var actual = parseResponse(mockMvc.perform(get(getFacets(query, facets))
-      .headers(defaultHeaders(TENANT_ID)))
-      .andExpect(status().isOk()), FacetResult.class);
+  void getFacetsForInstances_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(instanceFacets(query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);
@@ -119,7 +111,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {
-    mockMvc.perform(get(getFacets("cql.allRecords = 1", "unknownFacet:5")).headers(defaultHeaders(TENANT_ID)))
+    attemptGet(instanceFacets("cql.allRecords=1", "unknownFacet:5"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
@@ -417,4 +409,5 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Metadata metadata(String createdDate, String updatedDate) {
     return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
+
 }

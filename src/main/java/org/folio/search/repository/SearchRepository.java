@@ -22,7 +22,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.springframework.stereotype.Repository;
@@ -43,7 +42,7 @@ public class SearchRepository {
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
    * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
-   * @return search result as {@link SearchResult} object.
+   * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = getElasticsearchIndexName(resourceRequest);

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -38,17 +39,15 @@ public class SearchDocumentConverter {
   private final ResourceDescriptionService descriptionService;
 
   /**
-   * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
+   * Converts {@link ResourceEventBody} object to the {@link SearchDocumentBody} objects.
    *
-   * @param resourceEvents list with resource events for conversion to elasticsearch document
+   * @param resourceEvent - resource event for conversion to Elasticsearch document
    * @return list with elasticsearch documents.
    */
-  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
-    return resourceEvents.stream()
-      .filter(this::canConvertEvent)
-      .map(this::buildConvertContext)
-      .map(this::convert)
-      .collect(toList());
+  public Optional<SearchDocumentBody> convert(ResourceEventBody resourceEvent) {
+    return canConvertEvent(resourceEvent)
+      ? Optional.of(convert(buildConversionContext(resourceEvent)))
+      : Optional.empty();
   }
 
   private SearchDocumentBody convert(ConversionContext context) {
@@ -77,12 +76,12 @@ public class SearchDocumentConverter {
       .collect(toList());
   }
 
-  private boolean canConvertEvent(ResourceEventBody resourceEventBody) {
+  private static boolean canConvertEvent(ResourceEventBody resourceEventBody) {
     return resourceEventBody.getNew() instanceof Map;
   }
 
   @SuppressWarnings("unchecked")
-  private ConversionContext buildConvertContext(ResourceEventBody event) {
+  private ConversionContext buildConversionContext(ResourceEventBody event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceData = (Map<String, Object>) event.getNew();
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);

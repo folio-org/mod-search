@@ -7,6 +7,7 @@ import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
@@ -23,6 +24,8 @@ import static org.folio.search.utils.TestUtils.standardFulltextField;
 
 import java.io.IOException;
 import java.util.List;
+import org.folio.search.domain.dto.AuthorityRecord;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -54,7 +57,7 @@ class SearchUtilsTest {
 
   @Test
   void getElasticsearchIndexName_cqlSearchRequest_positive() {
-    var cqlSearchRequest = searchServiceRequest(RESOURCE_NAME, null);
+    var cqlSearchRequest = searchServiceRequest(null);
     var actual = getElasticsearchIndexName(cqlSearchRequest);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
@@ -102,7 +105,7 @@ class SearchUtilsTest {
   @DisplayName("getPathToPlainMultilangValue_parameterized")
   @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
   void getPathToPlainMultilangValue_parameterized(String given, String expected) {
-    var actual = SearchUtils.getPathToPlainMultilangValue(given);
+    var actual = SearchUtils.getPathToFulltextPlainValue(given);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -211,5 +214,24 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(mapOf(
       "plain_key", mergeSafelyToSet(multilangValues, plainValues),
       "key", mapOf("eng", multilangValues, "src", multilangValues)));
+  }
+
+  @Test
+  void getResourceName_positive_instance() {
+    var actual = getResourceName(Instance.class);
+    assertThat(actual).isEqualTo("instance");
+  }
+
+  @Test
+  void getResourceName_positive_authorityRecord() {
+    var actual = getResourceName(AuthorityRecord.class);
+    assertThat(actual).isEqualTo("authority-record");
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "field.*,true", ",false", "field,false"})
+  void isMultilangFieldPath_parameterized(String value, boolean expected) {
+    var actual = SearchUtils.isMultilangFieldPath(value);
+    assertThat(actual).isEqualTo(expected);
   }
 }

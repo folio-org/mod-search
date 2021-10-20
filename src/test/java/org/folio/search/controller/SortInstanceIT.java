@@ -3,14 +3,12 @@ package org.folio.search.controller;
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
-import static org.folio.search.support.base.ApiEndpoints.allInstancesSortedBy;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -18,76 +16,63 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SortInstanceIT extends BaseIntegrationTest {
-  private static final String TENANT = "sort_it_test_tenant";
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT, mockMvc, createFourInstances());
+  static void prepare() {
+    setUpTenant(instances());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
-    mockMvc.perform(get(allInstancesSortedBy("contributors", ASCENDING))
-      .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
-      .andExpect(jsonPath("instances[1].contributors[1].name", is("bbb ccc")))
-      .andExpect(jsonPath("instances[2].contributors[0].name", is("bcc ccc")))
-      .andExpect(jsonPath("instances[3].contributors[0].name", is("yyy zzz")));
+    doSearchByInstances(allInstancesSortedBy("contributors", ASCENDING))
+      .andExpect(jsonPath("$.totalRecords", is(4)))
+      .andExpect(jsonPath("$.instances[0].contributors[0].name", is("1111 2222")))
+      .andExpect(jsonPath("$.instances[1].contributors[1].name", is("bbb ccc")))
+      .andExpect(jsonPath("$.instances[2].contributors[0].name", is("bcc ccc")))
+      .andExpect(jsonPath("$.instances[3].contributors[0].name", is("yyy zzz")));
   }
 
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
-    mockMvc.perform(get(allInstancesSortedBy("contributors", DESCENDING))
-      .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
-      .andExpect(jsonPath("instances[1].contributors[0].name", is("bcc ccc")))
-      .andExpect(jsonPath("instances[2].contributors[1].name", is("bbb ccc")))
-      .andExpect(jsonPath("instances[3].contributors[0].name", is("1111 2222")));
+    doSearchByInstances(allInstancesSortedBy("contributors", DESCENDING))
+      .andExpect(jsonPath("$.totalRecords", is(4)))
+      .andExpect(jsonPath("$.instances[0].contributors[0].name", is("yyy zzz")))
+      .andExpect(jsonPath("$.instances[1].contributors[0].name", is("bcc ccc")))
+      .andExpect(jsonPath("$.instances[2].contributors[1].name", is("bbb ccc")))
+      .andExpect(jsonPath("$.instances[3].contributors[0].name", is("1111 2222")));
   }
 
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
-    mockMvc.perform(get(allInstancesSortedBy("title", ASCENDING))
-      .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
-      .andExpect(jsonPath("instances[1].title", is("Animal farm")))
-      .andExpect(jsonPath("instances[2].title", is("Walk in My Soul")))
-      .andExpect(jsonPath("instances[3].title", is("Zero Minus Ten")));
+    doSearchByInstances(allInstancesSortedBy("title", ASCENDING))
+      .andExpect(jsonPath("$.totalRecords", is(4)))
+      .andExpect(jsonPath("$.instances[0].title", is("Calling Me Home")))
+      .andExpect(jsonPath("$.instances[1].title", is("Animal farm")))
+      .andExpect(jsonPath("$.instances[2].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("$.instances[3].title", is("Zero Minus Ten")));
   }
 
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
-    mockMvc.perform(get(allInstancesSortedBy("title", DESCENDING))
-      .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(4)))
-      .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
-      .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
-      .andExpect(jsonPath("instances[2].title", is("Animal farm")))
-      .andExpect(jsonPath("instances[3].title", is("Calling Me Home")));
+    doSearchByInstances(allInstancesSortedBy("title", DESCENDING))
+      .andExpect(jsonPath("$.totalRecords", is(4)))
+      .andExpect(jsonPath("$.instances[0].title", is("Zero Minus Ten")))
+      .andExpect(jsonPath("$.instances[1].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("$.instances[2].title", is("Animal farm")))
+      .andExpect(jsonPath("$.instances[3].title", is("Calling Me Home")));
   }
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    mockMvc.perform(get(allInstancesSortedBy("unknownSort", DESCENDING))
-        .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isBadRequest())
+    attemptSearchByInstances(allInstancesSortedBy("unknownSort", DESCENDING))
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
@@ -96,8 +81,8 @@ class SortInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));
   }
 
-  private static Instance[] createFourInstances() {
-    final var instances = new Instance[]{
+  private static Instance[] instances() {
+    var instances = new Instance[]{
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
@@ -125,5 +110,9 @@ class SortInstanceIT extends BaseIntegrationTest {
       .addContributorsItem(new InstanceContributors().name("1111 2222").primary(true));
 
     return instances;
+  }
+
+  public static String allInstancesSortedBy(String sort, CqlSort order) {
+    return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
   }
 }

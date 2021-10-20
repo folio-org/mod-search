@@ -1,0 +1,17 @@
+{
+  "name": "authority-record",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.AuthorityRecord",
+  "fields": {
+    "id": {
+      "index": "keyword",
+      "showInResponse": true
+    },
+    "personalName": {
+      "index": "standard",
+      "showInResponse": true
+    }
+  },
+  "searchFields": { },
+  "mappingsSource": { },
+  "indexMappings": { }
+}

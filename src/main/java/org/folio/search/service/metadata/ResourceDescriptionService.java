@@ -7,6 +7,7 @@ import static java.util.Collections.unmodifiableMap;
 import static org.springframework.core.ResolvableType.forClass;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,15 @@ public class ResourceDescriptionService {
         "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
+  }
+
+  /**
+   * Returns all resource descriptions.
+   *
+   * @return {@link Collection} with all resource descriptions.
+   */
+  public Collection<ResourceDescription> findAll() {
+    return resourceDescriptions.values();
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {

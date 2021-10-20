@@ -1,7 +1,6 @@
 package org.folio.search.support.base;
 
 import lombok.experimental.UtilityClass;
-import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 
 @UtilityClass
@@ -11,16 +10,16 @@ public class ApiEndpoints {
     return "/search/instances";
   }
 
+  public static String authorityRecordsSearchPath() {
+    return "/search/authority-records";
+  }
+
   public static String searchInstancesByQuery(String query, Object... args) {
     final var formattedQuery = String.format(query, args);
     return String.format("/search/instances?query=%s&limit=%s&offset=%s", formattedQuery, 100, 0);
   }
 
-  public static String allInstancesSortedBy(String sort, CqlSort order) {
-    return searchInstancesByQuery("cql.allRecords = 1 sortBy %s/sort.%s", sort, order);
-  }
-
-  public static String getFacets(String query, String... facets) {
+  public static String instanceFacets(String query, String... facets) {
     var joinedFacets = String.join("&facet=", facets);
     return String.format("/search/instances/facets?query=%s&facet=%s", query, joinedFacets);
   }

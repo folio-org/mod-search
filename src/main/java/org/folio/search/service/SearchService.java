@@ -9,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.SearchResult;
+import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchHitConverter;
@@ -35,7 +34,7 @@ public class SearchService {
    * @param request cql search request as {@link CqlSearchRequest} object
    * @return search result.
    */
-  public SearchResult search(CqlSearchRequest request) {
+  public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
     var resource = request.getResource();
     var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
       .from(request.getOffset())
@@ -47,21 +46,18 @@ public class SearchService {
       queryBuilder.fetchSource(includes, null);
     }
 
-    return mapToSearchResult(searchRepository.search(request, queryBuilder));
+    return mapToSearchResult(searchRepository.search(request, queryBuilder), request.getResourceClass());
   }
 
-  private SearchResult mapToSearchResult(SearchResponse response) {
+  private <T> SearchResult<T> mapToSearchResult(SearchResponse response, Class<T> responseClass) {
     var hits = response.getHits();
-    var searchResult = new SearchResult();
-    searchResult.setTotalRecords((int) hits.getTotalHits().value);
-    searchResult.setInstances(getResultDocuments(hits.getHits()));
-    return searchResult;
+    return SearchResult.of((int) hits.getTotalHits().value, getResultDocuments(hits.getHits(), responseClass));
   }
 
-  private List<Instance> getResultDocuments(SearchHit[] searchHits) {
+  private <T> List<T> getResultDocuments(SearchHit[] searchHits, Class<T> responseClass) {
     return Arrays.stream(searchHits)
       .map(SearchHit::getSourceAsMap)
-      .map(map -> elasticsearchHitConverter.convert(map, Instance.class))
+      .map(map -> elasticsearchHitConverter.convert(map, responseClass))
       .collect(Collectors.toList());
   }
 }

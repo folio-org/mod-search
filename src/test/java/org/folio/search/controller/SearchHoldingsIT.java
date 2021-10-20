@@ -1,16 +1,13 @@
 package org.folio.search.controller;
 
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
+import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.holdingIds;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -18,20 +15,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchHoldingsIT extends BaseIntegrationTest {
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  static void prepare() {
+    setUpTenant(Instance.class, getSemanticWebAsMap());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -48,9 +43,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdingsNormalizedCallNumbers==\"{value}\", prefixcallnumber"
   })
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
-    doGet(searchInstancesByQuery(query), value)
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -66,9 +61,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdingsNormalizedCallNumbers==\"{value}\", tk510588815a582004ftmeade"
   })
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
-    doGet(searchInstancesByQuery(query), value)
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -81,16 +76,15 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdingsNormalizedCallNumbers==\"{value}\", prefix number"
   })
   void canSearchByHoldings_negative(String query, String value) throws Exception {
-    doGet(searchInstancesByQuery(query), value)
-      .andExpect(jsonPath("totalRecords", is(0)));
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(0)));
   }
 
   @Test
   void streamHoldingIds() throws Exception {
-    mockMvc.perform(get(holdingIds("id=*")).headers(defaultHeaders()))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(3)))
-      .andExpect(jsonPath("ids[*].id", is(List.of(
+    doGet(holdingIds("id=*"))
+      .andExpect(jsonPath("$.totalRecords", is(3)))
+      .andExpect(jsonPath("$.ids[*].id", is(List.of(
         "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
         "9550c935-401a-4a85-875e-4d1fe7678870",
         "a663dea9-6547-4b2d-9daa-76cadd662272"))));

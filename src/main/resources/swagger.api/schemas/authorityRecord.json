@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "An authority record description",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Authority UUID"
+    },
+    "personalName": {
+      "type": "string",
+      "description": "Heading personal name"
+    }
+  }
+}

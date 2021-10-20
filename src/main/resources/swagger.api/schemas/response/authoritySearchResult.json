@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Authority record search result response",
+  "type": "object",
+  "properties": {
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of authority records found"
+    },
+    "authorityRecords": {
+      "type": "array",
+      "description": "List of authority records found",
+      "items": {
+        "$ref": "../authorityRecord.json"
+      }
+    }
+  }
+}

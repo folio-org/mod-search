@@ -25,7 +25,7 @@ paths:
             application/json:
               example: examples/searchResult.sample
               schema:
-                $ref: '#/components/schemas/searchResult'
+                $ref: '#/components/schemas/instanceSearchResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -83,6 +83,29 @@ paths:
               example: examples/facetResult.sample
               schema:
                 $ref: '#/components/schemas/facetResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /authority-records:
+    get:
+      operationId: searchAuthorityRecords
+      description: Get a list of authority records for CQL query
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/offset-param'
+        - $ref: '#/components/parameters/expand-all-param'
+      responses:
+        '200':
+          description: 'Authority Record search result'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/authorityRecordSearchResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -318,8 +341,10 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/resourceEventBody'
-    searchResult:
-      $ref: schemas/response/searchResult.json
+    instanceSearchResult:
+      $ref: schemas/response/instanceSearchResult.json
+    authorityRecordSearchResult:
+      $ref: schemas/response/authoritySearchResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
     resourceIds:

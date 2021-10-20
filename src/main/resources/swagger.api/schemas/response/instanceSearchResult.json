@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Search result response",
+  "description": "Instance search result response",
   "type": "object",
   "properties": {
     "totalRecords": {

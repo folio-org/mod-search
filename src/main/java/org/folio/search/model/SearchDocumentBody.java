@@ -1,11 +1,13 @@
 package org.folio.search.model;
 
+import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 
@@ -46,15 +48,20 @@ public class SearchDocumentBody {
   /**
    * Creates {@link SearchDocumentBody} for passed {@link ResourceIdEvent} resource id event.
    *
-   * @param resourceIdEvent resource id event
+   * @param evt resource id event
    * @return created {@link SearchDocumentBody} object
    */
-  public static SearchDocumentBody forResourceIdEvent(ResourceIdEvent resourceIdEvent) {
-    return SearchDocumentBody.builder()
-      .id(resourceIdEvent.getId())
-      .routing(resourceIdEvent.getTenant())
-      .index(getElasticsearchIndexName(resourceIdEvent))
-      .action(resourceIdEvent.getAction())
-      .build();
+  public static SearchDocumentBody forResourceIdEvent(ResourceIdEvent evt) {
+    return new SearchDocumentBody(evt.getId(), evt.getTenant(), getElasticsearchIndexName(evt), null, evt.getAction());
+  }
+
+  /**
+   * Creates {@link SearchDocumentBody} for passed {@link ResourceIdEvent} resource id event.
+   *
+   * @param evt resource id event
+   * @return created {@link SearchDocumentBody} object
+   */
+  public static SearchDocumentBody forDeleteResourceEvent(ResourceEventBody evt) {
+    return new SearchDocumentBody(evt.getId(), evt.getTenant(), getElasticsearchIndexName(evt), null, DELETE);
   }
 }

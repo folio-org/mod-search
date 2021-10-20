@@ -10,12 +10,15 @@ import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getResourceName;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.folio.search.domain.dto.AuthorityRecord;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -32,10 +35,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageListener {
 
-  public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final IndexService indexService;
 
+  /**
+   * Handles instance events and indexes them by id.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
   @KafkaListener(
     id = KafkaAdminService.EVENT_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
@@ -49,15 +56,38 @@ public class KafkaMessageListener {
       indexService::indexResourcesById, KafkaMessageListener::logFailedEvent);
   }
 
-  private List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEventBody>> events) {
+  /**
+   * Handles authority record events and indexes them using event body.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
+  @KafkaListener(
+    id = KafkaAdminService.AUTHORITY_RECORDS_LISTENER_ID,
+    containerFactory = "kafkaListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['authority-records'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['authority-records'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['authority-records'].topicPattern}")
+  public void handleAuthorityRecords(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
+    log.info("Processing authority records from kafka events [number of events: {}]", consumerRecords.size());
+    var resourceName = getResourceName(AuthorityRecord.class);
+    List<ResourceEventBody> batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .map(record -> record.id(getString(getEventPayload(record), "id")).resourceName(resourceName))
+      .collect(toList());
+
+    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      indexService::indexResources, KafkaMessageListener::logFailedEvent);
+  }
+
+  private static List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEventBody>> events) {
     return events.stream()
-      .map(this::getResourceIdRecord)
+      .map(KafkaMessageListener::getResourceIdRecord)
       .filter(Objects::nonNull)
       .distinct()
       .collect(toList());
   }
 
-  private ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
+  private static ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
     var instanceId = getInstanceId(consumerRecord);
     var value = consumerRecord.value();
     if (instanceId == null) {
@@ -68,21 +98,30 @@ public class KafkaMessageListener {
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
   }
 
-  private String getInstanceId(ConsumerRecord<String, ResourceEventBody> event) {
+  private static String getInstanceId(ConsumerRecord<String, ResourceEventBody> event) {
     var body = event.value();
     if (body.getType() == REINDEX) {
       return event.key();
     }
-    var eventPayload = body.getNew() != null ? getNewAsMap(body) : getOldAsMap(body);
+    Map<String, Object> eventPayload = getEventPayload(body);
     return isInstanceResource(event) ? getString(eventPayload, "id") : getString(eventPayload, "instanceId");
   }
 
-  private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
-    return consumerRecord.topic().endsWith(INVENTORY_INSTANCE_TOPIC);
+  private static Map<String, Object> getEventPayload(ResourceEventBody body) {
+    return body.getNew() != null ? getNewAsMap(body) : getOldAsMap(body);
+  }
+
+  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
+    return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
   }
 
   private static void logFailedEvent(ResourceIdEvent event, Exception e) {
     log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
       event.getAction().getValue(), event.getType(), event.getTenant(), event.getId(), e);
+  }
+
+  private static void logFailedEvent(ResourceEventBody event, Exception e) {
+    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
+      event.getType().getValue(), event.getType(), event.getTenant(), event.getId(), e);
   }
 }

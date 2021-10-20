@@ -11,10 +11,11 @@ public interface TermQueryBuilder {
    * Provides query for given term and field names.
    *
    * @param term - search term as {@link String} object
+   * @param resource - resource name for querying as {@link String object}
    * @param fields - resource fields name as {@code array} of {@link String} objects
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getQuery(String term, String... fields) {
+  default QueryBuilder getQuery(String term, String resource, String... fields) {
     throw unsupportedException(fields);
   }
 
@@ -23,9 +24,10 @@ public interface TermQueryBuilder {
    *
    * @param term - search term as {@link String} object
    * @param fieldName - resource field name as {@link String} object
+   * @param resource - resource name for querying as {@link String object}
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getMultilangQuery(String term, String fieldName) {
+  default QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
     throw unsupportedException(fieldName);
   }
 
@@ -34,10 +36,11 @@ public interface TermQueryBuilder {
    *
    * @param term - search term as {@link String} object
    * @param fieldName - resource field name as {@link String} object
+   * @param resource - resource name for querying as {@link String object}
    * @param fieldIndex - field index mappings as {@link String} object
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
+  default QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
     throw unsupportedException(fieldName);
   }
 

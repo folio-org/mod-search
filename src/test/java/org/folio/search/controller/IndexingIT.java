@@ -6,7 +6,6 @@ import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
@@ -22,8 +21,6 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class IndexingIT extends BaseIntegrationTest {
@@ -33,13 +30,13 @@ class IndexingIT extends BaseIntegrationTest {
   private static final List<String> HOLDING_IDS = getRandomIds(4);
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  static void prepare() {
+    setUpTenant(Instance.class, getSemanticWebAsMap());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @Test
@@ -68,7 +65,7 @@ class IndexingIT extends BaseIntegrationTest {
     INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery("id=={value}", id, 1));
   }
 
-  private void createInstances() {
+  private static void createInstances() {
     var instances = INSTANCE_IDS.stream()
       .map(id -> new Instance().id(id))
       .collect(toList());
@@ -91,10 +88,10 @@ class IndexingIT extends BaseIntegrationTest {
     return new Holding().id(HOLDING_IDS.get(i));
   }
 
-  private void assertCountByQuery(String query, Object value, int expectedCount) {
+  private static void assertCountByQuery(String query, Object value, int expectedCount) {
     await().atMost(ONE_MINUTE).pollInterval(FIVE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doGet(searchInstancesByQuery(query), value)
-        .andExpect(jsonPath("totalRecords", is(expectedCount))));
+      doSearchByInstances(query.replace("{value}", String.valueOf(value)))
+        .andExpect(jsonPath("$.totalRecords", is(expectedCount))));
   }
 
   private static List<String> getRandomIds(int count) {

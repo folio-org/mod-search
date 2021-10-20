@@ -88,7 +88,7 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
-    "instanceFormatId": {
+    "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },

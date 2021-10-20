@@ -311,7 +311,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2)))),
 
       arguments("id=*", array("statisticalCodes"), mapOf(
-        "statisticalCodes", facet(facetItem("b5968c9e-cddc-4576-99e3-8e60aed8b0dd", 1), facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1))))
+        "statisticalCodes", facet(facetItem("b5968c9e-cddc-4576-99e3-8e60aed8b0dd", 1),
+          facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1))))
     );
   }
 

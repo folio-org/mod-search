@@ -347,9 +347,9 @@ if it is defined but doesn't match.
 | `items.electronicAccess.uri`                    | term      | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI|
 | `items.electronicAccess.linkText`               | full text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text |
 | `items.electronicAccess.publicNote`             | full text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note |
-| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                      | Search by item notes |
+| `items.notes.note`                              | full text | `items.notes.note all "librarian note"`                      | Search by item notes and circulation notes |
 | `items.circulationNotes.note`                   | full text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes |
-| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes |
+| `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes |
 | `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.hrid`, `items.formerIds`, `items.accessionNumber` |
 
 ### Search by all field values
@@ -414,6 +414,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `instanceTags`           | term    | Requests a tags facet |
 | `staffSuppress`          | boolean | Requests a staff suppress facet |
 | `discoverySuppress`      | boolean | Requests a discovery suppress facet |
+| `statisticalCodes`       | term    | Requests a statistical code ids from instance, holdings, items facet |
 
 #### Holding facets
 

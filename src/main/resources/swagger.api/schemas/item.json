@@ -84,6 +84,14 @@
         "$ref": "note.json"
       }
     },
+    "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+        "type": "string",
+        "description": "UUID for a statistical code"
+      }
+    },
     "circulationNotes": {
       "type": "array",
       "description": "Notes to be displayed in circulation processes.",

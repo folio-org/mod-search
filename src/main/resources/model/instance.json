@@ -84,6 +84,10 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
+    "statisticalCodeIds": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
     "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
@@ -216,6 +220,10 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
+        "statisticalCodeIds": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
         "status": {
           "type": "object",
           "properties": {
@@ -314,6 +322,10 @@
           "index": "keyword"
         },
         "permanentLocationId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
+        "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -425,6 +437,12 @@
       "type": "search",
       "index": "keyword",
       "processor": "holdingTagsProcessor"
+    },
+    "statisticalCodes": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "statisticalCodesProcessor"
     },
     "itemsFullCallNumbers": {
       "type": "search",

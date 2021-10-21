@@ -26,6 +26,14 @@
         "type": "string"
       }
     },
+    "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+        "type": "string",
+        "description": "UUID for a statistical code"
+      }
+    },
     "tags": {
       "description": "arbitrary tags associated with this holding",
       "$ref": "tags.json"

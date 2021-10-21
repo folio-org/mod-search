@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.getFacets;
 import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
@@ -307,7 +308,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "holdingTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),
 
       arguments("id=*", array("itemTags"), mapOf(
-        "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2))))
+        "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2)))),
+
+      arguments("id=*", array("statisticalCodes"), mapOf(
+        "statisticalCodes", facet(facetItem("b5968c9e-cddc-4576-99e3-8e60aed8b0dd", 1),
+          facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1))))
     );
   }
 
@@ -324,6 +329,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .discoverySuppress(true)
       .instanceFormatIds(List.of(FORMATS[1], FORMATS[2]))
       .tags(tags("text", "science"))
+      .statisticalCodeIds(singletonList("b5968c9e-cddc-4576-99e3-8e60aed8b0dd"))
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
       .items(List.of(
         new Item().id(randomId())
@@ -348,6 +354,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
           .discoverySuppress(false)
           .materialTypeId(MATERIAL_TYPES[1])
+          .statisticalCodeIds(singletonList("615e9911-edb1-4ab3-a9c3-a461a3de02f8"))
           .tags(tags("itag2", "itag3"))))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
@@ -379,7 +386,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0]),
+        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
+          .statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 

@@ -1,3 +1,5 @@
+## 1.5.1 2021-10-25
+* Fixed format filters (MSEARCH-199)
 ## 1.5.0 2021-10-01
 * Add contributorNameTypeId field for contributors (MSEARCH-194)
 * Support search by all fields (MSEARCH-182)

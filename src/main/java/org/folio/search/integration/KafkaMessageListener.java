@@ -72,7 +72,7 @@ public class KafkaMessageListener {
     var resourceName = getResourceName(AuthorityRecord.class);
     List<ResourceEventBody> batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(record -> record.id(getString(getEventPayload(record), "id")).resourceName(resourceName))
+      .map(authority -> authority.id(getString(getEventPayload(authority), "id")).resourceName(resourceName))
       .collect(toList());
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,

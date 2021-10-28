@@ -4,14 +4,12 @@ import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 import static org.folio.search.utils.SearchUtils.isMultilangFieldPath;
 import static org.folio.search.utils.SearchUtils.updatePathForFulltextField;
 
-import lombok.Setter;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class FulltextQueryBuilder implements TermQueryBuilder {
 
-  @Setter(onMethod = @__(@Autowired))
   protected SearchFieldProvider searchFieldProvider;
 
   /**
@@ -53,5 +51,15 @@ public abstract class FulltextQueryBuilder implements TermQueryBuilder {
       .filter(PlainFieldDescription::hasFulltextIndex)
       .map(fieldDescription -> getPathToFulltextPlainValue(fieldPath))
       .orElse(fieldPath);
+  }
+
+  /**
+   * Injects {@link SearchFieldProvider} bean from spring context.
+   *
+   * @param localSearchFieldProvider - {@link SearchFieldProvider} bean
+   */
+  @Autowired
+  public void setSearchFieldProvider(SearchFieldProvider localSearchFieldProvider) {
+    this.searchFieldProvider = localSearchFieldProvider;
   }
 }

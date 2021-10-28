@@ -10,6 +10,7 @@ import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIE
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
@@ -53,7 +54,6 @@ import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.FieldType;
-import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -118,22 +118,11 @@ public class TestUtils {
   }
 
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.builder()
-      .id(RESOURCE_ID)
-      .index(INDEX_NAME)
-      .routing(TENANT_ID)
-      .rawJson(EMPTY_OBJECT)
-      .action(IndexActionType.INDEX)
-      .build();
+    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, EMPTY_OBJECT, INDEX);
   }
 
   public static SearchDocumentBody searchDocumentBodyForDelete() {
-    return SearchDocumentBody.builder()
-      .id(RESOURCE_ID)
-      .index(INDEX_NAME)
-      .routing(TENANT_ID)
-      .action(DELETE)
-      .build();
+    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, null, DELETE);
   }
 
   @SuppressWarnings("unchecked")

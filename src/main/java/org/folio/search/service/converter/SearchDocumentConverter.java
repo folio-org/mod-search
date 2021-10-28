@@ -2,10 +2,8 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,14 +54,7 @@ public class SearchDocumentConverter {
     var baseFields = convertMapUsingResourceFields(resourceData, resourceDescriptionFields, context);
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
-
-    return SearchDocumentBody.builder()
-      .id(context.getId())
-      .index(getElasticsearchIndexName(context.getResourceDescription().getName(), context.getTenant()))
-      .routing(context.getTenant())
-      .rawJson(jsonConverter.toJson(resultDocument))
-      .action(INDEX)
-      .build();
+    return SearchDocumentBody.forConversionContext(context, jsonConverter.toJson(resultDocument));
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {

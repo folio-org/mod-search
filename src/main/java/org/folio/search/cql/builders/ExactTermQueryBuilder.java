@@ -9,14 +9,12 @@ import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.ScriptQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   public static final String SCRIPT_TEMPLATE = "doc['%s'].size() == 0";

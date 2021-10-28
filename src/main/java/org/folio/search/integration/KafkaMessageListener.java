@@ -79,15 +79,15 @@ public class KafkaMessageListener {
       indexService::indexResources, KafkaMessageListener::logFailedEvent);
   }
 
-  private static List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEventBody>> events) {
+  private List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEventBody>> events) {
     return events.stream()
-      .map(KafkaMessageListener::getResourceIdRecord)
+      .map(this::getResourceIdRecord)
       .filter(Objects::nonNull)
       .distinct()
       .collect(toList());
   }
 
-  private static ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
+  private ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
     var instanceId = getInstanceId(consumerRecord);
     var value = consumerRecord.value();
     if (instanceId == null) {
@@ -98,12 +98,12 @@ public class KafkaMessageListener {
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
   }
 
-  private static String getInstanceId(ConsumerRecord<String, ResourceEventBody> event) {
+  private String getInstanceId(ConsumerRecord<String, ResourceEventBody> event) {
     var body = event.value();
     if (body.getType() == REINDEX) {
       return event.key();
     }
-    Map<String, Object> eventPayload = getEventPayload(body);
+    var eventPayload = getEventPayload(body);
     return isInstanceResource(event) ? getString(eventPayload, "id") : getString(eventPayload, "instanceId");
   }
 
@@ -111,7 +111,7 @@ public class KafkaMessageListener {
     return body.getNew() != null ? getNewAsMap(body) : getOldAsMap(body);
   }
 
-  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
+  private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {
     return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
   }
 

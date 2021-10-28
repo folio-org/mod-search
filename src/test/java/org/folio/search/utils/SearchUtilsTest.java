@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,6 +15,7 @@ import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -75,6 +77,13 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
+  @Test
+  void getElasticsearchIndexName_positive_resourceEventBody() {
+    var resourceEventBody = eventBody(RESOURCE_NAME, emptyMap());
+    var actual = getElasticsearchIndexName(resourceEventBody);
+    assertThat(actual).isEqualTo(INDEX_NAME);
+  }
+
   @DisplayName("getTotalPages_parameterized")
   @CsvSource({"0,0", "1,1", "15,1", "21,2", "100,5", "101, 6"})
   @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
@@ -102,9 +111,9 @@ class SearchUtilsTest {
     "field1.field2,field1.plain_field2",
     "field1.field2.field3,field1.field2.plain_field3"
   })
-  @DisplayName("getPathToPlainMultilangValue_parameterized")
+  @DisplayName("getPathToFulltextPlainValue_parameterized")
   @ParameterizedTest(name = "[{index}] total={0}, expected={1}")
-  void getPathToPlainMultilangValue_parameterized(String given, String expected) {
+  void getPathToFulltextPlainValue_parameterized(String given, String expected) {
     var actual = SearchUtils.getPathToFulltextPlainValue(given);
     assertThat(actual).isEqualTo(expected);
   }

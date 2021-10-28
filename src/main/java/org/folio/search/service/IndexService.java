@@ -87,15 +87,15 @@ public class IndexService {
   /**
    * Saves list of resources to elasticsearch.
    *
-   * @param events {@link List} of resources as {@link ResourceEventBody} objects.
+   * @param resources {@link List} of resources as {@link ResourceEventBody} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResources(List<ResourceEventBody> events) {
-    if (CollectionUtils.isEmpty(events)) {
+  public FolioIndexOperationResponse indexResources(List<ResourceEventBody> resources) {
+    if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(events, SearchUtils::getElasticsearchIndexName);
+    var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getElasticsearchIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var response = indexRepository.indexResources(elasticsearchDocuments);
 

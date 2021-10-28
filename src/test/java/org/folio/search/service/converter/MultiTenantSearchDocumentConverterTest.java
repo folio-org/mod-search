@@ -126,12 +126,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @SuppressWarnings("unchecked")
   private static SearchDocumentBody searchDocumentBody(ResourceEventBody body) {
-    return SearchDocumentBody.builder()
-      .id(MapUtils.getString((Map<String, Object>) body.getNew(), "id"))
-      .action(INDEX)
-      .index(INDEX_NAME)
-      .routing(body.getTenant())
-      .rawJson(asJsonString(body.getNew()))
-      .build();
+    var id = MapUtils.getString((Map<String, Object>) body.getNew(), "id");
+    return SearchDocumentBody.of(id, body.getTenant(), INDEX_NAME, asJsonString(body.getNew()), INDEX);
   }
 }

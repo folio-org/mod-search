@@ -59,6 +59,13 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/authorities",
+          "permissionsRequired": [ "search.authorities.collection.get" ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances/facets",
           "permissionsRequired": [ "search.instances.facets.collection.get" ]
         },
@@ -210,6 +217,11 @@
       "permissionName": "search.instances.collection.get",
       "displayName": "Search - searches instances by given query",
       "description": "Searches instances by given query"
+    },
+    {
+      "permissionName": "search.authorities.collection.get",
+      "displayName": "Search - searches authorities by given query",
+      "description": "Searches authorities by given query"
     },
     {
       "permissionName": "search.config.languages.item.post",

@@ -59,10 +59,10 @@ application:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
         group-id: ${application.environment}-mod-search-events-group
-      authority-records:
-        concurrency: ${KAFKA_AUTHORITY_RECORDS_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority-record}
-        group-id: ${application.environment}-mod-search-authority-records-group
+      authorities:
+        concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority}
+        group-id: ${application.environment}-mod-search-authorities-group
 
 server.port: 8081
 management.endpoints.web:

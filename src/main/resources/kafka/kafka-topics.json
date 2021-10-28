@@ -16,7 +16,7 @@
       "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
     },
     {
-      "name": "inventory.authority-record",
+      "name": "inventory.authority",
       "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
       "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
     }

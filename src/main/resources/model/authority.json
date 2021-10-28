@@ -1,6 +1,6 @@
 {
-  "name": "authority-record",
-  "eventBodyJavaClass": "org.folio.search.domain.dto.AuthorityRecord",
+  "name": "authority",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.Authority",
   "fields": {
     "id": {
       "index": "keyword",

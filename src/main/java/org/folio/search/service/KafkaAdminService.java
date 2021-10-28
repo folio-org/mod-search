@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 public class KafkaAdminService {
 
   public static final String EVENT_LISTENER_ID = "mod-search-events-listener";
-  public static final String AUTHORITY_RECORDS_LISTENER_ID = "mod-search-authority-records-listener";
+  public static final String AUTHORITY_LISTENER_ID = "mod-search-authorities-listener";
   private static final String KAFKA_TOPICS_FILE = "kafka/kafka-topics.json";
 
   private final KafkaAdmin kafkaAdmin;

@@ -10,13 +10,8 @@ public class ApiEndpoints {
     return "/search/instances";
   }
 
-  public static String authorityRecordsSearchPath() {
-    return "/search/authority-records";
-  }
-
-  public static String searchInstancesByQuery(String query, Object... args) {
-    final var formattedQuery = String.format(query, args);
-    return String.format("/search/instances?query=%s&limit=%s&offset=%s", formattedQuery, 100, 0);
+  public static String authoritySearchPath() {
+    return "/search/authorities";
   }
 
   public static String instanceFacets(String query, String... facets) {

@@ -4,11 +4,11 @@ import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
-import static org.folio.search.support.base.ApiEndpoints.authorityRecordsSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.inventoryAuthorityRecordTopic;
+import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.eventBody;
@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.domain.dto.AuthorityRecord;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -182,8 +182,8 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByAuthorityRecords(String query) {
-    return doSearch(authorityRecordsSearchPath(), TENANT_ID, query, null, null, null);
+  protected static ResultActions doSearchByAuthorities(String query) {
+    return doSearch(authoritySearchPath(), TENANT_ID, query, null, null, null);
   }
 
   @SneakyThrows
@@ -222,9 +222,9 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static void setUpTenant(AuthorityRecord... authorityRecords) {
-    var topic = inventoryAuthorityRecordTopic(TENANT_ID);
-    setUpTenant(TENANT_ID, authorityRecordsSearchPath(), () -> {}, asList(authorityRecords),
+  protected static void setUpTenant(Authority... authorities) {
+    var topic = inventoryAuthorityTopic(TENANT_ID);
+    setUpTenant(TENANT_ID, authoritySearchPath(), () -> {}, asList(authorities),
       record -> kafkaTemplate.send(topic, record.getId(), eventBody(null, record).tenant(TENANT_ID)));
   }
 
@@ -261,9 +261,9 @@ public abstract class BaseIntegrationTest {
         instance -> inventoryApi.createInstance(tenant, instance));
     }
 
-    if (type.equals(AuthorityRecord.class)) {
-      setUpTenant(tenant, authorityRecordsSearchPath(), postInitAction, asList(records),
-        record -> kafkaTemplate.send(inventoryAuthorityRecordTopic(tenant), asJsonString(record)));
+    if (type.equals(Authority.class)) {
+      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records),
+        record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), asJsonString(record)));
     }
   }
 
@@ -279,12 +279,14 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static <T> void enableFeature(TenantConfiguredFeature feature) {
+  @SuppressWarnings("SameParameterValue")
+  protected static void enableFeature(TenantConfiguredFeature feature) {
     enableFeature(TENANT_ID, feature);
   }
 
   @SneakyThrows
-  protected static <T> void enableFeature(String tenantId, TenantConfiguredFeature feature) {
+  @SuppressWarnings("SameParameterValue")
+  protected static void enableFeature(String tenantId, TenantConfiguredFeature feature) {
     mockMvc.perform(post(ApiEndpoints.featureConfig())
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(true))))
@@ -294,7 +296,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void enableTenant(String tenant) {
     mockMvc.perform(post("/_/tenant")
-        .content(asJsonString(new TenantAttributes().moduleTo("mod-search-1.0.0")))
+        .content(asJsonString(new TenantAttributes().moduleTo("mod-search")))
         .headers(defaultHeaders(tenant))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk());

@@ -88,10 +88,10 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /authority-records:
+  /authorities:
     get:
-      operationId: searchAuthorityRecords
-      description: Get a list of authority records for CQL query
+      operationId: searchAuthorities
+      description: Get a list of authorities for CQL query
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/cql-query'
@@ -100,12 +100,12 @@ paths:
         - $ref: '#/components/parameters/expand-all-param'
       responses:
         '200':
-          description: 'Authority Record search result'
+          description: 'Authorities search result'
           content:
             application/json:
               example: examples/searchResult.sample
               schema:
-                $ref: '#/components/schemas/authorityRecordSearchResult'
+                $ref: '#/components/schemas/authoritySearchResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -343,7 +343,7 @@ components:
         $ref: '#/components/schemas/resourceEventBody'
     instanceSearchResult:
       $ref: schemas/response/instanceSearchResult.json
-    authorityRecordSearchResult:
+    authoritySearchResult:
       $ref: schemas/response/authoritySearchResult.json
     facetResult:
       $ref: schemas/response/facetResult.json

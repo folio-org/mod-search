@@ -1,17 +1,17 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Authority record search result response",
+  "description": "Authority search result response",
   "type": "object",
   "properties": {
     "totalRecords": {
       "type": "integer",
-      "description": "Amount of authority records found"
+      "description": "Amount of authorities found"
     },
-    "authorityRecords": {
+    "authorities": {
       "type": "array",
-      "description": "List of authority records found",
+      "description": "List of authorities found",
       "items": {
-        "$ref": "../authorityRecord.json"
+        "$ref": "../authority.json"
       }
     }
   }

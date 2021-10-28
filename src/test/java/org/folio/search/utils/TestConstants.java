@@ -21,7 +21,7 @@ public class TestConstants {
   public static final String INVENTORY_ITEM_TOPIC = "inventory.item";
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
-  public static final String AUTHORITY_RECORD_TOPIC = "inventory.authority-record";
+  public static final String AUTHORITY_TOPIC = "inventory.authority";
 
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();
@@ -41,8 +41,8 @@ public class TestConstants {
     return getTopicName(tenantId, INVENTORY_HOLDING_TOPIC);
   }
 
-  public static String inventoryAuthorityRecordTopic(String tenantId) {
-    return getTopicName(tenantId, AUTHORITY_RECORD_TOPIC);
+  public static String inventoryAuthorityTopic(String tenantId) {
+    return getTopicName(tenantId, AUTHORITY_TOPIC);
   }
 
   private static String getTopicName(String tenantId, String topic) {

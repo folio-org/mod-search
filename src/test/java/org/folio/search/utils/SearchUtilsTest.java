@@ -24,7 +24,7 @@ import static org.folio.search.utils.TestUtils.standardFulltextField;
 
 import java.io.IOException;
 import java.util.List;
-import org.folio.search.domain.dto.AuthorityRecord;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.MultilangValue;
@@ -223,9 +223,9 @@ class SearchUtilsTest {
   }
 
   @Test
-  void getResourceName_positive_authorityRecord() {
-    var actual = getResourceName(AuthorityRecord.class);
-    assertThat(actual).isEqualTo("authority-record");
+  void getResourceName_positive_authority() {
+    var actual = getResourceName(Authority.class);
+    assertThat(actual).isEqualTo("authority");
   }
 
   @ParameterizedTest

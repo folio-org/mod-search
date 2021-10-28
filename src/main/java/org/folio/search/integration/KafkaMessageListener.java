@@ -18,7 +18,7 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.folio.search.domain.dto.AuthorityRecord;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -62,14 +62,14 @@ public class KafkaMessageListener {
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */
   @KafkaListener(
-    id = KafkaAdminService.AUTHORITY_RECORDS_LISTENER_ID,
+    id = KafkaAdminService.AUTHORITY_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['authority-records'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['authority-records'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['authority-records'].topicPattern}")
-  public void handleAuthorityRecords(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
-    log.info("Processing authority records from kafka events [number of events: {}]", consumerRecords.size());
-    var resourceName = getResourceName(AuthorityRecord.class);
+    groupId = "#{folioKafkaProperties.listener['authorities'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['authorities'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
+  public void handleAuthorityEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
+    log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
+    var resourceName = getResourceName(Authority.class);
     List<ResourceEventBody> batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .map(authority -> authority.id(getString(getEventPayload(authority), "id")).resourceName(resourceName))

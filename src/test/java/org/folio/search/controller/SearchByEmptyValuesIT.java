@@ -49,9 +49,9 @@ class SearchByEmptyValuesIT extends BaseIntegrationTest {
   @ParameterizedTest
   void search_parameterized(String query, String titles) throws Exception {
     var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : emptyList();
-    doSearchByInstances(String.format("%s sortBy title", query))
-      .andExpect(jsonPath("$.totalRecords", is(expectedTitles.size())))
-      .andExpect(jsonPath("$.instances[*].title", is(expectedTitles)));
+    doSearchByInstances(query + " sortBy title")
+      .andExpect(jsonPath("totalRecords", is(expectedTitles.size())))
+      .andExpect(jsonPath("instances[*].title", is(expectedTitles)));
   }
 
   private static Instance[] instances() {

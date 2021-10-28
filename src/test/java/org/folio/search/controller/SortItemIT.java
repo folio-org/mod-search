@@ -56,10 +56,10 @@ class SortItemIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> sortItemQueryProvider() {
     return Stream.of(
-      arguments("(cql.allRecords=1) sortby title", asIdsList(0, 2, 3, 4, 1)),
-      arguments("(cql.allRecords=1) sortby title/sort.descending", asIdsList(1, 4, 3, 2, 0)),
-      arguments("(cql.allRecords=1) sortby items.status.name", asIdsList(0, 1, 3, 2, 4)),
-      arguments("(cql.allRecords=1) sortby items.status.name/sort.descending", asIdsList(4, 0, 3, 1, 2))
+      arguments("(id=*) sortby title", asIdsList(0, 2, 3, 4, 1)),
+      arguments("(id=*) sortby title/sort.descending", asIdsList(1, 4, 3, 2, 0)),
+      arguments("(id=*) sortby items.status.name", asIdsList(0, 1, 3, 2, 4)),
+      arguments("(id=*) sortby items.status.name/sort.descending", asIdsList(4, 0, 3, 1, 2))
     );
   }
 

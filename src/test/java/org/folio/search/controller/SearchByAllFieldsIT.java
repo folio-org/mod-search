@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.text.MessageFormat.format;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
@@ -58,7 +57,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] cql.all='{query}', query=''{0}''")
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
-    doSearchByInstances(format("cql.all=\"{0}\"", cqlQuery), 1, 0)
+    doSearchByInstances(prepareQuery("cql.all=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }

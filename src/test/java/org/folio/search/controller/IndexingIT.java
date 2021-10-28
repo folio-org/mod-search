@@ -65,7 +65,7 @@ class IndexingIT extends BaseIntegrationTest {
     INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery("id=={value}", id, 1));
   }
 
-  private static void createInstances() {
+  private void createInstances() {
     var instances = INSTANCE_IDS.stream()
       .map(id -> new Instance().id(id))
       .collect(toList());
@@ -88,10 +88,10 @@ class IndexingIT extends BaseIntegrationTest {
     return new Holding().id(HOLDING_IDS.get(i));
   }
 
-  private static void assertCountByQuery(String query, Object value, int expectedCount) {
+  private void assertCountByQuery(String query, Object value, int expectedCount) {
     await().atMost(ONE_MINUTE).pollInterval(FIVE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearchByInstances(query.replace("{value}", String.valueOf(value)))
-        .andExpect(jsonPath("$.totalRecords", is(expectedCount))));
+      doSearchByInstances(prepareQuery(query, String.valueOf(value)))
+        .andExpect(jsonPath("totalRecords", is(expectedCount))));
   }
 
   private static List<String> getRandomIds(int count) {

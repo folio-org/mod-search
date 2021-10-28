@@ -71,8 +71,8 @@ class SortInstanceByTitleIT extends BaseIntegrationTest {
       .collect(toList());
 
     doSearchByInstances("cql.allRecords=1 sortBy title")
-      .andExpect(jsonPath("$.totalRecords", is(13)))
-      .andExpect(jsonPath("$.instances[*].title", is(expectedTitleOrder)));
+      .andExpect(jsonPath("totalRecords", is(13)))
+      .andExpect(jsonPath("instances[*].title", is(expectedTitleOrder)));
   }
 
   private static Instance[] instances() {

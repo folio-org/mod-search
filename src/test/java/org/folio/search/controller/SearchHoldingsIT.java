@@ -44,8 +44,8 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   })
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
     doSearchByInstances(prepareQuery(query, value))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -62,8 +62,8 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   })
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
     doSearchByInstances(prepareQuery(query, value))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -77,14 +77,14 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   })
   void canSearchByHoldings_negative(String query, String value) throws Exception {
     doSearchByInstances(prepareQuery(query, value))
-      .andExpect(jsonPath("$.totalRecords", is(0)));
+      .andExpect(jsonPath("totalRecords", is(0)));
   }
 
   @Test
   void streamHoldingIds() throws Exception {
     doGet(holdingIds("id=*"))
-      .andExpect(jsonPath("$.totalRecords", is(3)))
-      .andExpect(jsonPath("$.ids[*].id", is(List.of(
+      .andExpect(jsonPath("totalRecords", is(3)))
+      .andExpect(jsonPath("ids[*].id", is(List.of(
         "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
         "9550c935-401a-4a85-875e-4d1fe7678870",
         "a663dea9-6547-4b2d-9daa-76cadd662272"))));

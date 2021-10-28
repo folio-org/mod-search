@@ -67,8 +67,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @Test
   void streamInstanceIds() throws Exception {
     doGet(instanceIds("cql.allRecords=1"))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.ids[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
   }
 
   @Test

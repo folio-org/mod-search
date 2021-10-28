@@ -33,41 +33,41 @@ class SortInstanceIT extends BaseIntegrationTest {
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
     doSearchByInstances(allInstancesSortedBy("contributors", ASCENDING))
-      .andExpect(jsonPath("$.totalRecords", is(4)))
-      .andExpect(jsonPath("$.instances[0].contributors[0].name", is("1111 2222")))
-      .andExpect(jsonPath("$.instances[1].contributors[1].name", is("bbb ccc")))
-      .andExpect(jsonPath("$.instances[2].contributors[0].name", is("bcc ccc")))
-      .andExpect(jsonPath("$.instances[3].contributors[0].name", is("yyy zzz")));
+      .andExpect(jsonPath("totalRecords", is(4)))
+      .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
+      .andExpect(jsonPath("instances[1].contributors[1].name", is("bbb ccc")))
+      .andExpect(jsonPath("instances[2].contributors[0].name", is("bcc ccc")))
+      .andExpect(jsonPath("instances[3].contributors[0].name", is("yyy zzz")));
   }
 
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
     doSearchByInstances(allInstancesSortedBy("contributors", DESCENDING))
-      .andExpect(jsonPath("$.totalRecords", is(4)))
-      .andExpect(jsonPath("$.instances[0].contributors[0].name", is("yyy zzz")))
-      .andExpect(jsonPath("$.instances[1].contributors[0].name", is("bcc ccc")))
-      .andExpect(jsonPath("$.instances[2].contributors[1].name", is("bbb ccc")))
-      .andExpect(jsonPath("$.instances[3].contributors[0].name", is("1111 2222")));
+      .andExpect(jsonPath("totalRecords", is(4)))
+      .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
+      .andExpect(jsonPath("instances[1].contributors[0].name", is("bcc ccc")))
+      .andExpect(jsonPath("instances[2].contributors[1].name", is("bbb ccc")))
+      .andExpect(jsonPath("instances[3].contributors[0].name", is("1111 2222")));
   }
 
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
     doSearchByInstances(allInstancesSortedBy("title", ASCENDING))
-      .andExpect(jsonPath("$.totalRecords", is(4)))
-      .andExpect(jsonPath("$.instances[0].title", is("Calling Me Home")))
-      .andExpect(jsonPath("$.instances[1].title", is("Animal farm")))
-      .andExpect(jsonPath("$.instances[2].title", is("Walk in My Soul")))
-      .andExpect(jsonPath("$.instances[3].title", is("Zero Minus Ten")));
+      .andExpect(jsonPath("totalRecords", is(4)))
+      .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
+      .andExpect(jsonPath("instances[1].title", is("Animal farm")))
+      .andExpect(jsonPath("instances[2].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("instances[3].title", is("Zero Minus Ten")));
   }
 
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
     doSearchByInstances(allInstancesSortedBy("title", DESCENDING))
-      .andExpect(jsonPath("$.totalRecords", is(4)))
-      .andExpect(jsonPath("$.instances[0].title", is("Zero Minus Ten")))
-      .andExpect(jsonPath("$.instances[1].title", is("Walk in My Soul")))
-      .andExpect(jsonPath("$.instances[2].title", is("Animal farm")))
-      .andExpect(jsonPath("$.instances[3].title", is("Calling Me Home")));
+      .andExpect(jsonPath("totalRecords", is(4)))
+      .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
+      .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
+      .andExpect(jsonPath("instances[2].title", is("Animal farm")))
+      .andExpect(jsonPath("instances[3].title", is("Calling Me Home")));
   }
 
   @Test

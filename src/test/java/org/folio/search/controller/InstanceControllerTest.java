@@ -13,6 +13,7 @@ import static org.folio.search.utils.TestUtils.facetResult;
 import static org.folio.search.utils.TestUtils.facetServiceRequest;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +40,6 @@ import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
-import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +60,10 @@ class InstanceControllerTest {
 
   @Test
   void search_positive() throws Exception {
-    var expectedSearchResult = TestUtils.<Instance>searchResult();
 
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
 
-    when(searchService.search(expectedSearchRequest)).thenReturn(expectedSearchResult);
+    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenReturn(searchResult());
 
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
@@ -82,13 +80,12 @@ class InstanceControllerTest {
   @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
     var elasticsearchException = new ElasticsearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
     elasticsearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
-    when(searchService.search(expectedSearchRequest)).thenThrow(
+    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenThrow(
       new SearchOperationException("error", elasticsearchException));
 
     var requestBuilder = get("/search/instances")

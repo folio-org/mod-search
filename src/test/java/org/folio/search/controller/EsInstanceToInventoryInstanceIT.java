@@ -37,12 +37,12 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
 
   @Test
   void responseContainsOnlyBasicInstanceProperties() throws Exception {
-    var response = doSearchByInstances(String.format("id==%s", getSemanticWebId()))
+    var expected = getSemanticWeb();
+    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
       .andExpect(jsonPath("totalRecords", is(1)))
       // make sure that no unexpected properties are present
       .andExpect(jsonPath("instances[0].length()", is(4)));
 
-    var expected = getSemanticWeb();
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
     assertThat(actual.getId(), is(expected.getId()));
     assertThat(actual.getTitle(), is(expected.getTitle()));
@@ -52,12 +52,12 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
 
   @Test
   void responseContainsAllInstanceProperties() throws Exception {
-    var response = doSearchByInstances(String.format("id==%s", getSemanticWebId()), true)
+    var expected = getSemanticWeb();
+    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true)
       .andExpect(jsonPath("totalRecords", is(1)));
 
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
 
-    var expected = getSemanticWeb();
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
       .map(hr -> hr.discoverySuppress(false))
       .map(EsInstanceToInventoryInstanceIT::removeUnexpectedProperties)

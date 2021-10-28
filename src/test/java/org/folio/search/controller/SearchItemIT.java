@@ -42,8 +42,8 @@ class SearchItemIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_wildcardMatch(String query, String value) throws Throwable {
     doSearchByInstances(prepareQuery(query, value))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("totalRecords", is(1)))
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
 
   @CsvSource({
@@ -57,6 +57,7 @@ class SearchItemIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_negative(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(0)));
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

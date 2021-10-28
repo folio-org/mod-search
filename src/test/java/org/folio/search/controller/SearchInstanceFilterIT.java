@@ -409,5 +409,4 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Metadata metadata(String createdDate, String updatedDate) {
     return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
-
 }

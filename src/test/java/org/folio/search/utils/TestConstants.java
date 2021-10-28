@@ -18,15 +18,15 @@ public class TestConstants {
   public static final String RESOURCE_NAME = getResourceName(TestResource.class);
   public static final String INDEX_NAME = String.join("_", ENV, RESOURCE_NAME, TENANT_ID);
 
+  public static final String AUTHORITY_TOPIC = "inventory.authority";
   public static final String INVENTORY_ITEM_TOPIC = "inventory.item";
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
-  public static final String AUTHORITY_TOPIC = "inventory.authority";
 
+  public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();
   public static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = randomId();
-  public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = randomId();
 
   public static String inventoryInstanceTopic(String tenantId) {

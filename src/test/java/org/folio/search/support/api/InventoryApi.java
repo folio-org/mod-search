@@ -39,17 +39,17 @@ public class InventoryApi {
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
-  public void createInstance(String tenantId, Instance instance) {
-    createInstance(tenantId, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
+  public void createInstance(String tenantName, Instance instance) {
+    createInstance(tenantName, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
   }
 
-  public void createInstance(String tenantId, Map<String, Object> instance) {
+  public void createInstance(String tenantName, Map<String, Object> instance) {
     var instanceId = getString(instance, "id");
-    INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
+    INSTANCE_STORE.computeIfAbsent(tenantName, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, eventBody(null, instance).tenant(tenantId));
-    createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
-    createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
+    kafkaTemplate.send(inventoryInstanceTopic(tenantName), instanceId, eventBody(null, instance).tenant(tenantName));
+    createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantName, instanceId, hr));
+    createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantName, instanceId, item));
   }
 
   @SuppressWarnings("unchecked")

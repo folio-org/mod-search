@@ -4,10 +4,15 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.DELETE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,10 +46,7 @@ public class MultiTenantSearchDocumentConverter {
    * @param resourceEvents list with {@link ResourceEventBody} objects
    * @return map with {@link SearchDocumentBody} objects as value
    */
-  public Map<String, SearchDocumentBody> convertIndexEventsAsMap(List<ResourceEventBody> resourceEvents) {
-    if (CollectionUtils.isEmpty(resourceEvents)) {
-      return Collections.emptyMap();
-    }
+  public Map<String, SearchDocumentBody> convertAsMap(List<ResourceEventBody> resourceEvents) {
     return convertIndexRequestToStream(resourceEvents).collect(toMap(SearchDocumentBody::getId, identity()));
   }
 
@@ -65,13 +67,29 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private Stream<SearchDocumentBody> convertIndexRequestToStream(List<ResourceEventBody> resourceEvents) {
-    return resourceEvents.stream()
-      .collect(groupingBy(ResourceEventBody::getTenant)).entrySet().stream()
-      .flatMap(this::convertForTenant);
+    if (CollectionUtils.isEmpty(resourceEvents)) {
+      return Stream.empty();
+    }
+    var eventsByTenant = resourceEvents.stream().collect(groupingBy(ResourceEventBody::getTenant));
+    return eventsByTenant.entrySet().stream()
+      .map(this::convertForTenant)
+      .flatMap(Collection::stream);
   }
 
-  private Stream<SearchDocumentBody> convertForTenant(Map.Entry<String, List<ResourceEventBody>> entry) {
-    return executionService.executeTenantScoped(entry.getKey(),
-      () -> searchDocumentConverter.convert(entry.getValue())).stream();
+  private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEventBody>> eventsPerTenant) {
+    return executionService.executeTenantScoped(eventsPerTenant.getKey(), () -> convertEvents(eventsPerTenant));
+  }
+
+  private List<SearchDocumentBody> convertEvents(Entry<String, List<ResourceEventBody>> eventsPerTenant) {
+    return eventsPerTenant.getValue().stream()
+      .map(this::convertResourceEvent)
+      .flatMap(Optional::stream)
+      .collect(Collectors.toList());
+  }
+
+  private Optional<SearchDocumentBody> convertResourceEvent(ResourceEventBody resourceEventBody) {
+    return resourceEventBody.getType() != DELETE
+      ? searchDocumentConverter.convert(resourceEventBody)
+      : Optional.of(SearchDocumentBody.forDeleteResourceEvent(resourceEventBody));
   }
 }

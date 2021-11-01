@@ -1,20 +1,27 @@
 package org.folio.search.model.service;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.utils.SearchUtils;
 
 /**
  * CQL based search request model.
  */
 @Data
-@RequiredArgsConstructor(staticName = "of")
-public class CqlSearchRequest implements ResourceRequest {
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class CqlSearchRequest<T> implements ResourceRequest {
 
   /**
    * Resource name.
    */
   private final String resource;
+
+  /**
+   * Resource class for response.
+   */
+  private final Class<T> resourceClass;
 
   /**
    * Request tenant id.
@@ -37,7 +44,25 @@ public class CqlSearchRequest implements ResourceRequest {
   private final Integer offset;
 
   /**
-   * Whether to return only basic properties or entire instance.
+   * Whether to return only basic properties or entire record.
    */
   private final Boolean expandAll;
+
+  /**
+   * Creates {@link CqlSearchRequest} object for given variables.
+   *
+   * @param resourceClass -  resource class
+   * @param tenantId - tenant id
+   * @param query - CQL query
+   * @param limit - search result records limit
+   * @param offset - search result offset
+   * @param expandAll - whether to return only response properties or entire record
+   * @param <R> - generic type for {@link CqlSearchRequest} object.
+   * @return created {@link CqlSearchRequest} object
+   */
+  public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
+    Integer limit, Integer offset, Boolean expandAll) {
+    var resource = SearchUtils.getResourceName(resourceClass);
+    return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll);
+  }
 }

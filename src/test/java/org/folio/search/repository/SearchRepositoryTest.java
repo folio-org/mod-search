@@ -38,6 +38,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +64,7 @@ class SearchRepositoryTest {
 
     when(esClient.search(esSearchRequest, DEFAULT)).thenReturn(searchResponse);
 
-    var searchRequest = searchServiceRequest(RESOURCE_NAME, "query");
+    var searchRequest = searchServiceRequest(TestResource.class, "query");
     var actual = searchRepository.search(searchRequest, searchSource);
     assertThat(actual).isEqualTo(searchResponse);
   }

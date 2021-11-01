@@ -3,30 +3,36 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.SearchDocumentBody.forDeleteResourceEvent;
+import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.service.TenantScopedExecutionService;
+import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,45 +49,53 @@ class MultiTenantSearchDocumentConverterTest {
   @InjectMocks private MultiTenantSearchDocumentConverter multiTenantConverter;
 
   @Test
-  @SuppressWarnings("unchecked")
   void shouldConvertEventsPerTenant() {
     when(executionService.executeTenantScoped(anyString(), any()))
-      .thenAnswer(invocation -> ((Callable<List<SearchDocumentBody>>) invocation.getArgument(1)).call());
+      .thenAnswer(invocation -> invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
 
     var eventsForTenantOne = eventsForTenant("tenant_one");
     var eventsForTenantTwo = eventsForTenant("tenant_two");
 
+    when(searchDocumentConverter.convert(eventsForTenantOne.get(0))).thenReturn(Optional.of(
+      searchDocumentBody(eventsForTenantOne.get(0))));
+    when(searchDocumentConverter.convert(eventsForTenantTwo.get(0))).thenReturn(Optional.of(
+      searchDocumentBody(eventsForTenantTwo.get(0))));
+
     var allEvents = new ArrayList<>(eventsForTenantOne);
     allEvents.addAll(eventsForTenantTwo);
 
-    multiTenantConverter.convert(allEvents);
+    var actual = multiTenantConverter.convert(allEvents);
 
-    verify(searchDocumentConverter, times(1)).convert(eventsForTenantOne);
-    verify(searchDocumentConverter, times(1)).convert(eventsForTenantTwo);
+    assertThat(actual).isEqualTo(List.of(
+      searchDocumentBody(eventsForTenantOne.get(0)), forDeleteResourceEvent(eventsForTenantOne.get(1)),
+      searchDocumentBody(eventsForTenantTwo.get(0)), forDeleteResourceEvent(eventsForTenantTwo.get(1))));
+
+    verify(executionService).executeTenantScoped(eq("tenant_one"), any());
+    verify(executionService).executeTenantScoped(eq("tenant_two"), any());
   }
 
   @Test
   void convertIndexEventsAsMap_positive_indexEvents() {
     var events = List.of(eventBody("instance", Map.of("id", RESOURCE_ID)));
-    var expectedBody = searchDocumentBody();
+    var expectedBody = TestUtils.searchDocumentBody();
 
-    when(searchDocumentConverter.convert(events)).thenReturn(List.of(expectedBody));
+    when(searchDocumentConverter.convert(events.get(0))).thenReturn(Optional.of(expectedBody));
     when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
 
-    var actual = multiTenantConverter.convertIndexEventsAsMap(events);
+    var actual = multiTenantConverter.convertAsMap(events);
     assertThat(actual).isEqualTo(mapOf(RESOURCE_ID, expectedBody));
   }
 
   @Test
   void convertIndexEventsAsMap_positive_null() {
-    var actual = multiTenantConverter.convertIndexEventsAsMap(null);
+    var actual = multiTenantConverter.convertAsMap(null);
     assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
   void convertIndexEventsAsMap_positive_emptyList() {
-    var actual = multiTenantConverter.convertIndexEventsAsMap(emptyList());
+    var actual = multiTenantConverter.convertAsMap(emptyList());
     assertThat(actual).isEqualTo(emptyMap());
   }
 
@@ -106,7 +120,13 @@ class MultiTenantSearchDocumentConverterTest {
 
   private static List<ResourceEventBody> eventsForTenant(String tenant) {
     return List.of(
-      eventBody("instance", Map.of("id", randomId())).tenant(tenant),
-      eventBody("instance", Map.of("id", randomId())).tenant(tenant));
+      eventBody(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.UPDATE),
+      eventBody(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.DELETE));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static SearchDocumentBody searchDocumentBody(ResourceEventBody body) {
+    var id = MapUtils.getString((Map<String, Object>) body.getNew(), "id");
+    return SearchDocumentBody.of(id, body.getTenant(), INDEX_NAME, asJsonString(body.getNew()), INDEX);
   }
 }

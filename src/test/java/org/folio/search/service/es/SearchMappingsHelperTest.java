@@ -1,10 +1,13 @@
 package org.folio.search.service.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
-import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_FULLTEXT_FIELD_TYPE;
+import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -15,6 +18,7 @@ import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.searchField;
+import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -25,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
-import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.service.LanguageConfigService;
@@ -45,27 +49,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchMappingsHelperTest {
 
-  private static final String KEYWORD_TYPE = "keyword";
-
   @InjectMocks private SearchMappingsHelper mappingsHelper;
-  @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private LanguageConfigService languageConfigService;
+  @Mock private ResourceDescriptionService resourceDescriptionService;
   @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
   void getMappings_positive() {
-    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
+    var keywordType = fieldType(jsonObject("type", KEYWORD_FIELD_INDEX));
     var dateType = fieldType(jsonObject("type", "date", "format", "epoch_millis"));
     var multilangType = multilangFieldType();
-    var multilangPlainType = multilangPlainFieldType();
+    var standardType = standardFieldType();
+    var plainFulltextType = plainFulltextFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription());
     when(languageConfigService.getAll()).thenReturn(getSupportedLanguages());
-    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_TYPE);
+
+    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_FIELD_INDEX);
     doReturn(multilangType).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
-    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
+    doReturn(plainFulltextType).when(searchFieldProvider).getSearchFieldType(PLAIN_FULLTEXT_FIELD_TYPE);
     doReturn(dateType).when(searchFieldProvider).getSearchFieldType("date");
+    doReturn(standardType).when(searchFieldProvider).getSearchFieldType(STANDARD_FIELD_TYPE);
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
 
@@ -76,9 +81,15 @@ class SearchMappingsHelperTest {
       "properties", jsonObject(
         "id", keywordType.getMapping(),
         "title", multilangType.getMapping(),
-        "plain_title", multilangPlainType.getMapping(),
+        "plain_title", plainFulltextType.getMapping(),
+        "contributors", jsonObject(
+          "properties", jsonObject(
+            "name", standardType.getMapping(),
+            "plain_name", plainFulltextType.getMapping())),
         "subtitle", jsonObject("type", "text"),
-        "isbn", jsonObject("type", KEYWORD_TYPE, "normalizer", "lowercase_normalizer"),
+        "standardNotes", standardType.getMapping(),
+        "isbn", standardType.getMapping(),
+        "issn", jsonObject("type", KEYWORD_FIELD_INDEX, "normalizer", "lowercase_normalizer"),
         "metadata", jsonObject("properties", jsonObject("createdDate", dateType.getMapping())),
         "identifiers", keywordType.getMapping()),
       "_source", jsonObject("excludes", jsonArray("plain_all"))
@@ -88,14 +99,14 @@ class SearchMappingsHelperTest {
 
   @Test
   void getMappings_positive_resourceWithIndexMappings() {
-    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
+    var keywordType = fieldType(jsonObject("type", KEYWORD_FIELD_INDEX));
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField(KEYWORD_TYPE, jsonObject("copy_to", jsonArray("id_copy")))));
-    var idCopyMappings = jsonObject("type", KEYWORD_TYPE, "normalizer", "lowercase");
+      "id", plainField(KEYWORD_FIELD_INDEX, jsonObject("copy_to", jsonArray("id_copy")))));
+    var idCopyMappings = jsonObject("type", KEYWORD_FIELD_INDEX, "normalizer", "lowercase");
     resourceDescription.setIndexMappings(mapOf("id_copy", idCopyMappings));
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
-    when(searchFieldProvider.getSearchFieldType(KEYWORD_TYPE)).thenReturn(keywordType);
+    when(searchFieldProvider.getSearchFieldType(KEYWORD_FIELD_INDEX)).thenReturn(keywordType);
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
@@ -103,7 +114,7 @@ class SearchMappingsHelperTest {
       "numeric_detection", false,
       "_routing", jsonObject("required", true),
       "properties", jsonObject(
-        "id", jsonObject("type", KEYWORD_TYPE, "copy_to", jsonArray("id_copy")),
+        "id", jsonObject("type", KEYWORD_FIELD_INDEX, "copy_to", jsonArray("id_copy")),
         "id_copy", idCopyMappings
       ))));
   }
@@ -111,21 +122,21 @@ class SearchMappingsHelperTest {
   @Test
   void getMappings_positive_resourceWithMultilangIndexMappings() {
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField(KEYWORD_TYPE),
+      "id", plainField(KEYWORD_FIELD_INDEX),
       "alternativeTitle", multilangField(),
       "title", plainField(MULTILANG_FIELD_TYPE, jsonObject("copy_to", jsonArray("sort_title")))));
-    var sortTitleMappings = jsonObject("type", KEYWORD_TYPE, "analyzer", "lowercase_keyword");
+    var sortTitleMappings = jsonObject("type", KEYWORD_FIELD_INDEX, "analyzer", "lowercase_keyword");
     resourceDescription.setIndexMappings(mapOf("sort_title", sortTitleMappings));
 
     var multilangType = multilangFieldType();
-    var multilangPlainType = multilangPlainFieldType();
-    var keywordType = fieldType(jsonObject("type", KEYWORD_TYPE));
+    var multilangPlainType = plainFulltextFieldType();
+    var keywordType = fieldType(jsonObject("type", KEYWORD_FIELD_INDEX));
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(languageConfigService.getAll()).thenReturn(getSupportedLanguages());
     doReturn(multilangType).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
-    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
-    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_TYPE);
+    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_FULLTEXT_FIELD_TYPE);
+    doReturn(keywordType).when(searchFieldProvider).getSearchFieldType(KEYWORD_FIELD_INDEX);
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
@@ -135,7 +146,7 @@ class SearchMappingsHelperTest {
       "properties", jsonObject(
         "id", keywordType.getMapping(),
         "alternativeTitle", multilangType.getMapping(),
-        "plain_alternativeTitle", multilangPlainFieldType().getMapping(),
+        "plain_alternativeTitle", plainFulltextFieldType().getMapping(),
         "title", multilangType.getMapping(),
         "plain_title", jsonObject(
           "type", "keyword",
@@ -148,12 +159,12 @@ class SearchMappingsHelperTest {
   @Test
   void shouldRemoveUnsupportedLanguages() {
     var resourceDescription = TestUtils.resourceDescription(mapOf("title", plainField(MULTILANG_FIELD_TYPE)));
-    var multilangPlainType = multilangPlainFieldType();
+    var multilangPlainType = plainFulltextFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     when(languageConfigService.getAll()).thenReturn(languageConfigs(List.of(languageConfig("eng"))));
     doReturn(multilangFieldType()).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
-    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
+    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_FULLTEXT_FIELD_TYPE);
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
@@ -173,11 +184,11 @@ class SearchMappingsHelperTest {
   @Test
   void getMappings_shouldUpdateAnalyzerForKoreanLanguage() {
     var resourceDescription = TestUtils.resourceDescription(mapOf("title", multilangField()));
-    var multilangPlainType = multilangPlainFieldType();
+    var multilangPlainType = plainFulltextFieldType();
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
     doReturn(multilangFieldType()).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
-    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_MULTILANG_FIELD_TYPE);
+    doReturn(multilangPlainType).when(searchFieldProvider).getSearchFieldType(PLAIN_FULLTEXT_FIELD_TYPE);
     when(languageConfigService.getAll()).thenReturn(languageConfigs(List.of(languageConfig("eng", "custom_eng"))));
 
     var actual = mappingsHelper.getMappings(RESOURCE_NAME);
@@ -195,15 +206,41 @@ class SearchMappingsHelperTest {
       ))));
   }
 
+  @Test
+  void getMappings_positive_nullFieldType() {
+    var resourceDescription = TestUtils.resourceDescription(mapOf("title", multilangField()));
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    doReturn(null).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
+
+    assertThatThrownBy(() -> mappingsHelper.getMappings(RESOURCE_NAME))
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessage("Failed to find related mappings for index type: multilang");
+  }
+
+  @Test
+  void getMappings_positive_nullMappingsForMultilangField() {
+    var resourceDescription = TestUtils.resourceDescription(mapOf("title", multilangField()));
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    doReturn(fieldType(null)).when(searchFieldProvider).getSearchFieldType(MULTILANG_FIELD_TYPE);
+
+    assertThatThrownBy(() -> mappingsHelper.getMappings(RESOURCE_NAME))
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessage("Failed to find related mappings for index type: multilang");
+  }
+
   private static ResourceDescription resourceDescription() {
     var resourceDescription = TestUtils.resourceDescription(mapOf(
-      "id", plainField(KEYWORD_TYPE),
-      "issn", identifiersGroup(),
+      "id", plainField(KEYWORD_FIELD_INDEX),
       "title", plainField(MULTILANG_FIELD_TYPE),
+      "contributors", objectField(mapOf("name", standardField())),
       "subtitle", plainField(null, jsonObject("type", "text")),
       "not_indexed_field1", plainField("none"),
       "not_indexed_field2", plainField(null),
-      "isbn", plainField(KEYWORD_TYPE, jsonObject("normalizer", "lowercase_normalizer")),
+      "standardNotes", standardField(false),
+      "isbn", standardField(false),
+      "issn", plainField(KEYWORD_FIELD_INDEX, jsonObject("normalizer", "lowercase_normalizer")),
       "metadata", objectField(mapOf(
         "createdDate", plainField("date")
       ))));
@@ -221,7 +258,11 @@ class SearchMappingsHelperTest {
       )));
   }
 
-  private static SearchFieldType multilangPlainFieldType() {
+  private static SearchFieldType standardFieldType() {
+    return fieldType(jsonObject("type", "text", "analyzer", "source_analyzer"));
+  }
+
+  private static SearchFieldType plainFulltextFieldType() {
     return fieldType(jsonObject("type", "keyword", "normalizer", "keyword_lowercase"));
   }
 
@@ -231,12 +272,6 @@ class SearchMappingsHelperTest {
       .forEachRemaining(name -> languageConfigs.add(languageConfig(name)));
 
     return languageConfigs(languageConfigs);
-  }
-
-  private static PlainFieldDescription identifiersGroup() {
-    var groupField = plainField(KEYWORD_TYPE);
-    groupField.setGroup(List.of("identifiers"));
-    return groupField;
   }
 
   private static SearchFieldType fieldType(ObjectNode mappings) {

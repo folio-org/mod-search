@@ -101,32 +101,38 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 
 ## Environment variables:
 
-| Name                             | Default value             | Description                                                       |
-| :-------------------------------:| :------------------------:|:------------------------------------------------------------------|
-| DB_HOST                          | postgres                  | Postgres hostname                                                 |
-| DB_PORT                          | 5432                      | Postgres port                                                     |
-| DB_USERNAME                      | folio_admin               | Postgres username                                                 |
-| DB_PASSWORD                      | -                         | Postgres username password                                        |
-| DB_DATABASE                      | okapi_modules             | Postgres database name                                            |
-| ~~ELASTICSEARCH_HOST~~           | elasticsearch             | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch hostname        |
-| ~~ELASTICSEARCH_POR~~            | 9200                      | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch port            |
-| ELASTICSEARCH_URL                | http://elasticsearch:9200 | Elasticsearch URL                                                 |
-| ELASTICSEARCH_USERNAME           | -                         | Elasticsearch username (not required for dev envs)                |
-| ELASTICSEARCH_PASSWORD           | -                         | Elasticsearch password (not required for dev envs)                |
-| KAFKA_HOST                       | kafka                     | Kafka broker hostname                                             |
-| KAFKA_PORT                       | 9092                      | Kafka broker port                                                 |
-| KAFKA_SECURITY_PROTOCOL          | PLAINTEXT                 | Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT) |
-| KAFKA_SSL_KEYSTORE_LOCATION      | -                         | The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client. |
-| KAFKA_SSL_KEYSTORE_PASSWORD      | -                         | The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured. |
-| KAFKA_SSL_TRUSTSTORE_LOCATION    | -                         | The location of the Kafka trust store file. |
-| KAFKA_SSL_TRUSTSTORE_PASSWORD    | -                         | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled. |
-| KAFKA_EVENTS_CONSUMER_PATTERN    | -                         | Custom subscription pattern for Kafka consumers. |
-| KAFKA_EVENTS_CONCURRENCY         | 2                         | Custom number of kafka concurrent threads for message consuming. |
-| INITIAL_LANGUAGES                | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
-| SYSTEM_USER_PASSWORD             | -                         | Password for `mod-search` system user (not required for dev envs) |
-| OKAPI_URL                        | -                         | OKAPI URL used to login system user, required                     |
-| ENV                              | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
-| SEARCH_BY_ALL_FIELDS_ENABLED     | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting) |
+| Name                                     | Default value             | Description                                                                |
+| :---------------------------------------:| :------------------------:|:---------------------------------------------------------------------------|
+| DB_HOST                                  | postgres                  | Postgres hostname                                                          |
+| DB_PORT                                  | 5432                      | Postgres port                                                              |
+| DB_USERNAME                              | folio_admin               | Postgres username                                                          |
+| DB_PASSWORD                              | -                         | Postgres username password                                                 |
+| DB_DATABASE                              | okapi_modules             | Postgres database name                                                     |
+| ~~ELASTICSEARCH_HOST~~                   | elasticsearch             | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch hostname                 |
+| ~~ELASTICSEARCH_POR~~                    | 9200                      | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch port                     |
+| ELASTICSEARCH_URL                        | http://elasticsearch:9200 | Elasticsearch URL                                                          |
+| ELASTICSEARCH_USERNAME                   | -                         | Elasticsearch username (not required for dev envs)                         |
+| ELASTICSEARCH_PASSWORD                   | -                         | Elasticsearch password (not required for dev envs)                         |
+| KAFKA_HOST                               | kafka                     | Kafka broker hostname                                                      |
+| KAFKA_PORT                               | 9092                      | Kafka broker port                                                          |
+| KAFKA_SECURITY_PROTOCOL                  | PLAINTEXT                 | Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT) |
+| KAFKA_SSL_KEYSTORE_LOCATION              | -                         | The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client. |
+| KAFKA_SSL_KEYSTORE_PASSWORD              | -                         | The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured. |
+| KAFKA_SSL_TRUSTSTORE_LOCATION            | -                         | The location of the Kafka trust store file. |
+| KAFKA_SSL_TRUSTSTORE_PASSWORD            | -                         | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled. |
+| KAFKA_EVENTS_CONSUMER_PATTERN            | -                         | Custom subscription pattern for Kafka consumers.                           |
+| KAFKA_EVENTS_CONCURRENCY                 | 2                         | Custom number of kafka concurrent threads for message consuming.           |
+| KAFKA_EVENT_TOPICS_PARTITIONS            | 50                        | Amount of partitions for instance event topics.                            |
+| KAFKA_EVENT_TOPICS_REPLICATION_FACTOR    | -                         | Replication factor for instance event topics.                              |
+| KAFKA_AUTHORITIES_CONSUMER_PATTERN       | -                         | Custom subscription pattern for Kafka authority message consumers.         |
+| KAFKA_AUTHORITIES_CONCURRENCY            | 1                         | Custom number of kafka concurrent threads for authority message consuming. |
+| KAFKA_AUTHORITY_TOPIC_PARTITIONS         | 50                        | Amount of partitions for authority topic.                                  |
+| KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR | -                         | Replication factor for authority topic.                                    |
+| INITIAL_LANGUAGES                        | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support) |
+| SYSTEM_USER_PASSWORD                     | -                         | Password for `mod-search` system user (not required for dev envs)          |
+| OKAPI_URL                                | -                         | OKAPI URL used to login system user, required                              |
+| ENV                                      | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
+| SEARCH_BY_ALL_FIELDS_ENABLED             | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting) |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -351,6 +357,13 @@ if it is defined but doesn't match.
 | `items.circulationNotes.note`                   | full text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes |
 | `itemPublicNotes`                               | full text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes |
 | `itemIdentifiers`                               | term      | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.hrid`, `items.formerIds`, `items.accessionNumber` |
+
+### Authority search options
+
+| Option                                          | Type      |Example                     | Description                     |
+| :-----------------------------------------------|:---------:| :--------------------------|:-------------------------------:|
+| `id`                                            | term      | `id=="1234567"`            | Matches authorities with the id |
+| `personalName`                                  | full-text | `personalName any "john"`  | Matches authorities with `john` personal name |
 
 ### Search by all field values
 

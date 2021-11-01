@@ -64,6 +64,12 @@ class ResourceDescriptionServiceTest {
   }
 
   @Test
+  void findAll_positive() {
+    var actual = descriptionService.findAll();
+    assertThat(actual).containsExactlyInAnyOrder(resourceDescription());
+  }
+
+  @Test
   void shouldPassInitIfPropertyProcessorExists() {
     var resourceDescription = resourceDescription(null, Map.of(FIELD, searchField("testProcessor")));
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));

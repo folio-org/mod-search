@@ -3,34 +3,28 @@ package org.folio.search.controller;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
-import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.text.MessageFormat;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @IntegrationTest
 class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, () -> enableFeature(TENANT_ID, SEARCH_ALL_FIELDS, mockMvc), getSemanticWebAsMap());
+  static void prepare() {
+    setUpTenant(Instance.class, () -> enableFeature(SEARCH_ALL_FIELDS), getSemanticWebAsMap());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @ValueSource(strings = {
@@ -64,7 +58,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] cql.all='{query}', query=''{0}''")
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
-    mockMvc.perform(searchRequest("cql.all=\"{0}\"", cqlQuery))
+    doSearchByInstances(prepareQuery("cql.all=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
@@ -84,7 +78,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] cql.allInstances='{query}', query=''{0}''")
   void canSearchByInstanceFieldValues_positive(String cqlQuery) throws Throwable {
-    mockMvc.perform(searchRequest("cql.allInstances=\"{0}\"", cqlQuery))
+    doSearchByInstances(prepareQuery("cql.allInstances=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
@@ -99,7 +93,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] cql.allHoldings='{query}', query=''{0}''")
   void canSearchByHoldingFieldValues_positive(String cqlQuery) throws Throwable {
-    mockMvc.perform(searchRequest("cql.allHoldings=\"{0}\"", cqlQuery))
+    doSearchByInstances(prepareQuery("cql.allHoldings=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
@@ -115,15 +109,8 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] cql.allItems='{query}', query=''{0}''")
   void canSearchByItemFieldValues_positive(String cqlQuery) throws Throwable {
-    mockMvc.perform(searchRequest("cql.allItems=\"{0}\"", cqlQuery))
+    doSearchByInstances(prepareQuery("cql.allItems=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
-  }
-
-  private static MockHttpServletRequestBuilder searchRequest(String template, String cqlQuery) {
-    return get(instanceSearchPath())
-      .param("query", MessageFormat.format(template, cqlQuery))
-      .param("limit", "1")
-      .headers(defaultHeaders());
   }
 }

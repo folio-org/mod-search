@@ -1,12 +1,9 @@
 package org.folio.search.controller;
 
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import org.folio.search.domain.dto.Instance;
@@ -15,13 +12,9 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SortInstanceByTitleIT extends BaseIntegrationTest {
-
-  private static final String TENANT = "sort_long_title_test_tenant";
 
   private static final List<String> TITLES = List.of(
     "Ground water in Africa.",
@@ -62,13 +55,13 @@ class SortInstanceByTitleIT extends BaseIntegrationTest {
   );
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT, mockMvc, instances());
+  static void prepare() {
+    setUpTenant(instances());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @Test
@@ -77,12 +70,9 @@ class SortInstanceByTitleIT extends BaseIntegrationTest {
       .sorted(String::compareToIgnoreCase)
       .collect(toList());
 
-    mockMvc.perform(get(searchInstancesByQuery("(id=*) sortBy title"))
-      .headers(defaultHeaders(TENANT)))
-      .andExpect(status().isOk())
+    doSearchByInstances("cql.allRecords=1 sortBy title")
       .andExpect(jsonPath("totalRecords", is(13)))
       .andExpect(jsonPath("instances[*].title", is(expectedTitleOrder)));
-
   }
 
   private static Instance[] instances() {

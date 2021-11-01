@@ -27,8 +27,7 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
     var tenant = request.header(TENANT).firstValue();
     var instanceViews = getInstanceIdsFromRequest(request)
       .map(id -> getInventoryView(tenant, id))
-      .filter(Optional::isPresent)
-      .map(Optional::get)
+      .flatMap(Optional::stream)
       .map(instance -> Map.of(
         "instance", instance,
         "holdingsRecords", MapUtils.getObject(instance, "holdings"),

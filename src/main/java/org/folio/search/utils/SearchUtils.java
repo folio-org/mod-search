@@ -6,6 +6,7 @@ import static org.folio.search.configuration.properties.FolioEnvironment.getFoli
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
+import com.google.common.base.CaseFormat;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,9 +17,10 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
-import org.folio.search.model.SearchResource;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -27,13 +29,13 @@ import org.folio.spring.integration.XOkapiHeaders;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
 
-  public static final String INSTANCE_RESOURCE = SearchResource.INSTANCE.getName();
+  public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
-  public static final String PLAIN_MULTILANG_PREFIX = "plain_";
+  public static final String PLAIN_FULLTEXT_PREFIX = "plain_";
   public static final String SELECTED_AGG_PREFIX = "selected_";
   public static final String ASTERISKS_SIGN = "*";
   public static final String DOT = ".";
@@ -79,6 +81,16 @@ public class SearchUtils {
    */
   public static String getElasticsearchIndexName(ResourceIdEvent event) {
     return getElasticsearchIndexName(event.getType(), event.getTenant());
+  }
+
+  /**
+   * Creates index name for passed resource id event.
+   *
+   * @param event resource event as {@link ResourceIdEvent} object
+   * @return generated index name.
+   */
+  public static String getElasticsearchIndexName(ResourceEventBody event) {
+    return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
   }
 
   /**
@@ -131,7 +143,7 @@ public class SearchUtils {
    * @return updated path as {@link String} object
    */
   public static String updatePathForTermQueries(String path) {
-    return path.endsWith(".*") ? getPathToPlainMultilangValue(path.substring(0, path.length() - 2)) : path;
+    return path.endsWith(".*") ? getPathToFulltextPlainValue(path.substring(0, path.length() - 2)) : path;
   }
 
   /**
@@ -140,11 +152,21 @@ public class SearchUtils {
    * @param path - path to analyze and update as {@link String} object.
    * @return plain path to the multilang value.
    */
-  public static String getPathToPlainMultilangValue(String path) {
+  public static String getPathToFulltextPlainValue(String path) {
     var dotIndex = path.lastIndexOf('.');
     return dotIndex < 0
-      ? PLAIN_MULTILANG_PREFIX + path
-      : path.substring(0, dotIndex) + DOT + PLAIN_MULTILANG_PREFIX + path.substring(dotIndex + 1);
+      ? PLAIN_FULLTEXT_PREFIX + path
+      : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
+  }
+
+  /**
+   * Checks if path relates to multilang search.
+   *
+   * @param path path to field
+   * @return true if path ends with multilang suffix, false - otherwise
+   */
+  public static boolean isMultilangFieldPath(String path) {
+    return path != null && path.endsWith(".*");
   }
 
   /**
@@ -212,7 +234,7 @@ public class SearchUtils {
 
     var resultMap = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     resultMap.put(key, multilangValueMap);
-    resultMap.put(PLAIN_MULTILANG_PREFIX + key, getPlainValueObject(value));
+    resultMap.put(PLAIN_FULLTEXT_PREFIX + key, getPlainValueObject(value));
 
     return resultMap;
   }
@@ -231,7 +253,7 @@ public class SearchUtils {
     }
     var fulltextValue = new LinkedHashMap<String, Object>(2, CONST_SIZE_LOAD_FACTOR);
     fulltextValue.put(key, value);
-    fulltextValue.put(PLAIN_MULTILANG_PREFIX + key, value);
+    fulltextValue.put(PLAIN_FULLTEXT_PREFIX + key, value);
 
     return fulltextValue;
   }
@@ -243,7 +265,17 @@ public class SearchUtils {
    * @return key without '_plain' prefix if it's starting from it.
    */
   public static String updateMultilangPlainFieldKey(String key) {
-    return key.startsWith(PLAIN_MULTILANG_PREFIX) ? key.substring(PLAIN_MULTILANG_PREFIX.length()) : key;
+    return key.startsWith(PLAIN_FULLTEXT_PREFIX) ? key.substring(PLAIN_FULLTEXT_PREFIX.length()) : key;
+  }
+
+  /**
+   * Provides resource name for given resource class.
+   *
+   * @param resourceClass - resource class to extract resource name from
+   * @return resource class as {@link String} object
+   */
+  public static String getResourceName(Class<?> resourceClass) {
+    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, resourceClass.getSimpleName());
   }
 
   private static Object getMultilangValueObject(Object value) {

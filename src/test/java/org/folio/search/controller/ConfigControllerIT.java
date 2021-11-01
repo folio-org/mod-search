@@ -40,22 +40,20 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class ConfigControllerIT extends BaseIntegrationTest {
 
-  @Autowired
-  private RestHighLevelClient elasticsearchClient;
+  @Autowired private RestHighLevelClient elasticsearchClient;
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  static void prepare() {
+    setUpTenant(Instance.class, getSemanticWebAsMap());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @BeforeEach

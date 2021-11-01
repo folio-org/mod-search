@@ -1,6 +1,6 @@
 package org.folio.search.service.converter;
 
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
@@ -40,8 +40,8 @@ public class ElasticsearchHitConverter {
     var resultMap = new LinkedHashMap<String, Object>();
     for (var entry : map.entrySet()) {
       String key = entry.getKey();
-      if (key.startsWith(PLAIN_MULTILANG_PREFIX)) {
-        resultMap.put(key.substring(PLAIN_MULTILANG_PREFIX.length()), processField(entry.getValue()));
+      if (key.startsWith(PLAIN_FULLTEXT_PREFIX)) {
+        resultMap.put(key.substring(PLAIN_FULLTEXT_PREFIX.length()), processField(entry.getValue()));
         continue;
       }
       resultMap.putIfAbsent(key, processField(entry.getValue()));

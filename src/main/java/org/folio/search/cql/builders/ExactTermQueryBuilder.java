@@ -6,8 +6,7 @@ import static org.elasticsearch.index.query.QueryBuilders.scriptQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.folio.search.utils.SearchUtils.EMPTY_ARRAY;
 import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
-import static org.folio.search.utils.SearchUtils.getPathForMultilangField;
-import static org.folio.search.utils.SearchUtils.getPathToPlainMultilangValue;
+import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Set;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -16,28 +15,28 @@ import org.elasticsearch.script.Script;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ExactTermQueryBuilder implements TermQueryBuilder {
+public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   public static final String SCRIPT_TEMPLATE = "doc['%s'].size() == 0";
 
   @Override
-  public QueryBuilder getQuery(String term, String... fields) {
+  public QueryBuilder getQuery(String term, String resource, String... fields) {
     return multiMatchQuery(term, fields).type(PHRASE);
   }
 
   @Override
-  public QueryBuilder getMultilangQuery(String term, String fieldName) {
+  public QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
     if (term.isEmpty()) {
-      return termQuery(getPathToPlainMultilangValue(fieldName), term);
+      return termQuery(getPathToFulltextPlainValue(fieldName), term);
     }
 
     return EMPTY_ARRAY.equals(term)
-      ? getEmptyArrayScriptQuery(getPathToPlainMultilangValue(fieldName))
-      : getQuery(term, getPathForMultilangField(fieldName));
+      ? getEmptyArrayScriptQuery(getPathToFulltextPlainValue(fieldName))
+      : getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
       ? getEmptyArrayScriptQuery(fieldName)
       : termQuery(fieldName, term);

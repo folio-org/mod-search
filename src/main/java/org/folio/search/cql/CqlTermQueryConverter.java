@@ -75,15 +75,15 @@ public class CqlTermQueryConverter {
 
     var fieldsList = searchFieldProvider.getFields(resource, termNode.getIndex());
     if (CollectionUtils.isNotEmpty(fieldsList)) {
-      return termQueryBuilder.getQuery(searchTerm, fieldsList.toArray(String[]::new));
+      return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));
     }
 
     var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
       "Invalid search field provided in the CQL query", "field", fieldName));
 
-    return plainFieldByPath.isMultilang()
-      ? termQueryBuilder.getMultilangQuery(searchTerm, fieldName)
-      : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, plainFieldByPath.getIndex());
+    return plainFieldByPath.hasFulltextIndex()
+      ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource)
+      : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, plainFieldByPath.getIndex());
   }
 
   private String getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {

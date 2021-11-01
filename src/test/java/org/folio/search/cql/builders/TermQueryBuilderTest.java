@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 
 import java.util.Set;
 import org.folio.search.utils.types.UnitTest;
@@ -14,21 +15,21 @@ class TermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getQuery("value", "f1.*", "f2"))
+    assertThatThrownBy(() -> queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2"))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [f1.*, f2]]");
   }
 
   @Test
-  void getMultilangQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getMultilangQuery("val", "field"))
+  void getFulltextQuery_positive() {
+    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [field]]");
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getTermLevelQuery("val", "field", null))
+    assertThatThrownBy(() -> queryBuilder.getTermLevelQuery("val", "field", RESOURCE_NAME, null))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [field]]");
   }

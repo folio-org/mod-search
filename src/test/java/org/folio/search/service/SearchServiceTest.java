@@ -18,10 +18,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchHitConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,10 +45,10 @@ class SearchServiceTest {
 
   @Test
   void search_positive() {
-    var instanceId = randomId();
-    var query = "id==" + instanceId;
-    var searchRequest = searchServiceRequest(RESOURCE_NAME, query);
-    var termQuery = termQuery("id", instanceId);
+    var recordId = randomId();
+    var query = "id==" + recordId;
+    var searchRequest = searchServiceRequest(TestResource.class, query);
+    var termQuery = termQuery("id", recordId);
     var searchSourceBuilder = searchSource().query(termQuery);
     var expectedSourceBuilder = searchSource().query(termQuery).size(100).from(0)
       .trackTotalHits(true).fetchSource(array("field1", "field2"), null);
@@ -56,17 +56,17 @@ class SearchServiceTest {
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("field1", "field2"));
     when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
-    mockSearchHit(instanceId);
+    mockSearchHit(recordId);
 
     var actual = searchService.search(searchRequest);
-    assertThat(actual).isEqualTo(searchResult(new Instance().id(instanceId)));
+    assertThat(actual).isEqualTo(searchResult(new TestResource().id(recordId)));
   }
 
   @Test
   void search_positive_withExpandAll() {
     var instanceId = randomId();
     var query = "id==" + instanceId;
-    var searchRequest = searchServiceRequest(RESOURCE_NAME, query, true);
+    var searchRequest = searchServiceRequest(TestResource.class, query, true);
     var termQuery = termQuery("id", instanceId);
     var searchSourceBuilder = searchSource().query(termQuery);
     var expectedSourceBuilder = searchSource().query(termQuery).size(100).from(0).trackTotalHits(true);
@@ -76,7 +76,7 @@ class SearchServiceTest {
     mockSearchHit(instanceId);
 
     var actual = searchService.search(searchRequest);
-    assertThat(actual).isEqualTo(searchResult(new Instance().id(instanceId)));
+    assertThat(actual).isEqualTo(searchResult(new TestResource().id(instanceId)));
   }
 
   private void mockSearchHit(String instanceId) {
@@ -84,6 +84,7 @@ class SearchServiceTest {
     when(searchHits.getHits()).thenReturn(array(searchHit));
     when(searchHit.getSourceAsMap()).thenReturn(emptyMap());
     when(searchResponse.getHits()).thenReturn(searchHits);
-    when(elasticsearchHitConverter.convert(emptyMap(), Instance.class)).thenReturn(new Instance().id(instanceId));
+    when(elasticsearchHitConverter.convert(emptyMap(), TestResource.class))
+      .thenReturn(new TestResource().id(instanceId));
   }
 }

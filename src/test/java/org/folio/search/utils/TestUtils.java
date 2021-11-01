@@ -10,7 +10,7 @@ import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIE
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Facet;
@@ -41,9 +43,9 @@ import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEventBody;
-import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchDocumentBody;
+import org.folio.search.model.SearchResult;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -52,7 +54,6 @@ import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.FieldType;
-import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -87,8 +88,7 @@ public class TestUtils {
 
   @SneakyThrows
   public static <T> T parseResponse(ResultActions result, Class<T> type) {
-    return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
-      .getContentAsString(), type);
+    return OBJECT_MAPPER.readValue(result.andReturn().getResponse().getContentAsString(), type);
   }
 
   @SneakyThrows
@@ -97,16 +97,16 @@ public class TestUtils {
       .getContentAsString(), type);
   }
 
-  public static CqlSearchRequest searchServiceRequest(String query) {
-    return searchServiceRequest(INSTANCE_RESOURCE, query);
+  public static CqlSearchRequest<TestResource> searchServiceRequest(String query) {
+    return searchServiceRequest(TestResource.class, query);
   }
 
-  public static CqlSearchRequest searchServiceRequest(String resource, String query) {
-    return searchServiceRequest(resource, query, false);
+  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String query) {
+    return searchServiceRequest(resourceClass, query, false);
   }
 
-  public static CqlSearchRequest searchServiceRequest(String resource, String query, boolean expandAll) {
-    return CqlSearchRequest.of(resource, TENANT_ID, query, 100, 0, expandAll);
+  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String query, boolean expandAll) {
+    return CqlSearchRequest.of(resourceClass, TENANT_ID, query, 100, 0, expandAll);
   }
 
   public static CqlFacetRequest facetServiceRequest(String resource, String query, String... facets) {
@@ -118,22 +118,11 @@ public class TestUtils {
   }
 
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.builder()
-      .id(RESOURCE_ID)
-      .index(INDEX_NAME)
-      .routing(TENANT_ID)
-      .rawJson(EMPTY_OBJECT)
-      .action(IndexActionType.INDEX)
-      .build();
+    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, EMPTY_OBJECT, INDEX);
   }
 
   public static SearchDocumentBody searchDocumentBodyForDelete() {
-    return SearchDocumentBody.builder()
-      .id(RESOURCE_ID)
-      .index(INDEX_NAME)
-      .routing(TENANT_ID)
-      .action(DELETE)
-      .build();
+    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, null, DELETE);
   }
 
   @SuppressWarnings("unchecked")
@@ -158,9 +147,14 @@ public class TestUtils {
     return values;
   }
 
+  public static ResourceDescription resourceDescription(String name) {
+    var resourceDescription = new ResourceDescription();
+    resourceDescription.setName(name);
+    return resourceDescription;
+  }
+
   public static ResourceDescription resourceDescription(Map<String, FieldDescription> fields) {
     var resourceDescription = new ResourceDescription();
-    resourceDescription.setIndex(INDEX_NAME);
     resourceDescription.setName(RESOURCE_NAME);
     resourceDescription.setFields(fields);
     return resourceDescription;
@@ -169,7 +163,6 @@ public class TestUtils {
   public static ResourceDescription resourceDescription(
     Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
     var resourceDescription = new ResourceDescription();
-    resourceDescription.setIndex(INDEX_NAME);
     resourceDescription.setName(RESOURCE_NAME);
     resourceDescription.setFields(fields);
     resourceDescription.setLanguageSourcePaths(languageSourcePaths);
@@ -196,6 +189,16 @@ public class TestUtils {
 
   public static PlainFieldDescription keywordField(SearchType... searchTypes) {
     return plainField(PLAIN, KEYWORD_FIELD_TYPE, asList(searchTypes));
+  }
+
+  public static PlainFieldDescription standardField(SearchType... searchTypes) {
+    return plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+  }
+
+  public static PlainFieldDescription standardField(boolean isPlainFieldIndexed, SearchType... searchTypes) {
+    var desc = plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+    desc.setIndexPlainValue(isPlainFieldIndexed);
+    return desc;
   }
 
   public static PlainFieldDescription keywordFieldWithDefaultValue(Object defaultValue) {
@@ -246,11 +249,9 @@ public class TestUtils {
     return resourceBody;
   }
 
-  public static SearchResult searchResult(Instance... instances) {
-    var searchResult = new SearchResult();
-    searchResult.setInstances(List.of(instances));
-    searchResult.setTotalRecords(instances.length);
-    return searchResult;
+  @SafeVarargs
+  public static <T> SearchResult<T> searchResult(T... records) {
+    return SearchResult.of(records.length, List.of(records));
   }
 
   public static Facet facet(List<FacetItem> items) {
@@ -297,11 +298,28 @@ public class TestUtils {
     return OBJECT_MAPPER.convertValue(instance, new TypeReference<>() {});
   }
 
+  public static void doIfNotNull(Object value, Consumer<Object> valueConsumer) {
+    if (value != null) {
+      valueConsumer.accept(value);
+    }
+  }
+
   public static void setEnvProperty(String value) {
     setProperty("env", value);
   }
 
   public static void removeEnvProperty() {
     clearProperty("env");
+  }
+
+  @Data
+  public static class TestResource {
+
+    private String id;
+
+    public TestResource id(String id) {
+      this.id = id;
+      return this;
+    }
   }
 }

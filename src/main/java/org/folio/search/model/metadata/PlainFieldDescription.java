@@ -1,6 +1,6 @@
 package org.folio.search.model.metadata;
 
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +24,7 @@ public class PlainFieldDescription extends FieldDescription {
   public static final String MULTILANG_FIELD_TYPE = "multilang";
   public static final String STANDARD_FIELD_TYPE = "standard";
   public static final Set<String> FULLTEXT_FIELD_TYPES = Set.of(MULTILANG_FIELD_TYPE, STANDARD_FIELD_TYPE);
-  public static final String PLAIN_MULTILANG_FIELD_TYPE = PLAIN_MULTILANG_PREFIX + "multilang";
+  public static final String PLAIN_FULLTEXT_FIELD_TYPE = PLAIN_FULLTEXT_PREFIX + "fulltext";
 
   /**
    * List of search types, that is used to identify search options for given field.
@@ -35,11 +35,6 @@ public class PlainFieldDescription extends FieldDescription {
    * List of inventory search types, it can be used to create group of field using alias.
    */
   private List<String> inventorySearchTypes = Collections.emptyList();
-
-  /**
-   * List of references to groups, where values can be combined in one elasticsearch field.
-   */
-  private List<String> group;
 
   /**
    * List of references to field types, specified in resource description.
@@ -65,7 +60,7 @@ public class PlainFieldDescription extends FieldDescription {
   private ObjectNode mappings;
 
   /**
-   * Allows to specify default value when not present or null.
+   * Allows specifying default value when not present or null.
    */
   @JsonProperty("default")
   private Object defaultValue;
@@ -98,7 +93,7 @@ public class PlainFieldDescription extends FieldDescription {
    */
   @JsonProperty
   public boolean hasFulltextIndex() {
-    return FULLTEXT_FIELD_TYPES.contains(index);
+    return FULLTEXT_FIELD_TYPES.contains(index) && indexPlainValue;
   }
 
   /**

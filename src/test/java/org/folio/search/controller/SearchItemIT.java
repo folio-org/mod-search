@@ -1,32 +1,29 @@
 package org.folio.search.controller;
 
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
-import static org.folio.search.support.base.ApiEndpoints.searchInstancesByQuery;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
 class SearchItemIT extends BaseIntegrationTest {
 
   @BeforeAll
-  static void createTenant(@Autowired MockMvc mockMvc) {
-    setUpTenant(TENANT_ID, mockMvc, getSemanticWebAsMap());
+  static void prepare() {
+    setUpTenant(Instance.class, getSemanticWebAsMap());
   }
 
   @AfterAll
-  static void removeTenant(@Autowired MockMvc mockMvc) {
-    removeTenant(mockMvc, TENANT_ID);
+  static void cleanUp() {
+    removeTenant();
   }
 
   @CsvSource({
@@ -44,9 +41,9 @@ class SearchItemIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_wildcardMatch(String query, String value) throws Throwable {
-    doGet(searchInstancesByQuery(query), value)
+    doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWeb().getId())));
+      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
   }
 
   @CsvSource({
@@ -60,7 +57,7 @@ class SearchItemIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_negative(String query, String value) throws Throwable {
-    doGet(searchInstancesByQuery(query), value)
+    doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

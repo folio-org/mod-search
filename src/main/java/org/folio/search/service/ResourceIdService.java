@@ -27,7 +27,7 @@ public class ResourceIdService {
   private final CqlSearchQueryConverter queryConverter;
 
   /**
-   * Returns instance ids for passed cql query.
+   * Returns resource ids for passed cql query.
    *
    * @param request resource ids request as {@link CqlResourceIdsRequest} object
    * @param outputStream output stream where json will be written in.

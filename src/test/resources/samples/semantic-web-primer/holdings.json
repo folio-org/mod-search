@@ -39,7 +39,7 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "electronicAccess": [
       {
-        "uri": "https://testlibrary.sample.com/holdings?hrid=ho00000000006",
+        "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
         "linkText": "Holding's electronicAccess link Text",
         "materialsSpecification": "Holding's electronicAccess material specification",
         "publicNote": "Holding's electronicAccess public note",

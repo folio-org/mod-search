@@ -23,11 +23,6 @@ public class ResourceDescription {
   private String name;
 
   /**
-   * Elasticsearch index name.
-   */
-  private String index;
-
-  /**
    * Related java class for event body.
    */
   private Class<?> eventBodyJavaClass;
@@ -36,11 +31,6 @@ public class ResourceDescription {
    * Contains list of json path expressions to extract languages values in ISO-639 format.
    */
   private List<String> languageSourcePaths = Collections.emptyList();
-
-  /**
-   * Path to instance id of resource.
-   */
-  private String instanceIdPath;
 
   /**
    * Map with field descriptions.

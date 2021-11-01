@@ -2,16 +2,15 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -38,17 +37,15 @@ public class SearchDocumentConverter {
   private final ResourceDescriptionService descriptionService;
 
   /**
-   * Converts list of {@link ResourceEventBody} object to the list of {@link SearchDocumentBody} objects.
+   * Converts {@link ResourceEventBody} object to the {@link SearchDocumentBody} objects.
    *
-   * @param resourceEvents list with resource events for conversion to elasticsearch document
+   * @param resourceEvent - resource event for conversion to Elasticsearch document
    * @return list with elasticsearch documents.
    */
-  public List<SearchDocumentBody> convert(List<ResourceEventBody> resourceEvents) {
-    return resourceEvents.stream()
-      .filter(this::canConvertEvent)
-      .map(this::buildConvertContext)
-      .map(this::convert)
-      .collect(toList());
+  public Optional<SearchDocumentBody> convert(ResourceEventBody resourceEvent) {
+    return canConvertEvent(resourceEvent)
+      ? Optional.of(convert(buildConversionContext(resourceEvent)))
+      : Optional.empty();
   }
 
   private SearchDocumentBody convert(ConversionContext context) {
@@ -57,14 +54,7 @@ public class SearchDocumentConverter {
     var baseFields = convertMapUsingResourceFields(resourceData, resourceDescriptionFields, context);
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
-
-    return SearchDocumentBody.builder()
-      .id(context.getId())
-      .index(getElasticsearchIndexName(context.getResourceDescription().getName(), context.getTenant()))
-      .routing(context.getTenant())
-      .rawJson(jsonConverter.toJson(resultDocument))
-      .action(INDEX)
-      .build();
+    return SearchDocumentBody.forConversionContext(context, jsonConverter.toJson(resultDocument));
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
@@ -77,12 +67,12 @@ public class SearchDocumentConverter {
       .collect(toList());
   }
 
-  private boolean canConvertEvent(ResourceEventBody resourceEventBody) {
+  private static boolean canConvertEvent(ResourceEventBody resourceEventBody) {
     return resourceEventBody.getNew() instanceof Map;
   }
 
   @SuppressWarnings("unchecked")
-  private ConversionContext buildConvertContext(ResourceEventBody event) {
+  private ConversionContext buildConversionContext(ResourceEventBody event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceData = (Map<String, Object>) event.getNew();
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);

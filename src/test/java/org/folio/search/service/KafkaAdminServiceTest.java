@@ -1,8 +1,7 @@
 package org.folio.search.service;
 
-import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.service.KafkaAdminService.EVENT_LISTENER_ID;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.folio.search.configuration.properties.FolioEnvironment;
 import org.folio.search.service.KafkaAdminService.KafkaTopic;
@@ -36,17 +36,6 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 @SpringBootTest(classes = KafkaAdminService.class)
 class KafkaAdminServiceTest {
 
-  private final List<KafkaTopic> expectedTopics = List.of(
-    KafkaTopic.of("topic1", 20, (short) 1),
-    KafkaTopic.of("topic2", 50, (short) 3),
-    KafkaTopic.of("topic3", 40, (short) 2),
-    KafkaTopic.of("folio.test_tenant.topic1", 20, (short) 1),
-    KafkaTopic.of("folio.test_tenant.topic2", 50, (short) 3),
-    KafkaTopic.of("folio.test_tenant.topic3", 40, (short) 2));
-
-  private final List<KafkaTopic> initialKafkaTopics = List.of(
-    expectedTopics.get(0), expectedTopics.get(1), expectedTopics.get(2));
-
   @Autowired private KafkaAdminService kafkaAdminService;
   @Autowired private ApplicationContext applicationContext;
   @MockBean private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
@@ -54,22 +43,44 @@ class KafkaAdminServiceTest {
   @MockBean private KafkaAdmin kafkaAdmin;
 
   @Test
-  void createKafkaTopics() {
-    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class))
-      .thenReturn(KafkaTopics.of(initialKafkaTopics));
-    kafkaAdminService.createKafkaTopics();
+  void createKafkaTopics_positive() {
+    System.setProperty("KAFKA_TOPIC2_PARTITIONS", "50");
+    System.setProperty("KAFKA_TOPIC2_REPLICATION_FACTOR", "3");
+    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class)).thenReturn(KafkaTopics.of(
+      List.of(
+        KafkaTopic.of("topic1", "${KAFKA_TOPIC1_PARTITIONS:20}", "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"),
+        KafkaTopic.of("topic2", "${KAFKA_TOPIC2_PARTITIONS}", "${KAFKA_TOPIC2_REPLICATION_FACTOR}"),
+        KafkaTopic.of("topic3", "40", "2"))));
 
+    kafkaAdminService.createKafkaTopics();
     verify(kafkaAdmin).initialize();
 
     var beansOfType = applicationContext.getBeansOfType(NewTopic.class);
-    var expectedNewTopics = expectedTopics.stream().map(KafkaTopic::toKafkaTopic).collect(toSet());
-    assertThat(beansOfType.values()).containsExactlyInAnyOrderElementsOf(expectedNewTopics);
+    assertThat(beansOfType.values()).containsExactlyInAnyOrderElementsOf(List.of(
+      new NewTopic("folio.test_tenant.topic1", Optional.of(20), Optional.empty()),
+      new NewTopic("folio.test_tenant.topic2", Optional.of(50), Optional.of((short) 3)),
+      new NewTopic("folio.test_tenant.topic3", Optional.of(40), Optional.of((short) 2))
+    ));
+  }
+
+  @Test
+  void createKafkaTopics_negative_failedToResolvePlaceholders() {
+    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class)).thenReturn(KafkaTopics.of(
+      List.of(KafkaTopic.of("topic2", "${KAFKA_PARTITIONS}", "${KAFKA_REPLICATION_FACTOR}"))));
+
+    assertThatThrownBy(() -> kafkaAdminService.createKafkaTopics())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Could not resolve placeholder 'KAFKA_PARTITIONS' in value \"${KAFKA_PARTITIONS}\"");
   }
 
   @Test
   void getTenantKafkaTopics() {
     when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class))
-      .thenReturn(KafkaTopics.of(initialKafkaTopics));
+      .thenReturn(KafkaTopics.of(List.of(
+        KafkaTopic.of("topic1", "20", "1"),
+        KafkaTopic.of("topic2", "50", "3"),
+        KafkaTopic.of("topic3", "40", "2")
+      )));
     var tenantKafkaTopics = kafkaAdminService.getDefaultTenantKafkaTopics();
     assertThat(tenantKafkaTopics).isEqualTo(List.of(
       "folio.test_tenant.topic1", "folio.test_tenant.topic2", "folio.test_tenant.topic3"));
@@ -78,7 +89,7 @@ class KafkaAdminServiceTest {
   @Test
   void restartEventListeners() {
     var mockListenerContainer = mock(MessageListenerContainer.class);
-    when(kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID)).thenReturn(mockListenerContainer);
+    when(kafkaListenerEndpointRegistry.getAllListenerContainers()).thenReturn(List.of(mockListenerContainer));
     kafkaAdminService.restartEventListeners();
     verify(mockListenerContainer).start();
     verify(mockListenerContainer).stop();
@@ -87,9 +98,9 @@ class KafkaAdminServiceTest {
   @TestConfiguration
   static class KafkaAdminServiceTestConfiguration {
 
-    @Bean(name = "topic1.topic")
+    @Bean(name = "folio.test_tenant.topic3.topic")
     NewTopic firstTopic() {
-      return new NewTopic("topic1", 20, (short) 1);
+      return new NewTopic("folio.test_tenant.topic3", 40, (short) 2);
     }
 
     @Bean

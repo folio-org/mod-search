@@ -21,10 +21,8 @@ import org.springframework.cache.CacheManager;
 @IntegrationTest
 class SystemUserServiceIT extends BaseIntegrationTest {
 
-  @Autowired
-  private SystemUserService systemUserService;
-  @Autowired
-  private CacheManager cacheManager;
+  @Autowired private SystemUserService systemUserService;
+  @Autowired private CacheManager cacheManager;
 
   @Test
   void shouldCreateSystemUserDuringTenantInit() throws Exception {
@@ -50,7 +48,7 @@ class SystemUserServiceIT extends BaseIntegrationTest {
   @Test
   void shouldCacheToken() {
     var tenant = "tenant_2";
-    setUpTenant(tenant, mockMvc, new Instance[] {});
+    setUpTenant(tenant, new Instance[] {});
     var systemUser = systemUserService.getSystemUser(tenant);
 
     assertThat(systemUser).isNotNull();

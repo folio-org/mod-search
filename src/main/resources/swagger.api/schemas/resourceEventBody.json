@@ -3,9 +3,13 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "Resource event body",
   "properties": {
+    "id": {
+      "description": "Resource id",
+      "type": "string"
+    },
     "type": {
       "description": "Operation type [update, create, delete]",
-      "enum": ["UPDATE", "CREATE", "DELETE", "REINDEX", "DELETE_ALL"],
+      "enum": [ "UPDATE", "CREATE", "DELETE", "REINDEX", "DELETE_ALL" ],
       "type": "string"
     },
     "tenant": {

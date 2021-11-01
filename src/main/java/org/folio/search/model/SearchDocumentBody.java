@@ -1,20 +1,20 @@
 package org.folio.search.model;
 
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.service.converter.ConversionContext;
 
 /**
  * Contains all required field to perform elasticsearch index operation in mod-search service.
  */
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 public class SearchDocumentBody {
 
@@ -50,11 +50,30 @@ public class SearchDocumentBody {
    * @return created {@link SearchDocumentBody} object
    */
   public static SearchDocumentBody forResourceIdEvent(ResourceIdEvent resourceIdEvent) {
-    return SearchDocumentBody.builder()
-      .id(resourceIdEvent.getId())
-      .routing(resourceIdEvent.getTenant())
-      .index(getElasticsearchIndexName(resourceIdEvent))
-      .action(resourceIdEvent.getAction())
-      .build();
+    return new SearchDocumentBody(resourceIdEvent.getId(), resourceIdEvent.getTenant(),
+      getElasticsearchIndexName(resourceIdEvent), null, resourceIdEvent.getAction());
+  }
+
+  /**
+   * Creates {@link SearchDocumentBody} for passed {@link ResourceIdEvent} resource id event.
+   *
+   * @param resourceEventBody resource id event
+   * @return created {@link SearchDocumentBody} object
+   */
+  public static SearchDocumentBody forDeleteResourceEvent(ResourceEventBody resourceEventBody) {
+    return new SearchDocumentBody(resourceEventBody.getId(), resourceEventBody.getTenant(),
+      getElasticsearchIndexName(resourceEventBody), null, DELETE);
+  }
+
+  /**
+   * Creates {@link SearchDocumentBody} for passed {@link ResourceIdEvent} resource id event.
+   *
+   * @param ctx - conversion context as {@link ConversionContext} object
+   * @param rawJsonBody - raw json body for indexing as {@link String} object
+   * @return created {@link SearchDocumentBody} object
+   */
+  public static SearchDocumentBody forConversionContext(ConversionContext ctx, String rawJsonBody) {
+    return new SearchDocumentBody(ctx.getId(), ctx.getTenant(),
+      getElasticsearchIndexName(ctx.getResourceDescription().getName(), ctx.getTenant()), rawJsonBody, INDEX);
   }
 }

@@ -24,7 +24,7 @@
     "notes": [],
     "circulationNotes": [
       {
-        "note": "testNote"
+        "note": "testCirculationNote"
       }
     ],
     "status": {
@@ -91,11 +91,11 @@
     ],
     "circulationNotes": [
       {
-        "note": "first-record",
+        "note": "private circulation note",
         "staffOnly": true
       },
       {
-        "note": "SecondRecord"
+        "note": "public circulation note"
       }
     ],
     "status": {

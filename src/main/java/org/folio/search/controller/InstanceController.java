@@ -6,7 +6,8 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.SearchResult;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.model.service.CqlSearchRequest;
@@ -26,17 +27,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/search")
-public class SearchController implements InstancesApi {
+public class InstanceController implements InstancesApi {
 
   private final FacetService facetService;
   private final SearchService searchService;
   private final ResourceIdsStreamHelper resourceIdsStreamHelper;
 
   @Override
-  public ResponseEntity<SearchResult> searchInstances(String tenantId, String query, Integer limit, Integer offset,
-                                                      Boolean expandAll) {
-    var searchRequest = CqlSearchRequest.of(INSTANCE_RESOURCE, tenantId, query, limit, offset, expandAll);
-    return ResponseEntity.ok(searchService.search(searchRequest));
+  public ResponseEntity<InstanceSearchResult> searchInstances(String tenantId, String query, Integer limit,
+                                                              Integer offset, Boolean expandAll) {
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
+    var result = searchService.search(searchRequest);
+    return ResponseEntity.ok(new InstanceSearchResult()
+      .instances(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
   }
 
   @Override

@@ -3,9 +3,9 @@ package org.folio.search.service.es;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toMap;
-import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_FULLTEXT_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -87,43 +87,44 @@ public class SearchMappingsHelper {
 
   private Map<String, JsonNode> getMappingForField(String name, FieldDescription fieldDescription) {
     if (fieldDescription instanceof PlainFieldDescription) {
-      return getMappingForPlainField(name, (PlainFieldDescription) fieldDescription);
+      return getMappingsForPlainField(name, (PlainFieldDescription) fieldDescription);
     }
     return getMappingForObjectField(name, (ObjectFieldDescription) fieldDescription);
   }
 
-  private Map<String, JsonNode> getMappingForPlainField(String name, PlainFieldDescription fieldDescription) {
-    return CollectionUtils.isEmpty(fieldDescription.getGroup())
-      ? getMappingsForPlainField(name, fieldDescription, fieldDescription.getIndex())
-      : emptyMap();
-  }
-
-  private Map<String, JsonNode> getMappingsForPlainField(
-    String name, PlainFieldDescription fieldDescription, String indexType) {
+  private Map<String, JsonNode> getMappingsForPlainField(String name, PlainFieldDescription fieldDescription) {
     if (fieldDescription.isNotIndexed()) {
       return emptyMap();
     }
 
     var customMappings = fieldDescription.getMappings();
+    var indexType = fieldDescription.getIndex();
     if (indexType == null) {
       return customMappings != null ? singletonMap(name, customMappings) : emptyMap();
     }
 
     var mappings = getSearchFieldTypeMappings(indexType);
-    if (fieldDescription.isMultilang()) {
-      removeUnsupportedLanguages(mappings);
-      var multilangEsMappings = new LinkedHashMap<String, JsonNode>(2);
-      var plainFieldMappings = getSearchFieldTypeMappings(PLAIN_MULTILANG_FIELD_TYPE);
-      multilangEsMappings.put(name, mappings);
-      multilangEsMappings.put(PLAIN_MULTILANG_PREFIX + name, withCustomMappings(plainFieldMappings, customMappings));
-      return multilangEsMappings;
+    if (fieldDescription.hasFulltextIndex()) {
+      if (fieldDescription.isMultilang()) {
+        removeUnsupportedLanguages(mappings);
+      }
+
+      var fulltextEsMappings = new LinkedHashMap<String, JsonNode>(2, 1.0f);
+      var plainFieldMappings = getSearchFieldTypeMappings(PLAIN_FULLTEXT_FIELD_TYPE);
+      fulltextEsMappings.put(name, mappings);
+      fulltextEsMappings.put(PLAIN_FULLTEXT_PREFIX + name, withCustomMappings(plainFieldMappings, customMappings));
+      return fulltextEsMappings;
     }
 
     return singletonMap(name, withCustomMappings(mappings, customMappings));
   }
 
   private ObjectNode getSearchFieldTypeMappings(String indexType) {
-    return searchFieldProvider.getSearchFieldType(indexType).getMapping().deepCopy();
+    var searchFieldType = searchFieldProvider.getSearchFieldType(indexType);
+    if (searchFieldType == null || searchFieldType.getMapping() == null) {
+      throw new ResourceDescriptionException("Failed to find related mappings for index type: " + indexType);
+    }
+    return searchFieldType.getMapping().deepCopy();
   }
 
   private Map<String, JsonNode> getMappingForObjectField(String fieldName, ObjectFieldDescription fieldDescription) {

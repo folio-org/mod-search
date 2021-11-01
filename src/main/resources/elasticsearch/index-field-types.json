@@ -33,7 +33,7 @@
       "analyzer": "source_analyzer"
     }
   },
-  "plain_multilang": {
+  "plain_fulltext": {
     "mapping": {
       "type": "keyword",
       "normalizer": "keyword_lowercase"

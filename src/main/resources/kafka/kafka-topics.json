@@ -2,18 +2,23 @@
   "topics": [
     {
       "name": "inventory.instance",
-      "numPartitions": 50,
-      "replicationFactor": 1
+      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
+      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
     },
     {
       "name": "inventory.item",
-      "numPartitions": 50,
-      "replicationFactor": 1
+      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
+      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
     },
     {
       "name": "inventory.holdings-record",
-      "numPartitions": 50,
-      "replicationFactor": 1
+      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
+      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
+    },
+    {
+      "name": "inventory.authority",
+      "numPartitions": "${KAFKA_AUTHORITY_TOPIC_PARTITIONS:50}",
+      "replicationFactor": "${KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR:}"
     }
   ]
 }

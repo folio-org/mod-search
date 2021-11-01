@@ -2,6 +2,7 @@ package org.folio.search.service.es;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.SerializationException;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.service.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
@@ -23,11 +24,12 @@ public class SearchSettingsHelper {
    */
   public String getSettings(String resource) {
     var resourceSettings = localFileProvider.read(getIndexSettingsPath(resource));
-    if (!jsonConverter.isValidJsonString(resourceSettings)) {
+    try {
+      return jsonConverter.asJsonTree(resourceSettings).toString();
+    } catch (SerializationException e) {
       throw new ResourceDescriptionException(String.format(
         "Failed to load resource index settings [resourceName: %s]", resource));
     }
-    return resourceSettings;
   }
 
   private static String getIndexSettingsPath(String resource) {

@@ -3,7 +3,6 @@ package org.folio.search.service;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.service.IndexService.INDEX_NOT_EXISTS_ERROR;
@@ -24,14 +23,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.InstanceStorageClient;
 import org.folio.search.domain.dto.ReindexRequest;
-import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.repository.IndexRepository;
@@ -102,13 +99,11 @@ class IndexServiceTest {
   void indexResources_negative() {
     var eventBodies = List.of(TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId())));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
+    when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
+    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyList());
 
-    assertThatThrownBy(() -> indexService.indexResources(eventBodies))
-      .isInstanceOf(SearchServiceException.class)
-      .hasMessage(INDEX_NOT_EXISTS_MESSAGE);
-
-    verifyNoInteractions(searchDocumentConverter);
-    verify(indexRepository, times(0)).indexResources(any());
+    var actual = indexService.indexResources(eventBodies);
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
@@ -191,7 +186,7 @@ class IndexServiceTest {
 
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(fetchService.fetchInstancesByIds(eventIds)).thenReturn(List.of(eventBody));
-    when(searchDocumentConverter.convertIndexEventsAsMap(List.of(eventBody))).thenReturn(mapOf(RESOURCE_ID, doc));
+    when(searchDocumentConverter.convertAsMap(List.of(eventBody))).thenReturn(mapOf(RESOURCE_ID, doc));
     when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
     when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
 
@@ -205,7 +200,7 @@ class IndexServiceTest {
     var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, DELETE));
 
     when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
-    when(searchDocumentConverter.convertIndexEventsAsMap(emptyList())).thenReturn(emptyMap());
+    when(searchDocumentConverter.convertAsMap(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convertDeleteEventsAsMap(eventIds)).thenReturn(mapOf(doc.getId(), doc));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
 
@@ -235,7 +230,7 @@ class IndexServiceTest {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
     when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
     when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
-    when(searchDocumentConverter.convertIndexEventsAsMap(emptyList())).thenReturn(emptyMap());
+    when(searchDocumentConverter.convertAsMap(emptyList())).thenReturn(emptyMap());
     when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
 
     var actual = indexService.indexResourcesById(eventIds);

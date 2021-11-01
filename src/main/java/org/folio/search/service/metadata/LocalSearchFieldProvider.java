@@ -10,9 +10,9 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.CQL_META_FIELD_PREFIX;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
-import static org.folio.search.utils.SearchUtils.PLAIN_MULTILANG_PREFIX;
+import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 import static org.folio.search.utils.SearchUtils.getPathForMultilangField;
-import static org.folio.search.utils.SearchUtils.getPathToPlainMultilangValue;
+import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -91,7 +91,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public boolean isMultilangField(String resourceName, String path) {
-    return getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
+    return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
   }
 
   private static Map<String, List<String>> collectFieldsBySearchType(Map<String, PlainFieldDescription> fields) {
@@ -114,7 +114,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private static List<String> getFieldsForSearchType(String searchType, String path) {
     return searchType.startsWith(CQL_META_FIELD_PREFIX)
-      ? List.of(path, PLAIN_MULTILANG_PREFIX + path.substring(0, path.length() - 2))
+      ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
       : singletonList(path);
   }
 
@@ -123,7 +123,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     for (ResourceDescription desc : descriptions) {
       List<String> sourcePaths = desc.getFlattenFields().entrySet().stream()
         .filter(entry -> entry.getValue().isShowInResponse())
-        .map(entry -> entry.getValue().isMultilang() ? getPathToPlainMultilangValue(entry.getKey()) : entry.getKey())
+        .map(entry -> entry.getValue().isMultilang() ? getPathToFulltextPlainValue(entry.getKey()) : entry.getKey())
         .collect(toUnmodifiableList());
 
       sourceFieldPerResource.put(desc.getName(), sourcePaths);

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.model.SearchDocumentBody;
@@ -67,23 +68,6 @@ class SearchDocumentConverterTest {
 
     assertThat(actual).isEqualTo(expectedSearchDocument(id));
     verify(jsonConverter).toJson(anyMap());
-  }
-
-  @Test
-  void convertMultipleEvents_positive() {
-    var firstEventId = randomId();
-    var secondEventId = randomId();
-    var firstEvent = eventBody(RESOURCE_NAME, getResourceTestData(firstEventId));
-    var secondEvent = eventBody(RESOURCE_NAME, getResourceTestData(secondEventId));
-
-    when(descriptionService.get(RESOURCE_NAME))
-      .thenReturn(resourceDescription(getDescriptionFields(), List.of("$.language")));
-    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-
-    var actual = documentMapper.convert(List.of(firstEvent, secondEvent));
-
-    assertThat(actual).containsExactlyInAnyOrder(
-      expectedSearchDocument(firstEventId), expectedSearchDocument(secondEventId));
   }
 
   @Test
@@ -180,7 +164,7 @@ class SearchDocumentConverterTest {
   @Test
   void convertSingleEvent_negative_dataIsNull() {
     var eventBody = eventBody(RESOURCE_NAME, null);
-    var actual = documentMapper.convert(List.of(eventBody));
+    var actual = documentMapper.convert(eventBody);
     assertThat(actual).isEmpty();
   }
 
@@ -260,8 +244,8 @@ class SearchDocumentConverterTest {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(
       resourceDescription(getDescriptionFields(), List.of("$.language")));
 
-    var actual = documentMapper.convert(List.of(eventBody));
-    assertThat(actual).isEqualTo(List.of(expectedSearchDocument(jsonObject(
+    var actual = documentMapper.convert(eventBody);
+    assertThat(actual).isEqualTo(Optional.of(expectedSearchDocument(jsonObject(
       "id", id,
       "language", "rus",
       "multilang_value", jsonObject("src", "value"),
@@ -319,12 +303,10 @@ class SearchDocumentConverterTest {
     return expectedSearchDocument(getExpectedDocument(id));
   }
 
-  private SearchDocumentBody convert(ResourceEventBody... eventBody) {
+  private SearchDocumentBody convert(ResourceEventBody eventBody) {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    final var converted = documentMapper.convert(List.of(eventBody));
-
-    assertThat(converted).hasSize(1);
-
-    return converted.get(0);
+    var converted = documentMapper.convert(eventBody);
+    assertThat(converted).isPresent();
+    return converted.get();
   }
 }

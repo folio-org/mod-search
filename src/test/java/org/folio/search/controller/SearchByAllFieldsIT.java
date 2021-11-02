@@ -53,7 +53,8 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "item000000000014",
     "item_accession_number",
     "Available",
-    "Copy 2"
+    "Copy 2",
+    "207b9372-127f-4bdd-83e0-147c9fe9bc16"
   })
   @ParameterizedTest(name = "[{index}] cql.all='{query}', query=''{0}''")
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
@@ -103,7 +104,8 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "item000000000014",
     "item_accession_number",
     "Available",
-    "Copy 2"
+    "Copy 2",
+    "207b9372-127f-4bdd-83e0-147c9fe9bc16"
   })
   @ParameterizedTest(name = "[{index}] cql.allItems='{query}', query=''{0}''")
   void canSearchByItemFieldValues_positive(String cqlQuery) throws Throwable {

@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<String, Object>, MultilangValue> {
 
   protected SearchFieldProvider searchFieldProvider;
-  private final Set<String> excludedFieldEndings = Set.of("Id", "Ids");
+  protected final Set<String> excludedFieldEndings = Set.of("Id", "Ids");
 
   /**
    * Uses to inject {@link SearchFieldProvider} bean by dependency injection framework.
@@ -56,7 +56,7 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
 
     for (Entry<String, Object> entry : fields.entrySet()) {
       String key = entry.getKey();
-      if (noneMatch(excludedFieldEndings, key::endsWith) && keyFilter.test(key)) {
+      if (isIncludedField(key) && keyFilter.test(key)) {
         var newKey = updateMultilangPlainFieldKey(key);
         var newPath = path != null ? path + "." + newKey : newKey;
         collectFieldValuesFromEventBody(newPath, context, entry.getValue(), keyFilter);
@@ -84,5 +84,9 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
     if (v instanceof Map<?, ?>) {
       collectFieldValuesFromEventBody(path, ctx, (Map<String, Object>) v, filter);
     }
+  }
+
+  protected boolean isIncludedField(String fieldName) {
+    return noneMatch(excludedFieldEndings, fieldName::endsWith);
   }
 }

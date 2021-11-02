@@ -52,7 +52,7 @@ class ItemAllFieldValuesProcessorTest {
       new Instance().id(randomId()).items(List.of(item1(), item2()))));
 
     assertThat(actual).isEqualTo(MultilangValue.of(
-      newLinkedHashSet(ITEM_ID_1, "i001", "DA 3900 C89", ITEM_ID_2, "i002", "CE 16 B6724 41993"),
+      newLinkedHashSet(ITEM_ID_1, "i001", "formerId1", "DA 3900 C89", ITEM_ID_2, "i002", "formerId2", "CE 16 B6724"),
       newLinkedHashSet("tag1", "tag2", "privateNote", "publicNote", "tag3")));
   }
 
@@ -77,6 +77,7 @@ class ItemAllFieldValuesProcessorTest {
       .discoverySuppress(false)
       .effectiveLocationId(randomId())
       .tags(new Tags().tagList(List.of("tag1", "tag2")))
+      .formerIds(List.of("formerId1"))
       .notes(List.of(
         new Note().note("publicNote").staffOnly(false),
         new Note().note("privateNote").staffOnly(true)));
@@ -86,9 +87,10 @@ class ItemAllFieldValuesProcessorTest {
     return new Item()
       .id(ITEM_ID_2)
       .hrid("i002")
-      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber("CE 16 B6724 41993"))
+      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber("CE 16 B6724"))
       .discoverySuppress(true)
       .tags(new Tags().tagList(List.of("tag1", "tag3")))
+      .formerIds(List.of("formerId2"))
       .notes(List.of(
         new Note().note("publicNote").staffOnly(false),
         new Note().note("privateNote").staffOnly(true)));

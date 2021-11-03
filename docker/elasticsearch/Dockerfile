@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+FROM amazon/opendistro-for-elasticsearch:1.13.2
 
 RUN elasticsearch-plugin install --batch \
   analysis-icu \

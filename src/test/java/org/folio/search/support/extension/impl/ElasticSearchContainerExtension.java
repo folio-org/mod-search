@@ -8,6 +8,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 public class ElasticSearchContainerExtension implements BeforeAllCallback, AfterAllCallback {
+
   private static final String SPRING_PROPERTY_NAME = "spring.elasticsearch.rest.uris";
   private static final String ES_IMAGE_NAME = "test-container-embedded-es:7.10.1";
   private static final Path ES_DOCKERFILE_PATH = Path.of("docker/elasticsearch/Dockerfile");
@@ -35,8 +36,7 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     return new GenericContainer<>(new ImageFromDockerfile(ES_IMAGE_NAME, false)
       .withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
-      .withEnv("xpack.security.enabled", "true")
-      .withEnv("ELASTIC_PASSWORD", "s3cret")
+      .withEnv("opendistro_security.disabled", "true")
       .withExposedPorts(9200);
   }
 }

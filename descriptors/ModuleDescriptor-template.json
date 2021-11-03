@@ -1,5 +1,5 @@
 {
-  "id": "${artifactId}-${version}",
+  "id": "@artifactId@-@version@",
   "name": "Search Module",
   "provides": [
     {
@@ -27,7 +27,9 @@
           "pathPattern": "/search/index/records",
           "permissionsRequired": [ "search.index.records.collection.post" ],
           "modulePermissions": [
-            "inventory-storage.identifier-types.collection.get"
+            "inventory-storage.inventory-view.instances.collection.get",
+            "inventory-storage.identifier-types.collection.get",
+            "inventory-storage.alternative-title-types.collection.get"
           ]
         },
         {
@@ -285,7 +287,7 @@
     }
   ],
   "launchDescriptor": {
-    "dockerImage": "${artifactId}:${version}",
+    "dockerImage": "@artifactId@:@version@",
     "dockerPull": false,
     "dockerArgs": {
       "HostConfig": {

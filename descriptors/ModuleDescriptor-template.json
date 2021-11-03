@@ -29,12 +29,8 @@
         {
           "methods": [ "POST" ],
           "pathPattern": "/search/index/inventory/reindex",
-          "permissionsRequired": [
-            "search.index.inventory.reindex.post"
-          ],
-          "modulePermissions": [
-            "inventory-storage.instance.reindex.post"
-          ]
+          "permissionsRequired": [ "search.index.inventory.reindex.post" ],
+          "modulePermissions": [ "inventory-storage.instance.reindex.post" ]
         }
       ]
     },
@@ -258,13 +254,7 @@
     "dockerArgs": {
       "HostConfig": {
         "Memory": 536870912,
-        "PortBindings": {
-          "8081/tcp": [
-            {
-              "HostPort": "%p"
-            }
-          ]
-        }
+        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
       }
     },
     "env": [

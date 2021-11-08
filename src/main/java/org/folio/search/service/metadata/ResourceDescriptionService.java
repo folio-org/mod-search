@@ -74,6 +74,15 @@ public class ResourceDescriptionService {
     return resourceDescriptions.values();
   }
 
+  /**
+   * Returns all supported resource names.
+   *
+   * @return {@link Collection} with all resource names as {@link String} values.
+   */
+  public Collection<String> getResourceNames() {
+    return resourceDescriptions.keySet();
+  }
+
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
     var validationErrors = new LinkedHashMap<String, List<String>>();
     descriptors.forEach(descriptor -> validationErrors

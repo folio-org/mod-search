@@ -7,6 +7,11 @@
       "type": "boolean",
       "default": false,
       "description": "Boolean parameter, if set to true - tenant index must be recreated before reindex operation"
+    },
+    "resourceName": {
+      "type": "string",
+      "description": "Resource name to run reindex for",
+      "default": "instance"
     }
   }
 }

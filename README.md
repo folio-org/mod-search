@@ -159,26 +159,8 @@ It is possible to define specific tenant parameters during module's initializati
 ### Recreating Elasticsearch index
 
 Sometimes we need to recreate Elasticsearch index, for example when a breaking change introduced to ES index
-structure (mapping).
+structure (mapping). It can be fixed by running reindex request:
 
-Here are the steps how to do it:
-1. Remove ES index:
-```http
-   DELETE [ES_HOST]/instance_[tenant_name]
-```
-2. Create index and mapping:
-```http
-POST [OKAPI_URL]/search/index/indices
-
-x-okapi-tenant: [tenant]
-x-okapi-token: [JWT_TOKEN]
-content-type: application/json
-
-{
-  "resourceName": "instance"
-}
-```
-3. Run reindex operation:
 ```http
 POST [OKAPI_URL]/search/index/inventory/reindex
 
@@ -186,12 +168,15 @@ x-okapi-tenant: [tenant]
 x-okapi-token: [JWT_TOKEN]
 
 {
-  "recreateIndex": false
+  "recreateIndex": true,
+  "resourceName": "instance"
 }
 ```
 
-Optional parameter `recreateIndex` in request body can be set to true specified  to drop existing indices for tenant
-and create them again. Executing request with this parameter in query will erase all the tenant data in mod-search.
+* `resourceName` parameter is optional and equal to `instance` by default
+* `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
+will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
+equal to `true` in query will erase all the tenant data in mod-search.
 
 
 ### Monitoring reindex process

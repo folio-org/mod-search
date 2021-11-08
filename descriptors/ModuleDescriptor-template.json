@@ -253,13 +253,13 @@
     "dockerPull": false,
     "dockerArgs": {
       "HostConfig": {
-        "Memory": 536870912,
+        "Memory": 1073741824,
         "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
       }
     },
     "env": [
       { "name": "ENV", "value": "folio" },
-      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=66.0" },
+      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=85.0" },
       { "name": "KAFKA_HOST", "value": "kafka" },
       { "name": "KAFKA_PORT", "value": "9092" },
       { "name": "KAFKA_SECURITY_PROTOCOL", "value": "PLAINTEXT" },

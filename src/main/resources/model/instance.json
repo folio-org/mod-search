@@ -7,6 +7,12 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false
+    },
+    "visibleSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": true
     }
   },
   "fields": {
@@ -189,10 +195,10 @@
       }
     },
     "staffSuppress": {
-      "$type": "suppress"
+      "$type": "visibleSuppress"
     },
     "discoverySuppress": {
-      "$type": "suppress"
+      "$type": "visibleSuppress"
     },
     "items": {
       "type": "object",

@@ -13,7 +13,7 @@ public class TestConstants {
 
   public static final String ENV = "folio";
   public static final String TENANT_ID = "test_tenant";
-  public static final String RESOURCE_ID = "test_tenant";
+  public static final String RESOURCE_ID = "test-resource-id";
   public static final String EMPTY_OBJECT = "{}";
   public static final String RESOURCE_NAME = getResourceName(TestResource.class);
   public static final String INDEX_NAME = String.join("_", ENV, RESOURCE_NAME, TENANT_ID);

@@ -56,3 +56,5 @@ application:
 logging:
   level:
     org.apache.kafka.clients.consumer.*: warn
+
+

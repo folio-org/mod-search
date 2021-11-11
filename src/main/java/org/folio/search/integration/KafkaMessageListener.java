@@ -7,18 +7,15 @@ import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMP
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getResourceName;
+import static org.folio.search.utils.SearchUtils.getEventPayload;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -35,8 +32,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageListener {
 
-  private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final IndexService indexService;
+  private final AuthorityEventPreProcessor authorityEventPreProcessor;
+  private final FolioMessageBatchProcessor folioMessageBatchProcessor;
 
   /**
    * Handles instance events and indexes them by id.
@@ -69,10 +67,10 @@ public class KafkaMessageListener {
     topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
   public void handleAuthorityEvents(List<ConsumerRecord<String, ResourceEventBody>> consumerRecords) {
     log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
-    var resourceName = getResourceName(Authority.class);
     List<ResourceEventBody> batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(authority -> authority.id(getString(getEventPayload(authority), "id")).resourceName(resourceName))
+      .map(authorityEventPreProcessor::process)
+      .flatMap(Collection::stream)
       .collect(toList());
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
@@ -105,10 +103,6 @@ public class KafkaMessageListener {
     }
     var eventPayload = getEventPayload(body);
     return isInstanceResource(event) ? getString(eventPayload, "id") : getString(eventPayload, "instanceId");
-  }
-
-  private static Map<String, Object> getEventPayload(ResourceEventBody body) {
-    return body.getNew() != null ? getNewAsMap(body) : getOldAsMap(body);
   }
 
   private boolean isInstanceResource(ConsumerRecord<String, ResourceEventBody> consumerRecord) {

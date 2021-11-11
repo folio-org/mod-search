@@ -7,6 +7,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.model.types.FieldType.OBJECT;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
@@ -53,7 +54,6 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.model.types.FieldType;
 import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -170,33 +170,33 @@ public class TestUtils {
   }
 
   public static PlainFieldDescription plainField(String index) {
-    return plainField(PLAIN, index, emptyList());
+    return plainField(index, emptyList());
   }
 
   public static PlainFieldDescription plainField(String index, ObjectNode mappings) {
-    var fieldDescription = plainField(PLAIN, index, emptyList());
+    var fieldDescription = plainField(index, emptyList());
     fieldDescription.setMappings(mappings);
     return fieldDescription;
   }
 
-  public static PlainFieldDescription plainField(FieldType type, String index, List<SearchType> searchTypes) {
+  public static PlainFieldDescription plainField(String index, List<SearchType> searchTypes) {
     var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(type);
+    fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(index);
     fieldDescription.setSearchTypes(searchTypes);
     return fieldDescription;
   }
 
   public static PlainFieldDescription keywordField(SearchType... searchTypes) {
-    return plainField(PLAIN, KEYWORD_FIELD_TYPE, asList(searchTypes));
+    return plainField(KEYWORD_FIELD_TYPE, asList(searchTypes));
   }
 
   public static PlainFieldDescription standardField(SearchType... searchTypes) {
-    return plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+    return plainField(STANDARD_FIELD_TYPE, asList(searchTypes));
   }
 
   public static PlainFieldDescription standardField(boolean isPlainFieldIndexed, SearchType... searchTypes) {
-    var desc = plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+    var desc = plainField(STANDARD_FIELD_TYPE, asList(searchTypes));
     desc.setIndexPlainValue(isPlainFieldIndexed);
     return desc;
   }
@@ -208,26 +208,26 @@ public class TestUtils {
   }
 
   public static PlainFieldDescription filterField() {
-    return plainField(PLAIN, KEYWORD_FIELD_TYPE, List.of(SearchType.FILTER));
+    return plainField(KEYWORD_FIELD_TYPE, List.of(SearchType.FILTER));
   }
 
   public static PlainFieldDescription multilangField() {
-    return plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+    return plainField(MULTILANG_FIELD_TYPE, emptyList());
   }
 
   public static PlainFieldDescription multilangField(String... inventorySearchType) {
-    var field = plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+    var field = plainField(MULTILANG_FIELD_TYPE, emptyList());
     field.setInventorySearchTypes(List.of(inventorySearchType));
     return field;
   }
 
   public static PlainFieldDescription standardFulltextField() {
-    return plainField(PLAIN, STANDARD_FIELD_TYPE, emptyList());
+    return plainField(STANDARD_FIELD_TYPE, emptyList());
   }
 
   public static ObjectFieldDescription objectField(Map<String, FieldDescription> props) {
     var objectFieldDescription = new ObjectFieldDescription();
-    objectFieldDescription.setType(FieldType.OBJECT);
+    objectFieldDescription.setType(OBJECT);
     objectFieldDescription.setProperties(props);
     return objectFieldDescription;
   }
@@ -294,8 +294,8 @@ public class TestUtils {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
-  public static Map<String, Object> toMap(Instance instance) {
-    return OBJECT_MAPPER.convertValue(instance, new TypeReference<>() {});
+  public static Map<String, Object> toMap(Object value) {
+    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() {});
   }
 
   public static void doIfNotNull(Object value, Consumer<Object> valueConsumer) {

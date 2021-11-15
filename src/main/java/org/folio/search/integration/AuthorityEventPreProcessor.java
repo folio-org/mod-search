@@ -2,8 +2,8 @@ package org.folio.search.integration;
 
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getEventPayload;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.DistinctiveFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
@@ -45,25 +45,25 @@ public class AuthorityEventPreProcessor {
     this.commonFields = Collections.unmodifiableList(commonFieldsList);
   }
 
-  public List<ResourceEventBody> process(ResourceEventBody eventBody) {
-    var event = eventBody.id(UUID.randomUUID().toString()).resourceName(AUTHORITY_RESOURCE);
-    var resultEvents = new ArrayList<ResourceEventBody>();
+  public List<ResourceEvent> process(ResourceEvent resourceEvent) {
+    var event = resourceEvent.id(UUID.randomUUID().toString()).resourceName(AUTHORITY_RESOURCE);
+    var resultEvents = new ArrayList<ResourceEvent>();
     var eventPayload = getEventPayload(event);
     fieldTypes.forEach((key, fields) -> {
       if (anyMatch(fields, k -> !getValuesByPath(eventPayload, k).isEmpty())) {
         resultEvents.add(createResourceEvent(event, fields));
       }
     });
-    return resultEvents.isEmpty() ? Collections.singletonList(eventBody) : resultEvents;
+    return resultEvents.isEmpty() ? Collections.singletonList(resourceEvent) : resultEvents;
   }
 
-  private ResourceEventBody createResourceEvent(ResourceEventBody event, List<String> fields) {
+  private ResourceEvent createResourceEvent(ResourceEvent event, List<String> fields) {
     var eventPayload = getEventPayload(event);
     var newEventBody = new LinkedHashMap<String, Object>();
     collectEntityFields(eventPayload, commonFields, newEventBody::put);
     collectEntityFields(eventPayload, fields, newEventBody::put);
 
-    return new ResourceEventBody()
+    return new ResourceEvent()
       .id(UUID.randomUUID().toString())
       .resourceName(AUTHORITY_RESOURCE)
       .tenant(event.getTenant())

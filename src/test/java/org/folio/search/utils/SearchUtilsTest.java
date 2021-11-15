@@ -15,12 +15,12 @@ import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
 
@@ -53,8 +53,8 @@ class SearchUtilsTest {
       throw new IOException("err");
     }, INDEX_NAME, "op"))
       .isInstanceOf(SearchOperationException.class)
-      .hasMessage(String.format("Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
-        INDEX_NAME, "op", "err"));
+      .hasMessage(String.format(
+        "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]", INDEX_NAME, "op", "err"));
   }
 
   @Test
@@ -78,9 +78,9 @@ class SearchUtilsTest {
   }
 
   @Test
-  void getElasticsearchIndexName_positive_resourceEventBody() {
-    var resourceEventBody = eventBody(RESOURCE_NAME, emptyMap());
-    var actual = getElasticsearchIndexName(resourceEventBody);
+  void getElasticsearchIndexName_positive_resourceEvent() {
+    var resourceEvent = resourceEvent(RESOURCE_NAME, emptyMap());
+    var actual = getElasticsearchIndexName(resourceEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 

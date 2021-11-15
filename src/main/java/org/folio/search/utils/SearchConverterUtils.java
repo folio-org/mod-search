@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -69,14 +69,24 @@ public class SearchConverterUtils {
     return Stream.empty();
   }
 
-  @SuppressWarnings("unchecked")
-  public static Map<String, Object> getNewAsMap(ResourceEventBody resourceEventBody) {
-    return (Map<String, Object>) resourceEventBody.getNew();
+  /**
+   * Returns event payload from {@link ResourceEvent} object.
+   *
+   * @param event - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
+  public static Map<String, Object> getEventPayload(ResourceEvent event) {
+    return event.getNew() != null ? getNewAsMap(event) : getOldAsMap(event);
   }
 
   @SuppressWarnings("unchecked")
-  public static Map<String, Object> getOldAsMap(ResourceEventBody resourceEventBody) {
-    return (Map<String, Object>) resourceEventBody.getOld();
+  public static Map<String, Object> getNewAsMap(ResourceEvent resourceEvent) {
+    return (Map<String, Object>) resourceEvent.getNew();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map<String, Object> getOldAsMap(ResourceEvent resourceEvent) {
+    return (Map<String, Object>) resourceEvent.getOld();
   }
 
   @SuppressWarnings("unchecked")

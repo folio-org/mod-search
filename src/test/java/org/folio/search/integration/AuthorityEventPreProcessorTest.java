@@ -3,7 +3,7 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.UPDATE;
+import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.UPDATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.DistinctiveFieldDescription;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -60,9 +60,9 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive() {
     var body = toMap(fullAuthorityRecord());
-    var eventBody = new ResourceEventBody().tenant(TENANT_ID).type(UPDATE)._new(body);
+    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
 
-    var actual = eventPreProcessor.process(eventBody);
+    var actual = eventPreProcessor.process(resourceEvent);
 
     assertThat(getGeneratedEventIds(actual)).hasSize(3);
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(
@@ -74,8 +74,8 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive_onlyPersonalIsPopulated() {
     var body = toMap(new Authority().id(AUTHORITY_ID).personalName("a personal name"));
-    var eventBody = new ResourceEventBody().tenant(TENANT_ID).type(UPDATE)._new(body);
-    var actual = eventPreProcessor.process(eventBody);
+    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
+    var actual = eventPreProcessor.process(resourceEvent);
 
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
   }
@@ -85,26 +85,26 @@ class AuthorityEventPreProcessorTest {
     var body = toMap(new Authority().id(AUTHORITY_ID)
       .subjectHeadings("a subject headings")
       .identifiers(List.of(new AuthorityIdentifiers().value("an authority identifier"))));
-    var eventBody = new ResourceEventBody().tenant(TENANT_ID).type(UPDATE)._new(body);
-    var actual = eventPreProcessor.process(eventBody);
+    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
+    var actual = eventPreProcessor.process(resourceEvent);
 
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
   }
 
-  private static ResourceEventBody expectedResourceEvent(Map<String, Object> expectedAuthority) {
-    return new ResourceEventBody()
+  private static ResourceEvent expectedResourceEvent(Map<String, Object> expectedAuthority) {
+    return new ResourceEvent()
       .type(UPDATE)
       .tenant(TENANT_ID)
       .resourceName(AUTHORITY_RESOURCE)
       ._new(expectedAuthority);
   }
 
-  private static List<String> getGeneratedEventIds(List<ResourceEventBody> actual) {
-    return actual.stream().map(ResourceEventBody::getId).filter(Objects::nonNull).collect(toList());
+  private static List<String> getGeneratedEventIds(List<ResourceEvent> actual) {
+    return actual.stream().map(ResourceEvent::getId).filter(Objects::nonNull).collect(toList());
   }
 
-  private static List<ResourceEventBody> withClearGeneratedEventIds(List<ResourceEventBody> actual) {
-    return actual.stream().map(e -> e.id(null)).collect(toList());
+  private static List<ResourceEvent> withClearGeneratedEventIds(List<ResourceEvent> actual) {
+    return actual.stream().map(event -> event.id(null)).collect(toList());
   }
 
   private static Authority fullAuthorityRecord() {

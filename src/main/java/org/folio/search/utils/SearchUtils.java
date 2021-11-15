@@ -5,8 +5,6 @@ import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 
 import com.google.common.base.CaseFormat;
 import java.util.Collections;
@@ -21,7 +19,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -34,6 +32,7 @@ public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
+  public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String CQL_META_FIELD_PREFIX = "cql.";
@@ -93,7 +92,7 @@ public class SearchUtils {
    * @param event resource event as {@link ResourceIdEvent} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceEventBody event) {
+  public static String getElasticsearchIndexName(ResourceEvent event) {
     return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
   }
 
@@ -280,16 +279,6 @@ public class SearchUtils {
    */
   public static String getResourceName(Class<?> resourceClass) {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, resourceClass.getSimpleName());
-  }
-
-  /**
-   * Returns event payload from {@link ResourceEventBody} object.
-   *
-   * @param body - resource event body to analyze
-   * @return event payload as {@link Map} object.
-   */
-  public static Map<String, Object> getEventPayload(ResourceEventBody body) {
-    return body.getNew() != null ? getNewAsMap(body) : getOldAsMap(body);
   }
 
   private static Object getMultilangValueObject(Object value) {

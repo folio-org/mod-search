@@ -62,13 +62,13 @@
       "headingType": "Geographic Name",
       "distinctType": "geographicName"
     },
-    "sftGeographicName": {
+    "sftGeographicTerm": {
       "type": "distinctive",
       "index": "source",
       "headingType": "Geographic Name",
       "distinctType": "geographicName"
     },
-    "saftGeographicName": {
+    "saftGeographicTerm": {
       "type": "distinctive",
       "index": "source",
       "distinctType": "geographicName"
@@ -142,23 +142,31 @@
       "type": "object",
       "properties": {
         "createdDate": {
-          "index": "date"
+          "index": "source"
         },
         "createdByUserId": {
-          "index": "keyword"
+          "index": "source"
         },
         "createdByUsername": {
-          "index": "keyword"
+          "index": "source"
         },
         "updatedDate": {
-          "index": "date"
+          "index": "source"
         },
         "updatedByUserId": {
-          "index": "keyword"
+          "index": "source"
         },
         "updatedByUsername": {
-          "index": "keyword"
+          "index": "source"
         }
+      }
+    },
+    "notes": {
+      "noteTypeId": {
+        "index": "source"
+      },
+      "value": {
+        "index": "source"
       }
     }
   },

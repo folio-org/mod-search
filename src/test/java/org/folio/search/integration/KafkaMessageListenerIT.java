@@ -16,9 +16,9 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestUtils.array;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.TenantNotInitializedException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
@@ -100,7 +100,7 @@ class KafkaMessageListenerIT {
   @Test
   void handleEvents_positive() {
     var expectedEvent = idEvent(INSTANCE_ID);
-    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody());
+    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService).indexResourcesById(List.of(expectedEvent)));
   }
@@ -112,7 +112,7 @@ class KafkaMessageListenerIT {
     when(indexService.indexResourcesById(List.of(idEvent))).thenThrow(
       new TenantNotInitializedException(array(TENANT_ID), null));
 
-    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody()).get();
+    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService, times(3)).indexResourcesById(List.of(idEvent)));
@@ -125,7 +125,7 @@ class KafkaMessageListenerIT {
     when(indexService.indexResourcesById(List.of(idEvent))).thenThrow(
       new SQLGrammarException("could not extract ResultSet", new SQLException()));
 
-    kafkaTemplate.send(inventoryInstanceTopic(TENANT_ID), INSTANCE_ID, instanceEventBody()).get();
+    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService, times(3)).indexResourcesById(List.of(idEvent)));
@@ -147,7 +147,7 @@ class KafkaMessageListenerIT {
     });
 
     sendMessagesWithStoppedListenerContainer(ids, EVENT_LISTENER_ID,
-      inventoryInstanceTopic(TENANT_ID), KafkaMessageListenerIT::instanceEventBody);
+      inventoryInstanceTopic(), KafkaMessageListenerIT::instanceEvent);
 
     var expectedEvents = ids.stream().map(KafkaMessageListenerIT::idEvent).collect(toList());
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
@@ -161,9 +161,9 @@ class KafkaMessageListenerIT {
   void handleEvents_positive_logFailedAuthorityEvent() {
     var authorityIds = List.of(randomId(), randomId());
 
-    when(authorityEventPreProcessor.process(any())).thenAnswer(inv -> List.of(inv.<ResourceEventBody>getArgument(0)));
+    when(authorityEventPreProcessor.process(any())).thenAnswer(inv -> List.of(inv.<ResourceEvent>getArgument(0)));
     when(indexService.indexResources(anyList())).thenAnswer(inv -> {
-      var eventBodies = inv.<List<ResourceEventBody>>getArgument(0);
+      var eventBodies = inv.<List<ResourceEvent>>getArgument(0);
       if (eventBodies.size() == 2) {
         throw new SearchOperationException("Failed to save bulk");
       }
@@ -173,10 +173,10 @@ class KafkaMessageListenerIT {
       return getSuccessIndexOperationResponse();
     });
 
-    sendMessagesWithStoppedListenerContainer(authorityIds, AUTHORITY_LISTENER_ID, inventoryAuthorityTopic(TENANT_ID),
-      KafkaMessageListenerIT::authorityEventBody);
+    sendMessagesWithStoppedListenerContainer(authorityIds, AUTHORITY_LISTENER_ID, inventoryAuthorityTopic(),
+      KafkaMessageListenerIT::authorityEvent);
 
-    var expectedEvents = authorityIds.stream().map(KafkaMessageListenerIT::authorityEventBody).collect(toList());
+    var expectedEvents = authorityIds.stream().map(KafkaMessageListenerIT::authorityEvent).collect(toList());
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       verify(indexService).indexResources(List.of(expectedEvents.get(0)));
       verify(indexService, times(3)).indexResources(List.of(expectedEvents.get(1)));
@@ -201,7 +201,7 @@ class KafkaMessageListenerIT {
   }
 
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
-    Function<String, ResourceEventBody> resourceEventFunction) {
+    Function<String, ResourceEvent> resourceEventFunction) {
     var container = kafkaListenerEndpointRegistry.getListenerContainer(containerId);
     container.stop();
     ids.forEach(id -> kafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));
@@ -212,16 +212,16 @@ class KafkaMessageListenerIT {
     return ResourceIdEvent.of(id, INSTANCE_RESOURCE, TENANT_ID, INDEX);
   }
 
-  private static ResourceEventBody instanceEventBody() {
-    return instanceEventBody(INSTANCE_ID);
+  private static ResourceEvent instanceEvent() {
+    return instanceEvent(INSTANCE_ID);
   }
 
-  private static ResourceEventBody instanceEventBody(String instanceId) {
-    return eventBody(INSTANCE_RESOURCE, mapOf("id", instanceId));
+  private static ResourceEvent instanceEvent(String instanceId) {
+    return resourceEvent(INSTANCE_RESOURCE, mapOf("id", instanceId));
   }
 
-  private static ResourceEventBody authorityEventBody(String id) {
-    return eventBody(AUTHORITY_RESOURCE, mapOf("id", id)).id(id);
+  private static ResourceEvent authorityEvent(String id) {
+    return resourceEvent(AUTHORITY_RESOURCE, mapOf("id", id)).id(id);
   }
 
   @TestConfiguration

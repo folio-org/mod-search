@@ -14,7 +14,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -37,12 +37,12 @@ public class SearchDocumentConverter {
   private final ResourceDescriptionService descriptionService;
 
   /**
-   * Converts {@link ResourceEventBody} object to the {@link SearchDocumentBody} objects.
+   * Converts {@link ResourceEvent} object to the {@link SearchDocumentBody} objects.
    *
    * @param resourceEvent - resource event for conversion to Elasticsearch document
    * @return list with elasticsearch documents.
    */
-  public Optional<SearchDocumentBody> convert(ResourceEventBody resourceEvent) {
+  public Optional<SearchDocumentBody> convert(ResourceEvent resourceEvent) {
     return canConvertEvent(resourceEvent)
       ? Optional.of(convert(buildConversionContext(resourceEvent)))
       : Optional.empty();
@@ -67,16 +67,16 @@ public class SearchDocumentConverter {
       .collect(toList());
   }
 
-  private static boolean canConvertEvent(ResourceEventBody resourceEventBody) {
-    return resourceEventBody.getNew() instanceof Map;
+  private static boolean canConvertEvent(ResourceEvent resourceEvent) {
+    return resourceEvent.getNew() instanceof Map;
   }
 
   @SuppressWarnings("unchecked")
-  private ConversionContext buildConversionContext(ResourceEventBody event) {
+  private ConversionContext buildConversionContext(ResourceEvent event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceData = (Map<String, Object>) event.getNew();
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
-    return ConversionContext.of(event.getTenant(), resourceData, resourceDescription, resourceLanguages);
+    return ConversionContext.of(event.getId(), event.getTenant(), resourceData, resourceDescription, resourceLanguages);
   }
 
   private static Map<String, Object> convertMapUsingResourceFields(

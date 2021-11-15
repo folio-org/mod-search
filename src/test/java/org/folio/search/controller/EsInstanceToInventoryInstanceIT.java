@@ -41,12 +41,14 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
       .andExpect(jsonPath("totalRecords", is(1)))
       // make sure that no unexpected properties are present
-      .andExpect(jsonPath("instances[0].length()", is(4)));
+      .andExpect(jsonPath("instances[0].length()", is(6)));
 
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
     assertThat(actual.getId(), is(expected.getId()));
     assertThat(actual.getTitle(), is(expected.getTitle()));
     assertThat(actual.getContributors(), is(expected.getContributors()));
+    assertThat(actual.getStaffSuppress(), is(false));
+    assertThat(actual.getDiscoverySuppress(), is(expected.getDiscoverySuppress()));
     assertThat(actual.getPublication(), is(expected.getPublication()));
   }
 

@@ -435,6 +435,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | :------------------------------|:--------|:-------------|
 | `holdings.permanentLocationId` | term    | Requests a holding permanent location id facet |
 | `holdings.discoverySuppress`   | term    | Requests a holding discovery suppress facet |
+| `holdings.sourceId`            | term    | Requests a holding sourceId facet |
 | `holdingTags`                  | term    | Requests a holding tag facet |
 
 #### Item facets

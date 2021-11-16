@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDING_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -39,10 +38,10 @@ class HoldingsControllerTest {
   @MockBean private ResourceIdService resourceIdService;
 
   @Test
-  void getInstanceIds_positive() throws Exception {
+  void getHoldingIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDING_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, "holdings.id");
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

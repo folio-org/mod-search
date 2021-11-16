@@ -13,6 +13,7 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
+import static org.folio.search.utils.TestUtils.toMap;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -225,7 +226,7 @@ public abstract class BaseIntegrationTest {
   protected static void setUpTenant(Authority... authorities) {
     var topic = inventoryAuthorityTopic(TENANT_ID);
     setUpTenant(TENANT_ID, authoritySearchPath(), () -> {}, asList(authorities),
-      record -> kafkaTemplate.send(topic, record.getId(), eventBody(null, record).tenant(TENANT_ID)));
+      record -> kafkaTemplate.send(topic, record.getId(), eventBody(null, toMap(record)).tenant(TENANT_ID)));
   }
 
   @SneakyThrows

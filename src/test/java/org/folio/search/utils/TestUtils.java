@@ -294,8 +294,8 @@ public class TestUtils {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
-  public static Map<String, Object> toMap(Instance instance) {
-    return OBJECT_MAPPER.convertValue(instance, new TypeReference<>() {});
+  public static Map<String, Object> toMap(Object object) {
+    return OBJECT_MAPPER.convertValue(object, new TypeReference<>() {});
   }
 
   public static void doIfNotNull(Object value, Consumer<Object> valueConsumer) {

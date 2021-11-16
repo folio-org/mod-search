@@ -1,6 +1,6 @@
 package org.folio.search.controller;
 
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public class InstanceController implements InstancesApi {
 
   @Override
   public ResponseEntity<Void> getInstanceIds(String query, String tenantId) {
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, ID_FIELD);
     return resourceIdsStreamHelper.streamResourceIds(request);
   }
 }

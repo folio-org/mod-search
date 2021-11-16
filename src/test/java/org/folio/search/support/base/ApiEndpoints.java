@@ -42,4 +42,8 @@ public class ApiEndpoints {
   public static String holdingIds(String query) {
     return String.format("/search/holdings/ids?query=%s", query);
   }
+
+  public static String authorityIds(String query) {
+    return String.format("/search/authorities/ids?query=%s", query);
+  }
 }

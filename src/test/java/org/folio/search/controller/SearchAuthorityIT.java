@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySample;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
+import static org.folio.search.support.base.ApiEndpoints.authorityIds;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,6 +13,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,12 +32,19 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   }
 
   @MethodSource("testDataProvider")
-  @DisplayName("search by instances (single instance found)")
+  @DisplayName("search by authorities (single instance found)")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   void searchByAuthorities_parameterized(String query, String value) throws Exception {
     doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.authorities[0].id", is(getAuthoritySampleId())));
+  }
+
+  @Test
+  void getAuthorityIds_positive() throws Exception {
+    doGet(authorityIds("cql.allRecords=1"))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.ids[0].id", is(getAuthoritySampleId())));
   }
 
   private static Stream<Arguments> testDataProvider() {

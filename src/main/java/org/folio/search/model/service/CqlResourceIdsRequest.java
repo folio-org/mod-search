@@ -8,9 +8,6 @@ import org.folio.search.model.ResourceRequest;
 @RequiredArgsConstructor(staticName = "of")
 public class CqlResourceIdsRequest implements ResourceRequest {
 
-  public static final String INSTANCE_ID_PATH = "id";
-  public static final String HOLDING_ID_PATH = "holdings.id";
-
   /**
    * Resource name.
    */

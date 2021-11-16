@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchOperationException;
@@ -30,6 +31,8 @@ import org.folio.spring.integration.XOkapiHeaders;
 public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
+  public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
+  public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String CQL_META_FIELD_PREFIX = "cql.";

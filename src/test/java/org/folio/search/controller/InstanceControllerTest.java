@@ -2,7 +2,7 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.controller.IndexControllerTest.INDEX_NAME;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -208,7 +208,7 @@ class InstanceControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, ID_FIELD);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

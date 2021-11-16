@@ -43,7 +43,7 @@ paths:
           description: 'Instance ids as json stream'
           content:
             application/json:
-              example: examples/InstanceIdsResult.sample
+              example: examples/resourceIdsResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -58,10 +58,10 @@ paths:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
-          description: 'Instance ids as json stream'
+          description: 'Holding ids as json stream'
           content:
             application/json:
-              example: examples/HoldingIdsResult.sample
+              example: examples/resourceIdsResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -106,6 +106,24 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/authoritySearchResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /authorities/ids:
+    get:
+      operationId: getAuthorityIds
+      description: Get a list of authority ids for CQL query
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Authority ids as json stream'
+          content:
+            application/json:
+              example: examples/resourceIdsResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':

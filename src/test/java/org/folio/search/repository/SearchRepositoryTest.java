@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.elasticsearch.search.SearchHit.createFromMap;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -78,7 +78,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", ID_FIELD);
     var actualIds = new ArrayList<List<String>>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::add);
@@ -93,7 +93,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(false, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, "query", ID_FIELD);
     var actualIds = new ArrayList<String>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::addAll);

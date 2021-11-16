@@ -4,7 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.MAX_ELASTICSEARCH_QUERY_SIZE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -112,7 +112,7 @@ class ResourceIdServiceTest {
   }
 
   private static CqlResourceIdsRequest request() {
-    return CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, TEST_QUERY, INSTANCE_ID_PATH);
+    return CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, TEST_QUERY, ID_FIELD);
   }
 
   private static SearchSourceBuilder searchSource() {

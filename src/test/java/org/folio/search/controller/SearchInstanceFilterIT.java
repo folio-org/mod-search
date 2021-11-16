@@ -304,7 +304,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("statisticalCodes"), mapOf(
         "statisticalCodes", facet(facetItem("b5968c9e-cddc-4576-99e3-8e60aed8b0dd", 1),
-          facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1))))
+          facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
+
+      arguments("id=*", array("holdings.sourceId"), mapOf(
+        "holdings.sourceId", facet(facetItem("FOLIO", 1))))
     );
   }
 
@@ -379,7 +382,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
-          .statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
+          .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 

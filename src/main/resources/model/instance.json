@@ -326,6 +326,10 @@
         "id": {
           "index": "keyword"
         },
+        "sourceId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
         "permanentLocationId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"

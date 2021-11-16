@@ -49,7 +49,6 @@ class KafkaMessageListenerTest {
 
   @InjectMocks private KafkaMessageListener messageListener;
   @Mock private IndexService indexService;
-  @Mock private AuthorityEventPreProcessor eventPreProcessor;
   @Spy private final FolioMessageBatchProcessor batchProcessor =
     new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
 
@@ -143,7 +142,6 @@ class KafkaMessageListenerTest {
     var authorityEvent = new ResourceEvent().type(TypeEnum.UPDATE).tenant(TENANT_ID)._new(toMap(authority));
     var expectedEvents = singletonList(authorityEvent);
 
-    when(eventPreProcessor.process(authorityEvent)).thenReturn(expectedEvents);
     messageListener.handleAuthorityEvents(List.of(
       new ConsumerRecord<>(inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, authorityEvent)));
 

@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.SearchDocumentBody.forDeleteResourceEvent;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -28,6 +29,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEvent.TypeEnum;
+import org.folio.search.integration.AuthorityEventPreProcessor;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
@@ -46,6 +48,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Mock private SearchDocumentConverter searchDocumentConverter;
   @Mock private TenantScopedExecutionService executionService;
+  @Mock private AuthorityEventPreProcessor authorityEventPreProcessor;
   @InjectMocks private MultiTenantSearchDocumentConverter multiTenantConverter;
 
   @Test
@@ -116,6 +119,20 @@ class MultiTenantSearchDocumentConverterTest {
   void convertDeleteEventsAsMap_positive_emptyList() {
     var actual = multiTenantConverter.convertDeleteEventsAsMap(emptyList());
     assertThat(actual).isEqualTo(emptyMap());
+  }
+
+  @Test
+  void convertAuthorityEvent_positive() {
+    var event = resourceEvent(AUTHORITY_RESOURCE, mapOf("id", RESOURCE_ID));
+    var searchDocument = searchDocumentBody(event);
+
+    when(authorityEventPreProcessor.process(event)).thenReturn(List.of(event));
+    when(searchDocumentConverter.convert(event)).thenReturn(Optional.of(searchDocument));
+    when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
+      invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
+
+    var actual = multiTenantConverter.convert(List.of(event));
+    assertThat(actual).isEqualTo(List.of(searchDocumentBody(event)));
   }
 
   private static List<ResourceEvent> eventsForTenant(String tenant) {

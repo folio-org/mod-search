@@ -3,14 +3,13 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.UPDATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.mockito.Mockito.when;
@@ -60,9 +59,8 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive() {
     var body = toMap(fullAuthorityRecord());
-    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
 
-    var actual = eventPreProcessor.process(resourceEvent);
+    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, body));
 
     assertThat(getGeneratedEventIds(actual)).hasSize(3);
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(
@@ -74,9 +72,7 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive_onlyPersonalIsPopulated() {
     var body = toMap(new Authority().id(AUTHORITY_ID).personalName("a personal name"));
-    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
-    var actual = eventPreProcessor.process(resourceEvent);
-
+    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, body));
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
   }
 
@@ -85,18 +81,14 @@ class AuthorityEventPreProcessorTest {
     var body = toMap(new Authority().id(AUTHORITY_ID)
       .subjectHeadings("a subject headings")
       .identifiers(List.of(new AuthorityIdentifiers().value("an authority identifier"))));
-    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).type(UPDATE)._new(body);
+    var resourceEvent = resourceEvent(AUTHORITY_RESOURCE, body);
     var actual = eventPreProcessor.process(resourceEvent);
 
     assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
   }
 
   private static ResourceEvent expectedResourceEvent(Map<String, Object> expectedAuthority) {
-    return new ResourceEvent()
-      .type(UPDATE)
-      .tenant(TENANT_ID)
-      .resourceName(AUTHORITY_RESOURCE)
-      ._new(expectedAuthority);
+    return resourceEvent(null, AUTHORITY_RESOURCE, expectedAuthority);
   }
 
   private static List<String> getGeneratedEventIds(List<ResourceEvent> actual) {
@@ -138,9 +130,7 @@ class AuthorityEventPreProcessorTest {
     resourceDescription.setFields(mapOf(
       "id", keywordField(),
       "subjectHeadings", standardField(),
-      "identifiers", objectField(mapOf(
-        "identifierTypeId", keywordField(),
-        "value", keywordField()))));
+      "identifiers", objectField(mapOf("identifierTypeId", keywordField(), "value", keywordField()))));
     var fields = resourceDescription.getFields();
     PERSONAL_NAME_FIELDS.forEach(field -> fields.put(field, distinctiveField(PERSONAL_NAME_FIELDS.get(0))));
     CORPORATE_NAME_FIELDS.forEach(field -> fields.put(field, distinctiveField(CORPORATE_NAME_FIELDS.get(0))));

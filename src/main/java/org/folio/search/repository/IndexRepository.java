@@ -143,7 +143,6 @@ public class IndexRepository {
   }
 
   private static DeleteRequest prepareDeleteRequest(SearchDocumentBody event) {
-    return new DeleteRequest(event.getIndex())
-      .id(event.getId()).routing(event.getRouting());
+    return new DeleteRequest(event.getIndex()).id(event.getId()).routing(event.getRouting());
   }
 }

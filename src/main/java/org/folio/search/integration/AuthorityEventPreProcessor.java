@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -27,6 +26,9 @@ public class AuthorityEventPreProcessor {
   private Map<String, List<String>> fieldTypes;
   private List<String> commonFields;
 
+  /**
+   * Initializes {@link AuthorityEventPreProcessor} spring bean.
+   */
   @PostConstruct
   public void init() {
     var fields = resourceDescriptionService.get(AUTHORITY_RESOURCE);
@@ -45,38 +47,42 @@ public class AuthorityEventPreProcessor {
     this.commonFields = Collections.unmodifiableList(commonFieldsList);
   }
 
+  /**
+   * Divides authority record event into several events based on distinctive type of resource description fields.
+   *
+   * @param resourceEvent - resource event to process as {@link ResourceEvent} object
+   * @return list with divided authority event objects
+   */
   public List<ResourceEvent> process(ResourceEvent resourceEvent) {
-    var event = resourceEvent.id(UUID.randomUUID().toString()).resourceName(AUTHORITY_RESOURCE);
     var resultEvents = new ArrayList<ResourceEvent>();
-    var eventPayload = getEventPayload(event);
-    fieldTypes.forEach((key, fields) -> {
+    var eventPayload = getEventPayload(resourceEvent);
+    for (var fields : fieldTypes.values()) {
       if (anyMatch(fields, k -> !getValuesByPath(eventPayload, k).isEmpty())) {
-        resultEvents.add(createResourceEvent(event, fields));
+        resultEvents.add(createResourceEvent(resourceEvent, fields));
       }
-    });
+    }
     return resultEvents.isEmpty() ? Collections.singletonList(resourceEvent) : resultEvents;
   }
 
   private ResourceEvent createResourceEvent(ResourceEvent event, List<String> fields) {
     var eventPayload = getEventPayload(event);
     var newEventBody = new LinkedHashMap<String, Object>();
-    collectEntityFields(eventPayload, commonFields, newEventBody::put);
-    collectEntityFields(eventPayload, fields, newEventBody::put);
+    collectEntityFields(eventPayload, newEventBody, commonFields);
+    collectEntityFields(eventPayload, newEventBody, fields);
 
     return new ResourceEvent()
       .id(UUID.randomUUID().toString())
-      .resourceName(AUTHORITY_RESOURCE)
+      .resourceName(event.getResourceName())
       .tenant(event.getTenant())
       ._new(newEventBody)
       .type(event.getType());
   }
 
-  private static void collectEntityFields(
-    Map<String, Object> event, List<String> fields, BiConsumer<String, Object> keyValueConsumer) {
-    fields.forEach(field -> {
-      if (event.containsKey(field)) {
-        keyValueConsumer.accept(field, event.get(field));
+  private static void collectEntityFields(Map<String, Object> source, Map<String, Object> target, List<String> fields) {
+    for (var field : fields) {
+      if (source.containsKey(field)) {
+        target.put(field, source.get(field));
       }
-    });
+    }
   }
 }

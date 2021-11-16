@@ -8,9 +8,10 @@ import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,6 @@ import org.springframework.stereotype.Component;
 public class KafkaMessageListener {
 
   private final IndexService indexService;
-  private final AuthorityEventPreProcessor authorityEventPreProcessor;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
 
   /**
@@ -67,14 +67,16 @@ public class KafkaMessageListener {
     topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
   public void handleAuthorityEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
-    List<ResourceEvent> batch = consumerRecords.stream()
-      .map(ConsumerRecord::value)
-      .map(authorityEventPreProcessor::process)
-      .flatMap(Collection::stream)
-      .collect(toList());
-
+    var batch = getAuthorityResourceEvents(consumerRecords);
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       indexService::indexResources, KafkaMessageListener::logFailedEvent);
+  }
+
+  private static List<ResourceEvent> getAuthorityResourceEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
+    return records.stream()
+      .map(ConsumerRecord::value)
+      .map(event -> event.id(getResourceEventId(event)).resourceName(AUTHORITY_RESOURCE))
+      .collect(toList());
   }
 
   private List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEvent>> events) {

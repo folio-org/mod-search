@@ -21,7 +21,6 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -84,7 +83,6 @@ class KafkaMessageListenerIT {
   @Autowired private KafkaTemplate<String, Object> kafkaTemplate;
   @Autowired private FolioKafkaProperties kafkaProperties;
   @MockBean private IndexService indexService;
-  @MockBean private AuthorityEventPreProcessor authorityEventPreProcessor;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -160,8 +158,6 @@ class KafkaMessageListenerIT {
   @Test
   void handleEvents_positive_logFailedAuthorityEvent() {
     var authorityIds = List.of(randomId(), randomId());
-
-    when(authorityEventPreProcessor.process(any())).thenAnswer(inv -> List.of(inv.<ResourceEvent>getArgument(0)));
     when(indexService.indexResources(anyList())).thenAnswer(inv -> {
       var eventBodies = inv.<List<ResourceEvent>>getArgument(0);
       if (eventBodies.size() == 2) {

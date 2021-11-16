@@ -1,6 +1,8 @@
 package org.folio.search.utils;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.MapUtils.getString;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
 import java.util.List;
 import java.util.Map;
@@ -87,6 +89,10 @@ public class SearchConverterUtils {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getOldAsMap(ResourceEvent resourceEvent) {
     return (Map<String, Object>) resourceEvent.getOld();
+  }
+
+  public static String getResourceEventId(ResourceEvent event) {
+    return getString(getEventPayload(event), ID_FIELD);
   }
 
   @SuppressWarnings("unchecked")

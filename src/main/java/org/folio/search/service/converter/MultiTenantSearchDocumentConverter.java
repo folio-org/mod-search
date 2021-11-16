@@ -80,11 +80,10 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private List<SearchDocumentBody> convertEvents(Entry<String, List<ResourceEvent>> eventsPerTenant) {
-    var events = eventsPerTenant.getValue().stream()
+    return eventsPerTenant.getValue().stream()
       .map(this::convertResourceEvent)
       .flatMap(Optional::stream)
       .collect(toList());
-    return events;
   }
 
   private Optional<SearchDocumentBody> convertResourceEvent(ResourceEvent resourceEvent) {

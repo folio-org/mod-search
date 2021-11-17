@@ -18,7 +18,7 @@ import org.folio.search.model.types.FieldType;
   @Type(value = PlainFieldDescription.class, name = "plain"),
   @Type(value = SearchFieldDescriptor.class, name = "search"),
   @Type(value = ObjectFieldDescription.class, name = "object"),
-  @Type(value = DistinctiveFieldDescription.class, name = "distinctive"),
+  @Type(value = AuthorityPlainFieldDescription.class, name = "authority"),
 })
 public abstract class FieldDescription {
 

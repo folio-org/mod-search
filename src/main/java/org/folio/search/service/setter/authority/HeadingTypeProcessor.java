@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.folio.search.model.metadata.DistinctiveFieldDescription;
+import org.folio.search.model.metadata.AuthorityPlainFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
@@ -33,8 +33,8 @@ public class HeadingTypeProcessor implements FieldProcessor<Map<String, Object>,
     }
 
     return searchFieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, entry.getKey())
-      .filter(DistinctiveFieldDescription.class::isInstance)
-      .map(DistinctiveFieldDescription.class::cast)
-      .map(DistinctiveFieldDescription::getHeadingType);
+      .filter(AuthorityPlainFieldDescription.class::isInstance)
+      .map(AuthorityPlainFieldDescription.class::cast)
+      .map(AuthorityPlainFieldDescription::getHeadingType);
   }
 }

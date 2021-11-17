@@ -24,10 +24,10 @@ public enum FieldType {
   SEARCH("search"),
 
   /**
-   * Field designed for splitting entity to the multiple entities using that the value of the field as a criterion to
-   * split.
+   * Field designed for splitting entity to the multiple entities for authority resource using that the value of the
+   * field as a criterion to split.
    */
-  DISTINCTIVE("distinctive");
+  AUTHORITY("authority");
 
   /**
    * Json representation of enum.

@@ -14,7 +14,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.model.metadata.DistinctiveFieldDescription;
+import org.folio.search.model.metadata.AuthorityPlainFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +35,8 @@ public class AuthorityEventPreProcessor {
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
     for (var entry : fields.getFields().entrySet()) {
-      if (entry.getValue() instanceof DistinctiveFieldDescription) {
-        var desc = (DistinctiveFieldDescription) entry.getValue();
+      if (entry.getValue() instanceof AuthorityPlainFieldDescription) {
+        var desc = (AuthorityPlainFieldDescription) entry.getValue();
         fieldPerDistinctiveType.computeIfAbsent(desc.getDistinctType(), v -> new ArrayList<>()).add(entry.getKey());
         continue;
       }

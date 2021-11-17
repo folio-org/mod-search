@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.model.metadata.DistinctiveFieldDescription;
+import org.folio.search.model.metadata.AuthorityPlainFieldDescription;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -139,7 +139,7 @@ class AuthorityEventPreProcessorTest {
   }
 
   private static FieldDescription distinctiveField(String distinctType) {
-    var fieldDescription = new DistinctiveFieldDescription();
+    var fieldDescription = new AuthorityPlainFieldDescription();
     fieldDescription.setDistinctType(distinctType);
     fieldDescription.setIndex(STANDARD_FIELD_TYPE);
     return fieldDescription;

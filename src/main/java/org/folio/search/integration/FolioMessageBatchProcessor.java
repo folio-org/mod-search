@@ -1,6 +1,7 @@
 package org.folio.search.integration;
 
 import static java.util.Collections.singletonList;
+import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class FolioMessageBatchProcessor {
 
   private final Map<String, RetryTemplate> retryTemplateBeans;
+  @Qualifier(value = KAFKA_RETRY_TEMPLATE_NAME)
   private final RetryTemplate defaultRetryTemplate;
 
   /**

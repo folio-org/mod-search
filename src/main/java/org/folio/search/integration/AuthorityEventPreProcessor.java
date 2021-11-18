@@ -1,5 +1,6 @@
 package org.folio.search.integration;
 
+import static java.util.Collections.singletonList;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
@@ -10,7 +11,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -56,26 +56,32 @@ public class AuthorityEventPreProcessor {
   public List<ResourceEvent> process(ResourceEvent resourceEvent) {
     var resultEvents = new ArrayList<ResourceEvent>();
     var eventPayload = getEventPayload(resourceEvent);
-    for (var fields : fieldTypes.values()) {
+    int counter = 0;
+    for (var entry : fieldTypes.entrySet()) {
+      var fields = entry.getValue();
       if (anyMatch(fields, k -> !getValuesByPath(eventPayload, k).isEmpty())) {
-        resultEvents.add(createResourceEvent(resourceEvent, fields));
+        resultEvents.add(createResourceEvent(entry.getKey(), counter++, resourceEvent, fields));
       }
     }
-    return resultEvents.isEmpty() ? Collections.singletonList(resourceEvent) : resultEvents;
+    return resultEvents.isEmpty() ? singletonList(resourceEvent.id(0 + "_" + resourceEvent.getId())) : resultEvents;
   }
 
-  private ResourceEvent createResourceEvent(ResourceEvent event, List<String> fields) {
+  private ResourceEvent createResourceEvent(String type, int counter, ResourceEvent event, List<String> fields) {
     var eventPayload = getEventPayload(event);
     var newEventBody = new LinkedHashMap<String, Object>();
     collectEntityFields(eventPayload, newEventBody, commonFields);
     collectEntityFields(eventPayload, newEventBody, fields);
 
     return new ResourceEvent()
-      .id(UUID.randomUUID().toString())
+      .id(getNewResourceId(type, counter, event.getId()))
       .resourceName(event.getResourceName())
       .tenant(event.getTenant())
       ._new(newEventBody)
       .type(event.getType());
+  }
+
+  private static String getNewResourceId(String type, int index, String eventId) {
+    return index + "_" + eventId + "_" + type;
   }
 
   private static void collectEntityFields(Map<String, Object> source, Map<String, Object> target, List<String> fields) {

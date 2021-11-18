@@ -1,10 +1,11 @@
 package org.folio.search.integration;
 
-import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -20,7 +21,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
@@ -59,21 +60,19 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive() {
     var body = toMap(fullAuthorityRecord());
-
-    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, body));
-
-    assertThat(getGeneratedEventIds(actual)).hasSize(3);
-    assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(
-      expectedResourceEvent(eventWithoutFields(body, flatList(CORPORATE_NAME_FIELDS, UNIFORM_TITLE_FIELDS))),
-      expectedResourceEvent(eventWithoutFields(body, flatList(PERSONAL_NAME_FIELDS, UNIFORM_TITLE_FIELDS))),
-      expectedResourceEvent(eventWithoutFields(body, flatList(PERSONAL_NAME_FIELDS, CORPORATE_NAME_FIELDS)))));
+    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_ID, AUTHORITY_RESOURCE, body));
+    assertThat(actual).isEqualTo(List.of(
+      expectedEvent("personalName", 0, eventWithoutFields(body, flatList(CORPORATE_NAME_FIELDS, UNIFORM_TITLE_FIELDS))),
+      expectedEvent("corporateName", 1, eventWithoutFields(body, flatList(PERSONAL_NAME_FIELDS, UNIFORM_TITLE_FIELDS))),
+      expectedEvent("uniformTitle", 2, eventWithoutFields(body, flatList(PERSONAL_NAME_FIELDS, CORPORATE_NAME_FIELDS))))
+    );
   }
 
   @Test
   void process_positive_onlyPersonalIsPopulated() {
     var body = toMap(new Authority().id(AUTHORITY_ID).personalName("a personal name"));
-    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, body));
-    assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
+    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_ID, AUTHORITY_RESOURCE, body));
+    assertThat(actual).isEqualTo(List.of(expectedEvent("personalName", 0, body)));
   }
 
   @Test
@@ -81,22 +80,17 @@ class AuthorityEventPreProcessorTest {
     var body = toMap(new Authority().id(AUTHORITY_ID)
       .subjectHeadings("a subject headings")
       .identifiers(List.of(new AuthorityIdentifiers().value("an authority identifier"))));
-    var resourceEvent = resourceEvent(AUTHORITY_RESOURCE, body);
-    var actual = eventPreProcessor.process(resourceEvent);
-
-    assertThat(withClearGeneratedEventIds(actual)).isEqualTo(List.of(expectedResourceEvent(body)));
+    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_ID, AUTHORITY_RESOURCE, body));
+    assertThat(actual).isEqualTo(List.of(expectedEvent(null, 0, body)));
   }
 
-  private static ResourceEvent expectedResourceEvent(Map<String, Object> expectedAuthority) {
-    return resourceEvent(null, AUTHORITY_RESOURCE, expectedAuthority);
-  }
-
-  private static List<String> getGeneratedEventIds(List<ResourceEvent> actual) {
-    return actual.stream().map(ResourceEvent::getId).filter(Objects::nonNull).collect(toList());
-  }
-
-  private static List<ResourceEvent> withClearGeneratedEventIds(List<ResourceEvent> actual) {
-    return actual.stream().map(event -> event.id(null)).collect(toList());
+  private static ResourceEvent expectedEvent(String type, int entityNum, Map<String, Object> body) {
+    var idBuilder = new StringJoiner("_");
+    idBuilder.add(String.valueOf(entityNum)).add(getString(body, ID_FIELD));
+    if (type != null) {
+      idBuilder.add(type);
+    }
+    return resourceEvent(idBuilder.toString(), AUTHORITY_RESOURCE, body);
   }
 
   private static Authority fullAuthorityRecord() {

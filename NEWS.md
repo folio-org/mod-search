@@ -1,8 +1,13 @@
+## 1.5.3 2021-11-18
+* Added retry mechanism for streaming ids
+
 ## 1.5.2 2021-11-10
 * Suppressed from discovery field added for instance/holdings/item (MSEARCH-223)
 * Updated template for module descriptor
+
 ## 1.5.1 2021-10-25
 * Fixed format filters (MSEARCH-199)
+
 ## 1.5.0 2021-10-01
 * Add contributorNameTypeId field for contributors (MSEARCH-194)
 * Support search by all fields (MSEARCH-182)

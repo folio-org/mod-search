@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 class KafkaConfigurationTest {
 
   @InjectMocks private KafkaConfiguration kafkaConfiguration;
+  @InjectMocks private RetryTemplateConfiguration retryTemplateConfiguration;
   @Mock private KafkaProperties kafkaProperties;
   @Mock private FolioKafkaProperties folioKafkaProperties;
 
@@ -32,7 +33,7 @@ class KafkaConfigurationTest {
   void kafkaMessageListenerRetryTemplate() {
     when(folioKafkaProperties.getRetryIntervalMs()).thenReturn(100L);
     when(folioKafkaProperties.getRetryDeliveryAttempts()).thenReturn(5L);
-    var retryTemplate = kafkaConfiguration.kafkaMessageListenerRetryTemplate();
+    var retryTemplate = retryTemplateConfiguration.kafkaMessageListenerRetryTemplate();
     assertThat(retryTemplate).isNotNull();
   }
 }

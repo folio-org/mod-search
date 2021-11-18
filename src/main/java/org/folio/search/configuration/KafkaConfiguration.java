@@ -9,7 +9,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +17,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.retry.support.RetryTemplate;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
@@ -29,9 +27,7 @@ import org.springframework.retry.support.RetryTemplate;
 @RequiredArgsConstructor
 public class KafkaConfiguration {
 
-  public static final String KAFKA_RETRY_TEMPLATE_NAME = "kafkaMessageListenerRetryTemplate";
   private final KafkaProperties kafkaProperties;
-  private final FolioKafkaProperties folioKafkaProperties;
 
   /**
    * Creates and configures {@link ConcurrentKafkaListenerContainerFactory} as Spring bean for consuming resource events
@@ -47,20 +43,6 @@ public class KafkaConfiguration {
     return factory;
   }
 
-  /**
-   * Constructs a batch handler that tries to deliver messages 10 times with configured interval, if exception is not
-   * resolved than messages will be redelivered by next poll() call. Creates retry template to consume messages from
-   * kafka.
-   *
-   * @return created {@link RetryTemplate} object
-   */
-  @Bean(name = KAFKA_RETRY_TEMPLATE_NAME)
-  public RetryTemplate kafkaMessageListenerRetryTemplate() {
-    return RetryTemplate.builder()
-      .maxAttempts((int) folioKafkaProperties.getRetryDeliveryAttempts())
-      .fixedBackoff(folioKafkaProperties.getRetryIntervalMs())
-      .build();
-  }
 
   /**
    * Creates and configures {@link ConsumerFactory} as Spring bean.

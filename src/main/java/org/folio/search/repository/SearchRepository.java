@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
@@ -24,6 +25,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -36,6 +39,8 @@ public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
   private final RestHighLevelClient elasticsearchClient;
+  @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
+  private final RetryTemplate retryTemplate;
 
   /**
    * Executes request to elasticsearch and returns search result with related documents.
@@ -76,8 +81,8 @@ public class SearchRepository {
     while (isNotEmpty(searchHits)) {
       consumer.accept(getResourceIds(searchHits, req.getSourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
-      var scrollResponse = performExceptionalOperation(
-        () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi");
+      var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
+        () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();
     }

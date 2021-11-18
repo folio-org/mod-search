@@ -41,6 +41,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.support.RetryTemplate;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +54,7 @@ class SearchRepositoryTest {
   @InjectMocks private SearchRepository searchRepository;
   @Mock private RestHighLevelClient esClient;
   @Mock private SearchResponse searchResponse;
+  @Mock private RetryTemplate retryTemplate;
 
   @Test
   void search_positive() throws IOException {
@@ -69,7 +72,11 @@ class SearchRepositoryTest {
   void streamResourceIds_positive() throws Throwable {
     var searchIds = randomIds();
     var scrollIds = randomIds();
-
+    when(retryTemplate.execute(any(RetryCallback.class)))
+      .thenAnswer(invocation -> {
+        RetryCallback retry = invocation.getArgument(0);
+        return retry.doWithRetry(null);
+      });
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(clearScrollResponse(true)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
@@ -84,6 +91,11 @@ class SearchRepositoryTest {
 
   @Test
   void streamResourceIds_negative_clearScrollFailed() throws Throwable {
+    when(retryTemplate.execute(any(RetryCallback.class)))
+      .thenAnswer(invocation -> {
+        RetryCallback retry = invocation.getArgument(0);
+        return retry.doWithRetry(null);
+      });
     var searchIds = randomIds();
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);

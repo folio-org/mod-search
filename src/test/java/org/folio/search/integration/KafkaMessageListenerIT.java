@@ -26,7 +26,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.configuration.KafkaConfiguration;
+import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
+import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEventBody;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.TenantNotInitializedException;
@@ -58,15 +60,17 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableKafka
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
-@SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class}, properties = {
-  "ENV=kafka-listener-it",
-  "KAFKA_EVENTS_CONSUMER_PATTERN=(${ENV}\\.)(.*\\.)inventory\\.(instance|holdings-record|item)",
-  "application.kafka.retry-interval-ms=10",
-  "application.kafka.retry-delivery-attempts=3",
-  "application.kafka.listener.events.concurrency=1",
-  "application.kafka.listener.events.group-id=${ENV:folio}-test-group",
-  "logging.level.org.apache.kafka.clients.consumer=warn"
-})
+@SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
+  properties = {
+    "ENV=kafka-listener-it",
+    "KAFKA_EVENTS_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item)",
+    "application.environment=${ENV:folio}",
+    "application.kafka.retry-interval-ms=10",
+    "application.kafka.retry-delivery-attempts=3",
+    "application.kafka.listener.events.concurrency=1",
+    "application.kafka.listener.events.group-id=${application.environment}-test-group",
+    "logging.level.org.apache.kafka.clients.consumer=warn"
+  })
 class KafkaMessageListenerIT {
 
   private static final String INSTANCE_ID = randomId();
@@ -193,7 +197,8 @@ class KafkaMessageListenerIT {
   @EnableRetry(proxyTargetClass = true)
   @Import({
     KafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
-    KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class
+    KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
+    RetryTemplateConfiguration.class
   })
   static class KafkaListenerTestConfiguration {
 

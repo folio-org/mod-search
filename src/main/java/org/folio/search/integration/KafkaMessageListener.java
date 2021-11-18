@@ -3,7 +3,7 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
-import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.domain.dto.ResourceEventBody.TypeEnum.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;

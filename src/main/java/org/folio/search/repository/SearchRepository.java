@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
@@ -20,8 +21,10 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.domain.dto.SearchResult;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -34,13 +37,15 @@ public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
   private final RestHighLevelClient elasticsearchClient;
+  @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
+  private final RetryTemplate retryTemplate;
 
   /**
    * Executes request to elasticsearch and returns search result with related documents.
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
    * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
-   * @return search result as {@link SearchResult} object.
+   * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = getElasticsearchIndexName(resourceRequest);
@@ -55,15 +60,15 @@ public class SearchRepository {
   /**
    * Executes scroll request to elasticsearch and transforms it to the list of instance ids.
    *
-   * @param request resource request as {@link ResourceRequest} object.
-   * @param source elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param req - request as {@link CqlResourceIdsRequest} object.
+   * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
-  public void streamResourceIds(ResourceRequest request, SearchSourceBuilder source, Consumer<List<String>> consumer) {
-    var index = getElasticsearchIndexName(request);
+  public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
+    var index = getElasticsearchIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
-      .routing(request.getTenantId())
-      .source(source)
+      .routing(req.getTenantId())
+      .source(src)
       .indices(index);
 
     var searchResponse = performExceptionalOperation(
@@ -74,8 +79,8 @@ public class SearchRepository {
     while (isNotEmpty(searchHits)) {
       consumer.accept(stream(searchHits).map(SearchHit::getId).collect(toList()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
-      var scrollResponse = performExceptionalOperation(
-        () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi");
+      var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
+        () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();
     }

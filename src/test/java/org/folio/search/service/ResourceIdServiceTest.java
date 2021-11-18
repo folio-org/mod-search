@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.folio.search.utils.SearchUtils.MAX_ELASTICSEARCH_QUERY_SIZE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
@@ -42,18 +42,21 @@ class ResourceIdServiceTest {
 
   private static final String RANDOM_ID = randomId();
   private static final String TEST_QUERY = "id==" + RANDOM_ID;
+  private static final Integer QUERY_SIZE = 1000;
 
   @InjectMocks private ResourceIdService resourceIdService;
   @Mock private SearchRepository searchRepository;
   @Mock private CqlSearchQueryConverter queryConverter;
+  @Mock private StreamIdsProperties properties;
   @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
 
   @Test
   void streamResourceIds() throws IOException {
-    var outputStream = new ByteArrayOutputStream();
-
     when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
+
+    var outputStream = new ByteArrayOutputStream();
 
     resourceIdService.streamResourceIds(request(), outputStream);
 
@@ -79,8 +82,9 @@ class ResourceIdServiceTest {
     var generator = spy(objectMapper.createGenerator(outputStream));
 
     mockSearchRepositoryCall(List.of(RANDOM_ID));
-    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
     var request = request();
@@ -91,20 +95,19 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds_positive_emptyCollectionProvided() throws IOException {
-    var request = request();
-    var outputStream = new ByteArrayOutputStream();
-
     mockSearchRepositoryCall(emptyList());
     when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
-    resourceIdService.streamResourceIds(request, outputStream);
+    var outputStream = new ByteArrayOutputStream();
+    resourceIdService.streamResourceIds(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
   }
 
   private void mockSearchRepositoryCall(List<String> ids) {
-    var expectedSearchSource = searchSource().size(MAX_ELASTICSEARCH_QUERY_SIZE).sort("_doc");
+    var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
     doAnswer(invocation -> {
       invocation.<Consumer<List<String>>>getArgument(2).accept(ids);
       return null;

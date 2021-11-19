@@ -7,7 +7,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.folio.search.model.metadata.AuthorityPlainFieldDescription;
+import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class HeadingTypeProcessorTest {
   @Test
   void getFieldValue_positive() {
     var expectedHeadingType = "Personal Name";
-    var desc = new AuthorityPlainFieldDescription();
+    var desc = new AuthorityFieldDescription();
     desc.setIndex(STANDARD_FIELD_TYPE);
     desc.setHeadingType(expectedHeadingType);
 
@@ -39,6 +39,6 @@ class HeadingTypeProcessorTest {
   @Test
   void getFieldValue_positive_emptyValue() {
     var actual = headingTypeProcessor.getFieldValue(mapOf("personalName", null));
-    assertThat(actual).isNull();
+    assertThat(actual).isEqualTo("Other");
   }
 }

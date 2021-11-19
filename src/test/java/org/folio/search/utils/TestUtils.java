@@ -4,6 +4,7 @@ import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
@@ -148,23 +149,23 @@ public class TestUtils {
   }
 
   public static ResourceDescription resourceDescription(String name) {
-    var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(name);
-    return resourceDescription;
+    return resourceDescription(name, emptyMap());
   }
 
   public static ResourceDescription resourceDescription(Map<String, FieldDescription> fields) {
+    return resourceDescription(RESOURCE_NAME, fields);
+  }
+
+  public static ResourceDescription resourceDescription(String name, Map<String, FieldDescription> fields) {
     var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(RESOURCE_NAME);
+    resourceDescription.setName(name);
     resourceDescription.setFields(fields);
     return resourceDescription;
   }
 
   public static ResourceDescription resourceDescription(
     Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
-    var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(RESOURCE_NAME);
-    resourceDescription.setFields(fields);
+    var resourceDescription = resourceDescription(RESOURCE_NAME, fields);
     resourceDescription.setLanguageSourcePaths(languageSourcePaths);
     return resourceDescription;
   }

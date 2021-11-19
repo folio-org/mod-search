@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.folio.search.model.metadata.AuthorityPlainFieldDescription;
+import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HeadingTypeProcessor implements FieldProcessor<Map<String, Object>, String> {
 
+  private static final String DEFAULT_VALUE = "Other";
   private final SearchFieldProvider searchFieldProvider;
 
   @Override
@@ -24,7 +25,7 @@ public class HeadingTypeProcessor implements FieldProcessor<Map<String, Object>,
       .map(this::getHeadingTypeForField)
       .flatMap(Optional::stream)
       .findFirst()
-      .orElse(null);
+      .orElse(DEFAULT_VALUE);
   }
 
   public Optional<String> getHeadingTypeForField(Entry<String, Object> entry) {
@@ -33,8 +34,8 @@ public class HeadingTypeProcessor implements FieldProcessor<Map<String, Object>,
     }
 
     return searchFieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, entry.getKey())
-      .filter(AuthorityPlainFieldDescription.class::isInstance)
-      .map(AuthorityPlainFieldDescription.class::cast)
-      .map(AuthorityPlainFieldDescription::getHeadingType);
+      .filter(AuthorityFieldDescription.class::isInstance)
+      .map(AuthorityFieldDescription.class::cast)
+      .map(AuthorityFieldDescription::getHeadingType);
   }
 }

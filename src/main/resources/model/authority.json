@@ -8,104 +8,104 @@
     "personalName": {
       "type": "authority",
       "index": "standard",
-      "distinctType": "personalName",
+      "distinctType": "personal",
       "headingType": "Personal Name"
     },
     "sftPersonalName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "personalName",
+      "distinctType": "sftPersonal",
       "headingType": "Personal Name"
     },
     "saftPersonalName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "personalName"
+      "distinctType": "saftPersonal"
     },
     "corporateName": {
       "type": "authority",
       "index": "source",
-      "headingType": "Corporate Name",
-      "distinctType": "corporateName"
+      "distinctType": "corporate",
+      "headingType": "Corporate Name"
     },
     "sftCorporateName": {
       "type": "authority",
       "index": "source",
-      "headingType": "Corporate Name",
-      "distinctType": "corporateName"
+      "distinctType": "sftCorporate",
+      "headingType": "Corporate Name"
     },
     "saftCorporateName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "corporateName"
+      "distinctType": "saftCorporate"
     },
     "meetingName": {
       "type": "authority",
       "index": "source",
-      "headingType": "Meeting Name",
-      "distinctType": "meetingName"
+      "distinctType": "meeting",
+      "headingType": "Meeting Name"
     },
     "sftMeetingName": {
       "type": "authority",
       "index": "source",
-      "headingType": "Meeting Name",
-      "distinctType": "meetingName"
+      "distinctType": "sftMeeting",
+      "headingType": "Meeting Name"
     },
     "saftMeetingName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "meetingName"
+      "distinctType": "saftMeeting"
     },
     "geographicName": {
       "type": "authority",
       "index": "source",
-      "headingType": "Geographic Name",
-      "distinctType": "geographicName"
+      "distinctType": "geographic",
+      "headingType": "Geographic Name"
     },
     "sftGeographicTerm": {
       "type": "authority",
       "index": "source",
-      "headingType": "Geographic Name",
-      "distinctType": "geographicName"
+      "distinctType": "sftGeographic",
+      "headingType": "Geographic Name"
     },
     "saftGeographicTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "geographicName"
+      "distinctType": "saftGeographic"
     },
     "uniformTitle": {
       "type": "authority",
       "index": "source",
-      "headingType": "Uniform Title",
-      "distinctType": "uniformTitle"
+      "distinctType": "uniform",
+      "headingType": "Uniform Title"
     },
     "sftUniformTitle": {
       "type": "authority",
       "index": "source",
-      "headingType": "Uniform Title",
-      "distinctType": "uniformTitle"
+      "distinctType": "sftUniform",
+      "headingType": "Uniform Title"
     },
     "saftUniformTitle": {
       "type": "authority",
       "index": "source",
-      "distinctType": "uniformTitle"
+      "distinctType": "saftUniform"
     },
     "topicalTerm": {
       "type": "authority",
       "index": "source",
-      "headingType": "Topical",
-      "distinctType": "topical"
+      "distinctType": "topical",
+      "headingType": "Topical"
     },
     "sftTopicalTerm": {
       "type": "authority",
       "index": "source",
-      "headingType": "Topical",
-      "distinctType": "topical"
+      "distinctType": "sftTopical",
+      "headingType": "Topical"
     },
     "saftTopicalTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "topical"
+      "distinctType": "saftTopical"
     },
     "genreTerm": {
       "type": "authority",
@@ -116,13 +116,13 @@
     "sftGenreTerm": {
       "type": "authority",
       "index": "source",
-      "headingType": "Genre",
-      "distinctType": "genre"
+      "distinctType": "sftGenre",
+      "headingType": "Genre"
     },
     "saftGenreTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "genre"
+      "distinctType": "saftGenre"
     },
     "subjectHeadings": {
       "index": "source"
@@ -180,5 +180,9 @@
     }
   },
   "mappingsSource": { },
-  "indexMappings": { }
+  "indexMappings": {
+    "useForIdStreaming": {
+      "type": "boolean"
+    }
+  }
 }

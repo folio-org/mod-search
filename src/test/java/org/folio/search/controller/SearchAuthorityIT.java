@@ -1,18 +1,18 @@
 package org.folio.search.controller;
 
-import static java.util.Arrays.stream;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySample;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
+import static org.folio.search.utils.AuthoritySearchUtils.expectedAuthority;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -25,16 +25,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.BeanUtils;
 
 @IntegrationTest
 class SearchAuthorityIT extends BaseIntegrationTest {
 
-  private static final Set<String> COMMON_FIELDS = Set.of("id", "identifiers", "subjectHeadings", "metadata", "notes");
-
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 7, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 21, getAuthoritySampleAsMap());
   }
 
   @AfterAll
@@ -60,17 +57,31 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(7)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(21)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    var srcAuthority = getAuthoritySample();
+    var source = getAuthoritySample();
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
-      expectedAuthority(srcAuthority, "Personal Name", "personalName", "sftPersonalName", "saftPersonalName"),
-      expectedAuthority(srcAuthority, "Corporate Name", "corporateName", "sftCorporateName", "saftCorporateName"),
-      expectedAuthority(srcAuthority, "Meeting Name", "meetingName", "sftMeetingName", "saftMeetingName"),
-      expectedAuthority(srcAuthority, "Geographic Name", "geographicName", "sftGeographicTerm", "saftGeographicTerm"),
-      expectedAuthority(srcAuthority, "Uniform Title", "uniformTitle", "sftUniformTitle", "saftUniformTitle"),
-      expectedAuthority(srcAuthority, "Topical", "topicalTerm", "sftTopicalTerm", "saftTopicalTerm"),
-      expectedAuthority(srcAuthority, "Genre", "genreTerm", "sftGenreTerm", "saftGenreTerm")
+      expectedAuthority(source, visibleSearchFields("Personal Name"), "personalName"),
+      expectedAuthority(source, visibleSearchFields("Personal Name"), "sftPersonalName[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftPersonalName[0]"),
+      expectedAuthority(source, visibleSearchFields("Corporate Name"), "corporateName"),
+      expectedAuthority(source, visibleSearchFields("Corporate Name"), "sftCorporateName[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftCorporateName[0]"),
+      expectedAuthority(source, visibleSearchFields("Meeting Name"), "meetingName"),
+      expectedAuthority(source, visibleSearchFields("Meeting Name"), "sftMeetingName[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftMeetingName[0]"),
+      expectedAuthority(source, visibleSearchFields("Geographic Name"), "geographicName"),
+      expectedAuthority(source, visibleSearchFields("Geographic Name"), "sftGeographicTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftGeographicTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Uniform Title"), "uniformTitle"),
+      expectedAuthority(source, visibleSearchFields("Uniform Title"), "sftUniformTitle[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftUniformTitle[0]"),
+      expectedAuthority(source, visibleSearchFields("Topical"), "topicalTerm"),
+      expectedAuthority(source, visibleSearchFields("Topical"), "sftTopicalTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftTopicalTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Genre"), "genreTerm"),
+      expectedAuthority(source, visibleSearchFields("Genre"), "sftGenreTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Other"), "saftGenreTerm[0]")
     ));
   }
 
@@ -82,17 +93,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     );
   }
 
-  private static Authority expectedAuthority(Authority source, String headingType, String... fields) {
-    var authority = new Authority().headingType(headingType);
-    var fieldsToKeep = Set.of(fields);
-
-    var authorityFields = stream(Authority.class.getDeclaredFields())
-      .map(Field::getName)
-      .filter(fieldName -> !COMMON_FIELDS.contains(fieldName))
-      .filter(fieldName -> !fieldsToKeep.contains(fieldName))
-      .toArray(String[]::new);
-
-    BeanUtils.copyProperties(source, authority, authorityFields);
-    return authority;
+  private static Map<String, Object> visibleSearchFields(String headingType) {
+    return mapOf("headingType", headingType);
   }
 }

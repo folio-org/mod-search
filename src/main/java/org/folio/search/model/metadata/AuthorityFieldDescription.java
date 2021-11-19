@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AuthorityPlainFieldDescription extends PlainFieldDescription {
+public class AuthorityFieldDescription extends PlainFieldDescription {
 
   /**
    * Heading type that should be set to the resource if field containing some values.

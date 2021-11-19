@@ -95,6 +95,14 @@ public class SearchConverterUtils {
     return getString(getEventPayload(event), ID_FIELD);
   }
 
+  public static void copyEntityFields(Map<String, Object> source, Map<String, Object> target, List<String> fields) {
+    for (var field : fields) {
+      if (source.containsKey(field)) {
+        target.put(field, source.get(field));
+      }
+    }
+  }
+
   @SuppressWarnings("unchecked")
   private static Object getFieldValueByPath(String pathValue, Object value) {
     if (value instanceof Map) {

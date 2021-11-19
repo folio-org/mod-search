@@ -44,6 +44,7 @@ public class SearchUtils {
   public static final String DOT = ".";
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
+  public static final String AUTHORITY_STREAMING_FILTER_FIELD = "useForIdStreaming";
 
   public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;

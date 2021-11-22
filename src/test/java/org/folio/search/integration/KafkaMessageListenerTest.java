@@ -2,7 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;

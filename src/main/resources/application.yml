@@ -51,6 +51,10 @@ application:
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}
     lastname: System
     permissionsFilePath: permissions/mod-search.csv
+  stream-ids:
+    scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
+    retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}
+    retry-attempts: ${STREAM_ID_RETRY_ATTEMPTS:3}
   kafka:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}

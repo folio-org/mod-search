@@ -133,6 +133,9 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | OKAPI_URL                                | -                         | OKAPI URL used to login system user, required                              |
 | ENV                                      | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
 | SEARCH_BY_ALL_FIELDS_ENABLED             | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting) |
+| SCROLL_QUERY_SIZE                        | 1000                      | The number of records to be loaded by each scroll query. 10_000 is a max value |
+| STREAM_ID_RETRY_INTERVAL_MS              | 1000                      | Specifies time to wait before reattempting query. |
+| STREAM_ID_RETRY_ATTEMPTS                 | 3                         | Specifies how many queries attempt to perform after the first one failed. |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

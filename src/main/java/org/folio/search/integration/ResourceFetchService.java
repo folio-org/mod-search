@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEvent.TypeEnum;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.inventory.InventoryViewClient;
 import org.folio.search.integration.inventory.InventoryViewClient.InstanceView;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -67,6 +67,6 @@ public class ResourceFetchService {
       .id(MapUtils.getString(instanceMap, ID_FIELD))
       .tenant(tenantId)
       .resourceName(INSTANCE_RESOURCE)
-      .type(TypeEnum.CREATE);
+      .type(ResourceEventType.CREATE);
   }
 }

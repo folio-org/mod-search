@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
-import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.REINDEX;
+import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEvent.TypeEnum;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.KafkaAdminService;
@@ -94,7 +94,7 @@ public class KafkaMessageListener {
       log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\n", ""));
       return null;
     }
-    var operation = value.getType() == TypeEnum.DELETE && isInstanceResource(consumerRecord) ? DELETE : INDEX;
+    var operation = value.getType() == ResourceEventType.DELETE && isInstanceResource(consumerRecord) ? DELETE : INDEX;
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
   }
 

@@ -3,8 +3,7 @@ package org.folio.search.integration;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.folio.search.configuration.KafkaConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
-import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.REINDEX;
-import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
@@ -30,8 +29,9 @@ import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEvent.TypeEnum;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.service.ResourceIdEvent;
+import org.folio.search.model.types.IndexActionType;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -82,13 +82,13 @@ class KafkaMessageListenerTest {
   @ParameterizedTest
   @ValueSource(strings = {"CREATE", "UPDATE", "REINDEX", "DELETE"})
   void handleEventsOnlyOfKnownTypes(String eventType) {
-    var eventTypeEnumValue = TypeEnum.fromValue(eventType);
+    var eventTypeEnumValue = ResourceEventType.fromValue(eventType);
     var instanceId = randomId();
     var resourceBody = resourceEvent(instanceId, null, mapOf("id", instanceId)).type(eventTypeEnumValue);
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId, resourceBody)));
 
-    var actionType = eventTypeEnumValue != TypeEnum.DELETE ? INDEX : DELETE;
+    var actionType = eventTypeEnumValue != ResourceEventType.DELETE ? INDEX : IndexActionType.DELETE;
     var expectedEvents = List.of(ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, TENANT_ID, actionType));
 
     verify(indexService).indexResourcesById(expectedEvents);
@@ -122,9 +122,9 @@ class KafkaMessageListenerTest {
 
   @Test
   void handleEvents_positive_itemDeleteEvent() {
-    var itemEvent = new ResourceEvent().type(TypeEnum.DELETE).tenant(TENANT_ID)
+    var itemEvent = new ResourceEvent().type(ResourceEventType.DELETE).tenant(TENANT_ID)
       .resourceName("item").old(mapOf("id", randomId(), "instanceId", RESOURCE_ID));
-    var holdingEvent = new ResourceEvent().type(TypeEnum.DELETE).tenant(TENANT_ID)
+    var holdingEvent = new ResourceEvent().type(ResourceEventType.DELETE).tenant(TENANT_ID)
       .resourceName("holding").old(mapOf("id", randomId(), "instanceId", RESOURCE_ID));
 
     messageListener.handleEvents(List.of(
@@ -139,7 +139,7 @@ class KafkaMessageListenerTest {
   @Test
   void handleAuthorityEvent_positive() {
     var authority = new Authority().id(RESOURCE_ID);
-    var authorityEvent = new ResourceEvent().type(TypeEnum.UPDATE).tenant(TENANT_ID)._new(toMap(authority));
+    var authorityEvent = new ResourceEvent().type(ResourceEventType.UPDATE).tenant(TENANT_ID)._new(toMap(authority));
     var expectedEvents = singletonList(authorityEvent);
 
     messageListener.handleAuthorityEvents(List.of(

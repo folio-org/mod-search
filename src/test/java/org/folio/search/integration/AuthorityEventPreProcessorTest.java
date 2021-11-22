@@ -1,11 +1,12 @@
 package org.folio.search.integration;
 
-import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.AuthoritySearchUtils.expectedAuthorityAsMap;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -74,6 +75,15 @@ class AuthorityEventPreProcessorTest {
   }
 
   @Test
+  void process_positive_reindexEvent() {
+    var authority = new Authority().id(RESOURCE_ID).uniformTitle("uniform title");
+    var event = resourceEvent(AUTHORITY_RESOURCE, toMap(authority)).type(REINDEX);
+    var actual = eventPreProcessor.process(event);
+    assertThat(actual).isEqualTo(List.of(
+      event("uniformTitle0", expectedAuthorityAsMap(authority, true, "uniformTitle")).type(REINDEX)));
+  }
+
+  @Test
   void process_positive_onlyCommonFieldsArePopulated() {
     var authority = new Authority().id(RESOURCE_ID).subjectHeadings("a subject headings")
       .identifiers(List.of(new AuthorityIdentifiers().value("an authority identifier")));
@@ -81,8 +91,36 @@ class AuthorityEventPreProcessorTest {
     assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority, true))));
   }
 
+  @Test
+  void process_positive_deleteEvent() {
+    var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").corporateName("corporate");
+    var event = resourceEvent(AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(oldAuthority));
+    var actual = eventPreProcessor.process(event);
+    assertThat(actual).isEqualTo(List.of(deleteEvent("personalName0"), deleteEvent("corporateName0")));
+  }
+
+  @Test
+  void process_positive_updateEvent() {
+    var newAuthority = new Authority().id(RESOURCE_ID).personalName("personal")
+      .saftCorporateName(List.of("a new saft corporate name")).corporateName("corporate");
+    var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").uniformTitle("uniform title")
+      .saftCorporateName(List.of("saft corp 1", "saft corp 2"));
+    var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(UPDATE).old(toMap(oldAuthority));
+    var actual = eventPreProcessor.process(event);
+    assertThat(actual).isEqualTo(List.of(
+      event("personalName0", expectedAuthorityAsMap(newAuthority, true, "personalName")),
+      event("corporateName0", expectedAuthorityAsMap(newAuthority, "corporateName")),
+      event("saftCorporateName0", expectedAuthorityAsMap(newAuthority, "saftCorporateName[0]")),
+      deleteEvent("saftCorporateName1"),
+      deleteEvent("uniformTitle0")));
+  }
+
   private static ResourceEvent event(String prefix, Map<String, Object> body) {
-    return resourceEvent(prefix + "_" + getString(body, ID_FIELD), AUTHORITY_RESOURCE, body);
+    return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY_RESOURCE, body);
+  }
+
+  private static ResourceEvent deleteEvent(String prefix) {
+    return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY_RESOURCE, null).type(DELETE);
   }
 
   private static Authority fullAuthorityRecord() {

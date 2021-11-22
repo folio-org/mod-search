@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
@@ -77,18 +78,19 @@ public class SearchConverterUtils {
    * @param event - resource event body to analyze
    * @return event payload as {@link Map} object.
    */
+  @SuppressWarnings("unchecked")
   public static Map<String, Object> getEventPayload(ResourceEvent event) {
-    return event.getNew() != null ? getNewAsMap(event) : getOldAsMap(event);
+    return event.getNew() != null ? (Map<String, Object>) event.getNew() : (Map<String, Object>) event.getOld();
   }
 
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getNewAsMap(ResourceEvent resourceEvent) {
-    return (Map<String, Object>) resourceEvent.getNew();
+    return resourceEvent.getNew() != null ? (Map<String, Object>) resourceEvent.getNew() : emptyMap();
   }
 
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getOldAsMap(ResourceEvent resourceEvent) {
-    return (Map<String, Object>) resourceEvent.getOld();
+    return resourceEvent.getOld() != null ? (Map<String, Object>) resourceEvent.getOld() : emptyMap();
   }
 
   public static String getResourceEventId(ResourceEvent event) {

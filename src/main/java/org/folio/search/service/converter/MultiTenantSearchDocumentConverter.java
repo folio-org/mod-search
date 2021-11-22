@@ -1,11 +1,10 @@
 package org.folio.search.service.converter;
 
-import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
 import java.util.Collection;
@@ -79,21 +78,22 @@ public class MultiTenantSearchDocumentConverter {
 
   private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> eventsPerTenant) {
     return executionService.executeTenantScoped(eventsPerTenant.getKey(), () ->
-      eventsPerTenant.getValue().stream().flatMap(this::convertResourceEvent).collect(toList()));
+      eventsPerTenant.getValue().stream()
+        .flatMap(this::populateResourceEvents)
+        .map(this::convertResourceEvent)
+        .flatMap(Optional::stream)
+        .collect(toList()));
   }
 
-  private Stream<SearchDocumentBody> convertResourceEvent(ResourceEvent resourceEvent) {
-    if (resourceEvent.getType() == DELETE) {
-      return Stream.of(SearchDocumentBody.forDeleteResourceEvent(resourceEvent));
-    }
-    return getPreProcessedResourceEvents(resourceEvent).stream()
-      .map(searchDocumentConverter::convert)
-      .flatMap(Optional::stream);
+  private Optional<SearchDocumentBody> convertResourceEvent(ResourceEvent resourceEventBody) {
+    return resourceEventBody.getType() != DELETE
+      ? searchDocumentConverter.convert(resourceEventBody)
+      : Optional.of(SearchDocumentBody.forDeleteResourceEvent(resourceEventBody));
   }
 
-  private List<ResourceEvent> getPreProcessedResourceEvents(ResourceEvent event) {
+  private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {
     return AUTHORITY_RESOURCE.equals(event.getResourceName())
-      ? authorityEventPreProcessor.process(event)
-      : singletonList(event);
+      ? authorityEventPreProcessor.process(event).stream()
+      : Stream.of(event);
   }
 }

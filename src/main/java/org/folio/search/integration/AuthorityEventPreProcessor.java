@@ -2,9 +2,12 @@ package org.folio.search.integration;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
 import static java.util.stream.StreamSupport.stream;
+import static org.folio.search.utils.CollectionUtils.toMap;
 import static org.folio.search.utils.SearchConverterUtils.copyEntityFields;
-import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_STREAMING_FILTER_FIELD;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
@@ -59,54 +63,75 @@ public class AuthorityEventPreProcessor {
    * @return list with divided authority event objects
    */
   public List<ResourceEvent> process(ResourceEvent event) {
-    var resultList = new ArrayList<ResourceEvent>();
-    for (var entry : fieldTypes.entrySet()) {
-      for (var field : entry.getValue()) {
-        var counter = new AtomicInteger();
-        resultList.addAll(createResourceEvents(event, entry.getKey(), field, counter));
-      }
-    }
+    return event.getType() == ResourceEventType.UPDATE
+      ? getResourceEventsToUpdate(event)
+      : getResourceEvents(event, event.getType());
+  }
 
-    var other = getNewResourceId("other", event.getId(), 0);
-    var result = resultList.isEmpty() ? singletonList(event.id(other)) : resultList;
-    markFirstValueAsSourceForIdsStreaming(result);
+  private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
+    var isCreateOperation = isCreateOperation(eventType);
+    var events = generateResourceEvents(event, eventType, isCreateOperation ? getNewAsMap(event) : getOldAsMap(event));
+    var result = events.isEmpty() ? singletonList(event.id("other" + 0 + "_" + event.getId())) : events;
+    if (isCreateOperation) {
+      getNewAsMap(result.get(0)).put(AUTHORITY_STREAMING_FILTER_FIELD, true);
+    }
     return result;
   }
 
-  private List<ResourceEvent> createResourceEvents(ResourceEvent event, String type, String field,
-    AtomicInteger counter) {
-    var fieldValue = getEventPayload(event).get(field);
-    if (fieldValue instanceof String) {
-      return singletonList(createResourceEvent(type, event, Map.of(field, fieldValue), counter.getAndIncrement()));
+  private List<ResourceEvent> getResourceEventsToUpdate(ResourceEvent event) {
+    var eventsToDeleteMap = toMap(getResourceEvents(event, ResourceEventType.DELETE), ResourceEvent::getId, identity());
+    var resultResourceEvents = new ArrayList<>(getResourceEvents(event, ResourceEventType.CREATE));
+    resultResourceEvents.forEach(evt -> eventsToDeleteMap.remove(evt.getId()));
+    resultResourceEvents.addAll(eventsToDeleteMap.values());
+    return resultResourceEvents;
+  }
+
+  private List<ResourceEvent> generateResourceEvents(ResourceEvent event, ResourceEventType eventType,
+    Map<String, Object> eventPayload) {
+    var result = new ArrayList<ResourceEvent>();
+    for (var entry : fieldTypes.entrySet()) {
+      for (var field : entry.getValue()) {
+        var counter = new AtomicInteger();
+        result.addAll(createResourceEvents(event, entry.getKey(), field, counter, eventType, eventPayload));
+      }
+    }
+    return result;
+  }
+
+  private List<ResourceEvent> createResourceEvents(ResourceEvent event, String type, String name,
+    AtomicInteger counter, ResourceEventType eventType, Map<String, Object> body) {
+    var value = body.get(name);
+    if (value instanceof String) {
+      return singletonList(createResourceEvent(type, event, name, value, eventType, counter.getAndIncrement(), body));
     }
 
-    if (fieldValue instanceof Iterable<?>) {
-      return stream(((Iterable<?>) fieldValue).spliterator(), false)
-        .map(value -> createResourceEvent(type, event, Map.of(field, List.of(value)), counter.getAndIncrement()))
+    if (value instanceof Iterable<?>) {
+      return stream(((Iterable<?>) value).spliterator(), false)
+        .map(v -> createResourceEvent(type, event, name, singletonList(v), eventType, counter.getAndIncrement(), body))
         .collect(Collectors.toList());
     }
 
     return emptyList();
   }
 
-  private ResourceEvent createResourceEvent(String type, ResourceEvent event, Map<String, Object> fields, int counter) {
-    var eventPayload = getEventPayload(event);
-    var newEventBody = new LinkedHashMap<>(fields);
-    copyEntityFields(eventPayload, newEventBody, commonFields);
-
+  private ResourceEvent createResourceEvent(String type, ResourceEvent sourceEvent,
+    String fieldName, Object fieldValue, ResourceEventType eventType, int counter, Map<String, Object> eventPayload) {
     return new ResourceEvent()
-      .id(getNewResourceId(type, event.getId(), counter))
-      .resourceName(event.getResourceName())
-      .tenant(event.getTenant())
-      ._new(newEventBody)
-      .type(event.getType());
+      .id(type + counter + "_" + sourceEvent.getId())
+      .resourceName(sourceEvent.getResourceName())
+      .tenant(sourceEvent.getTenant())
+      ._new(isCreateOperation(eventType) ? getNewEventBody(eventPayload, fieldName, fieldValue) : null)
+      .type(eventType);
   }
 
-  private static void markFirstValueAsSourceForIdsStreaming(List<ResourceEvent> resultList) {
-    getEventPayload(resultList.get(0)).put(AUTHORITY_STREAMING_FILTER_FIELD, true);
+  private LinkedHashMap<String, Object> getNewEventBody(Map<String, Object> eventPayload, String field, Object value) {
+    var newEventBody = new LinkedHashMap<String, Object>();
+    newEventBody.put(field, value);
+    copyEntityFields(eventPayload, newEventBody, commonFields);
+    return newEventBody;
   }
 
-  private static String getNewResourceId(String type, String eventId, int counterValue) {
-    return type + counterValue + "_" + eventId;
+  private static boolean isCreateOperation(ResourceEventType typeEnum) {
+    return typeEnum == ResourceEventType.CREATE || typeEnum == ResourceEventType.REINDEX;
   }
 }

@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEvent.TypeEnum;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.AuthorityEventPreProcessor;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -137,8 +137,8 @@ class MultiTenantSearchDocumentConverterTest {
 
   private static List<ResourceEvent> eventsForTenant(String tenant) {
     return List.of(
-      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.UPDATE),
-      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.DELETE));
+      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.UPDATE),
+      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.DELETE));
   }
 
   @SuppressWarnings("unchecked")

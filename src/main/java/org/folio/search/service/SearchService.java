@@ -46,7 +46,8 @@ public class SearchService {
       queryBuilder.fetchSource(includes, null);
     }
 
-    return mapToSearchResult(searchRepository.search(request, queryBuilder), request.getResourceClass());
+    var searchResponse = searchRepository.search(request, queryBuilder);
+    return mapToSearchResult(searchResponse, request.getResourceClass());
   }
 
   private <T> SearchResult<T> mapToSearchResult(SearchResponse response, Class<T> responseClass) {

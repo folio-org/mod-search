@@ -45,6 +45,7 @@ import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.SearchResult;
@@ -248,7 +249,7 @@ public class TestUtils {
   public static ResourceEvent resourceEvent(String id, String resourceName, Object newData) {
     var resourceBody = new ResourceEvent();
     resourceBody.setId(id);
-    resourceBody.setType(ResourceEvent.TypeEnum.CREATE);
+    resourceBody.setType(ResourceEventType.CREATE);
     resourceBody.setResourceName(resourceName);
     resourceBody.setTenant(TENANT_ID);
     resourceBody.setNew(newData);

@@ -2,7 +2,7 @@ package org.folio.search.support.api;
 
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.collections.MapUtils.getString;
-import static org.folio.search.domain.dto.ResourceEvent.TypeEnum.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;

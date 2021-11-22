@@ -33,6 +33,7 @@ import java.util.function.Function;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.properties.FolioKafkaProperties;
+import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.TenantNotInitializedException;

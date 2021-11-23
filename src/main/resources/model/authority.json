@@ -180,9 +180,5 @@
     }
   },
   "mappingsSource": { },
-  "indexMappings": {
-    "useForIdStreaming": {
-      "type": "boolean"
-    }
-  }
+  "indexMappings": { }
 }

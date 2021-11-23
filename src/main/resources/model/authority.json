@@ -13,13 +13,13 @@
     },
     "sftPersonalName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftPersonalName",
       "headingType": "Personal Name"
     },
     "saftPersonalName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftPersonalName"
     },
     "corporateName": {

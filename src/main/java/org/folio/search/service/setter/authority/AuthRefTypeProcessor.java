@@ -7,12 +7,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class HeadingTypeProcessor extends AbstractAuthorityProcessor {
-
-  private static final String DEFAULT_VALUE = "Other";
+public class AuthRefTypeProcessor extends AbstractAuthorityProcessor {
 
   @Override
   public String getFieldValue(Map<String, Object> eventBody) {
-    return getAuthorityType(eventBody, AuthorityFieldDescription::getHeadingType, DEFAULT_VALUE);
+    return getAuthorityType(eventBody, AuthorityFieldDescription::getAuthRefType, null);
   }
 }

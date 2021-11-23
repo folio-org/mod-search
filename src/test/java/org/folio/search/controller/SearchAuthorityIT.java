@@ -29,6 +29,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 @IntegrationTest
 class SearchAuthorityIT extends BaseIntegrationTest {
 
+  private static final String AUTHORIZED_TYPE = "Authorized";
+  private static final String REFERENCE_TYPE = "Reference";
+  private static final String AUTH_REF_TYPE = "Auth/Ref";
+  private static final String OTHER_HEADING_TYPE = "Other";
+
   @BeforeAll
   static void prepare() {
     setUpTenant(Authority.class, 21, getAuthoritySampleAsMap());
@@ -61,27 +66,27 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var actual = parseResponse(response, AuthoritySearchResult.class);
     var source = getAuthoritySample();
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
-      expectedAuthority(source, visibleSearchFields("Personal Name"), "personalName"),
-      expectedAuthority(source, visibleSearchFields("Personal Name"), "sftPersonalName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftPersonalName[0]"),
-      expectedAuthority(source, visibleSearchFields("Corporate Name"), "corporateName"),
-      expectedAuthority(source, visibleSearchFields("Corporate Name"), "sftCorporateName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftCorporateName[0]"),
-      expectedAuthority(source, visibleSearchFields("Meeting Name"), "meetingName"),
-      expectedAuthority(source, visibleSearchFields("Meeting Name"), "sftMeetingName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftMeetingName[0]"),
-      expectedAuthority(source, visibleSearchFields("Geographic Name"), "geographicName"),
-      expectedAuthority(source, visibleSearchFields("Geographic Name"), "sftGeographicTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftGeographicTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Uniform Title"), "uniformTitle"),
-      expectedAuthority(source, visibleSearchFields("Uniform Title"), "sftUniformTitle[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftUniformTitle[0]"),
-      expectedAuthority(source, visibleSearchFields("Topical"), "topicalTerm"),
-      expectedAuthority(source, visibleSearchFields("Topical"), "sftTopicalTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftTopicalTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Genre"), "genreTerm"),
-      expectedAuthority(source, visibleSearchFields("Genre"), "sftGenreTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftGenreTerm[0]")
+      expectedAuthority(source, visibleSearchFields("Personal Name", AUTHORIZED_TYPE), "personalName"),
+      expectedAuthority(source, visibleSearchFields("Personal Name", REFERENCE_TYPE), "sftPersonalName[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftPersonalName[0]"),
+      expectedAuthority(source, visibleSearchFields("Corporate Name", AUTHORIZED_TYPE), "corporateName"),
+      expectedAuthority(source, visibleSearchFields("Corporate Name", REFERENCE_TYPE), "sftCorporateName[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftCorporateName[0]"),
+      expectedAuthority(source, visibleSearchFields("Meeting Name", AUTHORIZED_TYPE), "meetingName"),
+      expectedAuthority(source, visibleSearchFields("Meeting Name", REFERENCE_TYPE), "sftMeetingName[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftMeetingName[0]"),
+      expectedAuthority(source, visibleSearchFields("Geographic Name", AUTHORIZED_TYPE), "geographicName"),
+      expectedAuthority(source, visibleSearchFields("Geographic Name", REFERENCE_TYPE), "sftGeographicTerm[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftGeographicTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Uniform Title", AUTHORIZED_TYPE), "uniformTitle"),
+      expectedAuthority(source, visibleSearchFields("Uniform Title", REFERENCE_TYPE), "sftUniformTitle[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftUniformTitle[0]"),
+      expectedAuthority(source, visibleSearchFields("Topical", AUTHORIZED_TYPE), "topicalTerm"),
+      expectedAuthority(source, visibleSearchFields("Topical", REFERENCE_TYPE), "sftTopicalTerm[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftTopicalTerm[0]"),
+      expectedAuthority(source, visibleSearchFields("Genre", AUTHORIZED_TYPE), "genreTerm"),
+      expectedAuthority(source, visibleSearchFields("Genre", REFERENCE_TYPE), "sftGenreTerm[0]"),
+      expectedAuthority(source, visibleSearchFields(OTHER_HEADING_TYPE, AUTH_REF_TYPE), "saftGenreTerm[0]")
     ));
   }
 
@@ -90,11 +95,12 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
       arguments("personalName == {value}", "\"gary a.*\""),
-      arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\"")
+      arguments("personalName == {value} and headingType==\"Personal Name\"", "gary"),
+      arguments("personalName == {value} and authRefType==\"Authorized\"", "gary")
     );
   }
 
-  private static Map<String, Object> visibleSearchFields(String headingType) {
-    return mapOf("headingType", headingType);
+  private static Map<String, Object> visibleSearchFields(String headingType, String authRefType) {
+    return mapOf("headingType", headingType, "authRefType", authRefType);
   }
 }

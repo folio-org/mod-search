@@ -9,120 +9,141 @@
       "type": "authority",
       "index": "standard",
       "distinctType": "personalName",
-      "headingType": "Personal Name"
+      "headingType": "Personal Name",
+      "authRefType": "Authorized"
     },
     "sftPersonalName": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftPersonalName",
-      "headingType": "Personal Name"
+      "headingType": "Personal Name",
+      "authRefType": "Reference"
     },
     "saftPersonalName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftPersonalName"
+      "distinctType": "saftPersonalName",
+      "authRefType": "Auth/Ref"
     },
     "corporateName": {
       "type": "authority",
       "index": "source",
       "distinctType": "corporateName",
-      "headingType": "Corporate Name"
+      "headingType": "Corporate Name",
+      "authRefType": "Authorized"
     },
     "sftCorporateName": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftCorporateName",
-      "headingType": "Corporate Name"
+      "headingType": "Corporate Name",
+      "authRefType": "Reference"
     },
     "saftCorporateName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftCorporateName"
+      "distinctType": "saftCorporateName",
+      "authRefType": "Auth/Ref"
     },
     "meetingName": {
       "type": "authority",
       "index": "source",
       "distinctType": "meetingName",
-      "headingType": "Meeting Name"
+      "headingType": "Meeting Name",
+      "authRefType": "Authorized"
     },
     "sftMeetingName": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftMeetingName",
-      "headingType": "Meeting Name"
+      "headingType": "Meeting Name",
+      "authRefType": "Reference"
     },
     "saftMeetingName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftMeetingName"
+      "distinctType": "saftMeetingName",
+      "authRefType": "Auth/Ref"
     },
     "geographicName": {
       "type": "authority",
       "index": "source",
       "distinctType": "geographicName",
-      "headingType": "Geographic Name"
+      "headingType": "Geographic Name",
+      "authRefType": "Authorized"
     },
     "sftGeographicTerm": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftGeographicTerm",
-      "headingType": "Geographic Name"
+      "headingType": "Geographic Name",
+      "authRefType": "Reference"
     },
     "saftGeographicTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftGeographicTerm"
+      "distinctType": "saftGeographicTerm",
+      "authRefType": "Auth/Ref"
     },
     "uniformTitle": {
       "type": "authority",
       "index": "source",
       "distinctType": "uniformTitle",
-      "headingType": "Uniform Title"
+      "headingType": "Uniform Title",
+      "authRefType": "Authorized"
     },
     "sftUniformTitle": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftUniformTitle",
-      "headingType": "Uniform Title"
+      "headingType": "Uniform Title",
+      "authRefType": "Reference"
     },
     "saftUniformTitle": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftUniformTitle"
+      "distinctType": "saftUniformTitle",
+      "authRefType": "Auth/Ref"
     },
     "topicalTerm": {
       "type": "authority",
       "index": "source",
       "distinctType": "topicalTerm",
-      "headingType": "Topical"
+      "headingType": "Topical",
+      "authRefType": "Authorized"
     },
     "sftTopicalTerm": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftTopicalTerm",
-      "headingType": "Topical"
+      "headingType": "Topical",
+      "authRefType": "Reference"
     },
     "saftTopicalTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftTopicalTerm"
+      "distinctType": "saftTopicalTerm",
+      "authRefType": "Auth/Ref"
     },
     "genreTerm": {
       "type": "authority",
       "index": "source",
       "distinctType": "genreTerm",
-      "headingType": "Genre"
+      "headingType": "Genre",
+      "authRefType": "Authorized"
     },
     "sftGenreTerm": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftGenreTerm",
-      "headingType": "Genre"
+      "headingType": "Genre",
+      "authRefType": "Reference"
     },
     "saftGenreTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftGenreTerm"
+      "distinctType": "saftGenreTerm",
+      "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
       "index": "source"
@@ -176,6 +197,13 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword",
       "processor": "headingTypeProcessor",
+      "rawProcessing": true
+    },
+    "authRefType": {
+      "type": "search",
+      "searchTypes": [ "filter" ],
+      "index": "keyword",
+      "processor": "authRefTypeProcessor",
       "rawProcessing": true
     }
   },

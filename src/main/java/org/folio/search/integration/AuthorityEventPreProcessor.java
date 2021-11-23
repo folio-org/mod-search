@@ -9,7 +9,6 @@ import static org.folio.search.utils.SearchConverterUtils.copyEntityFields;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_STREAMING_FILTER_FIELD;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,11 +70,7 @@ public class AuthorityEventPreProcessor {
   private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
     var isCreateOperation = isCreateOperation(eventType);
     var events = generateResourceEvents(event, eventType, isCreateOperation ? getNewAsMap(event) : getOldAsMap(event));
-    var result = events.isEmpty() ? singletonList(event.id("other" + 0 + "_" + event.getId())) : events;
-    if (isCreateOperation) {
-      getNewAsMap(result.get(0)).put(AUTHORITY_STREAMING_FILTER_FIELD, true);
-    }
-    return result;
+    return events.isEmpty() ? singletonList(event.id("other" + 0 + "_" + event.getId())) : events;
   }
 
   private List<ResourceEvent> getResourceEventsToUpdate(ResourceEvent event) {

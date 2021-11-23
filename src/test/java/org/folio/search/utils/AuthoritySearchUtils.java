@@ -1,7 +1,6 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.singletonList;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_STREAMING_FILTER_FIELD;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.toMap;
 
@@ -22,28 +21,21 @@ public class AuthoritySearchUtils {
 
   @SneakyThrows
   public static Authority expectedAuthority(Authority authority, Map<String, Object> searchFields, String... fields) {
-    var sourceMap = expectedAuthorityAsMap(authority, false, fields);
+    var sourceMap = expectedAuthorityAsMap(authority, fields);
     sourceMap.putAll(searchFields);
     return OBJECT_MAPPER.convertValue(sourceMap, Authority.class);
   }
 
   @SneakyThrows
   public static Authority expectedAuthority(Authority authority, String... fields) {
-    return OBJECT_MAPPER.convertValue(expectedAuthorityAsMap(authority, false, fields), Authority.class);
+    return OBJECT_MAPPER.convertValue(expectedAuthorityAsMap(authority, fields), Authority.class);
   }
 
   public static Map<String, Object> expectedAuthorityAsMap(Authority source, String... fields) {
-    return expectedAuthorityAsMap(source, false, fields);
-  }
-
-  public static Map<String, Object> expectedAuthorityAsMap(Authority source, boolean idStreaming, String... fields) {
     var resultMap = new LinkedHashMap<String, Object>();
     var sourceMap = toMap(source);
     copyExpectedEntityFields(sourceMap, resultMap, List.of(fields));
     copyExpectedEntityFields(sourceMap, resultMap, AUTHORITY_COMMON_FIELDS);
-    if (idStreaming) {
-      resultMap.put(AUTHORITY_STREAMING_FILTER_FIELD, true);
-    }
     return resultMap;
   }
 

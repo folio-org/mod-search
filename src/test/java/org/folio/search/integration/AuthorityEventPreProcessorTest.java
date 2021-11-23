@@ -52,7 +52,7 @@ class AuthorityEventPreProcessorTest {
     var authority = fullAuthorityRecord();
     var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(authority, true, "personalName")),
+      event("personalName0", expectedAuthorityAsMap(authority, "personalName")),
       event("sftPersonalName0", expectedAuthorityAsMap(authority, "sftPersonalName[0]")),
       event("sftPersonalName1", expectedAuthorityAsMap(authority, "sftPersonalName[1]")),
       event("saftPersonalName0", expectedAuthorityAsMap(authority, "saftPersonalName[0]")),
@@ -71,7 +71,7 @@ class AuthorityEventPreProcessorTest {
     var authority = new Authority().id(RESOURCE_ID).personalName("a personal name");
     var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(authority, true, "personalName"))));
+      event("personalName0", expectedAuthorityAsMap(authority, "personalName"))));
   }
 
   @Test
@@ -80,7 +80,7 @@ class AuthorityEventPreProcessorTest {
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(authority)).type(REINDEX);
     var actual = eventPreProcessor.process(event);
     assertThat(actual).isEqualTo(List.of(
-      event("uniformTitle0", expectedAuthorityAsMap(authority, true, "uniformTitle")).type(REINDEX)));
+      event("uniformTitle0", expectedAuthorityAsMap(authority, "uniformTitle")).type(REINDEX)));
   }
 
   @Test
@@ -88,7 +88,7 @@ class AuthorityEventPreProcessorTest {
     var authority = new Authority().id(RESOURCE_ID).subjectHeadings("a subject headings")
       .identifiers(List.of(new AuthorityIdentifiers().value("an authority identifier")));
     var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
-    assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority, true))));
+    assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority))));
   }
 
   @Test
@@ -108,7 +108,7 @@ class AuthorityEventPreProcessorTest {
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(UPDATE).old(toMap(oldAuthority));
     var actual = eventPreProcessor.process(event);
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(newAuthority, true, "personalName")),
+      event("personalName0", expectedAuthorityAsMap(newAuthority, "personalName")),
       event("corporateName0", expectedAuthorityAsMap(newAuthority, "corporateName")),
       event("saftCorporateName0", expectedAuthorityAsMap(newAuthority, "saftCorporateName[0]")),
       deleteEvent("saftCorporateName1"),

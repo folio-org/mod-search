@@ -363,10 +363,11 @@ if it is defined but doesn't match.
 
 ### Authority search options
 
-| Option                                          | Type      |Example                     | Description                     |
-| :-----------------------------------------------|:---------:| :--------------------------|:-------------------------------:|
-| `id`                                            | term      | `id=="1234567"`            | Matches authorities with the id |
-| `personalName`                                  | full-text | `personalName any "john"`  | Matches authorities with `john` personal name |
+| Option                                          | Type      |Example                           | Description                     |
+| :-----------------------------------------------|:---------:| :--------------------------------|:-------------------------------:|
+| `id`                                            | term      | `id=="1234567"`                  | Matches authorities with the id |
+| `personalName`                                  | full-text | `personalName any "john"`        | Matches authorities with `john` personal name |
+| `headingType`                                   | term      | `headingType == "Personal Name"` | Matches authorities with `john` personal name |
 
 ### Search by all field values
 

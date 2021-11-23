@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.inventory.InventoryViewClient;
@@ -64,7 +63,6 @@ public class ResourceFetchService {
   private static ResourceEvent createResourceEvent(String tenantId, Map<String, Object> instanceMap) {
     return new ResourceEvent()
       ._new(instanceMap)
-      .id(MapUtils.getString(instanceMap, ID_FIELD))
       .tenant(tenantId)
       .resourceName(INSTANCE_RESOURCE)
       .type(ResourceEventType.CREATE);

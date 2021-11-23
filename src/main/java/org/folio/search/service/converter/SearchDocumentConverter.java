@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,10 +72,9 @@ public class SearchDocumentConverter {
     return resourceEvent.getNew() instanceof Map;
   }
 
-  @SuppressWarnings("unchecked")
   private ConversionContext buildConversionContext(ResourceEvent event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
-    var resourceData = (Map<String, Object>) event.getNew();
+    var resourceData = getEventPayload(event);
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
     return ConversionContext.of(event.getId(), event.getTenant(), resourceData, resourceDescription, resourceLanguages);
   }

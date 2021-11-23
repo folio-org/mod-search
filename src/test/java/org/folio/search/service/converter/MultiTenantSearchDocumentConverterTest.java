@@ -137,8 +137,8 @@ class MultiTenantSearchDocumentConverterTest {
 
   private static List<ResourceEvent> eventsForTenant(String tenant) {
     return List.of(
-      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.UPDATE),
-      resourceEvent(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.DELETE));
+      resourceEvent(null, RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.UPDATE),
+      resourceEvent(null, RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.DELETE));
   }
 
   @SuppressWarnings("unchecked")

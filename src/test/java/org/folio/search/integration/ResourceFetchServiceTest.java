@@ -58,8 +58,8 @@ class ResourceFetchServiceTest {
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
-      resourceEvent(instanceId1, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1")),
-      resourceEvent(instanceId2, INSTANCE_RESOURCE, mapOf("id", instanceId2, "title", "instance2",
+      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1")),
+      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId2, "title", "instance2",
         "holdings", List.of(mapOf("id", "holdingId")), "items", List.of(mapOf("id", "itemId"))))));
   }
 

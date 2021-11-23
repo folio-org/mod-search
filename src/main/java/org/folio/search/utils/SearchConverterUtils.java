@@ -83,20 +83,45 @@ public class SearchConverterUtils {
     return event.getNew() != null ? (Map<String, Object>) event.getNew() : (Map<String, Object>) event.getOld();
   }
 
+  /**
+   * Returns fields for latest version of {@link ResourceEvent} object.
+   *
+   * @param resourceEvent - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getNewAsMap(ResourceEvent resourceEvent) {
     return resourceEvent.getNew() != null ? (Map<String, Object>) resourceEvent.getNew() : emptyMap();
   }
 
+  /**
+   * Returns fields for previous version of {@link ResourceEvent} object.
+   *
+   * @param resourceEvent - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getOldAsMap(ResourceEvent resourceEvent) {
     return resourceEvent.getOld() != null ? (Map<String, Object>) resourceEvent.getOld() : emptyMap();
   }
 
+  /**
+   * Returns resource event id from {@link ResourceEvent} object.
+   *
+   * @param event - resource event body to analyze
+   * @return event id as {@link String} object
+   */
   public static String getResourceEventId(ResourceEvent event) {
     return getString(getEventPayload(event), ID_FIELD);
   }
 
+  /**
+   * Copies entity fields from source to target using given list of fields.
+   *
+   * @param source - source resource event body as {@link Map} object
+   * @param target - target resource event body as {@link Map} object
+   * @param fields - field names to copy from source to target as {@link List} object
+   */
   public static void copyEntityFields(Map<String, Object> source, Map<String, Object> target, List<String> fields) {
     for (var field : fields) {
       if (source.containsKey(field)) {

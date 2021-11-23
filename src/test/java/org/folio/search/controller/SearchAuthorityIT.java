@@ -89,7 +89,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     return Stream.of(
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
-      arguments("personalName == {value}", "\"gary a.*\"")
+      arguments("personalName == {value}", "\"gary a.*\""),
+      arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\"")
     );
   }
 

@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -66,6 +67,13 @@ class SearchConverterUtilsTest {
   void getOldAsMap_negative() {
     var actual = SearchConverterUtils.getOldAsMap(resourceEvent(RESOURCE_NAME, null));
     assertThat(actual).isEqualTo(emptyMap());
+  }
+
+  @Test
+  void getResourceId_positive() {
+    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, Map.of("id", RESOURCE_ID));
+    var actual = SearchConverterUtils.getResourceEventId(resourceEvent);
+    assertThat(actual).isEqualTo(RESOURCE_ID);
   }
 
   private static Stream<Arguments> getValueByPathProvider() {

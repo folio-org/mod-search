@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
 import java.util.Collection;
@@ -79,6 +80,7 @@ public class MultiTenantSearchDocumentConverter {
   private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> eventsPerTenant) {
     return executionService.executeTenantScoped(eventsPerTenant.getKey(), () ->
       eventsPerTenant.getValue().stream()
+        .map(event -> event.id(getResourceEventId(event)))
         .flatMap(this::populateResourceEvents)
         .map(this::convertResourceEvent)
         .flatMap(Optional::stream)

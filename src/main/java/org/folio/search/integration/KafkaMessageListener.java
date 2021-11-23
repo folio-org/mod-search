@@ -8,7 +8,6 @@ import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
-import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
@@ -67,27 +66,24 @@ public class KafkaMessageListener {
     topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
   public void handleAuthorityEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
-    var batch = getAuthorityResourceEvents(consumerRecords);
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .map(authority -> authority.resourceName(AUTHORITY_RESOURCE))
+      .collect(toList());
+
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       indexService::indexResources, KafkaMessageListener::logFailedEvent);
   }
 
-  private static List<ResourceEvent> getAuthorityResourceEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
-    return records.stream()
-      .map(ConsumerRecord::value)
-      .map(event -> event.id(getResourceEventId(event)).resourceName(AUTHORITY_RESOURCE))
-      .collect(toList());
-  }
-
-  private List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEvent>> events) {
+  private static List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEvent>> events) {
     return events.stream()
-      .map(this::getResourceIdRecord)
+      .map(KafkaMessageListener::getResourceIdRecord)
       .filter(Objects::nonNull)
       .distinct()
       .collect(toList());
   }
 
-  private ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEvent> consumerRecord) {
+  private static ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEvent> consumerRecord) {
     var instanceId = getInstanceId(consumerRecord);
     var value = consumerRecord.value();
     if (instanceId == null) {
@@ -98,7 +94,7 @@ public class KafkaMessageListener {
     return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
   }
 
-  private String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
+  private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
     var body = event.value();
     if (body.getType() == REINDEX) {
       return event.key();
@@ -107,7 +103,7 @@ public class KafkaMessageListener {
     return isInstanceResource(event) ? getString(eventPayload, "id") : getString(eventPayload, "instanceId");
   }
 
-  private boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
+  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
     return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
   }
 

@@ -8,121 +8,121 @@
     "personalName": {
       "type": "authority",
       "index": "standard",
-      "distinctType": "personal",
+      "distinctType": "personalName",
       "headingType": "Personal Name"
     },
     "sftPersonalName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftPersonal",
+      "distinctType": "sftPersonalName",
       "headingType": "Personal Name"
     },
     "saftPersonalName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftPersonal"
+      "distinctType": "saftPersonalName"
     },
     "corporateName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "corporate",
+      "distinctType": "corporateName",
       "headingType": "Corporate Name"
     },
     "sftCorporateName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftCorporate",
+      "distinctType": "sftCorporateName",
       "headingType": "Corporate Name"
     },
     "saftCorporateName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftCorporate"
+      "distinctType": "saftCorporateName"
     },
     "meetingName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "meeting",
+      "distinctType": "meetingName",
       "headingType": "Meeting Name"
     },
     "sftMeetingName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftMeeting",
+      "distinctType": "sftMeetingName",
       "headingType": "Meeting Name"
     },
     "saftMeetingName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftMeeting"
+      "distinctType": "saftMeetingName"
     },
     "geographicName": {
       "type": "authority",
       "index": "source",
-      "distinctType": "geographic",
+      "distinctType": "geographicName",
       "headingType": "Geographic Name"
     },
     "sftGeographicTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftGeographic",
+      "distinctType": "sftGeographicTerm",
       "headingType": "Geographic Name"
     },
     "saftGeographicTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftGeographic"
+      "distinctType": "saftGeographicTerm"
     },
     "uniformTitle": {
       "type": "authority",
       "index": "source",
-      "distinctType": "uniform",
+      "distinctType": "uniformTitle",
       "headingType": "Uniform Title"
     },
     "sftUniformTitle": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftUniform",
+      "distinctType": "sftUniformTitle",
       "headingType": "Uniform Title"
     },
     "saftUniformTitle": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftUniform"
+      "distinctType": "saftUniformTitle"
     },
     "topicalTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "topical",
+      "distinctType": "topicalTerm",
       "headingType": "Topical"
     },
     "sftTopicalTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftTopical",
+      "distinctType": "sftTopicalTerm",
       "headingType": "Topical"
     },
     "saftTopicalTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftTopical"
+      "distinctType": "saftTopicalTerm"
     },
     "genreTerm": {
       "type": "authority",
       "index": "source",
-      "headingType": "Genre",
-      "distinctType": "genre"
+      "distinctType": "genreTerm",
+      "headingType": "Genre"
     },
     "sftGenreTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "sftGenre",
+      "distinctType": "sftGenreTerm",
       "headingType": "Genre"
     },
     "saftGenreTerm": {
       "type": "authority",
       "index": "source",
-      "distinctType": "saftGenre"
+      "distinctType": "saftGenreTerm"
     },
     "subjectHeadings": {
       "index": "source"

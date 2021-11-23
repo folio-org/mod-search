@@ -75,19 +75,19 @@
     },
     "uniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "uniformTitle",
       "headingType": "Uniform Title"
     },
     "sftUniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftUniformTitle",
       "headingType": "Uniform Title"
     },
     "saftUniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftUniformTitle"
     },
     "topicalTerm": {

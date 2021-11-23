@@ -10,7 +10,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -55,16 +54,9 @@ public class ResourceFetchService {
       var instanceResultList = inventoryClient.getInstances(exactMatchAny(ID_FIELD, instanceIds), instanceIds.size());
       return instanceResultList.getResult().stream()
         .map(InstanceView::toInstance)
-        .map(instanceMap -> createResourceEvent(tenantId, instanceMap))
+        .map(instanceMap -> new ResourceEvent()._new(instanceMap).tenant(tenantId)
+          .resourceName(INSTANCE_RESOURCE).type(ResourceEventType.CREATE))
         .collect(toList());
     });
-  }
-
-  private static ResourceEvent createResourceEvent(String tenantId, Map<String, Object> instanceMap) {
-    return new ResourceEvent()
-      ._new(instanceMap)
-      .tenant(tenantId)
-      .resourceName(INSTANCE_RESOURCE)
-      .type(ResourceEventType.CREATE);
   }
 }

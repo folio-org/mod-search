@@ -91,8 +91,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("personalName all {value}", "gary"),
       arguments("personalName == {value}", "\"gary a.*\""),
       arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\""),
-      arguments("sftPersonalName = {value}", "\"stf personal name\""),
-      arguments("sftPersonalName == {value}", "\"stf personal name\""),
+      arguments("sftPersonalName = {value}", "\"personal sft name\""),
+      arguments("sftPersonalName == {value}", "\"sft personal name\""),
       arguments("sftPersonalName == {value}", "\"*persona*\""),
       arguments("saftPersonalName = {value}", "\"saft name\""),
       arguments("saftPersonalName == {value}", "\"*saft persona*\"")

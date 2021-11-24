@@ -42,7 +42,6 @@ import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

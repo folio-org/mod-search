@@ -5,14 +5,15 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.SearchDocumentBody.forDeleteResourceEvent;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,8 +27,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.apache.commons.collections.MapUtils;
-import org.folio.search.domain.dto.ResourceEventBody;
-import org.folio.search.domain.dto.ResourceEventBody.TypeEnum;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.integration.AuthorityEventPreProcessor;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
@@ -46,6 +48,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Mock private SearchDocumentConverter searchDocumentConverter;
   @Mock private TenantScopedExecutionService executionService;
+  @Mock private AuthorityEventPreProcessor authorityEventPreProcessor;
   @InjectMocks private MultiTenantSearchDocumentConverter multiTenantConverter;
 
   @Test
@@ -76,7 +79,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Test
   void convertIndexEventsAsMap_positive_indexEvents() {
-    var events = List.of(eventBody("instance", Map.of("id", RESOURCE_ID)));
+    var events = List.of(resourceEvent("instance", Map.of("id", RESOURCE_ID)));
     var expectedBody = TestUtils.searchDocumentBody();
 
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(Optional.of(expectedBody));
@@ -118,15 +121,29 @@ class MultiTenantSearchDocumentConverterTest {
     assertThat(actual).isEqualTo(emptyMap());
   }
 
-  private static List<ResourceEventBody> eventsForTenant(String tenant) {
+  @Test
+  void convertAuthorityEvent_positive() {
+    var event = resourceEvent(AUTHORITY_RESOURCE, mapOf("id", RESOURCE_ID));
+    var searchDocument = searchDocumentBody(event);
+
+    when(authorityEventPreProcessor.process(event)).thenReturn(List.of(event));
+    when(searchDocumentConverter.convert(event)).thenReturn(Optional.of(searchDocument));
+    when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
+      invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
+
+    var actual = multiTenantConverter.convert(List.of(event));
+    assertThat(actual).isEqualTo(List.of(searchDocumentBody(event)));
+  }
+
+  private static List<ResourceEvent> eventsForTenant(String tenant) {
     return List.of(
-      eventBody(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.UPDATE),
-      eventBody(RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(TypeEnum.DELETE));
+      resourceEvent(null, RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.UPDATE),
+      resourceEvent(null, RESOURCE_NAME, Map.of("id", randomId())).tenant(tenant).type(ResourceEventType.DELETE));
   }
 
   @SuppressWarnings("unchecked")
-  private static SearchDocumentBody searchDocumentBody(ResourceEventBody body) {
-    var id = MapUtils.getString((Map<String, Object>) body.getNew(), "id");
-    return SearchDocumentBody.of(id, body.getTenant(), INDEX_NAME, asJsonString(body.getNew()), INDEX);
+  private static SearchDocumentBody searchDocumentBody(ResourceEvent event) {
+    var id = MapUtils.getString((Map<String, Object>) event.getNew(), "id");
+    return SearchDocumentBody.of(id, event.getTenant(), INDEX_NAME, asJsonString(event.getNew()), INDEX);
   }
 }

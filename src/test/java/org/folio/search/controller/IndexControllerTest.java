@@ -6,9 +6,9 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -145,7 +145,7 @@ class IndexControllerTest {
   void indexResources_positive() throws Exception {
     var instanceData = OBJECT_MAPPER.createObjectNode();
     instanceData.put("id", randomId());
-    var resourceBody = eventBody(RESOURCE_NAME, mapOf("id", randomId()));
+    var resourceBody = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
 
     when(indexService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
 

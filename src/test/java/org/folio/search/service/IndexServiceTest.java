@@ -17,6 +17,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +36,6 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
-import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,25 +84,25 @@ class IndexServiceTest {
   @Test
   void indexResources_positive() {
     var searchBody = searchDocumentBody();
-    var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
 
-    when(searchDocumentConverter.convert(List.of(eventBody))).thenReturn(List.of(searchBody));
+    when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(List.of(searchBody));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
 
-    var response = indexService.indexResources(List.of(eventBody));
+    var response = indexService.indexResources(List.of(resourceEvent));
     assertThat(response).isEqualTo(expectedResponse);
   }
 
   @Test
   void indexResources_negative() {
-    var eventBodies = List.of(TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId())));
+    var resourceEvents = List.of(resourceEvent(RESOURCE_NAME, mapOf("id", randomId())));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
     when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyList());
 
-    var actual = indexService.indexResources(eventBodies);
+    var actual = indexService.indexResources(resourceEvents);
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 
@@ -180,13 +180,13 @@ class IndexServiceTest {
   @Test
   void canIndexResourcesById() {
     var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, INDEX));
-    var eventBody = TestUtils.eventBody(RESOURCE_NAME, mapOf("id", randomId()));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
     var doc = searchDocumentBody();
 
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-    when(fetchService.fetchInstancesByIds(eventIds)).thenReturn(List.of(eventBody));
-    when(searchDocumentConverter.convertAsMap(List.of(eventBody))).thenReturn(mapOf(RESOURCE_ID, doc));
+    when(fetchService.fetchInstancesByIds(eventIds)).thenReturn(List.of(resourceEvent));
+    when(searchDocumentConverter.convertAsMap(List.of(resourceEvent))).thenReturn(mapOf(RESOURCE_ID, doc));
     when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
     when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
 

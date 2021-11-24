@@ -24,7 +24,7 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -87,10 +87,10 @@ public class IndexService {
   /**
    * Saves list of resources to elasticsearch.
    *
-   * @param resources {@link List} of resources as {@link ResourceEventBody} objects.
+   * @param resources {@link List} of resources as {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResources(List<ResourceEventBody> resources) {
+  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
     if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
     }
@@ -99,7 +99,7 @@ public class IndexService {
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var response = indexRepository.indexResources(elasticsearchDocuments);
 
-    log.info("Instances added/updated [size: {}]", eventsToIndex.size());
+    log.info("Records added/updated [size: {}]", eventsToIndex.size());
     return response;
   }
 
@@ -127,7 +127,7 @@ public class IndexService {
       .collect(toList());
 
     var response = indexRepository.indexResources(searchDocumentBodies);
-    log.info("Instances indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
+    log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
       indexDocuments.size(), removeDocuments.size());
 
     return response;

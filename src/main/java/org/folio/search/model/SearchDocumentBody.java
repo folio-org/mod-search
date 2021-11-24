@@ -6,7 +6,7 @@ import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.service.converter.ConversionContext;
@@ -57,12 +57,12 @@ public class SearchDocumentBody {
   /**
    * Creates {@link SearchDocumentBody} for passed {@link ResourceIdEvent} resource id event.
    *
-   * @param resourceEventBody resource id event
+   * @param resourceEvent resource id event
    * @return created {@link SearchDocumentBody} object
    */
-  public static SearchDocumentBody forDeleteResourceEvent(ResourceEventBody resourceEventBody) {
-    return new SearchDocumentBody(resourceEventBody.getId(), resourceEventBody.getTenant(),
-      getElasticsearchIndexName(resourceEventBody), null, DELETE);
+  public static SearchDocumentBody forDeleteResourceEvent(ResourceEvent resourceEvent) {
+    return new SearchDocumentBody(resourceEvent.getId(), resourceEvent.getTenant(),
+      getElasticsearchIndexName(resourceEvent), null, DELETE);
   }
 
   /**

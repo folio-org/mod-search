@@ -11,7 +11,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
-import static org.folio.search.utils.TestUtils.eventBody;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -217,20 +217,19 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> {}, asList(instances),
+    setUpTenant(tenantName, instanceSearchPath(), () -> {}, asList(instances), instances.length,
       instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SneakyThrows
-  protected static void setUpTenant(Authority... authorities) {
-    var topic = inventoryAuthorityTopic(TENANT_ID);
-    setUpTenant(TENANT_ID, authoritySearchPath(), () -> {}, asList(authorities),
-      record -> kafkaTemplate.send(topic, record.getId(), eventBody(null, record).tenant(TENANT_ID)));
+  protected static void setUpTenant(int expectedCount, Authority... authorities) {
+    setUpTenant(TENANT_ID, authoritySearchPath(), () -> {}, asList(authorities), expectedCount,
+      record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, null, record)));
   }
 
   @SneakyThrows
   protected static void setUpTenant(String tenant, Runnable postInitAction, Instance... instances) {
-    setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(instances),
+    setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(instances), instances.length,
       instance -> inventoryApi.createInstance(tenant, instance));
   }
 
@@ -243,38 +242,44 @@ public abstract class BaseIntegrationTest {
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> {}, rawRecords);
+    setUpTenant(type, tenant, () -> {}, rawRecords.length, rawRecords);
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
+    setUpTenant(type, TENANT_ID, () -> {}, expectedCount, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Runnable postInitAction, Map<String, Object>... records) {
-    setUpTenant(type, TENANT_ID, postInitAction, records);
+    setUpTenant(type, TENANT_ID, postInitAction, records.length, records);
   }
 
   @SafeVarargs
   @SneakyThrows
-  protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction,
+  protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
     Map<String, Object>... records) {
     if (type.equals(Instance.class)) {
-      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records),
+      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount,
         instance -> inventoryApi.createInstance(tenant, instance));
     }
 
     if (type.equals(Authority.class)) {
-      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records),
-        record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), asJsonString(record)));
+      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount,
+        record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, record)));
     }
   }
 
   @SneakyThrows
   private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-    List<T> records, Consumer<T> consumer) {
+    List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
     records.forEach(consumer);
     if (records.size() > 0) {
-      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, records.size());
+      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
     }
   }
 
@@ -320,6 +325,6 @@ public abstract class BaseIntegrationTest {
   }
 
   protected static String prepareQuery(String queryTemplate, String value) {
-    return queryTemplate.replace("{value}", value);
+    return value != null ? queryTemplate.replace("{value}", value) : queryTemplate;
   }
 }

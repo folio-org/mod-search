@@ -3,7 +3,8 @@
   "eventBodyJavaClass": "org.folio.search.domain.dto.Authority",
   "fields": {
     "id": {
-      "index": "keyword"
+      "index": "keyword",
+      "showInResponse": true
     },
     "personalName": {
       "type": "authority",
@@ -49,14 +50,14 @@
       "type": "authority",
       "index": "source",
       "distinctType": "meetingName",
-      "headingType": "Meeting Name",
+      "headingType": "Conference Name",
       "authRefType": "Authorized"
     },
     "sftMeetingName": {
       "type": "authority",
       "index": "source",
       "distinctType": "sftMeetingName",
-      "headingType": "Meeting Name",
+      "headingType": "Conference Name",
       "authRefType": "Reference"
     },
     "saftMeetingName": {
@@ -197,13 +198,22 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword",
       "processor": "headingTypeProcessor",
-      "rawProcessing": true
+      "rawProcessing": true,
+      "showInResponse": true
     },
     "authRefType": {
       "type": "search",
       "searchTypes": [ "filter" ],
       "index": "keyword",
       "processor": "authRefTypeProcessor",
+      "rawProcessing": true,
+      "showInResponse": true
+    },
+    "headingRef": {
+      "type": "search",
+      "index": "source",
+      "processor": "headingRefProcessor",
+      "showInResponse": true,
       "rawProcessing": true
     }
   },

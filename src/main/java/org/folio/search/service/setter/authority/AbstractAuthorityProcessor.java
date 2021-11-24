@@ -24,21 +24,19 @@ public abstract class AbstractAuthorityProcessor implements FieldProcessor<Map<S
   protected String getAuthorityType(Map<String, Object> eventBody,
     Function<AuthorityFieldDescription, String> valueExtractor, String defaultValue) {
     return eventBody.entrySet().stream()
-      .map(entry -> getTypeForField(entry, valueExtractor))
+      .map(entry -> getAuthorityFieldForEntry(entry).map(valueExtractor))
       .flatMap(Optional::stream)
       .findFirst()
       .orElse(defaultValue);
   }
 
-  private Optional<String> getTypeForField(Entry<String, Object> entry,
-    Function<AuthorityFieldDescription, String> valueExtractor) {
+  protected Optional<AuthorityFieldDescription> getAuthorityFieldForEntry(Entry<String, Object> entry) {
     if (ObjectUtils.isEmpty(entry.getValue())) {
       return Optional.empty();
     }
 
     return searchFieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, entry.getKey())
       .filter(AuthorityFieldDescription.class::isInstance)
-      .map(AuthorityFieldDescription.class::cast)
-      .map(valueExtractor);
+      .map(AuthorityFieldDescription.class::cast);
   }
 }

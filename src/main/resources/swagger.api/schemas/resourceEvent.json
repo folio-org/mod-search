@@ -8,9 +8,8 @@
       "type": "string"
     },
     "type": {
-      "description": "Operation type [update, create, delete]",
-      "enum": [ "UPDATE", "CREATE", "DELETE", "REINDEX", "DELETE_ALL" ],
-      "type": "string"
+      "description": "Resource event operation type",
+      "$ref": "resourceEventType.json"
     },
     "tenant": {
       "description": "Tenant id",

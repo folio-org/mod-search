@@ -1,6 +1,9 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.MapUtils.getString;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +13,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -69,14 +72,62 @@ public class SearchConverterUtils {
     return Stream.empty();
   }
 
+  /**
+   * Returns event payload from {@link ResourceEvent} object.
+   *
+   * @param event - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
   @SuppressWarnings("unchecked")
-  public static Map<String, Object> getNewAsMap(ResourceEventBody resourceEventBody) {
-    return (Map<String, Object>) resourceEventBody.getNew();
+  public static Map<String, Object> getEventPayload(ResourceEvent event) {
+    return event.getNew() != null ? (Map<String, Object>) event.getNew() : (Map<String, Object>) event.getOld();
   }
 
+  /**
+   * Returns fields for latest version of {@link ResourceEvent} object.
+   *
+   * @param resourceEvent - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
   @SuppressWarnings("unchecked")
-  public static Map<String, Object> getOldAsMap(ResourceEventBody resourceEventBody) {
-    return (Map<String, Object>) resourceEventBody.getOld();
+  public static Map<String, Object> getNewAsMap(ResourceEvent resourceEvent) {
+    return resourceEvent.getNew() != null ? (Map<String, Object>) resourceEvent.getNew() : emptyMap();
+  }
+
+  /**
+   * Returns fields for previous version of {@link ResourceEvent} object.
+   *
+   * @param resourceEvent - resource event body to analyze
+   * @return event payload as {@link Map} object.
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, Object> getOldAsMap(ResourceEvent resourceEvent) {
+    return resourceEvent.getOld() != null ? (Map<String, Object>) resourceEvent.getOld() : emptyMap();
+  }
+
+  /**
+   * Returns resource event id from {@link ResourceEvent} object.
+   *
+   * @param event - resource event body to analyze
+   * @return event id as {@link String} object
+   */
+  public static String getResourceEventId(ResourceEvent event) {
+    return getString(getEventPayload(event), ID_FIELD);
+  }
+
+  /**
+   * Copies entity fields from source to target using given list of fields.
+   *
+   * @param source - source resource event body as {@link Map} object
+   * @param target - target resource event body as {@link Map} object
+   * @param fields - field names to copy from source to target as {@link List} object
+   */
+  public static void copyEntityFields(Map<String, Object> source, Map<String, Object> target, List<String> fields) {
+    for (var field : fields) {
+      if (source.containsKey(field)) {
+        target.put(field, source.get(field));
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")

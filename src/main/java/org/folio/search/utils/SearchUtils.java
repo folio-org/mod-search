@@ -17,8 +17,9 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -30,6 +31,8 @@ import org.folio.spring.integration.XOkapiHeaders;
 public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
+  public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
+  public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String CQL_META_FIELD_PREFIX = "cql.";
@@ -41,8 +44,6 @@ public class SearchUtils {
   public static final String DOT = ".";
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
-
-  public static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10_000;
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
   /**
@@ -89,7 +90,7 @@ public class SearchUtils {
    * @param event resource event as {@link ResourceIdEvent} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceEventBody event) {
+  public static String getElasticsearchIndexName(ResourceEvent event) {
     return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
   }
 

@@ -165,7 +165,7 @@ paths:
           application/json:
             example: examples/indexRecordRequestBody.sample
             schema:
-              $ref: '#/components/schemas/indexRecordRequestBody'
+              $ref: '#/components/schemas/indexRecordRequest'
       responses:
         '200':
           description: Response with created indices and status (error message will be present if operation failed)
@@ -333,12 +333,12 @@ components:
       $ref: schemas/folioCreateIndexResponse.json
     folioIndexOperationResponse:
       $ref: schemas/folioIndexOperationResponse.json
-    resourceEventBody:
-      $ref: schemas/resourceEventBody.json
-    indexRecordRequestBody:
+    resourceEvent:
+      $ref: schemas/resourceEvent.json
+    indexRecordRequest:
       type: array
       items:
-        $ref: '#/components/schemas/resourceEventBody'
+        $ref: '#/components/schemas/resourceEvent'
     instanceSearchResult:
       $ref: schemas/response/instanceSearchResult.json
     authoritySearchResult:

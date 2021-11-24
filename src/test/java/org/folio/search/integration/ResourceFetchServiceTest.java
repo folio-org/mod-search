@@ -11,9 +11,9 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.eventBody;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -58,8 +58,8 @@ class ResourceFetchServiceTest {
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
-      eventBody(INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1")),
-      eventBody(INSTANCE_RESOURCE, mapOf("id", instanceId2, "title", "instance2",
+      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1")),
+      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId2, "title", "instance2",
         "holdings", List.of(mapOf("id", "holdingId")), "items", List.of(mapOf("id", "itemId"))))));
   }
 

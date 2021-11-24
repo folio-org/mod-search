@@ -5,11 +5,18 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
+import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
+import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.search.utils.TestUtils.toMap;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -53,16 +60,16 @@ class IndexingIT extends BaseIntegrationTest {
     createInstances();
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
-    assertCountByQuery("items.id=={value}", itemIdToDelete, 0);
-    assertCountByQuery("items.id=={value}", ITEM_IDS.get(0), 1);
+    assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
+    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.get(0), 1);
   }
 
   @Test
   void shouldRemoveHolding() {
     createInstances();
     inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
-    assertCountByQuery("holdings.id=={value}", HOLDING_IDS.get(0), 0);
-    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery("holdings.id=={value}", id, 1));
+    assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", HOLDING_IDS.get(0), 0);
+    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
   }
 
   @Test
@@ -70,8 +77,22 @@ class IndexingIT extends BaseIntegrationTest {
     createInstances();
     var instanceIdToDelete = INSTANCE_IDS.get(0);
     inventoryApi.deleteInstance(TENANT_ID, instanceIdToDelete);
-    assertCountByQuery("id=={value}", instanceIdToDelete, 0);
-    INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery("id=={value}", id, 1));
+    assertCountByQuery(instanceSearchPath(), "id=={value}", instanceIdToDelete, 0);
+    INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery(instanceSearchPath(), "id=={value}", id, 1));
+  }
+
+  @Test
+  void shouldRemoveAuthority() {
+    var authorityId = randomId();
+    var authority = new Authority().id(authorityId).personalName("personal name")
+      .corporateName("corporate name").uniformTitle("uniform title");
+    var resourceEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, toMap(authority));
+    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
+    assertCountByQuery(authoritySearchPath(), "id=={value}", authorityId, 3);
+
+    var deleteEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(authority));
+    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
+    assertCountByQuery(authoritySearchPath(), "id=={value}", authority, 0);
   }
 
   @Test
@@ -115,7 +136,7 @@ class IndexingIT extends BaseIntegrationTest {
     instances.get(1).holdings(List.of(holding(2), holding(3)));
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    assertCountByQuery("{value}", exactMatchAny("id", INSTANCE_IDS), 3);
+    assertCountByQuery(instanceSearchPath(), "{value}", exactMatchAny("id", INSTANCE_IDS), 3);
   }
 
   private static Item item(int i) {
@@ -126,9 +147,9 @@ class IndexingIT extends BaseIntegrationTest {
     return new Holding().id(HOLDING_IDS.get(i));
   }
 
-  private void assertCountByQuery(String query, Object value, int expectedCount) {
+  private static void assertCountByQuery(String path, String query, Object value, int expectedCount) {
     await().atMost(ONE_MINUTE).pollInterval(FIVE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearchByInstances(prepareQuery(query, String.valueOf(value)))
+      doSearch(path, prepareQuery(query, String.valueOf(value)))
         .andExpect(jsonPath("totalRecords", is(expectedCount))));
   }
 

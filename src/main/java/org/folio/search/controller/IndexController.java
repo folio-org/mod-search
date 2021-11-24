@@ -8,7 +8,7 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
@@ -40,7 +40,7 @@ public class IndexController implements IndexApi {
   }
 
   @Override
-  public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEventBody> events) {
+  public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEvent> events) {
     log.info("Saving records into elasticsearch [amount of records: {}]", events.size());
     return ResponseEntity.ok(indexService.indexResources(events));
   }

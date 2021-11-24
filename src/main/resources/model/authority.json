@@ -3,15 +3,182 @@
   "eventBodyJavaClass": "org.folio.search.domain.dto.Authority",
   "fields": {
     "id": {
-      "index": "keyword",
-      "showInResponse": true
+      "index": "keyword"
     },
     "personalName": {
+      "type": "authority",
       "index": "standard",
-      "showInResponse": true
+      "distinctType": "personalName",
+      "headingType": "Personal Name"
+    },
+    "sftPersonalName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftPersonalName",
+      "headingType": "Personal Name"
+    },
+    "saftPersonalName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftPersonalName"
+    },
+    "corporateName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "corporateName",
+      "headingType": "Corporate Name"
+    },
+    "sftCorporateName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftCorporateName",
+      "headingType": "Corporate Name"
+    },
+    "saftCorporateName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftCorporateName"
+    },
+    "meetingName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "meetingName",
+      "headingType": "Meeting Name"
+    },
+    "sftMeetingName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftMeetingName",
+      "headingType": "Meeting Name"
+    },
+    "saftMeetingName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftMeetingName"
+    },
+    "geographicName": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "geographicName",
+      "headingType": "Geographic Name"
+    },
+    "sftGeographicTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftGeographicTerm",
+      "headingType": "Geographic Name"
+    },
+    "saftGeographicTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftGeographicTerm"
+    },
+    "uniformTitle": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "uniformTitle",
+      "headingType": "Uniform Title"
+    },
+    "sftUniformTitle": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftUniformTitle",
+      "headingType": "Uniform Title"
+    },
+    "saftUniformTitle": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftUniformTitle"
+    },
+    "topicalTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "topicalTerm",
+      "headingType": "Topical"
+    },
+    "sftTopicalTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftTopicalTerm",
+      "headingType": "Topical"
+    },
+    "saftTopicalTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftTopicalTerm"
+    },
+    "genreTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "genreTerm",
+      "headingType": "Genre"
+    },
+    "sftGenreTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "sftGenreTerm",
+      "headingType": "Genre"
+    },
+    "saftGenreTerm": {
+      "type": "authority",
+      "index": "source",
+      "distinctType": "saftGenreTerm"
+    },
+    "subjectHeadings": {
+      "index": "source"
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "keyword"
+        },
+        "identifierTypeId": {
+          "index": "source"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "index": "source"
+        },
+        "createdByUserId": {
+          "index": "source"
+        },
+        "createdByUsername": {
+          "index": "source"
+        },
+        "updatedDate": {
+          "index": "source"
+        },
+        "updatedByUserId": {
+          "index": "source"
+        },
+        "updatedByUsername": {
+          "index": "source"
+        }
+      }
+    },
+    "notes": {
+      "noteTypeId": {
+        "index": "source"
+      },
+      "value": {
+        "index": "source"
+      }
     }
   },
-  "searchFields": { },
+  "searchFields": {
+    "headingType": {
+      "type": "search",
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword",
+      "processor": "headingTypeProcessor",
+      "rawProcessing": true
+    }
+  },
   "mappingsSource": { },
   "indexMappings": { }
 }

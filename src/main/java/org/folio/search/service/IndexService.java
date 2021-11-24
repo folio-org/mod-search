@@ -19,15 +19,12 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
-import org.folio.search.domain.dto.ResourceEventBody;
-import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -91,10 +88,10 @@ public class IndexService {
   /**
    * Saves list of resources to elasticsearch.
    *
-   * @param resources {@link List} of resources as {@link ResourceEventBody} objects.
+   * @param resources {@link List} of resources as {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResources(List<ResourceEventBody> resources) {
+  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
     if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
     }
@@ -103,7 +100,7 @@ public class IndexService {
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var response = indexRepository.indexResources(elasticsearchDocuments);
 
-    log.info("Instances added/updated [size: {}]", eventsToIndex.size());
+    log.info("Records added/updated [size: {}]", eventsToIndex.size());
     return response;
   }
 
@@ -131,7 +128,7 @@ public class IndexService {
       .collect(toList());
 
     var response = indexRepository.indexResources(searchDocumentBodies);
-    log.info("Instances indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
+    log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
       indexDocuments.size(), removeDocuments.size());
 
     return response;

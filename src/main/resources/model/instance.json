@@ -103,7 +103,6 @@
       "index": "keyword"
     },
     "metadata": {
-      "name": "metadata",
       "type": "object",
       "properties": {
         "createdDate": {

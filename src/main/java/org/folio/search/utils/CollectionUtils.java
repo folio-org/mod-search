@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -56,6 +57,25 @@ public final class CollectionUtils {
     }
 
     return nullIfEmpty(baseMap);
+  }
+
+  /**
+   * Converts iterable to {@link LinkedHashMap} using given mapper functions.
+   *
+   * @param iterable - iterable value to process as {@link Iterable} object
+   * @param keyMapper - key mapper as {@link Function} object
+   * @param valueMapper - value mapper as {@link Function} object
+   * @param <T> generic type for iterable value
+   * @param <K> generic type for map key
+   * @param <V> generic type for map value
+   * @return created {@link LinkedHashMap} object from {@link Iterable}
+   */
+  public static <T, K, V> Map<K, V> toMap(Iterable<T> iterable, Function<T, K> keyMapper, Function<T, V> valueMapper) {
+    var resultMap = new LinkedHashMap<K, V>();
+    for (var value : iterable) {
+      resultMap.put(keyMapper.apply(value), valueMapper.apply(value));
+    }
+    return resultMap;
   }
 
   /**

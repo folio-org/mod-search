@@ -4,9 +4,11 @@ import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.model.types.FieldType.OBJECT;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
@@ -42,7 +44,8 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
-import org.folio.search.domain.dto.ResourceEventBody;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.SearchResult;
@@ -53,7 +56,6 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.model.types.FieldType;
 import org.folio.search.model.types.SearchType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -148,55 +150,55 @@ public class TestUtils {
   }
 
   public static ResourceDescription resourceDescription(String name) {
-    var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(name);
-    return resourceDescription;
+    return resourceDescription(name, emptyMap());
   }
 
   public static ResourceDescription resourceDescription(Map<String, FieldDescription> fields) {
+    return resourceDescription(RESOURCE_NAME, fields);
+  }
+
+  public static ResourceDescription resourceDescription(String name, Map<String, FieldDescription> fields) {
     var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(RESOURCE_NAME);
+    resourceDescription.setName(name);
     resourceDescription.setFields(fields);
     return resourceDescription;
   }
 
   public static ResourceDescription resourceDescription(
     Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
-    var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(RESOURCE_NAME);
-    resourceDescription.setFields(fields);
+    var resourceDescription = resourceDescription(RESOURCE_NAME, fields);
     resourceDescription.setLanguageSourcePaths(languageSourcePaths);
     return resourceDescription;
   }
 
   public static PlainFieldDescription plainField(String index) {
-    return plainField(PLAIN, index, emptyList());
+    return plainField(index, emptyList());
   }
 
   public static PlainFieldDescription plainField(String index, ObjectNode mappings) {
-    var fieldDescription = plainField(PLAIN, index, emptyList());
+    var fieldDescription = plainField(index, emptyList());
     fieldDescription.setMappings(mappings);
     return fieldDescription;
   }
 
-  public static PlainFieldDescription plainField(FieldType type, String index, List<SearchType> searchTypes) {
+  public static PlainFieldDescription plainField(String index, List<SearchType> searchTypes) {
     var fieldDescription = new PlainFieldDescription();
-    fieldDescription.setType(type);
+    fieldDescription.setType(PLAIN);
     fieldDescription.setIndex(index);
     fieldDescription.setSearchTypes(searchTypes);
     return fieldDescription;
   }
 
   public static PlainFieldDescription keywordField(SearchType... searchTypes) {
-    return plainField(PLAIN, KEYWORD_FIELD_TYPE, asList(searchTypes));
+    return plainField(KEYWORD_FIELD_TYPE, asList(searchTypes));
   }
 
   public static PlainFieldDescription standardField(SearchType... searchTypes) {
-    return plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+    return plainField(STANDARD_FIELD_TYPE, asList(searchTypes));
   }
 
   public static PlainFieldDescription standardField(boolean isPlainFieldIndexed, SearchType... searchTypes) {
-    var desc = plainField(PLAIN, STANDARD_FIELD_TYPE, asList(searchTypes));
+    var desc = plainField(STANDARD_FIELD_TYPE, asList(searchTypes));
     desc.setIndexPlainValue(isPlainFieldIndexed);
     return desc;
   }
@@ -208,26 +210,26 @@ public class TestUtils {
   }
 
   public static PlainFieldDescription filterField() {
-    return plainField(PLAIN, KEYWORD_FIELD_TYPE, List.of(SearchType.FILTER));
+    return plainField(KEYWORD_FIELD_TYPE, List.of(SearchType.FILTER));
   }
 
   public static PlainFieldDescription multilangField() {
-    return plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+    return plainField(MULTILANG_FIELD_TYPE, emptyList());
   }
 
   public static PlainFieldDescription multilangField(String... inventorySearchType) {
-    var field = plainField(PLAIN, MULTILANG_FIELD_TYPE, emptyList());
+    var field = plainField(MULTILANG_FIELD_TYPE, emptyList());
     field.setInventorySearchTypes(List.of(inventorySearchType));
     return field;
   }
 
   public static PlainFieldDescription standardFulltextField() {
-    return plainField(PLAIN, STANDARD_FIELD_TYPE, emptyList());
+    return plainField(STANDARD_FIELD_TYPE, emptyList());
   }
 
   public static ObjectFieldDescription objectField(Map<String, FieldDescription> props) {
     var objectFieldDescription = new ObjectFieldDescription();
-    objectFieldDescription.setType(FieldType.OBJECT);
+    objectFieldDescription.setType(OBJECT);
     objectFieldDescription.setProperties(props);
     return objectFieldDescription;
   }
@@ -240,9 +242,14 @@ public class TestUtils {
     return fieldDescription;
   }
 
-  public static ResourceEventBody eventBody(String resourceName, Object newData) {
-    var resourceBody = new ResourceEventBody();
-    resourceBody.setType(ResourceEventBody.TypeEnum.CREATE);
+  public static ResourceEvent resourceEvent(String resourceName, Object newData) {
+    return resourceEvent(RESOURCE_ID, resourceName, newData);
+  }
+
+  public static ResourceEvent resourceEvent(String id, String resourceName, Object newData) {
+    var resourceBody = new ResourceEvent();
+    resourceBody.setId(id);
+    resourceBody.setType(ResourceEventType.CREATE);
     resourceBody.setResourceName(resourceName);
     resourceBody.setTenant(TENANT_ID);
     resourceBody.setNew(newData);
@@ -294,8 +301,8 @@ public class TestUtils {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
-  public static Map<String, Object> toMap(Instance instance) {
-    return OBJECT_MAPPER.convertValue(instance, new TypeReference<>() {});
+  public static Map<String, Object> toMap(Object value) {
+    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() {});
   }
 
   public static void doIfNotNull(Object value, Consumer<Object> valueConsumer) {

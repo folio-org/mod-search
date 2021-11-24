@@ -367,6 +367,9 @@ if it is defined but doesn't match.
 | :-----------------------------------------------|:---------:| :--------------------------------|:-------------------------------:|
 | `id`                                            | term      | `id=="1234567"`                  | Matches authorities with the id |
 | `personalName`                                  | full-text | `personalName any "john"`        | Matches authorities with `john` personal name |
+| `genreTerm`                                     | full-text | `genreTerm any "novel"`          | Matches authorities with `novel` genre term |
+| `sftGenreTerm`                                  | full-text | `sftGenreTerm any "novel"`       | Matches authorities with `novel` sft genre term |
+| `saftGenreTerm`                                 | full-text | `saftGenreTerm any "novel"`      | Matches authorities with `novel` saft genre term |
 | `headingType`                                   | term      | `headingType == "Personal Name"` | Matches authorities with `Personal Name` heading type |
 
 ### Search by all field values

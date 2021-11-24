@@ -109,19 +109,19 @@
     },
     "genreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "genreTerm",
       "headingType": "Genre"
     },
     "sftGenreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftGenreTerm",
       "headingType": "Genre"
     },
     "saftGenreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftGenreTerm"
     },
     "subjectHeadings": {

@@ -168,20 +168,20 @@
           "index": "date"
         },
         "createdByUserId": {
-          "index": "keyword"
+          "index": "source"
         },
         "createdByUsername": {
-          "index": "keyword"
+          "index": "source"
         },
         "updatedDate": {
           "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
-          "index": "keyword"
+          "index": "source"
         },
         "updatedByUsername": {
-          "index": "keyword"
+          "index": "source"
         }
       }
     },

@@ -62,11 +62,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
-      authority("Personal Name", REFERENCE_TYPE, "a stf personal name"),
+      authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft personal name"),
 
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
-      authority("Corporate Name", REFERENCE_TYPE, "a stf corporate name"),
+      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
 
       authority("Conference Name", AUTHORIZED_TYPE, "a meeting name"),

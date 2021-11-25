@@ -125,7 +125,7 @@
       "distinctType": "saftGenreTerm"
     },
     "subjectHeadings": {
-      "index": "source"
+      "index": "standard"
     },
     "identifiers": {
       "type": "object",

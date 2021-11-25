@@ -367,6 +367,7 @@ if it is defined but doesn't match.
 | :-----------------------------------------------|:---------:| :--------------------------------|:-------------------------------:|
 | `id`                                            | term      | `id=="1234567"`                  | Matches authorities with the id |
 | `personalName`                                  | full-text | `personalName any "john"`        | Matches authorities with `john` personal name |
+| `subjectHeadings`                               | full-text | `subjectHeadings any "z"`        | Matches authorities with `z` subject headings |
 | `headingType`                                   | term      | `headingType == "Personal Name"` | Matches authorities with `Personal Name` heading type |
 
 ### Search by all field values

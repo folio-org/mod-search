@@ -108,21 +108,21 @@
     },
     "topicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "topicalTerm",
       "headingType": "Topical",
       "authRefType": "Authorized"
     },
     "sftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftTopicalTerm",
       "headingType": "Topical",
       "authRefType": "Reference"
     },
     "saftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftTopicalTerm",
       "authRefType": "Auth/Ref"
     },

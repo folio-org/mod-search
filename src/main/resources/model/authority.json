@@ -15,14 +15,14 @@
     },
     "sftPersonalName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftPersonalName",
       "headingType": "Personal Name",
       "authRefType": "Reference"
     },
     "saftPersonalName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftPersonalName",
       "authRefType": "Auth/Ref"
     },

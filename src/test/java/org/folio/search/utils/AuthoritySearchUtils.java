@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.model.metadata.AuthorityFieldDescription;
+import org.folio.search.model.metadata.PlainFieldDescription;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthoritySearchUtils {
@@ -61,5 +63,19 @@ public class AuthoritySearchUtils {
         t.put(field, src.get(field));
       }
     }
+  }
+
+  public static AuthorityFieldDescription authorityField() {
+    var authorityFieldDescription = new AuthorityFieldDescription();
+    authorityFieldDescription.setIndex(PlainFieldDescription.STANDARD_FIELD_TYPE);
+    return authorityFieldDescription;
+  }
+
+  public static AuthorityFieldDescription authorityField(String headingType, String authRefType) {
+    var authorityFieldDescription = new AuthorityFieldDescription();
+    authorityFieldDescription.setIndex(PlainFieldDescription.STANDARD_FIELD_TYPE);
+    authorityFieldDescription.setHeadingType(headingType);
+    authorityFieldDescription.setAuthRefType(authRefType);
+    return authorityFieldDescription;
   }
 }

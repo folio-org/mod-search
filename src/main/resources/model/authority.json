@@ -143,7 +143,8 @@
     "saftGenreTerm": {
       "type": "authority",
       "index": "standard",
-      "distinctType": "saftGenreTerm"
+      "distinctType": "saftGenreTerm",
+      "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
       "index": "standard"

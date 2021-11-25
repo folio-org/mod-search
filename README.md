@@ -348,11 +348,17 @@ if it is defined but doesn't match.
 
 ### Authority search options
 
-| Option                                          | Type      |Example                           | Description                     |
-| :-----------------------------------------------|:---------:| :--------------------------------|:-------------------------------:|
-| `id`                                            | term      | `id=="1234567"`                  | Matches authorities with the id |
-| `personalName`                                  | full-text | `personalName any "john"`        | Matches authorities with `john` personal name |
-| `headingType`                                   | term      | `headingType == "Personal Name"` | Matches authorities with `Personal Name` heading type |
+| Option                                          | Type      |Example                                   | Description                     |
+| :-----------------------------------------------|:---------:| :----------------------------------------|:-------------------------------:|
+| `id`                                            | term      | `id=="1234567"`                          | Matches authorities with the id |
+| `headingType`                                   | term      | `headingType == "Personal Name"`         | Matches authorities with `Personal Name` heading type |
+| `authRefType`                                   | term      | `authRefType == "Authorized"`            | Matches authorities with `Authorized` auth/ref type |
+| `personalName`                                  | full-text | `personalName any "john"`                | Matches authorities with `john` personal name |
+| `sftPersonalName`                               | full-text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
+| `saftPersonalName`                              | full-text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |
+| `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
+| `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
+| `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
 
 ### Search by all field values
 

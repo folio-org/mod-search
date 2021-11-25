@@ -65,6 +65,12 @@ public class AuthoritySearchUtils {
     }
   }
 
+  public static AuthorityFieldDescription authorityField() {
+    var authorityFieldDescription = new AuthorityFieldDescription();
+    authorityFieldDescription.setIndex(PlainFieldDescription.STANDARD_FIELD_TYPE);
+    return authorityFieldDescription;
+  }
+
   public static AuthorityFieldDescription authorityField(String headingType, String authRefType) {
     var authorityFieldDescription = new AuthorityFieldDescription();
     authorityFieldDescription.setIndex(PlainFieldDescription.STANDARD_FIELD_TYPE);

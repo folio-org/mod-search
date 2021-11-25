@@ -363,11 +363,14 @@ if it is defined but doesn't match.
 
 ### Authority search options
 
-| Option                                          | Type      |Example                           | Description                     |
-| :-----------------------------------------------|:---------:| :--------------------------------|:-------------------------------:|
-| `id`                                            | term      | `id=="1234567"`                  | Matches authorities with the id |
-| `personalName`                                  | full-text | `personalName any "john"`        | Matches authorities with `john` personal name |
-| `headingType`                                   | term      | `headingType == "Personal Name"` | Matches authorities with `Personal Name` heading type |
+| Option                                          | Type      |Example                                | Description                     |
+| :-----------------------------------------------|:---------:| :-------------------------------------|:-------------------------------:|
+| `id`                                            | term      | `id=="1234567"`                       | Matches authorities with the id |
+| `personalName`                                  | full-text | `personalName any "john"`             | Matches authorities with `john` personal name |
+| `topicalTerm`                                   | full-text | `topicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` topical term |
+| `sftTopicalTerm`                                | full-text | `sftTopicalTerm any "Optical disks"`  | Matches authorities with `Optical disks` sft topical term |
+| `saftTopicalTerm`                               | full-text | `saftTopicalTerm any "Optical disks"` | Matches authorities with `Optical disks` saft topical term |
+| `headingType`                                   | term      | `headingType == "Personal Name"`      | Matches authorities with `Personal Name` heading type |
 
 ### Search by all field values
 

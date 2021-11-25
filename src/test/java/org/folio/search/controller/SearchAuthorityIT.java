@@ -90,7 +90,17 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
       arguments("personalName == {value}", "\"gary a.*\""),
-      arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\"")
+      arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\""),
+
+      arguments("topicalTerm all {value}", "\"a topical term\""),
+      arguments("topicalTerm all {value}", "topical"),
+      arguments("topicalTerm == {value}", "\"a top*\""),
+      arguments("topicalTerm == {value} and headingType==\"Topical\"", "\"a top*\""),
+      arguments("sftTopicalTerm = {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"*top*\""),
+      arguments("saftTopicalTerm = {value}", "\"saft term\""),
+      arguments("saftTopicalTerm == {value}", "\"*saft top*\"")
     );
   }
 

@@ -92,19 +92,19 @@
     },
     "topicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "topicalTerm",
       "headingType": "Topical"
     },
     "sftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftTopicalTerm",
       "headingType": "Topical"
     },
     "saftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftTopicalTerm"
     },
     "genreTerm": {

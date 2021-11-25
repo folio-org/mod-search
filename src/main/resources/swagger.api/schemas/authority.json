@@ -191,7 +191,15 @@
     },
     "headingType": {
       "type": "string",
-      "description": "Generated field by mod-search, used to easily identity the type of the record that provides authority information"
+      "description": "Generated field by mod-search, used to easily identity the heading type of the record that provides authority information"
+    },
+    "authRefType": {
+      "type": "string",
+      "description": "Generated field by mod-search, used to easily identity the authorized/reference type of the record that provides authority information"
+    },
+    "headingRef": {
+      "type": "string",
+      "description": "Generated field by mod-search, used to easily identity the heading/reference of the record that provides authority information"
     }
   }
 }

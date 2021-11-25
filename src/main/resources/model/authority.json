@@ -88,21 +88,21 @@
     },
     "uniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "uniformTitle",
       "headingType": "Uniform Title",
       "authRefType": "Authorized"
     },
     "sftUniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftUniformTitle",
       "headingType": "Uniform Title",
       "authRefType": "Reference"
     },
     "saftUniformTitle": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftUniformTitle",
       "authRefType": "Auth/Ref"
     },

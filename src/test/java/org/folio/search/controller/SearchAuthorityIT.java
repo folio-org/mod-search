@@ -102,7 +102,15 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftPersonalName == {value}", "\"sft personal name\""),
       arguments("sftPersonalName == {value}", "\"*persona*\""),
       arguments("saftPersonalName = {value}", "\"saft name\""),
-      arguments("saftPersonalName == {value}", "\"*saft persona*\"")
+      arguments("saftPersonalName == {value}", "\"*saft persona*\""),
+
+      arguments("uniformTitle = {value}", "\"uniform\""),
+      arguments("uniformTitle == {value}", "\"an uniform title\""),
+      arguments("uniformTitle == {value}", "\"*nifor*\""),
+      arguments("sftUniformTitle = {value}", "\"uniform title\""),
+      arguments("sftUniformTitle == {value}", "\"sft uniform\""),
+      arguments("saftUniformTitle = {value} ", "\"title saft\""),
+      arguments("saftUniformTitle == {value} ", "\"saft uniform title\"")
     );
   }
 

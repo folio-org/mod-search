@@ -378,6 +378,9 @@ if it is defined but doesn't match.
 | `topicalTerm`                                   | full-text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |
 | `sftTopicalTerm`                                | full-text | `sftTopicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` sft topical term |
 | `saftTopicalTerm`                               | full-text | `saftTopicalTerm any "Optical disks"`    | Matches authorities with `Optical disks` saft topical term |
+| `genreTerm`                                     | full-text | `genreTerm any "novel"`                  | Matches authorities with `novel` genre term |
+| `sftGenreTerm`                                  | full-text | `sftGenreTerm any "novel"`               | Matches authorities with `novel` sft genre term |
+| `saftGenreTerm`                                 | full-text | `saftGenreTerm any "novel"`              | Matches authorities with `novel` saft genre term |
 
 ### Search by all field values
 

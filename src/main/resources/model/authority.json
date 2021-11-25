@@ -142,22 +142,24 @@
       "type": "object",
       "properties": {
         "createdDate": {
-          "index": "source"
+          "searchTypes": "filter",
+          "index": "date"
         },
         "createdByUserId": {
-          "index": "source"
+          "index": "keyword"
         },
         "createdByUsername": {
-          "index": "source"
+          "index": "keyword"
         },
         "updatedDate": {
-          "index": "source"
+          "searchTypes": "filter",
+          "index": "date"
         },
         "updatedByUserId": {
-          "index": "source"
+          "index": "keyword"
         },
         "updatedByUsername": {
-          "index": "source"
+          "index": "keyword"
         }
       }
     },

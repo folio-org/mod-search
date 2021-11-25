@@ -1,27 +1,24 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.TestUtils.array;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.folio.search.utils.TestUtils.array;
-
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
+import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.Metadata;
+import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Metadata;
-import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.types.IntegrationTest;
 
 @IntegrationTest
 class SearchAuthorityFilterIT extends BaseIntegrationTest {

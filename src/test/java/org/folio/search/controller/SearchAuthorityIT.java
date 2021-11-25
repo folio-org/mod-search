@@ -110,7 +110,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftUniformTitle = {value}", "\"uniform title\""),
       arguments("sftUniformTitle == {value}", "\"sft uniform\""),
       arguments("saftUniformTitle = {value} ", "\"title saft\""),
-      arguments("saftUniformTitle == {value} ", "\"saft uniform title\"")
+      arguments("saftUniformTitle == {value} ", "\"saft uniform title\""),
+
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "\"a subject heading\""),
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "subject"),
+      arguments("subjectHeadings == {value} and personalName==\"Gary\"", "\"a sub*\"")
     );
   }
 

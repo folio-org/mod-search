@@ -147,7 +147,7 @@
       "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
-      "index": "source"
+      "index": "standard"
     },
     "identifiers": {
       "type": "object",

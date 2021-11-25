@@ -368,6 +368,7 @@ if it is defined but doesn't match.
 | `id`                                            | term      | `id=="1234567"`                          | Matches authorities with the id |
 | `headingType`                                   | term      | `headingType == "Personal Name"`         | Matches authorities with `Personal Name` heading type |
 | `authRefType`                                   | term      | `authRefType == "Authorized"`            | Matches authorities with `Authorized` auth/ref type |
+| `subjectHeadings`                               | full-text | `subjectHeadings any "z"`                | Matches authorities with `z` subject headings |
 | `personalName`                                  | full-text | `personalName any "john"`                | Matches authorities with `john` personal name |
 | `sftPersonalName`                               | full-text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
 | `saftPersonalName`                              | full-text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |

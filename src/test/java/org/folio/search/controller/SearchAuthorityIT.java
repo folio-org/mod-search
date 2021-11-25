@@ -1,18 +1,14 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.folio.search.sample.SampleAuthorities.getAuthoritySample;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
-import static org.folio.search.utils.AuthoritySearchUtils.expectedAuthority;
-import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -28,6 +24,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
 class SearchAuthorityIT extends BaseIntegrationTest {
+
+  private static final String AUTHORIZED_TYPE = "Authorized";
+  private static final String REFERENCE_TYPE = "Reference";
+  private static final String AUTH_REF_TYPE = "Auth/Ref";
+  private static final String OTHER_HEADING_TYPE = "Other";
 
   @BeforeAll
   static void prepare() {
@@ -59,29 +60,34 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(21)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    var source = getAuthoritySample();
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
-      expectedAuthority(source, visibleSearchFields("Personal Name"), "personalName"),
-      expectedAuthority(source, visibleSearchFields("Personal Name"), "sftPersonalName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftPersonalName[0]"),
-      expectedAuthority(source, visibleSearchFields("Corporate Name"), "corporateName"),
-      expectedAuthority(source, visibleSearchFields("Corporate Name"), "sftCorporateName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftCorporateName[0]"),
-      expectedAuthority(source, visibleSearchFields("Meeting Name"), "meetingName"),
-      expectedAuthority(source, visibleSearchFields("Meeting Name"), "sftMeetingName[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftMeetingName[0]"),
-      expectedAuthority(source, visibleSearchFields("Geographic Name"), "geographicName"),
-      expectedAuthority(source, visibleSearchFields("Geographic Name"), "sftGeographicTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftGeographicTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Uniform Title"), "uniformTitle"),
-      expectedAuthority(source, visibleSearchFields("Uniform Title"), "sftUniformTitle[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftUniformTitle[0]"),
-      expectedAuthority(source, visibleSearchFields("Topical"), "topicalTerm"),
-      expectedAuthority(source, visibleSearchFields("Topical"), "sftTopicalTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftTopicalTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Genre"), "genreTerm"),
-      expectedAuthority(source, visibleSearchFields("Genre"), "sftGenreTerm[0]"),
-      expectedAuthority(source, visibleSearchFields("Other"), "saftGenreTerm[0]")
+      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
+      authority("Personal Name", REFERENCE_TYPE, "a stf personal name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft personal name"),
+
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
+      authority("Corporate Name", REFERENCE_TYPE, "a stf corporate name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
+
+      authority("Conference Name", AUTHORIZED_TYPE, "a meeting name"),
+      authority("Conference Name", REFERENCE_TYPE, "a sft meeting name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft meeting name"),
+
+      authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
+      authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft geographic name"),
+
+      authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title"),
+      authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft uniform title"),
+
+      authority("Topical", AUTHORIZED_TYPE, "a topical term"),
+      authority("Topical", REFERENCE_TYPE, "a sft topical term"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft topical term"),
+
+      authority("Genre", AUTHORIZED_TYPE, "a genre term"),
+      authority("Genre", REFERENCE_TYPE, "a sft genre term"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft genre term")
     ));
   }
 
@@ -90,7 +96,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
       arguments("personalName == {value}", "\"gary a.*\""),
-      arguments("personalName == {value} and headingType==\"Personal Name\"", "\"gary a.*\""),
+      arguments("personalName == {value} and headingType==\"Personal Name\"", "gary"),
+      arguments("personalName == {value} and authRefType==\"Authorized\"", "gary"),
       arguments("sftPersonalName = {value}", "\"personal sft name\""),
       arguments("sftPersonalName == {value}", "\"sft personal name\""),
       arguments("sftPersonalName == {value}", "\"*persona*\""),
@@ -99,7 +106,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     );
   }
 
-  private static Map<String, Object> visibleSearchFields(String headingType) {
-    return mapOf("headingType", headingType);
+  private static Authority authority(String headingType, String authRefType, String headingRef) {
+    return new Authority()
+      .id(getAuthoritySampleId())
+      .headingType(headingType)
+      .authRefType(authRefType)
+      .headingRef(headingRef);
   }
 }

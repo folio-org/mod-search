@@ -8,13 +8,18 @@ import lombok.EqualsAndHashCode;
 public class AuthorityFieldDescription extends PlainFieldDescription {
 
   /**
+   * Distinct type to split single to entity to multiple containing only common fields excluding all other fields marked
+   * with other distinct type.
+   */
+  private String distinctType;
+
+  /**
    * Heading type that should be set to the resource if field containing some values.
    */
   private String headingType;
 
   /**
-   * Distinct type to split single to entity to multiple containing only common fields excluding all other fields marked
-   * with other distinct type.
+   * Authorized, Reference or Auth/Ref type for divided authority record.
    */
-  private String distinctType;
+  private String authRefType;
 }

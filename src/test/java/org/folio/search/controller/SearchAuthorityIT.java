@@ -126,7 +126,31 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftUniformTitle = {value}", "\"uniform title\""),
       arguments("sftUniformTitle == {value}", "\"sft uniform\""),
       arguments("saftUniformTitle = {value} ", "\"title saft\""),
-      arguments("saftUniformTitle == {value} ", "\"saft uniform title\"")
+      arguments("saftUniformTitle == {value} ", "\"saft uniform title\""),
+
+      arguments("topicalTerm all {value}", "\"a topical term\""),
+      arguments("topicalTerm all {value}", "topical"),
+      arguments("topicalTerm == {value}", "\"a top*\""),
+      arguments("topicalTerm == {value} and headingType==\"Topical\"", "\"a top*\""),
+      arguments("sftTopicalTerm = {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"*top*\""),
+      arguments("saftTopicalTerm = {value}", "\"saft term\""),
+      arguments("saftTopicalTerm == {value}", "\"*saft top*\""),
+
+      arguments("genreTerm all {value}", "\"a genre term\""),
+      arguments("genreTerm all {value}", "genre"),
+      arguments("genreTerm == {value}", "\"a gen*\""),
+      arguments("genreTerm == {value} and headingType==\"Genre\"", "\"a gen*\""),
+      arguments("sftGenreTerm = {value}", "\"sft genre term\""),
+      arguments("sftGenreTerm == {value}", "\"sft genre term\""),
+      arguments("sftGenreTerm == {value}", "\"*gen*\""),
+      arguments("saftGenreTerm = {value}", "\"saft term\""),
+      arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
+
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "\"a subject heading\""),
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "subject"),
+      arguments("subjectHeadings == {value} and personalName==\"Gary\"", "\"a sub*\"")
     );
   }
 

@@ -108,46 +108,46 @@
     },
     "topicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "topicalTerm",
       "headingType": "Topical",
       "authRefType": "Authorized"
     },
     "sftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftTopicalTerm",
       "headingType": "Topical",
       "authRefType": "Reference"
     },
     "saftTopicalTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftTopicalTerm",
       "authRefType": "Auth/Ref"
     },
     "genreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "genreTerm",
       "headingType": "Genre",
       "authRefType": "Authorized"
     },
     "sftGenreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftGenreTerm",
       "headingType": "Genre",
       "authRefType": "Reference"
     },
     "saftGenreTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftGenreTerm",
       "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
-      "index": "source"
+      "index": "standard"
     },
     "identifiers": {
       "type": "object",

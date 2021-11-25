@@ -69,9 +69,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a meeting name"),
-      authority("Conference Name", REFERENCE_TYPE, "a sft meeting name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft meeting name"),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft conference name"),
 
       authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
@@ -103,6 +103,22 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftPersonalName == {value}", "\"*persona*\""),
       arguments("saftPersonalName = {value}", "\"saft name\""),
       arguments("saftPersonalName == {value}", "\"*saft persona*\""),
+
+      arguments("corporateName = {value}", "\"corporate\""),
+      arguments("corporateName == {value}", "\"a corporate name\""),
+      arguments("corporateName == {value}", "\"*corporat*\""),
+      arguments("sftCorporateName = {value}", "\"corporate name\""),
+      arguments("sftCorporateName == {value}", "\"sft corporate\""),
+      arguments("saftCorporateName = {value} ", "\"name saft\""),
+      arguments("saftCorporateName == {value} ", "\"saft corporate name\""),
+
+      arguments("meetingName = {value}", "\"conference\""),
+      arguments("meetingName == {value}", "\"a conference name\""),
+      arguments("meetingName == {value}", "\"*onference*\""),
+      arguments("sftMeetingName = {value}", "\"conference name\""),
+      arguments("sftMeetingName == {value}", "\"sft conference\""),
+      arguments("saftMeetingName = {value} ", "\"conference saft\""),
+      arguments("saftMeetingName == {value} ", "\"saft conference name\""),
 
       arguments("uniformTitle = {value}", "\"uniform\""),
       arguments("uniformTitle == {value}", "\"an uniform title\""),

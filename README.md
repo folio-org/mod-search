@@ -368,12 +368,18 @@ if it is defined but doesn't match.
 | `id`                                            | term      | `id=="1234567"`                          | Matches authorities with the id |
 | `headingType`                                   | term      | `headingType == "Personal Name"`         | Matches authorities with `Personal Name` heading type |
 | `authRefType`                                   | term      | `authRefType == "Authorized"`            | Matches authorities with `Authorized` auth/ref type |
-| `personalName`                                  | full-text | `personalName any "john"`                | Matches authorities with `john` personal name |
-| `sftPersonalName`                               | full-text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
-| `saftPersonalName`                              | full-text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |
-| `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
-| `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
-| `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
+| `personalName`                                  | full text | `personalName any "john"`                | Matches authorities with `john` personal name |
+| `sftPersonalName`                               | full text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
+| `saftPersonalName`                              | full text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |
+| `corporateName`                                 | full text | `corporateName == "corporate name"`      | Matches authorities with `corporate name` corporate name |
+| `sftCorporateName`                              | full text | `sftCorporateName == "corporate name"`   | Matches authorities with `corporate name` sft corporate name |
+| `saftCorporateName`                             | full text | `saftCorporateName == "corporate name"`  | Matches authorities with `corporate name` saft corporate name |
+| `meetingName`                                   | full text | `meetingName == "conferenece name"`      | Matches authorities with `conferenece name` meeting name |
+| `sftMeetingName`                                | full text | `sftMeetingName == "conferenece name"`   | Matches authorities with `conferenece name` sft meeting name |
+| `saftMeetingName`                               | full text | `saftMeetingName == "conferenece name"`  | Matches authorities with `conferenece name` saft meeting name |
+| `uniformTitle`                                  | full text | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
+| `sftUniformTitle`                               | full text | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
+| `saftUniformTitle`                              | full text | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
 
 ### Search by all field values
 

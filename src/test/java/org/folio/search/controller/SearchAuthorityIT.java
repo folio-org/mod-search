@@ -120,6 +120,14 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftMeetingName = {value} ", "\"conference saft\""),
       arguments("saftMeetingName == {value} ", "\"saft conference name\""),
 
+      arguments("geographicName = {value}", "\"geographic\""),
+      arguments("geographicName == {value}", "\"a geographic name\""),
+      arguments("geographicName == {value}", "\"*graph*\""),
+      arguments("sftGeographicTerm = {value}", "\"geographic name\""),
+      arguments("sftGeographicTerm == {value}", "\"sft geographic\""),
+      arguments("saftGeographicTerm = {value} ", "\"geographic saft\""),
+      arguments("saftGeographicTerm == {value} ", "\"saft geographic name\""),
+
       arguments("uniformTitle = {value}", "\"uniform\""),
       arguments("uniformTitle == {value}", "\"an uniform title\""),
       arguments("uniformTitle == {value}", "\"*nifor*\""),

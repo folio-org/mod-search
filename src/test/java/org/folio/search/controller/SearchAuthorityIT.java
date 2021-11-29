@@ -69,9 +69,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a meeting name"),
-      authority("Conference Name", REFERENCE_TYPE, "a sft meeting name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft meeting name"),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft conference name"),
 
       authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
@@ -104,13 +104,53 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftPersonalName = {value}", "\"saft name\""),
       arguments("saftPersonalName == {value}", "\"*saft persona*\""),
 
+      arguments("corporateName = {value}", "\"corporate\""),
+      arguments("corporateName == {value}", "\"a corporate name\""),
+      arguments("corporateName == {value}", "\"*corporat*\""),
+      arguments("sftCorporateName = {value}", "\"corporate name\""),
+      arguments("sftCorporateName == {value}", "\"sft corporate\""),
+      arguments("saftCorporateName = {value} ", "\"name saft\""),
+      arguments("saftCorporateName == {value} ", "\"saft corporate name\""),
+
+      arguments("meetingName = {value}", "\"conference\""),
+      arguments("meetingName == {value}", "\"a conference name\""),
+      arguments("meetingName == {value}", "\"*onference*\""),
+      arguments("sftMeetingName = {value}", "\"conference name\""),
+      arguments("sftMeetingName == {value}", "\"sft conference\""),
+      arguments("saftMeetingName = {value} ", "\"conference saft\""),
+      arguments("saftMeetingName == {value} ", "\"saft conference name\""),
+
       arguments("uniformTitle = {value}", "\"uniform\""),
       arguments("uniformTitle == {value}", "\"an uniform title\""),
       arguments("uniformTitle == {value}", "\"*nifor*\""),
       arguments("sftUniformTitle = {value}", "\"uniform title\""),
       arguments("sftUniformTitle == {value}", "\"sft uniform\""),
       arguments("saftUniformTitle = {value} ", "\"title saft\""),
-      arguments("saftUniformTitle == {value} ", "\"saft uniform title\"")
+      arguments("saftUniformTitle == {value} ", "\"saft uniform title\""),
+
+      arguments("topicalTerm all {value}", "\"a topical term\""),
+      arguments("topicalTerm all {value}", "topical"),
+      arguments("topicalTerm == {value}", "\"a top*\""),
+      arguments("topicalTerm == {value} and headingType==\"Topical\"", "\"a top*\""),
+      arguments("sftTopicalTerm = {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"sft topical term\""),
+      arguments("sftTopicalTerm == {value}", "\"*top*\""),
+      arguments("saftTopicalTerm = {value}", "\"saft term\""),
+      arguments("saftTopicalTerm == {value}", "\"*saft top*\""),
+
+      arguments("genreTerm all {value}", "\"a genre term\""),
+      arguments("genreTerm all {value}", "genre"),
+      arguments("genreTerm == {value}", "\"a gen*\""),
+      arguments("genreTerm == {value} and headingType==\"Genre\"", "\"a gen*\""),
+      arguments("sftGenreTerm = {value}", "\"sft genre term\""),
+      arguments("sftGenreTerm == {value}", "\"sft genre term\""),
+      arguments("sftGenreTerm == {value}", "\"*gen*\""),
+      arguments("saftGenreTerm = {value}", "\"saft term\""),
+      arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
+
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "\"a subject heading\""),
+      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "subject"),
+      arguments("subjectHeadings == {value} and personalName==\"Gary\"", "\"a sub*\"")
     );
   }
 

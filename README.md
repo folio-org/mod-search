@@ -1,6 +1,6 @@
 # mod-search
 
-Copyright (C) 2020 The Open Library Foundation
+Copyright (C) 2020-2021 The Open Library Foundation
 
 This software is distributed under the terms of the Apache License,
 Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
@@ -368,21 +368,27 @@ if it is defined but doesn't match.
 | `id`                                            | term      | `id=="1234567"`                          | Matches authorities with the id |
 | `headingType`                                   | term      | `headingType == "Personal Name"`         | Matches authorities with `Personal Name` heading type |
 | `authRefType`                                   | term      | `authRefType == "Authorized"`            | Matches authorities with `Authorized` auth/ref type |
-| `subjectHeadings`                               | full-text | `subjectHeadings any "z"`                | Matches authorities with `z` subject headings |
-| `personalName`                                  | full-text | `personalName any "john"`                | Matches authorities with `john` personal name |
-| `sftPersonalName`                               | full-text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
-| `saftPersonalName`                              | full-text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |
+| `subjectHeadings`                               | full text | `subjectHeadings any "z"`                | Matches authorities with `z` subject headings |
+| `personalName`                                  | full text | `personalName any "john"`                | Matches authorities with `john` personal name |
+| `sftPersonalName`                               | full text | `sftPersonalName any "john"`             | Matches authorities with `john` sft personal name |
+| `saftPersonalName`                              | full text | `saftPersonalName any "john"`            | Matches authorities with `john` saft personal name |
+| `corporateName`                                 | full text | `corporateName == "corporate name"`      | Matches authorities with `corporate name` corporate name |
+| `sftCorporateName`                              | full text | `sftCorporateName == "corporate name"`   | Matches authorities with `corporate name` sft corporate name |
+| `saftCorporateName`                             | full text | `saftCorporateName == "corporate name"`  | Matches authorities with `corporate name` saft corporate name |
+| `meetingName`                                   | full text | `meetingName == "conferenece name"`      | Matches authorities with `conferenece name` meeting name |
+| `sftMeetingName`                                | full text | `sftMeetingName == "conferenece name"`   | Matches authorities with `conferenece name` sft meeting name |
+| `saftMeetingName`                               | full text | `saftMeetingName == "conferenece name"`  | Matches authorities with `conferenece name` saft meeting name |
 | `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
 | `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
 | `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
-| `metadata.createdDate`                          | term      | `metadata.createdDate > "2020-12-12"`    | Matches authorities that were created after  `2020-12-12`|
-| `metadata.updatedDate`                          | term      | `metadata.updatedDate > "2020-12-12"`    | Matches authorities that were updated after  `2020-12-12`|
-| `topicalTerm`                                   | full-text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |
-| `sftTopicalTerm`                                | full-text | `sftTopicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` sft topical term |
-| `saftTopicalTerm`                               | full-text | `saftTopicalTerm any "Optical disks"`    | Matches authorities with `Optical disks` saft topical term |
-| `genreTerm`                                     | full-text | `genreTerm any "novel"`                  | Matches authorities with `novel` genre term |
-| `sftGenreTerm`                                  | full-text | `sftGenreTerm any "novel"`               | Matches authorities with `novel` sft genre term |
-| `saftGenreTerm`                                 | full-text | `saftGenreTerm any "novel"`              | Matches authorities with `novel` saft genre term |
+| `metadata.createdDate`                          | term      | `metadata.createdDate > "2020-12-12"`    | Matches authorities that were created after `2020-12-12`|
+| `metadata.updatedDate`                          | term      | `metadata.updatedDate > "2020-12-12"`    | Matches authorities that were updated after `2020-12-12`|
+| `topicalTerm`                                   | full text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |
+| `sftTopicalTerm`                                | full text | `sftTopicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` sft topical term |
+| `saftTopicalTerm`                               | full text | `saftTopicalTerm any "Optical disks"`    | Matches authorities with `Optical disks` saft topical term |
+| `genreTerm`                                     | full text | `genreTerm any "novel"`                  | Matches authorities with `novel` genre term |
+| `sftGenreTerm`                                  | full text | `sftGenreTerm any "novel"`               | Matches authorities with `novel` sft genre term |
+| `saftGenreTerm`                                 | full text | `saftGenreTerm any "novel"`              | Matches authorities with `novel` saft genre term |
 
 ### Search by all field values
 

@@ -28,41 +28,41 @@
     },
     "corporateName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "corporateName",
       "headingType": "Corporate Name",
       "authRefType": "Authorized"
     },
     "sftCorporateName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftCorporateName",
       "headingType": "Corporate Name",
       "authRefType": "Reference"
     },
     "saftCorporateName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftCorporateName",
       "authRefType": "Auth/Ref"
     },
     "meetingName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "meetingName",
       "headingType": "Conference Name",
       "authRefType": "Authorized"
     },
     "sftMeetingName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftMeetingName",
       "headingType": "Conference Name",
       "authRefType": "Reference"
     },
     "saftMeetingName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftMeetingName",
       "authRefType": "Auth/Ref"
     },

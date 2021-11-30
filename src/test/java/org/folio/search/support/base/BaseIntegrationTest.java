@@ -187,6 +187,11 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
+  protected static ResultActions attemptSearchByAuthorities(String query) {
+    return attemptSearch(authoritySearchPath(), TENANT_ID, query, null, null, null);
+  }
+
+  @SneakyThrows
   protected static ResultActions doSearch(String path, String query) {
     return doSearch(path, TENANT_ID, query, null, null, null);
   }

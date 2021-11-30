@@ -195,28 +195,47 @@
   "searchFields": {
     "headingType": {
       "type": "search",
-      "searchTypes": [ "facet", "filter" ],
       "index": "keyword",
       "processor": "headingTypeProcessor",
+      "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true
+      "showInResponse": true,
+      "sort": {
+        "fieldName": "headingType",
+        "type": "collection",
+        "secondarySort": [ "headingRef" ]
+      }
     },
     "authRefType": {
       "type": "search",
-      "searchTypes": [ "filter" ],
       "index": "keyword",
       "processor": "authRefTypeProcessor",
+      "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true
+      "showInResponse": true,
+      "sort": {
+        "fieldName": "authRefType",
+        "type": "collection",
+        "secondarySort": [ "headingRef" ]
+      }
     },
     "headingRef": {
       "type": "search",
       "index": "source",
       "processor": "headingRefProcessor",
+      "searchTypes": "sort",
       "showInResponse": true,
-      "rawProcessing": true
+      "rawProcessing": true,
+      "mappings": {
+        "copy_to": [ "sort_headingRef" ]
+      }
     }
   },
   "mappingsSource": { },
-  "indexMappings": { }
+  "indexMappings": {
+    "sort_headingRef" : {
+      "type": "keyword",
+      "normalizer": "keyword_lowercase"
+    }
+  }
 }

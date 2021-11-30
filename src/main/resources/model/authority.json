@@ -164,7 +164,8 @@
       "type": "object",
       "properties": {
         "createdDate": {
-          "index": "source"
+          "searchTypes": "filter",
+          "index": "date"
         },
         "createdByUserId": {
           "index": "source"
@@ -173,7 +174,8 @@
           "index": "source"
         },
         "updatedDate": {
-          "index": "source"
+          "searchTypes": "filter",
+          "index": "date"
         },
         "updatedByUserId": {
           "index": "source"

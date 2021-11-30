@@ -1,6 +1,6 @@
 # mod-search
 
-Copyright (C) 2020 The Open Library Foundation
+Copyright (C) 2020-2021 The Open Library Foundation
 
 This software is distributed under the terms of the Apache License,
 Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
@@ -384,6 +384,8 @@ if it is defined but doesn't match.
 | `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
 | `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
 | `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
+| `metadata.createdDate`                          | term      | `metadata.createdDate > "2020-12-12"`    | Matches authorities that were created after `2020-12-12`|
+| `metadata.updatedDate`                          | term      | `metadata.updatedDate > "2020-12-12"`    | Matches authorities that were updated after `2020-12-12`|
 | `topicalTerm`                                   | full text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |
 | `sftTopicalTerm`                                | full text | `sftTopicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` sft topical term |
 | `saftTopicalTerm`                               | full text | `saftTopicalTerm any "Optical disks"`    | Matches authorities with `Optical disks` saft topical term |

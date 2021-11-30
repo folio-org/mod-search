@@ -122,7 +122,7 @@ paths:
           application/json:
             example: examples/indexRequestBody.sample
             schema:
-              $ref: '#/components/schemas/indexRequestBody'
+              $ref: schemas/request/createIndexRequest.json
       responses:
         '200':
           description: Response with created indices and status (error message will be present if operation failed)
@@ -145,7 +145,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/indexRequestBody'
+              $ref: schemas/request/updateMappingsRequest.json
       responses:
         '200':
           description: Response with created indices and status (error message will be present if operation failed)
@@ -186,7 +186,7 @@ paths:
           application/json:
             example: examples/reindexRequest.sample
             schema:
-              $ref: '#/components/schemas/reindexRequest'
+              $ref: schemas/request/reindexRequest.json
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
@@ -329,8 +329,6 @@ components:
       $ref: schemas/instance.json
     item:
       $ref: schemas/item.json
-    indexRequestBody:
-      $ref: schemas/indexRequestBody.json
     folioCreateIndexResponse:
       $ref: schemas/folioCreateIndexResponse.json
     folioIndexOperationResponse:

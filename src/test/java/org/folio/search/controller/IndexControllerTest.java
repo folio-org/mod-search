@@ -24,9 +24,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
-import org.folio.search.domain.dto.IndexRequestBody;
+import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
 import org.folio.search.utils.types.UnitTest;
@@ -57,7 +58,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME)));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")))
       .andExpect(jsonPath("$.indices", is(List.of(INDEX_NAME))));
@@ -73,7 +74,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException("error", elasticsearchException));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index already exists: " + INDEX_NAME)))
@@ -89,7 +90,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException("i/o error", elasticsearchException));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
@@ -103,7 +104,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException(errorMessage, new IOException(errorMessage)));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
@@ -113,7 +114,7 @@ class IndexControllerTest {
 
   @Test
   void createIndex_negative_resourceNameIsNotPassed() throws Exception {
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(new IndexRequestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(new CreateIndexRequest())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("must not be null")))
@@ -126,7 +127,7 @@ class IndexControllerTest {
   @Test
   void createIndex_negative_nullPointerException() throws Exception {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(new NullPointerException());
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].type", is("NullPointerException")))
@@ -136,7 +137,7 @@ class IndexControllerTest {
   @Test
   void updateMappings_positive() throws Exception {
     when(indexService.updateMappings(RESOURCE_NAME, TENANT_ID)).thenReturn(getSuccessIndexOperationResponse());
-    mockMvc.perform(preparePostRequest("/search/index/mappings", asJsonString(requestBody())))
+    mockMvc.perform(preparePostRequest("/search/index/mappings", asJsonString(updateMappingsRequest())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
   }
@@ -236,9 +237,11 @@ class IndexControllerTest {
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
   }
 
-  private static IndexRequestBody requestBody() {
-    var indexRequestBody = new IndexRequestBody();
-    indexRequestBody.setResourceName(RESOURCE_NAME);
-    return indexRequestBody;
+  private static CreateIndexRequest createIndexRequest() {
+    return new CreateIndexRequest().resourceName(RESOURCE_NAME);
+  }
+
+  private static UpdateMappingsRequest updateMappingsRequest() {
+    return new UpdateMappingsRequest().resourceName(RESOURCE_NAME);
   }
 }

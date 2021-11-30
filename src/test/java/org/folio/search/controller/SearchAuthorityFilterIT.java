@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.utils.TestUtils.array;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,7 +47,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
     doSearchByAuthorities(query)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
-      .andExpect(jsonPath("authorities[*].id", is(expectedIds)));
+      .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));
   }
 
   private static Stream<Arguments> filteredSearchQueriesProvider() {

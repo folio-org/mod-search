@@ -68,21 +68,21 @@
     },
     "geographicName": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "geographicName",
       "headingType": "Geographic Name",
       "authRefType": "Authorized"
     },
     "sftGeographicTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "sftGeographicTerm",
       "headingType": "Geographic Name",
       "authRefType": "Reference"
     },
     "saftGeographicTerm": {
       "type": "authority",
-      "index": "source",
+      "index": "standard",
       "distinctType": "saftGeographicTerm",
       "authRefType": "Auth/Ref"
     },

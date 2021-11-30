@@ -363,6 +363,9 @@ if it is defined but doesn't match.
 | `meetingName`                                   | full text | `meetingName == "conferenece name"`      | Matches authorities with `conferenece name` meeting name |
 | `sftMeetingName`                                | full text | `sftMeetingName == "conferenece name"`   | Matches authorities with `conferenece name` sft meeting name |
 | `saftMeetingName`                               | full text | `saftMeetingName == "conferenece name"`  | Matches authorities with `conferenece name` saft meeting name |
+| `geographicName`                                | full text | `geographicName == "geographic name"`    | Matches authorities with `geographic name` geographic name |
+| `sftGeographicTerm`                             | full text | `sftGeographicTerm == "geographic name"` | Matches authorities with `geographic name` sft geographic term |
+| `saftGeographicTerm`                            | full text | `saftGeographicTerm == "geographic name"`| Matches authorities with `geographic name` saft geographic term |
 | `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
 | `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
 | `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |

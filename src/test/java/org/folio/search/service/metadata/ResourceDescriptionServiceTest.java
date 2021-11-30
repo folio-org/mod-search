@@ -70,6 +70,12 @@ class ResourceDescriptionServiceTest {
   }
 
   @Test
+  void getResourceNames_positive() {
+    var actual = descriptionService.getResourceNames();
+    assertThat(actual).containsExactly(RESOURCE_NAME);
+  }
+
+  @Test
   void shouldPassInitIfPropertyProcessorExists() {
     var resourceDescription = resourceDescription(null, Map.of(FIELD, searchField("testProcessor")));
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));

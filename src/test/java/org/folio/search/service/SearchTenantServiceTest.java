@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
@@ -43,7 +43,7 @@ class SearchTenantServiceTest {
   void initializeTenant_positive() {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
     doNothing().when(systemUserService).prepareSystemUser();
 
     searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
@@ -58,7 +58,7 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng", "fre"));
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
     doNothing().when(systemUserService).prepareSystemUser();
 
     searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
@@ -71,18 +71,18 @@ class SearchTenantServiceTest {
   @Test
   void shouldRunReindexOnTenantParamPresent() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
 
     searchTenantService.initializeTenant(attributes);
 
-    verify(indexService).reindexInventory(TENANT_ID, null);
+    verify(indexService).reindexInventory(TENANT_ID, new ReindexRequest().resourceName(RESOURCE_NAME));
   }
 
   @Test
   void shouldNotRunReindexOnTenantParamPresentFalse() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("false"));
 
     searchTenantService.initializeTenant(attributes);
@@ -93,7 +93,7 @@ class SearchTenantServiceTest {
   @Test
   void shouldNotRunReindexOnTenantParamPresentWrong() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindexx").value("true"));
 
     searchTenantService.initializeTenant(attributes);
@@ -104,7 +104,7 @@ class SearchTenantServiceTest {
   @Test
   void removeElasticsearchIndices_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.findAll()).thenReturn(List.of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
 
     searchTenantService.removeElasticsearchIndexes();
 

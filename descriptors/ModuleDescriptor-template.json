@@ -30,7 +30,10 @@
           "methods": [ "POST" ],
           "pathPattern": "/search/index/inventory/reindex",
           "permissionsRequired": [ "search.index.inventory.reindex.post" ],
-          "modulePermissions": [ "inventory-storage.instance.reindex.post" ]
+          "modulePermissions": [
+            "inventory-storage.instance.reindex.post",
+            "inventory-storage.authority.reindex.post"
+          ]
         }
       ]
     },

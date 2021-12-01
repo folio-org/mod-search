@@ -63,8 +63,7 @@ public abstract class BaseIntegrationTest {
   protected static MockMvc mockMvc;
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, Object> kafkaTemplate;
-
-  private static OkapiConfiguration okapi;
+  protected static OkapiConfiguration okapi;
 
   @BeforeAll
   static void setUpDefaultTenant(

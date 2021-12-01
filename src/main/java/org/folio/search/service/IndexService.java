@@ -9,6 +9,7 @@ import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,13 +19,15 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.folio.search.client.InstanceStorageClient;
+import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.service.ResourceIdEvent;
@@ -32,6 +35,7 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
+import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
@@ -40,15 +44,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IndexService {
 
-  public static final String INDEX_NOT_EXISTS_ERROR = "Cancelling bulk operation [reason: "
-    + "Cannot index resources for non existing indices, tenant not initialized? [indices=%s]]";
-
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
-  private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
-  private final InstanceStorageClient instanceStorageClient;
   private final ResourceFetchService resourceFetchService;
+  private final ResourceReindexClient resourceReindexClient;
+  private final ResourceDescriptionService resourceDescriptionService;
+  private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -59,6 +61,7 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
+    validateResourceName(resourceName);
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
@@ -76,6 +79,7 @@ public class IndexService {
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
+    validateResourceName(resourceName);
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
@@ -153,12 +157,15 @@ public class IndexService {
    * @param reindexRequest - reindex request as {@link ReindexRequest} object
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
+    var resourceName = getResourceNameToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
       log.info("Recreating indices during reindex operation [tenant: {}]", tenantId);
-      dropIndex(INSTANCE_RESOURCE, tenantId);
-      createIndex(INSTANCE_RESOURCE, tenantId);
+      dropIndex(resourceName, tenantId);
+      createIndex(resourceName, tenantId);
     }
-    return instanceStorageClient.submitReindex();
+
+    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(resourceName).toUri();
+    return resourceReindexClient.submitReindex(reindexUri);
   }
 
   /**
@@ -195,5 +202,22 @@ public class IndexService {
     }
 
     return eventsToIndex;
+  }
+
+  private String getResourceNameToReindex(ReindexRequest reindexRequest) {
+    if (reindexRequest == null || StringUtils.isBlank(reindexRequest.getResourceName())) {
+      return INSTANCE_RESOURCE;
+    }
+
+    validateResourceName(reindexRequest.getResourceName());
+    return reindexRequest.getResourceName();
+  }
+
+  private void validateResourceName(String resourceName) {
+    var existingResourceNames = resourceDescriptionService.getResourceNames();
+    if (!existingResourceNames.contains(resourceName)) {
+      throw new RequestValidationException(
+        "Reindex request contains invalid resource name", "resourceName", resourceName);
+    }
   }
 }

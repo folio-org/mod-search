@@ -162,26 +162,8 @@ It is possible to define specific tenant parameters during module's initializati
 ### Recreating Elasticsearch index
 
 Sometimes we need to recreate Elasticsearch index, for example when a breaking change introduced to ES index
-structure (mapping).
+structure (mapping). It can be fixed by running reindex request:
 
-Here are the steps how to do it:
-1. Remove ES index:
-```http
-   DELETE [ES_HOST]/instance_[tenant_name]
-```
-2. Create index and mapping:
-```http
-POST [OKAPI_URL]/search/index/indices
-
-x-okapi-tenant: [tenant]
-x-okapi-token: [JWT_TOKEN]
-content-type: application/json
-
-{
-  "resourceName": "instance"
-}
-```
-3. Run reindex operation:
 ```http
 POST [OKAPI_URL]/search/index/inventory/reindex
 
@@ -189,12 +171,15 @@ x-okapi-tenant: [tenant]
 x-okapi-token: [JWT_TOKEN]
 
 {
-  "recreateIndex": false
+  "recreateIndex": true,
+  "resourceName": "instance"
 }
 ```
 
-Optional parameter `recreateIndex` in request body can be set to true specified  to drop existing indices for tenant
-and create them again. Executing request with this parameter in query will erase all the tenant data in mod-search.
+* `resourceName` parameter is optional and equal to `instance` by default
+* `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
+will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
+equal to `true` in query will erase all the tenant data in mod-search.
 
 
 ### Monitoring reindex process
@@ -378,9 +363,14 @@ if it is defined but doesn't match.
 | `meetingName`                                   | full text | `meetingName == "conferenece name"`      | Matches authorities with `conferenece name` meeting name |
 | `sftMeetingName`                                | full text | `sftMeetingName == "conferenece name"`   | Matches authorities with `conferenece name` sft meeting name |
 | `saftMeetingName`                               | full text | `saftMeetingName == "conferenece name"`  | Matches authorities with `conferenece name` saft meeting name |
+| `geographicName`                                | full text | `geographicName == "geographic name"`    | Matches authorities with `geographic name` geographic name |
+| `sftGeographicTerm`                             | full text | `sftGeographicTerm == "geographic name"` | Matches authorities with `geographic name` sft geographic term |
+| `saftGeographicTerm`                            | full text | `saftGeographicTerm == "geographic name"`| Matches authorities with `geographic name` saft geographic term |
 | `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
 | `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
 | `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
+| `metadata.createdDate`                          | term      | `metadata.createdDate > "2020-12-12"`    | Matches authorities that were created after `2020-12-12`|
+| `metadata.updatedDate`                          | term      | `metadata.updatedDate > "2020-12-12"`    | Matches authorities that were updated after `2020-12-12`|
 | `topicalTerm`                                   | full text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |
 | `sftTopicalTerm`                                | full text | `sftTopicalTerm any "Optical disks"`     | Matches authorities with `Optical disks` sft topical term |
 | `saftTopicalTerm`                               | full text | `saftTopicalTerm any "Optical disks"`    | Matches authorities with `Optical disks` saft topical term |

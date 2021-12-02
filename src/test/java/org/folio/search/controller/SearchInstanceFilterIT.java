@@ -112,7 +112,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacets(RecordType.INSTANCES,"cql.allRecords=1", "unknownFacet:5"))
+    attemptGet(recordFacets(RecordType.INSTANCES, "cql.allRecords=1", "unknownFacet:5"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))

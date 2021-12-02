@@ -32,7 +32,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 21, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 27, getAuthoritySampleAsMap());
   }
 
   @AfterAll
@@ -58,20 +58,29 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(21)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(27)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft personal name"),
 
+      authority("Personal Name", AUTHORIZED_TYPE, "a personal title"),
+      authority("Personal Name", REFERENCE_TYPE, "a sft personal title"),
+
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
 
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title"),
+      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title"),
+
       authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
       authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft conference name"),
+
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference title"),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference title"),
 
       authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
@@ -104,6 +113,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftPersonalName = {value}", "\"saft name\""),
       arguments("saftPersonalName == {value}", "\"*saft persona*\""),
 
+      arguments("personalNameTitle all {value}", "\"personal title\""),
+      arguments("personalNameTitle == {value}", "\"a personal title\""),
+      arguments("sftPersonalNameTitle all {value}", "\"personal title\""),
+      arguments("sftPersonalNameTitle == {value}", "\"a sft personal title\""),
+
       arguments("corporateName = {value}", "\"corporate\""),
       arguments("corporateName == {value}", "\"a corporate name\""),
       arguments("corporateName == {value}", "\"*corporat*\""),
@@ -112,6 +126,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftCorporateName = {value} ", "\"name saft\""),
       arguments("saftCorporateName == {value} ", "\"saft corporate name\""),
 
+      arguments("corporateNameTitle all {value}", "\"corporate title\""),
+      arguments("corporateNameTitle == {value}", "\"a corporate title\""),
+      arguments("sftCorporateNameTitle all {value}", "\"corporate title\""),
+      arguments("sftCorporateNameTitle == {value}", "\"a sft corporate title\""),
+
       arguments("meetingName = {value}", "\"conference\""),
       arguments("meetingName == {value}", "\"a conference name\""),
       arguments("meetingName == {value}", "\"*onference*\""),
@@ -119,6 +138,11 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftMeetingName == {value}", "\"sft conference\""),
       arguments("saftMeetingName = {value} ", "\"conference saft\""),
       arguments("saftMeetingName == {value} ", "\"saft conference name\""),
+
+      arguments("meetingNameTitle all {value}", "\"conference title\""),
+      arguments("meetingNameTitle == {value}", "\"a conference title\""),
+      arguments("sftMeetingNameTitle all {value}", "\"conference title\""),
+      arguments("sftMeetingNameTitle == {value}", "\"a sft conference title\""),
 
       arguments("geographicName = {value}", "\"geographic\""),
       arguments("geographicName == {value}", "\"a geographic name\""),

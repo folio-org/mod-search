@@ -53,6 +53,11 @@
         },
         {
           "methods": [ "GET" ],
+          "pathPattern": "/search/authorities/facets",
+          "permissionsRequired": [ "search.authorities.facets.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
           "pathPattern": "/search/instances/facets",
           "permissionsRequired": [ "search.instances.facets.collection.get" ]
         },
@@ -214,6 +219,11 @@
       "permissionName": "search.index.inventory.reindex.post",
       "displayName": "Search - starts inventory reindex operation",
       "description": "Starts inventory reindex operation"
+    },
+    {
+      "permissionName": "search.authorities.facets.collection.get",
+      "displayName": "Search - returns facets for a query for given filter options",
+      "description": "Returns facets for a query for given filter options"
     },
     {
       "permissionName": "search.instances.facets.collection.get",

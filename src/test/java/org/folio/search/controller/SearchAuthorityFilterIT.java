@@ -7,7 +7,6 @@ import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -41,7 +40,18 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
     "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "cc6bbc19-3f54-43c5-8736-b85688619641",
     "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d25");
+    "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d26",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d27",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d28",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d29",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d30",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d31",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d32",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d33",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d34",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d35",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d36");
 
   @BeforeAll
   static void prepare() {
@@ -80,6 +90,18 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
+      arguments("(id=* and headingType==\"Conference Name\")", List.of(IDS[4])),
+      arguments("(id=* and headingType==\"Geographic Name\")", List.of(IDS[5])),
+      arguments("(id=* and headingType==\"Genre\")", List.of(IDS[6], IDS[7])),
+      arguments("(id=* and headingType==\"Corporate Name\")", List.of(IDS[8], IDS[9])),
+      arguments("(id=* and headingType==\"Topical\")", List.of(IDS[10])),
+      arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
+      arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
+
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", List.of(IDS[13], IDS[14])),
+      arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", List.of(IDS[4])),
+
       arguments("(metadata.createdDate>= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate > 2021-03-01) ", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
@@ -123,22 +145,22 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static Authority[] authorities() {
     var authorities = IntStream.range(0, RECORDS_COUNT)
-      .mapToObj(i -> new Authority().id(randomId()))
+      .mapToObj(i -> new Authority().id(IDS[i]))
       .toArray(Authority[]::new);
 
-    authorities[0].id(IDS[0])
+    authorities[0]
       .personalName("Resource 0")
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"));
 
-    authorities[1].id(IDS[1])
+    authorities[1]
       .personalName("Resource 1")
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"));
 
-    authorities[2].id(IDS[2])
+    authorities[2]
       .personalName("Resource 2")
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"));
 
-    authorities[3].id(IDS[3])
+    authorities[3]
       .personalName("Resource 3")
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"));
 

@@ -44,7 +44,7 @@ public class InstanceController implements InstancesApi {
   }
 
   @Override
-  public ResponseEntity<FacetResult> getFacets(String query, List<String> facet, String tenantId) {
+  public ResponseEntity<FacetResult> getInstanceFacets(String query, List<String> facet, String tenantId) {
     var facetRequest = CqlFacetRequest.of(INSTANCE_RESOURCE, tenantId, query, facet);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }

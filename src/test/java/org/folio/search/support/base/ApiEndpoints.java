@@ -15,8 +15,16 @@ public class ApiEndpoints {
   }
 
   public static String instanceFacets(String query, String... facets) {
+    return recordFacets("instances", query, facets);
+  }
+
+  public static String authorityFacets(String query, String... facets) {
+    return recordFacets("authorities", query, facets);
+  }
+
+  public static String recordFacets(String type, String query, String... facets) {
     var joinedFacets = String.join("&facet=", facets);
-    return String.format("/search/instances/facets?query=%s&facet=%s", query, joinedFacets);
+    return String.format("/search/%s/facets?query=%s&facet=%s", type, query, joinedFacets);
   }
 
   public static String languageConfig() {

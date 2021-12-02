@@ -69,7 +69,7 @@ paths:
 
   /instances/facets:
     get:
-      operationId: getFacets
+      operationId: getInstanceFacets
       description: Provides list of facets for instance
       parameters:
         - $ref: '#/components/parameters/cql-query'
@@ -106,6 +106,27 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/authoritySearchResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /authorities/facets:
+    get:
+      operationId: getAuthorityFacets
+      description: Provides list of facets for authority
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/facet-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Facet search result'
+          content:
+            application/json:
+              example: examples/facetResult.sample
+              schema:
+                $ref: '#/components/schemas/facetResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':

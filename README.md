@@ -408,7 +408,7 @@ does not produce any values, so the following search options will return an empt
 
 ### Search Facets
 
-Facets can be retrieved by using following API `GET /instances/facets`. It consumes following request parameters:
+Facets can be retrieved by using following API `GET /instances/facets` or `GET /authorities/facets`. It consumes following request parameters:
 
 | Name          | Required | Description |
 | :-------------| :--------|:------------|
@@ -460,6 +460,12 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `items.materialTypeId`      | term    | Requests an item material type id facet |
 | `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet |
 | `itemTags`                  | term    | Requests an item tag facet |
+
+#### Item facets
+
+| Option                      | Type    | Description |
+| :---------------------------|:--------|:-------------|
+| `headingType` | term    | Requests an item effective location id facet |
 
 ### Sorting results
 

@@ -36,22 +36,14 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static final int RECORDS_COUNT = 15;
 
-  private static final String[] IDS = array(
-    "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
-    "cc6bbc19-3f54-43c5-8736-b85688619641",
-    "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d25",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d26",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d27",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d28",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d29",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d30",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d31",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d32",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d33",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d34",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d35",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d36");
+  private static final String[] IDS = array("1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "cc6bbc19-3f54-43c5-8736-b85688619641", "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d25", "6edc7db0-5363-11ec-bf63-0242ac130002",
+    "75b6e1e8-5363-11ec-bf63-0242ac130002", "62f72eeb-ed5a-4619-b01f-1750d5528d27",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d28", "7bfb7550-5363-11ec-bf63-0242ac130002",
+    "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2", "74f97d56-37ce-44b8-9316-4e5dd4efc103",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d32", "8eb6625e-5363-11ec-bf63-0242ac130002",
+    "0d4cfb3c-0d5d-4bab-8e99-8f077b09bd34", "2dfd4b30-8c45-4a2e-8779-05f338513584");
 
   @BeforeAll
   static void prepare() {

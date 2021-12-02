@@ -3,16 +3,12 @@ package org.folio.search.controller;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
-import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.rest.resource.InstancesApi;
-import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/search")
 public class InstanceController implements InstancesApi {
 
-  private final FacetService facetService;
   private final SearchService searchService;
   private final ResourceIdsStreamHelper resourceIdsStreamHelper;
 
@@ -41,12 +36,6 @@ public class InstanceController implements InstancesApi {
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
       .totalRecords(result.getTotalRecords()));
-  }
-
-  @Override
-  public ResponseEntity<FacetResult> getInstanceFacets(String query, List<String> facet, String tenantId) {
-    var facetRequest = CqlFacetRequest.of(INSTANCE_RESOURCE, tenantId, query, facet);
-    return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 
   @Override

@@ -408,10 +408,11 @@ does not produce any values, so the following search options will return an empt
 
 ### Search Facets
 
-Facets can be retrieved by using following API `GET /instances/facets` or `GET /authorities/facets`. It consumes following request parameters:
+Facets can be retrieved by using following API `GET /{recordType}/facets`. It consumes following request parameters:
 
 | Name          | Required | Description |
 | :-------------| :--------|:------------|
+| recordType    | Yes      | An Enum contains variables: authorities, instances |
 | query         | Yes      | A CQL query to execute |
 | facet         | Yes      | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
 

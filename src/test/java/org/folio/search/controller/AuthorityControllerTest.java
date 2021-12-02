@@ -3,7 +3,6 @@ package org.folio.search.controller;
 import static java.util.Collections.emptyList;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.facet;
@@ -37,9 +36,12 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(AuthorityController.class)
 class AuthorityControllerTest {
 
-  @MockBean private SearchService searchService;
-  @MockBean private FacetService facetService;
-  @Autowired private MockMvc mockMvc;
+  @MockBean
+  private SearchService searchService;
+  @MockBean
+  private FacetService facetService;
+  @Autowired
+  private MockMvc mockMvc;
 
   @Test
   void search_positive() throws Exception {

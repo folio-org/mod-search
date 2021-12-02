@@ -461,11 +461,11 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet |
 | `itemTags`                  | term    | Requests an item tag facet |
 
-#### Item facets
+#### Authority facets
 
-| Option                      | Type    | Description |
-| :---------------------------|:--------|:-------------|
-| `headingType` | term    | Requests an item effective location id facet |
+| Option        | Type    | Description |
+| :-------------|:--------|:-------------|
+| `headingType` | term    | Requests a heading type facet |
 
 ### Sorting results
 

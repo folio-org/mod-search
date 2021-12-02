@@ -1,7 +1,7 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.support.base.ApiEndpoints.authorityFacets;
+import static org.folio.search.support.base.ApiEndpoints.recordFacets;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -22,6 +22,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Metadata;
+import org.folio.search.domain.dto.RecordType;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -69,7 +70,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForAuthorities_parameterized")
   void getFacetsForAuthorities_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(authorityFacets(query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacets(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);

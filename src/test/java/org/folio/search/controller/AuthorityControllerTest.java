@@ -28,10 +28,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(AuthorityController.class)
 class AuthorityControllerTest {
 
-  @MockBean
-  private SearchService searchService;
-  @Autowired
-  private MockMvc mockMvc;
+  @MockBean private SearchService searchService;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void search_positive() throws Exception {

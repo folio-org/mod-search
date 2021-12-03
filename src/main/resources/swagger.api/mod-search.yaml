@@ -67,11 +67,16 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /instances/facets:
+  /{recordType}/facets:
     get:
       operationId: getFacets
       description: Provides list of facets for instance
       parameters:
+        - name: recordType
+          required: true
+          in: path
+          schema:
+            "$ref": "#/components/schemas/RecordType"
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/facet-param'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -351,6 +356,9 @@ components:
       $ref: schemas/errors.json
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
+    RecordType:
+      enum: [ "instances", "authorities" ]
+      type: string
 
   responses:
     unprocessableEntityResponse:

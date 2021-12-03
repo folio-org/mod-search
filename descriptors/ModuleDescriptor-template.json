@@ -53,8 +53,8 @@
         },
         {
           "methods": [ "GET" ],
-          "pathPattern": "/search/instances/facets",
-          "permissionsRequired": [ "search.instances.facets.collection.get" ]
+          "pathPattern": "/search/{recordType}/facets",
+          "permissionsRequired": [ "search.facets.collection.get" ]
         },
         {
           "methods": [ "GET" ],
@@ -217,9 +217,9 @@
       "description": "Starts inventory reindex operation"
     },
     {
-      "permissionName": "search.instances.facets.collection.get",
-      "displayName": "Search - returns facets for a query for given filter options",
-      "description": "Returns facets for a query for given filter options"
+      "permissionName": "search.facets.collection.get",
+      "displayName": "Search - returns facets for a query for given filter options by record type",
+      "description": "Returns facets for a query for given filter options by record type"
     },
     {
       "permissionName": "search.instances.ids.collection.get",

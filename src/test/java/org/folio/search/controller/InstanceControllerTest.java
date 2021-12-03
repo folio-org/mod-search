@@ -7,11 +7,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.facet;
-import static org.folio.search.utils.TestUtils.facetItem;
-import static org.folio.search.utils.TestUtils.facetResult;
-import static org.folio.search.utils.TestUtils.facetServiceRequest;
-import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
@@ -32,7 +27,6 @@ import org.elasticsearch.index.Index;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
-import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -156,52 +150,6 @@ class InstanceControllerTest {
       .andExpect(jsonPath("$.errors[0].message", is(exceptionMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("UnsupportedOperationException")))
       .andExpect(jsonPath("$.errors[0].code", is("service_error")));
-  }
-
-  @Test
-  void getFacets_positive() throws Exception {
-    var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
-    when(facetService.getFacets(expectedFacetRequest)).thenReturn(
-      facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
-
-    var requestBuilder = get("/search/instances/facets")
-      .queryParam("query", cqlQuery)
-      .queryParam("facet", "source:5")
-      .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.facets.source.totalRecords", is(2)))
-      .andExpect(jsonPath("$.facets.source.values[0].id", is("MARC")))
-      .andExpect(jsonPath("$.facets.source.values[0].totalRecords", is(20)))
-      .andExpect(jsonPath("$.facets.source.values[1].id", is("FOLIO")))
-      .andExpect(jsonPath("$.facets.source.values[1].totalRecords", is(10)));
-  }
-
-  @Test
-  void getFacets_negative_unknownFacet() throws Exception {
-    var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
-    when(facetService.getFacets(expectedFacetRequest)).thenThrow(
-      new RequestValidationException("Invalid facet value", "facet", "source"));
-
-    var requestBuilder = get("/search/instances/facets")
-      .queryParam("query", cqlQuery)
-      .queryParam("facet", "source:5")
-      .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("facet")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("source")));
   }
 
   @Test

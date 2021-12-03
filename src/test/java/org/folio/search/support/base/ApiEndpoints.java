@@ -1,6 +1,7 @@
 package org.folio.search.support.base;
 
 import lombok.experimental.UtilityClass;
+import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 
 @UtilityClass
@@ -14,9 +15,9 @@ public class ApiEndpoints {
     return "/search/authorities";
   }
 
-  public static String instanceFacets(String query, String... facets) {
+  public static String recordFacets(RecordType type, String query, String... facets) {
     var joinedFacets = String.join("&facet=", facets);
-    return String.format("/search/instances/facets?query=%s&facet=%s", query, joinedFacets);
+    return String.format("/search/%s/facets?query=%s&facet=%s", type.getValue(), query, joinedFacets);
   }
 
   public static String languageConfig() {

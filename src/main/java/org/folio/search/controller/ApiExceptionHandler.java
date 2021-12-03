@@ -39,6 +39,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Log4j2
 @RestControllerAdvice
@@ -149,6 +150,18 @@ public class ApiExceptionHandler {
   public ResponseEntity<ErrorResponse> handleRequestValidationException(RequestValidationException exception) {
     var errorResponse = buildValidationError(exception, exception.getKey(), exception.getValue());
     return buildResponseEntity(errorResponse, BAD_REQUEST);
+  }
+
+  /**
+   * Catches and handles all exceptions for type {@link MethodArgumentTypeMismatchException}.
+   *
+   * @param exception {@link MethodArgumentTypeMismatchException} to process
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
+   */
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+    MethodArgumentTypeMismatchException exception) {
+    return buildResponseEntity(exception, BAD_REQUEST, VALIDATION_ERROR);
   }
 
   /**

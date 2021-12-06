@@ -109,7 +109,7 @@ class SearchServiceTest {
 
     assertThatThrownBy(() -> searchService.search(searchRequest))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse search response object: [response: {}]");
+      .hasMessage("Failed to parse search response object [response: {}]");
   }
 
   private void mockSearchHit() {

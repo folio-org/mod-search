@@ -79,6 +79,25 @@ class SearchServiceTest {
     assertThat(actual).isEqualTo(searchResult(new TestResource().id(instanceId)));
   }
 
+  @Test
+  void search_positive_totalHitsIsNull() {
+    var instanceId = randomId();
+    var query = "id==" + instanceId;
+    var searchRequest = searchServiceRequest(TestResource.class, query, true);
+    var termQuery = termQuery("id", instanceId);
+    var searchSourceBuilder = searchSource().query(termQuery);
+    var expectedSourceBuilder = searchSource().query(termQuery).size(100).from(0).trackTotalHits(true);
+
+    when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
+    when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getTotalHits()).thenReturn(null);
+    when(searchHits.getHits()).thenReturn(new SearchHit[] {});
+
+    var actual = searchService.search(searchRequest);
+    assertThat(actual).isEqualTo(searchResult());
+  }
+
   private void mockSearchHit(String instanceId) {
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, EQUAL_TO));
     when(searchHits.getHits()).thenReturn(array(searchHit));

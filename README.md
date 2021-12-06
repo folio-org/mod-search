@@ -480,8 +480,21 @@ The default sorting is by relevancy. The `sortBy` clause is used to define sorti
 ```
 title all "semantic web" sortBy title/sort.descending - sort by title in descending order
 ```
+In case where options are similar, secondary sort is used
 
-Another supported sort options:
-* title
-* items.status.name
-* contributors
+#### Instance sort options
+
+| Option              | Type      | Secondary sort | Description  |
+| :-------------------|:----------|:---------------|:-------------|
+| `title`             | full text | relevancy      | Sort instances by title |
+| `contributors`      | term      | relevancy      | Sort instances by contributors |
+| `items.status.name` | term      | `title`        | Sort instances by status |
+
+#### Authority sort options
+
+| Option        | Type | Secondary sort | Description  |
+| :-------------|:-----|:---------------|:-------------|
+| `headingRef`  | term | relevancy      | Sort authorities by Heading/Reference |
+| `headingType` | term | `headingRef`   | Sort authorities by Type of heading |
+| `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
+

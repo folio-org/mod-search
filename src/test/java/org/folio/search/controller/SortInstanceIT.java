@@ -3,12 +3,12 @@ package org.folio.search.controller;
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
+import static org.folio.search.support.base.ApiEndpoints.allRecordsSortedBy;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
-import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -32,7 +32,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
-    doSearchByInstances(allInstancesSortedBy("contributors", ASCENDING))
+    doSearchByInstances(allRecordsSortedBy("contributors", ASCENDING))
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
       .andExpect(jsonPath("instances[1].contributors[1].name", is("bbb ccc")))
@@ -42,7 +42,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
-    doSearchByInstances(allInstancesSortedBy("contributors", DESCENDING))
+    doSearchByInstances(allRecordsSortedBy("contributors", DESCENDING))
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
       .andExpect(jsonPath("instances[1].contributors[0].name", is("bcc ccc")))
@@ -52,7 +52,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
-    doSearchByInstances(allInstancesSortedBy("title", ASCENDING))
+    doSearchByInstances(allRecordsSortedBy("title", ASCENDING))
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
       .andExpect(jsonPath("instances[1].title", is("Animal farm")))
@@ -62,7 +62,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
-    doSearchByInstances(allInstancesSortedBy("title", DESCENDING))
+    doSearchByInstances(allRecordsSortedBy("title", DESCENDING))
       .andExpect(jsonPath("totalRecords", is(4)))
       .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
       .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
@@ -72,7 +72,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    attemptSearchByInstances(allInstancesSortedBy("unknownSort", DESCENDING))
+    attemptSearchByInstances(allRecordsSortedBy("unknownSort", DESCENDING))
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
@@ -110,9 +110,5 @@ class SortInstanceIT extends BaseIntegrationTest {
       .addContributorsItem(new InstanceContributors().name("1111 2222").primary(true));
 
     return instances;
-  }
-
-  public static String allInstancesSortedBy(String sort, CqlSort order) {
-    return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
   }
 }

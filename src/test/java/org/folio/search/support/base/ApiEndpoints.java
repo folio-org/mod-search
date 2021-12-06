@@ -1,6 +1,7 @@
 package org.folio.search.support.base;
 
 import lombok.experimental.UtilityClass;
+import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 
@@ -46,5 +47,9 @@ public class ApiEndpoints {
 
   public static String reindexPath() {
     return "/search/index/inventory/reindex";
+  }
+
+  public static String allRecordsSortedBy(String sort, CqlSort order) {
+    return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
   }
 }

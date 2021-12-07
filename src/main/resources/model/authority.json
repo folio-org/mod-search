@@ -26,6 +26,20 @@
       "distinctType": "saftPersonalName",
       "authRefType": "Auth/Ref"
     },
+    "personalNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "personalNameTitle",
+      "headingType": "Personal Name",
+      "authRefType": "Authorized"
+    },
+    "sftPersonalNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "sftPersonalNameTitle",
+      "headingType": "Personal Name",
+      "authRefType": "Reference"
+    },
     "corporateName": {
       "type": "authority",
       "index": "standard",
@@ -46,6 +60,20 @@
       "distinctType": "saftCorporateName",
       "authRefType": "Auth/Ref"
     },
+    "corporateNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "corporateNameTitle",
+      "headingType": "Corporate Name",
+      "authRefType": "Authorized"
+    },
+    "sftCorporateNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "sftCorporateNameTitle",
+      "headingType": "Corporate Name",
+      "authRefType": "Reference"
+    },
     "meetingName": {
       "type": "authority",
       "index": "standard",
@@ -65,6 +93,20 @@
       "index": "standard",
       "distinctType": "saftMeetingName",
       "authRefType": "Auth/Ref"
+    },
+    "meetingNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "meetingNameTitle",
+      "headingType": "Conference Name",
+      "authRefType": "Authorized"
+    },
+    "sftMeetingNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "sftMeetingNameTitle",
+      "headingType": "Conference Name",
+      "authRefType": "Reference"
     },
     "geographicName": {
       "type": "authority",

@@ -369,6 +369,8 @@ if it is defined but doesn't match.
 | `uniformTitle`                                  | term      | `uniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` uniform title |
 | `sftUniformTitle`                               | term      | `sftUniformTitle == "an uniform title"`  | Matches authorities with `an uniform title` sft uniform title |
 | `saftUniformTitle`                              | term      | `saftUniformTitle == "an uniform title"` | Matches authorities with `an uniform title` saft uniform title |
+| `identifiers.value`                             | term      | `identifiers.value = "1023*"`            | Matches authorities with the given identifier value |
+| `identifiers.identifierTypeId`                  | term      | `identifiers.identifierTypeId=="123" identifiers.value = "1023*"` | Matches authorities that have an identifier if type `123` with value `1023*`|
 | `metadata.createdDate`                          | term      | `metadata.createdDate > "2020-12-12"`    | Matches authorities that were created after `2020-12-12`|
 | `metadata.updatedDate`                          | term      | `metadata.updatedDate > "2020-12-12"`    | Matches authorities that were updated after `2020-12-12`|
 | `topicalTerm`                                   | full text | `topicalTerm any "Optical disks"`        | Matches authorities with `Optical disks` topical term |

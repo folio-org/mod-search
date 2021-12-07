@@ -26,6 +26,14 @@
     {
       "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
       "value": "authority-identifier"
+    },
+    {
+      "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+      "value": "3114176276"
+    },
+    {
+      "identifierTypeId": "75a89cf9-ed69-446c-81ad-f03ae2c41cda",
+      "value": "3745-1086"
     }
   ],
   "metadata": {

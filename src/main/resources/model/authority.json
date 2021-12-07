@@ -9,6 +9,7 @@
     "personalName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "personalName",
       "headingType": "Personal Name",
       "authRefType": "Authorized"
@@ -16,6 +17,7 @@
     "sftPersonalName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftPersonalName",
       "headingType": "Personal Name",
       "authRefType": "Reference"
@@ -23,6 +25,7 @@
     "saftPersonalName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftPersonalName",
       "authRefType": "Auth/Ref"
     },
@@ -43,6 +46,7 @@
     "corporateName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "corporateName",
       "headingType": "Corporate Name",
       "authRefType": "Authorized"
@@ -50,6 +54,7 @@
     "sftCorporateName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftCorporateName",
       "headingType": "Corporate Name",
       "authRefType": "Reference"
@@ -57,6 +62,7 @@
     "saftCorporateName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftCorporateName",
       "authRefType": "Auth/Ref"
     },
@@ -77,6 +83,7 @@
     "meetingName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "meetingName",
       "headingType": "Conference Name",
       "authRefType": "Authorized"
@@ -84,6 +91,7 @@
     "sftMeetingName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftMeetingName",
       "headingType": "Conference Name",
       "authRefType": "Reference"
@@ -91,6 +99,7 @@
     "saftMeetingName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftMeetingName",
       "authRefType": "Auth/Ref"
     },
@@ -104,6 +113,7 @@
     "sftMeetingNameTitle": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftMeetingNameTitle",
       "headingType": "Conference Name",
       "authRefType": "Reference"
@@ -111,6 +121,7 @@
     "geographicName": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "geographicName",
       "headingType": "Geographic Name",
       "authRefType": "Authorized"
@@ -118,6 +129,7 @@
     "sftGeographicTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftGeographicTerm",
       "headingType": "Geographic Name",
       "authRefType": "Reference"
@@ -125,12 +137,14 @@
     "saftGeographicTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftGeographicTerm",
       "authRefType": "Auth/Ref"
     },
     "uniformTitle": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "uniformTitle",
       "headingType": "Uniform Title",
       "authRefType": "Authorized"
@@ -151,6 +165,7 @@
     "topicalTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "topicalTerm",
       "headingType": "Topical",
       "authRefType": "Authorized"
@@ -158,6 +173,7 @@
     "sftTopicalTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftTopicalTerm",
       "headingType": "Topical",
       "authRefType": "Reference"
@@ -165,12 +181,14 @@
     "saftTopicalTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftTopicalTerm",
       "authRefType": "Auth/Ref"
     },
     "genreTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "genreTerm",
       "headingType": "Genre",
       "authRefType": "Authorized"
@@ -178,6 +196,7 @@
     "sftGenreTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "sftGenreTerm",
       "headingType": "Genre",
       "authRefType": "Reference"
@@ -185,6 +204,7 @@
     "saftGenreTerm": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftGenreTerm",
       "authRefType": "Auth/Ref"
     },

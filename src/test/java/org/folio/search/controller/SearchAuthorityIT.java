@@ -183,8 +183,10 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments(specifyCommonField("identifiers.value == {value}"), "authority-identifier"),
       arguments(specifyCommonField("identifiers.value all {value}"), "311417*"),
       arguments(specifyCommonField("identifiers.value all {value}"), "*1086"),
-      arguments(specifyCommonField("identifiers.value all ({value})"), "authority-identifier or 3114176276 or 0000-0000"),
-      arguments(specifyCommonField("identifiers.value all ({value})"), "authority-identifier and 3114176276 and 3745-1086"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier or 3114176276 or 0000-0000"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier and 3114176276 and 3745-1086"),
 
       arguments(specifyCommonField("subjectHeadings all {value}"), "\"a subject heading\""),
       arguments(specifyCommonField("subjectHeadings all {value}"), "subject"),
@@ -192,7 +194,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     );
   }
 
-  private static String specifyCommonField(String query){
+  private static String specifyCommonField(String query) {
     return query + " and sftPersonalName==\"*personal name\"";
   }
 

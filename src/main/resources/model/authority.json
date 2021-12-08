@@ -215,6 +215,7 @@
       "type": "object",
       "properties": {
         "value": {
+          "inventorySearchTypes": "keyword",
           "index": "keyword"
         },
         "identifierTypeId": {

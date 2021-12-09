@@ -1,6 +1,7 @@
 package org.folio.search.service;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +24,11 @@ public class ResourceIdsStreamHelper {
    * Provides ability to stream resource ids using given request object.
    *
    * @param request - request as {@link CqlResourceIdsRequest} object
+   * @param contentType - Content-Type header value
    * @return response with found resource ids using http streaming approach.
    */
-  public ResponseEntity<Void> streamResourceIds(CqlResourceIdsRequest request) {
+  @SuppressWarnings("checkstyle:Indentation")
+  public ResponseEntity<Void> streamResourceIds(CqlResourceIdsRequest request, String contentType) {
     var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     Assert.notNull(requestAttributes, "Request attributes must be not null");
 
@@ -33,10 +36,15 @@ public class ResourceIdsStreamHelper {
     Assert.notNull(httpServletResponse, "HttpServletResponse must be not null");
 
     httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-    httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
 
     try {
-      resourceIdService.streamResourceIds(request, httpServletResponse.getOutputStream());
+      if (contentType != null && contentType.contains(TEXT_PLAIN_VALUE)) {
+        httpServletResponse.setContentType(TEXT_PLAIN_VALUE);
+        resourceIdService.streamResourceIdsInTextType(request, httpServletResponse.getOutputStream());
+      } else {
+        httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
+        resourceIdService.streamResourceIds(request, httpServletResponse.getOutputStream());
+      }
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);

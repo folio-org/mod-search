@@ -66,6 +66,20 @@ class ResourceIdServiceTest {
   }
 
   @Test
+  void streamResourceIdsInTextType() {
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+    mockSearchRepositoryCall(List.of(RANDOM_ID));
+
+    var outputStream = new ByteArrayOutputStream();
+
+    resourceIdService.streamResourceIdsInTextType(request(), outputStream);
+
+    var actual = outputStream.toString();
+    assertThat(actual).isEqualTo(RANDOM_ID + '\n');
+  }
+
+  @Test
   void streamResourceIds_negative_throwException() throws IOException {
     var outputStream = new ByteArrayOutputStream();
 

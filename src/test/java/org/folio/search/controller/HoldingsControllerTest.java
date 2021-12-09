@@ -1,17 +1,21 @@
 package org.folio.search.controller;
 
 import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDING_ID_PATH;
+import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +43,7 @@ class HoldingsControllerTest {
   @MockBean private ResourceIdService resourceIdService;
 
   @Test
-  void getInstanceIds_positive() throws Exception {
+  void getHoldingsIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
     var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDING_ID_PATH);
@@ -58,7 +62,31 @@ class HoldingsControllerTest {
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
+      .andExpect(content().contentType(APPLICATION_JSON))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.ids[*].id", is(List.of(holdingId))));
+  }
+
+  @Test
+  void getHoldingsIdsTextType_positive() throws Exception {
+    var cqlQuery = "id=*";
+    var instanceId = randomId();
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+
+    doAnswer(inv -> {
+      var out = (OutputStream) inv.getArgument(1);
+      out.write(OBJECT_MAPPER.writeValueAsBytes(instanceId));
+      return null;
+    }).when(resourceIdService).streamResourceIdsInTextType(eq(request), any(OutputStream.class));
+
+    var requestBuilder = get("/search/holdings/ids")
+      .queryParam("query", cqlQuery)
+      .contentType(TEXT_PLAIN)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(TEXT_PLAIN))
+      .andExpect(content().string(containsString(instanceId)));
   }
 }

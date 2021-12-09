@@ -21,8 +21,8 @@ public class HoldingsController implements HoldingsApi {
   private final ResourceIdsStreamHelper resourceIdsStreamHelper;
 
   @Override
-  public ResponseEntity<Void> getHoldingIds(String query, String tenantId) {
+  public ResponseEntity<Void> getHoldingIds(String query, String tenantId, String contentType) {
     var bulkRequest = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, HOLDING_ID_PATH);
-    return resourceIdsStreamHelper.streamResourceIds(bulkRequest);
+    return resourceIdsStreamHelper.streamResourceIds(bulkRequest, contentType);
   }
 }

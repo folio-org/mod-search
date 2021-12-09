@@ -7,6 +7,8 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 import java.io.IOException;
 import javax.servlet.ServletOutputStream;
@@ -42,7 +44,23 @@ class ResourceIdsStreamHelperTest {
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
     doNothing().when(resourceIdService).streamResourceIds(request, outputStream);
 
-    var actual = resourceIdsStreamHelper.streamResourceIds(request);
+    var actual = resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE);
+    assertThat(actual).isEqualTo(ResponseEntity.ok().build());
+  }
+
+  @Test
+  void streamResourceIdsTextType_positive() throws IOException {
+    var servletRequestAttributes = mock(ServletRequestAttributes.class);
+    RequestContextHolder.setRequestAttributes(servletRequestAttributes);
+    var httpServletResponse = mock(HttpServletResponse.class);
+    var outputStream = mock(ServletOutputStream.class);
+    when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
+    when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
+
+    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    doNothing().when(resourceIdService).streamResourceIdsInTextType(request, outputStream);
+
+    var actual = resourceIdsStreamHelper.streamResourceIds(request, TEXT_PLAIN_VALUE);
     assertThat(actual).isEqualTo(ResponseEntity.ok().build());
   }
 
@@ -51,7 +69,7 @@ class ResourceIdsStreamHelperTest {
     RequestContextHolder.setRequestAttributes(null);
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request))
+    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Request attributes must be not null");
   }
@@ -63,7 +81,7 @@ class ResourceIdsStreamHelperTest {
     when(servletRequestAttributes.getResponse()).thenReturn(null);
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request))
+    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("HttpServletResponse must be not null");
   }
@@ -77,7 +95,7 @@ class ResourceIdsStreamHelperTest {
     when(httpServletResponse.getOutputStream()).thenThrow(new IOException("error"));
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request))
+    assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to get output stream from response");
   }

@@ -39,8 +39,8 @@ public class InstanceController implements InstancesApi {
   }
 
   @Override
-  public ResponseEntity<Void> getInstanceIds(String query, String tenantId) {
+  public ResponseEntity<Void> getInstanceIds(String query, String tenantId, String contentType) {
     var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, INSTANCE_ID_PATH);
-    return resourceIdsStreamHelper.streamResourceIds(request);
+    return resourceIdsStreamHelper.streamResourceIds(request, contentType);
   }
 }

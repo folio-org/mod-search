@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDING_ID_PATH;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -70,12 +69,12 @@ class HoldingsControllerTest {
   @Test
   void getHoldingsIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
-    var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+    var holdingId = randomId();
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDING_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
-      out.write(OBJECT_MAPPER.writeValueAsBytes(instanceId));
+      out.write(OBJECT_MAPPER.writeValueAsBytes(holdingId));
       return null;
     }).when(resourceIdService).streamResourceIdsInTextType(eq(request), any(OutputStream.class));
 
@@ -87,6 +86,6 @@ class HoldingsControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(content().contentType(TEXT_PLAIN))
-      .andExpect(content().string(containsString(instanceId)));
+      .andExpect(content().string(containsString(holdingId)));
   }
 }

@@ -102,6 +102,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
+      arguments("keyword all {value}", "\"Gary A. Wills\""),
+
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
       arguments("personalName == {value}", "\"gary a.*\""),

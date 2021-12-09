@@ -4,11 +4,14 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
@@ -51,7 +54,14 @@ public class SearchService {
   }
 
   private <T> SearchResult<T> mapToSearchResult(SearchResponse response, Class<T> responseClass) {
-    var hits = response.getHits();
+    return Optional.ofNullable(response)
+      .map(SearchResponse::getHits)
+      .map(searchHits -> mapToSearchResult(searchHits, responseClass))
+      .orElseThrow(() -> new SearchServiceException(String.format(
+        "Failed to parse search response object [response: %s]", response)));
+  }
+
+  private <T> SearchResult<T> mapToSearchResult(SearchHits hits, Class<T> responseClass) {
     var totalRecords = hits.getTotalHits() != null ? (int) hits.getTotalHits().value : 0;
     return SearchResult.of(totalRecords, getResultDocuments(hits.getHits(), responseClass));
   }

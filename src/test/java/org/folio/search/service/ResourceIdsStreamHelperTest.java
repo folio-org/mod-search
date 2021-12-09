@@ -49,6 +49,22 @@ class ResourceIdsStreamHelperTest {
   }
 
   @Test
+  void streamResourceIds_positive_NullContentType() throws IOException {
+    var servletRequestAttributes = mock(ServletRequestAttributes.class);
+    RequestContextHolder.setRequestAttributes(servletRequestAttributes);
+    var httpServletResponse = mock(HttpServletResponse.class);
+    var outputStream = mock(ServletOutputStream.class);
+    when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
+    when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
+
+    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    doNothing().when(resourceIdService).streamResourceIds(request, outputStream);
+
+    var actual = resourceIdsStreamHelper.streamResourceIds(request, null);
+    assertThat(actual).isEqualTo(ResponseEntity.ok().build());
+  }
+
+  @Test
   void streamResourceIdsTextType_positive() throws IOException {
     var servletRequestAttributes = mock(ServletRequestAttributes.class);
     RequestContextHolder.setRequestAttributes(servletRequestAttributes);

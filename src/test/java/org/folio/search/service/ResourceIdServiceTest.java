@@ -121,6 +121,19 @@ class ResourceIdServiceTest {
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
   }
 
+  @Test
+  void streamResourceIdsInTextTextType_positive_emptyCollectionProvided() {
+    mockSearchRepositoryCall(emptyList());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+
+    var outputStream = new ByteArrayOutputStream();
+    resourceIdService.streamResourceIdsInTextType(request(), outputStream);
+
+    var actual = outputStream.toString();
+    assertThat(actual).isEmpty();
+  }
+
   private void mockSearchRepositoryCall(List<String> ids) {
     var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
     doAnswer(invocation -> {

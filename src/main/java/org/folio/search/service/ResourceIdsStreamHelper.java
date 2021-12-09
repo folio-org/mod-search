@@ -27,7 +27,6 @@ public class ResourceIdsStreamHelper {
    * @param contentType - Content-Type header value
    * @return response with found resource ids using http streaming approach.
    */
-  @SuppressWarnings("checkstyle:Indentation")
   public ResponseEntity<Void> streamResourceIds(CqlResourceIdsRequest request, String contentType) {
     var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     Assert.notNull(requestAttributes, "Request attributes must be not null");

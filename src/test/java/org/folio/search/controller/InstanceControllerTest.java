@@ -166,7 +166,7 @@ class InstanceControllerTest {
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(instanceId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
-    }).when(resourceIdService).streamResourceIds(eq(request), any(OutputStream.class));
+    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
 
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)
@@ -190,7 +190,7 @@ class InstanceControllerTest {
       var out = (OutputStream) inv.getArgument(1);
       out.write(OBJECT_MAPPER.writeValueAsBytes(instanceId));
       return null;
-    }).when(resourceIdService).streamResourceIdsInTextType(eq(request), any(OutputStream.class));
+    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
 
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)

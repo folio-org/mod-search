@@ -52,7 +52,7 @@ class HoldingsControllerTest {
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(holdingId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
-    }).when(resourceIdService).streamResourceIds(eq(request), any(OutputStream.class));
+    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
 
     var requestBuilder = get("/search/holdings/ids")
       .queryParam("query", cqlQuery)
@@ -76,7 +76,7 @@ class HoldingsControllerTest {
       var out = (OutputStream) inv.getArgument(1);
       out.write(OBJECT_MAPPER.writeValueAsBytes(holdingId));
       return null;
-    }).when(resourceIdService).streamResourceIdsInTextType(eq(request), any(OutputStream.class));
+    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
 
     var requestBuilder = get("/search/holdings/ids")
       .queryParam("query", cqlQuery)

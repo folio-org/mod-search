@@ -35,7 +35,7 @@ public class ResourceIdService {
    * @param request      resource ids request as {@link CqlResourceIdsRequest} object
    * @param outputStream output stream where text will be written in.
    */
-  public void streamResourceIdsInTextType(CqlResourceIdsRequest request, OutputStream outputStream) {
+  public void streamResourceIdsAsText(CqlResourceIdsRequest request, OutputStream outputStream) {
     try (var writer = new OutputStreamWriter(outputStream, UTF_8)) {
       streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
     } catch (IOException e) {
@@ -50,7 +50,7 @@ public class ResourceIdService {
    * @param request      resource ids request as {@link CqlResourceIdsRequest} object
    * @param outputStream output stream where json will be written in.
    */
-  public void streamResourceIds(CqlResourceIdsRequest request, OutputStream outputStream) {
+  public void streamResourceIdsAsJson(CqlResourceIdsRequest request, OutputStream outputStream) {
     try (var json = objectMapper.createGenerator(outputStream)) {
       json.writeStartObject();
       json.writeFieldName("ids");

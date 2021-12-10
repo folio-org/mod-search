@@ -59,7 +59,7 @@ class ResourceIdServiceTest {
 
     var outputStream = new ByteArrayOutputStream();
 
-    resourceIdService.streamResourceIds(request(), outputStream);
+    resourceIdService.streamResourceIdsAsJson(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(List.of(new ResourceId().id(RANDOM_ID))).totalRecords(1));
@@ -73,7 +73,7 @@ class ResourceIdServiceTest {
 
     var outputStream = new ByteArrayOutputStream();
 
-    resourceIdService.streamResourceIdsInTextType(request(), outputStream);
+    resourceIdService.streamResourceIdsAsText(request(), outputStream);
 
     var actual = outputStream.toString();
     assertThat(actual).isEqualTo(RANDOM_ID + '\n');
@@ -86,7 +86,7 @@ class ResourceIdServiceTest {
     when(objectMapper.createGenerator(outputStream)).thenThrow(new IOException("Failed to create generator"));
 
     var request = request();
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write data into json [reason: Failed to create generator]");
   }
@@ -103,7 +103,7 @@ class ResourceIdServiceTest {
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
     var request = request();
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
   }
@@ -115,7 +115,7 @@ class ResourceIdServiceTest {
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
-    resourceIdService.streamResourceIds(request(), outputStream);
+    resourceIdService.streamResourceIdsAsJson(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
@@ -128,7 +128,7 @@ class ResourceIdServiceTest {
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
-    resourceIdService.streamResourceIdsInTextType(request(), outputStream);
+    resourceIdService.streamResourceIdsAsText(request(), outputStream);
 
     var actual = outputStream.toString();
     assertThat(actual).isEmpty();

@@ -42,7 +42,7 @@ class ResourceIdsStreamHelperTest {
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    doNothing().when(resourceIdService).streamResourceIds(request, outputStream);
+    doNothing().when(resourceIdService).streamResourceIdsAsJson(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE);
     assertThat(actual).isEqualTo(ResponseEntity.ok().build());
@@ -58,7 +58,7 @@ class ResourceIdsStreamHelperTest {
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    doNothing().when(resourceIdService).streamResourceIds(request, outputStream);
+    doNothing().when(resourceIdService).streamResourceIdsAsJson(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, null);
     assertThat(actual).isEqualTo(ResponseEntity.ok().build());
@@ -74,7 +74,7 @@ class ResourceIdsStreamHelperTest {
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
     var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
-    doNothing().when(resourceIdService).streamResourceIdsInTextType(request, outputStream);
+    doNothing().when(resourceIdService).streamResourceIdsAsText(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, TEXT_PLAIN_VALUE);
     assertThat(actual).isEqualTo(ResponseEntity.ok().build());

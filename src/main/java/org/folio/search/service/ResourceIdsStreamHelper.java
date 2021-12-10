@@ -39,10 +39,10 @@ public class ResourceIdsStreamHelper {
     try {
       if (contentType != null && contentType.contains(TEXT_PLAIN_VALUE)) {
         httpServletResponse.setContentType(TEXT_PLAIN_VALUE);
-        resourceIdService.streamResourceIdsInTextType(request, httpServletResponse.getOutputStream());
+        resourceIdService.streamResourceIdsAsText(request, httpServletResponse.getOutputStream());
       } else {
         httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
-        resourceIdService.streamResourceIds(request, httpServletResponse.getOutputStream());
+        resourceIdService.streamResourceIdsAsJson(request, httpServletResponse.getOutputStream());
       }
       return ResponseEntity.ok().build();
     } catch (IOException e) {

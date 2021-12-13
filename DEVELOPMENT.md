@@ -30,7 +30,7 @@ the [full-text queries](https://www.elastic.co/guide/en/elasticsearch/reference/
 #### Supported field description types
 
 | Field type | Description                                                                                                                                                                                                   |
-|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|:-----------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | plain      | This field type is default and there is no need to explicitly specify the field.<br/> It can be used to define all fields containing the following values: string, number, boolean, or array of plain values. |
 | object     | This field type is used to mark that key contains subfield, each of subfield must have its own field description.                                                                                             |
 | authority  | This field type is designed to provide special options to divide a single authority record into multiple based on the `distinctType` property value.                                                          |

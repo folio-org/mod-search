@@ -62,8 +62,9 @@ public class SearchService {
   }
 
   private <T> SearchResult<T> mapToSearchResult(SearchHits hits, Class<T> responseClass) {
-    var totalRecords = hits.getTotalHits() != null ? (int) hits.getTotalHits().value : 0;
-    return SearchResult.of(totalRecords, getResultDocuments(hits.getHits(), responseClass));
+    var totalHits = hits.getTotalHits();
+    var totalRecords = totalHits != null ? totalHits.value : 0L;
+    return SearchResult.of((int) totalRecords, getResultDocuments(hits.getHits(), responseClass));
   }
 
   private <T> List<T> getResultDocuments(SearchHit[] searchHits, Class<T> responseClass) {

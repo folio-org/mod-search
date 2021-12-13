@@ -1,7 +1,9 @@
 package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
 import static org.folio.search.service.setter.instance.IssnProcessor.ISSN_IDENTIFIER_NAMES;
 import static org.folio.search.utils.TestConstants.INVALID_ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
@@ -20,6 +22,7 @@ import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.InstanceReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -40,12 +43,19 @@ class IssnProcessorTest {
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
-      var issnIdentifierId = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
-      when(referenceDataService.fetchIdentifierIds(ISSN_IDENTIFIER_NAMES)).thenReturn(issnIdentifierId);
+      var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
+      when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, ISSN_IDENTIFIER_NAMES)).thenReturn(identifiers);
     }
 
     var actual = issnProcessor.getFieldValue(instance);
     assertThat(actual).containsExactlyElementsOf(expected);
+  }
+
+  @Test
+  void getFieldValue_negative_failedToLoadReferenceData() {
+    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, ISSN_IDENTIFIER_NAMES)).thenReturn(emptySet());
+    var actual = issnProcessor.getFieldValue(instanceWithIdentifiers(issn("123456")));
+    assertThat(actual).isEmpty();
   }
 
   private static Stream<Arguments> issnDataProvider() {

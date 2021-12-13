@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CACHE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanUpCaches;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.mockito.Mockito.when;
@@ -56,8 +56,7 @@ class FeatureConfigServiceTest {
 
   @BeforeEach
   void setUp() {
-    var cacheNames = cacheManager.getCacheNames();
-    cacheNames.forEach(name -> requireNonNull(cacheManager.getCache(name)).clear());
+    cleanUpCaches(cacheManager);
   }
 
   @Test

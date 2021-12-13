@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -39,6 +38,7 @@ import org.folio.search.support.extension.EnableKafka;
 import org.folio.search.support.extension.EnableOkapi;
 import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.support.extension.impl.OkapiConfiguration;
+import org.folio.search.utils.TestUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,7 +77,7 @@ public abstract class BaseIntegrationTest {
 
   @BeforeAll
   static void cleanUpCaches(@Autowired CacheManager cacheManager) {
-    cacheManager.getCacheNames().forEach(name -> Objects.requireNonNull(cacheManager.getCache(name)).clear());
+    TestUtils.cleanUpCaches(cacheManager);
   }
 
   public static HttpHeaders defaultHeaders() {

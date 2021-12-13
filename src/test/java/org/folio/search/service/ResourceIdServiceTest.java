@@ -45,7 +45,7 @@ class ResourceIdServiceTest {
   private static final String TEST_QUERY = "id==" + RANDOM_ID;
   private static final Integer QUERY_SIZE = 1000;
 
-  @InjectMocks private ResourceIdService resourceIdService;
+  @Spy @InjectMocks private ResourceIdService resourceIdService;
   @Mock private SearchRepository searchRepository;
   @Mock private CqlSearchQueryConverter queryConverter;
   @Mock private StreamIdsProperties properties;
@@ -59,10 +59,24 @@ class ResourceIdServiceTest {
 
     var outputStream = new ByteArrayOutputStream();
 
-    resourceIdService.streamResourceIds(request(), outputStream);
+    resourceIdService.streamResourceIdsAsJson(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(List.of(new ResourceId().id(RANDOM_ID))).totalRecords(1));
+  }
+
+  @Test
+  void streamResourceIdsAsText() {
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+    mockSearchRepositoryCall(List.of(RANDOM_ID));
+
+    var outputStream = new ByteArrayOutputStream();
+
+    resourceIdService.streamResourceIdsAsText(request(), outputStream);
+
+    var actual = outputStream.toString();
+    assertThat(actual).isEqualTo(RANDOM_ID + '\n');
   }
 
   @Test
@@ -72,7 +86,7 @@ class ResourceIdServiceTest {
     when(objectMapper.createGenerator(outputStream)).thenThrow(new IOException("Failed to create generator"));
 
     var request = request();
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write data into json [reason: Failed to create generator]");
   }
@@ -89,9 +103,26 @@ class ResourceIdServiceTest {
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
     var request = request();
-    assertThatThrownBy(() -> resourceIdService.streamResourceIds(request, outputStream))
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
+  }
+
+  @Test
+  void streamResourceIdsAsText_negative_throwExceptionOnWritingIdField() throws IOException {
+    var outputStream = new ByteArrayOutputStream();
+    var writer = spy(resourceIdService.createOutputStreamWriter(outputStream));
+
+    mockSearchRepositoryCall(List.of(RANDOM_ID));
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+    when(resourceIdService.createOutputStreamWriter(outputStream)).thenReturn(writer);
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    doThrow(new IOException("Failed to write string field")).when(writer).write(RANDOM_ID + '\n');
+
+    var request = request();
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsText(request, outputStream))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to write id value into output stream [reason: Failed to write string field]");
   }
 
   @Test
@@ -101,10 +132,23 @@ class ResourceIdServiceTest {
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
-    resourceIdService.streamResourceIds(request(), outputStream);
+    resourceIdService.streamResourceIdsAsJson(request(), outputStream);
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
+  }
+
+  @Test
+  void streamResourceIdsInTextTextType_positive_emptyCollectionProvided() {
+    mockSearchRepositoryCall(emptyList());
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+
+    var outputStream = new ByteArrayOutputStream();
+    resourceIdService.streamResourceIdsAsText(request(), outputStream);
+
+    var actual = outputStream.toString();
+    assertThat(actual).isEmpty();
   }
 
   private void mockSearchRepositoryCall(List<String> ids) {

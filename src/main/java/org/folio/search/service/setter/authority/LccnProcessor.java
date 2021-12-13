@@ -1,28 +1,42 @@
 package org.folio.search.service.setter.authority;
 
-import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
-import static org.folio.search.utils.CollectionUtils.toStreamSafe;
+import static java.util.stream.Collectors.toCollection;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
-import org.folio.search.service.setter.FieldProcessor;
+import org.folio.search.integration.InstanceReferenceDataService;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class LccnProcessor implements FieldProcessor<Authority, Set<String>> {
+public class LccnProcessor extends AbstractIdentifierProcessor {
 
-  private static final List<String> SEARCHABLE_IDENTIFIERS =
-    List.of("Control number", "LCCN", "Other standard identifier", "System control number");
+  static final List<String> LCCN_IDENTIFIER_NAMES =
+    List.of("LCCN", "Control number", "Other standard identifier", "System control number");
+
+  /**
+   * Used by dependency injection.
+   *
+   * @param referenceDataService {@link InstanceReferenceDataService} bean
+   */
+  public LccnProcessor(InstanceReferenceDataService referenceDataService) {
+    super(referenceDataService);
+  }
 
   @Override
   public Set<String> getFieldValue(Authority authority) {
-    return toStreamSafe(authority.getIdentifiers())
+    return getAuthorityIdentifiers(authority).stream()
       .map(AuthorityIdentifiers::getValue)
-      .filter(SEARCHABLE_IDENTIFIERS::contains)
-      .collect(toLinkedHashSet());
+      .filter(Objects::nonNull)
+      .map(String::trim)
+      .collect(toCollection(LinkedHashSet::new));
+  }
+
+  @Override
+  protected List<String> getIdentifierNames() {
+    return LCCN_IDENTIFIER_NAMES;
   }
 }

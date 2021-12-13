@@ -208,7 +208,23 @@ if `sortDescription` contains `sortTYpe` as `collection` the following rules wil
 * if `sortOrder` is `asc` then the `mode` will be equal to `min`. It means that for sorting by a field containing a list of values - the lowest value will be picked for sorting.
 * if `sortOrder` is `desc` the the `mode` will be equal to `max`. It means that for sorting by a field containing a list of values - the highest value will be picked for sorting.
 
-### Running integration tests
+## Testings
+
+### Unit testing
+
+The project uses mostly only one framework for assertions - [AssertJ](https://joel-costigliola.github.io/assertj/)
+A few examples:
+```
+assertThat(actualQuery).isEqualTo(matchAllQuery());
+
+assertThat(actualCollection).isNotEmpty().containsExactly("str1", "str2");
+
+assertThatThrownBy(() -> service.doExceptionalOperation())
+  .isInstanceOf(IllegalArgumentException.class)
+  .hasMessage("invalid parameter");
+```
+
+### Integration testing
 
 The module uses [Testcontainers](https://www.testcontainers.org/) to run Elasticsearch, Apache Kafka and PostgreSQL
 in embedded mode. It is required to have Docker installed and available on the host where the tests are executed.

@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.service.setter.authority.LccnProcessor.LCCN_IDENTIFIER_NAMES;
 import static org.folio.search.utils.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
-import static org.folio.search.utils.TestUtils.identifier;
-import static org.folio.search.utils.TestUtils.instanceWithIdentifiers;
+import static org.folio.search.utils.TestUtils.authorityIdentifier;
+import static org.folio.search.utils.TestUtils.authorityWithIdentifiers;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.AuthorityIdentifiers;
 import org.folio.search.integration.InstanceReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +37,7 @@ class LccnProcessorTest {
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")
-  @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
+  @ParameterizedTest(name = "[{index}] authority with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority,
                                    List<String> expected) {
     if (CollectionUtils.isNotEmpty(authority.getIdentifiers())) {
@@ -51,16 +52,16 @@ class LccnProcessorTest {
   private static Stream<Arguments> lccnDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Authority(), emptyList()),
-      arguments("lccn identifier=null", instanceWithIdentifiers(lccn(null)), emptyList()),
-      arguments("lccn identifier='0317-8471'", instanceWithIdentifiers(lccn("0317-8471")), List.of("0317-8471")),
-      arguments("lccn identifier='0317-8471'",
-        instanceWithIdentifiers(lccn("0317-8471"), lccn("0317-8471")), List.of("0317-8471")),
-      arguments("lccn identifier=' 0317-8471 '",
-        instanceWithIdentifiers(lccn(" 0317-8471 ")), List.of("0317-8471"))
+      arguments("lccn identifier=null", authorityWithIdentifiers(lccn(null)), emptyList()),
+      arguments("lccn identifier='3745-1086'", authorityWithIdentifiers(lccn("3745-1086")), List.of("3745-1086")),
+      arguments("lccn identifier='3745-1086'",
+        authorityWithIdentifiers(lccn("3745-1086"), lccn("3745-1086")), List.of("3745-1086")),
+      arguments("lccn identifier=' 3745-1086 '",
+        authorityWithIdentifiers(lccn(" 3745-1086 ")), List.of("3745-1086"))
     );
   }
 
-  private static org.folio.search.domain.dto.InstanceIdentifiers lccn(String value) {
-    return identifier(LCCN_IDENTIFIER_TYPE_ID, value);
+  private static AuthorityIdentifiers lccn(String value) {
+    return authorityIdentifier(LCCN_IDENTIFIER_TYPE_ID, value);
   }
 }

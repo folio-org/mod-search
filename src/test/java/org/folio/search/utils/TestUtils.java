@@ -37,6 +37,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.AuthorityIdentifiers;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
@@ -299,6 +301,14 @@ public class TestUtils {
 
   public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
     return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
+  }
+
+  public static AuthorityIdentifiers authorityIdentifier(String id, String value) {
+    return new AuthorityIdentifiers().identifierTypeId(id).value(value);
+  }
+
+  public static Authority authorityWithIdentifiers(AuthorityIdentifiers... identifiers) {
+    return new Authority().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
   public static Map<String, Object> toMap(Object value) {

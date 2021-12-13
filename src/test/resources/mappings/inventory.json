@@ -66,6 +66,26 @@
     {
       "request": {
         "method": "GET",
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Control%20number%22%20or%20%22Other%20standard%20identifier%22%20or%20%22System%20control%20number%22%29"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+              "name": "LCCN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
         "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29"
       },
       "response": {

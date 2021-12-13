@@ -36,12 +36,8 @@ public class ResourceIdService {
    * @param outputStream output stream where text will be written in.
    */
   public void streamResourceIdsAsText(CqlResourceIdsRequest request, OutputStream outputStream) {
-    try (var writer = new OutputStreamWriter(outputStream, UTF_8)) {
-      streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
-    } catch (IOException e) {
-      throw new SearchServiceException(
-        String.format("Failed to write data into text [reason: %s]", e.getMessage()), e);
-    }
+    var writer = createOutputStreamWriter(outputStream);
+    streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
   }
 
   /**
@@ -70,6 +66,10 @@ public class ResourceIdService {
       throw new SearchServiceException(
         String.format("Failed to write data into json [reason: %s]", e.getMessage()), e);
     }
+  }
+
+  protected OutputStreamWriter createOutputStreamWriter(OutputStream outputStream) {
+    return new OutputStreamWriter(outputStream, UTF_8);
   }
 
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {

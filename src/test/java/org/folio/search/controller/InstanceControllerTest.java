@@ -10,7 +10,6 @@ import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
@@ -188,7 +188,7 @@ class InstanceControllerTest {
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
-      out.write(OBJECT_MAPPER.writeValueAsBytes(instanceId));
+      out.write(instanceId.getBytes(StandardCharsets.UTF_8));
       return null;
     }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
 
@@ -200,6 +200,6 @@ class InstanceControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(content().contentType(TEXT_PLAIN_VALUE))
-      .andExpect(content().string(containsString(instanceId)));
+      .andExpect(content().string(instanceId));
   }
 }

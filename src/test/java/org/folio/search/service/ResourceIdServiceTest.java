@@ -45,7 +45,7 @@ class ResourceIdServiceTest {
   private static final String TEST_QUERY = "id==" + RANDOM_ID;
   private static final Integer QUERY_SIZE = 1000;
 
-  @InjectMocks private ResourceIdService resourceIdService;
+  @Spy @InjectMocks private ResourceIdService resourceIdService;
   @Mock private SearchRepository searchRepository;
   @Mock private CqlSearchQueryConverter queryConverter;
   @Mock private StreamIdsProperties properties;
@@ -66,7 +66,7 @@ class ResourceIdServiceTest {
   }
 
   @Test
-  void streamResourceIdsInTextType() {
+  void streamResourceIdsAsText() {
     when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
@@ -106,6 +106,23 @@ class ResourceIdServiceTest {
     assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
+  }
+
+  @Test
+  void streamResourceIdsAsText_negative_throwExceptionOnWritingIdField() throws IOException {
+    var outputStream = new ByteArrayOutputStream();
+    var writer = spy(resourceIdService.createOutputStreamWriter(outputStream));
+
+    mockSearchRepositoryCall(List.of(RANDOM_ID));
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+    when(resourceIdService.createOutputStreamWriter(outputStream)).thenReturn(writer);
+    when(queryConverter.convert(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    doThrow(new IOException("Failed to write string field")).when(writer).write(RANDOM_ID + '\n');
+
+    var request = request();
+    assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsText(request, outputStream))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to write id value into output stream [reason: Failed to write string field]");
   }
 
   @Test

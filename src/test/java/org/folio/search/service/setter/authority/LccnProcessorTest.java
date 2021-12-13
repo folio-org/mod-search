@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class LccnProcessorTest {
@@ -36,7 +37,8 @@ class LccnProcessorTest {
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
-  void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority, List<String> expected) {
+  void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority,
+                                   List<String> expected) {
     if (CollectionUtils.isNotEmpty(authority.getIdentifiers())) {
       var lccnIdentifierId = Set.of(LCCN_IDENTIFIER_TYPE_ID);
       when(referenceDataService.fetchIdentifierIds(LCCN_IDENTIFIER_NAMES)).thenReturn(lccnIdentifierId);

@@ -266,6 +266,10 @@
             }
           }
         },
+        "effectiveShelvingOrder": {
+          "index": "source",
+          "showInResponse": true
+        },
         "tags": {
           "type": "object",
           "properties": {
@@ -491,6 +495,12 @@
       "type": "search",
       "index": "multilang",
       "processor": "uniformTitleProcessor"
+    },
+    "callNumber": {
+      "type": "search",
+      "index": "long",
+      "searchTermProcessor": "callNumberBrowseSearchTermProcessor",
+      "processor": "callNumberProcessor"
     },
     "allInstances": {
       "type": "search",

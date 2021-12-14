@@ -1,49 +1,113 @@
 package org.folio.search.service.converter;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.searchResult;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
 import org.folio.search.domain.dto.Metadata;
+import org.folio.search.model.SearchResult;
+import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class ElasticsearchHitConverterTest {
+class ElasticsearchDocumentConverterTest {
 
-  @InjectMocks private ElasticsearchHitConverter elasticsearchHitConverter;
+  @InjectMocks private ElasticsearchDocumentConverter elasticsearchDocumentConverter;
   @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
+  @Mock private SearchResponse searchResponse;
+  @Mock private SearchHits searchHits;
+  @Mock private SearchHit searchHit;
 
-  @DisplayName("should convert incoming document to instance")
-  @MethodSource("positiveConvertDataProvider")
   @ParameterizedTest
-  void convert_positive_noMultiLangFields(
-    Map<String, Object> given, Instance expected) {
-    var actual = elasticsearchHitConverter.convert(given, Instance.class);
+  @MethodSource("positiveConvertDataProvider")
+  @DisplayName("should convert incoming document to instance")
+  void convert_positive_noMultiLangFields(Map<String, Object> given, Instance expected) {
+    var actual = elasticsearchDocumentConverter.convert(given, Instance.class);
     assertThat(actual).isEqualTo(expected);
     verify(objectMapper).convertValue(anyMap(), eq(Instance.class));
+  }
+
+  @Test
+  void convertToSearchResult_positive() {
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
+    when(searchHits.getHits()).thenReturn(array(searchHit));
+    when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
+
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
+
+    assertThat(actual).isEqualTo(searchResult(TestResource.of(RESOURCE_ID)));
+  }
+
+  @Test
+  void convertToSearchResult_negative_searchHitsIsNull() {
+    when(searchResponse.getHits()).thenReturn(null);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
+    assertThat(actual).isEqualTo(SearchResult.empty());
+  }
+
+  @Test
+  void convertToSearchResult_negative_totalHitsIsNull() {
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getTotalHits()).thenReturn(null);
+    when(searchHits.getHits()).thenReturn(array(searchHit));
+    when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
+
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
+
+    assertThat(actual).isEqualTo(SearchResult.of(0, List.of(TestResource.of(RESOURCE_ID))));
+  }
+
+  @Test
+  void convertToSearchResult_negative_searchHitsArrayIsNull() {
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
+    when(searchHits.getHits()).thenReturn(null);
+
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
+
+    assertThat(actual).isEqualTo(SearchResult.of(1, emptyList()));
+  }
+
+  @Test
+  void convertToSearchResult_negative_responseIsNull() {
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(null, TestResource.class);
+    assertThat(actual).isEqualTo(SearchResult.empty());
   }
 
   private static Stream<Arguments> positiveConvertDataProvider() {

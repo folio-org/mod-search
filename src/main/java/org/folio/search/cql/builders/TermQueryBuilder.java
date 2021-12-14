@@ -15,7 +15,7 @@ public interface TermQueryBuilder {
    * @param fields - resource fields name as {@code array} of {@link String} objects
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getQuery(String term, String resource, String... fields) {
+  default QueryBuilder getQuery(Object term, String resource, String... fields) {
     throw unsupportedException(fields);
   }
 
@@ -27,7 +27,7 @@ public interface TermQueryBuilder {
    * @param resource - resource name for querying as {@link String object}
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
+  default QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
     throw unsupportedException(fieldName);
   }
 
@@ -40,7 +40,7 @@ public interface TermQueryBuilder {
    * @param fieldIndex - field index mappings as {@link String} object
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
+  default QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
     throw unsupportedException(fieldName);
   }
 
@@ -51,8 +51,14 @@ public interface TermQueryBuilder {
    */
   Set<String> getSupportedComparators();
 
-  default UnsupportedOperationException unsupportedException(String... fieldName) {
+  /**
+   * Creates {@link  UnsupportedOperationException} object.
+   *
+   * @param fieldNames - list of fields from term query builder implementation
+   * @return created {@link  UnsupportedOperationException} object
+   */
+  default UnsupportedOperationException unsupportedException(String... fieldNames) {
     return new UnsupportedOperationException(String.format(
-      "Query is not supported yet [operator(s): %s, field(s): %s]", getSupportedComparators(), asList(fieldName)));
+      "Query is not supported yet [operator(s): %s, field(s): %s]", getSupportedComparators(), asList(fieldNames)));
   }
 }

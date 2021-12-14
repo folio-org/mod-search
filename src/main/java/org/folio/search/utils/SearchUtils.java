@@ -279,6 +279,16 @@ public class SearchUtils {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, resourceClass.getSimpleName());
   }
 
+  /**
+   * Check if passed value is {@link String} and it's empty.
+   *
+   * @param value - value to check
+   * @return true - if value is empty, false - otherwise
+   */
+  public static boolean isEmptyString(Object value) {
+    return value instanceof String && ((String) value).isEmpty();
+  }
+
   private static Object getMultilangValueObject(Object value) {
     return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
   }

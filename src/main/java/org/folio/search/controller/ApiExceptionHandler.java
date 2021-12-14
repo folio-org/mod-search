@@ -37,6 +37,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -217,6 +218,19 @@ public class ApiExceptionHandler {
         logException(DEBUG, e);
         return buildResponseEntity(e, BAD_REQUEST, VALIDATION_ERROR);
       });
+  }
+
+  /**
+   * Catches and handles all {@link MissingServletRequestParameterException} exceptions.
+   *
+   * @param exception {@link MissingServletRequestParameterException} to process
+   * @return {@link ResponseEntity} with {@link ErrorResponse} body
+   */
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+    MissingServletRequestParameterException exception) {
+    logException(DEBUG, exception);
+    return buildResponseEntity(exception, BAD_REQUEST, VALIDATION_ERROR);
   }
 
   /**

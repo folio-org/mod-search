@@ -23,9 +23,11 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
@@ -36,7 +38,9 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
 class SearchUtilsTest {
@@ -238,9 +242,26 @@ class SearchUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "field.*,true", ",false", "field,false"})
+  @CsvSource({"field.*,true", ",false", "field,false"})
   void isMultilangFieldPath_parameterized(String value, boolean expected) {
     var actual = SearchUtils.isMultilangFieldPath(value);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @MethodSource("isEmptyStringDataSource")
+  void isEmptyString_positive(Object given, boolean expected) {
+    var actual = SearchUtils.isEmptyString(given);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> isEmptyStringDataSource() {
+    return Stream.of(
+      arguments(new Object(), false),
+      arguments(null, false),
+      arguments("", true),
+      arguments("  ", false),
+      arguments("value", false)
+    );
   }
 }

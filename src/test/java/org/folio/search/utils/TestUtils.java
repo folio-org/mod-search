@@ -14,6 +14,7 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
@@ -35,10 +36,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
@@ -56,6 +60,7 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
+import org.folio.search.model.service.CallNumberBrowseRequest;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.SearchType;
@@ -116,6 +121,30 @@ public class TestUtils {
 
   public static CqlFacetRequest facetServiceRequest(String resource, String query, String... facets) {
     return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
+  }
+
+  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder) {
+    return callNumberBrowseRequest(shelvingOrder, 25);
+  }
+
+  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, Boolean expandAll) {
+    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, shelvingOrder, TENANT_ID, 25, expandAll);
+  }
+
+  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, int limit) {
+    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, shelvingOrder, limit, false);
+  }
+
+  public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().totalRecords(total).items(items);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
+    return new CallNumberBrowseItem().callNumber(callNumber).instance(instance).totalRecords(1);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords).callNumber(callNumber);
   }
 
   public static String randomId() {
@@ -261,7 +290,7 @@ public class TestUtils {
 
   @SafeVarargs
   public static <T> SearchResult<T> searchResult(T... records) {
-    return SearchResult.of(records.length, List.of(records));
+    return new SearchResult<T>().totalRecords(records.length).records(List.of(records));
   }
 
   public static Facet facet(List<FacetItem> items) {
@@ -312,7 +341,7 @@ public class TestUtils {
     return OBJECT_MAPPER.convertValue(value, new TypeReference<>() {});
   }
 
-  public static void doIfNotNull(Object value, Consumer<Object> valueConsumer) {
+  public static <T> void doIfNotNull(T value, Consumer<T> valueConsumer) {
     if (value != null) {
       valueConsumer.accept(value);
     }
@@ -331,6 +360,8 @@ public class TestUtils {
   }
 
   @Data
+  @NoArgsConstructor
+  @AllArgsConstructor(staticName = "of")
   public static class TestResource {
 
     private String id;

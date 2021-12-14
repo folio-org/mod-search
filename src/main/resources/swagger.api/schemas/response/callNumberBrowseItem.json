@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Authority search result response",
+  "type": "object",
+  "properties": {
+    "callNumber": {
+      "type": "string",
+      "description": "Call number value"
+    },
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of records for the call number value"
+    },
+    "instance": {
+      "description": "Related instance object",
+      "$ref": "../instance.json"
+    }
+  }
+}

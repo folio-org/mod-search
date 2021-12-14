@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(String term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, String... fields) {
     if (fields.length == 1) {
       return getWildcardQuery(term, updatePathForTermQueries(resource, fields[0]));
     }
@@ -27,12 +27,12 @@ public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
     return getWildcardQuery(term, getPathToFulltextPlainValue(fieldName));
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
     return getWildcardQuery(term, fieldName);
   }
 
@@ -41,7 +41,7 @@ public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
     return Set.of(WILDCARD_OPERATOR);
   }
 
-  private static WildcardQueryBuilder getWildcardQuery(String term, String field) {
-    return wildcardQuery(field, term).rewrite("constant_score");
+  private static WildcardQueryBuilder getWildcardQuery(Object term, String field) {
+    return wildcardQuery(field, String.valueOf(term)).rewrite("constant_score");
   }
 }

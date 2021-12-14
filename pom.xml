@@ -34,6 +34,8 @@
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>
+    <marc4j.version>2.9.1</marc4j.version>
+    <folio-isbn-utils.version>1.3.0</folio-isbn-utils.version>
     <mod-search.yaml.file>${project.basedir}/src/main/resources/swagger.api/mod-search.yaml</mod-search.yaml.file>
     <sonar.exclusions>
       src/main/java/org/folio/search/SearchApplication.java,
@@ -155,12 +157,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>2.4.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.folio</groupId>
       <artifactId>cql2pgjson</artifactId>
       <version>32.1.0</version>
@@ -179,8 +175,14 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-isbn-util</artifactId>
-      <version>1.3.0</version>
+      <version>${folio-isbn-utils.version}</version>
       <type>jar</type>
+    </dependency>
+
+    <dependency>
+      <groupId>org.marc4j</groupId>
+      <artifactId>marc4j</artifactId>
+      <version>${marc4j.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

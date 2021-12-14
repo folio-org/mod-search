@@ -38,12 +38,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/content-type-header'
       responses:
         '200':
           description: 'Instance ids as json stream'
           content:
             application/json:
               example: examples/InstanceIdsResult.sample
+            application/text:
+              example: examples/IdsTextResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -56,12 +59,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/content-type-header'
       responses:
         '200':
           description: 'Instance ids as json stream'
           content:
             application/json:
               example: examples/HoldingIdsResult.sample
+            application/text:
+              example: examples/IdsTextResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -443,5 +449,12 @@ components:
       in: header
       description: X-Okapi-Tenant header value
       required: true
+      schema:
+        type: string
+    content-type-header:
+      name: Content-Type
+      in: header
+      description: Content-Type header value
+      required: false
       schema:
         type: string

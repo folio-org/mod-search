@@ -9,7 +9,6 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.SystemUser;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
@@ -48,7 +47,7 @@ class SystemUserServiceIT extends BaseIntegrationTest {
   @Test
   void shouldCacheToken() {
     var tenant = "tenant_2";
-    setUpTenant(tenant, new Instance[] {});
+    setUpTenant(tenant);
     var systemUser = systemUserService.getSystemUser(tenant);
 
     assertThat(systemUser).isNotNull();

@@ -16,11 +16,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.index.Index;
@@ -30,7 +35,6 @@ import org.folio.search.domain.dto.ResourceIds;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.folio.search.service.FacetService;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
@@ -49,7 +53,6 @@ class InstanceControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private SearchService searchService;
-  @MockBean private FacetService facetService;
   @MockBean private ResourceIdService resourceIdService;
 
   @Test
@@ -163,7 +166,7 @@ class InstanceControllerTest {
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(instanceId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
-    }).when(resourceIdService).streamResourceIds(eq(request), any(OutputStream.class));
+    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
 
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)
@@ -172,7 +175,31 @@ class InstanceControllerTest {
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
+      .andExpect(content().contentType(APPLICATION_JSON_VALUE))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.ids[0].id", is(instanceId)));
+  }
+
+  @Test
+  void getInstanceIdsTextType_positive() throws Exception {
+    var cqlQuery = "id=*";
+    var instanceId = randomId();
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+
+    doAnswer(inv -> {
+      var out = (OutputStream) inv.getArgument(1);
+      out.write(instanceId.getBytes(StandardCharsets.UTF_8));
+      return null;
+    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
+
+    var requestBuilder = get("/search/instances/ids")
+      .queryParam("query", cqlQuery)
+      .contentType(TEXT_PLAIN)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(TEXT_PLAIN_VALUE))
+      .andExpect(content().string(instanceId));
   }
 }

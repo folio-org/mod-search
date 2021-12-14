@@ -4,24 +4,27 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.configuration.SearchCacheNames.ALTERNATIVE_TITLE_TYPES_CACHE;
-import static org.folio.search.configuration.SearchCacheNames.IDENTIFIER_IDS_CACHE;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
+import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
 import static org.folio.search.model.service.ReferenceRecord.referenceRecord;
 import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.folio.search.utils.TestConstants.INVALID_ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.UNIFORM_ALTERNATIVE_TITLE_ID;
+import static org.folio.search.utils.TestUtils.cleanUpCaches;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import feign.FeignException.Forbidden;
+import feign.Request;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.folio.search.client.AlternativeTitleTypesClient;
-import org.folio.search.client.IdentifierTypeClient;
+import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.client.cql.CqlQuery;
 import org.folio.search.integration.InstanceReferenceDataServiceTest.TestContextConfiguration;
 import org.folio.search.model.service.ReferenceRecord;
@@ -29,6 +32,7 @@ import org.folio.search.model.service.ResultList;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,36 +52,57 @@ class InstanceReferenceDataServiceTest {
 
   @Autowired private CacheManager cacheManager;
   @Autowired private InstanceReferenceDataService referenceDataService;
-  @MockBean private IdentifierTypeClient identifierTypeClient;
-  @MockBean private AlternativeTitleTypesClient alternativeTitleTypesClient;
+  @MockBean private InventoryReferenceDataClient inventoryReferenceDataClient;
+
+  @BeforeEach
+  void setUp() {
+    cleanUpCaches(cacheManager);
+  }
 
   @Test
   void shouldCacheIdentifierTypeIds() {
     var isbnIdentifierNames = List.of("ISBN", "Invalid ISBN");
     var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
-    when(identifierTypeClient.getIdentifierTypes(query)).thenReturn(identifiersFetchResponse());
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+      .thenReturn(identifiersFetchResponse());
 
-    var actual = referenceDataService.fetchIdentifierIds(isbnIdentifierNames);
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
     var expectedIdentifiers = Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
 
     assertThat(actual).isEqualTo(expectedIdentifiers);
 
-    var cachedValue = getCachedValue(IDENTIFIER_IDS_CACHE, TENANT_ID + ":ISBN,Invalid ISBN");
+    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types");
     assertThat(cachedValue).isPresent().get().isEqualTo(expectedIdentifiers);
+  }
+
+  @Test
+  void getReferenceData_negative_exceptionalResponseFromReferenceDataClient() {
+    var isbnIdentifierNames = List.of("ISBN", "Invalid ISBN");
+    var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
+    var request = mock(Request.class);
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+      .thenThrow(new Forbidden("invalid permission", request, null));
+
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
+
+    assertThat(actual).isEmpty();
+    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types");
+    assertThat(cachedValue).isEmpty();
   }
 
   @Test
   void fetchAlternativeTitleIds_positive() {
     var isbnIdentifierNames = List.of("Uniform Title");
     var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
-    when(alternativeTitleTypesClient.getAlternativeTitleTypes(query)).thenReturn(alternativeTitlesTypesFetchResponse());
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+      .thenReturn(alternativeTitlesTypesFetchResponse());
 
-    var actual = referenceDataService.fetchAlternativeTitleIds(isbnIdentifierNames);
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
     var expectedIdentifiers = singleton(UNIFORM_ALTERNATIVE_TITLE_ID);
 
     assertThat(actual).isEqualTo(expectedIdentifiers);
 
-    var cachedValue = getCachedValue(ALTERNATIVE_TITLE_TYPES_CACHE, TENANT_ID + ":Uniform Title");
+    var cachedValue = getCachedValue(TENANT_ID + ":Uniform Title:identifier_types");
     assertThat(cachedValue).isPresent().get().isEqualTo(expectedIdentifiers);
   }
 
@@ -91,8 +116,8 @@ class InstanceReferenceDataServiceTest {
     return asSinglePage(referenceRecord(UNIFORM_ALTERNATIVE_TITLE_ID, "Uniform Title"));
   }
 
-  private Optional<Object> getCachedValue(String cacheName, String cacheKey) {
-    return ofNullable(cacheManager.getCache(cacheName))
+  private Optional<Object> getCachedValue(String cacheKey) {
+    return ofNullable(cacheManager.getCache(REFERENCE_DATA_CACHE))
       .map(cache -> cache.get(cacheKey))
       .map(ValueWrapper::get);
   }
@@ -103,7 +128,7 @@ class InstanceReferenceDataServiceTest {
 
     @Bean
     CacheManager cacheManager() {
-      return new ConcurrentMapCacheManager(IDENTIFIER_IDS_CACHE, ALTERNATIVE_TITLE_TYPES_CACHE);
+      return new ConcurrentMapCacheManager(REFERENCE_DATA_CACHE);
     }
 
     @Bean

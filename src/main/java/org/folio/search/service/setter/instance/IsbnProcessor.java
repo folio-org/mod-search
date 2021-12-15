@@ -22,6 +22,7 @@ import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
+
 /**
  * Identifier field processor, which extracts valid ISBN values from raw string.
  *

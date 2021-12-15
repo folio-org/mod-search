@@ -27,7 +27,7 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
   protected Set<String> fetchIdentifierIdsFromCache() {
     var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, getIdentifierNames());
     if (identifierTypeIds.isEmpty()) {
-      log.warn("Failed to provide identifiers for processor: {}]",
+      log.warn("Failed to provide identifiers for processor: '{}']",
         this.getClass().getSimpleName());
     }
     return identifierTypeIds;

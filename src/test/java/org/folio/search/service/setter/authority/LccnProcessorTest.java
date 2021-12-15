@@ -2,7 +2,6 @@ package org.folio.search.service.setter.authority;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.service.setter.authority.LccnProcessor.LCCN_IDENTIFIER_NAMES;
 import static org.folio.search.utils.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.authorityIdentifier;
 import static org.folio.search.utils.TestUtils.authorityWithIdentifiers;
@@ -42,7 +41,7 @@ class LccnProcessorTest {
                                    List<String> expected) {
     if (CollectionUtils.isNotEmpty(authority.getIdentifiers())) {
       var lccnIdentifierId = Set.of(LCCN_IDENTIFIER_TYPE_ID);
-      when(referenceDataService.fetchIdentifierIds(LCCN_IDENTIFIER_NAMES)).thenReturn(lccnIdentifierId);
+      when(referenceDataService.fetchIdentifierIds(lccnProcessor.getIdentifierNames())).thenReturn(lccnIdentifierId);
     }
 
     var actual = lccnProcessor.getFieldValue(authority);

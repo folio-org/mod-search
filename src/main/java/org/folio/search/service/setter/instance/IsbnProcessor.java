@@ -5,9 +5,9 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,16 +19,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
-
 /**
  * Identifier field processor, which extracts valid ISBN values from raw string.
  *
  * <p><a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a></p>
  */
 @Component
-public class IsbnProcessor extends AbstractIdentifierProcessor {
-  static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
+public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
+
+  private static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
   private static final String SEP = "[-\\s]";
   private static final String GROUP_1 = "(\\d{1,5})";
@@ -55,22 +56,19 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
    * @param referenceDataService {@link InstanceReferenceDataService} bean
    */
   public IsbnProcessor(InstanceReferenceDataService referenceDataService) {
-    super(referenceDataService);
+    super(referenceDataService, ISBN_IDENTIFIER_NAMES);
   }
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return getInstanceIdentifiers(instance).stream()
+    var identifierTypeIds = fetchIdentifierIdsFromCache();
+
+    return toStreamSafe(instance.getIdentifiers())
+      .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
       .map(InstanceIdentifiers::getValue)
       .filter(Objects::nonNull)
-      .map(this::normalizeIsbn)
-      .flatMap(Collection::stream)
+      .map(String::trim)
       .collect(toCollection(LinkedHashSet::new));
-  }
-
-  @Override
-  protected List<String> getIdentifierNames() {
-    return ISBN_IDENTIFIER_NAMES;
   }
 
   /**

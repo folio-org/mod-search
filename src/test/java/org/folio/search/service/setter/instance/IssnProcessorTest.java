@@ -2,7 +2,6 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.service.setter.instance.IssnProcessor.ISSN_IDENTIFIER_NAMES;
 import static org.folio.search.utils.TestConstants.INVALID_ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISSN_IDENTIFIER_TYPE_ID;
@@ -41,7 +40,7 @@ class IssnProcessorTest {
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
       var issnIdentifierId = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
-      when(referenceDataService.fetchIdentifierIds(ISSN_IDENTIFIER_NAMES)).thenReturn(issnIdentifierId);
+      when(referenceDataService.fetchIdentifierIds(issnProcessor.getIdentifierNames())).thenReturn(issnIdentifierId);
     }
 
     var actual = issnProcessor.getFieldValue(instance);

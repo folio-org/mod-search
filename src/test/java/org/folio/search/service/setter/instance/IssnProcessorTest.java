@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -76,11 +76,11 @@ class IssnProcessorTest {
     );
   }
 
-  private static InstanceIdentifiers issn(String value) {
+  private static Identifiers issn(String value) {
     return identifier(ISSN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private static InstanceIdentifiers invalidIssn(String value) {
+  private static Identifiers invalidIssn(String value) {
     return identifier(INVALID_ISSN_IDENTIFIER_TYPE_ID, value);
   }
 

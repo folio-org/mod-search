@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.Metadata;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -85,8 +85,8 @@ class ElasticsearchHitConverterTest {
     return instance;
   }
 
-  private static InstanceIdentifiers identifier(String value) {
-    var identifier = new InstanceIdentifiers();
+  private static Identifiers identifier(String value) {
+    var identifier = new Identifiers();
     identifier.setValue(value);
     return identifier;
   }

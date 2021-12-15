@@ -1,11 +1,16 @@
 package org.folio.search.service.setter;
 
+import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
+import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.integration.ReferenceDataService;
 
 @Log4j2
@@ -20,11 +25,28 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
   }
 
   /**
+   * Returns set of filtered identifiers value from event body by specified set of types.
+   *
+   * @param identifiers event body as map to process
+   * @return {@link Set} of filtered identifiers value
+   */
+  protected Set<String> filterIdentifiersValue(List<Identifiers> identifiers) {
+    var identifierTypeIds = fetchIdentifierIdsFromCache();
+
+    return toStreamSafe(identifiers)
+      .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
+      .map(Identifiers::getValue)
+      .filter(Objects::nonNull)
+      .map(String::trim)
+      .collect(toCollection(LinkedHashSet::new));
+  }
+
+  /**
    * Returns set of identifier ids from cache.
    *
    * @return {@link List} of {@link String} identifier ids that matches names.
    */
-  protected Set<String> fetchIdentifierIdsFromCache() {
+  private Set<String> fetchIdentifierIdsFromCache() {
     var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, getIdentifierNames());
     if (identifierTypeIds.isEmpty()) {
       log.warn("Failed to provide identifiers for processor: {}]",

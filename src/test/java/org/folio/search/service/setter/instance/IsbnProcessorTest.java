@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -109,11 +109,11 @@ class IsbnProcessorTest {
     );
   }
 
-  private static InstanceIdentifiers isbn(String value) {
+  private static Identifiers isbn(String value) {
     return identifier(ISBN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private static InstanceIdentifiers invalidIsbn(String value) {
+  private static Identifiers invalidIsbn(String value) {
     return identifier(INVALID_ISBN_IDENTIFIER_TYPE_ID, value);
   }
 

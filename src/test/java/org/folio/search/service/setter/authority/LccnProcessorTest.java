@@ -5,8 +5,8 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
 import static org.folio.search.utils.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
-import static org.folio.search.utils.TestUtils.authorityIdentifier;
 import static org.folio.search.utils.TestUtils.authorityWithIdentifiers;
+import static org.folio.search.utils.TestUtils.identifier;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.AuthorityIdentifiers;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -68,8 +68,8 @@ class LccnProcessorTest {
     );
   }
 
-  private static AuthorityIdentifiers lccn(String value) {
-    return authorityIdentifier(LCCN_IDENTIFIER_TYPE_ID, value);
+  private static Identifiers lccn(String value) {
+    return identifier(LCCN_IDENTIFIER_TYPE_ID, value);
   }
 
   private void mockFetchReferenceData(Set<String> referenceData) {

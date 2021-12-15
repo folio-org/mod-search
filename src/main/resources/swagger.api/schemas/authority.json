@@ -155,17 +155,7 @@
       "type": "array",
       "description": "An extensible set of name-value pairs of identifiers associated with the resource",
       "items": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string",
-            "description": "Resource identifier value"
-          },
-          "identifierTypeId": {
-            "type": "string",
-            "description": "Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)"
-          }
-        }
+        "$ref": "identifiers.json"
       }
     },
     "notes": {

@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.Note;
 import org.folio.search.model.service.MultilangValue;
@@ -67,8 +67,8 @@ class InstanceAllFieldValuesProcessorTest {
   @Test
   void getFieldValue_positive_identifiers() {
     var actual = processor.getFieldValue(toMap(new Instance().identifiers(List.of(
-      new InstanceIdentifiers().identifierTypeId(randomId()).value("978-1-56619-909-4"),
-      new InstanceIdentifiers().identifierTypeId(randomId()).value("1-56619-909-3")))));
+      new Identifiers().identifierTypeId(randomId()).value("978-1-56619-909-4"),
+      new Identifiers().identifierTypeId(randomId()).value("1-56619-909-3")))));
     assertThat(actual).isEqualTo(MultilangValue.of(
       newLinkedHashSet("978-1-56619-909-4", "1-56619-909-3"), emptySet()));
     verify(searchFieldProvider, times(2)).isMultilangField(INSTANCE_RESOURCE, "identifiers.value");

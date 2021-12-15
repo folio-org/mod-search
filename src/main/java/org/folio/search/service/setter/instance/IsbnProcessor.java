@@ -5,20 +5,17 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.isbn.IsbnUtil.convertTo13DigitNumber;
 import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
-import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
@@ -63,12 +60,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    var identifierTypeIds = fetchIdentifierIdsFromCache();
-
-    return toStreamSafe(instance.getIdentifiers())
-      .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
-      .map(InstanceIdentifiers::getValue)
-      .filter(Objects::nonNull)
+    return filterIdentifiersValue(instance.getIdentifiers()).stream()
       .map(this::normalizeIsbn)
       .flatMap(Collection::stream)
       .collect(toCollection(LinkedHashSet::new));

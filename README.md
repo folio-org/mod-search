@@ -5,16 +5,51 @@ Copyright (C) 2020-2021 The Open Library Foundation
 This software is distributed under the terms of the Apache License,
 Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
+## Table of contents
+
+* [Introduction](#introduction)
+* [Compiling](#compiling)
+* [Docker](#docker)
+* [Multi-language search support](#multi-language-search-support)
+* [Deploying the module](#deploying-the-module)
+* [Environment variables](#environment-variables)
+* [Data indexing](#data-indexing)
+* [Supported search types](#supported-search-types)
+  * [Instance search options](#instance-search-options)
+  * [Item search options](#items-search-options)
+  * [Holding record search options](#holdings-records-search-options)
+  * [Authority search options](#authority-search-options)
+* [Search facets](#search-facets)
+* [Sorting results](#sorting-results)
+* [Search Options](#search-options)
+* [Additional information](#additional-information)
+
 ## Introduction
 
-FOLIO search project.
+This module provides a search functionality for instance and authorities via REST API. It uses
+[The Contextual Query Language](https://www.loc.gov/standards/sru/cql/) as a formal language to query
+records using filters, boolean conditions, etc.
 
-## Building
+## Compiling
 
-### Running integration tests
+```shell
+mvn install
+```
+See that it says "BUILD SUCCESS" near the end.
 
-The module uses [Testcontainers](https://www.testcontainers.org/) to run Elasticsearch in embedded mode.
-It is required to have Docker installed and available on the host where the tests are executed.
+## Docker
+
+Build the docker container with:
+
+```shell
+docker build -t mod-search .
+```
+
+Test that it runs with:
+
+```shell
+docker run -t -i -p 8081:8081 mod-search
+```
 
 ## Multi-language search support
 
@@ -55,7 +90,7 @@ These languages will be added on tenant init and applied to index. Example usage
 `INITIAL_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined, only
 `eng` code is added.
 
-## Deploying
+## Deploying the module
 
 ## Configuring Elasticsearch
 
@@ -69,7 +104,7 @@ It is required to install some required plugins for your ES instance, here is th
 * analysis-phonetic
 
 You can find sample Dockerfile in `docker/elasticsearch/Dockerfile` or install plugins manually:
-```bash
+```shell
 ${ES_HOME}/bin/elasticsearch-plugin install --batch \
   analysis-icu \
   analysis-kuromoji \
@@ -80,7 +115,7 @@ ${ES_HOME}/bin/elasticsearch-plugin install --batch \
 
 See also [Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docker.html).
 
-There is an alternative ES image from Bitname - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
+There is an alternative ES image from Bitnami - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
 that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to install.
 
 For production installations it is strongly recommended enabling security for instance and set-up user/password. The user
@@ -151,13 +186,14 @@ In order to configure connection to elasticsearch you have to provide following 
   for more details about ES security).
 
 ### Tenant attributes
+
 It is possible to define specific tenant parameters during module's initialization for particular tenant.
 
 | Tenant parameter | Default value | Description                                                                       |
 |:-----------------|:-------------:|:----------------------------------------------------------------------------------|
 | runReindex       |     false     | Start reindex procedure automatically after module will be enabled for the tenant |
 
-## Indexing
+## Data Indexing
 
 ### Recreating Elasticsearch index
 
@@ -195,6 +231,17 @@ In order to estimate total records that actually added to the index, you can sen
 `totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
 see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
 
+## API
+
+Module exposes next API for searching:
+
+| METHOD | URL                           | DESCRIPTION                                                        |
+|:-------|:------------------------------|:-------------------------------------------------------------------|
+| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records |
+| GET    | `/search/authorities`         | Search by authority records                                        |
+| GET    | `/search/{recordType}/facets` | Get facets for the record with `${recordType}`                     |
+| GET    | `/search/instances/ids`       | Stream instance ids as JSON or plain text                          |
+| GET    | `/search/holdings/ids`        | Stream holding record ids as JSON or plain text                    |
 
 ## Supported search types
 
@@ -223,6 +270,8 @@ In mod-search there are two main types of searchable fields:
 1. _Full text_ capable fields (aka. multi-lang fields) - analyzed and preprocessed fields;
 2. _Term_ fields (keywords, bool, date fields, etc.) - non-analyzed fields.
 
+### CQL query operators
+
 Depending on field type, CQL operators will be handled in different ways or not supported at all.
 Here is table of supported operators.
 
@@ -239,9 +288,9 @@ Here is table of supported operators.
 
 Here is a table with supported search options.
 
-### Search Options
+## Search Options
 
-#### Matching all records
+### Matching all records
 
 A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest option)
 or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query,
@@ -250,7 +299,7 @@ for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending
 - `cql.allRecords=1 NOT contributors=Smith` matches all records where contributors name does not contain `Smith`
 as a word.
 
-#### Matching undefined or empty values
+### Matching undefined or empty values
 
 A relation does not match if the value on the left-hand side is undefined.
 A negation (using NOT) of a relation matches if the value on the left-hand side is not defined or
@@ -263,7 +312,7 @@ if it is defined but doesn't match.
 - `name="" NOT name==""` matches all records where name is defined and not empty.
 - `languages == "[]"` for matching records where lang is defined and an empty array
 
-#### Instance search options
+### Instance search options
 
 | Option                                 |   Type    | Example                                                           | Description                                                                                                          |
 |:---------------------------------------|:---------:|:------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
@@ -303,7 +352,7 @@ if it is defined but doesn't match.
 | `issn`                                 |   term    | `issn="1234*943"`                                                 | Matches instances that have an ISSN  identifier with the given value                                                 |
 
 
-#### Holdings-records search options
+### Holdings-records search options
 
 | Option                                 |   Type    | Example                                              | Description                                                                                            |
 |:---------------------------------------|:---------:|:-----------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
@@ -323,7 +372,7 @@ if it is defined but doesn't match.
 | `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.hrid`, `holdings.formerIds`                                  |
 
 
-#### Items search options
+### Items search options
 
 | Option                              |   Type    | Example                                                      | Description                                                                                            |
 |:------------------------------------|:---------:|:-------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
@@ -413,7 +462,7 @@ does not produce any values, so the following search options will return an empt
 | `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values                    |
 | `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values                   |
 
-### Search Facets
+## Search Facets
 
 Facets can be retrieved by using following API `GET /{recordType}/facets`. It consumes following request parameters:
 
@@ -435,7 +484,7 @@ or
 GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 ```
 
-#### Instance facets
+### Instance facets
 
 | Option                   |  Type   | Description                                                          |
 |:-------------------------|:-------:|:---------------------------------------------------------------------|
@@ -450,7 +499,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `discoverySuppress`      | boolean | Requests a discovery suppress facet                                  |
 | `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, items facet |
 
-#### Holding facets
+### Holding facets
 
 | Option                         | Type | Description                                    |
 |:-------------------------------|:----:|:-----------------------------------------------|
@@ -459,7 +508,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `holdings.sourceId`            | term | Requests a holding sourceId facet              |
 | `holdingTags`                  | term | Requests a holding tag facet                   |
 
-#### Item facets
+### Item facets
 
 | Option                      |  Type   | Description                                  |
 |:----------------------------|:-------:|:---------------------------------------------|
@@ -469,13 +518,13 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
 | `itemTags`                  |  term   | Requests an item tag facet                   |
 
-#### Authority facets
+### Authority facets
 
 | Option        | Type | Description                   |
 |:--------------|:----:|:------------------------------|
 | `headingType` | term | Requests a heading type facet |
 
-### Sorting results
+## Sorting results
 
 The default sorting is by relevancy. The `sortBy` clause is used to define sorting, for example:
 ```
@@ -483,7 +532,7 @@ title all "semantic web" sortBy title/sort.descending - sort by title in descend
 ```
 In case where options are similar, secondary sort is used
 
-#### Instance sort options
+### Instance sort options
 
 | Option              |   Type    | Secondary sort | Description                    |
 |:--------------------|:---------:|:---------------|:-------------------------------|
@@ -491,10 +540,36 @@ In case where options are similar, secondary sort is used
 | `contributors`      |   term    | relevancy      | Sort instances by contributors |
 | `items.status.name` |   term    | `title`        | Sort instances by status       |
 
-#### Authority sort options
+### Authority sort options
 
 | Option        | Type | Secondary sort | Description                             |
 |:--------------|:----:|:---------------|:----------------------------------------|
 | `headingRef`  | term | relevancy      | Sort authorities by Heading/Reference   |
 | `headingType` | term | `headingRef`   | Sort authorities by Type of heading     |
 | `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
+
+
+## Additional Information
+
+### Issue tracker
+
+See project [MSEARCH](https://issues.folio.org/browse/MSEARCH)
+at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker/).
+
+### API Documentation
+
+This module's [API documentation](https://dev.folio.org/reference/api/#mod-search).
+
+### Code analysis
+
+[SonarQube analysis](https://sonarcloud.io/dashboard?id=org.folio%3Amod-search).
+
+### Download and configuration
+
+The built artifacts for this module are available.
+See [configuration](https://dev.folio.org/download/artifacts) for repository access,
+and the [Docker image](https://hub.docker.com/r/folioorg/mod-search/)
+
+### Development tips
+
+The development tips are described on the following page: [Development tips](DEVELOPMENT.md)

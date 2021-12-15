@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +22,9 @@ public class LccnProcessor extends AbstractIdentifierProcessor<Authority> {
   /**
    * Used by dependency injection.
    *
-   * @param referenceDataService {@link InstanceReferenceDataService} bean
+   * @param referenceDataService {@link ReferenceDataService} bean
    */
-  public LccnProcessor(InstanceReferenceDataService referenceDataService) {
+  public LccnProcessor(ReferenceDataService referenceDataService) {
     super(referenceDataService, LCCN_IDENTIFIER_NAMES);
   }
 

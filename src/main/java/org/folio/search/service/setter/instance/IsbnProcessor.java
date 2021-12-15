@@ -18,7 +18,7 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 /**
@@ -53,9 +53,9 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
   /**
    * Used by dependency injection.
    *
-   * @param referenceDataService {@link InstanceReferenceDataService} bean
+   * @param referenceDataService {@link ReferenceDataService} bean
    */
-  public IsbnProcessor(InstanceReferenceDataService referenceDataService) {
+  public IsbnProcessor(ReferenceDataService referenceDataService) {
     super(referenceDataService, ISBN_IDENTIFIER_NAMES);
   }
 

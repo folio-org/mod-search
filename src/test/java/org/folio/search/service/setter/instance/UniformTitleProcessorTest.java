@@ -2,9 +2,12 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.ALTERNATIVE_TITLE_TYPES;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
@@ -13,9 +16,10 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,18 +34,27 @@ class UniformTitleProcessorTest {
 
   private static final String UNIFORM_TITLE_TYPE_ID = randomId();
   private static final String SIMPLE_TITLE_TYPE_ID = randomId();
+  private static final List<String> UNIFORM_TITLES = singletonList("Uniform Title");
 
   @InjectMocks private UniformTitleProcessor uniformTitleProcessor;
-  @Mock private InstanceReferenceDataService referenceDataService;
+  @Mock private ReferenceDataService referenceDataService;
 
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
-    var uniformTitles = singletonList("Uniform Title");
-    when(referenceDataService.fetchAlternativeTitleIds(uniformTitles)).thenReturn(singleton(UNIFORM_TITLE_TYPE_ID));
+    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, UNIFORM_TITLES))
+      .thenReturn(singleton(UNIFORM_TITLE_TYPE_ID));
     var actual = uniformTitleProcessor.getFieldValue(instance);
     assertThat(actual).containsExactlyElementsOf(expected);
+  }
+
+  @Test
+  void getFieldValue_negative() {
+    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, UNIFORM_TITLES)).thenReturn(emptySet());
+    var actual = uniformTitleProcessor.getFieldValue(new Instance().id(RESOURCE_ID)
+      .alternativeTitles(List.of(alternativeTitle(UNIFORM_TITLE_TYPE_ID, "value"))));
+    assertThat(actual).isEmpty();
   }
 
   private static Stream<Arguments> testDataProvider() {

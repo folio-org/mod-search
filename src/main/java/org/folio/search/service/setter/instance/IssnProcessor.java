@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +21,9 @@ public class IssnProcessor extends AbstractIdentifierProcessor<Instance> {
   /**
    * Used by dependency injection.
    *
-   * @param referenceDataService {@link InstanceReferenceDataService} bean
+   * @param referenceDataService {@link ReferenceDataService} bean
    */
-  public IssnProcessor(InstanceReferenceDataService referenceDataService) {
+  public IssnProcessor(ReferenceDataService referenceDataService) {
     super(referenceDataService, ISSN_IDENTIFIER_NAMES);
   }
 

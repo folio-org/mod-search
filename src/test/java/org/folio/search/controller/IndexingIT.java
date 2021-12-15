@@ -2,7 +2,7 @@ package org.folio.search.controller;
 
 import static java.util.stream.Collectors.toList;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
@@ -148,7 +148,7 @@ class IndexingIT extends BaseIntegrationTest {
   }
 
   private static void assertCountByQuery(String path, String query, Object value, int expectedCount) {
-    await().atMost(ONE_MINUTE).pollInterval(FIVE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       doSearch(path, prepareQuery(query, String.valueOf(value)))
         .andExpect(jsonPath("totalRecords", is(expectedCount))));
   }

@@ -5,6 +5,7 @@ import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
@@ -59,6 +60,7 @@ import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.SearchType;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.web.servlet.ResultActions;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -300,7 +302,7 @@ public class TestUtils {
   }
 
   public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
-    return new Instance().identifiers(identifiers != null ? asList(identifiers) : null);
+    return new Instance().id(RESOURCE_ID).identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
   public static AuthorityIdentifiers authorityIdentifier(String id, String value) {
@@ -327,6 +329,10 @@ public class TestUtils {
 
   public static void removeEnvProperty() {
     clearProperty("env");
+  }
+
+  public static void cleanUpCaches(CacheManager cacheManager) {
+    cacheManager.getCacheNames().forEach(name -> requireNonNull(cacheManager.getCache(name)).clear());
   }
 
   @Data

@@ -1,7 +1,9 @@
 package org.folio.search.service.setter.authority;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
 import static org.folio.search.utils.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.authorityIdentifier;
 import static org.folio.search.utils.TestUtils.authorityWithIdentifiers;
@@ -14,9 +16,10 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,7 +35,7 @@ class LccnProcessorTest {
   @InjectMocks
   private LccnProcessor lccnProcessor;
   @Mock
-  private InstanceReferenceDataService referenceDataService;
+  private ReferenceDataService referenceDataService;
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")
@@ -40,12 +43,19 @@ class LccnProcessorTest {
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority,
                                    List<String> expected) {
     if (CollectionUtils.isNotEmpty(authority.getIdentifiers())) {
-      var lccnIdentifierId = Set.of(LCCN_IDENTIFIER_TYPE_ID);
-      when(referenceDataService.fetchIdentifierIds(lccnProcessor.getIdentifierNames())).thenReturn(lccnIdentifierId);
+      var identifiers = Set.of(LCCN_IDENTIFIER_TYPE_ID);
+      mockFetchReferenceData(identifiers);
     }
 
     var actual = lccnProcessor.getFieldValue(authority);
     assertThat(actual).containsExactlyElementsOf(expected);
+  }
+
+  @Test
+  void getFieldValue_negative_failedToLoadReferenceData() {
+    mockFetchReferenceData(emptySet());
+    var actual = lccnProcessor.getFieldValue(authorityWithIdentifiers(lccn("123456")));
+    assertThat(actual).isEmpty();
   }
 
   private static Stream<Arguments> lccnDataProvider() {
@@ -62,5 +72,10 @@ class LccnProcessorTest {
 
   private static AuthorityIdentifiers lccn(String value) {
     return authorityIdentifier(LCCN_IDENTIFIER_TYPE_ID, value);
+  }
+
+  private void mockFetchReferenceData(Set<String> referenceData){
+    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, lccnProcessor.getIdentifierNames()))
+      .thenReturn(referenceData);
   }
 }

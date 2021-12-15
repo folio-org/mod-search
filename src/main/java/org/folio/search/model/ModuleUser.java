@@ -6,7 +6,7 @@ import lombok.With;
 
 @Getter
 @Builder
-public class SystemUser {
+public class ModuleUser {
   private final String username;
   @With
   private final String token;

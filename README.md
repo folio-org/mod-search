@@ -164,17 +164,61 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | KAFKA_AUTHORITY_TOPIC_PARTITIONS         | 50                        | Amount of partitions for authority topic.                                                                                                                                             |
 | KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR | -                         | Replication factor for authority topic.                                                                                                                                               |
 | INITIAL_LANGUAGES                        | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
-| SYSTEM_USER_PASSWORD                     | -                         | Password for `mod-search` system user (not required for dev envs)                                                                                                                     |
-| OKAPI_URL                                | -                         | OKAPI URL used to login system user, required                                                                                                                                         |
+| ~~SYSTEM_USER_PASSWORD~~                 | -                         | (DEPRECATED, use [module-user-configuration](#module-user-configuration) Password for `mod-search` system user (not required for dev envs)                                            |
+| MODULE_USER_STORE_TYPE                   | ephemeral                 | Module user store type                                                                                                                                                                |
+| MODULE_USER_CACHE_CAPACITY               | 100                       | Cache capacity for token cache.                                                                                                                                                       |
+| MODULE_USER_CACHE_TTL_MS                 | 3600000                   | Token cache ttl in ms.                                                                                                                                                                |
+| MODULE_USER_FAILURE_CACHE_TTL_MS         | 30000                     | Failure token cache ttl in ms.                                                                                                                                                        |
+| OKAPI_URL                                | -                         | OKAPI URL used to login module user, required                                                                                                                                         |
 | ENV                                      | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
 | SEARCH_BY_ALL_FIELDS_ENABLED             | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
 | SCROLL_QUERY_SIZE                        | 1000                      | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
 | STREAM_ID_RETRY_INTERVAL_MS              | 1000                      | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                 | 3                         | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
 
-The module uses system user to communicate with other modules from Kafka consumers.
-For production deployments you MUST specify the password for this system user via env variable:
-`SYSTEM_USER_PASSWORD=<password>`.
+
+### Module user configuration
+
+The module uses module user to communicate with other modules from Kafka consumers.
+
+#### Ephemeral module user configuration
+
+This configuration enables by setting `MODULE_USER_STORE_TYPE` to `ephemeral`. (This is the default option and must be
+overwritten for production deployments). This configuration is intended to be used ONLY for development purposes.
+
+| Name                              | Description                                                                                                |
+|:----------------------------------|:-----------------------------------------------------------------------------------------------------------|
+| MODULE_USER_EPHEMERAL_CREDENTIALS | Module user credentials as string in format `$tenant1:$username1:$password1,$tenant2:$username2:$password` |
+
+#### AWS module user configuration
+
+This configuration enables by setting `MODULE_USER_STORE_TYPE` to `aws_ssm`.
+
+| Name                                         | Description                                                                                                                                                                                                                                                                                                                                                                                                   |
+|:---------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MODULE_USER_AWS_SSM_REGION                   | The AWS region to pass to the AWS SSM Client Builder. If not set, the AWS Default Region Provider Chain is used to determine which region to use.                                                                                                                                                                                                                                                             |
+| MODULE_USER_AWS_SSM_USE_IAM                  | If true, will rely on the current IAM role for authorization instead of explicitly providing AWS credentials (access_key/secret_key).                                                                                                                                                                                                                                                                         |
+| MODULE_USER_AWS_SSM_ECS_CREDENTIALS_ENDPOINT | The HTTP endpoint to use for retrieving AWS credentials.                                                                                                                                                                                                                                                                                                                                                      |
+| MODULE_USER_AWS_SSM_ECS_CREDENTIALS_PATH     | The path component of the credentials' endpoint URI. > This value is appended to the credentials' endpoint to form the URI from which credentials can be obtained. ( If omitted, the value will be read from the AWS_CONTAINER_CREDENTIALS_RELATIVE_URI environment variable (standard on ECS containers))<br/>You won't typically need to set this unless using AwsParamStore from outside an ECS container. |
+
+##### Environment based AWS client configuration
+
+#### Vault module user configuration
+
+This configuration enables by setting `MODULE_USER_STORE_TYPE` to `vault`.
+
+| Name                                   | Description                                                                          |
+|:---------------------------------------|:-------------------------------------------------------------------------------------|
+| MODULE_USER_VAULT_TOKEN                | Token for accessing vault, may be a root token.                                      |
+| MODULE_USER_VAULT_ADDRESS              | The address of your vault. Default: `http://127.0.0.1:8200`                          |
+| MODULE_USER_VAULT_ENABLE_SSL           | Whether to use SSL. Default: `false`                                                 |
+| MODULE_USER_VAULT_KEYSTORE_PASSWORD    | The path to an X.509 certificate in unencrypted PEM format, using UTF-8 encoding.    |
+| MODULE_USER_VAULT_PEM_FILE_PATH        | The password used to access the JKS keystore (optional).                             |
+| MODULE_USER_VAULT_KEYSTORE_FILE_PATH   | The path to a JKS keystore file containing a client cert and private key.            |
+| MODULE_USER_VAULT_TRUSTSTORE_FILE_PATH | The path to a JKS truststore file containing Vault server certs that can be trusted. |
+
+**NOTE**: _JKS-based config trumps PEM-based config. If you provide both JKS and PEM configs, then the JKS config will
+be used. You cannot "mix-and-match", providing a JKS-based truststore and PEM-based client auth data._
 
 ### Configuring connection to elasticsearch
 

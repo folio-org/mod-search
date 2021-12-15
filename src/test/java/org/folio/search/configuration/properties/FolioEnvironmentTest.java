@@ -53,6 +53,15 @@ class FolioEnvironmentTest {
     var validationResponse = validator.validate(folioEnvironment);
     assertThat(validationResponse).isNotEmpty()
       .map(ConstraintViolation::getMessage)
-      .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
+      .containsExactly("Value must follow the pattern: '[\\w\\-]+'");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"folio", "folio-test", "folio_test", "folio123", "FOLIO_123"})
+  void validateEnvValue_positive(String env) {
+    var validator = Validation.buildDefaultValidatorFactory().getValidator();
+    var folioEnvironment = FolioEnvironment.of(env);
+    var validationResponse = validator.validate(folioEnvironment);
+    assertThat(validationResponse).isEmpty();
   }
 }

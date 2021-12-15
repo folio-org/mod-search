@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -14,7 +13,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.tenant.domain.dto.Parameter;
@@ -34,7 +32,6 @@ class SearchTenantServiceTest {
   @InjectMocks private SearchTenantService searchTenantService;
   @Mock private IndexService indexService;
   @Mock private FolioExecutionContext context;
-  @Mock private SystemUserService systemUserService;
   @Mock private LanguageConfigService languageConfigService;
   @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchConfigurationProperties searchConfigurationProperties;
@@ -44,7 +41,6 @@ class SearchTenantServiceTest {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
-    doNothing().when(systemUserService).prepareSystemUser();
 
     searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 
@@ -59,7 +55,6 @@ class SearchTenantServiceTest {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng", "fre"));
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
-    doNothing().when(systemUserService).prepareSystemUser();
 
     searchTenantService.initializeTenant(TENANT_ATTRIBUTES);
 

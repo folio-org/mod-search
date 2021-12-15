@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
@@ -14,8 +15,10 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -137,6 +140,25 @@ class CollectionUtilsTest {
   void getValueByPath_positive(String path, Map<String, Object> map, List<String> expected) {
     var actual = CollectionUtils.getValuesByPath(map, path);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @MethodSource("findFirstDataSource")
+  void findFirst_positive_parameterized(Collection<Object> given, Object expected) {
+    var actual = CollectionUtils.findFirst(given);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
+  private static Stream<Arguments> findFirstDataSource() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(List.of(1, 2, 3), 1),
+      arguments(List.of("str1", "str2"), "str1"),
+      arguments(null, null),
+      arguments(singletonList(null), null),
+      arguments(emptyList(), null),
+      arguments(emptySet(), null)
+    );
   }
 
   private static Stream<Arguments> getValueByPathTestDataProvider() {

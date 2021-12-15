@@ -13,6 +13,7 @@ public class TestConstants {
 
   public static final String ENV = "folio";
   public static final String TENANT_ID = "test_tenant";
+  public static final String MODULE_NAME = "mod-search";
   public static final String RESOURCE_ID = "d148dd82-56b0-4ddb-a638-83ca1ee97e0a";
   public static final String EMPTY_OBJECT = "{}";
   public static final String RESOURCE_NAME = getResourceName(TestResource.class);

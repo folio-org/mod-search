@@ -15,9 +15,6 @@ public interface AuthnClient {
   @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
   ResponseEntity<String> getApiKey(@RequestBody UserCredentials credentials);
 
-  @PostMapping(value = "/credentials", consumes = APPLICATION_JSON_VALUE)
-  void saveCredentials(@RequestBody UserCredentials credentials);
-
   @Data
   @AllArgsConstructor(staticName = "of")
   class UserCredentials {

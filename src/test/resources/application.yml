@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  mustache:
+    check-template-location: false
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -10,6 +12,8 @@ spring:
     rest:
       username: elastic
       password: s3cret
+  jpa:
+    open-in-view: false
   datasource:
     username: folio_admin
     password: password
@@ -22,7 +26,6 @@ spring:
     cache-names:
       - es-indices
       - reference-data-cache
-      - system-user-cache
       - tenant-languages
       - tenant-features
     caffeine:
@@ -36,11 +39,10 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search.all.fields: false
-  system-user:
-    username: mod-search
-    password: Mod-search-1-0-0
-    lastname: System
-    permissionsFilePath: permissions/test-permissions.csv
+  module-user:
+    store-type: ephemeral
+    ephemeral:
+      credentials: test_tenant:${spring.application.name}:qwerty
   stream-ids:
     scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
     retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}
@@ -57,5 +59,6 @@ application:
         group-id: ${application.environment}-mod-search-authorities-group
 
 logging:
+  config: classpath:logger/log4j2.xml
   level:
     org.apache.kafka.clients.consumer.*: warn

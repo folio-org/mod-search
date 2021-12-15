@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.empty;
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -76,6 +78,18 @@ public final class CollectionUtils {
       resultMap.put(keyMapper.apply(value), valueMapper.apply(value));
     }
     return resultMap;
+  }
+
+  /**
+   * Returns first element of the given collection.
+   *
+   * @param collection - collection to analyze
+   * @param <T> - generic type of collection elements
+   * @return {@link Optional} with first collection element, it will be empty if this element is null or given
+   *   collection is empty.
+   */
+  public static <T> Optional<T> findFirst(Collection<T> collection) {
+    return collection == null || collection.isEmpty() ? Optional.empty() : ofNullable(collection.iterator().next());
   }
 
   /**

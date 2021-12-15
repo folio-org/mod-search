@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  mustache:
+    check-template-location: false
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -29,11 +31,12 @@ spring:
     url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
+  jpa:
+    open-in-view: false
   cache:
     cache-names:
       - es-indices
       - reference-data-cache
-      - system-user-cache
       - tenant-languages
       - tenant-features
     caffeine:
@@ -45,11 +48,26 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     search-features:
       search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
-  system-user:
-    username: mod-search
-    password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}
-    lastname: System
-    permissionsFilePath: permissions/mod-search.csv
+  module-user:
+    store-type: ${MODULE_USER_STORE_TYPE:ephemeral}
+    cache-capacity: ${MODULE_USER_CACHE_CAPACITY:100}
+    cache-ttl-ms: ${MODULE_USER_CACHE_TTL_MS:3600000}
+    failure-cache-ttl-ms: ${MODULE_USER_FAILURE_CACHE_TTL_MS:30000}
+    ephemeral:
+      credentials: ${MODULE_USER_EPHEMERAL_CREDENTIALS:}
+    aws-ssm:
+      region: ${MODULE_USER_AWS_SSM_REGION:}
+      use-iam: ${MODULE_USER_AWS_SSM_USE_IAM:true}
+      ecs-credentials-endpoint: ${MODULE_USER_AWS_SSM_ECS_CREDENTIALS_ENDPOINT:}
+      ecs-credentials-path: ${MODULE_USER_AWS_SSM_ECS_CREDENTIALS_PATH:}
+    vault:
+      token: ${MODULE_USER_VAULT_TOKEN:}
+      address: ${MODULE_USER_VAULT_ADDRESS:}
+      enable-ssl: ${MODULE_USER_VAULT_ENABLE_SSL:false}
+      pem-file-path: ${MODULE_USER_VAULT_PEM_FILE_PATH:}
+      keystore-password: ${MODULE_USER_VAULT_KEYSTORE_PASSWORD:}
+      keystore-file-path: ${MODULE_USER_VAULT_KEYSTORE_FILE_PATH:}
+      truststore-file-path: ${MODULE_USER_VAULT_TRUSTSTORE_FILE_PATH:}
   stream-ids:
     scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
     retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}
@@ -71,3 +89,6 @@ server.port: 8081
 management.endpoints.web:
   base-path: /admin
   exposure.include: info,health,liquibase,threaddump,heapdump
+
+logging:
+  config: classpath:logger/log4j2.xml

@@ -252,6 +252,14 @@
       "description": "Removes feature configuration"
     }
   ],
+  "user": {
+    "type": "module",
+    "permissions": [
+      "inventory-storage.identifier-types.collection.get",
+      "inventory-storage.inventory-view.instances.collection.get",
+      "inventory-storage.alternative-title-types.collection.get"
+    ]
+  },
   "launchDescriptor": {
     "dockerImage": "@artifactId@:@version@",
     "dockerPull": false,
@@ -285,7 +293,22 @@
       { "name": "DB_CHARSET", "value": "UTF-8" },
       { "name": "DB_MAXPOOLSIZE", "value": "5" },
       { "name": "INITIAL_LANGUAGES", "value": "eng" },
-      { "name": "SYSTEM_USER_PASSWORD", "value": "Mod-search-1-0-0" }
+      { "name": "MODULE_USER_STORE_TYPE", "value": "ephemeral" },
+      { "name": "MODULE_USER_CACHE_CAPACITY", "value": "100" },
+      { "name": "MODULE_USER_CACHE_TTL_MS", "value": "3600000" },
+      { "name": "MODULE_USER_FAILURE_CACHE_TTL_MS", "value": "30000" },
+      { "name": "MODULE_USER_EPHEMERAL_CREDENTIALS", "value": "" },
+      { "name": "MODULE_USER_AWS_SSM_REGION", "value": "" },
+      { "name": "MODULE_USER_AWS_SSM_USE_IAM", "value": "true" },
+      { "name": "MODULE_USER_AWS_SSM_ECS_CREDENTIALS_ENDPOINT", "value": "" },
+      { "name": "MODULE_USER_AWS_SSM_ECS_CREDENTIALS_PATH", "value": "" },
+      { "name": "MODULE_USER_VAULT_TOKEN", "value": "" },
+      { "name": "MODULE_USER_VAULT_ADDRESS", "value": "" },
+      { "name": "MODULE_USER_VAULT_ENABLE_SSL", "value": "false" },
+      { "name": "MODULE_USER_VAULT_KEYSTORE_PASSWORD", "value": "" },
+      { "name": "MODULE_USER_VAULT_PEM_FILE_PATH", "value": "" },
+      { "name": "MODULE_USER_VAULT_KEYSTORE_FILE_PATH", "value": "" },
+      { "name": "MODULE_USER_VAULT_TRUSTSTORE_FILE_PATH", "value": "" }
     ]
   }
 }

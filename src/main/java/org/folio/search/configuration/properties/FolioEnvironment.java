@@ -22,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 public class FolioEnvironment {
 
   @NotEmpty
-  @Pattern(regexp = "[\\w0-9\\-_]+", message = "Value must follow the pattern: '[\\w0-9\\-_]+'")
+  @Pattern(regexp = "[\\w\\-]+", message = "Value must follow the pattern: '[\\w\\-]+'")
   private String environment;
 
   /**

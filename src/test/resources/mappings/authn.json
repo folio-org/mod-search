@@ -3,38 +3,21 @@
     {
       "request": {
         "method": "POST",
-        "url": "/authn/login"
+        "url": "/authn/login",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "username": "mod-search",
+              "password": "qwerty"
+            }
+          }
+        ]
       },
       "response": {
         "status": 200,
         "headers": {
           "Content-Type": "application/json",
-          "x-okapi-token": "aa.bb.cc"
-        }
-      }
-    },
-    {
-      "request": {
-        "method": "POST",
-        "url": "/perms/users"
-      },
-      "response": {
-        "status": 201,
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
-    },
-    {
-      "request": {
-        "method": "POST",
-        "url": "/authn/credentials"
-      },
-      "response": {
-        "status": 201,
-        "body": "",
-        "headers": {
-          "Content-Type": "application/json"
+          "x-okapi-token": "$okapiToken"
         }
       }
     }

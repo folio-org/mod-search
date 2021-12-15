@@ -10,7 +10,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.springframework.stereotype.Service;
@@ -24,14 +23,11 @@ public class SearchTenantService {
 
   private final IndexService indexService;
   private final FolioExecutionContext context;
-  private final SystemUserService systemUserService;
   private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
 
   public void initializeTenant(TenantAttributes tenantAttributes) {
-    systemUserService.prepareSystemUser();
-
     var existingLanguages = languageConfigService.getAllLanguageCodes();
 
     var initialLanguages = searchConfigurationProperties.getInitialLanguages();

@@ -1,17 +1,14 @@
 package org.folio.search.service;
 
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
-import org.folio.search.model.SystemUser;
-import org.folio.search.service.context.FolioExecutionContextBuilder;
-import org.folio.search.service.systemuser.SystemUserService;
+import org.folio.search.configuration.properties.ModuleConfigurationProperties;
+import org.folio.search.service.systemuser.ModuleUserProvider;
 import org.folio.search.utils.types.UnitTest;
-import org.folio.spring.DefaultFolioExecutionContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,25 +20,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TenantScopedExecutionServiceTest {
 
   @InjectMocks private TenantScopedExecutionService tenantScopedExecutionService;
-  @Mock private FolioExecutionContextBuilder contextBuilder;
-  @Mock private SystemUserService systemUserService;
+  @Mock private ModuleUserProvider moduleUserProvider;
+  @Mock private ModuleConfigurationProperties moduleConfigurationProperties;
 
   @Test
   void executeTenantScoped_positive() {
-    var systemUser = SystemUser.builder().build();
-    when(systemUserService.getSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
-
+    when(moduleUserProvider.getOkapiToken(TENANT_ID)).thenReturn("okapiToken");
+    when(moduleConfigurationProperties.getOkapiUrl()).thenReturn("http://localhost:8000");
     var actual = tenantScopedExecutionService.executeTenantScoped(TENANT_ID, () -> "result");
-
     assertThat(actual).isEqualTo("result");
   }
 
   @Test
   void executeTenantScoped_negative_throwsException() {
-    var systemUser = SystemUser.builder().build();
-    when(systemUserService.getSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(moduleUserProvider.getOkapiToken(TENANT_ID)).thenReturn("okapiToken");
+    when(moduleConfigurationProperties.getOkapiUrl()).thenReturn("http://localhost:8000");
 
     Callable<Object> callable = () -> {
       throw new Exception("error");

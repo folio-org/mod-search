@@ -1,6 +1,7 @@
 package org.folio.search.configuration;
 
 import static java.util.Collections.singletonList;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.mockito.Mockito.verify;
@@ -20,16 +21,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class FeignRequestInterceptorTest {
 
   @InjectMocks private FeignRequestInterceptor requestInterceptor;
-  @Mock private FolioExecutionContext folioExecutionContext;
   @Mock private RequestTemplate requestTemplate;
+  @Mock private FolioExecutionContext folioExecutionContext;
 
   @Test
   void apply_positive() {
     when(folioExecutionContext.getToken()).thenReturn("token");
-    when(folioExecutionContext.getTenantId()).thenReturn("tenantId");
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     requestInterceptor.apply(requestTemplate);
 
     verify(requestTemplate).header(TOKEN, singletonList("token"));
-    verify(requestTemplate).header(TENANT, singletonList("tenantId"));
+    verify(requestTemplate).header(TENANT, singletonList(TENANT_ID));
   }
 }

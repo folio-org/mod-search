@@ -8,6 +8,7 @@ import static org.folio.isbn.IsbnUtil.isValid10DigitNumber;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -67,7 +68,8 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
       .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
       .map(InstanceIdentifiers::getValue)
       .filter(Objects::nonNull)
-      .map(String::trim)
+      .map(this::normalizeIsbn)
+      .flatMap(Collection::stream)
       .collect(toCollection(LinkedHashSet::new));
   }
 

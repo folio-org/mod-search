@@ -84,7 +84,7 @@ class IssnProcessorTest {
     return identifier(INVALID_ISSN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private void mockFetchReferenceData(Set<String> referenceData){
+  private void mockFetchReferenceData(Set<String> referenceData) {
     when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, issnProcessor.getIdentifierNames()))
       .thenReturn(referenceData);
   }

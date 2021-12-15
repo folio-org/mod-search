@@ -32,10 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LccnProcessorTest {
 
-  @InjectMocks
-  private LccnProcessor lccnProcessor;
-  @Mock
-  private ReferenceDataService referenceDataService;
+  @InjectMocks private LccnProcessor lccnProcessor;
+  @Mock private ReferenceDataService referenceDataService;
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")
@@ -74,7 +72,7 @@ class LccnProcessorTest {
     return authorityIdentifier(LCCN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private void mockFetchReferenceData(Set<String> referenceData){
+  private void mockFetchReferenceData(Set<String> referenceData) {
     when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, lccnProcessor.getIdentifierNames()))
       .thenReturn(referenceData);
   }

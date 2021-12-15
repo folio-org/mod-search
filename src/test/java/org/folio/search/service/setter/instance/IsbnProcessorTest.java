@@ -117,7 +117,7 @@ class IsbnProcessorTest {
     return identifier(INVALID_ISBN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private void mockFetchReferenceData(Set<String> referenceData){
+  private void mockFetchReferenceData(Set<String> referenceData) {
     when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnProcessor.getIdentifierNames()))
       .thenReturn(referenceData);
   }

@@ -1,3 +1,6 @@
+## 1.4.4 2021-xx-xx
+* Kiwi R3 2021 - Log4j vulnerability verification and correction (MSEARCH-255)
+
 ## 1.4.3 2021-08-06
 * Added  environment variable to support custom subscription pattern (MSEARCH-164)
 

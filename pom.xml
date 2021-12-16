@@ -43,7 +43,7 @@
     <lombok.version>1.18.16</lombok.version>
     <testcontainer.version>1.15.2</testcontainer.version>
     <wiremock.version>2.27.2</wiremock.version>
-    <log4j2.version>2.15.0</log4j2.version>
+    <log4j2.version>2.16.0</log4j2.version>
     <spring-cloud-starter-openfeign.version>3.0.2</spring-cloud-starter-openfeign.version>
   </properties>
 

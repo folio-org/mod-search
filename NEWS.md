@@ -1,3 +1,6 @@
+## 1.5.4 2021-xx-xx
+* Kiwi R3 2021 - Log4j vulnerability verification and correction (MSEARCH-255)
+
 ## 1.5.3 2021-11-18
 * Added retry mechanism for streaming ids
 

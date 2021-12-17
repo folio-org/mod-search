@@ -1,5 +1,5 @@
 ## 1.4.4 2021-xx-xx
-* Log4j vulnerability verification and correction (MSEARCH-255)
+* Log4j vulnerability verification and correction (MSEARCH-257)
 
 ## 1.4.3 2021-08-06
 * Added  environment variable to support custom subscription pattern (MSEARCH-164)

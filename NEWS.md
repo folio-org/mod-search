@@ -1,4 +1,4 @@
-## 1.4.4 2021-xx-xx
+## 1.4.4 2021-12-17
 * Log4j vulnerability verification and correction (MSEARCH-257)
 
 ## 1.4.3 2021-08-06

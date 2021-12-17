@@ -23,6 +23,7 @@ public class TestConstants {
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
 
+  public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();

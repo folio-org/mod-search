@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class UniformTitleProcessorTest {
   private static final List<String> UNIFORM_TITLES = singletonList("Uniform Title");
 
   @InjectMocks private UniformTitleProcessor uniformTitleProcessor;
-  @Mock private InstanceReferenceDataService referenceDataService;
+  @Mock private ReferenceDataService referenceDataService;
 
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")

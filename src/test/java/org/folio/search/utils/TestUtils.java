@@ -38,11 +38,12 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -295,12 +296,16 @@ public class TestUtils {
     return new Tags().tagList(tagValues != null ? asList(tagValues) : null);
   }
 
-  public static InstanceIdentifiers identifier(String id, String value) {
-    return new InstanceIdentifiers().identifierTypeId(id).value(value);
+  public static Identifiers identifier(String id, String value) {
+    return new Identifiers().identifierTypeId(id).value(value);
   }
 
-  public static Instance instanceWithIdentifiers(InstanceIdentifiers... identifiers) {
+  public static Instance instanceWithIdentifiers(Identifiers... identifiers) {
     return new Instance().id(RESOURCE_ID).identifiers(identifiers != null ? asList(identifiers) : null);
+  }
+
+  public static Authority authorityWithIdentifiers(Identifiers... identifiers) {
+    return new Authority().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
   public static Map<String, Object> toMap(Object value) {

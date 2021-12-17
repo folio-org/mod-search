@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class InstanceReferenceDataService {
+public class ReferenceDataService {
 
   private final InventoryReferenceDataClient inventoryReferenceDataClient;
 

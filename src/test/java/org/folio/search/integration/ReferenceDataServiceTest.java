@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.client.cql.CqlQuery;
-import org.folio.search.integration.InstanceReferenceDataServiceTest.TestContextConfiguration;
+import org.folio.search.integration.ReferenceDataServiceTest.TestContextConfiguration;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.utils.types.UnitTest;
@@ -47,11 +47,11 @@ import org.springframework.context.annotation.Import;
 
 @UnitTest
 @Import(TestContextConfiguration.class)
-@SpringBootTest(classes = InstanceReferenceDataService.class, webEnvironment = NONE)
-class InstanceReferenceDataServiceTest {
+@SpringBootTest(classes = ReferenceDataService.class, webEnvironment = NONE)
+class ReferenceDataServiceTest {
 
   @Autowired private CacheManager cacheManager;
-  @Autowired private InstanceReferenceDataService referenceDataService;
+  @Autowired private ReferenceDataService referenceDataService;
   @MockBean private InventoryReferenceDataClient inventoryReferenceDataClient;
 
   @BeforeEach

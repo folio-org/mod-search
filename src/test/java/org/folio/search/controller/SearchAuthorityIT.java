@@ -182,10 +182,25 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftGenreTerm = {value}", "\"saft term\""),
       arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
 
-      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "\"a subject heading\""),
-      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "subject"),
-      arguments("subjectHeadings == {value} and personalName==\"Gary\"", "\"a sub*\"")
+      arguments(specifyCommonField("lccn = {value}"), "3745-1086"),
+      arguments(specifyCommonField("lccn = {value}"), "3745*"),
+
+      arguments(specifyCommonField("identifiers.value == {value}"), "authority-identifier"),
+      arguments(specifyCommonField("identifiers.value all {value}"), "311417*"),
+      arguments(specifyCommonField("identifiers.value all {value}"), "*1086"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier or 3114176276 or 0000-0000"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier and 3114176276 and 3745-1086"),
+
+      arguments(specifyCommonField("subjectHeadings all {value}"), "\"a subject heading\""),
+      arguments(specifyCommonField("subjectHeadings all {value}"), "subject"),
+      arguments(specifyCommonField("subjectHeadings == {value}"), "\"a sub*\"")
     );
+  }
+
+  private static String specifyCommonField(String query) {
+    return query + " and sftPersonalName==\"*personal name\"";
   }
 
   private static Authority authority(String headingType, String authRefType, String headingRef) {

@@ -289,11 +289,16 @@
       "index": "source",
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
-      "showInResponse": true,
       "rawProcessing": true,
+      "showInResponse": true,
       "mappings": {
         "copy_to": [ "sort_headingRef" ]
       }
+    },
+    "lccn": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "lccnProcessor"
     }
   },
   "mappingsSource": { },

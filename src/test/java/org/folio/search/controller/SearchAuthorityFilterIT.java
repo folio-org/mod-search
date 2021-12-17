@@ -96,9 +96,9 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
         List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", List.of(IDS[4])),
 
-      arguments("(metadata.createdDate>= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate >= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate > 2021-03-01) ", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
+      arguments("(metadata.createdDate >= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
         List.of(IDS[0], IDS[2])),
 
       arguments("(metadata.updatedDate >= 2021-03-14) ", List.of(IDS[2], IDS[3])),

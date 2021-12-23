@@ -156,6 +156,26 @@ class SearchRepositoryTest {
       .hasMessage("Failed to perform multi-search operation [errors: [all-shards failed]]");
   }
 
+  @Test
+  void msearch_negative_onlyOneSearchResponseReturned() throws IOException {
+    var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
+    var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
+    var multiSearchRequest = new MultiSearchRequest();
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+
+    var multiSearchResponse = mock(MultiSearchResponse.class);
+    when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
+    when(multiSearchResponse.getResponses()).thenReturn(array(mock(Item.class)));
+
+    var searchRequest = searchServiceRequest(TestResource.class, "query");
+    var searchSources = List.of(searchSource1, searchSource2);
+
+    assertThatThrownBy(() -> searchRepository.msearch(searchRequest, searchSources))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to perform multi-search operation [errors: []]");
+  }
+
   private static List<String> randomIds() {
     return IntStream.range(0, 10).mapToObj(i -> randomId()).collect(toList());
   }

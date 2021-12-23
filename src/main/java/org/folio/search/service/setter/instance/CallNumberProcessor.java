@@ -82,7 +82,7 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
   }
 
   private static long getClassificationNumberAsNumber(String shelvingOrder, String classificationNumber) {
-    if (!classificationNumber.matches("[0-9]+(\\.[0-9]+)?")) {
+    if (!classificationNumber.matches("\\d+(\\.\\d+)?")) {
       return logAndReturnDefaultValue(shelvingOrder, "classification value");
     }
 
@@ -102,7 +102,7 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
   }
 
   private static long getCutterNumberAsNumber(String shelvingOrder, String cutter, int numPrecision) {
-    if (!cutter.matches("[A-Z][0-9]+")) {
+    if (!cutter.matches("[A-Z]\\d+")) {
       return logAndReturnDefaultValue(shelvingOrder, "cutter");
     }
     return getCharAsNumber(cutter.charAt(0)) * (long) pow(10, numPrecision)

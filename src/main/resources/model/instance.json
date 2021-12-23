@@ -317,6 +317,19 @@
               "index": "bool"
             }
           }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            }
+          }
         }
       }
     },
@@ -383,6 +396,19 @@
             },
             "staffOnly": {
               "index": "bool"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
             }
           }
         }

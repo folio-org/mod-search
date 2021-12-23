@@ -370,6 +370,8 @@ if it is defined but doesn't match.
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
 | `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
 | `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.hrid`, `holdings.formerIds`                                  |
+| `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                                              |
+| `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                                              |
 
 
 ### Items search options
@@ -394,6 +396,8 @@ if it is defined but doesn't match.
 | `items.circulationNotes.note`       | full-text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes                                                                       |
 | `itemPublicNotes`                   | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                      |
 | `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.hrid`, `items.formerIds`, `items.accessionNumber`                   |
+| `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                              |
+| `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                              |
 
 ### Authority search options
 

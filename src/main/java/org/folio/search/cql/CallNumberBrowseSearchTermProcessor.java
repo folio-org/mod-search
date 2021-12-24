@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CallNumberBrowseSearchTermProcessor implements SearchTermProcessor {
 
-  private static final String SHELF_KEY_REGEX = "([A-Z]{1,2})\\s(\\d+(\\.\\d+)?)(\\s[A-Z]\\d+)*(.*)";
+  private static final String SHELF_KEY_REGEX = "([A-Z]{1,2})\\s(\\d+(\\.\\d+)?)(\\s[A-Z]\\d+){0,2}(.*)";
   private static final Pattern SHELF_KEY_PATTERN = Pattern.compile(SHELF_KEY_REGEX);
 
   private final CallNumberProcessor callNumberProcessor;

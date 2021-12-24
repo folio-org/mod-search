@@ -41,6 +41,7 @@ import org.folio.search.cql.CqlQueryParser;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CallNumberBrowseRequest;
@@ -92,7 +93,7 @@ class CallNumberBrowseServiceTest {
     assertThat(actual).isEqualTo(SearchResult.of(5, List.of(
       cnBrowseItem(instance("A 12"), "A 12"),
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(0, "B"),
+      cnBrowseItem(0, "B", null),
       cnBrowseItem(instance("C 11"), "C 11"),
       cnBrowseItem(instance("C 12"), "C 12")
     )));
@@ -112,6 +113,7 @@ class CallNumberBrowseServiceTest {
       withFilters(precedingSearchSource(4), filterQuery),
       withFilters(succeedingSearchSource(6), filterQuery));
 
+    when(callNumberProcessor.getCallNumberAsLong("B")).thenReturn(ANCHOR);
     prepareMocksForBrowsingAround(request, esQuery, searchSources,
       searchResult(instance("A 11")), searchResult(instance("B"), instance("C 11")));
 
@@ -119,7 +121,7 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(SearchResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("B"), "<mark>B</mark>"),
+      cnBrowseItem(instance("B"), "<mark>B</mark>", "B"),
       cnBrowseItem(instance("C 11"), "C 11")
     )));
 
@@ -136,11 +138,12 @@ class CallNumberBrowseServiceTest {
       List.of(precedingSearchSource(4), succeedingSearchSource(6)),
       searchResult(instance("A 11")), searchResult(instance("B"), instance("C 11")));
 
+    when(callNumberProcessor.getCallNumberAsLong("B")).thenReturn(ANCHOR);
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
     assertThat(actual).isEqualTo(SearchResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("B"), "<mark>B</mark>"),
+      cnBrowseItem(instance("B"), "<mark>B</mark>", "B"),
       cnBrowseItem(instance("C 11"), "C 11")
     )));
 
@@ -159,7 +162,8 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance("A"), "A"), cnBrowseItem(0, "B"))));
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(
+      instance("A"), "A"), cnBrowseItem(0, "B", null))));
 
     verify(cqlQueryParser).parseCqlQuery(query, RESOURCE_NAME);
     verify(queryConfiguration, times(2)).getRangeQueryLimitMultiplier();
@@ -442,7 +446,11 @@ class CallNumberBrowseServiceTest {
   }
 
   private static Instance instance(String... shelfKeys) {
-    var items = stream(shelfKeys).map(shelfKey -> new Item().effectiveShelvingOrder(shelfKey)).collect(toList());
+    var items = stream(shelfKeys)
+      .map(shelfKey -> new Item()
+        .effectiveShelvingOrder(shelfKey)
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey)))
+      .collect(toList());
     return new Instance().items(items);
   }
 

@@ -23,7 +23,7 @@ public class CallNumberServiceContext {
   private final RangeQueryBuilder precedingQuery;
   private final RangeQueryBuilder succeedingQuery;
   private final List<QueryBuilder> filters;
-  private final Long anchor;
+  private final long anchor;
 
   private final Integer precedingLimit;
   private final Integer succeedingLimit;

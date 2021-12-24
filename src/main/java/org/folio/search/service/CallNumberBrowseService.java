@@ -3,7 +3,7 @@ package org.folio.search.service;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_LANG;
@@ -13,15 +13,15 @@ import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.NUM
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
-import static org.folio.search.utils.CollectionUtils.toStreamSafe;
+import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -80,7 +80,6 @@ public class CallNumberBrowseService {
     return convertToSearchResult(searchResponse, context, context.isForwardBrowsing());
   }
 
-
   private SearchResult<CallNumberBrowseItem> browseByCallNumberAround(
     CallNumberBrowseRequest request, CallNumberServiceContext context) {
     var multiSearchResponse = searchRepository.msearch(request,
@@ -89,7 +88,7 @@ public class CallNumberBrowseService {
     var responses = multiSearchResponse.getResponses();
     var precedingResult = convertToSearchResult(responses[0].getResponse(), context, false);
     var succeedingResult = convertToSearchResult(responses[1].getResponse(), context, true);
-    highlightMatchingCallNumber(request, succeedingResult);
+    highlightMatchingCallNumber(request, context, succeedingResult);
 
     return SearchResult.of(
       precedingResult.getTotalRecords() + succeedingResult.getTotalRecords(),
@@ -135,61 +134,73 @@ public class CallNumberBrowseService {
 
   private CallNumberBrowseItem mapToCallNumberBrowseItem(
     CallNumberServiceContext ctx, boolean isForwardBrowsing, Instance instance) {
-    return new CallNumberBrowseItem()
-      .callNumber(getCallNumber(instance, ctx, isForwardBrowsing))
-      .instance(instance)
-      .totalRecords(1);
+    var item = getShelfKey(instance, ctx, isForwardBrowsing);
+    var callNumberBrowseItem = new CallNumberBrowseItem().instance(instance).totalRecords(1);
+
+    if (item != null) {
+      callNumberBrowseItem.shelfKey(item.getEffectiveShelvingOrder());
+      var cn = item.getEffectiveCallNumberComponents();
+      if (cn != null) {
+        callNumberBrowseItem.fullCallNumber(getEffectiveCallNumber(cn.getPrefix(), cn.getCallNumber(), cn.getSuffix()));
+      }
+    }
+
+    return callNumberBrowseItem;
   }
 
-  private String getCallNumber(Instance instance, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
-    var callNumbers = toStreamSafe(instance.getItems())
-      .map(Item::getEffectiveShelvingOrder)
-      .filter(Objects::nonNull)
-      .collect(toList());
+  private Item getShelfKey(Instance instance, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
+    var items = instance.getItems();
+    if (CollectionUtils.isEmpty(items)) {
+      return null;
+    }
 
-    if (callNumbers.size() == 1) {
-      return callNumbers.get(0);
+    if (items.size() == 1) {
+      return items.get(0);
     }
 
     var isAnchorIncluded = isForwardBrowsing
       ? ctx.getSucceedingQuery().includeLower()
       : ctx.getPrecedingQuery().includeUpper();
 
-    return callNumbers.stream()
-      .map(cn -> Pair.of(cn, getDifferenceBetweenCallNumberAndAnchor(ctx.getAnchor(), cn, isForwardBrowsing)))
+    return items.stream()
+      .filter(item -> item.getEffectiveShelvingOrder() != null)
+      .map(item -> Pair.of(item, getDifferenceBetweenCallNumberAndAnchor(ctx.getAnchor(), item, isForwardBrowsing)))
       .filter(pair -> isAnchorIncluded ? pair.getSecond() >= 0 : pair.getSecond() > 0)
       .min(Comparator.comparing(Pair::getSecond))
       .map(Pair::getFirst)
       .orElse(null);
   }
 
-  private void highlightMatchingCallNumber(CallNumberBrowseRequest request, SearchResult<CallNumberBrowseItem> result) {
+  private void highlightMatchingCallNumber(CallNumberBrowseRequest request, CallNumberServiceContext ctx,
+    SearchResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var cqlNode = cqlQueryParser.parseCqlQuery(request.getQuery(), request.getResource());
     var anchorCallNumber = getAnchorCallNumber(cqlNode);
+
     if (isEmpty(items)) {
-      result.setRecords(Collections.singletonList(getEmptyCallNumberBrowseItem(anchorCallNumber)));
+      result.setRecords(singletonList(getEmptyCallNumberBrowseItem(anchorCallNumber)));
       return;
     }
 
     var firstItem = items.get(0);
-    var callNumber = firstItem.getCallNumber();
-    if (!Objects.equals(callNumber, anchorCallNumber)) {
+    var anchorAsLong = ctx.getAnchor();
+    var shelfKeyAsLong = callNumberProcessor.getCallNumberAsLong(firstItem.getShelfKey());
+    if (anchorAsLong != shelfKeyAsLong) {
       items.add(0, getEmptyCallNumberBrowseItem(anchorCallNumber));
       items.remove(items.size() - 1);
       return;
     }
 
-    firstItem.setCallNumber("<mark>" + callNumber + "</mark>");
+    firstItem.setFullCallNumber("<mark>" + firstItem.getFullCallNumber() + "</mark>");
   }
 
-  private long getDifferenceBetweenCallNumberAndAnchor(Long anchor, String value, boolean isForwardBrowsing) {
-    var longValue = callNumberProcessor.getCallNumberAsLong(value);
+  private long getDifferenceBetweenCallNumberAndAnchor(Long anchor, Item item, boolean isForwardBrowsing) {
+    var longValue = callNumberProcessor.getCallNumberAsLong(item.getEffectiveShelvingOrder());
     return isForwardBrowsing ? longValue - anchor : anchor - longValue;
   }
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
-    return new CallNumberBrowseItem().callNumber(anchorCallNumber).totalRecords(0);
+    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0);
   }
 
   private static String getAnchorCallNumber(CQLNode node) {
@@ -222,7 +233,7 @@ public class CallNumberBrowseService {
     CallNumberBrowseItem currItem;
     while (iterator.hasNext()) {
       currItem = iterator.next();
-      if (Objects.equals(prevItem.getCallNumber(), currItem.getCallNumber())) {
+      if (Objects.equals(prevItem.getShelfKey(), currItem.getShelfKey())) {
         prevItem.instance(null).totalRecords(prevItem.getTotalRecords() + 1);
         continue;
       }

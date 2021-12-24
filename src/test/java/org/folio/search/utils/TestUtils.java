@@ -140,11 +140,19 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
-    return new CallNumberBrowseItem().callNumber(callNumber).instance(instance).totalRecords(1);
+    return cnBrowseItem(instance, callNumber, callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
-    return new CallNumberBrowseItem().totalRecords(totalRecords).callNumber(callNumber);
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, String shelfKey) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(shelfKey);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
   public static String randomId() {

@@ -3,9 +3,13 @@
   "description": "Authority search result response",
   "type": "object",
   "properties": {
-    "callNumber": {
+    "fullCallNumber": {
       "type": "string",
-      "description": "Call number value"
+      "description": "Full call number value to display"
+    },
+    "shelfKey": {
+      "type": "string",
+      "description": "Shelf key value to be used for browsing"
     },
     "totalRecords": {
       "type": "integer",

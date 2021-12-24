@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -72,7 +73,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, firstAnchorCallNumber, 5, cnBrowseResult(46, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-        cnBrowseItem(0, "CE 210 K297 41858"),
+        cnBrowseItem(0, "CE 210 K297 41858", null),
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
@@ -80,7 +81,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1"),
+        cnBrowseItem(0, "DA 3890 A1", null),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
       ))),
@@ -88,7 +89,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, firstAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-        cnBrowseItem(instance("instance #38"), "<mark>CE 210 K297 41858</mark>"),
+        cnBrowseItem(instance("instance #38"), "<mark>CE 210 K297 41858</mark>", "CE 210 K297 41858"),
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
@@ -96,7 +97,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1"),
+        cnBrowseItem(0, "DA 3890 A1", null),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
       ))),
@@ -115,7 +116,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1"),
+        cnBrowseItem(0, "DA 3890 A1", null),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
         cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -134,7 +135,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-        cnBrowseItem(0, "FC"),
+        cnBrowseItem(0, "FC", null),
         cnBrowseItem(3, "FC 17 B89"),
         cnBrowseItem(instance("instance #17"), "GA 16 A63 41581")
       ))),
@@ -238,7 +239,11 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var items = ((List<String>) data.get(1)).stream()
-      .map(shelfKey -> new Item().id(randomId()).discoverySuppress(false).effectiveShelvingOrder(shelfKey))
+      .map(shelfKey -> new Item()
+        .id(randomId())
+        .discoverySuppress(false)
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey))
+        .effectiveShelvingOrder(shelfKey))
       .collect(toList());
 
     return new Instance()

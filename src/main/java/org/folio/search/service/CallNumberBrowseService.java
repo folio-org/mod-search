@@ -1,10 +1,12 @@
 package org.folio.search.service;
 
+import static java.lang.Boolean.TRUE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_LANG;
 import static org.elasticsearch.script.ScriptType.INLINE;
@@ -39,6 +41,7 @@ import org.folio.search.model.service.CallNumberBrowseRequest;
 import org.folio.search.model.service.CallNumberServiceContext;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.instance.CallNumberProcessor;
 import org.springframework.stereotype.Service;
 import org.z3950.zing.cql.CQLBooleanNode;
@@ -56,6 +59,7 @@ public class CallNumberBrowseService {
 
   private final CqlQueryParser cqlQueryParser;
   private final SearchRepository searchRepository;
+  private final SearchFieldProvider searchFieldProvider;
   private final CallNumberProcessor callNumberProcessor;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final ElasticsearchDocumentConverter documentConverter;
@@ -75,7 +79,7 @@ public class CallNumberBrowseService {
       return browseByCallNumberAround(request, context);
     }
 
-    var searchSource = getSearchSource(context, context.isForwardBrowsing());
+    var searchSource = getSearchSource(request, context, context.isForwardBrowsing());
     var searchResponse = searchRepository.search(request, searchSource);
     return convertToSearchResult(searchResponse, context, context.isForwardBrowsing());
   }
@@ -83,27 +87,38 @@ public class CallNumberBrowseService {
   private SearchResult<CallNumberBrowseItem> browseByCallNumberAround(
     CallNumberBrowseRequest request, CallNumberServiceContext context) {
     var multiSearchResponse = searchRepository.msearch(request,
-      List.of(getSearchSource(context, false), getSearchSource(context, true)));
+      List.of(getSearchSource(request, context, false), getSearchSource(request, context, true)));
 
     var responses = multiSearchResponse.getResponses();
     var precedingResult = convertToSearchResult(responses[0].getResponse(), context, false);
     var succeedingResult = convertToSearchResult(responses[1].getResponse(), context, true);
-    highlightMatchingCallNumber(request, context, succeedingResult);
+
+    if (TRUE.equals(request.getHighlightMatch())) {
+      highlightMatchingCallNumber(request, context, succeedingResult);
+    }
 
     return SearchResult.of(
       precedingResult.getTotalRecords() + succeedingResult.getTotalRecords(),
       mergeSafelyToList(precedingResult.getRecords(), succeedingResult.getRecords()));
   }
 
-  private SearchSourceBuilder getSearchSource(CallNumberServiceContext ctx, boolean isForwardBrowsing) {
+  private SearchSourceBuilder getSearchSource(CallNumberBrowseRequest request, CallNumberServiceContext ctx,
+    boolean isForwardBrowsing) {
     var scriptCode = isForwardBrowsing ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, Map.of("anchor", ctx.getAnchor()));
-
     var query = isForwardBrowsing ? ctx.getSucceedingQuery() : ctx.getPrecedingQuery();
-    return searchSource().from(0).trackTotalHits(true)
+
+    var searchSource = searchSource().from(0).trackTotalHits(true)
       .query(getQuery(ctx.getFilters(), query))
       .size((int) (Math.ceil(ctx.getLimit(isForwardBrowsing) * queryConfiguration.getRangeQueryLimitMultiplier())))
       .sort(scriptSort(script, NUMBER));
+
+    if (isFalse(request.getExpandAll())) {
+      var includes = searchFieldProvider.getSourceFields(request.getResource()).toArray(String[]::new);
+      searchSource.fetchSource(includes, null);
+    }
+
+    return searchSource;
   }
 
   private static QueryBuilder getQuery(List<QueryBuilder> filters, RangeQueryBuilder rangeQuery) {

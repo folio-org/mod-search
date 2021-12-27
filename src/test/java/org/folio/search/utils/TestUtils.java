@@ -128,11 +128,11 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, Boolean expandAll) {
-    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, shelvingOrder, TENANT_ID, 25, expandAll);
+    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, shelvingOrder, TENANT_ID, 25, expandAll, true, 12);
   }
 
   public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, int limit) {
-    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, shelvingOrder, limit, false);
+    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, shelvingOrder, limit, false, true, limit / 2);
   }
 
   public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {

@@ -131,6 +131,8 @@ paths:
         - $ref: '#/components/parameters/limit-param'
         - $ref: '#/components/parameters/expand-all-param'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
       responses:
         '200':
           description: 'Search result for browsing by call number'
@@ -482,3 +484,20 @@ components:
       required: false
       schema:
         type: string
+    preceding-records-count:
+      in: query
+      name: precedingRecordsCount
+      description: Number of preceding records for browsing around and around-including options
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+    highlight-match:
+      in: query
+      name: highlightMatch
+      description: Whether to highlight matched resource by query input or not.
+      required: false
+      schema:
+        type: boolean
+        default: true

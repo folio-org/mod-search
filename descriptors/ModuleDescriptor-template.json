@@ -69,6 +69,17 @@
       ]
     },
     {
+      "id": "browse",
+      "version": "0.1",
+      "handlers": [
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/browse/call-numbers/instances",
+          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ]
+        }
+      ]
+    },
+    {
       "id": "search-config",
       "version": "0.2",
       "handlers": [
@@ -190,6 +201,11 @@
       "permissionName": "search.authorities.collection.get",
       "displayName": "Search - searches authorities by given query",
       "description": "Searches authorities by given query"
+    },
+    {
+      "permissionName": "browse.call-numbers.instances.collection.get",
+      "displayName": "Browse - provides collections of browse items for instance by call number",
+      "description": "Browse instances by given query"
     },
     {
       "permissionName": "search.config.languages.item.post",

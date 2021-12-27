@@ -87,12 +87,11 @@ public class CallNumberServiceContext {
     }
 
     var query = searchSource.query();
-    var limit = request.getLimit();
     if (!isBoolQuery(query)) {
       if (!isValidRangeQuery(query)) {
         throw new RequestValidationException("Invalid CQL query for call-number browsing.", "query", cqlQuery);
       }
-      return createBrowsingContext(emptyList(), (RangeQueryBuilder) query, limit);
+      return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
 
     var boolQuery = (BoolQueryBuilder) query;
@@ -100,20 +99,20 @@ public class CallNumberServiceContext {
     var shouldClauses = boolQuery.should();
 
     if (isValidAroundQuery(shouldClauses)) {
-      return createContextForBrowsingAround(cqlQuery, filters, shouldClauses, limit);
+      return createContextForBrowsingAround(request, filters, shouldClauses);
     }
 
     if (isBoolQueryWithFilters(boolQuery)) {
       var mustClauses = boolQuery.must();
       var firstMustClause = mustClauses.get(0);
       if (firstMustClause instanceof RangeQueryBuilder) {
-        return createBrowsingContext(filters, (RangeQueryBuilder) firstMustClause, limit);
+        return createBrowsingContext(request, filters, (RangeQueryBuilder) firstMustClause);
       }
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
         if (isValidAroundQuery(subShouldClauses)) {
-          return createContextForBrowsingAround(cqlQuery, filters, subShouldClauses, limit);
+          return createContextForBrowsingAround(request, filters, subShouldClauses);
         }
       }
     }
@@ -122,18 +121,19 @@ public class CallNumberServiceContext {
   }
 
   private static CallNumberServiceContext createBrowsingContext(
-    List<QueryBuilder> filters, RangeQueryBuilder rangeQuery, int limit) {
+    CallNumberBrowseRequest request, List<QueryBuilder> filters, RangeQueryBuilder rangeQuery) {
     var precedingQuery = getRangeQuery(rangeQuery, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(rangeQuery, query -> query.from() != null);
+    var limit = request.getLimit();
     var precedingLimit = precedingQuery != null ? limit : null;
     var succeedingLimit = succeedingQuery != null ? limit : null;
 
-    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters,
-      getAnchor(rangeQuery), precedingLimit, succeedingLimit);
+    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters, getAnchor(rangeQuery),
+      precedingLimit, succeedingLimit);
   }
 
   private static CallNumberServiceContext createContextForBrowsingAround(
-    String cqlQuery, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses, int limit) {
+    CallNumberBrowseRequest request, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses) {
     var precedingQuery = getRangeQuery(shouldClauses, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(shouldClauses, query -> query.from() != null);
     var firstAnchor = getAnchor((RangeQueryBuilder) shouldClauses.get(0));
@@ -141,14 +141,15 @@ public class CallNumberServiceContext {
 
     if (!Objects.equals(firstAnchor, secondAnchor)) {
       throw new RequestValidationException(
-        "Invalid CQL query for call-number browsing. Anchors must be the same in range conditions.", "query", cqlQuery);
+        "Invalid CQL query for call-number browsing. Anchors must be the same in range conditions.",
+        "query", request.getQuery());
     }
 
-    var precedingLimit = limit / 2;
-    var succeedingLimit = limit / 2 + limit % 2;
+    var precedingRecordsCount = request.getPrecedingRecordsCount();
+    var succeedingLimit = precedingRecordsCount + request.getLimit() % 2;
 
-    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters,
-      firstAnchor, precedingLimit, succeedingLimit);
+    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters, firstAnchor,
+      precedingRecordsCount, succeedingLimit);
   }
 
   private static RangeQueryBuilder getRangeQuery(RangeQueryBuilder query, Predicate<RangeQueryBuilder> predicate) {

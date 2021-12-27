@@ -32,4 +32,14 @@ public class CallNumberBrowseRequest implements ResourceRequest {
    * Whether to return only basic properties or entire instance.
    */
   private final Boolean expandAll;
+
+  /**
+   * Whether to highlight matched resources or not.
+   */
+  private final Boolean highlightMatch;
+
+  /**
+   * Number of preceding records for virtual shelf browsing. Works only when browsing around.
+   */
+  private final Integer precedingRecordsCount;
 }

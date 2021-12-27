@@ -256,13 +256,16 @@
           "type": "object",
           "properties": {
             "callNumber": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "prefix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "suffix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             }
           }
         },

@@ -32,7 +32,7 @@ class InstanceBrowseControllerTest {
 
   @Test
   void findRelatedInstances_positive() throws Exception {
-    var shelvingOrder = "callNumber = PR4034 .P7 2019";
+    var shelvingOrder = "callNumber > PR4034 .P7 2019";
     var request = callNumberBrowseRequest(shelvingOrder, 5);
     when(callNumberBrowseService.browseByCallNumber(request)).thenReturn(searchResult());
     var requestBuilder = get(instanceCallNumberBrowsePath())
@@ -48,7 +48,7 @@ class InstanceBrowseControllerTest {
   }
 
   @Test
-  void findRelatedInstances_missingQueryParameter() throws Exception {
+  void findRelatedInstances_negative_missingQueryParameter() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
@@ -57,9 +57,27 @@ class InstanceBrowseControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message",
-        is("Required String parameter 'query' is not present")))
+      .andExpect(jsonPath("$.errors[0].message", is("Required String parameter 'query' is not present")))
       .andExpect(jsonPath("$.errors[0].type", is("MissingServletRequestParameterException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void findRelatedInstances_negative_precedingRecordsMoreThatLimit() throws Exception {
+    var requestBuilder = get(instanceCallNumberBrowsePath())
+      .queryParam("query", "callNumber > A")
+      .queryParam("limit", "5")
+      .queryParam("precedingRecordsCount", "10")
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Preceding records count must be less than request limit")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("precedingRecordsCount")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("10")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 }

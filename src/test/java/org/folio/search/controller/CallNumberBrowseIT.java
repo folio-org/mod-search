@@ -52,6 +52,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByCallNumber_parameterized(String query, String anchor, Integer limit, CallNumberBrowseResult expected) {
     var request = get(instanceCallNumberBrowsePath())
+      .param("expandAll", "true")
       .param("query", prepareQuery(query, '"' + anchor + '"'))
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);

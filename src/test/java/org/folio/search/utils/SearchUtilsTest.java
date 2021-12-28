@@ -28,6 +28,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
+import org.folio.search.cql.CqlQueryParser;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
@@ -252,6 +253,23 @@ class SearchUtilsTest {
   @MethodSource("isEmptyStringDataSource")
   void isEmptyString_positive(Object given, boolean expected) {
     var actual = SearchUtils.isEmptyString(given);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "callNumber > A, A",
+    "callNumber >= A, A",
+    "callNumber < A, A",
+    "field < A, ",
+    "callNumber >= A or callNumber < A, A",
+    "title >= B or callNumber < A, A",
+    "callNumber < A or title >= B, A",
+    "callNumber > A sortby title, "
+  })
+  void getAnchorCallNumberPositive(String query, String expected) {
+    var node = new CqlQueryParser().parseCqlQuery(query, RESOURCE_NAME);
+    var actual = SearchUtils.getAnchorCallNumber(node);
     assertThat(actual).isEqualTo(expected);
   }
 

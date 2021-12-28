@@ -16,6 +16,7 @@ import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.folio.search.service.CallNumberBrowseService.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.service.CallNumberBrowseService.SORT_SCRIPT_FOR_PRECEDING_QUERY;
 import static org.folio.search.service.CallNumberBrowseService.SORT_SCRIPT_FOR_SUCCEEDING_QUERY;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
@@ -391,6 +392,51 @@ class CallNumberBrowseServiceTest {
           .should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte((long) 1e16))
           .should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR))))
     );
+  }
+
+  @Test
+  void browseByCallNumber_negative_browsingForwardWhenItemsAreNullInResponse() {
+    var query = "callNumber >= B";
+    var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 10, false, false, 5);
+    var instance = new Instance().id(RESOURCE_ID);
+    var instances = searchResult(instance);
+
+    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), instances);
+
+    var actual = callNumberBrowseService.browseByCallNumber(request);
+
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, null))));
+  }
+
+  @Test
+  void browseByCallNumber_negative_browsingForwardWhenItemIsWithoutCallNumber() {
+    var query = "callNumber >= B";
+    var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 10, false, false, 5);
+    var instance = new Instance().id(RESOURCE_ID).items(List.of(new Item(), new Item()));
+    var instances = searchResult(instance);
+
+    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), instances);
+
+    var actual = callNumberBrowseService.browseByCallNumber(request);
+
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, null))));
+  }
+
+  @Test
+  void browseByCallNumber_negative_browsingForwardWhenItemIsWithoutEffectiveCallNumberComponents() {
+    var query = "callNumber >= B";
+    var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 10, false, false, 5);
+    var instance = new Instance().id(RESOURCE_ID).items(List.of(new Item().effectiveShelvingOrder("B 10")));
+    var instances = searchResult(instance);
+
+    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), instances);
+
+    var actual = callNumberBrowseService.browseByCallNumber(request);
+
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, "B 10"))));
   }
 
   private void prepareMocksForBrowsing(CallNumberBrowseRequest request, QueryBuilder query,

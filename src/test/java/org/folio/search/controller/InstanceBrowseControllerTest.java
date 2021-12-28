@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.callNumberBrowseRequest;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.folio.search.model.service.CallNumberBrowseRequest;
 import org.folio.search.service.CallNumberBrowseService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,27 @@ class InstanceBrowseControllerTest {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", shelvingOrder)
       .queryParam("limit", "5")
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.items", is(emptyList())));
+  }
+
+  @Test
+  void findRelatedInstances_positive_allFields() throws Exception {
+    var query = "callNumber > B";
+    var request = CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, true, true, 5);
+    when(callNumberBrowseService.browseByCallNumber(request)).thenReturn(searchResult());
+
+    var requestBuilder = get(instanceCallNumberBrowsePath())
+      .queryParam("query", query)
+      .queryParam("limit", "20")
+      .queryParam("expandAll", "true")
+      .queryParam("highlightMatch", "true")
+      .queryParam("precedingRecordsCount", "5")
       .contentType(APPLICATION_JSON)
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 

@@ -43,10 +43,8 @@ import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
-import org.z3950.zing.cql.CQLBooleanNode;
-import org.z3950.zing.cql.CQLNode;
-import org.z3950.zing.cql.CQLTermNode;
 
 @Service
 @RequiredArgsConstructor
@@ -149,7 +147,7 @@ public class CallNumberBrowseService {
 
   private CallNumberBrowseItem mapToCallNumberBrowseItem(
     CallNumberServiceContext ctx, boolean isForwardBrowsing, Instance instance) {
-    var item = getShelfKey(instance, ctx, isForwardBrowsing);
+    var item = getItemByCallNumber(instance, ctx, isForwardBrowsing);
     var callNumberBrowseItem = new CallNumberBrowseItem().instance(instance).totalRecords(1);
 
     if (item != null) {
@@ -163,7 +161,7 @@ public class CallNumberBrowseService {
     return callNumberBrowseItem;
   }
 
-  private Item getShelfKey(Instance instance, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
+  private Item getItemByCallNumber(Instance instance, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
     var items = instance.getItems();
     if (CollectionUtils.isEmpty(items)) {
       return null;
@@ -190,7 +188,7 @@ public class CallNumberBrowseService {
     SearchResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var cqlNode = cqlQueryParser.parseCqlQuery(request.getQuery(), request.getResource());
-    var anchorCallNumber = getAnchorCallNumber(cqlNode);
+    var anchorCallNumber = SearchUtils.getAnchorCallNumber(cqlNode);
 
     if (isEmpty(items)) {
       result.setRecords(singletonList(getEmptyCallNumberBrowseItem(anchorCallNumber)));
@@ -216,23 +214,6 @@ public class CallNumberBrowseService {
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
     return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0);
-  }
-
-  private static String getAnchorCallNumber(CQLNode node) {
-    if (node instanceof CQLTermNode) {
-      var termNode = (CQLTermNode) node;
-      if (CALL_NUMBER_BROWSING_FIELD.equals(termNode.getIndex())) {
-        return termNode.getTerm();
-      }
-    }
-
-    if (node instanceof CQLBooleanNode) {
-      var boolNode = (CQLBooleanNode) node;
-      var rightAnchorCallNumber = getAnchorCallNumber(boolNode.getRightOperand());
-      return rightAnchorCallNumber != null ? rightAnchorCallNumber : getAnchorCallNumber(boolNode.getLeftOperand());
-    }
-
-    return null;
   }
 
   private static List<CallNumberBrowseItem> collapseSearchResultByCallNumber(List<CallNumberBrowseItem> items) {

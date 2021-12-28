@@ -133,7 +133,8 @@
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
             "inventory-storage.alternative-title-types.collection.get",
-            "perms.users.assign.immutable"
+            "perms.users.assign.immutable",
+            "inventory-view.instances.collection.get"
           ]
         },
         {

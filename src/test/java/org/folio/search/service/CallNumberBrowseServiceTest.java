@@ -57,7 +57,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.marc4j.callnum.LCCallNumber;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -475,10 +474,5 @@ class CallNumberBrowseServiceTest {
     var map = mapOf("A 11", (long) 5e16, "B", ANCHOR, "B 11", (long) 11e16,
       "B 12", (long) 12e16, "B 13", (long) 13e16, "B 14", (long) 14e16);
     when(callNumberProcessor.getCallNumberAsLong(any())).thenAnswer(inv -> map.get(inv.<String>getArgument(0)));
-  }
-
-  @Test
-  void name() {
-    System.out.println(new LCCallNumber("TK5105.88815 . A58 2004 FT MEADE").getShelfKey());
   }
 }

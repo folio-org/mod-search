@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -203,8 +204,10 @@ public class CallNumberBrowseService {
       items.remove(items.size() - 1);
       return;
     }
-
-    firstItem.setFullCallNumber("<mark>" + firstItem.getFullCallNumber() + "</mark>");
+    var fullCallNumber = firstItem.getFullCallNumber();
+    if (StringUtils.isNotBlank(fullCallNumber)) {
+      firstItem.setFullCallNumber("<mark>" + fullCallNumber + "</mark>");
+    }
   }
 
   private long getDifferenceBetweenCallNumberAndAnchor(Long anchor, Item item, boolean isForwardBrowsing) {

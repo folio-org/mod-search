@@ -122,7 +122,7 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /browse/instances/call-numbers:
+  /browse/call-numbers/instances:
     get:
       operationId: browseInstancesByCallNumber
       description: Provides list of instances for browsing by call number

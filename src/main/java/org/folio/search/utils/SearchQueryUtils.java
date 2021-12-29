@@ -65,7 +65,7 @@ public class SearchQueryUtils {
    * @return true if query is type of filter, false - otherwise
    */
   public static boolean isFilterQuery(QueryBuilder query, Predicate<String> check) {
-    return (query instanceof TermQueryBuilder) && check.test(((TermQueryBuilder) query).fieldName())
-      || (query instanceof RangeQueryBuilder) && check.test(((RangeQueryBuilder) query).fieldName());
+    return query instanceof TermQueryBuilder && check.test(((TermQueryBuilder) query).fieldName())
+      || query instanceof RangeQueryBuilder && check.test(((RangeQueryBuilder) query).fieldName());
   }
 }

@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -40,7 +41,6 @@ class CollectionUtilsTest {
   @Test
   void shouldReturnMapIfNotEmpty() {
     Map<String, String> map = Map.of("key", "value");
-
     assertThat(nullIfEmpty(map)).isEqualTo(map);
   }
 
@@ -117,6 +117,12 @@ class CollectionUtilsTest {
   void mergeSafelyToSet_positive() {
     var actual = mergeSafelyToSet(List.of(1, 2, 3), List.of(3, 1, 2), List.of(5), null, emptySet());
     assertThat(actual).containsExactly(1, 2, 3, 5);
+  }
+
+  @Test
+  void mergeSafelyToList_positive() {
+    var actual = mergeSafelyToList(List.of(1, 2, 3), List.of(3, 1, 2), List.of(5), null, emptySet());
+    assertThat(actual).containsExactly(1, 2, 3, 3, 1, 2, 5);
   }
 
   @Test

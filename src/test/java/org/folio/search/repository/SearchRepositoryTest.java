@@ -3,7 +3,9 @@ package org.folio.search.repository;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.SearchHit.createFromMap;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
@@ -18,6 +20,7 @@ import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -28,6 +31,9 @@ import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.ClearScrollResponse;
+import org.elasticsearch.action.search.MultiSearchRequest;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.MultiSearchResponse.Item;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchResponseSections;
@@ -37,6 +43,7 @@ import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.search.utils.types.UnitTest;
@@ -73,14 +80,12 @@ class SearchRepositoryTest {
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   void streamResourceIds_positive() throws Throwable {
     var searchIds = randomIds();
     var scrollIds = randomIds();
     when(retryTemplate.execute(any(RetryCallback.class)))
-      .thenAnswer(invocation -> {
-        RetryCallback retry = invocation.getArgument(0);
-        return retry.doWithRetry(null);
-      });
+      .thenAnswer(invocation -> invocation.<RetryCallback>getArgument(0).doWithRetry(null));
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
@@ -94,12 +99,10 @@ class SearchRepositoryTest {
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   void streamResourceIds_negative_clearScrollFailed() throws Throwable {
     when(retryTemplate.execute(any(RetryCallback.class)))
-      .thenAnswer(invocation -> {
-        RetryCallback retry = invocation.getArgument(0);
-        return retry.doWithRetry(null);
-      });
+      .thenAnswer(invocation -> invocation.<RetryCallback>getArgument(0).doWithRetry(null));
     var searchIds = randomIds();
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
@@ -111,6 +114,66 @@ class SearchRepositoryTest {
     searchRepository.streamResourceIds(request, searchSource(), actualIds::addAll);
 
     assertThat(actualIds).isEqualTo(searchIds);
+  }
+
+  @Test
+  void msearch_positive() throws IOException {
+    var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
+    var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
+    var multiSearchRequest = new MultiSearchRequest();
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+
+    var multiSearchResponse = mock(MultiSearchResponse.class);
+    when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
+    when(multiSearchResponse.getResponses()).thenReturn(array(mock(Item.class), mock(Item.class)));
+
+    var searchRequest = searchServiceRequest(TestResource.class, "query");
+    var actual = searchRepository.msearch(searchRequest, List.of(searchSource1, searchSource2));
+    assertThat(actual).isEqualTo(multiSearchResponse);
+  }
+
+  @Test
+  void msearch_negative_oneOfSearchRequestsFailWithError() throws IOException {
+    var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
+    var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
+    var multiSearchRequest = new MultiSearchRequest();
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+
+    var multiSearchResponse = mock(MultiSearchResponse.class);
+    var responseItem = mock(Item.class);
+    when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
+    when(multiSearchResponse.getResponses()).thenReturn(array(mock(Item.class), responseItem));
+    when(responseItem.getFailure()).thenReturn(new Exception("error"));
+    when(responseItem.getFailureMessage()).thenReturn("all-shards failed");
+
+    var searchRequest = searchServiceRequest(TestResource.class, "query");
+    var searchSources = List.of(searchSource1, searchSource2);
+
+    assertThatThrownBy(() -> searchRepository.msearch(searchRequest, searchSources))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to perform multi-search operation [errors: [all-shards failed]]");
+  }
+
+  @Test
+  void msearch_negative_onlyOneSearchResponseReturned() throws IOException {
+    var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
+    var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
+    var multiSearchRequest = new MultiSearchRequest();
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+
+    var multiSearchResponse = mock(MultiSearchResponse.class);
+    when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
+    when(multiSearchResponse.getResponses()).thenReturn(array(mock(Item.class)));
+
+    var searchRequest = searchServiceRequest(TestResource.class, "query");
+    var searchSources = List.of(searchSource1, searchSource2);
+
+    assertThatThrownBy(() -> searchRepository.msearch(searchRequest, searchSources))
+      .isInstanceOf(SearchServiceException.class)
+      .hasMessage("Failed to perform multi-search operation [errors: []]");
   }
 
   private static List<String> randomIds() {

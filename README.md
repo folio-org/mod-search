@@ -19,6 +19,8 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Item search options](#items-search-options)
   * [Holding record search options](#holdings-records-search-options)
   * [Authority search options](#authority-search-options)
+* [Records browsing](#records-browsing)
+  * [Browsing by call numbers](#browsing-by-call-numbers)
 * [Search facets](#search-facets)
 * [Sorting results](#sorting-results)
 * [Search Options](#search-options)
@@ -275,16 +277,16 @@ In mod-search there are two main types of searchable fields:
 Depending on field type, CQL operators will be handled in different ways or not supported at all.
 Here is table of supported operators.
 
-| Operator | Full text usage                | Term field usage               | Description                                                                                                                                        |
-|:---------|:-------------------------------|:-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `all`    | `title` `all` `"semantic web"` | N/A                            | Matches a resource that has both `semantic` and `web` in the `title` field                                                                         |
-| `any`    | `title` `any` `"semantic web"` | N/A                            | Matches a resource that has either of/both `semantic` or `web` in the `title` field                                                                |
-| `=`      | `title = "semantic web"`       | `hrid = "hr10"`                | Has the same effect as `all` for FT fields and is the same as `==` for term fields                                                                 |
-| `==`     | `title == "semantic web"`      | `hrid == "hr10"`               | Phrase match for FT fields (i.e. matches resources that contains both `semantic` and `web` exactly in the same order), exact match for term fields |
-| `<>`     | `title <> "semantic web"`      | `hrid <> "hr10"`               | Matches resources that are not equal to a term                                                                                                     |
-| `<`, `>` | N/A                            | `createdDate > "2020-12-12"`   | Matches resources that has the property greater/less than the limit                                                                                |
-| `<`, `>` | N/A                            | `createdDate <= "2020-12-12"`  | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
-| `*`      | `title="mode* europe*"`        | `hrid = "hr10*"`               | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
+| Operator   | Full text usage                | Term field usage               | Description                                                                                                                                        |
+|:-----------|:-------------------------------|:-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `all`      | `title` `all` `"semantic web"` | N/A                            | Matches a resource that has both `semantic` and `web` in the `title` field                                                                         |
+| `any`      | `title` `any` `"semantic web"` | N/A                            | Matches a resource that has either of/both `semantic` or `web` in the `title` field                                                                |
+| `=`        | `title = "semantic web"`       | `hrid = "hr10"`                | Has the same effect as `all` for FT fields and is the same as `==` for term fields                                                                 |
+| `==`       | `title == "semantic web"`      | `hrid == "hr10"`               | Phrase match for FT fields (i.e. matches resources that contains both `semantic` and `web` exactly in the same order), exact match for term fields |
+| `<>`       | `title <> "semantic web"`      | `hrid <> "hr10"`               | Matches resources that are not equal to a term                                                                                                     |
+| `<`, `>`   | N/A                            | `createdDate > "2020-12-12"`   | Matches resources that has the property greater/less than the limit                                                                                |
+| `<=`, `>=` | N/A                            | `createdDate <= "2020-12-12"`  | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
+| `*`        | `title="mode* europe*"`        | `hrid = "hr10*"`               | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
 
 Here is a table with supported search options.
 
@@ -463,6 +465,30 @@ does not produce any values, so the following search options will return an empt
 | `cql.allItems`     | full-text or term | `cql.allItems all "book"`        | Matches instances that have given text in item field values                       |
 | `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values                    |
 | `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values                   |
+
+## Records browsing
+
+### Browsing by call-numbers
+
+The call number browsing page can be retrieved using following endpoint:
+
+```text
+${okapi}/browse/call-number/instances
+```
+
+**Query parameters**
+
+| Parameter             | Type    | Default value | Description                                                                                                                                                                                                 |
+|:----------------------|:--------|:--------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| query                 | string  | -             | A Cql query for call-number browsing<br/>`callNumber > {anchor}` - browsing forward<br/>`callNumber < {anchor}` - browsing backward<br/>`callNumber >= {anchor} or callNumber < {anchor}` - browsing around |
+| limit                 | integer | 100           | Number of records in response                                                                                                                                                                               |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                         |
+| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                             |
+
+The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
+only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
+to `true`.
+
 
 ## Search Facets
 

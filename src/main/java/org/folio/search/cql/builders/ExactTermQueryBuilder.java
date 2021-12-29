@@ -12,6 +12,7 @@ import java.util.Set;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.ScriptQueryBuilder;
 import org.elasticsearch.script.Script;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,13 +21,13 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   public static final String SCRIPT_TEMPLATE = "doc['%s'].size() == 0";
 
   @Override
-  public QueryBuilder getQuery(String term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, String... fields) {
     return multiMatchQuery(term, fields).type(PHRASE);
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
-    if (term.isEmpty()) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
+    if (SearchUtils.isEmptyString(term)) {
       return termQuery(getPathToFulltextPlainValue(fieldName), term);
     }
 
@@ -36,7 +37,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
       ? getEmptyArrayScriptQuery(fieldName)
       : termQuery(fieldName, term);

@@ -9,6 +9,11 @@
       "type": "boolean"
     }
   },
+  "long": {
+    "mapping": {
+      "type": "long"
+    }
+  },
   "lowercase_sort": {
     "mapping": {
       "type": "keyword",

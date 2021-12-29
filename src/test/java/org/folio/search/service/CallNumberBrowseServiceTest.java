@@ -85,10 +85,10 @@ class CallNumberBrowseServiceTest {
   @Test
   void browseByCallNumber_positive_aroundWhenCallNumberIsNotMatched() {
     var query = "callNumber >= B or callNumber < B";
-    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 100, true, true, 50);
+    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 100, true, true, 20);
 
     prepareMocksForBrowsingAround(request, aroundQuery(),
-      List.of(precedingSearchSource(100), succeedingSearchSource(100)),
+      List.of(precedingSearchSource(40), succeedingSearchSource(160)),
       searchResult(instance("A 11"), instance("A 12")),
       searchResult(instance("C 11"), instance("C 12"), instance("C 13")));
 
@@ -127,8 +127,6 @@ class CallNumberBrowseServiceTest {
       cnBrowseItem(instance("B"), "B", "B"),
       cnBrowseItem(instance("C 11"), "C 11")
     )));
-
-    verify(queryConfiguration, times(2)).getRangeQueryLimitMultiplier();
   }
 
   @Test
@@ -148,9 +146,6 @@ class CallNumberBrowseServiceTest {
       cnBrowseItem(instance("B"), "<mark>B</mark>", "B"),
       cnBrowseItem(instance("C 11"), "C 11")
     )));
-
-    verify(cqlQueryParser).parseCqlQuery(query, RESOURCE_NAME);
-    verify(queryConfiguration, times(2)).getRangeQueryLimitMultiplier();
   }
 
   @Test
@@ -164,11 +159,8 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(
-      instance("A"), "A"), cnBrowseItem(0, "B", null))));
-
-    verify(cqlQueryParser).parseCqlQuery(query, RESOURCE_NAME);
-    verify(queryConfiguration, times(2)).getRangeQueryLimitMultiplier();
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(
+      cnBrowseItem(instance("A"), "A"), cnBrowseItem(0, "B", null))));
   }
 
   @Test
@@ -400,9 +392,8 @@ class CallNumberBrowseServiceTest {
     var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
     var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 10, false, false, 5);
     var instance = new Instance().id(RESOURCE_ID);
-    var instances = searchResult(instance);
 
-    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), instances);
+    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), searchResult(instance));
 
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
@@ -415,13 +406,28 @@ class CallNumberBrowseServiceTest {
     var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
     var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 10, false, false, 5);
     var instance = new Instance().id(RESOURCE_ID).items(List.of(new Item(), new Item()));
-    var instances = searchResult(instance);
 
-    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), instances);
+    prepareMocksForBrowsing(request, esQuery, succeedingSearchSource(20), searchResult(instance));
 
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
     assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, null))));
+  }
+
+  @Test
+  void browseByCallNumber_negative_browsingAroundWhenItemIsWithoutCallNumber() {
+    var query = "callNumber >= B or callNumber < B";
+    var instance = new Instance().id(RESOURCE_ID).items(List.of(new Item().effectiveShelvingOrder("B")));
+    var request = CallNumberBrowseRequest.of(RESOURCE_NAME, TENANT_ID, query, 5, true, true, 2);
+
+    prepareMocksForBrowsingAround(request, aroundQuery(),
+      List.of(precedingSearchSource(4), succeedingSearchSource(6)),
+      SearchResult.empty(), searchResult(instance));
+
+    when(callNumberProcessor.getCallNumberAsLong("B")).thenReturn(ANCHOR);
+    var actual = callNumberBrowseService.browseByCallNumber(request);
+
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, "B"))));
   }
 
   @Test

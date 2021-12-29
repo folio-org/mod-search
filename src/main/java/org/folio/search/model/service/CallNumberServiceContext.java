@@ -146,10 +146,8 @@ public class CallNumberServiceContext {
     }
 
     var precedingRecordsCount = request.getPrecedingRecordsCount();
-    var succeedingLimit = precedingRecordsCount + request.getLimit() % 2;
-
     return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters, firstAnchor,
-      precedingRecordsCount, succeedingLimit);
+      precedingRecordsCount, request.getLimit() - precedingRecordsCount);
   }
 
   private static RangeQueryBuilder getRangeQuery(RangeQueryBuilder query, Predicate<RangeQueryBuilder> predicate) {

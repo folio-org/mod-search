@@ -26,6 +26,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -59,7 +60,47 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  public static Stream<Arguments> callNumberBrowsingDataProvider() {
+  @Test
+  void browseByCallNumber_browsingAroundWithPrecedingRecordsCount() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
+      .param("limit", "10")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(47, List.of(
+      cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
+      cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+      cnBrowseItem(instance("instance #44"), "<mark>CE 16 B6713 X 41993</mark>", "CE 16 B6713 X 41993"),
+      cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
+      cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
+      cnBrowseItem(instance("instance #38"), "CE 210 K297 41858"),
+      cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
+      cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
+      cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
+      cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975")
+    )));
+  }
+
+  @Test
+  void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
+      .param("limit", "5")
+      .param("expandAll", "true")
+      .param("highlightMatch", "false");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+
+    assertThat(actual).isEqualTo(cnBrowseResult(47, List.of(
+      cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
+      cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+      cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
+      cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
+      cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998")
+    )));
+  }
+
+  private static Stream<Arguments> callNumberBrowsingDataProvider() {
     var aroundQuery = "callNumber > {value} or callNumber < {value}";
     var aroundIncludingQuery = "callNumber >= {value} or callNumber < {value}";
     var forwardQuery = "callNumber > {value}";

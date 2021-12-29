@@ -17,7 +17,7 @@ public class ApiEndpoints {
   }
 
   public static String instanceCallNumberBrowsePath() {
-    return "/browse/instances/call-numbers";
+    return "/browse/call-numbers/instances";
   }
 
   public static String recordFacets(RecordType type, String query, String... facets) {

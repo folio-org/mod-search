@@ -4,6 +4,7 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.service.CallNumberBrowseService.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
 import com.google.common.base.CaseFormat;
@@ -26,6 +27,9 @@ import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.z3950.zing.cql.CQLBooleanNode;
+import org.z3950.zing.cql.CQLNode;
+import org.z3950.zing.cql.CQLTermNode;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
@@ -277,6 +281,39 @@ public class SearchUtils {
    */
   public static String getResourceName(Class<?> resourceClass) {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, resourceClass.getSimpleName());
+  }
+
+  /**
+   * Check if passed value is {@link String} and it's empty.
+   *
+   * @param value - value to check
+   * @return true - if value is empty, false - otherwise
+   */
+  public static boolean isEmptyString(Object value) {
+    return value instanceof String && ((String) value).isEmpty();
+  }
+
+  /**
+   * Extracts anchor call number from {@link CQLNode} object.
+   *
+   * @param node - {@link CQLNode} object to analyze
+   * @return anchor call-number as {@link String} value
+   */
+  public static String getAnchorCallNumber(CQLNode node) {
+    if (node instanceof CQLTermNode) {
+      var termNode = (CQLTermNode) node;
+      if (CALL_NUMBER_BROWSING_FIELD.equals(termNode.getIndex())) {
+        return termNode.getTerm();
+      }
+    }
+
+    if (node instanceof CQLBooleanNode) {
+      var boolNode = (CQLBooleanNode) node;
+      var rightAnchorCallNumber = getAnchorCallNumber(boolNode.getLeftOperand());
+      return rightAnchorCallNumber != null ? rightAnchorCallNumber : getAnchorCallNumber(boolNode.getRightOperand());
+    }
+
+    return null;
   }
 
   private static Object getMultilangValueObject(Object value) {

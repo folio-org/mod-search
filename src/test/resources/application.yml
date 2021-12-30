@@ -36,6 +36,9 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search.all.fields: false
+  query:
+    properties:
+      call-number-range-offset: 1e20
   system-user:
     username: mod-search
     password: Mod-search-1-0-0

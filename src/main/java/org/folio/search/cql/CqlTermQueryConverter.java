@@ -86,7 +86,7 @@ public class CqlTermQueryConverter {
       : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, plainFieldByPath.getIndex());
   }
 
-  private String getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
+  private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)
       .map(searchTermProcessors::get)
@@ -94,8 +94,8 @@ public class CqlTermQueryConverter {
       .orElse(term);
   }
 
-  private static boolean isWildcardQuery(String query) {
-    return query.contains(ASTERISKS_SIGN);
+  private static boolean isWildcardQuery(Object query) {
+    return query instanceof String && ((String) query).contains(ASTERISKS_SIGN);
   }
 
   private static Map<String, TermQueryBuilder> getTermQueryProvidersAsMap(List<TermQueryBuilder> termQueryBuilders) {

@@ -19,6 +19,7 @@ import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -146,6 +148,23 @@ class KafkaMessageListenerTest {
       new ConsumerRecord<>(inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, authorityEvent)));
 
     verify(indexService).indexResources(expectedEvents);
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleAuthorityEvent_negative_logFailedEvent() {
+    var authority = new Authority().id(RESOURCE_ID);
+    var authorityEvent = new ResourceEvent().type(ResourceEventType.UPDATE).tenant(TENANT_ID)._new(toMap(authority));
+    var expectedEvents = singletonList(authorityEvent);
+
+    doAnswer(inv -> {
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      return null;
+    }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+
+    messageListener.handleAuthorityEvents(List.of(
+      new ConsumerRecord<>(inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, authorityEvent)));
+
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 }

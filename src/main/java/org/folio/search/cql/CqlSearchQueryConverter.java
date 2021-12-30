@@ -5,24 +5,19 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
-import org.z3950.zing.cql.CQLParseException;
-import org.z3950.zing.cql.CQLParser;
 import org.z3950.zing.cql.CQLSortNode;
 import org.z3950.zing.cql.CQLTermNode;
 
@@ -33,14 +28,14 @@ import org.z3950.zing.cql.CQLTermNode;
  * <a href="https://www.loc.gov/standards/sru/cql/spec.html">https://www.loc.gov/standards/sru/cql/spec.html</a>
  * </p>
  */
-@Log4j2
 @Component
 @RequiredArgsConstructor
 public class CqlSearchQueryConverter {
 
+  private final CqlQueryParser cqlQueryParser;
   private final CqlSortProvider cqlSortProvider;
-  private final CqlTermQueryConverter cqlTermQueryConverter;
   private final SearchFieldProvider searchFieldProvider;
+  private final CqlTermQueryConverter cqlTermQueryConverter;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -50,24 +45,16 @@ public class CqlSearchQueryConverter {
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
   public SearchSourceBuilder convert(String query, String resource) {
-    try {
-      var cqlNode = new CQLParser().parse(query);
-      return toCriteria(cqlNode, resource);
-    } catch (CQLParseException | IOException e) {
-      throw new SearchServiceException(String.format(
-        "Failed to parse cql query [cql: '%s', resource: %s]", query, resource), e);
-    }
-  }
-
-  private SearchSourceBuilder toCriteria(CQLNode node, String resource) {
+    var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
     var queryBuilder = new SearchSourceBuilder();
 
-    if (node instanceof CQLSortNode) {
-      cqlSortProvider.getSort((CQLSortNode) node, resource).forEach(queryBuilder::sort);
+    if (cqlNode instanceof CQLSortNode) {
+      cqlSortProvider.getSort((CQLSortNode) cqlNode, resource).forEach(queryBuilder::sort);
     }
 
-    var boolQuery = convertToQuery(node, resource);
-    return queryBuilder.query(enhanceQuery(boolQuery, resource));
+    var boolQuery = convertToQuery(cqlNode, resource);
+    var enhancedQuery = enhanceQuery(boolQuery, resource);
+    return queryBuilder.query(enhancedQuery);
   }
 
   private QueryBuilder convertToQuery(CQLNode node, String resource) {

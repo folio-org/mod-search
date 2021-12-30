@@ -29,6 +29,19 @@ public class SearchTenantService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
 
+  /**
+   * Initializes tenant using given {@link TenantAttributes}.
+   *
+   * <p>This method:</p>
+   * <ul>
+   *   <li>Creates a system user to perform record indexing</li>
+   *   <li>Add default languages to the tenant configuration</li>
+   *   <li>Creates Elasticsearch index and corresponding mappings for supported record types</li>
+   *   <li>Starts reindexing process for inventory (if it's specified)</li>
+   * </ul>
+   *
+   * @param tenantAttributes - tenant attributes comes from initialization request.
+   */
   public void initializeTenant(TenantAttributes tenantAttributes) {
     systemUserService.prepareSystemUser();
 
@@ -53,6 +66,9 @@ public class SearchTenantService {
         indexService.reindexInventory(context.getTenantId(), new ReindexRequest().resourceName(resource))));
   }
 
+  /**
+   * Removes elasticsearch indices for all supported record types.
+   */
   public void removeElasticsearchIndexes() {
     resourceDescriptionService.getResourceNames().forEach(name -> {
       log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, context.getTenantId());

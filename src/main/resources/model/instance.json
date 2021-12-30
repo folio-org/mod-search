@@ -332,9 +332,21 @@
               "searchTypes": "filter",
               "index": "date"
             },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
             }
           }
         }
@@ -413,9 +425,21 @@
               "searchTypes": "filter",
               "index": "date"
             },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
             }
           }
         }

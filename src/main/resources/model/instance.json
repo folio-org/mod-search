@@ -256,15 +256,22 @@
           "type": "object",
           "properties": {
             "callNumber": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "prefix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "suffix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             }
           }
+        },
+        "effectiveShelvingOrder": {
+          "index": "source",
+          "showInResponse": true
         },
         "tags": {
           "type": "object",
@@ -517,6 +524,12 @@
       "type": "search",
       "index": "multilang",
       "processor": "uniformTitleProcessor"
+    },
+    "callNumber": {
+      "type": "search",
+      "index": "long",
+      "searchTermProcessor": "callNumberBrowseSearchTermProcessor",
+      "processor": "callNumberProcessor"
     },
     "allInstances": {
       "type": "search",

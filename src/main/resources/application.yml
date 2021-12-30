@@ -45,6 +45,9 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     search-features:
       search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+  query:
+    properties:
+      call-number-range-offset: ${QUERY_CALL_NUMBER_RANGE_OFFSET:0.5e18}
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

@@ -50,6 +50,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Log4j2
 @EnableOkapi
@@ -148,6 +149,14 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   public static ResultActions doGet(String uri, Object... args) {
     return mockMvc.perform(get(uri, args)
+        .headers(defaultHeaders())
+        .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
+    return mockMvc.perform(request
         .headers(defaultHeaders())
         .accept("application/json;charset=UTF-8"))
       .andExpect(status().isOk());

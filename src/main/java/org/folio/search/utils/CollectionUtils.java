@@ -8,11 +8,13 @@ import static java.util.stream.Stream.empty;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -81,13 +83,31 @@ public final class CollectionUtils {
   /**
    * Merges given array of collections into single {@link LinkedHashSet} object.
    *
-   * @param collections array of maps to merge into single one.
+   * @param collections array of sets to merge into single one.
    * @param <T> generic type for collection value
    * @return merged maps into one {@link LinkedHashSet} object.
    */
   @SafeVarargs
-  public static <T> Collection<T> mergeSafelyToSet(Collection<T>... collections) {
+  public static <T> Set<T> mergeSafelyToSet(Collection<T>... collections) {
     var set = new LinkedHashSet<T>();
+    for (Collection<T> collection : collections) {
+      if (isNotEmpty(collection)) {
+        set.addAll(collection);
+      }
+    }
+    return set;
+  }
+
+  /**
+   * Merges given array of collections into single {@link ArrayList} object.
+   *
+   * @param collections array of collection to merge into single one.
+   * @param <T> generic type for collection value
+   * @return merged maps into one {@link LinkedHashSet} object.
+   */
+  @SafeVarargs
+  public static <T> List<T> mergeSafelyToList(Collection<T>... collections) {
+    var set = new ArrayList<T>();
     for (Collection<T> collection : collections) {
       if (isNotEmpty(collection)) {
         set.addAll(collection);
@@ -136,14 +156,14 @@ public final class CollectionUtils {
   /**
    * Verifies that some element in iterable satisfies given condition.
    *
-   * @param collection - collection to check
+   * @param iterable - iterable to check
    * @param checker - predicate for iterable elements
-   * @param <T> generic type for collection element
+   * @param <T> generic type for iterable elements
    * @return true if any element matched
    */
-  public static <T> boolean anyMatch(Iterable<T> collection, Predicate<T> checker) {
-    for (T value : collection) {
-      if (checker.test(value)) {
+  public static <T> boolean anyMatch(Iterable<T> iterable, Predicate<T> checker) {
+    for (var element : iterable) {
+      if (checker.test(element)) {
         return true;
       }
     }
@@ -153,13 +173,30 @@ public final class CollectionUtils {
   /**
    * Verifies that all elements in iterable do not satisfy given condition.
    *
-   * @param collection - collection to check
+   * @param iterable - iterable to check
    * @param checker - predicate for iterable elements
-   * @param <T> generic type for collection element
+   * @param <T> generic type for iterable element
    * @return true if all elements do not match given condition
    */
-  public static <T> boolean noneMatch(Iterable<T> collection, Predicate<T> checker) {
-    return !anyMatch(collection, checker);
+  public static <T> boolean noneMatch(Iterable<T> iterable, Predicate<T> checker) {
+    return !anyMatch(iterable, checker);
+  }
+
+  /**
+   * Verifies that all elements in iterable satisfy given condition.
+   *
+   * @param iterable - iterable to check
+   * @param checker - predicate for iterable elements
+   * @param <T> generic type for iterable elements
+   * @return true if any element matched
+   */
+  public static <T> boolean allMatch(Iterable<T> iterable, Predicate<T> checker) {
+    for (var element : iterable) {
+      if (!checker.test(element)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -186,6 +223,22 @@ public final class CollectionUtils {
     }
 
     return getStrings(currentField);
+  }
+
+  /**
+   * Reverses the elements in the given list.
+   *
+   * @param list - a list to process
+   * @param <T> - generic type for the list elements
+   * @return reversed list
+   */
+  public static <T> List<T> reverse(List<T> list) {
+    var listIterator = list.listIterator(list.size());
+    var result = new ArrayList<T>();
+    while (listIterator.hasPrevious()) {
+      result.add(listIterator.previous());
+    }
+    return result;
   }
 
   private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {

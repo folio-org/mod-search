@@ -122,6 +122,30 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /browse/call-numbers/instances:
+    get:
+      operationId: browseInstancesByCallNumber
+      description: Provides list of instances for browsing by call number
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by call number'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/callNumberBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /index/indices:
     post:
       operationId: createIndices
@@ -354,6 +378,8 @@ components:
       $ref: schemas/response/instanceSearchResult.json
     authoritySearchResult:
       $ref: schemas/response/authoritySearchResult.json
+    callNumberBrowseResult:
+      $ref: schemas/response/callNumberBrowseResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
     resourceIds:
@@ -458,3 +484,20 @@ components:
       required: false
       schema:
         type: string
+    preceding-records-count:
+      in: query
+      name: precedingRecordsCount
+      description: Number of preceding records for browsing around and around-including options
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+    highlight-match:
+      in: query
+      name: highlightMatch
+      description: Whether to highlight matched resource by query input or not.
+      required: false
+      schema:
+        type: boolean
+        default: true

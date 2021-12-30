@@ -10,6 +10,7 @@
     ],
     "barcode": "10101",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
     "effectiveCallNumberComponents": {
       "suffix": "suffix-10101",
       "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
@@ -63,6 +64,7 @@
     "formerIds": [],
     "barcode": "90000",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
     "effectiveCallNumberComponents": {
       "prefix": "prefix-90000",
       "callNumber": "TK5105.88815 . A58 2004 FT MEADE",

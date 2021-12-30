@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class LtTermQueryBuilder implements TermQueryBuilder {
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
     return rangeQuery(fieldName).lt(term);
   }
 

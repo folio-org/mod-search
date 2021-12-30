@@ -437,7 +437,7 @@ class CqlSearchQueryConverterTest {
   }
 
   @TestConfiguration
-  @Import(CqlTermQueryConverter.class)
+  @Import({CqlTermQueryConverter.class, CqlQueryParser.class})
   @ComponentScan("org.folio.search.cql.builders")
   static class ConverterTestConfiguration {
 

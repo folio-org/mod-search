@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component;
 public class AnyTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(String term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, String... fields) {
     return multiMatchQuery(term, fields);
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(String term, String fieldName, String resource) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
     return getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(String term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
     return matchQuery(fieldName, term);
   }
 

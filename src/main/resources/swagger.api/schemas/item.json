@@ -98,6 +98,9 @@
       "items": {
         "$ref": "circulationNote.json"
       }
+    },
+    "metadata": {
+      "$ref": "metadata.json"
     }
   }
 }

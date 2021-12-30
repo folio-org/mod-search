@@ -207,17 +207,17 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3])),
 
-      arguments("(holdings.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
-      arguments("(holdings.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(holdings.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
+      arguments("(holdings.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[3])),
       arguments("(holdings.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0], IDS[2])),
 
-      arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
-      arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
-      arguments("(holdings.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
+      arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
+      arguments("(holdings.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[3])),
       arguments("(holdings.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(holdings.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
-        List.of(IDS[2], IDS[3])),
+        List.of(IDS[3])),
 
       arguments("(items.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(items.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),

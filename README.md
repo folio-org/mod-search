@@ -48,7 +48,7 @@ listening port):
 
 
 ```
-KAFA_PORT=localhost KAFA_PORT=... \
+KAFA_PORT=localhost KAFA_PORT=9092 \
    java -Dserver.port=8081 -jar target/mod-search-*.jar
 
 ```

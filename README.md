@@ -9,6 +9,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 * [Introduction](#introduction)
 * [Compiling](#compiling)
+* [Running it](#running-it)
 * [Docker](#docker)
 * [Multi-language search support](#multi-language-search-support)
 * [Deploying the module](#deploying-the-module)
@@ -38,6 +39,19 @@ records using filters, boolean conditions, etc.
 mvn install
 ```
 See that it says "BUILD SUCCESS" near the end.
+
+## Running it
+
+Run locally with proper environment variables set (see
+[Environment vaiables](#environment-variables) below) on listening port 8081 (default
+listening port):
+
+
+```
+KAFA_PORT=localhost KAFA_PORT=... \
+   java -Dserver.port=8081 -jar target/mod-search-*.jar
+
+```
 
 ## Docker
 
@@ -146,7 +160,7 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | DB_PASSWORD                              | -                         | Postgres username password                                                                                                                                                            |
 | DB_DATABASE                              | okapi_modules             | Postgres database name                                                                                                                                                                |
 | ~~ELASTICSEARCH_HOST~~                   | elasticsearch             | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch hostname                                                                                                                            |
-| ~~ELASTICSEARCH_POR~~                    | 9200                      | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch port                                                                                                                                |
+| ~~ELASTICSEARCH_PORT~~                   | 9200                      | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch port                                                                                                                                |
 | ELASTICSEARCH_URL                        | http://elasticsearch:9200 | Elasticsearch URL                                                                                                                                                                     |
 | ELASTICSEARCH_USERNAME                   | -                         | Elasticsearch username (not required for dev envs)                                                                                                                                    |
 | ELASTICSEARCH_PASSWORD                   | -                         | Elasticsearch password (not required for dev envs)                                                                                                                                    |

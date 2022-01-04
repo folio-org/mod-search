@@ -2,6 +2,6 @@
   "srvcId": "@artifactId@-@version@",
   "nodeId": "localhost",
   "descriptor": {
-    "exec": "java -Dport=%p -jar ../mod-search/target/mod-search.jar -Dhttp.port=%p"
+    "exec": "java -Dserver.port=%p -jar ../mod-search/target/@artifactId@-@version@.jar"
   }
 }

@@ -67,6 +67,9 @@
       "items": {
         "$ref": "note.json"
       }
+    },
+    "metadata": {
+      "$ref": "metadata.json"
     }
   }
 }

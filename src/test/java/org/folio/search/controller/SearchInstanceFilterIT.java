@@ -205,6 +205,30 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
+        List.of(IDS[2], IDS[3])),
+
+      arguments("(holdings.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
+      arguments("(holdings.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[3])),
+      arguments("(holdings.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
+        List.of(IDS[0])),
+
+      arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
+      arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
+      arguments("(holdings.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[3])),
+      arguments("(holdings.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(holdings.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
+        List.of(IDS[3])),
+
+      arguments("(items.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
+        List.of(IDS[0], IDS[2])),
+
+      arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3]))
     );
   }
@@ -332,9 +356,12 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
           .discoverySuppress(true)
           .materialTypeId(MATERIAL_TYPES[0])
+          .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
           .tags(tags("itag1", "itag3"))))
       .holdings(List.of(
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
+        new Holding().id(randomId())
+          .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
+          .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
 
     instances[1]
       .source("MARC")
@@ -351,8 +378,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .discoverySuppress(false)
           .materialTypeId(MATERIAL_TYPES[1])
           .statisticalCodeIds(singletonList("615e9911-edb1-4ab3-a9c3-a461a3de02f8"))
+          .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
           .tags(tags("itag2", "itag3"))))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
+        .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
 
     instances[2]
@@ -365,6 +394,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+          .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
           .discoverySuppress(true).materialTypeId(MATERIAL_TYPES[0]).tags(tags("itag3")),
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))
           .tags(tags("itag1", "itag2", "itag3"))));
@@ -380,9 +410,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+        .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
+          .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
           .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));

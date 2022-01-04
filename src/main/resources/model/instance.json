@@ -324,6 +324,31 @@
               "index": "bool"
             }
           }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
+            }
+          }
         }
       }
     },
@@ -390,6 +415,31 @@
             },
             "staffOnly": {
               "index": "bool"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
             }
           }
         }

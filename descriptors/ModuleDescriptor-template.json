@@ -140,12 +140,12 @@
             "perms.users.get",
             "perms.users.item.post",
             "perms.users.assign.immutable",
+            "perms.users.assign.mutable",
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
-            "inventory-storage.alternative-title-types.collection.get",
-            "inventory-view.instances.collection.get"
+            "inventory-storage.alternative-title-types.collection.get"
           ]
         },
         {

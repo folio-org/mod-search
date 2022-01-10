@@ -146,6 +146,29 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /browse/subjects/instances:
+    get:
+      operationId: browseInstancesBySubject
+      description: Provides list of instances for browsing by subject
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by call number'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/subjectBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /index/indices:
     post:
       operationId: createIndices
@@ -380,6 +403,8 @@ components:
       $ref: schemas/response/authoritySearchResult.json
     callNumberBrowseResult:
       $ref: schemas/response/callNumberBrowseResult.json
+    subjectBrowseResult:
+      $ref: schemas/response/subjectBrowseResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
     resourceIds:

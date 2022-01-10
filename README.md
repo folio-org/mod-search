@@ -488,25 +488,23 @@ does not produce any values, so the following search options will return an empt
 
 ### Browsing by call-numbers
 
-The call number browsing page can be retrieved using following endpoint:
+Supported browsing values
 
-```text
-${okapi}/browse/call-number/instances
-```
+* subject (`${okapi}/browse/subjects/instances`)
+* call-number (`${okapi}/browse/call-numbers/instances`)
 
 **Query parameters**
 
-| Parameter             | Type    | Default value | Description                                                                                                                                                                                                 |
-|:----------------------|:--------|:--------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| query                 | string  | -             | A Cql query for call-number browsing<br/>`callNumber > {anchor}` - browsing forward<br/>`callNumber < {anchor}` - browsing backward<br/>`callNumber >= {anchor} or callNumber < {anchor}` - browsing around |
-| limit                 | integer | 100           | Number of records in response                                                                                                                                                                               |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                         |
-| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                             |
+| Parameter             | Type    | Default value | Description                                                                                                                                                                                                                     |
+|:----------------------|:--------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| query                 | string  | -             | A Cql query for call-number browsing<br/>`{browsingValue} > {anchor}` - browsing forward<br/>`{browsingValue} < {anchor}` - browsing backward<br/>`{browsingValue} >= {anchor} or {browsingValue} < {anchor}` - browsing around |
+| limit                 | integer | 100           | Number of records in response                                                                                                                                                                                                   |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                                             |
+| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                                                 |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
 to `true`.
-
 
 ## Search Facets
 

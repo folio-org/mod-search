@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Subject browse search response",
+  "type": "object",
+  "properties": {
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of items to display"
+    },
+    "items": {
+      "type": "array",
+      "description": "List of call number browse items",
+      "items": {
+        "$ref": "subjectBrowseItem.json"
+      }
+    }
+  }
+}

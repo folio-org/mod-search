@@ -1,0 +1,8 @@
+{
+  "name": "instance_subject",
+  "fields": {
+    "subject": {
+      "index": "plain_fulltext"
+    }
+  }
+}

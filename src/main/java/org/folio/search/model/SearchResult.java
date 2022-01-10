@@ -1,6 +1,7 @@
 package org.folio.search.model;
 
 import static java.util.Collections.emptyList;
+import static org.folio.search.utils.CollectionUtils.reverse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 
 @Data
 @NoArgsConstructor
@@ -70,5 +72,19 @@ public class SearchResult<T> {
   public SearchResult<T> records(List<T> records) {
     this.records = records;
     return this;
+  }
+
+  public SearchResult<T> withReversedRecords() {
+    this.records = reverse(this.records);
+    return this;
+  }
+
+  /**
+   * Checks if search result is empty or not.
+   *
+   * @return true - if search result is empty, false - otherwise.
+   */
+  public boolean isEmpty() {
+    return CollectionUtils.isEmpty(records);
   }
 }

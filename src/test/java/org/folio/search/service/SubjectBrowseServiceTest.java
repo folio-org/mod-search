@@ -74,7 +74,7 @@ class SubjectBrowseServiceTest {
     when(documentConverter.convertToSearchResult(searchResponse, SubjectBrowseItem.class)).thenReturn(searchResult(
       subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3"),
       subjectBrowseItem("s4"), subjectBrowseItem("s5")));
-    mockCountSearchResponse(mapOf("s1", null, "s2", 2, "s3", 3, "s4", 2, "s5", null));
+    mockCountSearchResponse(mapOf("s1", 1, "s2", 2, "s3", 3, "s4", 2, "s5", 1));
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
@@ -93,7 +93,7 @@ class SubjectBrowseServiceTest {
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, SubjectBrowseItem.class)).thenReturn(searchResult(
       subjectBrowseItem("s3"), subjectBrowseItem("s2"), subjectBrowseItem("s1")));
-    mockCountSearchResponse(mapOf("s1", null, "s2", 2, "s3", 3));
+    mockCountSearchResponse(mapOf("s1", 1, "s2", 2, "s3", 3));
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
@@ -115,7 +115,7 @@ class SubjectBrowseServiceTest {
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 5, ASC), subjectTermQuery("s0")),
       List.of(browsingSearchResult, searchResult(subjectBrowseItem("s0"))));
-    mockCountSearchResponse(mapOf("s0", null, "s1", 2, "s2", 3, "s3", 2, "s4", null));
+    mockCountSearchResponse(mapOf("s0", 1, "s1", 2, "s2", 3, "s3", 2, "s4", 1));
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
@@ -138,7 +138,7 @@ class SubjectBrowseServiceTest {
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 5, ASC), subjectTermQuery("s0")),
       List.of(browsingSearchResult, SearchResult.empty()));
-    mockCountSearchResponse(mapOf("s1", 2, "s2", 3, "s3", 2, "s4", null, "s5", 10));
+    mockCountSearchResponse(mapOf("s1", 2, "s2", 3, "s3", 2, "s4", 1, "s5", 10));
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
@@ -174,7 +174,7 @@ class SubjectBrowseServiceTest {
     var browsingSearchResult = searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"));
 
     when(cqlSearchQueryConverter.convert(query, INSTANCE_SUBJECT)).thenReturn(searchSource(esQuery));
-    mockCountSearchResponse(mapOf("s1", null, "s2", 2));
+    mockCountSearchResponse(mapOf("s1", 1, "s2", 2));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 5, ASC), subjectTermQuery("s0")),
       List.of(browsingSearchResult, SearchResult.empty()));
@@ -194,7 +194,7 @@ class SubjectBrowseServiceTest {
     mockMultiSearchRequest(request, List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC)), List.of(
       SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
       searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3"))));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s1", 10, "s2", 5));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s1", 10, "s2", 5));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -211,7 +211,7 @@ class SubjectBrowseServiceTest {
     mockMultiSearchRequest(request, List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC)), List.of(
       SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
       searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3"))));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s1", 10, "s2", 5, "s3", 12));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s1", 10, "s2", 5, "s3", 12));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -231,7 +231,7 @@ class SubjectBrowseServiceTest {
         SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
         searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3")),
         searchResult(subjectBrowseItem("s0"))));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s0", 5, "s1", 10, "s2", 5));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s0", 5, "s1", 10, "s2", 5));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -251,7 +251,7 @@ class SubjectBrowseServiceTest {
         SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
         searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3")),
         searchResult(subjectBrowseItem("s0"))));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s0", 5, "s1", 10, "s2", 5));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s0", 5, "s1", 10, "s2", 5));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -271,7 +271,7 @@ class SubjectBrowseServiceTest {
         SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
         searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3")),
         SearchResult.empty()));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s1", 10, "s2", 5));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s1", 10, "s2", 5));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -291,7 +291,7 @@ class SubjectBrowseServiceTest {
         SearchResult.of(10, List.of(subjectBrowseItem("r2"), subjectBrowseItem("r1"))),
         searchResult(subjectBrowseItem("s1"), subjectBrowseItem("s2"), subjectBrowseItem("s3")),
         SearchResult.empty()));
-    mockCountSearchResponse(mapOf("r1", 4, "r2", null, "s1", 10, "s2", 5, "s3", 11));
+    mockCountSearchResponse(mapOf("r1", 4, "r2", 1, "s1", 10, "s2", 5, "s3", 11));
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
@@ -324,7 +324,7 @@ class SubjectBrowseServiceTest {
     var subjects = expectedSubjectCounts.keySet().toArray(String[]::new);
     var subjectsQuerySource = searchSource(matchAllQuery()).from(0).size(0)
       .aggregation(AggregationBuilders.terms("counts")
-        .size(subjects.length).field("plain_subjects").minDocCount(2)
+        .size(subjects.length).field("plain_subjects")
         .includeExclude(new IncludeExclude(subjects, null)));
     var request = SimpleResourceRequest.of(INSTANCE_RESOURCE, TENANT_ID);
     when(searchRepository.search(request, subjectsQuerySource)).thenReturn(countQueryResponse);

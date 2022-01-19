@@ -73,12 +73,12 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
   }
 
   @Override
-  protected SearchResult<SubjectBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext ctx) {
-    var searchResult = ctx.isAnchorIncluded(ctx.isForwardBrowsing())
-      ? getSearchResultWithAnchor(request, ctx)
-      : getSearchResultWithoutAnchor(request, ctx);
+  protected SearchResult<SubjectBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    var searchResult = context.isAnchorIncluded(context.isForwardBrowsing())
+      ? getSearchResultWithAnchor(request, context)
+      : getSearchResultWithoutAnchor(request, context);
 
-    var subjectBrowseItems = getSubjectBrowseItems(request, ctx, searchResult.getRecords());
+    var subjectBrowseItems = getSubjectBrowseItems(request, context, searchResult.getRecords());
     return SearchResult.of(searchResult.getTotalRecords(), subjectBrowseItems);
   }
 
@@ -91,8 +91,8 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
       documentConverter.convertToSearchResult(responses[1].getResponse(), SubjectBrowseItem.class));
   }
 
-  private static <T> SearchResult<T> getMergedSearchResults(BrowseContext ctx,
-    SearchResult<T> result, SearchResult<T> anchorResult) {
+  private static <T> SearchResult<T> getMergedSearchResults(BrowseContext ctx, SearchResult<T> result,
+    SearchResult<T> anchorResult) {
     var records = result.getRecords();
     var totalRecords = result.getTotalRecords();
     var subjectRecords = trimSearchResult(anchorResult.isEmpty(), ctx.getLimit(ctx.isForwardBrowsing()), records);
@@ -129,7 +129,7 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
         if (isHighlightedResult(request, context) && equalsIgnoreCase(subjectAsMapKey, (String) context.getAnchor())) {
           item.subject(highlightValue(item.getSubject()));
         }
-        item.totalRecords(subjectCounts.getOrDefault(subjectAsMapKey, 1L).intValue());
+        item.totalRecords(subjectCounts.getOrDefault(subjectAsMapKey, 0L).intValue());
       }
     }
 
@@ -161,15 +161,15 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
     return new SubjectBrowseItem().subject((String) context.getAnchor()).totalRecords(0);
   }
 
-  private static SearchSourceBuilder getAnchorQuery(BrowseRequest request, BrowseContext ctx) {
-    return searchSource().query(termQuery(request.getTargetField(), ctx.getAnchor())).from(0).size(1);
+  private static SearchSourceBuilder getAnchorQuery(BrowseRequest request, BrowseContext context) {
+    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor())).from(0).size(1);
   }
 
-  private SearchSourceBuilder getSearchSource(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
+  private SearchSourceBuilder getSearchSource(BrowseRequest request, BrowseContext context, boolean isBrowsingForward) {
     return searchSource().query(matchAllQuery())
-      .searchAfter(new Object[] {((String) ctx.getAnchor()).toLowerCase(ROOT)})
+      .searchAfter(new Object[] {((String) context.getAnchor()).toLowerCase(ROOT)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .size(ctx.getLimit(isBrowsingForward))
+      .size(context.getLimit(isBrowsingForward))
       .from(0);
   }
 
@@ -194,7 +194,7 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
 
   private static SearchSourceBuilder getSubjectCountsQuery(List<String> subjects) {
     var lowercaseSubjects = subjects.stream().map(subject -> subject.toLowerCase(ROOT)).toArray(String[]::new);
-    var aggregation = AggregationBuilders.terms("counts").minDocCount(2)
+    var aggregation = AggregationBuilders.terms("counts")
       .size(subjects.size()).field(getPathToFulltextPlainValue("subjects"))
       .includeExclude(new IncludeExclude(lowercaseSubjects, null));
     return searchSource().query(matchAllQuery()).size(0).from(0).aggregation(aggregation);

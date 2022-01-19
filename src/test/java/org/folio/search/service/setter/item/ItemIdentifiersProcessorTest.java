@@ -43,8 +43,8 @@ class ItemIdentifiersProcessorTest {
       arguments("item with hrid and empty list in formerIds", instance(item("i1", null, emptyList())), List.of("i1")),
       arguments("item with single formerId", instance(item(null, null, List.of("id1"))), List.of("id1")),
       arguments("item with multiple formerIds", instance(item(null, null, FORMER_IDS)), FORMER_IDS),
-      arguments("item with all identifiers and UUID", instance
-        (item("i01", "an", List.of("fid")), item(UUID)), List.of("i01", "an", "fid", UUID)),
+      arguments("item with all identifiers and UUID", instance(
+        item("i01", "an", List.of("fid")), item(UUID)), List.of("i01", "an", "fid", UUID)),
       arguments("2 duplicated items", instance(
         item("i01", "an", List.of("fid")), item("i01", "an", List.of("fid"))), List.of("i01", "an", "fid"))
     );

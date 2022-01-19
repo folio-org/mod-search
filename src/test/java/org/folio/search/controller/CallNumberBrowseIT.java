@@ -71,7 +71,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(cnBrowseResult(47, List.of(
       cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
       cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-      cnBrowseItem(instance("instance #44"), "<mark>CE 16 B6713 X 41993</mark>", "CE 16 B6713 X 41993"),
+      cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", "CE 16 B6713 X 41993", true),
       cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
       cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
       cnBrowseItem(instance("instance #38"), "CE 210 K297 41858"),
@@ -115,7 +115,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, firstAnchorCallNumber, 5, cnBrowseResult(46, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-        cnBrowseItem(0, "CE 210 K297 41858", null),
+        cnBrowseItem(0, "CE 210 K297 41858", null, true ),
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
@@ -123,7 +123,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1", null),
+        cnBrowseItem(0, "DA 3890 A1", null, true),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
       ))),
@@ -131,7 +131,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, firstAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-        cnBrowseItem(instance("instance #38"), "<mark>CE 210 K297 41858</mark>", "CE 210 K297 41858"),
+        cnBrowseItem(instance("instance #38"), "CE 210 K297 41858", "CE 210 K297 41858", true),
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
@@ -139,7 +139,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1", null),
+        cnBrowseItem(0, "DA 3890 A1", null, true),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
       ))),
@@ -158,7 +158,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(0, "DA 3890 A1", null),
+        cnBrowseItem(0, "DA 3890 A1", null, true),
         cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
         cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -177,7 +177,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-        cnBrowseItem(0, "FC", null),
+        cnBrowseItem(0, "FC", null, true),
         cnBrowseItem(3, "FC 17 B89"),
         cnBrowseItem(instance("instance #17"), "GA 16 A63 41581")
       ))),

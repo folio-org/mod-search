@@ -143,8 +143,13 @@ public class TestUtils {
     return cnBrowseItem(instance, callNumber, callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, String shelfKey) {
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().fullCallNumber(cn).shelfKey(shelfKey)
+      .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
@@ -153,6 +158,11 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords)
+      .shelfKey(shelfKey).fullCallNumber(cn).isAnchor(isAnchor);
   }
 
   public static String randomId() {

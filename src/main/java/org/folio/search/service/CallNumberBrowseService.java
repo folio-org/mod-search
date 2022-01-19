@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -204,10 +203,7 @@ public class CallNumberBrowseService {
       items.remove(items.size() - 1);
       return;
     }
-    var fullCallNumber = firstItem.getFullCallNumber();
-    if (StringUtils.isNotBlank(fullCallNumber)) {
-      firstItem.setFullCallNumber("<mark>" + fullCallNumber + "</mark>");
-    }
+    firstItem.setIsAnchor(true);
   }
 
   private long getDifferenceBetweenCallNumberAndAnchor(Long anchor, Item item, boolean isForwardBrowsing) {
@@ -216,7 +212,7 @@ public class CallNumberBrowseService {
   }
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
-    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0);
+    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
   }
 
   private static List<CallNumberBrowseItem> collapseSearchResultByCallNumber(List<CallNumberBrowseItem> items) {

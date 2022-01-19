@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class HoldingIdentifiersProcessorTest {
 
   private static final List<String> FORMER_IDS = List.of(randomId(), randomId());
+  private static final String UUID = randomId();
   private final HoldingIdentifiersProcessor itemIdentifiersProcessor = new HoldingIdentifiersProcessor();
 
   @MethodSource("testDataProvider")
@@ -36,11 +37,14 @@ class HoldingIdentifiersProcessorTest {
       arguments("empty items", instance(), emptyList()),
       arguments("holding with nullable identifier fields", instance(holding(null, null)), emptyList()),
       arguments("holding with hrid only", instance(holding("h01", null)), List.of("h01")),
+      arguments("holding with UUID only", instance(holding(UUID)), List.of(UUID)),
       arguments("holding with empty identifiers", instance(holding("", emptyList())), emptyList()),
       arguments("holding with hrid and empty list in formerIds", instance(holding("h01", emptyList())), List.of("h01")),
       arguments("holding with single formerId", instance(holding(null, List.of("id1"))), List.of("id1")),
       arguments("holding with multiple formerIds", instance(holding(null, FORMER_IDS)), FORMER_IDS),
       arguments("holding with all identifiers", instance(holding("h01", List.of("fid"))), List.of("h01", "fid")),
+      arguments("holding with all identifiers and UUID", instance(
+        holding("h01", List.of("fid")), holding(UUID)), List.of("h01", "fid", UUID)),
       arguments("2 duplicated holdings", instance(
         holding("h01", List.of("fid")), holding("h01", List.of("fid"))), List.of("h01", "fid"))
     );
@@ -52,5 +56,9 @@ class HoldingIdentifiersProcessorTest {
 
   private static Holding holding(String hrid, List<String> formerIds) {
     return new Holding().hrid(hrid).formerIds(formerIds);
+  }
+
+  private static Holding holding(String id) {
+    return new Holding().id(id);
   }
 }

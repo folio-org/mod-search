@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class ItemIdentifiersProcessorTest {
 
   private static final List<String> FORMER_IDS = List.of(randomId(), randomId());
+  private static final String UUID = randomId();
   private final ItemIdentifiersProcessor itemIdentifiersProcessor = new ItemIdentifiersProcessor();
 
   @MethodSource("testDataProvider")
@@ -36,12 +37,14 @@ class ItemIdentifiersProcessorTest {
       arguments("empty items", instance(), emptyList()),
       arguments("item with nullable identifier fields", instance(item(null, null, null)), emptyList()),
       arguments("item with hrid only", instance(item("i1", null, null)), List.of("i1")),
+      arguments("item with UUID only", instance(item(UUID)), List.of(UUID)),
       arguments("item with accessionNumber only", instance(item(null, "an", null)), List.of("an")),
       arguments("item with empty identifiers", instance(item("", "", emptyList())), emptyList()),
       arguments("item with hrid and empty list in formerIds", instance(item("i1", null, emptyList())), List.of("i1")),
       arguments("item with single formerId", instance(item(null, null, List.of("id1"))), List.of("id1")),
       arguments("item with multiple formerIds", instance(item(null, null, FORMER_IDS)), FORMER_IDS),
-      arguments("item with all identifiers", instance(item("i01", "an", List.of("fid"))), List.of("i01", "an", "fid")),
+      arguments("item with all identifiers and UUID", instance
+        (item("i01", "an", List.of("fid")), item(UUID)), List.of("i01", "an", "fid", UUID)),
       arguments("2 duplicated items", instance(
         item("i01", "an", List.of("fid")), item("i01", "an", List.of("fid"))), List.of("i01", "an", "fid"))
     );
@@ -53,5 +56,9 @@ class ItemIdentifiersProcessorTest {
 
   private static Item item(String hrid, String accessionNumber, List<String> formerIds) {
     return new Item().hrid(hrid).accessionNumber(accessionNumber).formerIds(formerIds);
+  }
+
+  private static Item item(String id) {
+    return new Item().id(id);
   }
 }

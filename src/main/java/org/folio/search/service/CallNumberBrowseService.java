@@ -17,7 +17,6 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.SearchUtils.getAnchorCallNumber;
 import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
-import static org.folio.search.utils.SearchUtils.highlightValue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -208,7 +207,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
     var fullCallNumber = firstItem.getFullCallNumber();
     if (StringUtils.isNotBlank(fullCallNumber)) {
-      firstItem.setFullCallNumber(highlightValue(fullCallNumber));
+      firstItem.setFullCallNumber("<mark>" + fullCallNumber + "</mark>");
     }
   }
 

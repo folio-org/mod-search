@@ -82,7 +82,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
       subjectBrowseItem(1, "Textbooks"),
       subjectBrowseItem(1, "United States"),
-      subjectBrowseItem(1, "<mark>Water</mark>"),
+      subjectBrowseItem(1, "Water", true),
       subjectBrowseItem(1, "Water--Analysis"),
       subjectBrowseItem(1, "Water--Microbiology"),
       subjectBrowseItem(1, "Water--Purification"),
@@ -120,14 +120,14 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, "water", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Textbooks"),
         subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(0, "water"),
+        subjectBrowseItem(0, "water", true),
         subjectBrowseItem(1, "Water--Analysis"),
         subjectBrowseItem(1, "Water--Microbiology")
       ))),
 
       arguments(aroundQuery, "biology", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(2, "Biography"),
-        subjectBrowseItem(0, "biology"),
+        subjectBrowseItem(0, "biology", true),
         subjectBrowseItem(1, "Book"),
         subjectBrowseItem(1, "Database design")
       ))),
@@ -135,14 +135,14 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, "water", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Textbooks"),
         subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "<mark>Water</mark>"),
+        subjectBrowseItem(1, "Water", true),
         subjectBrowseItem(1, "Water--Analysis"),
         subjectBrowseItem(1, "Water--Microbiology")
       ))),
 
       arguments(aroundIncludingQuery, "biology", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(2, "Biography"),
-        subjectBrowseItem(0, "biology"),
+        subjectBrowseItem(0, "biology", true),
         subjectBrowseItem(1, "Book"),
         subjectBrowseItem(1, "Database design")
       ))),
@@ -155,7 +155,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
         subjectBrowseItem(1, "Europe"),
         subjectBrowseItem(1, "Fantasy"),
         subjectBrowseItem(3, "History"),
-        subjectBrowseItem(3, "<mark>Music</mark>"),
+        subjectBrowseItem(3, "Music", true),
         subjectBrowseItem(1, "Philosophy"),
         subjectBrowseItem(1, "Religion"),
         subjectBrowseItem(1, "Rules"),
@@ -173,7 +173,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, "FC", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Europe"),
         subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(0, "FC"),
+        subjectBrowseItem(0, "FC", true),
         subjectBrowseItem(3, "History"),
         subjectBrowseItem(3, "Music")
       ))),

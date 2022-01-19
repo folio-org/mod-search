@@ -17,7 +17,6 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
-import static org.folio.search.utils.SearchUtils.highlightValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,7 +126,7 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
       if (item.getTotalRecords() == null) {
         var subjectAsMapKey = item.getSubject().toLowerCase(ROOT);
         if (isHighlightedResult(request, context) && equalsIgnoreCase(subjectAsMapKey, (String) context.getAnchor())) {
-          item.subject(highlightValue(item.getSubject()));
+          item.isAnchor(true);
         }
         item.totalRecords(subjectCounts.getOrDefault(subjectAsMapKey, 0L).intValue());
       }
@@ -158,7 +157,7 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
   }
 
   private static SubjectBrowseItem getEmptyBrowseItem(BrowseContext context) {
-    return new SubjectBrowseItem().subject((String) context.getAnchor()).totalRecords(0);
+    return new SubjectBrowseItem().subject((String) context.getAnchor()).totalRecords(0).isAnchor(true);
   }
 
   private static SearchSourceBuilder getAnchorQuery(BrowseRequest request, BrowseContext context) {

@@ -184,6 +184,10 @@ public class TestUtils {
     return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords);
   }
 
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, boolean isAnchor) {
+    return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
     return new SubjectBrowseItem().subject(subject);
   }

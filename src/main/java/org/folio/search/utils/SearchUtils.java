@@ -317,16 +317,6 @@ public class SearchUtils {
     return null;
   }
 
-  /**
-   * Highlights value for browsing item.
-   *
-   * @param str - string value to process
-   * @return highlighted value as {@link String}.
-   */
-  public static String highlightValue(String str) {
-    return "<mark>" + str + "</mark>";
-  }
-
   private static Object getMultilangValueObject(Object value) {
     return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
   }

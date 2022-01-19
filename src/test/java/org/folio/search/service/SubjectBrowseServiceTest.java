@@ -199,7 +199,7 @@ class SubjectBrowseServiceTest {
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
       subjectBrowseItem(4, "r1"), subjectBrowseItem(1, "r2"),
-      subjectBrowseItem(0, "s0"), subjectBrowseItem(10, "s1"), subjectBrowseItem(5, "s2"))));
+      subjectBrowseItem(0, "s0", true), subjectBrowseItem(10, "s1"), subjectBrowseItem(5, "s2"))));
   }
 
   @Test
@@ -235,7 +235,7 @@ class SubjectBrowseServiceTest {
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
-      subjectBrowseItem(4, "r1"), subjectBrowseItem(1, "r2"), subjectBrowseItem(5, "<mark>s0</mark>"),
+      subjectBrowseItem(4, "r1"), subjectBrowseItem(1, "r2"), subjectBrowseItem(5, "s0", true),
       subjectBrowseItem(10, "s1"), subjectBrowseItem(5, "s2"))));
   }
 
@@ -275,7 +275,7 @@ class SubjectBrowseServiceTest {
 
     var actual = subjectBrowseService.browse(request);
     assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
-      subjectBrowseItem(4, "r1"), subjectBrowseItem(1, "r2"), subjectBrowseItem(0, "s0"),
+      subjectBrowseItem(4, "r1"), subjectBrowseItem(1, "r2"), subjectBrowseItem(0, "s0", true),
       subjectBrowseItem(10, "s1"), subjectBrowseItem(5, "s2"))));
   }
 

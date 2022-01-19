@@ -68,7 +68,7 @@ public class SubjectBrowseService extends AbstractBrowseService<SubjectBrowseIte
     records.addAll(anchorRes.getRecords());
     records.addAll(trimSearchResult(anchorRes.isEmpty(), context.getLimit(true), succeedingRes.getRecords()));
 
-    var totalRecords = precedingRes.getTotalRecords() + anchorRes.getTotalRecords() + succeedingRes.getTotalRecords();
+    var totalRecords = precedingRes.getTotalRecords();
     return SearchResult.of(totalRecords, getSubjectBrowseItems(request, context, records));
   }
 

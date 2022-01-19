@@ -2,7 +2,14 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Duration.ONE_MINUTE;
+import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
+import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -12,9 +19,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.SearchUtils;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class SubjectBrowseIT extends BaseIntegrationTest {
@@ -30,8 +42,16 @@ class SubjectBrowseIT extends BaseIntegrationTest {
   private static final Instance[] INSTANCES = instances();
 
   @BeforeAll
-  static void prepare() {
+  static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
     setUpTenant(INSTANCES);
+    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+      var searchRequest = new SearchRequest()
+        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
+        .indices(getElasticsearchIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
+        .routing(TENANT_ID);
+      var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(22);
+    });
   }
 
   @AfterAll
@@ -59,7 +79,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(subjectBrowseResult(45, List.of(
+    assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
       subjectBrowseItem(1, "Textbooks"),
       subjectBrowseItem(1, "United States"),
       subjectBrowseItem(1, "<mark>Water</mark>"),
@@ -79,7 +99,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
-    assertThat(actual).isEqualTo(subjectBrowseResult(45, List.of(
+    assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
       subjectBrowseItem(1, "Database management"),
       subjectBrowseItem(1, "Europe"),
       subjectBrowseItem(1, "Fantasy"),
@@ -97,7 +117,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     var backwardIncludingQuery = "subject <= {value}";
 
     return Stream.of(
-      arguments(aroundQuery, "water", 5, subjectBrowseResult(44, List.of(
+      arguments(aroundQuery, "water", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Textbooks"),
         subjectBrowseItem(1, "United States"),
         subjectBrowseItem(0, "water"),
@@ -105,14 +125,14 @@ class SubjectBrowseIT extends BaseIntegrationTest {
         subjectBrowseItem(1, "Water--Microbiology")
       ))),
 
-      arguments(aroundQuery, "biology", 5, subjectBrowseResult(44, List.of(
+      arguments(aroundQuery, "biology", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(2, "Biography"),
         subjectBrowseItem(0, "biology"),
         subjectBrowseItem(1, "Book"),
         subjectBrowseItem(1, "Database design")
       ))),
 
-      arguments(aroundIncludingQuery, "water", 5, subjectBrowseResult(45, List.of(
+      arguments(aroundIncludingQuery, "water", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Textbooks"),
         subjectBrowseItem(1, "United States"),
         subjectBrowseItem(1, "<mark>Water</mark>"),
@@ -120,14 +140,14 @@ class SubjectBrowseIT extends BaseIntegrationTest {
         subjectBrowseItem(1, "Water--Microbiology")
       ))),
 
-      arguments(aroundIncludingQuery, "biology", 5, subjectBrowseResult(45, List.of(
+      arguments(aroundIncludingQuery, "biology", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(2, "Biography"),
         subjectBrowseItem(0, "biology"),
         subjectBrowseItem(1, "Book"),
         subjectBrowseItem(1, "Database design")
       ))),
 
-      arguments(aroundIncludingQuery, "music", 25, subjectBrowseResult(45, List.of(
+      arguments(aroundIncludingQuery, "music", 25, subjectBrowseResult(22, List.of(
         subjectBrowseItem(2, "Biography"),
         subjectBrowseItem(1, "Book"),
         subjectBrowseItem(1, "Database design"),
@@ -150,7 +170,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
         subjectBrowseItem(1, "Water--Microbiology")
       ))),
 
-      arguments(aroundIncludingQuery, "FC", 5, subjectBrowseResult(45, List.of(
+      arguments(aroundIncludingQuery, "FC", 5, subjectBrowseResult(22, List.of(
         subjectBrowseItem(1, "Europe"),
         subjectBrowseItem(1, "Fantasy"),
         subjectBrowseItem(0, "FC"),

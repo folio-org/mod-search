@@ -115,7 +115,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundQuery, firstAnchorCallNumber, 5, cnBrowseResult(46, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-        cnBrowseItem(0, "CE 210 K297 41858", null, true ),
+        cnBrowseItem(0, "CE 210 K297 41858", null, true),
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),

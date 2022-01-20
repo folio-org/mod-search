@@ -97,7 +97,7 @@ class CallNumberBrowseServiceTest {
     assertThat(actual).isEqualTo(SearchResult.of(5, List.of(
       cnBrowseItem(instance("A 12"), "A 12"),
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(0, "B", null),
+      cnBrowseItem(0, "B", null, true),
       cnBrowseItem(instance("C 11"), "C 11"),
       cnBrowseItem(instance("C 12"), "C 12")
     )));
@@ -143,7 +143,7 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(SearchResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("B"), "<mark>B</mark>", "B"),
+      cnBrowseItem(instance("B"), "B", "B", true),
       cnBrowseItem(instance("C 11"), "C 11")
     )));
   }
@@ -160,7 +160,7 @@ class CallNumberBrowseServiceTest {
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
     assertThat(actual).isEqualTo(SearchResult.of(1, List.of(
-      cnBrowseItem(instance("A"), "A"), cnBrowseItem(0, "B", null))));
+      cnBrowseItem(instance("A"), "A"), cnBrowseItem(0, "B", null, true))));
   }
 
   @Test
@@ -427,7 +427,7 @@ class CallNumberBrowseServiceTest {
     when(callNumberProcessor.getCallNumberAsLong("B")).thenReturn(ANCHOR);
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, "B"))));
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, "B", null, true))));
   }
 
   @Test
@@ -442,7 +442,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browseByCallNumber(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, null, "B 10"))));
+    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(cnBrowseItem(instance, "B 10", null))));
   }
 
   private void prepareMocksForBrowsing(CallNumberBrowseRequest request, QueryBuilder query,

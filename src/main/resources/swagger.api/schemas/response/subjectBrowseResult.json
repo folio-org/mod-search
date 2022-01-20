@@ -9,7 +9,7 @@
     },
     "items": {
       "type": "array",
-      "description": "List of call number browse items",
+      "description": "List of subject browse items",
       "items": {
         "$ref": "subjectBrowseItem.json"
       }

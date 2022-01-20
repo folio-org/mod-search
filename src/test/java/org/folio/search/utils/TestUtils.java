@@ -16,7 +16,6 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -33,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +46,6 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.analytics.ParsedStringStats;
-import org.elasticsearch.common.ParseField;
 import org.elasticsearch.common.xcontent.ContextParser;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -164,8 +161,13 @@ public class TestUtils {
     return cnBrowseItem(instance, callNumber, callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, String shelfKey) {
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().fullCallNumber(cn).shelfKey(shelfKey)
+      .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
@@ -174,6 +176,11 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords)
+      .shelfKey(shelfKey).fullCallNumber(cn).isAnchor(isAnchor);
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

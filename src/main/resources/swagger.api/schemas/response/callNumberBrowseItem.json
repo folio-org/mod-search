@@ -11,6 +11,10 @@
       "type": "string",
       "description": "Shelf key value to be used for browsing"
     },
+    "isAnchor": {
+      "type": "boolean",
+      "description": "Marks if current value is anchor or not"
+    },
     "totalRecords": {
       "type": "integer",
       "description": "Amount of records for the call number value"

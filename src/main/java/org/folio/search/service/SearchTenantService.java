@@ -56,14 +56,16 @@ public class SearchTenantService {
       .forEach(languageConfigService::create);
 
     var resourceNames = resourceDescriptionService.getResourceNames();
-    resourceNames.forEach(resourceName ->
-      indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
+    resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
     Stream.ofNullable(tenantAttributes.getParameters())
       .flatMap(Collection::stream)
       .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
       .findFirst()
-      .ifPresent(parameter -> resourceNames.forEach(resource ->
-        indexService.reindexInventory(context.getTenantId(), new ReindexRequest().resourceName(resource))));
+      .ifPresent(parameter -> resourceNames.forEach(resource -> {
+        if (resourceDescriptionService.get(resource).isPrimary()) {
+          indexService.reindexInventory(context.getTenantId(), new ReindexRequest().resourceName(resource));
+        }
+      }));
   }
 
   /**

@@ -384,7 +384,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
 | `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
-| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.hrid`, `holdings.formerIds`                                  |
+| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
@@ -410,7 +410,7 @@ if it is defined but doesn't match.
 | `items.notes.note`                  | full-text | `items.notes.note all "librarian note"`                      | Search by item notes and circulation notes                                                             |
 | `items.circulationNotes.note`       | full-text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes                                                                       |
 | `itemPublicNotes`                   | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                      |
-| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.hrid`, `items.formerIds`, `items.accessionNumber`                   |
+| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`       |
 | `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                     |
 | `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                     |
 

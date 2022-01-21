@@ -199,6 +199,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("itemIdentifiers all {value}", "item000000000014"),
       arguments("itemIdentifiers all {value}", "81ae0f60-f2bc-450c-84c8-5a21096daed9"),
       arguments("itemIdentifiers all {value}", "item_accession_number"),
+      arguments("itemIdentifiers all {value}", "7212ba6a-8dcf-45a1-be9a-ffaa847c4423"),
 
       arguments("items.notes.note == {value}", "Librarian public note for item"),
       arguments("items.notes.note == {value}", "Librarian private note for item"),
@@ -228,7 +229,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("holdingIdentifiers all {value}", "hold000000000009"),
       arguments("holdingIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
-      arguments("holdingIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946")
+      arguments("holdingIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
+      arguments("holdingIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
     );
   }
 }

@@ -2,11 +2,14 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.callNumberBrowseRequest;
+import static org.folio.search.utils.TestUtils.browseRequest;
 import static org.folio.search.utils.TestUtils.searchResult;
+import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -14,8 +17,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.folio.search.model.service.CallNumberBrowseRequest;
+import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.CallNumberBrowseService;
+import org.folio.search.service.SubjectBrowseService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +35,15 @@ class InstanceBrowseControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private CallNumberBrowseService callNumberBrowseService;
+  @MockBean private SubjectBrowseService subjectBrowseService;
 
   @Test
-  void findRelatedInstances_positive() throws Exception {
-    var shelvingOrder = "callNumber > PR4034 .P7 2019";
-    var request = callNumberBrowseRequest(shelvingOrder, 5);
-    when(callNumberBrowseService.browseByCallNumber(request)).thenReturn(searchResult());
+  void browseInstancesByCallNumber_positive() throws Exception {
+    var query = "callNumber > PR4034 .P7 2019";
+    var request = browseRequest(query, 5);
+    when(callNumberBrowseService.browse(request)).thenReturn(searchResult());
     var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("query", shelvingOrder)
+      .queryParam("query", query)
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
@@ -50,10 +55,10 @@ class InstanceBrowseControllerTest {
   }
 
   @Test
-  void findRelatedInstances_positive_allFields() throws Exception {
+  void browseInstancesByCallNumber_positive_allFields() throws Exception {
     var query = "callNumber > B";
-    var request = CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, true, true, 5);
-    when(callNumberBrowseService.browseByCallNumber(request)).thenReturn(searchResult());
+    var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, "callNumber", true, true, 5);
+    when(callNumberBrowseService.browse(request)).thenReturn(searchResult());
 
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", query)
@@ -71,7 +76,25 @@ class InstanceBrowseControllerTest {
   }
 
   @Test
-  void findRelatedInstances_negative_missingQueryParameter() throws Exception {
+  void browseInstancesBySubject_positive() throws Exception {
+    var query = "subject > water";
+    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "subject", null, true, 12);
+    when(subjectBrowseService.browse(request)).thenReturn(searchResult(subjectBrowseItem(10, "water treatment")));
+    var requestBuilder = get(instanceSubjectBrowsePath())
+      .queryParam("query", query)
+      .queryParam("limit", "25")
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.items[0].subject", is("water treatment")))
+      .andExpect(jsonPath("$.items[0].totalRecords", is(10)));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_negative_missingQueryParameter() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
@@ -86,7 +109,7 @@ class InstanceBrowseControllerTest {
   }
 
   @Test
-  void findRelatedInstances_negative_precedingRecordsMoreThatLimit() throws Exception {
+  void browseInstancesByCallNumber_negative_precedingRecordsMoreThatLimit() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", "callNumber > A")
       .queryParam("limit", "5")

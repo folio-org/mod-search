@@ -1,12 +1,14 @@
 package org.folio.search.model.service;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
 
 @Data
+@Builder
 @RequiredArgsConstructor(staticName = "of")
-public class CallNumberBrowseRequest implements ResourceRequest {
+public class BrowseRequest implements ResourceRequest {
 
   /**
    * Resource name.
@@ -27,6 +29,11 @@ public class CallNumberBrowseRequest implements ResourceRequest {
    * Limit the number of elements in the response.
    */
   private final Integer limit;
+
+  /**
+   * Target field for browsing.
+   */
+  private final String targetField;
 
   /**
    * Whether to return only basic properties or entire instance.

@@ -49,6 +49,7 @@ class MultiTenantSearchDocumentConverterTest {
   @Mock private SearchDocumentConverter searchDocumentConverter;
   @Mock private TenantScopedExecutionService executionService;
   @Mock private AuthorityEventPreProcessor authorityEventPreProcessor;
+  @Mock private InstanceSubjectPreProcessor instanceSubjectPreProcessor;
   @InjectMocks private MultiTenantSearchDocumentConverter multiTenantConverter;
 
   @Test
@@ -82,6 +83,7 @@ class MultiTenantSearchDocumentConverterTest {
     var events = List.of(resourceEvent("instance", Map.of("id", RESOURCE_ID)));
     var expectedBody = TestUtils.searchDocumentBody();
 
+    when(instanceSubjectPreProcessor.process(events.get(0))).thenReturn(emptyList());
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(Optional.of(expectedBody));
     when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());

@@ -6,10 +6,10 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,6 +31,7 @@ public class MultiTenantSearchDocumentConverter {
   private final SearchDocumentConverter searchDocumentConverter;
   private final TenantScopedExecutionService executionService;
   private final AuthorityEventPreProcessor authorityEventPreProcessor;
+  private final InstanceSubjectPreProcessor instanceSubjectPreProcessor;
 
   /**
    * Converts {@link ResourceEvent} objects to a list with {@link SearchDocumentBody} objects.
@@ -50,7 +51,8 @@ public class MultiTenantSearchDocumentConverter {
    * @return map with {@link SearchDocumentBody} objects as value
    */
   public Map<String, SearchDocumentBody> convertAsMap(List<ResourceEvent> resourceEvents) {
-    return convertIndexRequestToStream(resourceEvents).collect(toMap(SearchDocumentBody::getId, identity()));
+    return convertIndexRequestToStream(resourceEvents)
+      .collect(toMap(SearchDocumentBody::getId, identity(), (o1, o2) -> o2, HashMap::new));
   }
 
   /**
@@ -94,8 +96,13 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {
-    return AUTHORITY_RESOURCE.equals(event.getResourceName())
-      ? authorityEventPreProcessor.process(event).stream()
-      : Stream.of(event);
+    switch (event.getResourceName()) {
+      case "instance":
+        return Stream.concat(Stream.of(event), instanceSubjectPreProcessor.process(event).stream());
+      case "authority":
+        return authorityEventPreProcessor.process(event).stream();
+      default:
+        return Stream.of(event);
+    }
   }
 }

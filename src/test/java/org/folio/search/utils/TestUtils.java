@@ -7,6 +7,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.OBJECT;
@@ -14,6 +16,8 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.JsonUtils.jsonArray;
+import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -24,10 +28,12 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,6 +46,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.analytics.ParsedStringStats;
+import org.elasticsearch.common.ParseField;
+import org.elasticsearch.common.xcontent.ContextParser;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.json.JsonXContent;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
@@ -52,6 +69,8 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.domain.dto.SubjectBrowseItem;
+import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.SearchResult;
@@ -60,7 +79,7 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.model.service.CallNumberBrowseRequest;
+import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.SearchType;
@@ -70,12 +89,14 @@ import org.springframework.test.web.servlet.ResultActions;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtils {
 
+  public static final String KEYWORD_FIELD_TYPE = "keyword";
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
     .setSerializationInclusion(Include.NON_NULL)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-  public static final String KEYWORD_FIELD_TYPE = "keyword";
+  private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
+    new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -123,16 +144,16 @@ public class TestUtils {
     return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
   }
 
-  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder) {
-    return callNumberBrowseRequest(shelvingOrder, 25);
+  public static BrowseRequest browseRequest(String query) {
+    return browseRequest(query, 25);
   }
 
-  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, Boolean expandAll) {
-    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, shelvingOrder, TENANT_ID, 25, expandAll, true, 12);
+  public static BrowseRequest browseRequest(String query, Boolean expandAll) {
+    return BrowseRequest.of(INSTANCE_RESOURCE, query, TENANT_ID, 25, "callNumber", expandAll, true, 12);
   }
 
-  public static CallNumberBrowseRequest callNumberBrowseRequest(String shelvingOrder, int limit) {
-    return CallNumberBrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, shelvingOrder, limit, false, true, limit / 2);
+  public static BrowseRequest browseRequest(String query, int limit) {
+    return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit, "callNumber", false, true, limit / 2);
   }
 
   public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {
@@ -143,8 +164,13 @@ public class TestUtils {
     return cnBrowseItem(instance, callNumber, callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, String shelfKey) {
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().fullCallNumber(cn).shelfKey(shelfKey)
+      .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
@@ -153,6 +179,27 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
+    return new CallNumberBrowseItem().totalRecords(totalRecords)
+      .shelfKey(shelfKey).fullCallNumber(cn).isAnchor(isAnchor);
+  }
+
+  public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {
+    return new SubjectBrowseResult().totalRecords(total).items(items);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject) {
+    return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, boolean isAnchor) {
+    return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(String subject) {
+    return new SubjectBrowseItem().subject(subject);
   }
 
   public static String randomId() {
@@ -365,6 +412,32 @@ public class TestUtils {
 
   public static void cleanUpCaches(CacheManager cacheManager) {
     cacheManager.getCacheNames().forEach(name -> requireNonNull(cacheManager.getCache(name)).clear());
+  }
+
+  @SneakyThrows
+  public static Aggregations aggregationsFromJson(JsonNode aggregationNode) {
+    XContentParser parser = JsonXContent.jsonXContent.createParser(
+      NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, searchResponseWithAggregation(aggregationNode).toString());
+    return SearchResponse.fromXContent(parser).getAggregations();
+  }
+
+  private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {
+    return jsonObject(
+      "took", 0,
+      "timed_out", false,
+      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
+      "hits", jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
+      "aggregations", aggregationValue);
+  }
+
+  public static List<NamedXContentRegistry.Entry> elasticsearchClientNamedContentRegistryEntries() {
+    Map<String, ContextParser<Object, ? extends Aggregation>> map = new HashMap<>();
+    map.put("sterms", (p, c) -> ParsedStringTerms.fromXContent(p, (String) c));
+    map.put("filter", (p, c) -> ParsedFilter.fromXContent(p, (String) c));
+    map.put("string_stats", (p, c) -> ParsedStringStats.PARSER.parse(p, (String) c));
+    return map.entrySet().stream()
+      .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue()))
+      .collect(toList());
   }
 
   @Data

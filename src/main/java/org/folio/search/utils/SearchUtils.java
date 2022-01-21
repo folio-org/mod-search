@@ -35,6 +35,7 @@ import org.z3950.zing.cql.CQLTermNode;
 public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
+  public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
   public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";

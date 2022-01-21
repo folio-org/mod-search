@@ -15,6 +15,7 @@ import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.NUM
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
+import static org.folio.search.utils.SearchUtils.getAnchorCallNumber;
 import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -32,24 +32,22 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlQueryParser;
-import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SearchResult;
-import org.folio.search.model.service.CallNumberBrowseRequest;
-import org.folio.search.model.service.CallNumberServiceContext;
+import org.folio.search.model.service.BrowseContext;
+import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.instance.CallNumberProcessor;
-import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CallNumberBrowseService {
+public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
 
@@ -60,31 +58,18 @@ public class CallNumberBrowseService {
   private final SearchRepository searchRepository;
   private final SearchFieldProvider searchFieldProvider;
   private final CallNumberProcessor callNumberProcessor;
-  private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final ElasticsearchDocumentConverter documentConverter;
   private final SearchQueryConfigurationProperties queryConfiguration;
 
-  /**
-   * Finds related instances for call number browsing using given {@link CallNumberBrowseRequest} object.
-   *
-   * @param request - service request as {@link CallNumberBrowseRequest} object
-   * @return search result with related instances by virtual shelf.
-   */
-  public SearchResult<CallNumberBrowseItem> browseByCallNumber(CallNumberBrowseRequest request) {
-    var cqlSearchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
-    var offset = (long) queryConfiguration.getCallNumberRangeOffset();
-    var context = CallNumberServiceContext.of(request, cqlSearchSource).withUpdatedRanges(offset);
-    if (context.isBrowsingAround()) {
-      return browseByCallNumberAround(request, context);
-    }
-
+  @Override
+  protected SearchResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
     var searchSource = getSearchSource(request, context, context.isForwardBrowsing());
     var searchResponse = searchRepository.search(request, searchSource);
     return convertToSearchResult(searchResponse, context, context.isForwardBrowsing());
   }
 
-  private SearchResult<CallNumberBrowseItem> browseByCallNumberAround(
-    CallNumberBrowseRequest request, CallNumberServiceContext context) {
+  @Override
+  protected SearchResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     var multiSearchResponse = searchRepository.msearch(request,
       List.of(getSearchSource(request, context, false), getSearchSource(request, context, true)));
 
@@ -101,8 +86,23 @@ public class CallNumberBrowseService {
       mergeSafelyToList(precedingResult.getRecords(), succeedingResult.getRecords()));
   }
 
-  private SearchSourceBuilder getSearchSource(CallNumberBrowseRequest request, CallNumberServiceContext ctx,
-    boolean isForwardBrowsing) {
+  @Override
+  protected BrowseContext getBrowseContext(BrowseRequest request, SearchSourceBuilder cqlSearchSource) {
+    var context = super.getBrowseContext(request, cqlSearchSource);
+    var anchor = (Long) context.getAnchor();
+    var offset = (long) queryConfiguration.getCallNumberRangeOffset();
+    if (context.getPrecedingQuery() != null) {
+      context.getPrecedingQuery().gte(max(anchor - offset, 0L));
+    }
+
+    if (context.getSucceedingQuery() != null) {
+      context.getSucceedingQuery().lte(anchor + offset < 0 ? Long.MAX_VALUE : anchor + offset);
+    }
+
+    return context;
+  }
+
+  private SearchSourceBuilder getSearchSource(BrowseRequest request, BrowseContext ctx, boolean isForwardBrowsing) {
     var scriptCode = isForwardBrowsing ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, Map.of("anchor", ctx.getAnchor()));
     var query = isForwardBrowsing ? ctx.getSucceedingQuery() : ctx.getPrecedingQuery();
@@ -131,23 +131,23 @@ public class CallNumberBrowseService {
   }
 
   private SearchResult<CallNumberBrowseItem> convertToSearchResult(
-    SearchResponse response, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
+    SearchResponse response, BrowseContext ctx, boolean isForwardBrowsing) {
     var searchResult = documentConverter.convertToSearchResult(response, Instance.class)
       .map(instance -> mapToCallNumberBrowseItem(ctx, isForwardBrowsing, instance));
 
     var collapsedItems = collapseSearchResultByCallNumber(searchResult.getRecords());
-    return searchResult.records(trim(ctx, isForwardBrowsing, collapsedItems));
+    return searchResult.records(trim(ctx, collapsedItems, isForwardBrowsing));
   }
 
-  private static List<CallNumberBrowseItem> trim(
-    CallNumberServiceContext ctx, boolean isForwardBrowsing, List<CallNumberBrowseItem> items) {
+  private static List<CallNumberBrowseItem> trim(BrowseContext ctx,
+    List<CallNumberBrowseItem> items, boolean isForwardBrowsing) {
     return isForwardBrowsing
       ? items.subList(0, min(ctx.getLimit(true), items.size()))
       : reverse(items).subList(max(items.size() - ctx.getLimit(false), 0), items.size());
   }
 
   private CallNumberBrowseItem mapToCallNumberBrowseItem(
-    CallNumberServiceContext ctx, boolean isForwardBrowsing, Instance instance) {
+    BrowseContext ctx, boolean isForwardBrowsing, Instance instance) {
     var item = getItemByCallNumber(instance, ctx, isForwardBrowsing);
     var callNumberBrowseItem = new CallNumberBrowseItem().instance(instance).totalRecords(1);
 
@@ -162,7 +162,7 @@ public class CallNumberBrowseService {
     return callNumberBrowseItem;
   }
 
-  private Item getItemByCallNumber(Instance instance, CallNumberServiceContext ctx, boolean isForwardBrowsing) {
+  private Item getItemByCallNumber(Instance instance, BrowseContext ctx, boolean isForwardBrowsing) {
     var items = instance.getItems();
     if (CollectionUtils.isEmpty(items)) {
       return null;
@@ -185,11 +185,11 @@ public class CallNumberBrowseService {
       .orElse(null);
   }
 
-  private void highlightMatchingCallNumber(CallNumberBrowseRequest request, CallNumberServiceContext ctx,
+  private void highlightMatchingCallNumber(BrowseRequest request, BrowseContext ctx,
     SearchResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var cqlNode = cqlQueryParser.parseCqlQuery(request.getQuery(), request.getResource());
-    var anchorCallNumber = SearchUtils.getAnchorCallNumber(cqlNode);
+    var anchorCallNumber = getAnchorCallNumber(cqlNode);
 
     if (isEmpty(items)) {
       result.setRecords(singletonList(getEmptyCallNumberBrowseItem(anchorCallNumber)));
@@ -197,26 +197,24 @@ public class CallNumberBrowseService {
     }
 
     var firstItem = items.get(0);
-    var anchorAsLong = ctx.getAnchor();
+    var anchorAsLong = (Long) ctx.getAnchor();
     var shelfKeyAsLong = callNumberProcessor.getCallNumberAsLong(firstItem.getShelfKey());
     if (anchorAsLong != shelfKeyAsLong) {
       items.add(0, getEmptyCallNumberBrowseItem(anchorCallNumber));
       items.remove(items.size() - 1);
       return;
     }
-    var fullCallNumber = firstItem.getFullCallNumber();
-    if (StringUtils.isNotBlank(fullCallNumber)) {
-      firstItem.setFullCallNumber("<mark>" + fullCallNumber + "</mark>");
-    }
+    firstItem.setIsAnchor(true);
   }
 
-  private long getDifferenceBetweenCallNumberAndAnchor(Long anchor, Item item, boolean isForwardBrowsing) {
+  private long getDifferenceBetweenCallNumberAndAnchor(Object anchor, Item item, boolean isForwardBrowsing) {
     var longValue = callNumberProcessor.getCallNumberAsLong(item.getEffectiveShelvingOrder());
-    return isForwardBrowsing ? longValue - anchor : anchor - longValue;
+    var anchorAsLong = (Long) anchor;
+    return isForwardBrowsing ? longValue - anchorAsLong : anchorAsLong - longValue;
   }
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
-    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0);
+    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
   }
 
   private static List<CallNumberBrowseItem> collapseSearchResultByCallNumber(List<CallNumberBrowseItem> items) {

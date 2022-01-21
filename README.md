@@ -21,7 +21,6 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Holding record search options](#holdings-records-search-options)
   * [Authority search options](#authority-search-options)
 * [Records browsing](#records-browsing)
-  * [Browsing by call numbers](#browsing-by-call-numbers)
 * [Search facets](#search-facets)
 * [Sorting results](#sorting-results)
 * [Search Options](#search-options)
@@ -385,9 +384,9 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
 | `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
-| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                                  |
-| `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                                              |
-| `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                                              |
+| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
+| `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
+| `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
 
 ### Items search options
@@ -411,9 +410,9 @@ if it is defined but doesn't match.
 | `items.notes.note`                  | full-text | `items.notes.note all "librarian note"`                      | Search by item notes and circulation notes                                                             |
 | `items.circulationNotes.note`       | full-text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes                                                                       |
 | `itemPublicNotes`                   | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                      |
-| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`                   |
-| `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                              |
-| `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                              |
+| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`       |
+| `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                     |
+| `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                     |
 
 ### Authority search options
 
@@ -486,27 +485,23 @@ does not produce any values, so the following search options will return an empt
 
 ## Records browsing
 
-### Browsing by call-numbers
+Supported browsing values
 
-The call number browsing page can be retrieved using following endpoint:
-
-```text
-${okapi}/browse/call-number/instances
-```
+* subject (`${okapi}/browse/subjects/instances`)
+* callNumber (`${okapi}/browse/call-numbers/instances`)
 
 **Query parameters**
 
-| Parameter             | Type    | Default value | Description                                                                                                                                                                                                 |
-|:----------------------|:--------|:--------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| query                 | string  | -             | A Cql query for call-number browsing<br/>`callNumber > {anchor}` - browsing forward<br/>`callNumber < {anchor}` - browsing backward<br/>`callNumber >= {anchor} or callNumber < {anchor}` - browsing around |
-| limit                 | integer | 100           | Number of records in response                                                                                                                                                                               |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                         |
-| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                             |
+| Parameter             | Type    | Default value | Description                                                                                                                                                                                                                     |
+|:----------------------|:--------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| query                 | string  | -             | A Cql query for call-number browsing<br/>`{browsingValue} > {anchor}` - browsing forward<br/>`{browsingValue} < {anchor}` - browsing backward<br/>`{browsingValue} >= {anchor} or {browsingValue} < {anchor}` - browsing around |
+| limit                 | integer | 100           | Number of records in response                                                                                                                                                                                                   |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                                             |
+| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                                                 |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
 to `true`.
-
 
 ## Search Facets
 

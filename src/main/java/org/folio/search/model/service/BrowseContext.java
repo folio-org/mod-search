@@ -1,8 +1,6 @@
 package org.folio.search.model.service;
 
-import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
-import static org.folio.search.service.CallNumberBrowseService.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.CollectionUtils.allMatch;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpty;
@@ -11,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -18,27 +17,28 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.exception.RequestValidationException;
 
 @Data
-public class CallNumberServiceContext {
+@RequiredArgsConstructor
+public class BrowseContext {
 
   private final RangeQueryBuilder precedingQuery;
   private final RangeQueryBuilder succeedingQuery;
   private final List<QueryBuilder> filters;
-  private final long anchor;
+  private final Object anchor;
 
   private final Integer precedingLimit;
   private final Integer succeedingLimit;
 
   /**
-   * Checks if created {@link CallNumberServiceContext} is purposed for browsing around.
+   * Checks if created {@link BrowseContext} is purposed for browsing around.
    *
    * @return true - if context is purposed for browsing around
    */
-  public boolean isBrowsingAround() {
+  public boolean isAroundBrowsing() {
     return this.precedingQuery != null && this.succeedingQuery != null;
   }
 
   /**
-   * Checks if created {@link CallNumberServiceContext} is purposed for browsing forward.
+   * Checks if created {@link BrowseContext} is purposed for browsing forward.
    *
    * @return true - if context is purposed for browsing forward
    */
@@ -46,50 +46,37 @@ public class CallNumberServiceContext {
     return this.succeedingQuery != null;
   }
 
+  public boolean isAnchorIncluded(boolean isForward) {
+    return isForward ? this.succeedingQuery.includeLower() : this.precedingQuery.includeUpper();
+  }
+
   /**
-   * Returns limit for call-number browsing.
+   * Returns limit for browsing.
    */
   public int getLimit(boolean isForward) {
     return isForward ? this.succeedingLimit : this.precedingLimit;
   }
 
   /**
-   * Updates range queries in {@link  CallNumberServiceContext} adding customizable by tenant offset to increase
-   * performance.
+   * Static factory method to create {@link BrowseContext} object for given {@link BrowseRequest} object and
+   * Elasticsearch search source.
    *
-   * @param offset - offset to limit amount of result found by call-number browse queries
-   * @return {@link CallNumberServiceContext} with updated range quiries
-   */
-  public CallNumberServiceContext withUpdatedRanges(long offset) {
-    if (this.precedingQuery != null) {
-      this.precedingQuery.gte(max(this.anchor - offset, 0L));
-    }
-    if (this.succeedingQuery != null) {
-      this.succeedingQuery.lte(this.anchor + offset < 0 ? Long.MAX_VALUE : this.anchor + offset);
-    }
-    return this;
-  }
-
-  /**
-   * Static factory method to create {@link CallNumberServiceContext} object for given {@link CallNumberBrowseRequest}
-   * object and Elasticsearch search source.
-   *
-   * @param request - call number browse request as {@link CallNumberBrowseRequest} object
+   * @param request - browse request as {@link BrowseRequest} object
    * @param searchSource - Elasticsearch search source as {@link SearchSourceBuilder} object
-   * @return created {@link  CallNumberServiceContext} object
+   * @return created {@link  BrowseContext} object
    * @throws RequestValidationException if given {@link QueryBuilder} does not satisfy required conditions
    */
-  public static CallNumberServiceContext of(CallNumberBrowseRequest request, SearchSourceBuilder searchSource) {
+  public static BrowseContext of(BrowseRequest request, SearchSourceBuilder searchSource) {
     var cqlQuery = request.getQuery();
     if (isNotEmpty(searchSource.sorts())) {
       throw new RequestValidationException(
-        "Invalid CQL query for call-number browsing, 'sortBy' is not supported", "query", cqlQuery);
+        "Invalid CQL query for browsing, 'sortBy' is not supported", "query", cqlQuery);
     }
 
     var query = searchSource.query();
     if (!isBoolQuery(query)) {
-      if (!isValidRangeQuery(query)) {
-        throw new RequestValidationException("Invalid CQL query for call-number browsing.", "query", cqlQuery);
+      if (!isValidRangeQuery(request.getTargetField(), query)) {
+        throw new RequestValidationException("Invalid CQL query for browsing.", "query", cqlQuery);
       }
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
@@ -98,7 +85,7 @@ public class CallNumberServiceContext {
     var filters = boolQuery.filter();
     var shouldClauses = boolQuery.should();
 
-    if (isValidAroundQuery(shouldClauses)) {
+    if (isValidAroundQuery(request.getTargetField(), shouldClauses)) {
       return createContextForBrowsingAround(request, filters, shouldClauses);
     }
 
@@ -111,29 +98,29 @@ public class CallNumberServiceContext {
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
-        if (isValidAroundQuery(subShouldClauses)) {
+        if (isValidAroundQuery(request.getTargetField(), subShouldClauses)) {
           return createContextForBrowsingAround(request, filters, subShouldClauses);
         }
       }
     }
 
-    throw new RequestValidationException("Invalid CQL query for call-number browsing.", "query", cqlQuery);
+    throw new RequestValidationException("Invalid CQL query for browsing.", "query", cqlQuery);
   }
 
-  private static CallNumberServiceContext createBrowsingContext(
-    CallNumberBrowseRequest request, List<QueryBuilder> filters, RangeQueryBuilder rangeQuery) {
+  private static BrowseContext createBrowsingContext(
+    BrowseRequest request, List<QueryBuilder> filters, RangeQueryBuilder rangeQuery) {
     var precedingQuery = getRangeQuery(rangeQuery, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(rangeQuery, query -> query.from() != null);
     var limit = request.getLimit();
     var precedingLimit = precedingQuery != null ? limit : null;
     var succeedingLimit = succeedingQuery != null ? limit : null;
 
-    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters, getAnchor(rangeQuery),
+    return new BrowseContext(precedingQuery, succeedingQuery, filters, getAnchor(rangeQuery),
       precedingLimit, succeedingLimit);
   }
 
-  private static CallNumberServiceContext createContextForBrowsingAround(
-    CallNumberBrowseRequest request, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses) {
+  private static BrowseContext createContextForBrowsingAround(
+    BrowseRequest request, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses) {
     var precedingQuery = getRangeQuery(shouldClauses, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(shouldClauses, query -> query.from() != null);
     var firstAnchor = getAnchor((RangeQueryBuilder) shouldClauses.get(0));
@@ -141,12 +128,12 @@ public class CallNumberServiceContext {
 
     if (!Objects.equals(firstAnchor, secondAnchor)) {
       throw new RequestValidationException(
-        "Invalid CQL query for call-number browsing. Anchors must be the same in range conditions.",
+        "Invalid CQL query for browsing. Anchors must be the same in range conditions.",
         "query", request.getQuery());
     }
 
     var precedingRecordsCount = request.getPrecedingRecordsCount();
-    return new CallNumberServiceContext(precedingQuery, succeedingQuery, filters, firstAnchor,
+    return new BrowseContext(precedingQuery, succeedingQuery, filters, firstAnchor,
       precedingRecordsCount, request.getLimit() - precedingRecordsCount);
   }
 
@@ -159,19 +146,19 @@ public class CallNumberServiceContext {
     return predicate.test(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
   }
 
-  static boolean isValidRangeQuery(QueryBuilder q) {
-    return q instanceof RangeQueryBuilder && CALL_NUMBER_BROWSING_FIELD.equals(((RangeQueryBuilder) q).fieldName());
+  static boolean isValidRangeQuery(String targetField, QueryBuilder q) {
+    return q instanceof RangeQueryBuilder && targetField.equals(((RangeQueryBuilder) q).fieldName());
   }
 
-  private static boolean isValidAroundQuery(List<QueryBuilder> queries) {
-    return queries.size() == 2 && allMatch(queries, CallNumberServiceContext::isValidRangeQuery);
+  private static boolean isValidAroundQuery(String targetField, List<QueryBuilder> queries) {
+    return queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, query));
   }
 
   private static boolean isBoolQueryWithFilters(BoolQueryBuilder boolQuery) {
     return boolQuery.must().size() == 1 && !boolQuery.filter().isEmpty();
   }
 
-  private static Long getAnchor(RangeQueryBuilder rangeQuery) {
-    return rangeQuery.from() != null ? (Long) rangeQuery.from() : (Long) rangeQuery.to();
+  private static Object getAnchor(RangeQueryBuilder rangeQuery) {
+    return rangeQuery.from() != null ? rangeQuery.from() : rangeQuery.to();
   }
 }

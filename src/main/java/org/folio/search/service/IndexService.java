@@ -2,10 +2,10 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
@@ -14,7 +14,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -124,11 +123,7 @@ public class IndexService {
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
     var indexDocuments = multiTenantSearchDocumentConverter.convertAsMap(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convertDeleteEventsAsMap(groupedByOperation.get(DELETE));
-
-    var searchDocumentBodies = eventsToIndex.stream()
-      .map(evt -> evt.getAction() == INDEX ? indexDocuments.get(evt.getId()) : removeDocuments.get(evt.getId()))
-      .filter(Objects::nonNull)
-      .collect(toList());
+    var searchDocumentBodies = mergeSafelyToList(indexDocuments.values(), removeDocuments.values());
 
     var response = indexRepository.indexResources(searchDocumentBodies);
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",

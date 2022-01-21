@@ -248,6 +248,7 @@ public class TestUtils {
     var resourceDescription = new ResourceDescription();
     resourceDescription.setName(name);
     resourceDescription.setFields(fields);
+    resourceDescription.setPrimary(true);
     return resourceDescription;
   }
 
@@ -255,6 +256,12 @@ public class TestUtils {
     Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
     var resourceDescription = resourceDescription(RESOURCE_NAME, fields);
     resourceDescription.setLanguageSourcePaths(languageSourcePaths);
+    return resourceDescription;
+  }
+
+  public static ResourceDescription secondaryResourceDescription(String name) {
+    var resourceDescription = resourceDescription(name, emptyMap());
+    resourceDescription.setPrimary(false);
     return resourceDescription;
   }
 

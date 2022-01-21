@@ -2,6 +2,8 @@ package org.folio.search.service;
 
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -71,7 +73,9 @@ class SearchTenantServiceTest {
   @Test
   void shouldRunReindexOnTenantParamPresent() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME, "secondary"));
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(resourceDescriptionService.get("secondary")).thenReturn(secondaryResourceDescription("secondary"));
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
 
     searchTenantService.initializeTenant(attributes);

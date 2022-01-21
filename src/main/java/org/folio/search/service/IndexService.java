@@ -209,8 +209,8 @@ public class IndexService {
   }
 
   private void validateResourceName(String resourceName) {
-    var existingResourceNames = resourceDescriptionService.getResourceNames();
-    if (!existingResourceNames.contains(resourceName)) {
+    var resourceDescription = resourceDescriptionService.get(resourceName);
+    if (resourceDescription == null || !resourceDescription.isPrimary()) {
       throw new RequestValidationException(
         "Reindex request contains invalid resource name", "resourceName", resourceName);
     }

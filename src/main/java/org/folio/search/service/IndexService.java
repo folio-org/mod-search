@@ -159,8 +159,12 @@ public class IndexService {
       createIndex(resourceName, tenantId);
     }
 
-    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(resourceName).toUri();
+    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(fixURL(resourceName)).toUri();
     return resourceReindexClient.submitReindex(reindexUri);
+  }
+
+  private String fixURL (String url){
+    return  url.replace("_", "-");
   }
 
   /**

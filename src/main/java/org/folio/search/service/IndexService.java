@@ -163,7 +163,7 @@ public class IndexService {
     return resourceReindexClient.submitReindex(reindexUri);
   }
 
-  private String fixUrl (String url){
+  private String fixUrl(String url) {
     return  url.replace("_", "-");
   }
 

@@ -99,6 +99,14 @@ class IndexServiceTest {
   }
 
   @Test
+  void updateMappings_negative_resourceDescriptionNotFound() {
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(null);
+    assertThatThrownBy(() -> indexService.updateMappings(RESOURCE_NAME, TENANT_ID))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Mappings cannot be updated, resource name is invalid.");
+  }
+
+  @Test
   void indexResources_positive() {
     var searchBody = searchDocumentBody();
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));

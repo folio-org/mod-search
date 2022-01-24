@@ -62,11 +62,8 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
-    if (resourceDescriptionService.get(resourceName) == null) {
-      throw new RequestValidationException(
-        "Index cannot be created for the resource because resource description is not found.",
-        RESOURCE_NAME_PARAMETER, resourceName);
-    }
+    validateResourceName(resourceName,
+      "Index cannot be created for the resource because resource description is not found.");
 
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var settings = settingsHelper.getSettings(resourceName);
@@ -85,11 +82,7 @@ public class IndexService {
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
-    var resourceDescription = resourceDescriptionService.get(resourceName);
-    if (resourceDescription == null || !resourceDescription.isPrimary()) {
-      throw new RequestValidationException(
-        "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
-    }
+    validateResourceName(resourceName, "Mappings cannot be updated, resource name is invalid.");
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
@@ -227,5 +220,11 @@ public class IndexService {
     }
 
     return reindexRequest.getResourceName();
+  }
+
+  private void validateResourceName(String resourceName, String message) {
+    if (resourceDescriptionService.get(resourceName) == null) {
+      throw new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName);
+    }
   }
 }

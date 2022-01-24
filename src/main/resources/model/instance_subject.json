@@ -1,6 +1,6 @@
 {
   "name": "instance_subject",
-  "isPrimary": false,
+  "primary": false,
   "fields": {
     "subject": {
       "index": "plain_fulltext"

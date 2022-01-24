@@ -60,7 +60,12 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
-    validateResourceName(resourceName);
+    if (resourceDescriptionService.get(resourceName) == null) {
+      throw new RequestValidationException(
+        "Index cannot be created for the resource because resource description is not found.",
+        "resourceName", resourceName);
+    }
+
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
@@ -78,7 +83,11 @@ public class IndexService {
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
-    validateResourceName(resourceName);
+    var resourceDescription = resourceDescriptionService.get(resourceName);
+    if (resourceDescription == null || !resourceDescription.isPrimary()) {
+      throw new RequestValidationException(
+        "Reindex request contains invalid resource name", "resourceName", resourceName);
+    }
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
@@ -164,7 +173,7 @@ public class IndexService {
   }
 
   private String fixUrl(String url) {
-    return  url.replace("_", "-");
+    return url.replace("_", "-");
   }
 
   /**
@@ -208,15 +217,13 @@ public class IndexService {
       return INSTANCE_RESOURCE;
     }
 
-    validateResourceName(reindexRequest.getResourceName());
-    return reindexRequest.getResourceName();
-  }
-
-  private void validateResourceName(String resourceName) {
+    var resourceName = reindexRequest.getResourceName();
     var resourceDescription = resourceDescriptionService.get(resourceName);
     if (resourceDescription == null || !resourceDescription.isPrimary()) {
       throw new RequestValidationException(
         "Reindex request contains invalid resource name", "resourceName", resourceName);
     }
+
+    return reindexRequest.getResourceName();
   }
 }

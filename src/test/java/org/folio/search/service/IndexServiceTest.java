@@ -66,7 +66,7 @@ class IndexServiceTest {
   @Mock private MultiTenantSearchDocumentConverter searchDocumentConverter;
 
   @Test
-  void createIndex() {
+  void createIndex_positive() {
     var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME));
 
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
@@ -79,6 +79,14 @@ class IndexServiceTest {
   }
 
   @Test
+  void createIndex_negative_resourceDescriptionNotFound() {
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(null);
+    assertThatThrownBy(() -> indexService.createIndex(RESOURCE_NAME, TENANT_ID))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Index cannot be created for the resource because resource description is not found.");
+  }
+
+  @Test
   void updateMappings() {
     var expectedResponse = getSuccessIndexOperationResponse();
 
@@ -88,6 +96,14 @@ class IndexServiceTest {
 
     var indexResponse = indexService.updateMappings(RESOURCE_NAME, TENANT_ID);
     assertThat(indexResponse).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void updateMappings_negative_resourceDescriptionNotFound() {
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(null);
+    assertThatThrownBy(() -> indexService.updateMappings(RESOURCE_NAME, TENANT_ID))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Mappings cannot be updated, resource name is invalid.");
   }
 
   @Test

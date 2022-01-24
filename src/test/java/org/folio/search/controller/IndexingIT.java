@@ -124,6 +124,24 @@ class IndexingIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.submittedDate", is("2021-11-08T13:00:00.000+00:00")));
   }
 
+  @Test
+  void runReindex_positive_instanceSubject() throws Exception {
+    var request = post(ApiEndpoints.reindexPath())
+      .content(asJsonString(new ReindexRequest().resourceName("instance_subject")))
+      .headers(defaultHeaders())
+      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
+      .contentType(MediaType.APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Reindex request contains invalid resource name")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("instance_subject")));
+  }
+
   private void createInstances() {
     var instances = INSTANCE_IDS.stream()
       .map(id -> new Instance().id(id))

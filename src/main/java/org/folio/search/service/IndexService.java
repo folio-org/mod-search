@@ -43,6 +43,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IndexService {
 
+  private static final String RESOURCE_NAME_PARAMETER = "resourceName";
+
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
   private final SearchSettingsHelper settingsHelper;
@@ -63,7 +65,7 @@ public class IndexService {
     if (resourceDescriptionService.get(resourceName) == null) {
       throw new RequestValidationException(
         "Index cannot be created for the resource because resource description is not found.",
-        "resourceName", resourceName);
+        RESOURCE_NAME_PARAMETER, resourceName);
     }
 
     var index = getElasticsearchIndexName(resourceName, tenantId);
@@ -86,7 +88,7 @@ public class IndexService {
     var resourceDescription = resourceDescriptionService.get(resourceName);
     if (resourceDescription == null || !resourceDescription.isPrimary()) {
       throw new RequestValidationException(
-        "Reindex request contains invalid resource name", "resourceName", resourceName);
+        "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
     }
     var index = getElasticsearchIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
@@ -221,7 +223,7 @@ public class IndexService {
     var resourceDescription = resourceDescriptionService.get(resourceName);
     if (resourceDescription == null || !resourceDescription.isPrimary()) {
       throw new RequestValidationException(
-        "Reindex request contains invalid resource name", "resourceName", resourceName);
+        "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
     }
 
     return reindexRequest.getResourceName();

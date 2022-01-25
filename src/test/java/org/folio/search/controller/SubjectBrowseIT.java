@@ -64,7 +64,6 @@ class SubjectBrowseIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
     var request = get(instanceSubjectBrowsePath())
-      .param("expandAll", "true")
       .param("query", prepareQuery(query, '"' + anchor + '"'))
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
@@ -76,7 +75,6 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     var request = get(instanceSubjectBrowsePath())
       .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"water\""))
       .param("limit", "7")
-      .param("expandAll", "true")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
@@ -95,7 +93,6 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     var request = get(instanceSubjectBrowsePath())
       .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"fantasy\""))
       .param("limit", "5")
-      .param("expandAll", "true")
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 

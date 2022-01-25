@@ -169,6 +169,30 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /browse/authorities:
+    get:
+      operationId: browseAuthorities
+      description: Provides list of authorities by headingRef
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by authorities'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/authorityBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /index/indices:
     post:
       operationId: createIndices
@@ -405,6 +429,8 @@ components:
       $ref: schemas/response/callNumberBrowseResult.json
     subjectBrowseResult:
       $ref: schemas/response/subjectBrowseResult.json
+    authorityBrowseResult:
+      $ref: schemas/response/authorityBrowseResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
     resourceIds:

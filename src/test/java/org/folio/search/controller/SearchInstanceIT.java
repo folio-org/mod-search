@@ -200,6 +200,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("itemIdentifiers all {value}", "81ae0f60-f2bc-450c-84c8-5a21096daed9"),
       arguments("itemIdentifiers all {value}", "item_accession_number"),
       arguments("itemIdentifiers all {value}", "7212ba6a-8dcf-45a1-be9a-ffaa847c4423"),
+      arguments("itemIdentifiers all {value}", "itemIdentifierFieldValue"),
 
       arguments("items.notes.note == {value}", "Librarian public note for item"),
       arguments("items.notes.note == {value}", "Librarian private note for item"),

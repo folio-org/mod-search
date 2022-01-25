@@ -27,7 +27,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    * Resolves browseResponseClass from generics.
    */
   @SuppressWarnings("unchecked")
-  public AbstractBrowseServiceBySearchAfter() {
+  protected AbstractBrowseServiceBySearchAfter() {
     var genericTypes = resolveTypeArguments(getClass(), AbstractBrowseServiceBySearchAfter.class);
     var errorMessage = "Failed to resolve generic types for " + getClass().getSimpleName() + ".";
     Assert.isTrue(genericTypes != null, errorMessage);

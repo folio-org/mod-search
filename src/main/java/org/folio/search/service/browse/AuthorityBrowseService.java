@@ -32,9 +32,9 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   @Override
   protected SearchResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
-    return result.map(record -> new AuthorityBrowseItem()
-      .authority(record)
-      .headingRef(record.getHeadingRef())
+    return result.map(authority -> new AuthorityBrowseItem()
+      .authority(authority)
+      .headingRef(authority.getHeadingRef())
       .isAnchor(isAnchor ? true : null)
     );
   }

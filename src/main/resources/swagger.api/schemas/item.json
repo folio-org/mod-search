@@ -22,6 +22,10 @@
         "type": "string"
       }
     },
+    "itemIdentifier": {
+      "type": "string",
+      "description": "Item identifier number, e.g. imported from the union catalogue (read only)."
+    },
     "barcode": {
       "type": "string",
       "description": "Unique inventory control number for physical resources, used largely for circulation purposes"

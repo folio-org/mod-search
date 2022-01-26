@@ -250,7 +250,8 @@
     {
       "permissionName": "search.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options by record type",
-      "description": "Returns facets for a query for given filter options by record type"
+      "description": "Returns facets for a query for given filter options by record type",
+      "replaces": ["search.instances.facets.collection.get"]
     },
     {
       "permissionName": "search.instances.ids.collection.get",

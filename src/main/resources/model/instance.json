@@ -203,6 +203,12 @@
     "discoverySuppress": {
       "$type": "visibleSuppress"
     },
+    "isBoundWith": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": true
+    },
     "items": {
       "type": "object",
       "properties": {

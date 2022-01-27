@@ -148,6 +148,10 @@
       "type": "boolean",
       "description": "Records the fact that the record should not be displayed in a discovery system"
     },
+    "isBoundWith": {
+      "description": "Indicates if this instance is included in a bound-with",
+      "type": "boolean"
+    },
     "tags": {
       "description": "arbitrary tags associated with this instance",
       "$ref": "tags.json"

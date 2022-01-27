@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.browse;
 
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;

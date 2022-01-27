@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.browse;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -13,9 +13,9 @@ import static org.elasticsearch.script.ScriptType.INLINE;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.NUMBER;
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
-import static org.folio.search.service.CallNumberBrowseService.CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.service.CallNumberBrowseService.SORT_SCRIPT_FOR_PRECEDING_QUERY;
-import static org.folio.search.service.CallNumberBrowseService.SORT_SCRIPT_FOR_SUCCEEDING_QUERY;
+import static org.folio.search.service.browse.CallNumberBrowseService.SORT_SCRIPT_FOR_PRECEDING_QUERY;
+import static org.folio.search.service.browse.CallNumberBrowseService.SORT_SCRIPT_FOR_SUCCEEDING_QUERY;
+import static org.folio.search.utils.BrowseUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;

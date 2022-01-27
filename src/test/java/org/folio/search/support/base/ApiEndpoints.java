@@ -24,6 +24,10 @@ public class ApiEndpoints {
     return "/browse/subjects/instances";
   }
 
+  public static String authorityBrowsePath() {
+    return "/browse/authorities";
+  }
+
   public static String recordFacets(RecordType type, String query, String... facets) {
     var joinedFacets = String.join("&facet=", facets);
     return String.format("/search/%s/facets?query=%s&facet=%s", type.getValue(), query, joinedFacets);

@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.browse;
 
 import static java.lang.Boolean.TRUE;
 import static java.lang.Math.max;
@@ -13,9 +13,9 @@ import static org.elasticsearch.script.ScriptType.INLINE;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.NUMBER;
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
+import static org.folio.search.utils.BrowseUtils.getAnchorCallNumber;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
-import static org.folio.search.utils.SearchUtils.getAnchorCallNumber;
 import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.ArrayList;
@@ -48,8 +48,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
-
-  public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
 
   static final String SORT_SCRIPT_FOR_SUCCEEDING_QUERY = getSortingScript(true);
   static final String SORT_SCRIPT_FOR_PRECEDING_QUERY = getSortingScript(false);

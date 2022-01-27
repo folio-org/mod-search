@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.searchField;
+import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
@@ -40,13 +41,15 @@ import org.springframework.context.annotation.Import;
 class ResourceDescriptionServiceTest {
 
   private static final String FIELD = "field";
+  private static final String SECONDARY_RESOURCE_NAME = "secondary";
 
   @Autowired private ResourceDescriptionService descriptionService;
   @MockBean private LocalResourceProvider localResourceProvider;
 
   @BeforeEach
   void setUp() {
-    when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription()));
+    when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(
+      resourceDescription(), secondaryResourceDescription(SECONDARY_RESOURCE_NAME, RESOURCE_NAME)));
     descriptionService.init();
   }
 
@@ -66,13 +69,14 @@ class ResourceDescriptionServiceTest {
   @Test
   void findAll_positive() {
     var actual = descriptionService.findAll();
-    assertThat(actual).containsExactlyInAnyOrder(resourceDescription());
+    assertThat(actual).containsExactlyInAnyOrder(
+      resourceDescription(), secondaryResourceDescription(SECONDARY_RESOURCE_NAME, RESOURCE_NAME));
   }
 
   @Test
   void getResourceNames_positive() {
     var actual = descriptionService.getResourceNames();
-    assertThat(actual).containsExactly(RESOURCE_NAME);
+    assertThat(actual).containsExactly(RESOURCE_NAME, SECONDARY_RESOURCE_NAME);
   }
 
   @Test
@@ -148,6 +152,12 @@ class ResourceDescriptionServiceTest {
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     descriptionService.init();
     assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields()).containsKey(FIELD);
+  }
+
+  @Test
+  void getSecondaryResourceNames_positive() {
+    var actual = descriptionService.getSecondaryResourceNames(RESOURCE_NAME);
+    assertThat(actual).isEqualTo(List.of(SECONDARY_RESOURCE_NAME));
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

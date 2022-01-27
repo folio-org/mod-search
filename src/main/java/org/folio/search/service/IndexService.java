@@ -156,19 +156,18 @@ public class IndexService {
    * @param reindexRequest - reindex request as {@link ReindexRequest} object
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
-    var resourceName = getResourceNameToReindex(reindexRequest);
+    var resources = getResourceNamesToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
-      log.info("Recreating indices during reindex operation [tenant: {}]", tenantId);
-      dropIndex(resourceName, tenantId);
-      createIndex(resourceName, tenantId);
+      log.info("Recreating indices during reindex operation [tenant: {}, resources: {}]", tenantId, resources);
+      resources.forEach(resourceName -> {
+        dropIndex(resourceName, tenantId);
+        createIndex(resourceName, tenantId);
+      });
     }
 
-    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(fixUrl(resourceName)).toUri();
+    var resource = normalizeResourceName(resources.get(0));
+    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(resource).toUri();
     return resourceReindexClient.submitReindex(reindexUri);
-  }
-
-  private String fixUrl(String url) {
-    return url.replace("_", "-");
   }
 
   /**
@@ -207,24 +206,31 @@ public class IndexService {
     return eventsToIndex;
   }
 
-  private String getResourceNameToReindex(ReindexRequest reindexRequest) {
-    if (reindexRequest == null || StringUtils.isBlank(reindexRequest.getResourceName())) {
-      return INSTANCE_RESOURCE;
-    }
-
-    var resourceName = reindexRequest.getResourceName();
+  private List<String> getResourceNamesToReindex(ReindexRequest reindexRequest) {
+    var resourceName = getReindexRequestResourceName(reindexRequest);
     var resourceDescription = resourceDescriptionService.get(resourceName);
-    if (resourceDescription == null || !resourceDescription.isPrimary()) {
+    if (resourceDescription == null || resourceDescription.getParent() != null) {
       throw new RequestValidationException(
         "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
     }
 
-    return reindexRequest.getResourceName();
+    var resourceNames = new ArrayList<String>();
+    resourceNames.add(resourceName);
+    resourceNames.addAll(resourceDescriptionService.getSecondaryResourceNames(resourceName));
+    return resourceNames;
+  }
+
+  private static String getReindexRequestResourceName(ReindexRequest req) {
+    return req == null || StringUtils.isBlank(req.getResourceName()) ? INSTANCE_RESOURCE : req.getResourceName();
   }
 
   private void validateResourceName(String resourceName, String message) {
     if (resourceDescriptionService.get(resourceName) == null) {
       throw new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName);
     }
+  }
+
+  private static String normalizeResourceName(String url) {
+    return url.replace("_", "-");
   }
 }

@@ -72,10 +72,11 @@ class SearchTenantServiceTest {
 
   @Test
   void shouldRunReindexOnTenantParamPresent() {
+    var resourceDescription = secondaryResourceDescription("secondary", RESOURCE_NAME);
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME, "secondary"));
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
-    when(resourceDescriptionService.get("secondary")).thenReturn(secondaryResourceDescription("secondary"));
+    when(resourceDescriptionService.get("secondary")).thenReturn(resourceDescription);
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
 
     searchTenantService.initializeTenant(attributes);

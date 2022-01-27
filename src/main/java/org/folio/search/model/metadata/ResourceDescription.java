@@ -25,7 +25,7 @@ public class ResourceDescription {
   /**
    * Specifies if resource is primary and must be re-indexed using inventory-storage API.
    */
-  private boolean primary = true;
+  private String parent;
 
   /**
    * Related java class for event body.

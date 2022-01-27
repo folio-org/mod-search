@@ -62,7 +62,7 @@ public class SearchTenantService {
       .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
       .findFirst()
       .ifPresent(parameter -> resourceNames.forEach(resource -> {
-        if (resourceDescriptionService.get(resource).isPrimary()) {
+        if (resourceDescriptionService.get(resource).getParent() == null) {
           indexService.reindexInventory(context.getTenantId(), new ReindexRequest().resourceName(resource));
         }
       }));

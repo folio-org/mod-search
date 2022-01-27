@@ -1,12 +1,16 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
+import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.browseRequest;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -17,9 +21,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.folio.search.domain.dto.Authority;
 import org.folio.search.model.service.BrowseRequest;
-import org.folio.search.service.CallNumberBrowseService;
-import org.folio.search.service.SubjectBrowseService;
+import org.folio.search.service.browse.AuthorityBrowseService;
+import org.folio.search.service.browse.CallNumberBrowseService;
+import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +35,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@WebMvcTest(InstanceBrowseController.class)
+@WebMvcTest(BrowseController.class)
 @Import({ApiExceptionHandler.class})
-class InstanceBrowseControllerTest {
+class BrowseControllerTest {
 
   @Autowired private MockMvc mockMvc;
-  @MockBean private CallNumberBrowseService callNumberBrowseService;
   @MockBean private SubjectBrowseService subjectBrowseService;
+  @MockBean private AuthorityBrowseService authorityBrowseService;
+  @MockBean private CallNumberBrowseService callNumberBrowseService;
 
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {
@@ -91,6 +98,26 @@ class InstanceBrowseControllerTest {
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.items[0].subject", is("water treatment")))
       .andExpect(jsonPath("$.items[0].totalRecords", is(10)));
+  }
+
+  @Test
+  void browseAuthoritiesBySubject_positive() throws Exception {
+    var query = "headingRef > mark";
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 25, "headingRef", false, true, 12);
+    var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
+    when(authorityBrowseService.browse(request)).thenReturn(searchResult(authorityBrowseItem("mark twain", authority)));
+    var requestBuilder = get(authorityBrowsePath())
+      .queryParam("query", query)
+      .queryParam("limit", "25")
+      .contentType(APPLICATION_JSON)
+      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.items[0].headingRef", is("mark twain")))
+      .andExpect(jsonPath("$.items[0].authority.id", is(RESOURCE_ID)))
+      .andExpect(jsonPath("$.items[0].authority.headingRef", is("mark twain")));
   }
 
   @Test

@@ -46,8 +46,23 @@ public class BrowseContext {
     return this.succeedingQuery != null;
   }
 
+
+  /**
+   * Checks if anchor is included in the range query or not using browsing direction flag.
+   *
+   * @return {@code true} if anchor is included, {@code false} - otherwise
+   */
   public boolean isAnchorIncluded(boolean isForward) {
     return isForward ? this.succeedingQuery.includeLower() : this.precedingQuery.includeUpper();
+  }
+
+  /**
+   * Checks if anchor is included in the range query or not.
+   *
+   * @return {@code true} if anchor is included, {@code false} - otherwise
+   */
+  public boolean isAnchorIncluded() {
+    return isAnchorIncluded(true) || isAnchorIncluded(false);
   }
 
   /**

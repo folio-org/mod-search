@@ -286,7 +286,7 @@
     },
     "headingRef": {
       "type": "search",
-      "index": "source",
+      "index": "plain_fulltext",
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
       "rawProcessing": true,

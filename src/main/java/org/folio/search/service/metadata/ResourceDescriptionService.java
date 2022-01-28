@@ -83,6 +83,19 @@ public class ResourceDescriptionService {
     return resourceDescriptions.keySet();
   }
 
+  /**
+   * Returns name of secondary resources that linked to the given resource name.
+   *
+   * @param resource - resource name to check as {@link String}.
+   * @return {@link Collection} with secondary resource names.
+   */
+  public Collection<String> getSecondaryResourceNames(String resource) {
+    return resourceDescriptions.values().stream()
+      .filter(desc -> StringUtils.equals(resource, desc.getParent()))
+      .map(ResourceDescription::getName)
+      .collect(Collectors.toList());
+  }
+
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
     var validationErrors = new LinkedHashMap<String, List<String>>();
     descriptors.forEach(descriptor -> validationErrors

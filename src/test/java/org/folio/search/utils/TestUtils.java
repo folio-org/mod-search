@@ -262,7 +262,6 @@ public class TestUtils {
     var resourceDescription = new ResourceDescription();
     resourceDescription.setName(name);
     resourceDescription.setFields(fields);
-    resourceDescription.setPrimary(true);
     return resourceDescription;
   }
 
@@ -273,9 +272,9 @@ public class TestUtils {
     return resourceDescription;
   }
 
-  public static ResourceDescription secondaryResourceDescription(String name) {
+  public static ResourceDescription secondaryResourceDescription(String name, String parent) {
     var resourceDescription = resourceDescription(name, emptyMap());
-    resourceDescription.setPrimary(false);
+    resourceDescription.setParent(parent);
     return resourceDescription;
   }
 

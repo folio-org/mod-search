@@ -8,7 +8,9 @@ import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -24,6 +26,7 @@ import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -194,10 +197,46 @@ class IndexServiceTest {
     var expectedResponse = new ReindexJob().id(randomId());
     var expectedUri = URI.create("http://instance-storage/reindex");
 
+    when(resourceDescriptionService.get(INSTANCE_RESOURCE)).thenReturn(resourceDescription(INSTANCE_RESOURCE));
+    when(resourceDescriptionService.getSecondaryResourceNames(INSTANCE_RESOURCE)).thenReturn(List.of("secondary"));
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
     assertThat(actual).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void reindexInventory_positive_resourceNameIsNullAndRecreateIndexIsTrue() {
+    var expectedResponse = new ReindexJob().id(randomId());
+    var expectedUri = URI.create("http://instance-storage/reindex");
+
+    when(resourceDescriptionService.get(INSTANCE_RESOURCE)).thenReturn(resourceDescription(INSTANCE_RESOURCE));
+    when(resourceDescriptionService.get(INSTANCE_SUBJECT_RESOURCE))
+      .thenReturn(secondaryResourceDescription(INSTANCE_SUBJECT_RESOURCE, INSTANCE_RESOURCE));
+    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
+    when(resourceDescriptionService.getSecondaryResourceNames(INSTANCE_RESOURCE))
+      .thenReturn(List.of(INSTANCE_SUBJECT_RESOURCE));
+    mockCreateIndexOperation(INSTANCE_RESOURCE);
+    mockCreateIndexOperation(INSTANCE_SUBJECT_RESOURCE);
+
+    var secondaryIndexName = getElasticsearchIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var instanceIndexName = getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    when(indexRepository.indexExists(instanceIndexName)).thenReturn(true);
+    when(indexRepository.indexExists(secondaryIndexName)).thenReturn(true);
+
+    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null).recreateIndex(true));
+    assertThat(actual).isEqualTo(expectedResponse);
+
+    verify(indexRepository).dropIndex(instanceIndexName);
+    verify(indexRepository).dropIndex(secondaryIndexName);
+  }
+
+  private void mockCreateIndexOperation(String resource) {
+    var indexName = getElasticsearchIndexName(resource, TENANT_ID);
+    doReturn(EMPTY_OBJECT).when(mappingsHelper).getMappings(resource);
+    doReturn(EMPTY_OBJECT).when(settingsHelper).getSettings(resource);
+    doReturn(getSuccessFolioCreateIndexResponse(List.of(indexName))).when(indexRepository)
+      .createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT);
   }
 
   @Test
@@ -206,7 +245,11 @@ class IndexServiceTest {
     var expectedUri = URI.create("http://instance-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
+    when(resourceDescriptionService.get(INSTANCE_RESOURCE)).thenReturn(resourceDescription(INSTANCE_RESOURCE));
+    when(resourceDescriptionService.getSecondaryResourceNames(INSTANCE_RESOURCE)).thenReturn(List.of("secondary"));
+
     var actual = indexService.reindexInventory(TENANT_ID, null);
+
     assertThat(actual).isEqualTo(expectedResponse);
   }
 
@@ -225,6 +268,25 @@ class IndexServiceTest {
   }
 
   @Test
+  void reindexInventory_positive_authorityRecordAndRecreateIndex() {
+    var reindexResponse = new ReindexJob().id(randomId());
+    var expectedUri = URI.create("http://authority-storage/reindex");
+    var indexName = getElasticsearchIndexName(AUTHORITY_RESOURCE, TENANT_ID);
+
+    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(reindexResponse);
+    when(resourceDescriptionService.get(AUTHORITY_RESOURCE)).thenReturn(resourceDescription(AUTHORITY_RESOURCE));
+    when(mappingsHelper.getMappings(AUTHORITY_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettings(AUTHORITY_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+
+    var reindexRequest = new ReindexRequest().resourceName(AUTHORITY_RESOURCE).recreateIndex(true);
+    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
+
+    assertThat(actual).isEqualTo(reindexResponse);
+  }
+
+  @Test
   void reindexInventory_negative_unknownResourceName() {
     var request = new ReindexRequest().resourceName("unknown");
     when(resourceDescriptionService.get("unknown")).thenReturn(null);
@@ -237,7 +299,7 @@ class IndexServiceTest {
   void reindexInventory_negative_secondaryResource() {
     var resource = "instance_subjects";
     var request = new ReindexRequest().resourceName(resource);
-    when(resourceDescriptionService.get(resource)).thenReturn(secondaryResourceDescription(resource));
+    when(resourceDescriptionService.get(resource)).thenReturn(secondaryResourceDescription(resource, RESOURCE_NAME));
     assertThatThrownBy(() -> indexService.reindexInventory(TENANT_ID, request))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Reindex request contains invalid resource name");

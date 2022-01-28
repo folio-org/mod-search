@@ -171,6 +171,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publicNotes all {value}", "development"),
       arguments("notes.note == {value}", "Librarian private note"),
       arguments("notes.note == {value}", "The development of the Semantic Web,"),
+      arguments("callNumber = {value}", "\"\""),
 
       // search by isbn10
       arguments("isbn = {value}", "047144250X"),

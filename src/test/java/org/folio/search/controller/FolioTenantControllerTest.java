@@ -40,7 +40,17 @@ class FolioTenantControllerTest {
   }
 
   @Test
-  void postTenant_negative_upgradeTenatnWithLiquibaseError() {
+  void postTenant_positive_upgradeTenantEmptyRequest() {
+    var tenantAttributes = new TenantAttributes().purge(false);
+    tenantController.postTenant(tenantAttributes);
+
+    verify(tenantService).initializeTenant(tenantAttributes);
+    verify(kafkaAdminService).createKafkaTopics();
+    verify(kafkaAdminService).restartEventListeners();
+  }
+
+  @Test
+  void postTenant_negative_upgradeTenantWithLiquibaseError() {
     doThrow(new TenantUpgradeException(new LiquibaseException("error"))).when(baseTenantService).createTenant();
 
     assertThatThrownBy(() -> tenantController.postTenant(TENANT_ATTRIBUTES))

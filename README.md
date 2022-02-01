@@ -191,6 +191,15 @@ The module uses system user to communicate with other modules from Kafka consume
 For production deployments you MUST specify the password for this system user via env variable:
 `SYSTEM_USER_PASSWORD=<password>`.
 
+### Configuring spring-boot using JAVA_OPTIONS
+
+Spring boot properties can be overridden using the specified environment variables, if it is not it can be done using
+one of the following approaches (see also the
+documentation [Spring Boot Externalized Configuration](https://docs.spring.io/spring-boot/docs/1.5.6.RELEASE/reference/html/boot-features-external-config.html)):
+
+1. Using the environment variable `SPRING_APPLICATION_JSON` (example: `SPRING_APPLICATION_JSON='{"foo":{"bar":"spam"}}'`)
+2. Using the system variables within the `JAVA_OPTIONS` (example: `JAVA_OPTIONS=-Xmx400m -Dlogging.level.org.folio.search=debug`)
+
 ### Configuring connection to elasticsearch
 
 In order to configure connection to elasticsearch you have to provide following env variables:

@@ -2,7 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
+import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
@@ -19,11 +19,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.folio.search.client.InventoryViewClient;
+import org.folio.search.client.InventoryViewClient.InstanceView;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.search.integration.inventory.InventoryViewClient;
-import org.folio.search.integration.inventory.InventoryViewClient.InstanceView;
 import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.utils.types.UnitTest;

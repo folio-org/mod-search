@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import org.folio.search.model.SystemUser;
-import org.folio.search.service.context.FolioExecutionContextBuilder;
+import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;

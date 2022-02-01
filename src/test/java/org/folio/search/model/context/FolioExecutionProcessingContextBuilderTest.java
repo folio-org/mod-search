@@ -1,4 +1,4 @@
-package org.folio.search.service.context;
+package org.folio.search.model.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +31,6 @@ class FolioExecutionProcessingContextBuilderTest {
 
     assertThat(context.getTenantId()).isEqualTo("tenant");
     assertThat(context.getToken()).isEqualTo("token");
-    assertThat(context.getUserName()).isEqualTo("username");
     assertThat(context.getOkapiUrl()).isEqualTo("okapi");
 
     assertThat(context.getAllHeaders()).isNotNull();

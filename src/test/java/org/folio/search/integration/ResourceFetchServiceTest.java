@@ -47,9 +47,9 @@ class ResourceFetchServiceTest {
     var instanceId1 = events.get(0).getId();
     var instanceId2 = events.get(1).getId();
 
-    var instance1 = instanceView(new Instance().id(instanceId1).title("instance1"));
+    var instance1 = instanceView(new Instance().id(instanceId1).title("instance1"), null);
     var instance2 = instanceView(new Instance().id(instanceId2).title("instance2")
-      .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))));
+      .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))), true);
 
     when(inventoryClient.getInstances(exactMatchAny("id", List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instance1, instance2)));
@@ -58,9 +58,9 @@ class ResourceFetchServiceTest {
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
-      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1")),
+      resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "instance1", "isBoundWith", null)),
       resourceEvent(null, INSTANCE_RESOURCE, mapOf("id", instanceId2, "title", "instance2",
-        "holdings", List.of(mapOf("id", "holdingId")), "items", List.of(mapOf("id", "itemId"))))));
+        "holdings", List.of(mapOf("id", "holdingId")), "items", List.of(mapOf("id", "itemId")), "isBoundWith", true))));
   }
 
   @Test
@@ -76,10 +76,10 @@ class ResourceFetchServiceTest {
       ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, INDEX));
   }
 
-  private static InstanceView instanceView(Instance instance) {
+  private static InstanceView instanceView(Instance instance, Boolean isBoundWith) {
     var instanceMap = OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE);
     var itemsMap = OBJECT_MAPPER.convertValue(instance.getItems(), LIST_OF_MAPS_TYPE_REFERENCE);
     var holdingsMap = OBJECT_MAPPER.convertValue(instance.getHoldings(), LIST_OF_MAPS_TYPE_REFERENCE);
-    return new InstanceView(instanceMap, holdingsMap, itemsMap);
+    return new InstanceView(instanceMap, holdingsMap, itemsMap, isBoundWith);
   }
 }

@@ -3,7 +3,7 @@ package org.folio.search.client;
 import java.net.URI;
 import java.util.Locale;
 import lombok.Getter;
-import org.folio.search.client.cql.CqlQuery;
+import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -1,5 +1,6 @@
 package org.folio.search.integration;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -25,8 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.folio.search.client.InventoryReferenceDataClient;
-import org.folio.search.client.cql.CqlQuery;
 import org.folio.search.integration.ReferenceDataServiceTest.TestContextConfiguration;
+import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.utils.types.UnitTest;
@@ -81,7 +82,7 @@ class ReferenceDataServiceTest {
     var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
     var request = mock(Request.class);
     when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
-      .thenThrow(new Forbidden("invalid permission", request, null));
+      .thenThrow(new Forbidden("invalid permission", request, null, emptyMap()));
 
     var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
 

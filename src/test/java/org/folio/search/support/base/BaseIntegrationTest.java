@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.hamcrest.Matchers.is;
@@ -313,11 +314,11 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void enableTenant(String tenant) {
-    mockMvc.perform(post("/_/tenant")
+    mockMvc.perform(post("/_/tenant", randomId())
         .content(asJsonString(new TenantAttributes().moduleTo("mod-search")))
         .headers(defaultHeaders(tenant))
         .contentType(APPLICATION_JSON))
-      .andExpect(status().isOk());
+      .andExpect(status().isNoContent());
   }
 
   @SneakyThrows
@@ -327,7 +328,8 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void removeTenant(String tenantId) {
-    mockMvc.perform(delete("/_/tenant")
+    mockMvc.perform(post("/_/tenant", randomId())
+        .content(asJsonString(new TenantAttributes().moduleFrom("mod-search").purge(true)))
         .headers(defaultHeaders(tenantId)))
       .andExpect(status().isNoContent());
   }

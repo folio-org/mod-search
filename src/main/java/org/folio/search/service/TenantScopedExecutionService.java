@@ -6,7 +6,7 @@ import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.
 import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.search.service.context.FolioExecutionContextBuilder;
+import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;

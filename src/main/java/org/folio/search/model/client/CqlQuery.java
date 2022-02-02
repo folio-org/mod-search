@@ -1,4 +1,4 @@
-package org.folio.search.client.cql;
+package org.folio.search.model.client;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.StreamSupport.stream;

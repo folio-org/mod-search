@@ -2,6 +2,7 @@ package org.folio.search.cql;
 
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.service.setter.instance.CallNumberProcessor;
 import org.marc4j.callnum.LCCallNumber;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,10 @@ public class CallNumberBrowseSearchTermProcessor implements SearchTermProcessor 
 
   @Override
   public Long getSearchTerm(String term) {
+    if (StringUtils.isBlank(term)) {
+      return null;
+    }
+
     var termToProcess = SHELF_KEY_PATTERN.matcher(term).matches() ? term : new LCCallNumber(term).getShelfKey();
     return callNumberProcessor.getCallNumberAsLong(termToProcess);
   }

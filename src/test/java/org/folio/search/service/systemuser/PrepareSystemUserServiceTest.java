@@ -19,9 +19,10 @@ import org.folio.search.client.PermissionsClient;
 import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
+import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.service.context.FolioExecutionContextBuilder;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,12 +40,13 @@ class PrepareSystemUserServiceTest {
   @Mock private PermissionsClient permissionsClient;
   @Mock private FolioExecutionContextBuilder contextBuilder;
   @Mock private ResponseEntity<String> expectedResponse;
+  @Mock private FolioExecutionContext context;
 
   @Test
   void shouldCreateSystemUserWhenNotExist() {
     when(usersClient.query(any())).thenReturn(userNotExistResponse());
 
-    prepareSystemUser(systemUser());
+    prepareSystemUser(systemUserProperties());
 
     verify(usersClient).saveUser(any());
     verify(permissionsClient).assignPermissionsToUser(any());
@@ -55,14 +57,14 @@ class PrepareSystemUserServiceTest {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
     when(permissionsClient.getUserPermissions(any())).thenReturn(ResultList.empty());
 
-    prepareSystemUser(systemUser());
+    prepareSystemUser(systemUserProperties());
 
     verify(permissionsClient, times(2)).addPermission(any(), any());
   }
 
   @Test
   void cannotUpdateUserIfEmptyPermissions() {
-    var systemUser = systemUserNoPermissions();
+    var systemUser = systemUserPropertiesWithoutPermissions();
     when(usersClient.query(any())).thenReturn(userNotExistResponse());
 
     assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUser));
@@ -72,7 +74,7 @@ class PrepareSystemUserServiceTest {
 
   @Test
   void cannotCreateUserIfEmptyPermissions() {
-    var systemUser = systemUserNoPermissions();
+    var systemUser = systemUserPropertiesWithoutPermissions();
     when(usersClient.query(any())).thenReturn(userExistsResponse());
 
     assertThrows(IllegalStateException.class, () -> prepareSystemUser(systemUser));
@@ -84,7 +86,7 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any()))
       .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
-    prepareSystemUser(systemUser());
+    prepareSystemUser(systemUserProperties());
 
     verify(permissionsClient, times(1)).addPermission(any(), any());
     verify(permissionsClient, times(0))
@@ -98,12 +100,13 @@ class PrepareSystemUserServiceTest {
     var expectedAuthToken = "x-okapi-token-value";
     var expectedHeaders = new HttpHeaders();
     expectedHeaders.add(XOkapiHeaders.TOKEN, expectedAuthToken);
+    var systemUser = systemUserValue();
 
     when(authnClient.getApiKey(UserCredentials.of("username", "password"))).thenReturn(expectedResponse);
+    when(contextBuilder.forSystemUser(systemUser)).thenReturn(context);
     when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
 
-    var systemUser = SystemUser.builder().username("username").okapiUrl("http://okapi").tenantId(TENANT_ID).build();
-    var actual = systemUserService(systemUser()).loginSystemUser(systemUser);
+    var actual = systemUserService(systemUserProperties()).loginSystemUser(systemUser);
     assertThat(actual).isEqualTo(expectedAuthToken);
   }
 
@@ -112,8 +115,10 @@ class PrepareSystemUserServiceTest {
     when(authnClient.getApiKey(UserCredentials.of("username", "password"))).thenReturn(expectedResponse);
     when(expectedResponse.getHeaders()).thenReturn(new HttpHeaders());
 
-    var systemUser = SystemUser.builder().username("username").okapiUrl("http://okapi").tenantId(TENANT_ID).build();
-    var systemUserService = systemUserService(systemUser());
+    var systemUser = systemUserValue();
+    when(contextBuilder.forSystemUser(systemUser)).thenReturn(context);
+
+    var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.loginSystemUser(systemUser))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("User [username] cannot log in");
@@ -121,19 +126,26 @@ class PrepareSystemUserServiceTest {
 
   @Test
   void loginSystemUser_negative_headersDoesNotContainsRequiredValue() {
+
     when(authnClient.getApiKey(UserCredentials.of("username", "password"))).thenReturn(expectedResponse);
     var expectedHeaders = new HttpHeaders();
     expectedHeaders.put(XOkapiHeaders.TOKEN, emptyList());
     when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
 
-    var systemUser = SystemUser.builder().username("username").okapiUrl("http://okapi").tenantId(TENANT_ID).build();
-    var systemUserService = systemUserService(systemUser());
+    var systemUser = systemUserValue();
+    when(contextBuilder.forSystemUser(systemUser)).thenReturn(context);
+
+    var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.loginSystemUser(systemUser))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("User [username] cannot log in");
   }
 
-  private FolioSystemUserProperties systemUser() {
+  private static SystemUser systemUserValue() {
+    return SystemUser.builder().username("username").okapiUrl("http://okapi").tenantId(TENANT_ID).build();
+  }
+
+  private static FolioSystemUserProperties systemUserProperties() {
     return FolioSystemUserProperties.builder()
       .password("password")
       .username("username")
@@ -141,7 +153,7 @@ class PrepareSystemUserServiceTest {
       .build();
   }
 
-  private FolioSystemUserProperties systemUserNoPermissions() {
+  private static FolioSystemUserProperties systemUserPropertiesWithoutPermissions() {
     return FolioSystemUserProperties.builder()
       .password("password")
       .username("username")
@@ -158,8 +170,7 @@ class PrepareSystemUserServiceTest {
   }
 
   private PrepareSystemUserService systemUserService(FolioSystemUserProperties properties) {
-    return new PrepareSystemUserService(permissionsClient,
-      usersClient, authnClient, contextBuilder, properties);
+    return new PrepareSystemUserService(permissionsClient, usersClient, authnClient, contextBuilder, properties);
   }
 
   private void prepareSystemUser(FolioSystemUserProperties properties) {

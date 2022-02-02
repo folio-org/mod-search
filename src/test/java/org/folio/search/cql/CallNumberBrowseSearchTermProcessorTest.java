@@ -37,4 +37,11 @@ class CallNumberBrowseSearchTermProcessorTest {
     var actual = searchTermProcessor.getSearchTerm(callNumber);
     assertThat(actual).isEqualTo(100L);
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"", "  ", "   "})
+  void getSearchTerm_parameterized_emptyValues(String searchTerm) {
+    var actual = searchTermProcessor.getSearchTerm(searchTerm);
+    assertThat(actual).isNull();
+  }
 }

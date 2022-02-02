@@ -19,7 +19,7 @@ import org.folio.search.client.PermissionsClient;
 import org.folio.search.client.UsersClient;
 import org.folio.search.configuration.properties.FolioSystemUserProperties;
 import org.folio.search.model.SystemUser;
-import org.folio.search.service.context.FolioExecutionContextBuilder;
+import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

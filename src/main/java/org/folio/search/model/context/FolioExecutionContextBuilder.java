@@ -1,4 +1,4 @@
-package org.folio.search.service.context;
+package org.folio.search.model.context;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +25,6 @@ public class FolioExecutionContextBuilder {
     return builder()
       .withTenantId(systemUser.getTenantId())
       .withOkapiUrl(systemUser.getOkapiUrl())
-      .withUsername(systemUser.getUsername())
       .withToken(systemUser.getToken())
       .build();
   }
@@ -66,11 +65,6 @@ public class FolioExecutionContextBuilder {
         @Override
         public String getToken() {
           return token;
-        }
-
-        @Override
-        public String getUserName() {
-          return username;
         }
 
         @Override

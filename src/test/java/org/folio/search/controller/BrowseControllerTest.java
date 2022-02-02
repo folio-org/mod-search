@@ -127,10 +127,11 @@ class BrowseControllerTest {
       .contentType(APPLICATION_JSON)
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
 
+    var expectedErrorMessage = "Required request parameter 'query' for method parameter type String is not present";
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Required String parameter 'query' is not present")))
+      .andExpect(jsonPath("$.errors[0].message", is(expectedErrorMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("MissingServletRequestParameterException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }

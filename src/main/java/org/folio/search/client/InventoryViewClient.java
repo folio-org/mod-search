@@ -1,4 +1,4 @@
-package org.folio.search.integration.inventory;
+package org.folio.search.client;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.folio.search.client.cql.CqlQuery;
+import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

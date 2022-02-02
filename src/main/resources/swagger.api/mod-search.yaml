@@ -76,7 +76,7 @@ paths:
   /{recordType}/facets:
     get:
       operationId: getFacets
-      description: Provides list of facets for instance
+      description: Provides list of facets for the record type
       parameters:
         - name: recordType
           required: true

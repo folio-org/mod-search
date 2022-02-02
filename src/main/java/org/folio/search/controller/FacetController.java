@@ -12,20 +12,19 @@ import org.folio.search.rest.resource.RecordTypeApi;
 import org.folio.search.service.FacetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/{recordType}")
+@RequestMapping("/search")
 public class FacetController implements RecordTypeApi {
 
   private final FacetService facetService;
 
   @Override
-  public ResponseEntity<FacetResult> getFacets(@PathVariable RecordType recordType, String query,
+  public ResponseEntity<FacetResult> getFacets(RecordType recordType, String query,
                                                List<String> facet, String tenantId) {
     String recordResource = recordType == RecordType.INSTANCES ? INSTANCE_RESOURCE : AUTHORITY_RESOURCE;
     var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);

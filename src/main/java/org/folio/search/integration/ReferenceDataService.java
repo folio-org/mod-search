@@ -1,8 +1,8 @@
 package org.folio.search.integration;
 
 import static java.util.stream.Collectors.toSet;
-import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
+import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 
 import java.util.Collection;
 import java.util.Collections;

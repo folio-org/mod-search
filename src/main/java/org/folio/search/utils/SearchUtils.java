@@ -36,6 +36,7 @@ public class SearchUtils {
   public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
+  public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";

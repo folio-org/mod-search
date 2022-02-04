@@ -3,6 +3,7 @@ package org.folio.search.support.api;
 import static com.github.tomakehurst.wiremock.http.Response.Builder.like;
 import static org.folio.search.support.api.InventoryApi.getInventoryView;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -28,10 +29,11 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
     var instanceViews = getInstanceIdsFromRequest(request)
       .map(id -> getInventoryView(tenant, id))
       .flatMap(Optional::stream)
-      .map(instance -> Map.of(
+      .map(instance -> mapOf(
         "instance", instance,
         "holdingsRecords", MapUtils.getObject(instance, "holdings"),
-        "items", MapUtils.getObject(instance, "items")))
+        "items", MapUtils.getObject(instance, "items"),
+        "isBoundWith", MapUtils.getBoolean(instance, "isBoundWith")))
       .limit(Integer.parseInt(request.queryParameter("limit").firstValue()))
       .collect(Collectors.toList());
 

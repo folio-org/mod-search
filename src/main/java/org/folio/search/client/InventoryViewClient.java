@@ -3,8 +3,10 @@ package org.folio.search.client;
 import static java.util.Collections.emptyList;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.IS_BOUND_WITH_FIELD_NAME;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -42,6 +44,9 @@ public interface InventoryViewClient {
     private List<Map<String, Object>> holdingsRecords = emptyList();
     private List<Map<String, Object>> items = emptyList();
 
+    @JsonProperty(IS_BOUND_WITH_FIELD_NAME)
+    private Boolean isBoundWith;
+
     /**
      * Converts {@link InstanceView} response to search instance representation as {@link Map} object.
      *
@@ -55,6 +60,8 @@ public interface InventoryViewClient {
       if (CollectionUtils.isNotEmpty(holdingsRecords)) {
         instance.put(INSTANCE_HOLDING_FIELD_NAME, holdingsRecords);
       }
+
+      instance.put(IS_BOUND_WITH_FIELD_NAME, isBoundWith);
 
       return instance;
     }

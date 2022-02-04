@@ -52,7 +52,7 @@ application:
     listener:
       events:
         concurrency: 2
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${application.environment}-mod-search-events-group
       authorities:
         concurrency: 1

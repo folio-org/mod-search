@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
+import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
@@ -64,13 +65,15 @@ class KafkaMessageListenerTest {
     var itemEvent = resourceEvent(null, mapOf("id", randomId(), "instanceId", instanceId2));
     var holdingEvent1 = resourceEvent(null, mapOf("id", randomId(), "instanceId", instanceId3));
     var holdingEvent2 = resourceEvent(null, mapOf("id", randomId(), "instanceId", null));
+    var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", instanceId1));
 
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId1, instanceEvent1),
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId2, instanceEvent2),
       new ConsumerRecord<>(inventoryItemTopic(), 0, 0, instanceId2, itemEvent),
       new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, instanceId3, holdingEvent1),
-      new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, null, holdingEvent2)));
+      new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, null, holdingEvent2),
+      new ConsumerRecord<>(inventoryBoundWithTopic(), 0, 0, instanceId1, boundWithEvent)));
 
     var expectedEvents = List.of(
       ResourceIdEvent.of(instanceId1, INSTANCE_RESOURCE, TENANT_ID, INDEX),

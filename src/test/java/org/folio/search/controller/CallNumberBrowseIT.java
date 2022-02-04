@@ -293,6 +293,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       .title((String) data.get(0))
       .staffSuppress(false)
       .discoverySuppress(false)
+      .isBoundWith(false)
       .items(items)
       .holdings(emptyList());
   }

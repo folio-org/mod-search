@@ -14,6 +14,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
+import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -60,6 +61,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.retry.annotation.EnableRetry;
 
 @EnableKafka
@@ -68,7 +70,8 @@ import org.springframework.retry.annotation.EnableRetry;
 @SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
   properties = {
     "ENV=kafka-listener-it",
-    "KAFKA_EVENTS_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item)",
+    "KAFKA_EVENTS_CONSUMER_PATTERN="
+      + "(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
     "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.authority",
     "application.environment=${ENV:folio}",
     "application.kafka.retry-interval-ms=10",
@@ -102,6 +105,15 @@ class KafkaMessageListenerIT {
   void handleEvents_positive() {
     var expectedEvent = idEvent(INSTANCE_ID);
     kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(indexService).indexResourcesById(List.of(expectedEvent)));
+  }
+
+  @Test
+  void handleEvents_positive_boundWithEvent() {
+    var expectedEvent = idEvent(INSTANCE_ID);
+    var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
+    kafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(indexService).indexResourcesById(List.of(expectedEvent)));
   }
@@ -184,7 +196,7 @@ class KafkaMessageListenerIT {
 
   @Test
   void shouldAddEnvPrefixForConsumerGroup() {
-    var container = kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID);
+    var container = getListenerContainer(EVENT_LISTENER_ID);
     assertThat(container.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV);
     kafkaProperties.getListener().values().forEach(
       listenerProperties -> assertThat(listenerProperties.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV));
@@ -192,7 +204,7 @@ class KafkaMessageListenerIT {
 
   @Test
   void shouldUseCustomConsumerPattern() {
-    var container = kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID);
+    var container = getListenerContainer(EVENT_LISTENER_ID);
     assertThat(container.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV);
     kafkaProperties.getListener().values().forEach(
       listenerProperties -> assertThat(listenerProperties.getTopicPattern())
@@ -201,10 +213,16 @@ class KafkaMessageListenerIT {
 
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
     Function<String, ResourceEvent> resourceEventFunction) {
-    var container = kafkaListenerEndpointRegistry.getListenerContainer(containerId);
+    var container = getListenerContainer(containerId);
     container.stop();
     ids.forEach(id -> kafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));
     container.start();
+  }
+
+  private MessageListenerContainer getListenerContainer(String eventListenerId) {
+    var listenerContainer = kafkaListenerEndpointRegistry.getListenerContainer(eventListenerId);
+    assertThat(listenerContainer).isNotNull();
+    return listenerContainer;
   }
 
   private static ResourceIdEvent idEvent(String id) {

@@ -22,4 +22,17 @@ public class Pair<L, R> {
    * Second value of pair object.
    */
   private R second;
+
+  /**
+   * Creates pair object from given first and second objects.
+   *
+   * @param first - First value of pair object.
+   * @param second - Second value of pair object.
+   * @param <F> - first value generic type
+   * @param <S> - second value generic type
+   * @return created {@link Pair} object
+   */
+  public static <F, S> Pair<F, S> pair(F first, S second) {
+    return new Pair<>(first, second);
+  }
 }

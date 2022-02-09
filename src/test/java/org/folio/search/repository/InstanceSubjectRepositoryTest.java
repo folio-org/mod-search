@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.elasticsearch.common.xcontent.json.JsonXContent.jsonXContent;
+import static org.folio.search.model.Pair.pair;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.JsonUtils.jsonArray;
@@ -20,7 +21,6 @@ import static org.folio.search.utils.TestUtils.aggregationsFromJson;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -34,8 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 import lombok.SneakyThrows;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse.Failure;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -74,6 +75,7 @@ class InstanceSubjectRepositoryTest {
   @Mock private SearchRepository searchRepository;
   @Mock private RestHighLevelClient elasticsearchClient;
   @Captor private ArgumentCaptor<BulkRequest> bulkRequestCaptor;
+  @Captor private ArgumentCaptor<MultiGetRequest> multiGetRequestCaptor;
 
   @BeforeEach
   void setUp() {
@@ -101,9 +103,9 @@ class InstanceSubjectRepositoryTest {
     var subject2 = "scala";
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
-    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
-      .thenReturn(searchResponseForSubjectIds(mapOf(subject1, Pair.of(123L, 1L), subject2, Pair.of(172L, 2L))));
-    mockCountSearchResponse(mapOf(subject1, 0, subject2, 3));
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT)))
+      .thenReturn(searchResponseForSubjectIds(mapOf(subject1, pair(123L, 1L), subject2, pair(172L, 2L))));
+    mockCountSearchResponse(mapOf(subject1, null, subject2, 3));
 
     var bulkResponse = bulkResponse(mapOf(subject1, null));
     when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
@@ -112,17 +114,17 @@ class InstanceSubjectRepositoryTest {
     var actual = repository.indexResources(documents);
 
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-    var expectedBulkRequest = new BulkRequest().add(deleteRequest(subject1, 123L, 1L));
-    assertThat(writeToString(bulkRequestCaptor.getValue())).isEqualTo(writeToString(expectedBulkRequest));
+    checkCalledBulkRequest(List.of(new BulkRequest().add(deleteRequest(subject1, 123L, 1L))));
+    checkCalledMultiGetRequests(List.of(multiGetRequest(subject1, subject2)));
   }
 
   @Test
   void indexResources_positive_subjectNotFoundById() throws IOException {
     var subject = "java";
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
-    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
-      .thenReturn(searchResponseForSubjectIds(emptyMap()));
-    mockCountSearchResponse(mapOf(subject, 0));
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(emptyMap()));
+    mockCountSearchResponse(mapOf(subject, null));
 
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
 
@@ -134,8 +136,8 @@ class InstanceSubjectRepositoryTest {
   void indexResources_positive_subjectCountMoreThanZero() throws IOException {
     var subject = "java";
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
-    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
-      .thenReturn(searchResponseForSubjectIds(mapOf(subject, Pair.of(50L, 2L))));
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(subject, pair(50L, 2L))));
     mockCountSearchResponse(mapOf(subject, 10));
 
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
@@ -149,11 +151,11 @@ class InstanceSubjectRepositoryTest {
     var subject = "java";
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
-    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(123L, 1L))),
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(124L, 2L))),
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(125L, 3L))));
-    mockCountSearchResponse(mapOf(subject, 0));
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(subject, pair(123L, 1L))),
+      searchResponseForSubjectIds(mapOf(subject, pair(124L, 2L))),
+      searchResponseForSubjectIds(mapOf(subject, pair(125L, 3L))));
+    mockCountSearchResponse(mapOf(subject, null));
 
     var bulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
     when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
@@ -161,12 +163,12 @@ class InstanceSubjectRepositoryTest {
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
 
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-    assertThat(bulkRequestCaptor.getAllValues()).hasSize(3)
-      .map(InstanceSubjectRepositoryTest::writeToString)
-      .isEqualTo(List.of(
-        writeToString(new BulkRequest().add(deleteRequest(subject, 123L, 1L))),
-        writeToString(new BulkRequest().add(deleteRequest(subject, 124L, 1L))),
-        writeToString(new BulkRequest().add(deleteRequest(subject, 125L, 1L)))));
+    checkCalledBulkRequest(List.of(
+      new BulkRequest().add(deleteRequest(subject, 123L, 1L)),
+      new BulkRequest().add(deleteRequest(subject, 124L, 2L)),
+      new BulkRequest().add(deleteRequest(subject, 125L, 3L))));
+
+    checkCalledMultiGetRequests(List.of(multiGetRequest(subject), multiGetRequest(subject), multiGetRequest(subject)));
   }
 
   @Test
@@ -174,11 +176,11 @@ class InstanceSubjectRepositoryTest {
     var subject = "java";
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
-    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(123L, 1L))),
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(124L, 2L))),
-      searchResponseForSubjectIds(mapOf(subject, Pair.of(125L, 3L))));
-    mockCountSearchResponse(mapOf(subject, 0));
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(subject, pair(123L, 1L))),
+      searchResponseForSubjectIds(mapOf(subject, pair(124L, 2L))),
+      searchResponseForSubjectIds(mapOf(subject, pair(125L, 3L))));
+    mockCountSearchResponse(mapOf(subject, null));
 
     var errorBulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
     var positiveBulkResponse = bulkResponse(mapOf(subject, null));
@@ -188,19 +190,45 @@ class InstanceSubjectRepositoryTest {
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
 
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-    assertThat(bulkRequestCaptor.getAllValues()).hasSize(3)
-      .map(InstanceSubjectRepositoryTest::writeToString)
-      .isEqualTo(List.of(
-        writeToString(new BulkRequest().add(deleteRequest(subject, 123L, 1L))),
-        writeToString(new BulkRequest().add(deleteRequest(subject, 124L, 1L))),
-        writeToString(new BulkRequest().add(deleteRequest(subject, 125L, 1L)))));
+    checkCalledBulkRequest(List.of(
+      new BulkRequest().add(deleteRequest(subject, 123L, 1L)),
+      new BulkRequest().add(deleteRequest(subject, 124L, 2L)),
+      new BulkRequest().add(deleteRequest(subject, 125L, 3L))));
+
+    checkCalledMultiGetRequests(List.of(multiGetRequest(subject), multiGetRequest(subject), multiGetRequest(subject)));
   }
 
-  private static String writeToString(BulkRequest request) {
-    return request.requests().stream().map(Object::toString).collect(Collectors.joining(",", "[ ", " ]"));
+  @Test
+  void indexResources_positive_deleteSubjectsConsequently() throws IOException {
+    var s1 = "java";
+    var s2 = "python";
+    var s3 = "js";
+
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(s1, pair(11L, 11L), s2, pair(21L, 21L), s3, pair(31L, 31L))),
+      searchResponseForSubjectIds(mapOf(s1, pair(12L, 12L), s2, pair(22L, 22L))),
+      searchResponseForSubjectIds(mapOf(s1, pair(13L, 13L))));
+    mockCountSearchResponse(mapOf(s1, null, s2, null, s3, null));
+
+    var bulkResponse1 = bulkResponse(mapOf(s1, "error", s2, "error", s3, null));
+    var bulkResponse2 = bulkResponse(mapOf(s1, "error", s2, null));
+    var bulkResponse3 = bulkResponse(mapOf(s1, null));
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT)))
+      .thenReturn(bulkResponse1, bulkResponse2, bulkResponse3);
+
+    var actual = repository.indexResources(List.of(
+      searchDocumentBodyToDelete(s1), searchDocumentBodyToDelete(s2), searchDocumentBodyToDelete(s3)));
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    checkCalledBulkRequest(List.of(
+      new BulkRequest().add(deleteRequest(s1, 11L, 11L), deleteRequest(s2, 21L, 21L), deleteRequest(s3, 31L, 31L)),
+      new BulkRequest().add(deleteRequest(s1, 12L, 12L), deleteRequest(s2, 22L, 22L)),
+      new BulkRequest().add(deleteRequest(s1, 13L, 13L))));
+
+    checkCalledMultiGetRequests(List.of(multiGetRequest(s1, s2, s3), multiGetRequest(s1, s2), multiGetRequest(s1)));
   }
 
-  @SuppressWarnings("SameParameterValue")
   private static DeleteRequest deleteRequest(String subject, Long seqNo, Long primaryTerm) {
     return new DeleteRequest(getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
       .id(sha256Hex(subject)).setIfSeqNo(seqNo).setIfPrimaryTerm(primaryTerm).routing(TENANT_ID);
@@ -255,16 +283,6 @@ class InstanceSubjectRepositoryTest {
     return SearchDocumentBody.of(asJsonString(body), event, DELETE);
   }
 
-  private static MultiGetRequest subjectIdsRequest(String... subjects) {
-    var items = new MultiGetRequest();
-    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
-    var fetchSource = new FetchSourceContext(false);
-    for (var subject : subjects) {
-      items.add(new Item(indexName, sha256Hex(subject)).routing(TENANT_ID).fetchSourceContext(fetchSource));
-    }
-    return items;
-  }
-
   private static MultiGetResponse searchResponseForSubjectIds(Map<String, Pair<Long, Long>> seqNumbers) {
     var objects = seqNumbers.entrySet().stream()
       .map(InstanceSubjectRepositoryTest::foundDocumentById)
@@ -288,5 +306,64 @@ class InstanceSubjectRepositoryTest {
   public static MultiGetResponse multiGetResponseFromJson(JsonNode jsonNode) {
     var parser = jsonXContent.createParser(NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, jsonNode.toString());
     return MultiGetResponse.fromXContent(parser);
+  }
+
+  private void checkCalledBulkRequest(List<BulkRequest> expectedRequests) {
+    var actualRequests = bulkRequestCaptor.getAllValues();
+    assertThat(actualRequests).hasSize(expectedRequests.size());
+    for (int i = 0; i < expectedRequests.size(); i++) {
+      validateBulkRequest(actualRequests.get(i), expectedRequests.get(i),
+        InstanceSubjectRepositoryTest::validateDeleteRequest);
+    }
+  }
+
+  public static void validateBulkRequest(BulkRequest actual, BulkRequest expected,
+    BiConsumer<DocWriteRequest<?>, DocWriteRequest<?>> requestValidator) {
+    var actualRequests = actual.requests();
+    var expectedRequests = expected.requests();
+    assertThat(actualRequests.size()).isEqualTo(expectedRequests.size());
+    for (int i = 0; i < expectedRequests.size(); i++) {
+      var actualRequest = actualRequests.get(i);
+      var expectedRequest = expectedRequests.get(i);
+      assertThat(actualRequest.getClass()).isEqualTo(expectedRequest.getClass());
+      requestValidator.accept(actualRequest, expectedRequest);
+    }
+  }
+
+  private static void validateDeleteRequest(DocWriteRequest<?> actual, DocWriteRequest<?> expected) {
+    assertThat(actual)
+      .usingRecursiveComparison()
+      .comparingOnlyFields("id", "routing", "ifSeqNo", "ifPrimaryTerm", "index")
+      .isEqualTo(expected);
+  }
+
+  private void checkCalledMultiGetRequests(List<MultiGetRequest> expectedRequests) {
+    var actualRequests = multiGetRequestCaptor.getAllValues();
+    assertThat(actualRequests).hasSize(expectedRequests.size());
+    for (int i = 0; i < expectedRequests.size(); i++) {
+      validateMultiGetRequest(actualRequests.get(i), expectedRequests.get(i));
+    }
+  }
+
+  public static void validateMultiGetRequest(MultiGetRequest actual, MultiGetRequest expected) {
+    var actualRequests = actual.getItems();
+    var expectedRequests = expected.getItems();
+    assertThat(actualRequests.size()).isEqualTo(expectedRequests.size());
+    for (int i = 0; i < expectedRequests.size(); i++) {
+      var actualRequest = actualRequests.get(i);
+      var expectedRequest = expectedRequests.get(i);
+      assertThat(actualRequest).usingRecursiveComparison().isEqualTo(expectedRequest);
+    }
+  }
+
+  private static MultiGetRequest multiGetRequest(String... subjects) {
+    var multiGetRequest = new MultiGetRequest();
+    var fetchSource = new FetchSourceContext(false);
+    for (var subject : subjects) {
+      var item = new Item(getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID), sha256Hex(subject))
+        .routing(TENANT_ID).fetchSourceContext(fetchSource);
+      multiGetRequest.add(item);
+    }
+    return multiGetRequest;
   }
 }

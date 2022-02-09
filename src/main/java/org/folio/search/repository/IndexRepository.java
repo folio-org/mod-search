@@ -92,13 +92,14 @@ public class IndexRepository {
   }
 
   /**
-   * Refreshes the given Elasticsearch indices.
+   * Refreshes the Elasticsearch indices.
    *
-   * @param index - Elasticsearch index names as {@link String} object.
+   * @param indices - Elasticsearch index names as array of {@link String} objects.
    */
-  public void refreshIndex(String index) {
+  public void refreshIndices(String... indices) {
     performExceptionalOperation(
-      () -> elasticsearchClient.indices().refresh(new RefreshRequest(index), DEFAULT), index, "refreshApi");
+      () -> elasticsearchClient.indices().refresh(new RefreshRequest(indices), DEFAULT),
+      String.join(",", indices), "refreshApi");
   }
 
   /**

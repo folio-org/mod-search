@@ -7,7 +7,7 @@ import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.Collection;
@@ -56,7 +56,7 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
-    var index = getElasticsearchIndexName(resourceRequest);
+    var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(resourceRequest, index, searchSource);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, "searchApi");
   }
@@ -69,7 +69,7 @@ public class SearchRepository {
    * @return search result as {@link MultiSearchResponse} object.
    */
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
-    var index = getElasticsearchIndexName(resourceRequest);
+    var index = getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(resourceRequest, index, source)));
     var response = performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi");
@@ -94,7 +94,7 @@ public class SearchRepository {
    * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
-    var index = getElasticsearchIndexName(req);
+    var index = getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
       .routing(req.getTenantId())

@@ -1,51 +1,53 @@
 package org.folio.search.repository;
 
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.index.query.QueryBuilders.idsQuery;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
+import static org.elasticsearch.common.xcontent.json.JsonXContent.jsonXContent;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.repository.InstanceSubjectRepository.OPTIMISTIC_LOCKING_REQUEST_OPTIONS;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.NAMED_XCONTENT_REGISTRY;
 import static org.folio.search.utils.TestUtils.aggregationsFromJson;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.folio.search.utils.TestUtils.searchResponseFromJson;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.digest.DigestUtils;
+import lombok.SneakyThrows;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse.Failure;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetRequest.Item;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.InstanceSubjectsIndexingSettings;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
@@ -59,14 +61,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class InstanceSubjectRepositoryTest {
 
-  @Spy private SearchConfigurationProperties searchConfigurationProperties = searchConfigurationProperties();
+  private static final String INSTANCE_INDEX = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
 
   @InjectMocks private InstanceSubjectRepository repository;
   @Mock private IndexRepository indexRepository;
@@ -99,8 +100,8 @@ class InstanceSubjectRepositoryTest {
     var subject1 = "java";
     var subject2 = "scala";
 
-    doNothing().when(indexRepository).refreshIndex(getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID));
-    when(elasticsearchClient.search(subjectIdsRequest(subject1, subject2), OPTIMISTIC_LOCKING_REQUEST_OPTIONS))
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
       .thenReturn(searchResponseForSubjectIds(mapOf(subject1, Pair.of(123L, 1L), subject2, Pair.of(172L, 2L))));
     mockCountSearchResponse(mapOf(subject1, 0, subject2, 3));
 
@@ -113,7 +114,86 @@ class InstanceSubjectRepositoryTest {
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
     var expectedBulkRequest = new BulkRequest().add(deleteRequest(subject1, 123L, 1L));
     assertThat(writeToString(bulkRequestCaptor.getValue())).isEqualTo(writeToString(expectedBulkRequest));
-    verify(searchConfigurationProperties).getIndexing();
+  }
+
+  @Test
+  void indexResources_positive_subjectNotFoundById() throws IOException {
+    var subject = "java";
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
+      .thenReturn(searchResponseForSubjectIds(emptyMap()));
+    mockCountSearchResponse(mapOf(subject, 0));
+
+    var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
+
+    verifyNoMoreInteractions(elasticsearchClient);
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_positive_subjectCountMoreThanZero() throws IOException {
+    var subject = "java";
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT)))
+      .thenReturn(searchResponseForSubjectIds(mapOf(subject, Pair.of(50L, 2L))));
+    mockCountSearchResponse(mapOf(subject, 10));
+
+    var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
+
+    verifyNoMoreInteractions(elasticsearchClient);
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_positive_retryFailed() throws IOException {
+    var subject = "java";
+
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(123L, 1L))),
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(124L, 2L))),
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(125L, 3L))));
+    mockCountSearchResponse(mapOf(subject, 0));
+
+    var bulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
+
+    var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    assertThat(bulkRequestCaptor.getAllValues()).hasSize(3)
+      .map(InstanceSubjectRepositoryTest::writeToString)
+      .isEqualTo(List.of(
+        writeToString(new BulkRequest().add(deleteRequest(subject, 123L, 1L))),
+        writeToString(new BulkRequest().add(deleteRequest(subject, 124L, 1L))),
+        writeToString(new BulkRequest().add(deleteRequest(subject, 125L, 1L)))));
+  }
+
+  @Test
+  void indexResources_positive_thirdAttemptIsPositive() throws IOException {
+    var subject = "java";
+
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(any(MultiGetRequest.class), eq(DEFAULT))).thenReturn(
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(123L, 1L))),
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(124L, 2L))),
+      searchResponseForSubjectIds(mapOf(subject, Pair.of(125L, 3L))));
+    mockCountSearchResponse(mapOf(subject, 0));
+
+    var errorBulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
+    var positiveBulkResponse = bulkResponse(mapOf(subject, null));
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      errorBulkResponse, errorBulkResponse, positiveBulkResponse);
+
+    var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    assertThat(bulkRequestCaptor.getAllValues()).hasSize(3)
+      .map(InstanceSubjectRepositoryTest::writeToString)
+      .isEqualTo(List.of(
+        writeToString(new BulkRequest().add(deleteRequest(subject, 123L, 1L))),
+        writeToString(new BulkRequest().add(deleteRequest(subject, 124L, 1L))),
+        writeToString(new BulkRequest().add(deleteRequest(subject, 125L, 1L)))));
   }
 
   private static String writeToString(BulkRequest request) {
@@ -122,7 +202,7 @@ class InstanceSubjectRepositoryTest {
 
   @SuppressWarnings("SameParameterValue")
   private static DeleteRequest deleteRequest(String subject, Long seqNo, Long primaryTerm) {
-    return new DeleteRequest(getElasticsearchIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
+    return new DeleteRequest(getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
       .id(sha256Hex(subject)).setIfSeqNo(seqNo).setIfPrimaryTerm(primaryTerm).routing(TENANT_ID);
   }
 
@@ -175,39 +255,38 @@ class InstanceSubjectRepositoryTest {
     return SearchDocumentBody.of(asJsonString(body), event, DELETE);
   }
 
-  private static SearchConfigurationProperties searchConfigurationProperties() {
-    var subjectInstanceConfiguration = new InstanceSubjectsIndexingSettings();
-    var indexingSettings = new IndexingSettings();
-    indexingSettings.setInstanceSubjects(subjectInstanceConfiguration);
-    var props = new SearchConfigurationProperties();
-    props.setIndexing(indexingSettings);
-    return props;
+  private static MultiGetRequest subjectIdsRequest(String... subjects) {
+    var items = new MultiGetRequest();
+    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var fetchSource = new FetchSourceContext(false);
+    for (var subject : subjects) {
+      items.add(new Item(indexName, sha256Hex(subject)).routing(TENANT_ID).fetchSourceContext(fetchSource));
+    }
+    return items;
   }
 
-  private static SearchRequest subjectIdsRequest(String... subjects) {
-    var ids = Arrays.stream(subjects).map(DigestUtils::sha256Hex).toArray(String[]::new);
-    var query = searchSource().query(idsQuery().addIds(ids)).from(0).size(ids.length).fetchSource(false);
-    return new SearchRequest(getElasticsearchIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID)).source(query);
-  }
-
-  private static SearchResponse searchResponseForSubjectIds(Map<String, Pair<Long, Long>> seqNumbers) {
-    var searchHits = seqNumbers.entrySet().stream()
-      .map(entry -> jsonObject(
-        "_id", sha256Hex(entry.getKey()),
-        "_seq_no", entry.getValue().getFirst(),
-        "_primary_term", entry.getValue().getSecond()))
+  private static MultiGetResponse searchResponseForSubjectIds(Map<String, Pair<Long, Long>> seqNumbers) {
+    var objects = seqNumbers.entrySet().stream()
+      .map(InstanceSubjectRepositoryTest::foundDocumentById)
       .toArray(Object[]::new);
-
-    return searchResponseFromJson(searchResponseJsonObject(searchHits));
+    return multiGetResponseFromJson(jsonObject("docs", jsonArray(objects)));
   }
 
-  private static ObjectNode searchResponseJsonObject(Object... searchHits) {
+  private static ObjectNode foundDocumentById(Entry<String, Pair<Long, Long>> entry) {
     return jsonObject(
-      "took", 0, "timed_out", false,
-      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
-      "hits", jsonObject(
-        "total", jsonObject("value", searchHits.length, "relation", "eq"),
-        "max_score", 0.0, "hits", jsonArray(searchHits))
+      "_id", sha256Hex(entry.getKey()),
+      "_type", "_doc",
+      "_version", 1,
+      "_seq_no", entry.getValue().getFirst(),
+      "_primary_term", entry.getValue().getSecond(),
+      "_index", getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID),
+      "found", true
     );
+  }
+
+  @SneakyThrows
+  public static MultiGetResponse multiGetResponseFromJson(JsonNode jsonNode) {
+    var parser = jsonXContent.createParser(NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, jsonNode.toString());
+    return MultiGetResponse.fromXContent(parser);
   }
 }

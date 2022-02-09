@@ -1,6 +1,6 @@
 package org.folio.search.model.index;
 
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,6 +62,6 @@ public class SearchDocumentBody {
    * @return Elasticsearch index name as {@link String} object.
    */
   public String getIndex() {
-    return getElasticsearchIndexName(resourceEvent);
+    return getIndexName(resourceEvent);
   }
 }

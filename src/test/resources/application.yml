@@ -35,6 +35,9 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search.all.fields: false
+    indexing:
+      instance-subjects:
+        retry-attempts: 3
   query:
     properties:
       call-number-range-offset: 1e20

@@ -71,8 +71,8 @@ public class SearchUtils {
    * @param request - request as {@link ResourceRequest} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceRequest request) {
-    return getElasticsearchIndexName(request.getResource(), request.getTenantId());
+  public static String getIndexName(ResourceRequest request) {
+    return getIndexName(request.getResource(), request.getTenantId());
   }
 
   /**
@@ -81,8 +81,8 @@ public class SearchUtils {
    * @param event resource event as {@link ResourceEvent} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceEvent event) {
-    return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
+  public static String getIndexName(ResourceEvent event) {
+    return getIndexName(event.getResourceName(), event.getTenant());
   }
 
   /**
@@ -92,7 +92,7 @@ public class SearchUtils {
    * @param tenantId tenant id as {@link String} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(String resource, String tenantId) {
+  public static String getIndexName(String resource, String tenantId) {
     return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
   }
 

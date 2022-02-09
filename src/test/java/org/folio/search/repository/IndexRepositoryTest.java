@@ -149,7 +149,7 @@ class IndexRepositoryTest {
     when(restHighLevelClient.indices()).thenReturn(indices);
     when(indices.refresh(refreshRequest.capture(), eq(DEFAULT))).thenReturn(refreshResponse);
 
-    indexRepository.refreshIndex(INDEX_NAME);
+    indexRepository.refreshIndices(INDEX_NAME);
 
     assertThat(refreshRequest.getValue().indices()).containsExactly(INDEX_NAME);
   }

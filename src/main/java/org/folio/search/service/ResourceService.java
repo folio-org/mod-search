@@ -58,7 +58,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getElasticsearchIndexName);
+    var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
 
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
@@ -82,7 +82,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getElasticsearchIndexName);
+    var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceEvent::getType));
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(CREATE));

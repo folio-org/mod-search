@@ -55,6 +55,6 @@ public class SearchConfigurationProperties {
      * Retry attempts for delete bulk requests.
      */
     @Min(0)
-    private int retryAttempts = 3;
+    private int retryAttempts;
   }
 }

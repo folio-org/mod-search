@@ -8,7 +8,7 @@ import static org.folio.search.support.base.ApiEndpoints.featureConfig;
 import static org.folio.search.support.base.ApiEndpoints.languageConfig;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -218,7 +218,7 @@ class ConfigControllerIT extends BaseIntegrationTest {
     final var searchRequest = new SearchRequest()
       .routing(TENANT_ID)
       .source(new SearchSourceBuilder().query(matchQuery("id", id)))
-      .indices(getElasticsearchIndexName(INSTANCE_RESOURCE, TENANT_ID));
+      .indices(getIndexName(INSTANCE_RESOURCE, TENANT_ID));
 
     await().until(() -> elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT)
       .getHits().getTotalHits().value > 0);

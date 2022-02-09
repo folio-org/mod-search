@@ -1,15 +1,12 @@
 package org.folio.search.repository;
 
 import static java.util.Collections.emptyList;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.index.query.QueryBuilders.idsQuery;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.BrowseUtils.SUBJECT_BROWSING_FIELD;
@@ -20,7 +17,7 @@ import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.Arrays;
@@ -38,13 +35,15 @@ import org.elasticsearch.action.bulk.BulkItemResponse.Failure;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetRequest.Item;
+import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
+import org.folio.search.configuration.properties.SearchConfigurationProperties.InstanceSubjectsIndexingSettings;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
@@ -55,8 +54,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
-
-  static final RequestOptions OPTIMISTIC_LOCKING_REQUEST_OPTIONS = getOptimisticLockingOptions();
 
   private final IndexRepository indexRepository;
   private final SearchRepository searchRepository;
@@ -77,16 +74,16 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private void deleteUnusedSubjectsPerTenant(String tenant, List<SearchDocumentBody> documents) {
-    var retryAttempts = searchConfigurationProperties.getIndexing().getInstanceSubjects().getRetryAttempts();
+    var retryAttempts = getRetryAttempts();
     var retryCounter = new AtomicInteger(0);
     List<String> remainingIds;
     var remainingDocuments = documents;
-    var documentsById = remainingDocuments.stream().collect(toLinkedHashMap(SearchDocumentBody::getId, identity()));
+    var documentsById = toLinkedHashMap(remainingDocuments, SearchDocumentBody::getId);
 
     do {
       remainingIds = deleteSubjects(tenant, remainingDocuments);
       remainingDocuments = getRemainingDocuments(remainingIds, documentsById);
-    } while (isNotEmpty(remainingIds) && retryCounter.getAndIncrement() < retryAttempts);
+    } while (isNotEmpty(remainingIds) && retryCounter.incrementAndGet() < retryAttempts);
 
     if (isNotEmpty(remainingIds)) {
       log.warn("Failed to delete subject by ids [subjectIds: {}]", remainingIds);
@@ -94,25 +91,26 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private List<String> deleteSubjects(String tenant, List<SearchDocumentBody> docs) {
-    var documentsBySubjects = docs.stream().collect(toLinkedHashMap(InstanceSubjectRepository::getSubject, identity()));
+    var documentsBySubjects = toLinkedHashMap(docs, InstanceSubjectRepository::getSubject);
     var subjects = documentsBySubjects.keySet();
 
     log.debug("Removing subjects from instance_subject index [tenantId: {}, subjects: {}]", tenant, subjects);
-    indexRepository.refreshIndex(getElasticsearchIndexName(INSTANCE_RESOURCE, tenant));
-    var seqNumbersById = getSearchHitsBySubjectIds(tenant, docs);
+    indexRepository.refreshIndices(getIndexName(INSTANCE_RESOURCE, tenant));
+
+    var esDocumentsByIds = getSearchHitsBySubjectIds(tenant, docs);
 
     var resourceRequest = SimpleResourceRequest.of(INSTANCE_RESOURCE, tenant);
     var subjectCountResponse = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
     var subjectCounts = getSubjectCounts(subjectCountResponse);
 
-    return deleteSubjects(subjectCounts, documentsBySubjects, seqNumbersById);
+    return deleteSubjects(subjectCounts, documentsBySubjects, esDocumentsByIds);
   }
 
   private List<String> deleteSubjects(Map<String, Long> subjectCounts,
-    Map<String, SearchDocumentBody> docsBySubject, Map<String, SearchHit> searchHitsById) {
+    Map<String, SearchDocumentBody> docsBySubject, Map<String, GetResponse> esDocumentsById) {
     Map<String, DocWriteRequest<?>> deleteRequestsBySubject = docsBySubject.keySet().stream()
       .filter(subject -> subjectCounts.getOrDefault(subject, 0L) == 0L)
-      .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, docsBySubject, searchHitsById)))
+      .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, docsBySubject, esDocumentsById)))
       .filter(pair -> pair.getSecond() != null)
       .collect(toLinkedHashMap(Pair::getFirst, Pair::getSecond));
 
@@ -125,25 +123,40 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     return getFailedDocumentIds(executeBulkRequest(bulkRequest));
   }
 
-  private Map<String, SearchHit> getSearchHitsBySubjectIds(String tenant, List<SearchDocumentBody> documents) {
-    var indexName = getElasticsearchIndexName(INSTANCE_SUBJECT_RESOURCE, tenant);
-    var request = new SearchRequest(indexName).source(getSubjectIdsQuery(documents));
+  private Map<String, GetResponse> getSearchHitsBySubjectIds(String tenant, List<SearchDocumentBody> documents) {
+    var multiGetRequest = prepareMultiGetRequest(tenant, documents);
 
-    var searchResponse = performExceptionalOperation(
-      () -> elasticsearchClient.search(request, OPTIMISTIC_LOCKING_REQUEST_OPTIONS),
-      indexName, "searchApi");
+    var documentByIds = performExceptionalOperation(
+      () -> elasticsearchClient.mget(multiGetRequest, DEFAULT),
+      getIndexName(INSTANCE_SUBJECT_RESOURCE, tenant), "searchApi");
 
-    return Optional.ofNullable(searchResponse)
-      .map(SearchResponse::getHits)
-      .map(SearchHits::getHits)
+    return Optional.ofNullable(documentByIds)
+      .map(MultiGetResponse::getResponses)
       .stream()
       .flatMap(Arrays::stream)
-      .collect(toLinkedHashMap(SearchHit::getId, identity()));
+      .filter(multiGetResponse -> !multiGetResponse.isFailed())
+      .map(MultiGetItemResponse::getResponse)
+      .collect(toLinkedHashMap(GetResponse::getId));
   }
 
-  private static SearchSourceBuilder getSubjectIdsQuery(List<SearchDocumentBody> documents) {
-    var documentIds = documents.stream().map(SearchDocumentBody::getId).distinct().toArray(String[]::new);
-    return searchSource().query(idsQuery().addIds(documentIds)).from(0).size(documentIds.length).fetchSource(false);
+  private static MultiGetRequest prepareMultiGetRequest(String tenant, List<SearchDocumentBody> documents) {
+    var multiGetRequest = new MultiGetRequest();
+    var index = getIndexName(INSTANCE_SUBJECT_RESOURCE, tenant);
+    var fetchSourceContext = new FetchSourceContext(false);
+    documents.stream()
+      .map(SearchDocumentBody::getId)
+      .distinct()
+      .map(documentId -> new Item(index, documentId).routing(tenant).fetchSourceContext(fetchSourceContext))
+      .forEach(multiGetRequest::add);
+    return multiGetRequest;
+  }
+
+  private int getRetryAttempts() {
+    return Optional.ofNullable(searchConfigurationProperties)
+      .map(SearchConfigurationProperties::getIndexing)
+      .map(IndexingSettings::getInstanceSubjects)
+      .map(InstanceSubjectsIndexingSettings::getRetryAttempts)
+      .orElse(3);
   }
 
   private static List<SearchDocumentBody> getRemainingDocuments(
@@ -157,18 +170,18 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private static DocWriteRequest<?> prepareDeleteRequest(String subject,
-    Map<String, SearchDocumentBody> searchDocumentBySubject, Map<String, SearchHit> searchHitsById) {
+    Map<String, SearchDocumentBody> searchDocumentBySubject, Map<String, GetResponse> esDocumentsById) {
     var doc = searchDocumentBySubject.get(subject);
-    var hit = searchHitsById.get(doc.getId());
-    return hit != null ? prepareDeleteRequest(doc, hit.getSeqNo(), hit.getPrimaryTerm()) : null;
+    var esDocument = esDocumentsById.get(doc.getId());
+    return esDocument != null ? prepareDeleteRequest(doc, esDocument) : null;
   }
 
-  private static DeleteRequest prepareDeleteRequest(SearchDocumentBody doc, Long seqNo, Long primaryTerm) {
+  private static DeleteRequest prepareDeleteRequest(SearchDocumentBody doc, GetResponse esDocument) {
     return new DeleteRequest(doc.getIndex())
       .id(doc.getId())
       .routing(doc.getRouting())
-      .setIfSeqNo(seqNo)
-      .setIfPrimaryTerm(primaryTerm);
+      .setIfSeqNo(esDocument.getSeqNo())
+      .setIfPrimaryTerm(esDocument.getPrimaryTerm());
   }
 
   private static List<String> getFailedDocumentIds(BulkResponse bulkResponse) {
@@ -177,9 +190,5 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .map(BulkItemResponse::getFailure)
       .map(Failure::getId)
       .collect(toList());
-  }
-
-  private static RequestOptions getOptimisticLockingOptions() {
-    return DEFAULT.toBuilder().addParameter("seq_no_primary_term", "true").build();
   }
 }

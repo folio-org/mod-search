@@ -2,8 +2,10 @@ package org.folio.search.service.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -81,6 +83,44 @@ class LocalResourceProviderTest {
     assertThatThrownBy(() -> localResourceProvider.getResourceDescriptions())
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessageContaining("Failed to read resource [file: file.json]");
+  }
+
+  @Test
+  void getResourceDescription_positive_resourceWithException() throws IOException {
+    var r1 = mock(Resource.class);
+    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    var r1InputStream = mock(InputStream.class);
+
+    when(r1.isReadable()).thenReturn(true);
+    when(r1.getInputStream()).thenReturn(r1InputStream);
+    when(patternResolver.getResources("classpath*:/model/*.json")).thenReturn(array(r1));
+    when(jsonConverter.readJson(r1InputStream, ResourceDescription.class)).thenReturn(resourceDescription);
+
+    var actual = localResourceProvider.getResourceDescription(RESOURCE_NAME);
+    assertThat(actual).isPresent().get().isEqualTo(resourceDescription);
+
+    // second call must return locally cached resource descriptions
+    var actual2 = localResourceProvider.getResourceDescription(RESOURCE_NAME);
+    assertThat(actual2).isPresent().get().isEqualTo(resourceDescription);
+
+    verify(patternResolver).getResources("classpath*:/model/*.json");
+  }
+
+  @Test
+  void getResourceDescription_negative_resourceNotFoundByName() throws IOException {
+    var r1 = mock(Resource.class);
+    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    var r1InputStream = mock(InputStream.class);
+
+    when(r1.isReadable()).thenReturn(true);
+    when(r1.getInputStream()).thenReturn(r1InputStream);
+    when(patternResolver.getResources("classpath*:/model/*.json")).thenReturn(array(r1));
+    when(jsonConverter.readJson(r1InputStream, ResourceDescription.class)).thenReturn(resourceDescription);
+
+    var actual = localResourceProvider.getResourceDescription("unknown");
+
+    assertThat(actual).isEmpty();
+    verify(patternResolver).getResources("classpath*:/model/*.json");
   }
 
   @Test

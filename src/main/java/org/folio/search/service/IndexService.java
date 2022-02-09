@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class IndexService {
     validateResourceName(resourceName,
       "Index cannot be created for the resource because resource description is not found.");
 
-    var index = getElasticsearchIndexName(resourceName, tenantId);
+    var index = getIndexName(resourceName, tenantId);
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
 
@@ -68,7 +68,7 @@ public class IndexService {
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
     validateResourceName(resourceName, "Mappings cannot be updated, resource name is invalid.");
-    var index = getElasticsearchIndexName(resourceName, tenantId);
+    var index = getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
     log.info("Updating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
@@ -83,7 +83,7 @@ public class IndexService {
    * @param tenantId - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(String resourceName, String tenantId) {
-    var index = getElasticsearchIndexName(resourceName, tenantId);
+    var index = getIndexName(resourceName, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceName, tenantId);
     }
@@ -117,7 +117,7 @@ public class IndexService {
    * @param tenant - tenant id as {@link String} object
    */
   public void dropIndex(String resource, String tenant) {
-    var index = getElasticsearchIndexName(resource, tenant);
+    var index = getIndexName(resource, tenant);
     if (indexRepository.indexExists(index)) {
       indexRepository.dropIndex(index);
     }

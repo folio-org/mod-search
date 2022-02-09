@@ -96,7 +96,7 @@ public class TestUtils {
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-  private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
+  public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
 
   @SneakyThrows

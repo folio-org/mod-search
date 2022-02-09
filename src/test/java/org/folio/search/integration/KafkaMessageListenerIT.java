@@ -15,7 +15,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
-import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
@@ -36,7 +35,6 @@ import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
-import org.folio.search.exception.TenantNotInitializedException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.service.KafkaAdminService;
 import org.folio.search.service.ResourceService;
@@ -121,7 +119,7 @@ class KafkaMessageListenerIT {
     var idEvent = instanceEvent();
 
     when(resourceService.indexResourcesById(List.of(idEvent))).thenThrow(
-      new TenantNotInitializedException(array(TENANT_ID), null));
+      new SearchOperationException("Failed to upload events"));
 
     kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 

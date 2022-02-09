@@ -16,7 +16,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
-import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
+import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -137,7 +137,7 @@ class ResourceServiceTest {
 
   @Test
   void indexResourcesById_positive_deleteEvent() {
-    var expectedDocuments = List.of(searchDocumentBodyForDelete());
+    var expectedDocuments = List.of(searchDocumentBodyToDelete());
     var resourceEvents = List.of(resourceEvent(RESOURCE_ID, RESOURCE_NAME, DELETE));
 
     when(resourceFetchService.fetchInstancesByIds(null)).thenReturn(emptyList());

@@ -8,7 +8,7 @@ import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
-import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
+import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,7 +40,7 @@ class PrimaryResourceRepositoryTest {
   @Test
   void indexResources_positive() throws IOException {
     var documentBodyToCreate = searchDocumentBody();
-    var documentBodyToDelete = searchDocumentBodyForDelete();
+    var documentBodyToDelete = searchDocumentBodyToDelete();
     var bulkResponse = mock(BulkResponse.class);
     var bulkRequestCaptor = ArgumentCaptor.forClass(BulkRequest.class);
 

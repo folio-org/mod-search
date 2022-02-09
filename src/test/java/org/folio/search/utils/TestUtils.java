@@ -145,14 +145,6 @@ public class TestUtils {
     return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
   }
 
-  public static BrowseRequest browseRequest(String query) {
-    return browseRequest(query, 25);
-  }
-
-  public static BrowseRequest browseRequest(String query, Boolean expandAll) {
-    return BrowseRequest.of(INSTANCE_RESOURCE, query, TENANT_ID, 25, "callNumber", expandAll, true, 12);
-  }
-
   public static BrowseRequest browseRequest(String query, int limit) {
     return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit, "callNumber", false, true, limit / 2);
   }
@@ -176,10 +168,6 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(shelfKey);
-  }
-
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
@@ -223,12 +211,8 @@ public class TestUtils {
     return SearchDocumentBody.of(EMPTY_OBJECT, resourceEvent(), INDEX);
   }
 
-  public static SearchDocumentBody searchDocumentBodyForDelete() {
+  public static SearchDocumentBody searchDocumentBodyToDelete() {
     return SearchDocumentBody.of(null, resourceEvent(), DELETE);
-  }
-
-  public static SearchDocumentBody searchDocumentBodyForDelete(ResourceEvent event) {
-    return SearchDocumentBody.of(null, event, DELETE);
   }
 
   @SuppressWarnings("unchecked")
@@ -452,12 +436,6 @@ public class TestUtils {
     var jsonString = searchResponseWithAggregation(aggregationNode).toString();
     var parser = jsonXContent.createParser(NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, jsonString);
     return SearchResponse.fromXContent(parser).getAggregations();
-  }
-
-  @SneakyThrows
-  public static SearchResponse searchResponseFromJson(JsonNode jsonNode) {
-    var parser = jsonXContent.createParser(NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, jsonNode.toString());
-    return SearchResponse.fromXContent(parser);
   }
 
   private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {

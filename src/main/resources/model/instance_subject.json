@@ -1,6 +1,9 @@
 {
   "name": "instance_subject",
   "parent": "instance",
+  "indexingConfiguration": {
+    "resourceRepository": "instanceSubjectRepository"
+  },
   "fields": {
     "subject": {
       "index": "plain_fulltext"

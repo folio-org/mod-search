@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.metadata;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

@@ -7,10 +7,9 @@ spring:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
   elasticsearch:
-    rest:
-      username: ${ELASTICSEARCH_USERNAME:}
-      password: ${ELASTICSEARCH_PASSWORD:}
-      uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
+    uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
@@ -45,6 +44,9 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     search-features:
       search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+    indexing:
+      instance-subjects:
+        retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
   query:
     properties:
       call-number-range-offset: ${QUERY_CALL_NUMBER_RANGE_OFFSET:1e20}

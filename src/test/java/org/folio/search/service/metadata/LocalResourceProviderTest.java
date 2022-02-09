@@ -17,7 +17,6 @@ import java.util.List;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.service.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;

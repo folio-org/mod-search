@@ -12,6 +12,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.ResourceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexController implements IndexApi {
 
   private final IndexService indexService;
+  private final ResourceService resourceService;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -41,8 +43,7 @@ public class IndexController implements IndexApi {
 
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEvent> events) {
-    log.info("Saving records into elasticsearch [amount of records: {}]", events.size());
-    return ResponseEntity.ok(indexService.indexResources(events));
+    return ResponseEntity.ok(resourceService.indexResources(events));
   }
 
   @Override

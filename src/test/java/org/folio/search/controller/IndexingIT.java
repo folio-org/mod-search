@@ -6,7 +6,6 @@ import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
-import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
@@ -47,7 +46,7 @@ class IndexingIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    setUpTenant(Instance.class);
   }
 
   @AfterAll

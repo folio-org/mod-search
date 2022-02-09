@@ -2,6 +2,9 @@
   "name": "instance",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Instance",
   "languageSourcePaths": [ "$.languages" ],
+  "indexingConfiguration": {
+    "eventPreProcessor": "instanceEventPreProcessor"
+  },
   "fieldTypes": {
     "suppress": {
       "searchTypes": [ "facet", "filter" ],

@@ -138,8 +138,23 @@ public final class CollectionUtils {
    * @param <T> the type of input elements
    * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashSet}, in encounter order
    */
-  public static <T> Collector<T, ?, LinkedHashSet<T>> toLinkedHashSet() {
+  public static <T> Collector<T, ?, Set<T>> toLinkedHashSet() {
     return toCollection(LinkedHashSet::new);
+  }
+
+  /**
+   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
+   *
+   * @param keyMapper - key mapper as {@link Function} object
+   * @param valueMapper - value mapper as {@link Function} object
+   * @param <T> - generic type for input values
+   * @param <K> - generic type for map keys
+   * @param <V> - generic type for map values
+   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
+   */
+  public static <T, K, V> Collector<T, ?, Map<K, V>> toLinkedHashMap(
+    Function<T, K> keyMapper, Function<T, V> valueMapper) {
+    return Collectors.toMap(keyMapper, valueMapper, (o, n) -> n, LinkedHashMap::new);
   }
 
   /**

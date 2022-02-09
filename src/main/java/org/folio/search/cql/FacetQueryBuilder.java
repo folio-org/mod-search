@@ -1,4 +1,4 @@
-package org.folio.search.service.converter;
+package org.folio.search.cql;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.emptyList;

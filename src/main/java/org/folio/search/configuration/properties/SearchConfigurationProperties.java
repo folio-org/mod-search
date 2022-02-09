@@ -5,6 +5,7 @@ import static java.util.Collections.emptySet;
 
 import java.util.Map;
 import java.util.Set;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -30,4 +31,30 @@ public class SearchConfigurationProperties {
    * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
   private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();
+
+  /**
+   * Indexing settings for different resources.
+   */
+  private IndexingSettings indexing;
+
+  @Data
+  @Validated
+  public static class IndexingSettings {
+
+    /**
+     * Instance subjects indexing settings.
+     */
+    private InstanceSubjectsIndexingSettings instanceSubjects;
+  }
+
+  @Data
+  @Validated
+  public static class InstanceSubjectsIndexingSettings {
+
+    /**
+     * Retry attempts for delete bulk requests.
+     */
+    @Min(0)
+    private int retryAttempts = 3;
+  }
 }

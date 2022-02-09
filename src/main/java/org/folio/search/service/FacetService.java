@@ -7,11 +7,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
-import org.folio.search.service.converter.FacetQueryBuilder;
 import org.springframework.stereotype.Service;
 
 @Service

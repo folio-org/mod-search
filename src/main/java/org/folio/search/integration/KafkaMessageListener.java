@@ -4,10 +4,10 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
-import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
@@ -17,10 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.search.service.IndexService;
 import org.folio.search.service.KafkaAdminService;
+import org.folio.search.service.ResourceService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +30,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageListener {
 
+  private final ResourceService resourceService;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
-  private final IndexService indexService;
 
   /**
    * Handles instance events and indexes them by id.
@@ -48,9 +46,9 @@ public class KafkaMessageListener {
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
-    var batch = getResourceIdRecords(consumerRecords);
+    var batch = getInstanceResourceEvents(consumerRecords);
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-      indexService::indexResourcesById, KafkaMessageListener::logFailedEvent);
+      resourceService::indexResourcesById, KafkaMessageListener::logFailedEvent);
   }
 
   /**
@@ -68,30 +66,30 @@ public class KafkaMessageListener {
     log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(authority -> authority.resourceName(AUTHORITY_RESOURCE))
+      .map(authority -> authority.resourceName(AUTHORITY_RESOURCE).id(getResourceEventId(authority)))
       .collect(toList());
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-      indexService::indexResources, KafkaMessageListener::logFailedEvent);
+      resourceService::indexResources, KafkaMessageListener::logFailedEvent);
   }
 
-  private static List<ResourceIdEvent> getResourceIdRecords(List<ConsumerRecord<String, ResourceEvent>> events) {
+  private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
     return events.stream()
-      .map(KafkaMessageListener::getResourceIdRecord)
+      .map(KafkaMessageListener::getInstanceResourceEvent)
       .filter(Objects::nonNull)
       .distinct()
       .collect(toList());
   }
 
-  private static ResourceIdEvent getResourceIdRecord(ConsumerRecord<String, ResourceEvent> consumerRecord) {
+  private static ResourceEvent getInstanceResourceEvent(ConsumerRecord<String, ResourceEvent> consumerRecord) {
     var instanceId = getInstanceId(consumerRecord);
     var value = consumerRecord.value();
     if (instanceId == null) {
-      log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\n", ""));
+      log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\s+", " "));
       return null;
     }
-    var operation = value.getType() == ResourceEventType.DELETE && isInstanceResource(consumerRecord) ? DELETE : INDEX;
-    return ResourceIdEvent.of(instanceId, INSTANCE_RESOURCE, value.getTenant(), operation);
+    var operation = isInstanceResource(consumerRecord) ? value.getType() : CREATE;
+    return value.id(instanceId).type(operation).resourceName(INSTANCE_RESOURCE);
   }
 
   private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
@@ -105,11 +103,6 @@ public class KafkaMessageListener {
 
   private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
     return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
-  }
-
-  private static void logFailedEvent(ResourceIdEvent event, Exception e) {
-    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
-      event.getAction().getValue(), event.getType(), event.getTenant(), event.getId(), e);
   }
 
   private static void logFailedEvent(ResourceEvent event, Exception e) {

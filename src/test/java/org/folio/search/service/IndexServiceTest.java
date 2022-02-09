@@ -1,11 +1,7 @@
 package org.folio.search.service;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
@@ -15,15 +11,10 @@ import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.folio.search.utils.TestUtils.searchDocumentBody;
-import static org.folio.search.utils.TestUtils.searchDocumentBodyForDelete;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -33,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.Authority;
@@ -41,7 +31,6 @@ import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.ResourceFetchService;
-import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.es.SearchMappingsHelper;
@@ -107,37 +96,6 @@ class IndexServiceTest {
     assertThatThrownBy(() -> indexService.updateMappings(RESOURCE_NAME, TENANT_ID))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Mappings cannot be updated, resource name is invalid.");
-  }
-
-  @Test
-  void indexResources_positive() {
-    var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
-    var expectedResponse = getSuccessIndexOperationResponse();
-
-    when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(List.of(searchBody));
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-    when(indexRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
-
-    var response = indexService.indexResources(List.of(resourceEvent));
-    assertThat(response).isEqualTo(expectedResponse);
-  }
-
-  @Test
-  void indexResources_negative() {
-    var resourceEvents = List.of(resourceEvent(RESOURCE_NAME, mapOf("id", randomId())));
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
-    when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
-    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyList());
-
-    var actual = indexService.indexResources(resourceEvents);
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-  }
-
-  @Test
-  void indexResources_positive_emptyList() {
-    var response = indexService.indexResources(Collections.emptyList());
-    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
@@ -319,66 +277,5 @@ class IndexServiceTest {
     indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
 
     verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
-  }
-
-  @Test
-  void canIndexResourcesById() {
-    var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, INDEX));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
-    var expectedResponse = getSuccessIndexOperationResponse();
-    var doc = searchDocumentBody();
-
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-    when(fetchService.fetchInstancesByIds(eventIds)).thenReturn(List.of(resourceEvent));
-    when(searchDocumentConverter.convertAsMap(List.of(resourceEvent))).thenReturn(mapOf(RESOURCE_ID, doc));
-    when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
-    when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
-
-    var actual = indexService.indexResourcesById(eventIds);
-    assertThat(actual).isEqualTo(expectedResponse);
-  }
-
-  @Test
-  void indexResourcesById_positive_deleteEvent() {
-    var doc = searchDocumentBodyForDelete();
-    var eventIds = List.of(ResourceIdEvent.of(RESOURCE_ID, RESOURCE_NAME, TENANT_ID, DELETE));
-
-    when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
-    when(searchDocumentConverter.convertAsMap(emptyList())).thenReturn(emptyMap());
-    when(searchDocumentConverter.convertDeleteEventsAsMap(eventIds)).thenReturn(mapOf(doc.getId(), doc));
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-
-    var expectedResponse = getSuccessIndexOperationResponse();
-    when(indexRepository.indexResources(List.of(doc))).thenReturn(expectedResponse);
-
-    var actual = indexService.indexResourcesById(eventIds);
-    assertThat(actual).isEqualTo(expectedResponse);
-  }
-
-  @Test
-  void indexResourcesById_positive_emptyList() {
-    var actual = indexService.indexResourcesById(emptyList());
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-  }
-
-  @Test
-  void indexResourcesById_positive_null() {
-    var actual = indexService.indexResourcesById(null);
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-  }
-
-  @Test
-  void cannotIndexResourcesById_indexNotExist() {
-    var eventIds = List.of(ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, INDEX));
-
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
-    when(fetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
-    when(searchDocumentConverter.convertDeleteEventsAsMap(null)).thenReturn(emptyMap());
-    when(searchDocumentConverter.convertAsMap(emptyList())).thenReturn(emptyMap());
-    when(indexRepository.indexResources(emptyList())).thenReturn(getSuccessIndexOperationResponse());
-
-    var actual = indexService.indexResourcesById(eventIds);
-
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 }

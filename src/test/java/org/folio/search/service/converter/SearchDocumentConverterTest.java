@@ -3,13 +3,12 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.keywordField;
@@ -29,12 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.folio.search.model.SearchDocumentBody;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.converter.ConversionContext;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
-import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,27 +59,37 @@ class SearchDocumentConverterTest {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(
       resourceDescription(resourceDescriptionFields(), List.of("$.language")));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, testResourceBody());
 
-    var actual = documentMapper.convert(resourceEvent(RESOURCE_NAME, testResourceBody()));
+    var actual = documentMapper.convert(resourceEvent);
 
-    assertThat(actual).isEqualTo(expectedSearchDocument());
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedSearchDocumentBody()));
     verify(jsonConverter).toJson(anyMap());
+  }
+
+  @Test
+  void convert_deleteEvent() {
+    var event = resourceEvent(RESOURCE_ID, RESOURCE_NAME, ResourceEventType.DELETE, null, emptyMap());
+    var actual = documentMapper.convert(event);
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(null, event, DELETE));
   }
 
   @Test
   void convert_negative_pathNotFound() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
       mapOf("id", plainField("keyword"), "title", plainField("keyword"))));
-    var actual = documentMapper.convert(resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID)));
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID)));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
+    var actual = documentMapper.convert(resourceEvent);
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID)));
   }
 
   @Test
   void convert_negative_emptyTitle() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
       mapOf("id", plainField("keyword"), "title", plainField("keyword"))));
-    var actual = documentMapper.convert(resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "title", "")));
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID, "title", "")));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "title", ""));
+    var actual = documentMapper.convert(resourceEvent);
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID, "title", "")));
   }
 
   @Test
@@ -99,7 +110,7 @@ class SearchDocumentConverterTest {
 
     var actual = documentMapper.convert(resourceEvent);
 
-    assertThat(actual).isEqualTo(expectedSearchDocument(
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent,
       jsonObject("id", RESOURCE_ID, "title", jsonObject("eng", "val", "src", "val"), "plain_title", "val")));
   }
 
@@ -107,14 +118,14 @@ class SearchDocumentConverterTest {
   void convert_positive_repeatableObjectField() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "identifiers", objectField(mapOf("value", keywordField())))));
-
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "identifiers", List.of(
       mapOf("type", "isbn", "value", "test-isbn"),
       mapOf("type", "issn", "value", "test-issn"),
       mapOf("type", "isbn"), "test-isbn-2")));
+
     var actual = documentMapper.convert(resourceEvent);
 
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID,
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID,
       "identifiers", jsonArray(jsonObject("value", "test-isbn"), jsonObject("value", "test-issn")))));
   }
 
@@ -126,8 +137,10 @@ class SearchDocumentConverterTest {
       "alternativeTitle", List.of(mapOf("value", "title1"), mapOf("value", null), emptyMap(), "title3")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+
     var actual = documentMapper.convert(resourceEvent);
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID,
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID,
       "alternativeTitle", jsonArray(jsonObject("value", jsonObject("src", "title1"), "plain_value", "title1")))));
   }
 
@@ -141,16 +154,15 @@ class SearchDocumentConverterTest {
   @Test
   void convert_positive_extendedFields() {
     var desc = resourceDescription(mapOf("id", keywordField(), "base", keywordField()));
-    var resourceData = TestUtils.<String, Object>mapOf("id", RESOURCE_ID, "base", "base val");
-    var resourceEvent = resourceEvent(RESOURCE_NAME, resourceData);
-    var expectedContext = ConversionContext.of(RESOURCE_ID, TENANT_ID, resourceData, desc, emptyList());
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "base", "base val"));
+    var expectedContext = ConversionContext.of(resourceEvent, desc, emptyList());
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
     when(searchFieldsProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));
 
     var actual = documentMapper.convert(resourceEvent);
 
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject(
+    assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, jsonObject(
       "id", RESOURCE_ID, "base", "base val", "generated", "generated value")));
   }
 
@@ -158,8 +170,9 @@ class SearchDocumentConverterTest {
   void convert_positive_useDefaultValueFromFieldDescription() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "value", keywordFieldWithDefaultValue("default"))));
-    var actual = documentMapper.convert(resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "value", "aValue")));
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID, "value", "aValue")));
+    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "value", "aValue"));
+    var actual = documentMapper.convert(event);
+    assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject("id", RESOURCE_ID, "value", "aValue")));
   }
 
   @Test
@@ -169,20 +182,19 @@ class SearchDocumentConverterTest {
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
-    var resourceEvent = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID));
-    var actual = documentMapper.convert(resourceEvent);
+    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID));
+    var actual = documentMapper.convert(event);
 
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID, "value", "default")));
+    assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject("id", RESOURCE_ID, "value", "default")));
   }
 
   @Test
   void convert_positive_useDefaultWhenValueIsNull() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "value", keywordFieldWithDefaultValue("default"))));
-
-    var actual = documentMapper.convert(resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "value", null)));
-
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID, "value", "default")));
+    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "value", null));
+    var actual = documentMapper.convert(event);
+    assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject("id", RESOURCE_ID, "value", "default")));
   }
 
   @Test
@@ -194,7 +206,8 @@ class SearchDocumentConverterTest {
       resourceDescription(resourceDescriptionFields(), List.of("$.language")));
 
     var actual = documentMapper.convert(event);
-    assertThat(actual).isEqualTo(expectedSearchDocument(jsonObject("id", RESOURCE_ID, "language", "rus",
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject("id", RESOURCE_ID, "language", "rus",
       "multilang_value", jsonObject("src", "value"), "plain_multilang_value", "value")));
   }
 
@@ -240,12 +253,7 @@ class SearchDocumentConverterTest {
         "createdAt", "12-01-01T12:03:12Z"));
   }
 
-  private static Optional<SearchDocumentBody> expectedSearchDocument() {
-    return expectedSearchDocument(expectedSearchDocumentBody());
-  }
-
-  private static Optional<SearchDocumentBody> expectedSearchDocument(ObjectNode expectedJson) {
-    final var id = expectedJson.get("id").asText();
-    return Optional.of(SearchDocumentBody.of(id, TENANT_ID, INDEX_NAME, asJsonString(expectedJson), INDEX));
+  private static Optional<SearchDocumentBody> expectedSearchDocument(ResourceEvent event, ObjectNode expectedJson) {
+    return Optional.of(SearchDocumentBody.of(asJsonString(expectedJson), event, INDEX));
   }
 }

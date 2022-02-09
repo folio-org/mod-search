@@ -19,7 +19,6 @@ import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
-import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
@@ -32,8 +31,6 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.MultilangValue;
-import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,13 +68,6 @@ class SearchUtilsTest {
   @Test
   void getElasticsearchIndexName_resourceNameAndTenantId_positive() {
     var actual = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
-    assertThat(actual).isEqualTo(INDEX_NAME);
-  }
-
-  @Test
-  void getElasticsearchIndexName_positive_resourceIdEvent() {
-    var idEvent = ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, IndexActionType.INDEX);
-    var actual = getElasticsearchIndexName(idEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 

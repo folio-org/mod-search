@@ -7,9 +7,8 @@ spring:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
   elasticsearch:
-    rest:
-      username: elastic
-      password: s3cret
+    username: elastic
+    password: s3cret
   datasource:
     username: folio_admin
     password: password

@@ -1,23 +1,19 @@
 package org.folio.search.repository;
 
+import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -25,7 +21,6 @@ import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.SearchDocumentBody;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
@@ -82,32 +77,6 @@ public class IndexRepository {
   }
 
   /**
-   * Saves provided list of {@link SearchDocumentBody} objects to elasticsearch.
-   *
-   * @param esDocumentBodies list wth {@link SearchDocumentBody} object
-   */
-  public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
-    if (CollectionUtils.isEmpty(esDocumentBodies)) {
-      return getSuccessIndexOperationResponse();
-    }
-
-    var bulkRequest = new BulkRequest();
-    var indices = new LinkedHashSet<String>();
-    for (var body : esDocumentBodies) {
-      indices.add(body.getIndex());
-      bulkRequest.add(body.getAction() == INDEX ? prepareIndexRequest(body) : prepareDeleteRequest(body));
-    }
-
-    var bulkApiResponse = performExceptionalOperation(
-      () -> elasticsearchClient.bulk(bulkRequest, RequestOptions.DEFAULT),
-      String.join(",", indices), "bulkApi");
-
-    return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
-  }
-
-  /**
    * Checks if index exists in elasticsearch by name.
    *
    * @param index elasticsearch index name
@@ -117,9 +86,19 @@ public class IndexRepository {
   public boolean indexExists(String index) {
     log.info("Checking that index exists [index: {}]", index);
     var request = new GetIndexRequest(index);
-    return performExceptionalOperation(() ->
-      elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),
+    return performExceptionalOperation(
+      () -> elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),
       index, "indexExists");
+  }
+
+  /**
+   * Refreshes the given Elasticsearch indices.
+   *
+   * @param index - Elasticsearch index names as {@link String} object.
+   */
+  public void refreshIndex(String index) {
+    performExceptionalOperation(
+      () -> elasticsearchClient.indices().refresh(new RefreshRequest(index), DEFAULT), index, "refreshApi");
   }
 
   /**
@@ -133,16 +112,5 @@ public class IndexRepository {
 
     performExceptionalOperation(() -> elasticsearchClient.indices()
       .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
-  }
-
-  private static IndexRequest prepareIndexRequest(SearchDocumentBody body) {
-    return new IndexRequest(body.getIndex())
-      .id(body.getId())
-      .routing(body.getRouting())
-      .source(body.getRawJson(), JSON);
-  }
-
-  private static DeleteRequest prepareDeleteRequest(SearchDocumentBody event) {
-    return new DeleteRequest(event.getIndex()).id(event.getId()).routing(event.getRouting());
   }
 }

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import org.apache.commons.lang3.SerializationException;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.service.LocalFileProvider;
+import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;

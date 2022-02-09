@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,7 @@ public class ResourceDescriptionService {
    *
    * @param resourceName name of resource as {@link String}
    * @return {@link ResourceDescription} object
+   * @throws ResourceDescriptionException if resource description is not found for the given name.
    */
   public ResourceDescription get(String resourceName) {
     var resourceDescription = resourceDescriptions.get(resourceName);
@@ -63,6 +65,15 @@ public class ResourceDescriptionService {
         "Resource description not found [resourceName: %s]", resourceName));
     }
     return resourceDescription;
+  }
+
+  /**
+   * Provides {@link ResourceDescription} object as {@link Optional} for given resource name.
+   *
+   * @param resourceName name of resource as {@link String}
+   */
+  public Optional<ResourceDescription> find(String resourceName) {
+    return Optional.ofNullable(resourceDescriptions.get(resourceName));
   }
 
   /**

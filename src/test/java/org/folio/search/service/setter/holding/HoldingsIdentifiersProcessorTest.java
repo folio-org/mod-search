@@ -21,13 +21,13 @@ class HoldingsIdentifiersProcessorTest {
 
   private static final List<String> FORMER_IDS = List.of(randomId(), randomId());
   private static final String UUID = randomId();
-  private final HoldingsIdentifiersProcessor itemIdentifiersProcessor = new HoldingsIdentifiersProcessor();
+  private final HoldingsIdentifiersProcessor holdingsIdentifiersProcessor = new HoldingsIdentifiersProcessor();
 
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance eventBody, List<String> expected) {
-    var actual = itemIdentifiersProcessor.getFieldValue(eventBody);
+    var actual = holdingsIdentifiersProcessor.getFieldValue(eventBody);
     assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
   }
 
@@ -35,15 +35,15 @@ class HoldingsIdentifiersProcessorTest {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),
       arguments("empty items", instance(), emptyList()),
-      arguments("holding with nullable identifier fields", instance(holding(null, null)), emptyList()),
-      arguments("holding with hrid only", instance(holding("h01", null)), List.of("h01")),
-      arguments("holding with UUID only", instance(holding(UUID)), List.of(UUID)),
-      arguments("holding with empty identifiers", instance(holding("", emptyList())), emptyList()),
-      arguments("holding with hrid and empty list in formerIds", instance(holding("h01", emptyList())), List.of("h01")),
-      arguments("holding with single formerId", instance(holding(null, List.of("id1"))), List.of("id1")),
-      arguments("holding with multiple formerIds", instance(holding(null, FORMER_IDS)), FORMER_IDS),
-      arguments("holding with all identifiers", instance(holding("h01", List.of("fid"))), List.of("h01", "fid")),
-      arguments("holding with all identifiers and UUID", instance(
+      arguments("holdings with nullable identifier fields", instance(holding(null, null)), emptyList()),
+      arguments("holdings with hrid only", instance(holding("h01", null)), List.of("h01")),
+      arguments("holdings with UUID only", instance(holding(UUID)), List.of(UUID)),
+      arguments("holdings with empty identifiers", instance(holding("", emptyList())), emptyList()),
+      arguments("holdings with hrid and empty list in formerIds", instance(holding("h01", emptyList())), List.of("h01")),
+      arguments("holdings with single formerId", instance(holding(null, List.of("id1"))), List.of("id1")),
+      arguments("holdings with multiple formerIds", instance(holding(null, FORMER_IDS)), FORMER_IDS),
+      arguments("holdings with all identifiers", instance(holding("h01", List.of("fid"))), List.of("h01", "fid")),
+      arguments("holdings with all identifiers and UUID", instance(
         holding("h01", List.of("fid")), holding(UUID)), List.of("h01", "fid", UUID)),
       arguments("2 duplicated holdings", instance(
         holding("h01", List.of("fid")), holding("h01", List.of("fid"))), List.of("h01", "fid"))

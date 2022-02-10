@@ -1,7 +1,6 @@
 package org.folio.search.service.setter.holding;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
@@ -17,14 +16,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
-class HoldingPublicNotesProcessorTest {
-  private final HoldingPublicNotesProcessor holdingPublicNotesProcessor = new HoldingPublicNotesProcessor();
+class HoldingsPublicNotesProcessorTest {
+  private final HoldingsPublicNotesProcessor holdingsPublicNotesProcessor = new HoldingsPublicNotesProcessor();
 
   @MethodSource("notesDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance eventBody, List<String> expected) {
-    var actual = holdingPublicNotesProcessor.getFieldValue(eventBody);
+    var actual = holdingsPublicNotesProcessor.getFieldValue(eventBody);
     assertThat(actual).containsExactlyElementsOf(expected);
   }
 

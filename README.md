@@ -384,7 +384,7 @@ if it is defined but doesn't match.
 | `holdings.permanentLocationId`         |   term    | `holdings.permanentLocationId=="123765"`             | Matches instances that have holdings with given permanentLocationId                                    |
 | `holdings.discoverySuppress`           |   term    | `holdings.discoverySuppress==true`                   | Matches instances that have holdings suppressed/not suppressed from discovery                          |
 | `holdings.hrid`                        |   term    | `holdings.hrid=="hr10*3"`                            | Matches instances that have a holding with given HRID                                                  |
-| `holdingTags`                          |   term    | `holdingTags=="important"`                           | Matches instances that have holdings with given tags                                                   |
+| `holdingsTags`                         |   term    | `holdingsTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
 | `holdingsFullCallNumbers`              |   term    | `holdingsFullCallNumbers="cn*434"`                   | Matches instances that have holdings with given call number string (prefix + call number + suffix)     |
 | `holdingsNormalizedCallNumbers`        |   term    | `holdingsNormalizedCallNumbers="cn434"`              | Matches instances that have holdings with given call number and might not be formatted correctly       |
 | `holdings.electronicAccess`            | full-text | `holdings.electronicAccess any "resource"`           | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote` |
@@ -392,7 +392,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
-| `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
+| `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
 | `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
@@ -551,12 +551,12 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ### Holding facets
 
-| Option                         | Type | Description                                    |
-|:-------------------------------|:----:|:-----------------------------------------------|
-| `holdings.permanentLocationId` | term | Requests a holding permanent location id facet |
-| `holdings.discoverySuppress`   | term | Requests a holding discovery suppress facet    |
-| `holdings.sourceId`            | term | Requests a holding sourceId facet              |
-| `holdingTags`                  | term | Requests a holding tag facet                   |
+| Option                         | Type | Description                                     |
+|:-------------------------------|:----:|:------------------------------------------------|
+| `holdings.permanentLocationId` | term | Requests a holdings permanent location id facet |
+| `holdings.discoverySuppress`   | term | Requests a holdings discovery suppress facet    |
+| `holdings.sourceId`            | term | Requests a holdings sourceId facet              |
+| `holdingsTags`                 | term | Requests a holdings tag facet                   |
 
 ### Item facets
 

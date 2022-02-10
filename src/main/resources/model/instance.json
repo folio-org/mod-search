@@ -478,10 +478,10 @@
       "index": "multilang",
       "processor": "itemPublicNotesProcessor"
     },
-    "holdingPublicNotes": {
+    "holdingsPublicNotes": {
       "type": "search",
       "index": "multilang",
-      "processor": "holdingPublicNotesProcessor"
+      "processor": "holdingsPublicNotesProcessor"
     },
     "isbn": {
       "type": "search",
@@ -507,11 +507,11 @@
       "index": "keyword",
       "processor": "itemTagsProcessor"
     },
-    "holdingTags": {
+    "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
       "index": "keyword",
-      "processor": "holdingTagsProcessor"
+      "processor": "holdingsTagsProcessor"
     },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],

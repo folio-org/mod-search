@@ -56,7 +56,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "publicNotes == {value}, librarian",
     "itemPublicNotes == {value}, private note for item",
     "itemPublicNotes == {value}, private circulation note",
-    "holdingPublicNotes == {value}, librarian private note",
+    "holdingsPublicNotes == {value}, librarian private note",
     "issn = {value}, 03178471",
   })
   @DisplayName("can search by instances (nothing found)")
@@ -220,7 +220,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.electronicAccess.publicNote all {value}", "table of contents"),
 
       // search by holding fields
-      arguments("holdingPublicNotes all {value}", "bibliographical references"),
+      arguments("holdingsPublicNotes all {value}", "bibliographical references"),
       arguments("holdings.notes.note == {value}", "Librarian public note for holding"),
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),
 

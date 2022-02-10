@@ -359,7 +359,7 @@ class InstanceSubjectRepositoryTest {
     BiConsumer<DocWriteRequest<?>, DocWriteRequest<?>> requestValidator) {
     var actualRequests = actual.requests();
     var expectedRequests = expected.requests();
-    assertThat(actualRequests.size()).isEqualTo(expectedRequests.size());
+    assertThat(actualRequests).hasSameSizeAs(expectedRequests);
     for (int i = 0; i < expectedRequests.size(); i++) {
       var actualRequest = actualRequests.get(i);
       var expectedRequest = expectedRequests.get(i);
@@ -377,7 +377,7 @@ class InstanceSubjectRepositoryTest {
 
   private void checkCalledMultiGetRequests(List<MultiGetRequest> expectedRequests) {
     var actualRequests = multiGetRequestCaptor.getAllValues();
-    assertThat(actualRequests).hasSize(expectedRequests.size());
+    assertThat(actualRequests).hasSameSizeAs(expectedRequests);
     for (int i = 0; i < expectedRequests.size(); i++) {
       validateMultiGetRequest(actualRequests.get(i), expectedRequests.get(i));
     }
@@ -386,7 +386,7 @@ class InstanceSubjectRepositoryTest {
   public static void validateMultiGetRequest(MultiGetRequest actual, MultiGetRequest expected) {
     var actualRequests = actual.getItems();
     var expectedRequests = expected.getItems();
-    assertThat(actualRequests.size()).isEqualTo(expectedRequests.size());
+    assertThat(actualRequests).hasSameSizeAs(expectedRequests);
     for (int i = 0; i < expectedRequests.size(); i++) {
       var actualRequest = actualRequests.get(i);
       var expectedRequest = expectedRequests.get(i);

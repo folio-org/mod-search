@@ -393,7 +393,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
 | `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
-| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
+| `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 

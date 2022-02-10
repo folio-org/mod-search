@@ -17,11 +17,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
-class HoldingIdentifiersProcessorTest {
+class HoldingsIdentifiersProcessorTest {
 
   private static final List<String> FORMER_IDS = List.of(randomId(), randomId());
   private static final String UUID = randomId();
-  private final HoldingIdentifiersProcessor itemIdentifiersProcessor = new HoldingIdentifiersProcessor();
+  private final HoldingsIdentifiersProcessor itemIdentifiersProcessor = new HoldingsIdentifiersProcessor();
 
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")

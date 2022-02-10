@@ -543,10 +543,10 @@
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
-    "holdingIdentifiers": {
+    "holdingsIdentifiers": {
       "type": "search",
       "index": "keyword",
-      "processor": "holdingIdentifiersProcessor"
+      "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {
       "type": "search",

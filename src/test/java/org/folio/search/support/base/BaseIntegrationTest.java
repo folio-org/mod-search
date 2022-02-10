@@ -241,12 +241,6 @@ public abstract class BaseIntegrationTest {
       record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, null, record)));
   }
 
-  @SneakyThrows
-  protected static void setUpTenant(String tenant, Runnable postInitAction, Instance... instances) {
-    setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(instances), instances.length,
-      instance -> inventoryApi.createInstance(tenant, instance));
-  }
-
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Map<String, Object>... rawRecords) {

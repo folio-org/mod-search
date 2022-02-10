@@ -8,7 +8,7 @@ import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -47,7 +47,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getElasticsearchIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
+        .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
         .routing(TENANT_ID);
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(22);

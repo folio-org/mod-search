@@ -120,5 +120,4 @@ class CallNumberProcessorTest {
   private static long getValueOrDefault(long[] values, int index) {
     return values.length > index ? values[index] : 0L;
   }
-
 }

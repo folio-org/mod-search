@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
 import org.folio.search.exception.ResourceDescriptionException;
-import org.folio.search.service.LocalFileProvider;
+import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
 

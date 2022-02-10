@@ -68,5 +68,4 @@ public class SearchQueryUtils {
     return query instanceof TermQueryBuilder && check.test(((TermQueryBuilder) query).fieldName())
       || query instanceof RangeQueryBuilder && check.test(((RangeQueryBuilder) query).fieldName());
   }
-
 }

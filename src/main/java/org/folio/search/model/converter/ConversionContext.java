@@ -1,10 +1,10 @@
-package org.folio.search.service.converter;
+package org.folio.search.model.converter;
 
 import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.ResourceDescription;
 
 /**
@@ -16,19 +16,9 @@ import org.folio.search.model.metadata.ResourceDescription;
 public class ConversionContext {
 
   /**
-   * Resource id.
+   * Resource event object.
    */
-  private final String id;
-
-  /**
-   * Resource tenant id.
-   */
-  private final String tenant;
-
-  /**
-   * Resource fields as map.
-   */
-  private final Map<String, Object> resourceData;
+  private final ResourceEvent resourceEvent;
 
   /**
    * Resource description for conversion.

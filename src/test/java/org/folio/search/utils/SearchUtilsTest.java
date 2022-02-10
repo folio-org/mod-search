@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
@@ -19,7 +19,6 @@ import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
-import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
@@ -32,8 +31,6 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.service.MultilangValue;
-import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,29 +59,22 @@ class SearchUtilsTest {
   }
 
   @Test
-  void getElasticsearchIndexName_cqlSearchRequest_positive() {
+  void getIndexName_cqlSearchRequest_positive() {
     var cqlSearchRequest = searchServiceRequest(null);
-    var actual = getElasticsearchIndexName(cqlSearchRequest);
+    var actual = getIndexName(cqlSearchRequest);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
   @Test
-  void getElasticsearchIndexName_resourceNameAndTenantId_positive() {
-    var actual = getElasticsearchIndexName(RESOURCE_NAME, TENANT_ID);
+  void getIndexName_resourceNameAndTenantId_positive() {
+    var actual = getIndexName(RESOURCE_NAME, TENANT_ID);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
   @Test
-  void getElasticsearchIndexName_positive_resourceIdEvent() {
-    var idEvent = ResourceIdEvent.of(randomId(), RESOURCE_NAME, TENANT_ID, IndexActionType.INDEX);
-    var actual = getElasticsearchIndexName(idEvent);
-    assertThat(actual).isEqualTo(INDEX_NAME);
-  }
-
-  @Test
-  void getElasticsearchIndexName_positive_resourceEvent() {
+  void getIndexName_positive_resourceEvent() {
     var resourceEvent = resourceEvent(RESOURCE_NAME, emptyMap());
-    var actual = getElasticsearchIndexName(resourceEvent);
+    var actual = getIndexName(resourceEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 

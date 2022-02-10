@@ -7,9 +7,8 @@ spring:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
   elasticsearch:
-    rest:
-      username: elastic
-      password: s3cret
+    username: elastic
+    password: s3cret
   datasource:
     username: folio_admin
     password: password
@@ -36,6 +35,9 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search.all.fields: false
+    indexing:
+      instance-subjects:
+        retry-attempts: 3
   query:
     properties:
       call-number-range-offset: 1e20

@@ -134,7 +134,6 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
     );
   }
 
-
   private static Authority[] authorities() {
     var authorities = IntStream.range(0, RECORDS_COUNT)
       .mapToObj(i -> new Authority().id(IDS[i]))

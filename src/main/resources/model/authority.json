@@ -1,6 +1,9 @@
 {
   "name": "authority",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Authority",
+  "indexingConfiguration": {
+    "eventPreProcessor": "authorityEventPreProcessor"
+  },
   "fields": {
     "id": {
       "index": "keyword",

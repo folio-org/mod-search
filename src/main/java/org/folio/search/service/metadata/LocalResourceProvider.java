@@ -13,7 +13,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.service.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;

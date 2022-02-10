@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.service.converter.preprocessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
@@ -120,7 +120,7 @@ class AuthorityEventPreProcessorTest {
   }
 
   private static ResourceEvent deleteEvent(String prefix) {
-    return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY_RESOURCE, null).type(DELETE);
+    return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY_RESOURCE, DELETE);
   }
 
   private static Authority fullAuthorityRecord() {

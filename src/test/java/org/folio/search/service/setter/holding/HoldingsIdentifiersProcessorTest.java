@@ -39,7 +39,8 @@ class HoldingsIdentifiersProcessorTest {
       arguments("holdings with hrid only", instance(holding("h01", null)), List.of("h01")),
       arguments("holdings with UUID only", instance(holding(UUID)), List.of(UUID)),
       arguments("holdings with empty identifiers", instance(holding("", emptyList())), emptyList()),
-      arguments("holdings with hrid and empty list in formerIds", instance(holding("h01", emptyList())), List.of("h01")),
+      arguments("holdings with hrid and empty list in formerIds", instance(
+        holding("h01", emptyList())), List.of("h01")),
       arguments("holdings with single formerId", instance(holding(null, List.of("id1"))), List.of("id1")),
       arguments("holdings with multiple formerIds", instance(holding(null, FORMER_IDS)), FORMER_IDS),
       arguments("holdings with all identifiers", instance(holding("h01", List.of("fid"))), List.of("h01", "fid")),

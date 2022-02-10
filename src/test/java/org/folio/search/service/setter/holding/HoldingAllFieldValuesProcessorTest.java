@@ -1,5 +1,6 @@
 package org.folio.search.service.setter.holding;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestUtils.mapOf;

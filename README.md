@@ -547,6 +547,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `instanceTags`           |  term   | Requests a tags facet                                                |
 | `staffSuppress`          | boolean | Requests a staff suppress facet                                      |
 | `discoverySuppress`      | boolean | Requests a discovery suppress facet                                  |
+| `statisticalCodeIds`     |  term   | Requests a statistical code ids facet                                |
 | `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, items facet |
 
 ### Holding facets
@@ -555,6 +556,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 |:-------------------------------|:----:|:-----------------------------------------------|
 | `holdings.permanentLocationId` | term | Requests a holding permanent location id facet |
 | `holdings.discoverySuppress`   | term | Requests a holding discovery suppress facet    |
+| `holdings.statisticalCodeIds`  | term | Requests a holding statistical code ids        |
 | `holdings.sourceId`            | term | Requests a holding sourceId facet              |
 | `holdingTags`                  | term | Requests a holding tag facet                   |
 
@@ -566,6 +568,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `items.status.name`         |  term   | Requests an item status facet                |
 | `items.materialTypeId`      |  term   | Requests an item material type id facet      |
 | `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
+| `items.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
 | `itemTags`                  |  term   | Requests an item tag facet                   |
 
 ### Authority facets

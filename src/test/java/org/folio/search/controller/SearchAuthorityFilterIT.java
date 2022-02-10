@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.recordFacets;
 import static org.folio.search.utils.TestUtils.array;
@@ -88,10 +89,11 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(id=* and headingType==\"Genre\")", List.of(IDS[6], IDS[7])),
       arguments("(id=* and headingType==\"Corporate Name\")", List.of(IDS[8], IDS[9])),
       arguments("(id=* and headingType==\"Topical\")", List.of(IDS[10])),
-      arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
-      arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
+      arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
+      arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
 
-      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", List.of(IDS[13], IDS[14])),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", emptyList()),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", List.of(IDS[13])),
       arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")",
         List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", List.of(IDS[4])),
@@ -113,26 +115,22 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments("id=*", array("headingType"), mapOf("headingType", facet(
-        facetItem("Personal Name", 4), facetItem("Corporate Name", 2),
+        facetItem("Personal Name", 5), facetItem("Uniform Title", 3),
+        facetItem("Corporate Name", 2), facetItem("Genre", 2),
         facetItem("Conference Name", 1), facetItem("Geographic Name", 1),
-        facetItem("Uniform Title", 2), facetItem("Topical", 1),
-        facetItem("Genre", 2), facetItem("Other", 2))
-      )),
+        facetItem("Topical", 1)))),
 
       arguments("id=*", array("headingType:2"), mapOf("headingType", facet(
-        facetItem("Personal Name", 4), facetItem("Corporate Name", 2)))),
+        facetItem("Personal Name", 5), facetItem("Uniform Title", 3)))),
 
       arguments("headingType==\"Genre\"", array("headingType:1"),
-        mapOf("headingType", facet(
-          facetItem("Genre", 2)))),
+        mapOf("headingType", facet(facetItem("Genre", 2)))),
 
       arguments("headingType==(\"Corporate Name\" or \"Conference Name\")", array("headingType:2"),
-        mapOf("headingType", facet(
-          facetItem("Corporate Name", 2), facetItem("Conference Name", 1)))),
+        mapOf("headingType", facet(facetItem("Corporate Name", 2), facetItem("Conference Name", 1)))),
 
       arguments("headingType==(\"Topical\" or \"Other\")", array("headingType:2"),
-        mapOf("headingType", facet(
-          facetItem("Topical", 1), facetItem("Other", 2))))
+        mapOf("headingType", facet(facetItem("Topical", 1))))
     );
   }
 

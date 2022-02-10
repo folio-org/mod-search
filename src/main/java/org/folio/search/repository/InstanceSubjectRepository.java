@@ -91,26 +91,23 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private List<String> deleteSubjects(String tenant, List<SearchDocumentBody> docs) {
-    var documentsBySubjects = toLinkedHashMap(docs, InstanceSubjectRepository::getSubject);
-    var subjects = documentsBySubjects.keySet();
+    var documentsBySubject = toLinkedHashMap(docs, InstanceSubjectRepository::getSubject);
+    var subjects = documentsBySubject.keySet();
 
     log.debug("Removing subjects from instance_subject index [tenantId: {}, subjects: {}]", tenant, subjects);
     indexRepository.refreshIndices(getIndexName(INSTANCE_RESOURCE, tenant));
 
-    var esDocumentsByIds = getSearchHitsBySubjectIds(tenant, docs);
-
+    var esDocumentsById = getSearchHitsBySubjectIds(tenant, docs);
     var resourceRequest = SimpleResourceRequest.of(INSTANCE_RESOURCE, tenant);
-    var subjectCountResponse = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
-    var subjectCounts = getSubjectCounts(subjectCountResponse);
-
-    return deleteSubjects(subjectCounts, documentsBySubjects, esDocumentsByIds);
+    var subjectCountsResponse = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
+    return deleteSubjects(getSubjectCounts(subjectCountsResponse), documentsBySubject, esDocumentsById);
   }
 
   private List<String> deleteSubjects(Map<String, Long> subjectCounts,
-    Map<String, SearchDocumentBody> docsBySubject, Map<String, GetResponse> esDocumentsById) {
-    Map<String, DocWriteRequest<?>> deleteRequestsBySubject = docsBySubject.keySet().stream()
+    Map<String, SearchDocumentBody> documentsBySubject, Map<String, GetResponse> esDocumentsById) {
+    Map<String, DocWriteRequest<?>> deleteRequestsBySubject = documentsBySubject.keySet().stream()
       .filter(subject -> subjectCounts.getOrDefault(subject, 0L) == 0L)
-      .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, docsBySubject, esDocumentsById)))
+      .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, documentsBySubject, esDocumentsById)))
       .filter(pair -> pair.getSecond() != null)
       .collect(toLinkedHashMap(Pair::getFirst, Pair::getSecond));
 
@@ -124,10 +121,8 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private Map<String, GetResponse> getSearchHitsBySubjectIds(String tenant, List<SearchDocumentBody> documents) {
-    var multiGetRequest = prepareMultiGetRequest(tenant, documents);
-
     var documentByIds = performExceptionalOperation(
-      () -> elasticsearchClient.mget(multiGetRequest, DEFAULT),
+      () -> elasticsearchClient.mget(prepareMultiGetRequest(tenant, documents), DEFAULT),
       getIndexName(INSTANCE_SUBJECT_RESOURCE, tenant), "searchApi");
 
     return Optional.ofNullable(documentByIds)
@@ -136,6 +131,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .flatMap(Arrays::stream)
       .filter(multiGetResponse -> !multiGetResponse.isFailed())
       .map(MultiGetItemResponse::getResponse)
+      .filter(GetResponse::isExists)
       .collect(toLinkedHashMap(GetResponse::getId));
   }
 

@@ -1,6 +1,5 @@
 package org.folio.search.repository;
 
-import static java.util.Collections.emptyMap;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
@@ -104,7 +103,7 @@ class InstanceSubjectRepositoryTest {
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT)))
-      .thenReturn(searchResponseForSubjectIds(mapOf(subject1, pair(123L, 1L), subject2, pair(172L, 2L))));
+      .thenReturn(multiGetResponse(mapOf(subject1, pair(123L, 1L), subject2, pair(172L, 2L))));
     mockCountSearchResponse(mapOf(subject1, null, subject2, 3));
 
     var bulkResponse = bulkResponse(mapOf(subject1, null));
@@ -119,11 +118,25 @@ class InstanceSubjectRepositoryTest {
   }
 
   @Test
-  void indexResources_positive_subjectNotFoundById() throws IOException {
+  void indexResources_positive_subjectByIdIsNotFound() throws IOException {
     var subject = "java";
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(emptyMap()));
+      multiGetResponseFromJson(jsonObject("docs", jsonArray(notFoundDocumentById(subject)))));
+    mockCountSearchResponse(mapOf(subject, null));
+
+    var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
+
+    verifyNoMoreInteractions(elasticsearchClient);
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_positive_requestByIdIsFailed() throws IOException {
+    var subject = "java";
+    doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
+    when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
+      multiGetResponseFromJson(jsonObject("docs", jsonArray(failedDocumentById(subject)))));
     mockCountSearchResponse(mapOf(subject, null));
 
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
@@ -137,7 +150,7 @@ class InstanceSubjectRepositoryTest {
     var subject = "java";
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(subject, pair(50L, 2L))));
+      multiGetResponse(mapOf(subject, pair(50L, 2L))));
     mockCountSearchResponse(mapOf(subject, 10));
 
     var actual = repository.indexResources(List.of(searchDocumentBodyToDelete(subject)));
@@ -152,9 +165,9 @@ class InstanceSubjectRepositoryTest {
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(subject, pair(123L, 1L))),
-      searchResponseForSubjectIds(mapOf(subject, pair(124L, 2L))),
-      searchResponseForSubjectIds(mapOf(subject, pair(125L, 3L))));
+      multiGetResponse(mapOf(subject, pair(123L, 1L))),
+      multiGetResponse(mapOf(subject, pair(124L, 2L))),
+      multiGetResponse(mapOf(subject, pair(125L, 3L))));
     mockCountSearchResponse(mapOf(subject, null));
 
     var bulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
@@ -177,9 +190,9 @@ class InstanceSubjectRepositoryTest {
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(subject, pair(123L, 1L))),
-      searchResponseForSubjectIds(mapOf(subject, pair(124L, 2L))),
-      searchResponseForSubjectIds(mapOf(subject, pair(125L, 3L))));
+      multiGetResponse(mapOf(subject, pair(123L, 1L))),
+      multiGetResponse(mapOf(subject, pair(124L, 2L))),
+      multiGetResponse(mapOf(subject, pair(125L, 3L))));
     mockCountSearchResponse(mapOf(subject, null));
 
     var errorBulkResponse = bulkResponse(mapOf(subject, "Optimistic locking error"));
@@ -206,9 +219,9 @@ class InstanceSubjectRepositoryTest {
 
     doNothing().when(indexRepository).refreshIndices(INSTANCE_INDEX);
     when(elasticsearchClient.mget(multiGetRequestCaptor.capture(), eq(DEFAULT))).thenReturn(
-      searchResponseForSubjectIds(mapOf(s1, pair(11L, 11L), s2, pair(21L, 21L), s3, pair(31L, 31L))),
-      searchResponseForSubjectIds(mapOf(s1, pair(12L, 12L), s2, pair(22L, 22L))),
-      searchResponseForSubjectIds(mapOf(s1, pair(13L, 13L))));
+      multiGetResponse(mapOf(s1, pair(11L, 11L), s2, pair(21L, 21L), s3, pair(31L, 31L))),
+      multiGetResponse(mapOf(s1, pair(12L, 12L), s2, pair(22L, 22L))),
+      multiGetResponse(mapOf(s1, pair(13L, 13L))));
     mockCountSearchResponse(mapOf(s1, null, s2, null, s3, null));
 
     var bulkResponse1 = bulkResponse(mapOf(s1, "error", s2, "error", s3, null));
@@ -283,7 +296,7 @@ class InstanceSubjectRepositoryTest {
     return SearchDocumentBody.of(asJsonString(body), event, DELETE);
   }
 
-  private static MultiGetResponse searchResponseForSubjectIds(Map<String, Pair<Long, Long>> seqNumbers) {
+  private static MultiGetResponse multiGetResponse(Map<String, Pair<Long, Long>> seqNumbers) {
     var objects = seqNumbers.entrySet().stream()
       .map(InstanceSubjectRepositoryTest::foundDocumentById)
       .toArray(Object[]::new);
@@ -300,6 +313,31 @@ class InstanceSubjectRepositoryTest {
       "_index", getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID),
       "found", true
     );
+  }
+
+  private static ObjectNode notFoundDocumentById(String subject) {
+    return jsonObject(
+      "_type", "_doc",
+      "_id", sha256Hex(subject),
+      "_index", getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID),
+      "found", false);
+  }
+
+  private static ObjectNode failedDocumentById(String subject) {
+    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    return jsonObject(
+      "_type", "_doc",
+      "_id", sha256Hex(subject),
+      "_index", indexName,
+      "error", jsonObject(
+        "root_cause", jsonArray(jsonObject(
+          "type", "routing_missing_exception",
+          "reason", "routing is required for [folio_instance_subject_diku]",
+          "index", indexName)),
+        "type", "routing_missing_exception",
+        "reason", "routing is required for [folio_instance_subject_diku]",
+        "index_uuid", "_na_",
+        "index", indexName));
   }
 
   @SneakyThrows

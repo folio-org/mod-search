@@ -37,6 +37,10 @@ public class ApiEndpoints {
     return "/search/config/languages";
   }
 
+  public static String languageConfig(String languageCode) {
+    return "/search/config/languages/" + languageCode;
+  }
+
   public static String featureConfig() {
     return "/search/config/features";
   }

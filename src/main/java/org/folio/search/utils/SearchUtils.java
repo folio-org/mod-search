@@ -24,7 +24,6 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
-import org.folio.search.model.service.ResourceIdEvent;
 import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -72,28 +71,18 @@ public class SearchUtils {
    * @param request - request as {@link ResourceRequest} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceRequest request) {
-    return getElasticsearchIndexName(request.getResource(), request.getTenantId());
+  public static String getIndexName(ResourceRequest request) {
+    return getIndexName(request.getResource(), request.getTenantId());
   }
 
   /**
    * Creates index name for passed resource id event.
    *
-   * @param event resource event as {@link ResourceIdEvent} object
+   * @param event resource event as {@link ResourceEvent} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceIdEvent event) {
-    return getElasticsearchIndexName(event.getType(), event.getTenant());
-  }
-
-  /**
-   * Creates index name for passed resource id event.
-   *
-   * @param event resource event as {@link ResourceIdEvent} object
-   * @return generated index name.
-   */
-  public static String getElasticsearchIndexName(ResourceEvent event) {
-    return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
+  public static String getIndexName(ResourceEvent event) {
+    return getIndexName(event.getResourceName(), event.getTenant());
   }
 
   /**
@@ -103,7 +92,7 @@ public class SearchUtils {
    * @param tenantId tenant id as {@link String} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(String resource, String tenantId) {
+  public static String getIndexName(String resource, String tenantId) {
     return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
   }
 

@@ -30,6 +30,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.ResourceService;
 import org.folio.search.utils.types.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
@@ -52,6 +53,7 @@ class IndexControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private IndexService indexService;
+  @MockBean private ResourceService resourceService;
 
   @Test
   void createIndex_positive() throws Exception {
@@ -148,7 +150,7 @@ class IndexControllerTest {
     instanceData.put("id", randomId());
     var resourceBody = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
 
-    when(indexService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
+    when(resourceService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
 
     mockMvc.perform(preparePostRequest("/search/index/records", asJsonString(resourceBody)))
       .andExpect(status().isOk())

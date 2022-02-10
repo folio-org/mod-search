@@ -1,6 +1,7 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.setter.FieldProcessor;
@@ -37,7 +39,7 @@ public class SearchFieldsProcessor {
     if (MapUtils.isEmpty(searchFields)) {
       return emptyMap();
     }
-    var data = ctx.getResourceData();
+    var data = getNewAsMap(ctx.getResourceEvent());
     var resourceClass = resourceDescription.getEventBodyJavaClass();
     var resourceObject = resourceClass != null ? jsonConverter.convert(data, resourceClass) : data;
 

@@ -11,12 +11,15 @@ import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -143,6 +146,12 @@ class CollectionUtilsTest {
   void getValueByPath_positive(String path, Map<String, Object> map, List<String> expected) {
     var actual = CollectionUtils.getValuesByPath(map, path);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void toLinkedHashMap_positive() {
+    var actual = Stream.of(1, 1, 2, 2).collect(toLinkedHashMap(Function.identity(), String::valueOf));
+    assertThat(actual).isInstanceOf(LinkedHashMap.class).isEqualTo(mapOf(1, "1", 2, "2"));
   }
 
   private static Stream<Arguments> getValueByPathTestDataProvider() {

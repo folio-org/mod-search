@@ -8,6 +8,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.folio.search.utils.BrowseUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -24,8 +25,6 @@ import java.util.Map;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.folio.search.cql.CqlSearchQueryConverter;
@@ -333,15 +332,11 @@ class SubjectBrowseServiceTest {
       .forEach(entry -> aggregationBuckets.add(jsonObject("key", entry.getKey(), "doc_count", entry.getValue())));
 
     var countQueryResponse = mock(SearchResponse.class);
-    var subjects = expectedSubjectCounts.keySet().toArray(String[]::new);
-    var subjectsQuerySource = searchSource(matchAllQuery()).from(0).size(0)
-      .aggregation(AggregationBuilders.terms("counts")
-        .size(subjects.length).field("plain_subjects")
-        .includeExclude(new IncludeExclude(subjects, null)));
+    var subjectsQuerySource = getSubjectCountsQuery(expectedSubjectCounts.keySet());
     var request = SimpleResourceRequest.of(INSTANCE_RESOURCE, TENANT_ID);
     when(searchRepository.search(request, subjectsQuerySource)).thenReturn(countQueryResponse);
     when(countQueryResponse.getAggregations()).thenReturn(
-      aggregationsFromJson(jsonObject("sterms#counts", jsonObject("buckets", aggregationBuckets))));
+      aggregationsFromJson(jsonObject("sterms#subjects", jsonObject("buckets", aggregationBuckets))));
   }
 
   private void mockMultiSearchRequest(ResourceRequest request,

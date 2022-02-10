@@ -43,7 +43,6 @@ public class KafkaConfiguration {
     return factory;
   }
 
-
   /**
    * Creates and configures {@link ConsumerFactory} as Spring bean.
    *

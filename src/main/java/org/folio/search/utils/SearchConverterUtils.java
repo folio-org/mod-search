@@ -116,6 +116,16 @@ public class SearchConverterUtils {
   }
 
   /**
+   * Returns resource event id from event payload {@link Map} object.
+   *
+   * @param eventPayload - resource event body to analyze
+   * @return event id as {@link String} object
+   */
+  public static String getResourceEventId(Map<String, Object> eventPayload) {
+    return getString(eventPayload, ID_FIELD);
+  }
+
+  /**
    * Copies entity fields from source to target using given list of fields.
    *
    * @param source - source resource event body as {@link Map} object

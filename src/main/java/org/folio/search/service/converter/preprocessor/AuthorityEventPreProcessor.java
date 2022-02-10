@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.service.converter.preprocessor;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AuthorityEventPreProcessor {
+public class AuthorityEventPreProcessor implements EventPreProcessor {
 
   private final ResourceDescriptionService resourceDescriptionService;
   private Map<String, List<String>> fieldTypes;
@@ -61,6 +61,7 @@ public class AuthorityEventPreProcessor {
    * @param event - resource event to process as {@link ResourceEvent} object
    * @return list with divided authority event objects
    */
+  @Override
   public List<ResourceEvent> process(ResourceEvent event) {
     return event.getType() == ResourceEventType.UPDATE
       ? getResourceEventsToUpdate(event)

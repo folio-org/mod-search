@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static java.util.Collections.emptyMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -11,25 +10,19 @@ import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.folio.search.utils.BrowseUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.utils.BrowseUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -101,25 +94,8 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
       return emptyMap();
     }
 
-    var countSearchSource = getSubjectCountsQuery(subjects);
     var resourceRequest = SimpleResourceRequest.of(INSTANCE_RESOURCE, request.getTenantId());
-    var countSearchResult = searchRepository.search(resourceRequest, countSearchSource);
-    return Optional.ofNullable(countSearchResult)
-      .map(SearchResponse::getAggregations)
-      .map(aggregations -> aggregations.get("counts"))
-      .filter(ParsedTerms.class::isInstance)
-      .map(ParsedTerms.class::cast)
-      .map(ParsedTerms::getBuckets)
-      .stream()
-      .flatMap(Collection::stream)
-      .collect(toMap(Bucket::getKeyAsString, Bucket::getDocCount));
-  }
-
-  private static SearchSourceBuilder getSubjectCountsQuery(List<String> subjects) {
-    var lowercaseSubjects = subjects.stream().map(subject -> subject.toLowerCase(ROOT)).toArray(String[]::new);
-    var aggregation = AggregationBuilders.terms("counts")
-      .size(subjects.size()).field(getPathToFulltextPlainValue("subjects"))
-      .includeExclude(new IncludeExclude(lowercaseSubjects, null));
-    return searchSource().query(matchAllQuery()).size(0).from(0).aggregation(aggregation);
+    var countSearchResult = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
+    return BrowseUtils.getSubjectCounts(countSearchResult);
   }
 }

@@ -1,15 +1,11 @@
 package org.folio.search.service.converter;
 
-import static java.util.function.Function.identity;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,10 +14,12 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.AuthorityEventPreProcessor;
-import org.folio.search.model.SearchDocumentBody;
-import org.folio.search.model.service.ResourceIdEvent;
+import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.service.TenantScopedExecutionService;
+import org.folio.search.service.converter.preprocessor.EventPreProcessor;
+import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,79 +28,45 @@ public class MultiTenantSearchDocumentConverter {
 
   private final SearchDocumentConverter searchDocumentConverter;
   private final TenantScopedExecutionService executionService;
-  private final AuthorityEventPreProcessor authorityEventPreProcessor;
-  private final InstanceSubjectPreProcessor instanceSubjectPreProcessor;
+  private final ResourceDescriptionService resourceDescriptionService;
+  private final Map<String, EventPreProcessor> eventPreProcessorBeans;
 
   /**
    * Converts {@link ResourceEvent} objects to a list with {@link SearchDocumentBody} objects.
    *
    * @param resourceEvents list with {@link ResourceEvent} objects
-   * @return list with {@link SearchDocumentBody} objects as value
+   * @return map where key is the resource name and value is the {@link List} with {@link SearchDocumentBody} objects
    */
-  public List<SearchDocumentBody> convert(List<ResourceEvent> resourceEvents) {
-    return convertIndexRequestToStream(resourceEvents).collect(toList());
-  }
-
-  /**
-   * Converts {@link ResourceEvent} objects to a map where key is the resource id, value is {@link SearchDocumentBody}
-   * object.
-   *
-   * @param resourceEvents list with {@link ResourceEvent} objects
-   * @return map with {@link SearchDocumentBody} objects as value
-   */
-  public Map<String, SearchDocumentBody> convertAsMap(List<ResourceEvent> resourceEvents) {
-    return convertIndexRequestToStream(resourceEvents)
-      .collect(toMap(SearchDocumentBody::getId, identity(), (o1, o2) -> o2, HashMap::new));
-  }
-
-  /**
-   * Converts {@link ResourceIdEvent} objects to a map where key is the resource id, value is {@link SearchDocumentBody}
-   * object.
-   *
-   * @param resourceEvents list with {@link ResourceIdEvent} objects
-   * @return map with {@link SearchDocumentBody} objects as value
-   */
-  public Map<String, SearchDocumentBody> convertDeleteEventsAsMap(List<ResourceIdEvent> resourceEvents) {
+  public Map<String, List<SearchDocumentBody>> convert(Collection<ResourceEvent> resourceEvents) {
     if (CollectionUtils.isEmpty(resourceEvents)) {
-      return Collections.emptyMap();
+      return emptyMap();
     }
-    return resourceEvents.stream()
-      .map(SearchDocumentBody::forResourceIdEvent)
-      .collect(toMap(SearchDocumentBody::getId, identity()));
-  }
 
-  private Stream<SearchDocumentBody> convertIndexRequestToStream(List<ResourceEvent> resourceEvents) {
-    if (CollectionUtils.isEmpty(resourceEvents)) {
-      return Stream.empty();
-    }
     var eventsByTenant = resourceEvents.stream().collect(groupingBy(ResourceEvent::getTenant));
-    return eventsByTenant.entrySet().stream().map(this::convertForTenant).flatMap(Collection::stream);
+    return eventsByTenant.entrySet().stream()
+      .map(this::convertForTenant)
+      .flatMap(Collection::stream)
+      .collect(groupingBy(SearchDocumentBody::getResource));
   }
 
-  private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> eventsPerTenant) {
-    return executionService.executeTenantScoped(eventsPerTenant.getKey(), () ->
-      eventsPerTenant.getValue().stream()
-        .map(event -> event.id(getResourceEventId(event)))
+  private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> entry) {
+    return executionService.executeTenantScoped(entry.getKey(), () ->
+      entry.getValue().stream()
         .flatMap(this::populateResourceEvents)
-        .map(this::convertResourceEvent)
+        .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
+        .map(searchDocumentConverter::convert)
         .flatMap(Optional::stream)
         .collect(toList()));
   }
 
-  private Optional<SearchDocumentBody> convertResourceEvent(ResourceEvent resourceEventBody) {
-    return resourceEventBody.getType() != DELETE
-      ? searchDocumentConverter.convert(resourceEventBody)
-      : Optional.of(SearchDocumentBody.forDeleteResourceEvent(resourceEventBody));
-  }
-
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {
-    switch (event.getResourceName()) {
-      case "instance":
-        return Stream.concat(Stream.of(event), instanceSubjectPreProcessor.process(event).stream());
-      case "authority":
-        return authorityEventPreProcessor.process(event).stream();
-      default:
-        return Stream.of(event);
-    }
+    var resourceName = event.getResourceName();
+    return resourceDescriptionService.find(resourceName)
+      .map(ResourceDescription::getIndexingConfiguration)
+      .map(ResourceIndexingConfiguration::getEventPreProcessor)
+      .map(eventPreProcessorBeans::get)
+      .map(eventPreProcessor -> eventPreProcessor.process(event))
+      .map(Collection::stream)
+      .orElseGet(() -> Stream.of(event));
   }
 }

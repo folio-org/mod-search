@@ -132,14 +132,56 @@ public final class CollectionUtils {
     initial.addAll(startIndex, sourceValues);
   }
 
+
   /**
    * Returns a Collector that accumulates the input elements into a new {@link LinkedHashSet}, in encounter order.
    *
    * @param <T> the type of input elements
    * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashSet}, in encounter order
    */
-  public static <T> Collector<T, ?, LinkedHashSet<T>> toLinkedHashSet() {
+  public static <T> Collector<T, ?, Set<T>> toLinkedHashSet() {
     return toCollection(LinkedHashSet::new);
+  }
+
+  /**
+   * Collects elements from the given {@link Iterable} object into the new {@link LinkedHashMap} object.
+   *
+   * @param keyMapper - key mapper as {@link Function} object
+   * @param <K> - generic type for map keys
+   * @param <V> - generic type for map values
+   * @return {@link LinkedHashMap} object with elements from iterable in encounter order.
+   */
+  public static <K, V> Map<K, V> toLinkedHashMap(Iterable<V> iterable, Function<V, K> keyMapper) {
+    var resultMap = new LinkedHashMap<K, V>();
+    iterable.forEach(value -> resultMap.put(keyMapper.apply(value), value));
+    return resultMap;
+  }
+
+  /**
+   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
+   *
+   * @param keyMapper - key mapper as {@link Function} object
+   * @param <K> - generic type for map keys
+   * @param <V> - generic type for map values
+   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
+   */
+  public static <K, V> Collector<V, ?, Map<K, V>> toLinkedHashMap(Function<V, K> keyMapper) {
+    return toLinkedHashMap(keyMapper, Function.identity());
+  }
+
+  /**
+   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
+   *
+   * @param keyMapper - key mapper as {@link Function} object
+   * @param valueMapper - value mapper as {@link Function} object
+   * @param <T> - generic type for input values
+   * @param <K> - generic type for map keys
+   * @param <V> - generic type for map values
+   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
+   */
+  public static <T, K, V> Collector<T, ?, Map<K, V>> toLinkedHashMap(
+    Function<T, K> keyMapper, Function<T, V> valueMapper) {
+    return Collectors.toMap(keyMapper, valueMapper, (o, n) -> n, LinkedHashMap::new);
   }
 
   /**

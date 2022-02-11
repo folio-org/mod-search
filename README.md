@@ -438,16 +438,19 @@ if it is defined but doesn't match.
 | `saftPersonalName`      | full-text | `saftPersonalName any "john"`                | Matches authorities with `john` saft personal name                               |
 | `personalNameTitle`     | full-text | `personalNameTitle any "personal title"`     | Matches authorities with `personal title` personal name title                    |
 | `sftPersonalNameTitle`  | full-text | `sftPersonalNameTitle any "personal title"`  | Matches authorities with `personal title` sft personal name title                |
+| `saftPersonalNameTitle` | full-text | `saftPersonalNameTitle any "personal title"` | Matches authorities with `personal title` saft personal name title               |
 | `corporateName`         | full-text | `corporateName == "corporate name"`          | Matches authorities with `corporate name` corporate name                         |
 | `sftCorporateName`      | full-text | `sftCorporateName == "corporate name"`       | Matches authorities with `corporate name` sft corporate name                     |
 | `saftCorporateName`     | full-text | `saftCorporateName == "corporate name"`      | Matches authorities with `corporate name` saft corporate name                    |
 | `corporateNameTitle`    | full-text | `corporateNameTitle == "corporate title"`    | Matches authorities with `corporate title` corporate name                        |
-| `sftCorporateNameTitle` | full-text | `sftCorporateNameTitle == "corporate title"` | Matches authorities with `corporate title` corporate name                        |
+| `sftCorporateNameTitle` | full-text | `sftCorporateNameTitle == "corporate title"` | Matches authorities with `corporate title` sft corporate name                    |
+| `saftCorporateNameTitle`| full-text | `saftCorporateNameTitle == "corporate title"`| Matches authorities with `corporate title` saft corporate name                   |
 | `meetingName`           | full-text | `meetingName == "conferenece name"`          | Matches authorities with `conferenece name` meeting name                         |
 | `sftMeetingName`        | full-text | `sftMeetingName == "conferenece name"`       | Matches authorities with `conferenece name` sft meeting name                     |
 | `saftMeetingName`       | full-text | `saftMeetingName == "conferenece name"`      | Matches authorities with `conferenece name` saft meeting name                    |
 | `meetingNameTitle`      | full-text | `meetingNameTitle == "conferenece title"`    | Matches authorities with `conferenece title` meeting name title                  |
 | `sftMeetingNameTitle`   | full-text | `sftMeetingNameTitle == "conferenece title"` | Matches authorities with `conferenece title` sft meeting name title              |
+| `saftMeetingNameTitle`  | full-text | `saftMeetingNameTitle == "conferenece title"`| Matches authorities with `conferenece title` saft meeting name title             |
 | `geographicName`        | full-text | `geographicName == "geographic name"`        | Matches authorities with `geographic name` geographic name                       |
 | `sftGeographicTerm`     | full-text | `sftGeographicTerm == "geographic name"`     | Matches authorities with `geographic name` sft geographic term                   |
 | `saftGeographicTerm`    | full-text | `saftGeographicTerm == "geographic name"`    | Matches authorities with `geographic name` saft geographic term                  |

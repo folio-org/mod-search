@@ -50,6 +50,7 @@
     "saftPersonalNameTitle": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftPersonalNameTitle",
       "headingType": "Personal Name",
       "authRefType": "Auth/Ref"
@@ -95,6 +96,7 @@
     "saftCorporateNameTitle": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftCorporateNameTitle",
       "headingType": "Corporate Name",
       "authRefType": "Auth/Ref"
@@ -141,6 +143,7 @@
     "saftMeetingNameTitle": {
       "type": "authority",
       "index": "standard",
+      "inventorySearchTypes": "keyword",
       "distinctType": "saftMeetingNameTitle",
       "headingType": "Conference Name",
       "authRefType": "Auth/Ref"

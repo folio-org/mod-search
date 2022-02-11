@@ -46,6 +46,12 @@
       "headingType": "Personal Name",
       "authRefType": "Reference"
     },
+    "saftPersonalNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "saftPersonalNameTitle",
+      "authRefType": "Auth/Ref"
+    },
     "corporateName": {
       "type": "authority",
       "index": "standard",
@@ -82,6 +88,12 @@
       "distinctType": "sftCorporateNameTitle",
       "headingType": "Corporate Name",
       "authRefType": "Reference"
+    },
+    "saftCorporateNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "saftCorporateNameTitle",
+      "authRefType": "Auth/Ref"
     },
     "meetingName": {
       "type": "authority",
@@ -120,6 +132,12 @@
       "distinctType": "sftMeetingNameTitle",
       "headingType": "Conference Name",
       "authRefType": "Reference"
+    },
+    "saftMeetingNameTitle": {
+      "type": "authority",
+      "index": "standard",
+      "distinctType": "saftMeetingNameTitle",
+      "authRefType": "Auth/Ref"
     },
     "geographicName": {
       "type": "authority",

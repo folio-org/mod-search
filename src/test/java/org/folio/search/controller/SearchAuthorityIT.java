@@ -32,7 +32,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 27, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 30, getAuthoritySampleAsMap());
   }
 
   @AfterAll
@@ -67,6 +67,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
       authority("Personal Name", AUTHORIZED_TYPE, "a personal title"),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal title"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft personal title"),
 
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
@@ -74,6 +75,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title"),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate title"),
 
       authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
@@ -81,6 +83,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
       authority("Conference Name", AUTHORIZED_TYPE, "a conference title"),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference title"),
+      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft conference title"),
 
       authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
@@ -119,6 +122,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("personalNameTitle == {value}", "\"a personal title\""),
       arguments("sftPersonalNameTitle all {value}", "\"personal title\""),
       arguments("sftPersonalNameTitle == {value}", "\"a sft personal title\""),
+      arguments("saftPersonalNameTitle all {value}", "\"personal title\""),
+      arguments("saftPersonalNameTitle == {value}", "\"a saft personal title\""),
 
       arguments("corporateName = {value}", "\"corporate\""),
       arguments("corporateName == {value}", "\"a corporate name\""),
@@ -132,6 +137,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("corporateNameTitle == {value}", "\"a corporate title\""),
       arguments("sftCorporateNameTitle all {value}", "\"corporate title\""),
       arguments("sftCorporateNameTitle == {value}", "\"a sft corporate title\""),
+      arguments("saftCorporateNameTitle all {value}", "\"corporate title\""),
+      arguments("saftCorporateNameTitle == {value}", "\"a saft corporate title\""),
 
       arguments("meetingName = {value}", "\"conference\""),
       arguments("meetingName == {value}", "\"a conference name\""),
@@ -145,6 +152,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("meetingNameTitle == {value}", "\"a conference title\""),
       arguments("sftMeetingNameTitle all {value}", "\"conference title\""),
       arguments("sftMeetingNameTitle == {value}", "\"a sft conference title\""),
+      arguments("saftMeetingNameTitle all {value}", "\"conference title\""),
+      arguments("saftMeetingNameTitle == {value}", "\"a saft conference title\""),
 
       arguments("geographicName = {value}", "\"geographic\""),
       arguments("geographicName == {value}", "\"a geographic name\""),

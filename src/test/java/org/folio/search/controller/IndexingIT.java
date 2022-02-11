@@ -72,8 +72,29 @@ class IndexingIT extends BaseIntegrationTest {
     createInstances();
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
-    assertCountByQuery(instanceSearchPath(), "items.id", List.of(itemIdToDelete), 0);
-    assertCountByQuery(instanceSearchPath(), "items.id", List.of(ITEM_IDS.get(0)), 1);
+    assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
+    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.get(0), 1);
+  }
+
+  @Test
+  void shouldUpdateAndDeleteInstance() {
+    var instanceId = randomId();
+    var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of("s1", "s2"));
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);
+    assertSubjectExistenceById(sha256Hex("s1"), true);
+    assertSubjectExistenceById(sha256Hex("s2"), true);
+
+    var instanceToUpdate = new Instance().id(instanceId).title("test-resource").subjects(List.of("s2", "s3"));
+    inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
+    assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s2 and s3)", 1);
+    assertSubjectExistenceById(sha256Hex("s1"), false);
+    assertSubjectExistenceById(sha256Hex("s3"), true);
+
+    inventoryApi.deleteInstance(TENANT_ID, instanceId);
+    assertCountByQuery(instanceSearchPath(), "id=={value}", instanceId, 0);
+    assertSubjectExistenceById(sha256Hex("s2"), false);
+    assertSubjectExistenceById(sha256Hex("s3"), false);
   }
 
   @Test
@@ -187,6 +208,10 @@ class IndexingIT extends BaseIntegrationTest {
     await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
   }
 
+  private static void assertCountByQuery(String path, String template, String value, int expected) {
+    await(() -> doSearch(path, prepareQuery(template, value)).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
   private static void await(ThrowingRunnable runnable) {
     Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
   }
@@ -195,14 +220,18 @@ class IndexingIT extends BaseIntegrationTest {
     return IntStream.range(0, count).mapToObj(index -> randomId()).collect(toList());
   }
 
+  private static String getSubjectId(String instanceId) {
+    return sha256Hex("subject-" + sha1Hex(instanceId));
+  }
+
+  private void assertSubjectExistenceById(String subjectId, boolean isExists) {
+    await(() -> assertThat(isInstanceSubjectExistsById(subjectId)).isEqualTo(isExists));
+  }
+
   private boolean isInstanceSubjectExistsById(String subjectId) throws IOException {
     var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
     var request = new GetRequest(indexName, subjectId).routing(TENANT_ID);
     var documentById = restHighLevelClient.get(request, RequestOptions.DEFAULT);
     return documentById.isExists() && !documentById.isSourceEmpty();
-  }
-
-  private String getSubjectId(String instanceId) {
-    return sha256Hex("subject-" + sha1Hex(instanceId));
   }
 }

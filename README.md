@@ -452,8 +452,8 @@ if it is defined but doesn't match.
 | `sftMeetingNameTitle`   | full-text | `sftMeetingNameTitle == "conferenece title"` | Matches authorities with `conferenece title` sft meeting name title              |
 | `saftMeetingNameTitle`  | full-text | `saftMeetingNameTitle == "conferenece title"`| Matches authorities with `conferenece title` saft meeting name title             |
 | `geographicName`        | full-text | `geographicName == "geographic name"`        | Matches authorities with `geographic name` geographic name                       |
-| `sftGeographicTerm`     | full-text | `sftGeographicTerm == "geographic name"`     | Matches authorities with `geographic name` sft geographic term                   |
-| `saftGeographicTerm`    | full-text | `saftGeographicTerm == "geographic name"`    | Matches authorities with `geographic name` saft geographic term                  |
+| `sftGeographicName`     | full-text | `sftGeographicName == "geographic name"`     | Matches authorities with `geographic name` sft geographic name                   |
+| `saftGeographicName`    | full-text | `saftGeographicName == "geographic name"`    | Matches authorities with `geographic name` saft geographic name                  |
 | `uniformTitle`          |   term    | `uniformTitle == "an uniform title"`         | Matches authorities with `an uniform title` uniform title                        |
 | `sftUniformTitle`       |   term    | `sftUniformTitle == "an uniform title"`      | Matches authorities with `an uniform title` sft uniform title                    |
 | `saftUniformTitle`      |   term    | `saftUniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` saft uniform title                   |

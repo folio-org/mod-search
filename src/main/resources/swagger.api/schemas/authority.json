@@ -169,7 +169,7 @@
       "type": "string",
       "description": "Heading geographic name"
     },
-    "sftGeographicTerm": {
+    "sftGeographicName": {
       "type": "array",
       "description": "See from tracing geographic names",
       "items": {
@@ -177,7 +177,7 @@
         "description": "See from tracing geographic name"
       }
     },
-    "saftGeographicTerm": {
+    "saftGeographicName": {
       "type": "array",
       "description": "See also from tracing geographic names",
       "items": {

@@ -156,19 +156,19 @@
       "headingType": "Geographic Name",
       "authRefType": "Authorized"
     },
-    "sftGeographicTerm": {
+    "sftGeographicName": {
       "type": "authority",
       "index": "standard",
       "searchAliases": [ "keyword" ],
-      "distinctType": "sftGeographicTerm",
+      "distinctType": "sftGeographicName",
       "headingType": "Geographic Name",
       "authRefType": "Reference"
     },
-    "saftGeographicTerm": {
+    "saftGeographicName": {
       "type": "authority",
       "index": "standard",
       "searchAliases": [ "keyword" ],
-      "distinctType": "saftGeographicTerm",
+      "distinctType": "saftGeographicName",
       "headingType": "Geographic Name",
       "authRefType": "Auth/Ref"
     },

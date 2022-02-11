@@ -46,7 +46,6 @@ public class BrowseContext {
     return this.succeedingQuery != null;
   }
 
-
   /**
    * Checks if anchor is included in the range query or not using browsing direction flag.
    *

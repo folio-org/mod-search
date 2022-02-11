@@ -15,6 +15,7 @@ import org.folio.search.configuration.properties.FolioEnvironment;
 import org.folio.search.service.KafkaAdminService.KafkaTopic;
 import org.folio.search.service.KafkaAdminService.KafkaTopics;
 import org.folio.search.service.KafkaAdminServiceTest.KafkaAdminServiceTestConfiguration;
+import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;

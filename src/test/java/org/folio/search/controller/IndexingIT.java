@@ -1,15 +1,18 @@
 package org.folio.search.controller;
 
 import static java.util.stream.Collectors.toList;
-import static org.awaitility.Awaitility.await;
+import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.ONE_MINUTE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
-import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
@@ -22,8 +25,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ThrowingRunnable;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
@@ -36,6 +45,7 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 @IntegrationTest
@@ -45,9 +55,11 @@ class IndexingIT extends BaseIntegrationTest {
   private static final List<String> ITEM_IDS = getRandomIds(2);
   private static final List<String> HOLDING_IDS = getRandomIds(4);
 
+  @Autowired private RestHighLevelClient restHighLevelClient;
+
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    setUpTenant(Instance.class);
   }
 
   @AfterAll
@@ -60,25 +72,30 @@ class IndexingIT extends BaseIntegrationTest {
     createInstances();
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
-    assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
-    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.get(0), 1);
+    assertCountByQuery(instanceSearchPath(), "items.id", List.of(itemIdToDelete), 0);
+    assertCountByQuery(instanceSearchPath(), "items.id", List.of(ITEM_IDS.get(0)), 1);
   }
 
   @Test
   void shouldRemoveHolding() {
     createInstances();
     inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
-    assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", HOLDING_IDS.get(0), 0);
-    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
+    assertCountByQuery(instanceSearchPath(), "holdings.id", List.of(HOLDING_IDS.get(0)), 0);
+    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id", List.of(id), 1));
   }
 
   @Test
-  void shouldRemoveInstance() {
+  void shouldRemoveInstance() throws IOException {
     createInstances();
     var instanceIdToDelete = INSTANCE_IDS.get(0);
+
+    assertThat(isInstanceSubjectExistsById(getSubjectId(instanceIdToDelete))).isTrue();
+
     inventoryApi.deleteInstance(TENANT_ID, instanceIdToDelete);
-    assertCountByQuery(instanceSearchPath(), "id=={value}", instanceIdToDelete, 0);
-    INSTANCE_IDS.subList(1, 3).forEach(id -> assertCountByQuery(instanceSearchPath(), "id=={value}", id, 1));
+    assertCountByQuery(instanceSearchPath(), "id", List.of(instanceIdToDelete), 0);
+    assertCountByQuery(instanceSearchPath(), "id", INSTANCE_IDS.subList(1, 3), 2);
+
+    await(() -> assertThat(isInstanceSubjectExistsById(getSubjectId(instanceIdToDelete))).isFalse());
   }
 
   @Test
@@ -88,11 +105,11 @@ class IndexingIT extends BaseIntegrationTest {
       .corporateName("corporate name").uniformTitle("uniform title");
     var resourceEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
-    assertCountByQuery(authoritySearchPath(), "id=={value}", authorityId, 3);
+    assertCountByQuery(authoritySearchPath(), "id", List.of(authorityId), 3);
 
     var deleteEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
-    assertCountByQuery(authoritySearchPath(), "id=={value}", authority, 0);
+    assertCountByQuery(authoritySearchPath(), "id", List.of(authorityId), 0);
   }
 
   @Test
@@ -144,34 +161,48 @@ class IndexingIT extends BaseIntegrationTest {
 
   private void createInstances() {
     var instances = INSTANCE_IDS.stream()
-      .map(id -> new Instance().id(id))
+      .map(id -> new Instance().id(id).subjects(List.of("subject-" + sha1Hex(id))))
       .collect(toList());
 
     instances.get(0)
-      .holdings(List.of(holding(0), holding(1)))
+      .holdings(List.of(holdingsRecord(0), holdingsRecord(1)))
       .items(List.of(item(0), item(1)));
 
-    instances.get(1).holdings(List.of(holding(2), holding(3)));
+    instances.get(1).holdings(List.of(holdingsRecord(2), holdingsRecord(3)));
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    assertCountByQuery(instanceSearchPath(), "{value}", exactMatchAny("id", INSTANCE_IDS), 3);
+    assertCountByQuery(instanceSearchPath(), "id", INSTANCE_IDS, 3);
   }
 
   private static Item item(int i) {
     return new Item().id(ITEM_IDS.get(i));
   }
 
-  private static Holding holding(int i) {
+  private static Holding holdingsRecord(int i) {
     return new Holding().id(HOLDING_IDS.get(i));
   }
 
-  private static void assertCountByQuery(String path, String query, Object value, int expectedCount) {
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, prepareQuery(query, String.valueOf(value)))
-        .andExpect(jsonPath("totalRecords", is(expectedCount))));
+  private static void assertCountByQuery(String path, String field, List<String> ids, int expected) {
+    var query = exactMatchAny(field, ids).toString();
+    await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  private static void await(ThrowingRunnable runnable) {
+    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
   }
 
   private static List<String> getRandomIds(int count) {
     return IntStream.range(0, count).mapToObj(index -> randomId()).collect(toList());
+  }
+
+  private boolean isInstanceSubjectExistsById(String subjectId) throws IOException {
+    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var request = new GetRequest(indexName, subjectId).routing(TENANT_ID);
+    var documentById = restHighLevelClient.get(request, RequestOptions.DEFAULT);
+    return documentById.isExists() && !documentById.isSourceEmpty();
+  }
+
+  private String getSubjectId(String instanceId) {
+    return sha256Hex("subject-" + sha1Hex(instanceId));
   }
 }

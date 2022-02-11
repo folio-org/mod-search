@@ -17,6 +17,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -64,6 +65,18 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.get("not_existing_resource"))
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Resource description not found [resourceName: not_existing_resource]");
+  }
+
+  @Test
+  void find_positive() {
+    var actual = descriptionService.find(RESOURCE_NAME);
+    assertThat(actual).isEqualTo(Optional.of(resourceDescription()));
+  }
+
+  @Test
+  void find_negative() {
+    var actual = descriptionService.find("unknown");
+    assertThat(actual).isEmpty();
   }
 
   @Test

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
+import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;

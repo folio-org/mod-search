@@ -1,7 +1,6 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.singletonList;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.toMap;
 
 import java.util.LinkedHashMap;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -20,18 +18,6 @@ public class AuthoritySearchUtils {
 
   private static final List<String> AUTHORITY_COMMON_FIELDS = List.of(
     "id", "identifiers", "subjectHeadings", "metadata", "notes");
-
-  @SneakyThrows
-  public static Authority expectedAuthority(Authority authority, Map<String, Object> searchFields, String... fields) {
-    var sourceMap = expectedAuthorityAsMap(authority, fields);
-    sourceMap.putAll(searchFields);
-    return OBJECT_MAPPER.convertValue(sourceMap, Authority.class);
-  }
-
-  @SneakyThrows
-  public static Authority expectedAuthority(Authority authority, String... fields) {
-    return OBJECT_MAPPER.convertValue(expectedAuthorityAsMap(authority, fields), Authority.class);
-  }
 
   public static Map<String, Object> expectedAuthorityAsMap(Authority source, String... fields) {
     var resultMap = new LinkedHashMap<String, Object>();

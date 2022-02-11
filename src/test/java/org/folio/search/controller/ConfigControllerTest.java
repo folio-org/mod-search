@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
+import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.service.FeatureConfigService;
@@ -43,6 +44,36 @@ class ConfigControllerTest {
   @Autowired private MockMvc mockMvc;
   @MockBean private LanguageConfigService languageConfigService;
   @MockBean private FeatureConfigService featureConfigService;
+
+  @Test
+  void createLanguageConfig_positive() throws Exception {
+    var code = "eng";
+    var languageConfig = languageConfig(code);
+    when(languageConfigService.create(languageConfig)).thenReturn(languageConfig);
+
+    mockMvc.perform(post(ApiEndpoints.languageConfig())
+        .content(asJsonString(languageConfig))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("code", is(code)));
+  }
+
+  @Test
+  void getAllLanguageConfigs_positive() throws Exception {
+    var languageConfigs = new LanguageConfigs()
+      .addLanguageConfigsItem(languageConfig("eng", "english"))
+      .totalRecords(1);
+
+    when(languageConfigService.getAll()).thenReturn(languageConfigs);
+    mockMvc.perform(get(ApiEndpoints.languageConfig())
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.languageConfigs[0].code", is("eng")))
+      .andExpect(jsonPath("$.languageConfigs[0].languageAnalyzer", is("english")));
+  }
 
   @Test
   void updateLanguageConfig_positive() throws Exception {
@@ -112,11 +143,21 @@ class ConfigControllerTest {
   }
 
   @Test
+  void deleteLanguageConfig_positive() throws Exception {
+    var languageCode = "eng";
+    doNothing().when(languageConfigService).delete(languageCode);
+    mockMvc.perform(delete(ApiEndpoints.languageConfig(languageCode))
+        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
   void getAllFeatures_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.getAll()).thenReturn(new FeatureConfigs().features(List.of(feature)).totalRecords(1));
 
-    var request = get("/search/config/features")
+    var request = get(ApiEndpoints.featureConfig())
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
@@ -128,11 +169,11 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_positive() throws Exception {
+  void saveFeatureConfiguration_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.create(feature)).thenReturn(feature);
 
-    var request = post("/search/config/features")
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
@@ -144,12 +185,12 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_alreadyExists() throws Exception {
+  void saveFeatureConfiguration_negative_alreadyExists() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.create(feature)).thenThrow(new RequestValidationException(
       "Feature configuration already exists", "feature", SEARCH_ALL_FIELDS.getValue()));
 
-    var request = post("/search/config/features")
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
@@ -164,8 +205,8 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_invalidFeatureName() throws Exception {
-    var request = post("/search/config/features")
+  void saveFeatureConfiguration_negative_invalidFeatureName() throws Exception {
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", "unknown-feature-name", "enabled", true)))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
@@ -179,8 +220,8 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_unexpectedBooleanValue() throws Exception {
-    var request = post("/search/config/features")
+  void saveFeatureConfiguration_negative_unexpectedBooleanValue() throws Exception {
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", SEARCH_ALL_FIELDS.getValue(), "enabled", "unknown")))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
@@ -195,11 +236,11 @@ class ConfigControllerTest {
   }
 
   @Test
-  void update_positive() throws Exception {
+  void updateFeatureConfiguration_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.update(SEARCH_ALL_FIELDS, feature)).thenReturn(feature);
 
-    var request = put("/search/config/features/search.all.fields")
+    var request = put(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
       .content(asJsonString(feature))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
@@ -211,9 +252,9 @@ class ConfigControllerTest {
   }
 
   @Test
-  void delete_positive() throws Exception {
+  void deleteFeatureConfigurationById_positive() throws Exception {
     doNothing().when(featureConfigService).delete(SEARCH_ALL_FIELDS);
-    var request = delete("/search/config/features/search.all.fields")
+    var request = delete(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
       .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
       .contentType(APPLICATION_JSON);
 

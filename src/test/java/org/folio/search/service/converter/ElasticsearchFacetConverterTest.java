@@ -42,7 +42,7 @@ class ElasticsearchFacetConverterTest {
   @MethodSource("aggregationsDataProvider")
   @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] agg = {0}")
-  void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) throws Exception {
+  void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) {
     var actual = facetConverter.convert(aggregationsFromJson(aggregations));
     assertThat(actual).isEqualTo(facetResult(expected));
   }

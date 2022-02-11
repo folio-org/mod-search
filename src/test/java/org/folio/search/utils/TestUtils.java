@@ -9,6 +9,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
+import static org.elasticsearch.common.xcontent.json.JsonXContent.jsonXContent;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.model.types.FieldType.OBJECT;
@@ -20,7 +22,6 @@ import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -51,8 +52,6 @@ import org.elasticsearch.client.analytics.ParsedStringStats;
 import org.elasticsearch.common.ParseField;
 import org.elasticsearch.common.xcontent.ContextParser;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
-import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
@@ -74,8 +73,8 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
-import org.folio.search.model.SearchDocumentBody;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -97,7 +96,7 @@ public class TestUtils {
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-  private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
+  public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
 
   @SneakyThrows
@@ -146,14 +145,6 @@ public class TestUtils {
     return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
   }
 
-  public static BrowseRequest browseRequest(String query) {
-    return browseRequest(query, 25);
-  }
-
-  public static BrowseRequest browseRequest(String query, Boolean expandAll) {
-    return BrowseRequest.of(INSTANCE_RESOURCE, query, TENANT_ID, 25, "callNumber", expandAll, true, 12);
-  }
-
   public static BrowseRequest browseRequest(String query, int limit) {
     return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit, "callNumber", false, true, limit / 2);
   }
@@ -177,10 +168,6 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(shelfKey);
-  }
-
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
@@ -221,11 +208,11 @@ public class TestUtils {
   }
 
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, EMPTY_OBJECT, INDEX);
+    return SearchDocumentBody.of(EMPTY_OBJECT, resourceEvent(), INDEX);
   }
 
-  public static SearchDocumentBody searchDocumentBodyForDelete() {
-    return SearchDocumentBody.of(RESOURCE_ID, TENANT_ID, INDEX_NAME, null, DELETE);
+  public static SearchDocumentBody searchDocumentBodyToDelete() {
+    return SearchDocumentBody.of(null, resourceEvent(), DELETE);
   }
 
   @SuppressWarnings("unchecked")
@@ -349,18 +336,24 @@ public class TestUtils {
     return fieldDescription;
   }
 
-  public static ResourceEvent resourceEvent(String resourceName, Object newData) {
-    return resourceEvent(RESOURCE_ID, resourceName, newData);
+  public static ResourceEvent resourceEvent() {
+    return resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, null, null);
   }
 
-  public static ResourceEvent resourceEvent(String id, String resourceName, Object newData) {
-    var resourceBody = new ResourceEvent();
-    resourceBody.setId(id);
-    resourceBody.setType(ResourceEventType.CREATE);
-    resourceBody.setResourceName(resourceName);
-    resourceBody.setTenant(TENANT_ID);
-    resourceBody.setNew(newData);
-    return resourceBody;
+  public static ResourceEvent resourceEvent(String resource, Object newData) {
+    return resourceEvent(RESOURCE_ID, resource, CREATE, newData, null);
+  }
+
+  public static ResourceEvent resourceEvent(String id, String resource, Object newData) {
+    return resourceEvent(id, resource, CREATE, newData, null);
+  }
+
+  public static ResourceEvent resourceEvent(String id, String resource, ResourceEventType type) {
+    return resourceEvent(id, resource, type, null, null);
+  }
+
+  public static ResourceEvent resourceEvent(String id, String resource, ResourceEventType type, Object n, Object o) {
+    return new ResourceEvent().id(id).type(type).resourceName(resource).tenant(TENANT_ID)._new(n).old(o);
   }
 
   @SafeVarargs
@@ -440,8 +433,8 @@ public class TestUtils {
 
   @SneakyThrows
   public static Aggregations aggregationsFromJson(JsonNode aggregationNode) {
-    XContentParser parser = JsonXContent.jsonXContent.createParser(
-      NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, searchResponseWithAggregation(aggregationNode).toString());
+    var jsonString = searchResponseWithAggregation(aggregationNode).toString();
+    var parser = jsonXContent.createParser(NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, jsonString);
     return SearchResponse.fromXContent(parser).getAggregations();
   }
 

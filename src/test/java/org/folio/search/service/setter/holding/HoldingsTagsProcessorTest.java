@@ -1,6 +1,7 @@
 package org.folio.search.service.setter.holding;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestUtils.tags;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 

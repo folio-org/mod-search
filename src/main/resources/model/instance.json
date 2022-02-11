@@ -478,6 +478,11 @@
       "index": "multilang",
       "processor": "itemPublicNotesProcessor"
     },
+    "holdingPublicNotes": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "holdingsPublicNotesProcessor"
+    },
     "holdingsPublicNotes": {
       "type": "search",
       "index": "multilang",
@@ -506,6 +511,12 @@
       "type": "search",
       "index": "keyword",
       "processor": "itemTagsProcessor"
+    },
+    "holdingTags": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsTagsProcessor"
     },
     "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
@@ -542,6 +553,11 @@
       "index": "keyword",
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
+    },
+    "holdingIdentifiers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsIdentifiersProcessor"
     },
     "holdingsIdentifiers": {
       "type": "search",

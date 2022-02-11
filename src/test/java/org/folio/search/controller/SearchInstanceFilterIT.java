@@ -229,7 +229,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
-        List.of(IDS[2], IDS[3]))
+        List.of(IDS[2], IDS[3])),
+
+      arguments("(holdingTags==htag1) sortby title", List.of(IDS[0], IDS[4]))
     );
   }
 

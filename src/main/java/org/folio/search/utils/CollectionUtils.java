@@ -209,6 +209,17 @@ public final class CollectionUtils {
   }
 
   /**
+   * Return the first element of the given list.
+   *
+   * @param list - list to process as {@link List} object
+   * @param <T> - generic type for list elements
+   * @return {@link Optional} of the first element of the list, it will be empty if the given list is empty.
+   */
+  public static <T> Optional<T> findFirst(List<T> list) {
+    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.get(0));
+  }
+
+  /**
    * Verifies that some element in iterable satisfies given condition.
    *
    * @param iterable - iterable to check

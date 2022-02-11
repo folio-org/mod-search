@@ -32,7 +32,7 @@
     },
     "title": {
       "searchTypes": "sort",
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang",
       "showInResponse": true
     },
@@ -43,24 +43,24 @@
           "index": "source"
         },
         "alternativeTitle": {
-          "inventorySearchTypes": [ "title", "keyword" ],
+          "searchAliases": [ "title", "keyword" ],
           "index": "multilang"
         }
       }
     },
     "indexTitle": {
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang"
     },
     "series": {
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang"
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "inventorySearchTypes": "keyword",
+          "searchAliases": [ "keyword" ],
           "index": "keyword"
         },
         "identifierTypeId": {
@@ -72,7 +72,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": [ "contributors", "keyword" ],
+          "searchAliases": [ "contributors", "keyword" ],
           "index": "standard",
           "showInResponse": true
         },
@@ -142,7 +142,7 @@
       "type": "object",
       "properties": {
         "publisher": {
-          "inventorySearchTypes": "publisher",
+          "searchAliases": [ "publisher" ],
           "index": "multilang",
           "showInResponse": true
         },
@@ -184,18 +184,18 @@
       "type": "object",
       "properties": {
         "uri": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "keyword"
         },
         "linkText": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "multilang"
         },
         "materialsSpecification": {
           "index": "none"
         },
         "publicNote": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "multilang"
         }
       }
@@ -297,18 +297,18 @@
           "type": "object",
           "properties": {
             "uri": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "keyword"
             },
             "linkText": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "multilang"
             },
             "materialsSpecification": {
               "index": "none"
             },
             "publicNote": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "multilang"
             }
           }
@@ -318,7 +318,7 @@
           "properties": {
             "note": {
               "index": "multilang",
-              "inventorySearchTypes": "items.notes.note"
+              "searchAliases": [ "items.notes.note" ]
             },
             "staffOnly": {
               "index": "bool"
@@ -330,7 +330,7 @@
           "properties": {
             "note": {
               "index": "multilang",
-              "inventorySearchTypes": "items.notes.note"
+              "searchAliases": [ "items.notes.note" ]
             },
             "staffOnly": {
               "index": "bool"
@@ -403,18 +403,18 @@
           "type": "object",
           "properties": {
             "uri": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "keyword"
             },
             "linkText": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "multilang"
             },
             "materialsSpecification": {
               "index": "none"
             },
             "publicNote": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "multilang"
             }
           }
@@ -514,6 +514,7 @@
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "holdingsTags" ],
       "processor": "holdingTagsProcessor"
     },
     "statisticalCodes": {
@@ -525,13 +526,13 @@
     "itemsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "inventorySearchTypes": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "inventorySearchTypes": "holdings.fullCallNumber",
+      "searchAliases": [ "holdings.fullCallNumber" ],
       "processor": "holdingsCallNumberComponentsProcessor"
     },
     "itemsNormalizedCallNumbers": {
@@ -573,7 +574,7 @@
       "processor": "instanceAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allInstances" ]
+      "searchAliases": [ "cql.all", "cql.allInstances" ]
     },
     "allItems": {
       "type": "search",
@@ -581,7 +582,7 @@
       "processor": "itemAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allItems" ]
+      "searchAliases": [ "cql.all", "cql.allItems" ]
     },
     "allHoldings": {
       "type": "search",
@@ -589,7 +590,7 @@
       "processor": "holdingAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allHoldings" ]
+      "searchAliases": [ "cql.all", "cql.allHoldings" ]
     }
   },
   "mappingsSource": {

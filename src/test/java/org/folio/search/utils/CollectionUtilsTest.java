@@ -157,8 +157,15 @@ class CollectionUtilsTest {
   }
 
   @ParameterizedTest
-  @MethodSource("findLastElementDataProvider")
-  void findLastElement(List<Object> list, Object expected) {
+  @MethodSource("findFirstDataProvider")
+  void findFirst_parameterized(List<Object> list, Object expected) {
+    var actual = CollectionUtils.findFirst(list);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
+  @ParameterizedTest
+  @MethodSource("findLastDataProvider")
+  void findLast_parameterized(List<Object> list, Object expected) {
     var actual = CollectionUtils.findLast(list);
     assertThat(actual).isEqualTo(Optional.ofNullable(expected));
   }
@@ -207,7 +214,18 @@ class CollectionUtilsTest {
     );
   }
 
-  private static Stream<Arguments> findLastElementDataProvider() {
+  private static Stream<Arguments> findFirstDataProvider() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(emptyList(), null),
+      arguments(asList(1, 2, 3), 1),
+      arguments(List.of(1), 1),
+      arguments(List.of("string"), "string"),
+      arguments(asList(null, null, null), null)
+    );
+  }
+
+  private static Stream<Arguments> findLastDataProvider() {
     return Stream.of(
       arguments(null, null),
       arguments(emptyList(), null),

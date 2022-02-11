@@ -398,6 +398,13 @@ if it is defined but doesn't match.
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
+### Holdings-records backward compatibility search options (Should be removed)
+
+| Option                    | New option            |   Type    | Example                                             | Description                                                                                            |
+|:--------------------------|:----------------------|:---------:|:----------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| `holdingTags`             | `holdingsTags`        |   term    | `holdingTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
+| `holdingPublicNotes`      | `holdingsPublicNotes` | full-text | `holdingPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
+| `holdingIdentifiers`      | `holdingsIdentifiers` |   term    | `holdingIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 
 ### Items search options
 

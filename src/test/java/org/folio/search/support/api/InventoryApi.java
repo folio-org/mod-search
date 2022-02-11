@@ -2,16 +2,19 @@ package org.folio.search.support.api;
 
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.collections.MapUtils.getString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
-import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.search.utils.TestUtils.toMap;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.LinkedHashMap;
@@ -21,10 +24,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -40,52 +43,31 @@ public class InventoryApi {
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
   public void createInstance(String tenantId, Instance instance) {
-    createInstance(tenantId, OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE));
+    createInstance(tenantId, toMap(instance));
   }
 
   public void createInstance(String tenantId, Map<String, Object> instance) {
     var instanceId = getString(instance, "id");
     INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, resourceEvent(null, instance).tenant(tenantId));
+    var instanceEvent = kafkaResourceEvent(tenantId, CREATE, instance, null);
+    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent);
     createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
     createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
   }
 
-  @SuppressWarnings("unchecked")
-  private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
-    var items = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
-    if (items != null) {
-      items.forEach(consumer);
-    }
+  public void updateInstance(String tenantId, Instance instance) {
+    updateInstance(tenantId, toMap(instance));
   }
 
-  public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
-    var event = new HoldingEvent(holding, instanceId);
-    HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(holding, ID_FIELD), event);
-    kafkaTemplate.send(inventoryHoldingTopic(tenant), instanceId,
-      resourceEvent(INSTANCE_RESOURCE, event).tenant(tenant));
-  }
+  public void updateInstance(String tenantId, Map<String, Object> instance) {
+    var instanceId = getString(instance, "id");
+    var previousInstance = INSTANCE_STORE.getOrDefault(tenantId, emptyMap()).get(instanceId);
+    assertThat(previousInstance).isNotNull();
+    INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-  public void createItem(String tenant, String instanceId, Map<String, Object> item) {
-    var event = new ItemEvent(item, instanceId);
-    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(item, ID_FIELD), event);
-    kafkaTemplate.send(inventoryItemTopic(tenant), instanceId,
-      resourceEvent(INSTANCE_RESOURCE, event).tenant(tenant));
-  }
-
-  public void deleteItem(String tenant, String id) {
-    var item = ITEM_STORE.get(tenant).remove(id);
-
-    kafkaTemplate.send(inventoryItemTopic(tenant), item.getInstanceId(),
-      resourceEvent(INSTANCE_RESOURCE, null).old(item).tenant(tenant).type(DELETE));
-  }
-
-  public void deleteHolding(String tenant, String id) {
-    var hr = HOLDING_STORE.get(tenant).remove(id);
-
-    kafkaTemplate.send(inventoryHoldingTopic(tenant), hr.getInstanceId(),
-      resourceEvent(INSTANCE_RESOURCE, null).old(hr).tenant(tenant).type(DELETE));
+    var instanceEvent = kafkaResourceEvent(tenantId, UPDATE, instance, previousInstance);
+    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent);
   }
 
   public void deleteInstance(String tenant, String id) {
@@ -93,6 +75,38 @@ public class InventoryApi {
 
     kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
       resourceEvent(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
+  }
+
+  public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
+    var event = new HoldingEvent(holding, instanceId);
+    HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(holding, ID_FIELD), event);
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), instanceId, kafkaResourceEvent(tenant, CREATE, event, null));
+  }
+
+  public void deleteHolding(String tenant, String id) {
+    var holdingRecord = HOLDING_STORE.get(tenant).remove(id);
+    var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, holdingRecord);
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingRecord.getInstanceId(), resourceEvent);
+  }
+
+  public void createItem(String tenant, String instanceId, Map<String, Object> item) {
+    var event = new ItemEvent(item, instanceId);
+    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(item, ID_FIELD), event);
+    kafkaTemplate.send(inventoryItemTopic(tenant), instanceId, kafkaResourceEvent(tenant, CREATE, event, null));
+  }
+
+  public void deleteItem(String tenant, String id) {
+    var item = ITEM_STORE.get(tenant).remove(id);
+    var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, item);
+    kafkaTemplate.send(inventoryItemTopic(tenant), item.getInstanceId(), resourceEvent);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
+    var resourcesByKey = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
+    if (CollectionUtils.isNotEmpty(resourcesByKey)) {
+      resourcesByKey.forEach(consumer);
+    }
   }
 
   public static Optional<Map<String, Object>> getInventoryView(String tenant, String id) {
@@ -131,7 +145,6 @@ public class InventoryApi {
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
-  @Builder
   private static class ItemEvent {
 
     @JsonUnwrapped

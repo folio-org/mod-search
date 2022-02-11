@@ -20,6 +20,7 @@ import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
@@ -38,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class FacetQueryBuilderTest {
 
   private static final String FIELD = "field";
+  private static final String FACET_ALIAS = "facet.alias";
 
   @InjectMocks private FacetQueryBuilder facetQueryBuilder;
   @Mock private SearchFieldProvider searchFieldProvider;
@@ -50,10 +52,26 @@ class FacetQueryBuilderTest {
   }
 
   @Test
+  void getFacetAggregations_positive_searchAlias() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS), matchAllQuery());
+    assertThat(actual).containsExactly(terms(FACET_ALIAS).field(FIELD).size(MAX_VALUE));
+  }
+
+  @Test
   void getFacetAggregations_positive_limitedFacetWithQueryWithoutFilters() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD + ":5"), matchAllQuery());
     assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(5));
+  }
+
+  @Test
+  void getFacetAggregations_positive_limitedFacetWithQueryWithoutFiltersBySearchAlias() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS + ":5"), matchAllQuery());
+    assertThat(actual).containsExactly(terms(FACET_ALIAS).field(FIELD).size(5));
   }
 
   @Test
@@ -84,6 +102,25 @@ class FacetQueryBuilderTest {
   }
 
   @Test
+  void getFacetAggregations_positive_boolQueryWithFilterByFacetAlias() {
+    var someFilter = termQuery("f1", "v1");
+    var filterByFacetField = termQuery(FIELD, "v2");
+    var query = boolQuery().filter(someFilter).filter(filterByFacetField);
+
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS), query);
+
+    var include = new IncludeExclude(array("v2"), null);
+    var exclude = new IncludeExclude(null, array("v2"));
+    var expected = filter(FACET_ALIAS, boolQuery().filter(someFilter))
+      .subAggregation(terms("values").field(FIELD).size(MAX_VALUE - 1).includeExclude(exclude))
+      .subAggregation(terms("selected_values").field(FIELD).size(1).includeExclude(include));
+    assertThat(actual).containsExactly(expected);
+  }
+
+  @Test
   void getFacetAggregations_positive_boolQueryWithFilterByFacetOnly() {
     var filterByFacetField = termQuery(FIELD, "v2");
     var query = boolQuery().filter(filterByFacetField);
@@ -96,6 +133,22 @@ class FacetQueryBuilderTest {
     assertThat(actual).containsExactly(
       terms(FIELD).field(FIELD).size(MAX_VALUE - 1).includeExclude(exclude),
       terms(SELECTED_AGG_PREFIX + FIELD).field(FIELD).size(1).includeExclude(include));
+  }
+
+  @Test
+  void getFacetAggregations_positive_boolQueryWithFilterByFacetAliasOnly() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+
+    var filterByFacetField = termQuery(FIELD, "v2");
+    var query = boolQuery().filter(filterByFacetField);
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS), query);
+
+    var include = new IncludeExclude(array("v2"), null);
+    var exclude = new IncludeExclude(null, array("v2"));
+    assertThat(actual).containsExactly(
+      terms(FACET_ALIAS).field(FIELD).size(MAX_VALUE - 1).includeExclude(exclude),
+      terms(SELECTED_AGG_PREFIX + FACET_ALIAS).field(FIELD).size(1).includeExclude(include));
   }
 
   @Test

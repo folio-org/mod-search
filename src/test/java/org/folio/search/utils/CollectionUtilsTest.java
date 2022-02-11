@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
@@ -154,6 +156,20 @@ class CollectionUtilsTest {
     assertThat(actual).isInstanceOf(LinkedHashMap.class).isEqualTo(mapOf(1, "1", 2, "2"));
   }
 
+  @ParameterizedTest
+  @MethodSource("findFirstDataProvider")
+  void findFirst_parameterized(List<Object> list, Object expected) {
+    var actual = CollectionUtils.findFirst(list);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
+  @ParameterizedTest
+  @MethodSource("findLastDataProvider")
+  void findLast_parameterized(List<Object> list, Object expected) {
+    var actual = CollectionUtils.findLast(list);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
+  }
+
   private static Stream<Arguments> getValueByPathTestDataProvider() {
     var map = unstructuredMap();
     return Stream.of(
@@ -195,6 +211,28 @@ class CollectionUtilsTest {
         mapOf("k81", List.of(mapOf("k811", "str1"), mapOf("k811", "str2"))),
         mapOf("k81", List.of(mapOf("k811", "str3")))),
       "k9", List.of(mapOf("k91", "str1"), List.of("str2"), mapOf("k91", mapOf("k911", "str3")), mapOf("k91", "str4"))
+    );
+  }
+
+  private static Stream<Arguments> findFirstDataProvider() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(emptyList(), null),
+      arguments(asList(1, 2, 3), 1),
+      arguments(List.of(1), 1),
+      arguments(List.of("string"), "string"),
+      arguments(asList(null, null, null), null)
+    );
+  }
+
+  private static Stream<Arguments> findLastDataProvider() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(emptyList(), null),
+      arguments(asList(1, 2, 3), 3),
+      arguments(List.of(1), 1),
+      arguments(List.of("string"), "string"),
+      arguments(asList(null, null, null), null)
     );
   }
 }

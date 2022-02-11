@@ -133,8 +133,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
     if (CollectionUtils.isNotEmpty(errors)) {
       throw new ResourceDescriptionException(String.format(
-        "Failed to create resource description for resource: '%s', reason:\n %s",
-        desc.getName(), String.join("\n", errors)));
+        "Failed to create resource description for resource: '%s', errors: %s", desc.getName(), errors));
     }
   }
 

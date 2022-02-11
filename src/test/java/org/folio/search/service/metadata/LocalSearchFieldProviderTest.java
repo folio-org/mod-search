@@ -61,7 +61,8 @@ class LocalSearchFieldProviderTest {
 
   @Test
   void getSearchFieldType_negative() {
-    assertThatThrownBy(() -> getSearchFieldProvider().getSearchFieldType(null))
+    var searchFieldProvider = getSearchFieldProvider();
+    assertThatThrownBy(() -> searchFieldProvider.getSearchFieldType(null))
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessageContaining("Failed to find search field type [fieldType: null]");
   }
@@ -164,9 +165,9 @@ class LocalSearchFieldProviderTest {
 
     assertThatThrownBy(searchFieldProvider::init)
       .isInstanceOf(ResourceDescriptionException.class)
-      .hasMessage("Failed to create resource description for resource: 'test-resource', reason:\n "
-        + "Invalid plain field descriptor for search alias 'alias'. Alias for field with searchType='facet'"
-        + " can't group more than 1 field.");
+      .hasMessage("Failed to create resource description for resource: 'test-resource', errors: "
+        + "[Invalid plain field descriptor for search alias 'alias'. Alias for field with searchType="
+        + "'facet' can't group more than 1 field.]");
   }
 
   private LocalSearchFieldProvider getSearchFieldProvider() {

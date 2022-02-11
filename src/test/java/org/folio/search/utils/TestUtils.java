@@ -311,9 +311,9 @@ public class TestUtils {
     return plainField(MULTILANG_FIELD_TYPE, emptyList());
   }
 
-  public static PlainFieldDescription multilangField(String... inventorySearchType) {
+  public static PlainFieldDescription multilangField(String... searchAliases) {
     var field = plainField(MULTILANG_FIELD_TYPE, emptyList());
-    field.setInventorySearchTypes(List.of(inventorySearchType));
+    field.setSearchAliases(List.of(searchAliases));
     return field;
   }
 

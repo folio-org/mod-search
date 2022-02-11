@@ -12,7 +12,7 @@
     "personalName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "personalName",
       "headingType": "Personal Name",
       "authRefType": "Authorized"
@@ -20,7 +20,7 @@
     "sftPersonalName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftPersonalName",
       "headingType": "Personal Name",
       "authRefType": "Reference"
@@ -28,7 +28,7 @@
     "saftPersonalName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftPersonalName",
       "headingType": "Personal Name",
       "authRefType": "Auth/Ref"
@@ -57,7 +57,7 @@
     "corporateName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "corporateName",
       "headingType": "Corporate Name",
       "authRefType": "Authorized"
@@ -65,7 +65,7 @@
     "sftCorporateName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftCorporateName",
       "headingType": "Corporate Name",
       "authRefType": "Reference"
@@ -73,7 +73,7 @@
     "saftCorporateName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftCorporateName",
       "headingType": "Corporate Name",
       "authRefType": "Auth/Ref"
@@ -102,7 +102,7 @@
     "meetingName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "meetingName",
       "headingType": "Conference Name",
       "authRefType": "Authorized"
@@ -110,7 +110,7 @@
     "sftMeetingName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftMeetingName",
       "headingType": "Conference Name",
       "authRefType": "Reference"
@@ -118,7 +118,7 @@
     "saftMeetingName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftMeetingName",
       "headingType": "Conference Name",
       "authRefType": "Auth/Ref"
@@ -133,7 +133,7 @@
     "sftMeetingNameTitle": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftMeetingNameTitle",
       "headingType": "Conference Name",
       "authRefType": "Reference"
@@ -148,7 +148,7 @@
     "geographicName": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "geographicName",
       "headingType": "Geographic Name",
       "authRefType": "Authorized"
@@ -156,7 +156,7 @@
     "sftGeographicTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftGeographicTerm",
       "headingType": "Geographic Name",
       "authRefType": "Reference"
@@ -164,7 +164,7 @@
     "saftGeographicTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftGeographicTerm",
       "headingType": "Geographic Name",
       "authRefType": "Auth/Ref"
@@ -172,7 +172,7 @@
     "uniformTitle": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "uniformTitle",
       "headingType": "Uniform Title",
       "authRefType": "Authorized"
@@ -194,7 +194,7 @@
     "topicalTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "topicalTerm",
       "headingType": "Topical",
       "authRefType": "Authorized"
@@ -202,7 +202,7 @@
     "sftTopicalTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftTopicalTerm",
       "headingType": "Topical",
       "authRefType": "Reference"
@@ -210,7 +210,7 @@
     "saftTopicalTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftTopicalTerm",
       "headingType": "Topical",
       "authRefType": "Auth/Ref"
@@ -218,7 +218,7 @@
     "genreTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "genreTerm",
       "headingType": "Genre",
       "authRefType": "Authorized"
@@ -226,7 +226,7 @@
     "sftGenreTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "sftGenreTerm",
       "headingType": "Genre",
       "authRefType": "Reference"
@@ -234,7 +234,7 @@
     "saftGenreTerm": {
       "type": "authority",
       "index": "standard",
-      "inventorySearchTypes": "keyword",
+      "searchAliases": [ "keyword" ],
       "distinctType": "saftGenreTerm",
       "headingType": "Genre",
       "authRefType": "Auth/Ref"
@@ -246,7 +246,7 @@
       "type": "object",
       "properties": {
         "value": {
-          "inventorySearchTypes": "keyword",
+          "searchAliases": [ "keyword" ],
           "index": "keyword"
         },
         "identifierTypeId": {
@@ -334,7 +334,7 @@
   },
   "mappingsSource": { },
   "indexMappings": {
-    "sort_headingRef" : {
+    "sort_headingRef": {
       "type": "keyword",
       "normalizer": "keyword_lowercase"
     }

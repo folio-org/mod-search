@@ -32,9 +32,10 @@ public class PlainFieldDescription extends FieldDescription {
   private List<SearchType> searchTypes = Collections.emptyList();
 
   /**
-   * List of inventory search types, it can be used to create group of field using alias.
+   * List of search aliases, it can be used to create group of field using alias or to safely rename the field without
+   * reindexing.
    */
-  private List<String> inventorySearchTypes = Collections.emptyList();
+  private List<String> searchAliases = Collections.emptyList();
 
   /**
    * List of references to field types, specified in resource description.

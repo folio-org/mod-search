@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.StreamSupport.stream;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -193,6 +195,17 @@ public final class CollectionUtils {
    */
   public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
     return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream() : empty();
+  }
+
+  /**
+   * Return the first element of the given list.
+   *
+   * @param list - list to process as {@link List} object
+   * @param <T> - generic type for list elements
+   * @return {@link Optional} of the first element of the list, it will be empty if the given list is empty.
+   */
+  public static <T> Optional<T> findFirst(List<T> list) {
+    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.get(0));
   }
 
   /**

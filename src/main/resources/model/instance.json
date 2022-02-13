@@ -527,7 +527,7 @@
     "itemsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber", "itemFullCallNumbers" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
@@ -539,7 +539,8 @@
     "itemsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "processor": "itemsNormalizedCallNumbersProcessor",
+      "searchAliases": [ "itemNormalizedCallNumbers" ],
+      "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {

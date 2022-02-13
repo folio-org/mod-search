@@ -417,8 +417,8 @@ if it is defined but doesn't match.
 | `items.status.name`                 |   term    | `items.status.name=="Available"`                             | Matches instances that have items with given status                                                                           |
 | `items.materialTypeId`              |   term    | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type                                                                    |
 | `items.discoverySuppress`           |   term    | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery                                                    |
-| `itemsFullCallNumbers`              |   term    | `itemsFullCallNumbers="cn*434"`                              | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
-| `itemsNormalizedCallNumbers`        |   term    | `itemsNormalizedCallNumbers="cn434"`                         | Matches instances that have items with given call number and might not be formatted correctly                                 |
+| `itemFullCallNumbers`               |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
+| `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
 | `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have items with given tag                                                                              |
 | `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
 | `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
@@ -430,6 +430,13 @@ if it is defined but doesn't match.
 | `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`, `items.itemIdentifier`      |
 | `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                            |
 | `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                            |
+
+### Items backward compatibility search options (Should be removed)
+
+| Option                       | New option                  | Type | Example                              | Description                                                                                            |
+|:-----------------------------|:----------------------------|:----:|:-------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| `itemsFullCallNumbers`       | `itemFullCallNumbers`       | term | `itemsFullCallNumbers="cn*434"`      | Matches instances that have items with given call number string (prefix + call number + suffix)        |
+| `itemsNormalizedCallNumbers` | `itemNormalizedCallNumbers` | term | `itemsNormalizedCallNumbers="cn434"` | Matches instances that have items with given call number and might not be formatted correctly          |
 
 ### Authority search options
 

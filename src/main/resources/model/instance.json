@@ -484,11 +484,7 @@
     "holdingPublicNotes": {
       "type": "search",
       "index": "multilang",
-      "processor": "holdingsPublicNotesProcessor"
-    },
-    "holdingsPublicNotes": {
-      "type": "search",
-      "index": "multilang",
+      "inventorySearchTypes": [ "holdingsPublicNotes" ],
       "processor": "holdingsPublicNotesProcessor"
     },
     "isbn": {
@@ -560,11 +556,7 @@
     "holdingIdentifiers": {
       "type": "search",
       "index": "keyword",
-      "processor": "holdingsIdentifiersProcessor"
-    },
-    "holdingsIdentifiers": {
-      "type": "search",
-      "index": "keyword",
+      "inventorySearchTypes": [ "holdingsIdentifiers" ],
       "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {

@@ -68,7 +68,8 @@ class ItemAllFieldValuesProcessorTest {
        "itemsFullCallNumbers", List.of("callNumber3", "callNumber4")));
 
     assertThat(actual).isEqualTo(MultilangValue.of(
-      newLinkedHashSet("callNumber1", "callNumber2", "callNumber3", "callNumber4"), newLinkedHashSet("note1", "note2")));
+      newLinkedHashSet("callNumber1", "callNumber2", "callNumber3", "callNumber4"),
+      newLinkedHashSet("note1", "note2")));
   }
 
   private static Item item1() {

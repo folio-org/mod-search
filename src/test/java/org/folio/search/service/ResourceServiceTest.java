@@ -6,11 +6,13 @@ import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
@@ -119,7 +121,7 @@ class ResourceServiceTest {
   }
 
   @Test
-  void canIndexResourcesById() {
+  void canIndexResourcesById_positive() {
     var resourceEvents = List.of(resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, null, null));
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
@@ -133,6 +135,25 @@ class ResourceServiceTest {
 
     var actual = indexService.indexResourcesById(resourceEvents);
     assertThat(actual).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void indexResources_positive_updateEvent() {
+    var newData = mapOf("id", RESOURCE_ID, "title", "new title");
+    var oldData = mapOf("id", RESOURCE_ID, "title", "old title");
+    var resourceEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, oldData);
+    var fetchedEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, newData, null);
+    var expectedResponse = getSuccessIndexOperationResponse();
+    var searchBody = searchDocumentBody(asJsonString(newData));
+
+    when(resourceFetchService.fetchInstancesByIds(List.of(resourceEvent))).thenReturn(List.of(fetchedEvent));
+    when(searchDocumentConverter.convert(List.of(fetchedEvent))).thenReturn(mapOf(RESOURCE_NAME, List.of(searchBody)));
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+    when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
+    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
+
+    var response = indexService.indexResourcesById(List.of(resourceEvent));
+    assertThat(response).isEqualTo(expectedResponse);
   }
 
   @Test

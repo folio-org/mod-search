@@ -211,6 +211,10 @@ public class TestUtils {
     return SearchDocumentBody.of(EMPTY_OBJECT, resourceEvent(), INDEX);
   }
 
+  public static SearchDocumentBody searchDocumentBody(String rawJson) {
+    return SearchDocumentBody.of(rawJson, resourceEvent(), INDEX);
+  }
+
   public static SearchDocumentBody searchDocumentBodyToDelete() {
     return SearchDocumentBody.of(null, resourceEvent(), DELETE);
   }
@@ -311,9 +315,9 @@ public class TestUtils {
     return plainField(MULTILANG_FIELD_TYPE, emptyList());
   }
 
-  public static PlainFieldDescription multilangField(String... inventorySearchType) {
+  public static PlainFieldDescription multilangField(String... searchAliases) {
     var field = plainField(MULTILANG_FIELD_TYPE, emptyList());
-    field.setInventorySearchTypes(List.of(inventorySearchType));
+    field.setSearchAliases(List.of(searchAliases));
     return field;
   }
 
@@ -354,6 +358,14 @@ public class TestUtils {
 
   public static ResourceEvent resourceEvent(String id, String resource, ResourceEventType type, Object n, Object o) {
     return new ResourceEvent().id(id).type(type).resourceName(resource).tenant(TENANT_ID)._new(n).old(o);
+  }
+
+  public static ResourceEvent kafkaResourceEvent(ResourceEventType type, Object newData, Object oldData) {
+    return kafkaResourceEvent(TENANT_ID, type, newData, oldData);
+  }
+
+  public static ResourceEvent kafkaResourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
+    return new ResourceEvent().type(type).tenant(tenant)._new(n).old(o);
   }
 
   @SafeVarargs

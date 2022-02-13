@@ -5,8 +5,8 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 
@@ -21,10 +21,12 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
+import org.folio.search.model.types.IndexActionType;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
@@ -84,8 +86,8 @@ public class ResourceService {
 
     var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
 
-    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceEvent::getType));
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(CREATE));
+    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
 
@@ -152,5 +154,9 @@ public class ResourceService {
       .map(ResourceIndexingConfiguration::getResourceRepository)
       .filter(resourceRepositoryBeans::containsKey)
       .orElse(PRIMARY_INDEXING_REPOSITORY_NAME);
+  }
+
+  private static IndexActionType getEventIndexType(ResourceEvent event) {
+    return event.getType() == ResourceEventType.DELETE ? DELETE : INDEX;
   }
 }

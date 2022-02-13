@@ -58,7 +58,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
     doSearchByAuthorities(allRecordsSortedBy("headingType", ASCENDING))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingType", is("Corporate Name")))
-      .andExpect(jsonPath("authorities[1].headingType", is("Other")))
+      .andExpect(jsonPath("authorities[1].headingType", is("Genre")))
 
       .andExpect(jsonPath("authorities[2].headingType", is("Personal Name")))
       .andExpect(jsonPath("authorities[2].headingRef", is("111")))
@@ -81,7 +81,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("authorities[2].headingType", is("Personal Name")))
       .andExpect(jsonPath("authorities[2].headingRef", is("111")))
 
-      .andExpect(jsonPath("authorities[3].headingType", is("Other")))
+      .andExpect(jsonPath("authorities[3].headingType", is("Genre")))
       .andExpect(jsonPath("authorities[4].headingType", is("Corporate Name")));
   }
 

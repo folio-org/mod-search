@@ -539,7 +539,12 @@
     "itemsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "itemNormalizedCallNumbers" ],
+      "processor": "itemNormalizedCallNumbersProcessor",
+      "searchTermProcessor": "callNumberSearchTermProcessor"
+    },
+    "itemNormalizedCallNumbers": {
+      "type": "search",
+      "index": "keyword",
       "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },

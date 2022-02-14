@@ -57,11 +57,11 @@ class HoldingAllFieldValuesProcessorTest {
 
   @Test
   void getFieldValue_holdingFieldsFromSearchGeneratedValues() {
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "holdingPublicNotes")).thenReturn(true);
+    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "holdingsPublicNotes")).thenReturn(true);
     when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "holdingsFullCallNumbers")).thenReturn(false);
 
     var actual = processor.getFieldValue(mapOf(
-      "holdingPublicNotes", List.of("note1", "note2"),
+      "holdingsPublicNotes", List.of("note1", "note2"),
       "holdingsFullCallNumbers", List.of("callNumber1", "callNumber2")));
 
     assertThat(actual).isEqualTo(MultilangValue.of(

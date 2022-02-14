@@ -18,36 +18,36 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
-class HoldingTagsProcessorTest {
-  private final HoldingTagsProcessor holdingTagsProcessor = new HoldingTagsProcessor();
+class HoldingsTagsProcessorTest {
+  private final HoldingsTagsProcessor holdingsTagsProcessor = new HoldingsTagsProcessor();
 
-  @MethodSource("holdingTagsDataProvider")
+  @MethodSource("holdingsTagsDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
-    var actual = holdingTagsProcessor.getFieldValue(instance);
+    var actual = holdingsTagsProcessor.getFieldValue(instance);
     assertThat(actual).containsExactlyElementsOf(expected);
   }
 
-  private static Stream<Arguments> holdingTagsDataProvider() {
+  private static Stream<Arguments> holdingsTagsDataProvider() {
     var twoTags = tags("tag1", "tag2");
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),
       arguments("empty holding", new Instance().addHoldingsItem(new Holding()), emptyList()),
-      arguments("holding with null tag", instanceWithHoldingTags(tags((String) null)), emptyList()),
-      arguments("holding with null tagList ", instanceWithHoldingTags(tags((String[]) null)), emptyList()),
-      arguments("holding with empty tagList", instanceWithHoldingTags(tags()), emptyList()),
-      arguments("holding with 2 tags", instanceWithHoldingTags(twoTags), List.of("tag1", "tag2")),
-      arguments("2 holdings tags", instanceWithHoldingTags(twoTags, twoTags), List.of("tag1", "tag2")),
-      arguments("holding tag(trailing spaces)", instanceWithHoldingTags(tags("tag  ")), List.of("tag")),
-      arguments("holding tag(leading spaces)", instanceWithHoldingTags(tags("  tag")), List.of("tag")),
-      arguments("holding tag(leading and trailing)", instanceWithHoldingTags(tags("  tag  ")), List.of("tag")),
-      arguments("holding tag(empty)", instanceWithHoldingTags(tags("")), emptyList()),
-      arguments("holding tag(blank)", instanceWithHoldingTags(tags(" ")), emptyList())
+      arguments("holdings with null tag", instanceWithHoldingsTags(tags((String) null)), emptyList()),
+      arguments("holdings with null tagList ", instanceWithHoldingsTags(tags((String[]) null)), emptyList()),
+      arguments("holdings with empty tagList", instanceWithHoldingsTags(tags()), emptyList()),
+      arguments("holdings with 2 tags", instanceWithHoldingsTags(twoTags), List.of("tag1", "tag2")),
+      arguments("2 holdings tags", instanceWithHoldingsTags(twoTags, twoTags), List.of("tag1", "tag2")),
+      arguments("holdings tag(trailing spaces)", instanceWithHoldingsTags(tags("tag  ")), List.of("tag")),
+      arguments("holdings tag(leading spaces)", instanceWithHoldingsTags(tags("  tag")), List.of("tag")),
+      arguments("holdings tag(leading and trailing)", instanceWithHoldingsTags(tags("  tag  ")), List.of("tag")),
+      arguments("holdings tag(empty)", instanceWithHoldingsTags(tags("")), emptyList()),
+      arguments("holdings tag(blank)", instanceWithHoldingsTags(tags(" ")), emptyList())
     );
   }
 
-  private static Instance instanceWithHoldingTags(Tags... tags) {
+  private static Instance instanceWithHoldingsTags(Tags... tags) {
     var instance = new Instance();
     Arrays.stream(tags).forEach(tag -> instance.addHoldingsItem(new Holding().tags(tag)));
     return instance;

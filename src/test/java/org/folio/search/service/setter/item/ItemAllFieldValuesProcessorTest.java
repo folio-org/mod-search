@@ -59,14 +59,17 @@ class ItemAllFieldValuesProcessorTest {
   @Test
   void getFieldValue_holdingFieldsFromSearchGeneratedValues() {
     when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "itemPublicNotes")).thenReturn(true);
+    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "itemFullCallNumbers")).thenReturn(false);
     when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "itemsFullCallNumbers")).thenReturn(false);
 
     var actual = processor.getFieldValue(mapOf(
       "itemPublicNotes", List.of("note1", "note2"),
-      "itemsFullCallNumbers", List.of("callNumber1", "callNumber2")));
+      "itemFullCallNumbers", List.of("callNumber1", "callNumber2"),
+       "itemsFullCallNumbers", List.of("callNumber3", "callNumber4")));
 
     assertThat(actual).isEqualTo(MultilangValue.of(
-      newLinkedHashSet("callNumber1", "callNumber2"), newLinkedHashSet("note1", "note2")));
+      newLinkedHashSet("callNumber1", "callNumber2", "callNumber3", "callNumber4"),
+      newLinkedHashSet("note1", "note2")));
   }
 
   private static Item item1() {

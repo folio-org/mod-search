@@ -484,7 +484,8 @@
     "holdingPublicNotes": {
       "type": "search",
       "index": "multilang",
-      "processor": "holdingPublicNotesProcessor"
+      "searchAliases": [ "holdingsPublicNotes" ],
+      "processor": "holdingsPublicNotesProcessor"
     },
     "isbn": {
       "type": "search",
@@ -515,7 +516,7 @@
       "type": "search",
       "index": "keyword",
       "searchAliases": [ "holdingsTags" ],
-      "processor": "holdingTagsProcessor"
+      "processor": "holdingsTagsProcessor"
     },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
@@ -526,7 +527,7 @@
     "itemsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber", "itemFullCallNumbers" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
@@ -538,7 +539,13 @@
     "itemsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "processor": "itemsNormalizedCallNumbersProcessor",
+      "processor": "itemNormalizedCallNumbersProcessor",
+      "searchTermProcessor": "callNumberSearchTermProcessor"
+    },
+    "itemNormalizedCallNumbers": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {
@@ -550,7 +557,8 @@
     "holdingIdentifiers": {
       "type": "search",
       "index": "keyword",
-      "processor": "holdingIdentifiersProcessor"
+      "searchAliases": [ "holdingsIdentifiers" ],
+      "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {
       "type": "search",

@@ -29,6 +29,15 @@ class SearchItemIT extends BaseIntegrationTest {
   @CsvSource({
     "items.fullCallNumber=={value}, prefix-90000 TK51*",
     "items.effectiveCallNumberComponents=={value}, *suffix-10101",
+    "itemNormalizedCallNumbers=={value}, prefix-90000",
+    "itemNormalizedCallNumbers=={value}, prefix90000",
+    "itemNormalizedCallNumbers=={value}, prefix.9",
+    "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE",
+    "itemNormalizedCallNumbers=={value}, TK5105.88815",
+    "itemNormalizedCallNumbers=={value}, prefix90000 TK510588815",
+    "itemNormalizedCallNumbers=={value}, tk510588815",
+    "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE suffix-90000",
+    "itemNormalizedCallNumbers=={value}, TK510588815A582004FT MEADE suffix90000",
     "itemsNormalizedCallNumbers=={value}, prefix-90000",
     "itemsNormalizedCallNumbers=={value}, prefix90000",
     "itemsNormalizedCallNumbers=={value}, prefix.9",
@@ -47,6 +56,13 @@ class SearchItemIT extends BaseIntegrationTest {
   }
 
   @CsvSource({
+    "itemNormalizedCallNumbers=={value}, fix-90000",
+    "itemNormalizedCallNumbers=={value}, 90000",
+    "itemNormalizedCallNumbers=={value}, 88815.A58 2004 FT MEADE",
+    "itemNormalizedCallNumbers=={value}, 88815 suffix90000",
+    "itemNormalizedCallNumbers=={value}, prefix TK510588815",
+    "itemNormalizedCallNumbers=={value}, 510588815",
+    "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE 90000",
     "itemsNormalizedCallNumbers=={value}, fix-90000",
     "itemsNormalizedCallNumbers=={value}, 90000",
     "itemsNormalizedCallNumbers=={value}, 88815.A58 2004 FT MEADE",

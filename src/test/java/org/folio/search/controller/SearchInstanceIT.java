@@ -56,7 +56,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "publicNotes == {value}, librarian",
     "itemPublicNotes == {value}, private note for item",
     "itemPublicNotes == {value}, private circulation note",
-    "holdingPublicNotes == {value}, librarian private note",
+    "holdingsPublicNotes == {value}, librarian private note",
     "issn = {value}, 03178471",
   })
   @DisplayName("can search by instances (nothing found)")
@@ -220,7 +220,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.electronicAccess.publicNote all {value}", "table of contents"),
 
       // search by holding fields
-      arguments("holdingPublicNotes all {value}", "bibliographical references"),
+      arguments("holdingsPublicNotes all {value}", "bibliographical references"),
       arguments("holdings.notes.note == {value}", "Librarian public note for holding"),
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),
 
@@ -229,10 +229,18 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdings.electronicAccess.linkText all {value}", "link text"),
       arguments("holdings.electronicAccess.publicNote all {value}", "note"),
 
+      arguments("holdingsIdentifiers all {value}", "hold000000000009"),
+      arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
+      arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
+      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
+
+      // Backward compatibility
       arguments("holdingIdentifiers all {value}", "hold000000000009"),
       arguments("holdingIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
       arguments("holdingIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
-      arguments("holdingIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
-    );
+      arguments("holdingIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
+
+      arguments("holdingPublicNotes all {value}", "bibliographical references")
+      );
   }
 }

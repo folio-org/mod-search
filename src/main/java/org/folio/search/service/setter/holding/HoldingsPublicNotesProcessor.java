@@ -12,7 +12,7 @@ import org.folio.search.service.setter.instance.AbstractPublicNotesProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HoldingPublicNotesProcessor extends AbstractPublicNotesProcessor {
+public class HoldingsPublicNotesProcessor extends AbstractPublicNotesProcessor {
 
   @Override
   protected Stream<Note> getNotes(Instance instance) {

@@ -385,7 +385,7 @@ if it is defined but doesn't match.
 | `holdings.permanentLocationId`         |   term    | `holdings.permanentLocationId=="123765"`             | Matches instances that have holdings with given permanentLocationId                                    |
 | `holdings.discoverySuppress`           |   term    | `holdings.discoverySuppress==true`                   | Matches instances that have holdings suppressed/not suppressed from discovery                          |
 | `holdings.hrid`                        |   term    | `holdings.hrid=="hr10*3"`                            | Matches instances that have a holding with given HRID                                                  |
-| `holdingTags`                          |   term    | `holdingTags=="important"`                           | Matches instances that have holdings with given tags                                                   |
+| `holdingsTags`                         |   term    | `holdingsTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
 | `holdingsFullCallNumbers`              |   term    | `holdingsFullCallNumbers="cn*434"`                   | Matches instances that have holdings with given call number string (prefix + call number + suffix)     |
 | `holdingsNormalizedCallNumbers`        |   term    | `holdingsNormalizedCallNumbers="cn434"`              | Matches instances that have holdings with given call number and might not be formatted correctly       |
 | `holdings.electronicAccess`            | full-text | `holdings.electronicAccess any "resource"`           | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote` |
@@ -393,11 +393,18 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
-| `holdingPublicNotes`                   | full-text | `holdingPublicNotes all "public note"`               | Search by holdings public notes                                                                        |
-| `holdingIdentifiers`                   |   term    | `holdingIdentifiers == "ho00000000006"`              | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
+| `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
+| `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
+### Holdings-records backward compatibility search options (Should be removed)
+
+| Option                    | New option            |   Type    | Example                                             | Description                                                                                            |
+|:--------------------------|:----------------------|:---------:|:----------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| `holdingTags`             | `holdingsTags`        |   term    | `holdingTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
+| `holdingPublicNotes`      | `holdingsPublicNotes` | full-text | `holdingPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
+| `holdingIdentifiers`      | `holdingsIdentifiers` |   term    | `holdingIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 
 ### Items search options
 
@@ -410,8 +417,8 @@ if it is defined but doesn't match.
 | `items.status.name`                 |   term    | `items.status.name=="Available"`                             | Matches instances that have items with given status                                                                           |
 | `items.materialTypeId`              |   term    | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type                                                                    |
 | `items.discoverySuppress`           |   term    | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery                                                    |
-| `itemsFullCallNumbers`              |   term    | `itemsFullCallNumbers="cn*434"`                              | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
-| `itemsNormalizedCallNumbers`        |   term    | `itemsNormalizedCallNumbers="cn434"`                         | Matches instances that have items with given call number and might not be formatted correctly                                 |
+| `itemFullCallNumbers`               |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
+| `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
 | `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have items with given tag                                                                              |
 | `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
 | `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
@@ -423,6 +430,13 @@ if it is defined but doesn't match.
 | `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`, `items.itemIdentifier`      |
 | `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                            |
 | `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                            |
+
+### Items backward compatibility search options (Should be removed)
+
+| Option                       | New option                  | Type | Example                              | Description                                                                                            |
+|:-----------------------------|:----------------------------|:----:|:-------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| `itemsFullCallNumbers`       | `itemFullCallNumbers`       | term | `itemsFullCallNumbers="cn*434"`      | Matches instances that have items with given call number string (prefix + call number + suffix)        |
+| `itemsNormalizedCallNumbers` | `itemNormalizedCallNumbers` | term | `itemsNormalizedCallNumbers="cn434"` | Matches instances that have items with given call number and might not be formatted correctly          |
 
 ### Authority search options
 
@@ -556,13 +570,13 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ### Holding facets
 
-| Option                         | Type | Description                                    |
-|:-------------------------------|:----:|:-----------------------------------------------|
-| `holdings.permanentLocationId` | term | Requests a holding permanent location id facet |
-| `holdings.discoverySuppress`   | term | Requests a holding discovery suppress facet    |
-| `holdings.statisticalCodeIds`  | term | Requests a holding statistical code ids        |
-| `holdings.sourceId`            | term | Requests a holding sourceId facet              |
-| `holdingTags`                  | term | Requests a holding tag facet                   |
+| Option                         | Type | Description                                     |
+|:-------------------------------|:----:|:------------------------------------------------|
+| `holdings.permanentLocationId` | term | Requests a holdings permanent location id facet |
+| `holdings.discoverySuppress`   | term | Requests a holdings discovery suppress facet    |
+| `holdings.statisticalCodeIds`  | term | Requests a holdings statistical code ids        |
+| `holdings.sourceId`            | term | Requests a holdings sourceId facet              |
+| `holdingsTags`                 | term | Requests a holdings tag facet                   |
 
 ### Item facets
 

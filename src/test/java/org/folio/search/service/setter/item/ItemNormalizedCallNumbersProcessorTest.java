@@ -10,8 +10,8 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest
-class ItemsNormalizedCallNumbersProcessorTest {
-  private final ItemsNormalizedCallNumbersProcessor processor = new ItemsNormalizedCallNumbersProcessor();
+class ItemNormalizedCallNumbersProcessorTest {
+  private final ItemNormalizedCallNumbersProcessor processor = new ItemNormalizedCallNumbersProcessor();
 
   @Test
   void canGetFieldValue_multipleItems() {

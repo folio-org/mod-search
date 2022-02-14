@@ -10,7 +10,7 @@ import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ItemsNormalizedCallNumbersProcessor implements FieldProcessor<Instance, Set<String>> {
+public class ItemNormalizedCallNumbersProcessor implements FieldProcessor<Instance, Set<String>> {
 
   @Override
   public Set<String> getFieldValue(Instance instance) {

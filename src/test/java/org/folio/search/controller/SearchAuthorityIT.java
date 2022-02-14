@@ -104,7 +104,27 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments("keyword all {value}", "\"Gary A. Wills\""),
+      arguments("keyword == {value}", "\"a personal title\""),
+      arguments("keyword all {value}", "\"a sft personal title\""),
+      arguments("keyword all {value}", "\"a saft personal title\""),
+      arguments("keyword == {value}", "\"a corporate title\""),
+      arguments("keyword all {value}", "\"a sft corporate title\""),
+      arguments("keyword all {value}", "\"a saft corporate title\""),
+      arguments("keyword == {value}", "\"a conference title\""),
+      arguments("keyword all {value}", "\"a sft conference title\""),
+      arguments("keyword all {value}", "\"a saft conference title\""),
+      arguments("keyword == {value}", "\"a geographic name\""),
+      arguments("keyword all {value}", "\"a sft geographic name\""),
+      arguments("keyword all {value}", "\"a saft geographic name\""),
+      arguments("keyword == {value}", "\"an uniform title\""),
+      arguments("keyword all {value}", "\"a sft uniform title\""),
+      arguments("keyword all {value}", "\"a saft uniform title\""),
+      arguments("keyword == {value}", "\"a topical term\""),
+      arguments("keyword all {value}", "\"a sft topical term\""),
+      arguments("keyword all {value}", "\"a saft topical term\""),
+      arguments("keyword == {value}", "\"a genre term\""),
+      arguments("keyword all {value}", "\"a sft genre term\""),
+      arguments("keyword all {value}", "\"a saft genre term\""),
 
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),

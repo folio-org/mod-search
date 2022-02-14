@@ -10,7 +10,7 @@ import org.folio.search.service.setter.instance.AbstractTagsProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HoldingTagsProcessor extends AbstractTagsProcessor {
+public class HoldingsTagsProcessor extends AbstractTagsProcessor {
 
   @Override
   protected Stream<Tags> getTags(Instance instance) {

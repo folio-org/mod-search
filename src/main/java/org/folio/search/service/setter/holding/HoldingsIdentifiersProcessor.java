@@ -12,7 +12,7 @@ import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HoldingIdentifiersProcessor implements FieldProcessor<Instance, Set<String>> {
+public class HoldingsIdentifiersProcessor implements FieldProcessor<Instance, Set<String>> {
 
   @Override
   public Set<String> getFieldValue(Instance instance) {

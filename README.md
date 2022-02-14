@@ -442,7 +442,7 @@ if it is defined but doesn't match.
 
 | Option                  |   Type    | Example                                      | Description                                                                      |
 |:------------------------|:---------:|:---------------------------------------------|:---------------------------------------------------------------------------------|
-| `keyword`               | full-text | `keyword all "web semantic"`                 | An alias for: `personalName`, `sftpersonalName`, `saftPersonalName` and so forth |
+| `keyword`               | full-text | `keyword all "web semantic"`                 | An alias for: `identifiers`, `personalNameTitle`, `sftpersonalNameTitle`, `saftpersonalNameTitle`, `corporateNameTitle`, `sftcorporateNameTitle`, `saftcorporateNameTitle`, `meetingNameTitle`, `sftmeetingNameTitle`, `saftmeetingNameTitle`, `uniformTitle`, `sftUniformTitle`, `saftUniformTitle`, `topicalTerm`, `sftTopicalTerm`, `saftTopicalTerm`, `geographicName`, `sftGeographicTerm`, `saftGeographicTerm`, `genreTerm`, `sftGenreTerm`, `saftGenreTerm` |
 | `id`                    |   term    | `id=="1234567"`                              | Matches authorities with the id                                                  |
 | `headingType`           |   term    | `headingType == "Personal Name"`             | Matches authorities with `Personal Name` heading type                            |
 | `authRefType`           |   term    | `authRefType == "Authorized"`                | Matches authorities with `Authorized` auth/ref type                              |
@@ -468,9 +468,9 @@ if it is defined but doesn't match.
 | `geographicName`        | full-text | `geographicName == "geographic name"`        | Matches authorities with `geographic name` geographic name                       |
 | `sftGeographicTerm`     | full-text | `sftGeographicTerm == "geographic name"`     | Matches authorities with `geographic name` sft geographic term                   |
 | `saftGeographicTerm`    | full-text | `saftGeographicTerm == "geographic name"`    | Matches authorities with `geographic name` saft geographic term                  |
-| `uniformTitle`          |   term    | `uniformTitle == "an uniform title"`         | Matches authorities with `an uniform title` uniform title                        |
-| `sftUniformTitle`       |   term    | `sftUniformTitle == "an uniform title"`      | Matches authorities with `an uniform title` sft uniform title                    |
-| `saftUniformTitle`      |   term    | `saftUniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` saft uniform title                   |
+| `uniformTitle`          | full-text | `uniformTitle == "an uniform title"`         | Matches authorities with `an uniform title` uniform title                        |
+| `sftUniformTitle`       | full-text | `sftUniformTitle == "an uniform title"`      | Matches authorities with `an uniform title` sft uniform title                    |
+| `saftUniformTitle`      | full-text | `saftUniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` saft uniform title                   |
 | `lccn`                  |   term    | `lccn = "LCCN"`                              | Matches authorities with the given lccn                                          |
 | `identifiers.value`     |   term    | `identifiers.value = "1023*"`                | Matches authorities with the given identifier value                              |
 | `metadata.createdDate`  |   term    | `metadata.createdDate > "2020-12-12"`        | Matches authorities that were created after `2020-12-12`                         |

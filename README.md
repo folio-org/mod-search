@@ -442,7 +442,7 @@ if it is defined but doesn't match.
 
 | Option                  |   Type    | Example                                      | Description                                                                      |
 |:------------------------|:---------:|:---------------------------------------------|:---------------------------------------------------------------------------------|
-| `keyword`               | full-text | `keyword all "web semantic"`                 | An alias for: `identifiers`, `personalNameTitle`, `sftpersonalNameTitle`, `saftpersonalNameTitle`, `corporateNameTitle`, `sftcorporateNameTitle`, `saftcorporateNameTitle`, `meetingNameTitle`, `sftmeetingNameTitle`, `saftmeetingNameTitle`, `uniformTitle`, `sftUniformTitle`, `saftUniformTitle`, `topicalTerm`, `sftTopicalTerm`, `saftTopicalTerm`, `geographicName`, `sftGeographicTerm`, `saftGeographicTerm`, `genreTerm`, `sftGenreTerm`, `saftGenreTerm` |
+| `keyword`               | full-text | `keyword all "web semantic"`                 | An alias for: `identifiers`, `personalNameTitle`, `sftpersonalNameTitle`, `saftpersonalNameTitle`, `corporateNameTitle`, `sftcorporateNameTitle`, `saftcorporateNameTitle`, `meetingNameTitle`, `sftmeetingNameTitle`, `saftmeetingNameTitle`, `uniformTitle`, `sftUniformTitle`, `saftUniformTitle`, `topicalTerm`, `sftTopicalTerm`, `saftTopicalTerm`, `geographicName`, `sftGeographicName`, `saftGeographicName`, `genreTerm`, `sftGenreTerm`, `saftGenreTerm` |
 | `id`                    |   term    | `id=="1234567"`                              | Matches authorities with the id                                                  |
 | `headingType`           |   term    | `headingType == "Personal Name"`             | Matches authorities with `Personal Name` heading type                            |
 | `authRefType`           |   term    | `authRefType == "Authorized"`                | Matches authorities with `Authorized` auth/ref type                              |
@@ -466,8 +466,8 @@ if it is defined but doesn't match.
 | `sftMeetingNameTitle`   | full-text | `sftMeetingNameTitle == "conferenece title"` | Matches authorities with `conferenece title` sft meeting name title              |
 | `saftMeetingNameTitle`  | full-text | `saftMeetingNameTitle == "conferenece title"`| Matches authorities with `conferenece title` saft meeting name title             |
 | `geographicName`        | full-text | `geographicName == "geographic name"`        | Matches authorities with `geographic name` geographic name                       |
-| `sftGeographicTerm`     | full-text | `sftGeographicTerm == "geographic name"`     | Matches authorities with `geographic name` sft geographic term                   |
-| `saftGeographicTerm`    | full-text | `saftGeographicTerm == "geographic name"`    | Matches authorities with `geographic name` saft geographic term                  |
+| `sftGeographicName`     | full-text | `sftGeographicName == "geographic name"`     | Matches authorities with `geographic name` sft geographic name                   |
+| `saftGeographicName`    | full-text | `saftGeographicName == "geographic name"`    | Matches authorities with `geographic name` saft geographic name                  |
 | `uniformTitle`          | full-text | `uniformTitle == "an uniform title"`         | Matches authorities with `an uniform title` uniform title                        |
 | `sftUniformTitle`       | full-text | `sftUniformTitle == "an uniform title"`      | Matches authorities with `an uniform title` sft uniform title                    |
 | `saftUniformTitle`      | full-text | `saftUniformTitle == "an uniform title"`     | Matches authorities with `an uniform title` saft uniform title                   |

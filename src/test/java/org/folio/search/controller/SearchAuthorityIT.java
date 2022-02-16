@@ -222,7 +222,6 @@ class SearchAuthorityIT extends BaseIntegrationTest {
         "authority-identifier and 3114176276 and 3745-1086"),
 
       arguments(specifyCommonField("subjectHeadings all {value}"), "\"a subject heading\""),
-      arguments(specifyCommonField("subjectHeadings all {value}"), "subject"),
       arguments(specifyCommonField("subjectHeadings == {value}"), "\"a sub*\"")
     );
   }

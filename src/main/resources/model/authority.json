@@ -241,7 +241,8 @@
       "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
-      "index": "standard"
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ]
     },
     "identifiers": {
       "type": "object",

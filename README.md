@@ -591,9 +591,10 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ### Authority facets
 
-| Option        | Type | Description                   |
-|:--------------|:----:|:------------------------------|
-| `headingType` | term | Requests a heading type facet |
+| Option            | Type | Description                       |
+|:------------------|:----:|:----------------------------------|
+| `headingType`     | term | Requests a heading type facet     |
+| `subjectHeadings` | term | Requests a subject headings facet |
 
 ## Sorting results
 

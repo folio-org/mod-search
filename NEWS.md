@@ -1,3 +1,46 @@
+## 1.6.0 2021-02-18
+* MSEARCH-186 publish isBoundWith in search results
+* MSEARCH-272 Include Item identifier in Identifier (all) search
+* MSEARCH-253 Implement Call Number browse
+* MSEARCH-287 Create a Subject heading/thesaurus facet
+* MSEARCH-288 Update Authority Search Options - Keyword
+* MSEARCH-271 Authority record search - Mapping saft* fields to heading types
+* MSEARCH-294 Support search aliases for the facets
+* MSEARCH-295 Rename search fields in Authority mode
+* MSEARCH-292 Update Authority Search Options - Corporate/Conference Name & Personal Name
+* MSEARCH-193 Statistical code facet for instances, holdings and items
+* MSEARCH-276 Subject browsing: Support delete events to prevent values with 0 instances
+* MSEARCH-256 Implement Authority headings browse
+* MSEARCH-273 folio-spring-base v3 update
+* MSEARCH-184 Implement retrieving holdings ids as json stream
+* MSEARCH-217 Authority record search - Name/title search option
+* MSEARCH-208 Authority record search - filters/facets
+* MSEARCH-185 Implement cql.allRecords=1 search option
+* MSEARCH-181 Implement search for null, empty or non-exiting values
+* MSEARCH-175 Item - include circulation notes search in item notes searches
+* MSEARCH-195 Add search API for Authority’s Record
+* MSEARCH-202 Holdings - filter/facet by holdings source
+* MSEARCH-212 Authority record search - Determine Authorized/Reference
+* MSEARCH-213 Authority record search - Personal name search option
+* MSEARCH-214 Authority record search - Corporate/conference name search option
+* MSEARCH-237 Authority record search - Authority UUID search option
+* MSEARCH-238 Authority record search - Keyword search option
+* MSEARCH-229 Authority record search - Uniform title search option
+* MSEARCH-196 Refactor /reindex API to support Authority Records
+* MSEARCH-230 Authority record search - Subject search option
+* MSEARCH-232 Authority record search - Genre search option
+* MSEARCH-211 Authority record search - Determine Heading/Reference
+* MSEARCH-209 Authority record search - sorting
+* MSEARCH-231 Authority record search - Children's subject headings search option
+* MSEARCH-177 Don't skip resources if reference data has been failed to load
+* MSEARCH-236 Authority record search - Identifiers search option
+* MSEARCH-260 Authority record search - Mapping additional fields to headings
+* MSEARCH-210 Authority record search - Determine type of heading
+* MSEARCH-219 Filter holdings\items by Date created
+* MSEARCH-220 Filter holdings\items by Date updated
+* MSEARCH-264 Implement Subject browse - preceding entries and placeholder for missing match
+* MSEARCH-275 Highlight browse result using Boolean value
+
 ## 1.5.0 2021-10-01
 * Add contributorNameTypeId field for contributors (MSEARCH-194)
 * Support search by all fields (MSEARCH-182)

@@ -398,14 +398,6 @@ if it is defined but doesn't match.
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
-### Holdings-records backward compatibility search options (Should be removed)
-
-| Option                    | New option            |   Type    | Example                                             | Description                                                                                            |
-|:--------------------------|:----------------------|:---------:|:----------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
-| `holdingTags`             | `holdingsTags`        |   term    | `holdingTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
-| `holdingPublicNotes`      | `holdingsPublicNotes` | full-text | `holdingPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
-| `holdingIdentifiers`      | `holdingsIdentifiers` |   term    | `holdingIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
-
 ### Items search options
 
 | Option                              |   Type    | Example                                                      | Description                                                                                                                   |
@@ -430,13 +422,6 @@ if it is defined but doesn't match.
 | `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`, `items.itemIdentifier`      |
 | `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                            |
 | `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                            |
-
-### Items backward compatibility search options (Should be removed)
-
-| Option                       | New option                  | Type | Example                              | Description                                                                                            |
-|:-----------------------------|:----------------------------|:----:|:-------------------------------------|:-------------------------------------------------------------------------------------------------------|
-| `itemsFullCallNumbers`       | `itemFullCallNumbers`       | term | `itemsFullCallNumbers="cn*434"`      | Matches instances that have items with given call number string (prefix + call number + suffix)        |
-| `itemsNormalizedCallNumbers` | `itemNormalizedCallNumbers` | term | `itemsNormalizedCallNumbers="cn434"` | Matches instances that have items with given call number and might not be formatted correctly          |
 
 ### Authority search options
 

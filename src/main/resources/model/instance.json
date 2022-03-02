@@ -481,10 +481,9 @@
       "index": "multilang",
       "processor": "itemPublicNotesProcessor"
     },
-    "holdingPublicNotes": {
+    "holdingsPublicNotes": {
       "type": "search",
       "index": "multilang",
-      "searchAliases": [ "holdingsPublicNotes" ],
       "processor": "holdingsPublicNotesProcessor"
     },
     "isbn": {
@@ -511,11 +510,10 @@
       "index": "keyword",
       "processor": "itemTagsProcessor"
     },
-    "holdingTags": {
+    "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "holdingsTags" ],
       "processor": "holdingsTagsProcessor"
     },
     "statisticalCodes": {
@@ -524,10 +522,10 @@
       "index": "keyword",
       "processor": "statisticalCodesProcessor"
     },
-    "itemsFullCallNumbers": {
+    "itemFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber", "itemFullCallNumbers" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
@@ -535,12 +533,6 @@
       "index": "keyword",
       "searchAliases": [ "holdings.fullCallNumber" ],
       "processor": "holdingsCallNumberComponentsProcessor"
-    },
-    "itemsNormalizedCallNumbers": {
-      "type": "search",
-      "index": "keyword",
-      "processor": "itemNormalizedCallNumbersProcessor",
-      "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "itemNormalizedCallNumbers": {
       "type": "search",
@@ -554,10 +546,9 @@
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
-    "holdingIdentifiers": {
+    "holdingsIdentifiers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "holdingsIdentifiers" ],
       "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {

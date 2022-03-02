@@ -194,7 +194,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
 
       arguments("(itemTags==itag1) sortby title", List.of(IDS[0], IDS[2])),
-      arguments("(holdingTags==htag1) sortby title", List.of(IDS[0], IDS[4])),
       arguments("(holdingsTags==htag1) sortby title", List.of(IDS[0], IDS[4])),
 
       arguments("(metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
@@ -333,9 +332,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("holdings.discoverySuppress"), mapOf(
         "holdings.discoverySuppress", facet(facetItem("false", 3),
           facetItem("true", 1)))),
-
-      arguments("id=*", array("holdingTags"), mapOf(
-        "holdingTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),
 
       arguments("id=*", array("holdingsTags"), mapOf(
         "holdingsTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),

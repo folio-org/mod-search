@@ -40,7 +40,8 @@ class HeadingRefProcessorTest {
 
   @Test
   void getFieldValue_positive_sftPersonalName() {
-    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "sftPersonalNameTitle")).thenReturn(of(authorityField()));
+    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "sftPersonalNameTitle"))
+      .thenReturn(of(authorityField()));
     var authority = new Authority().sftPersonalNameTitle(List.of("test-name"))
       .saftPersonalNameTitle(List.of("test-name-2"));
     var actual = headingRefProcessor.getFieldValue(toMap(authority));

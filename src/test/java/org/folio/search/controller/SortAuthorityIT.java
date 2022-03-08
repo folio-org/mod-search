@@ -138,10 +138,10 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .toArray(Authority[]::new);
 
     authorities[0]
-      .personalName("111");
+      .personalNameTitle("111");
 
     authorities[1]
-      .corporateName("aaa");
+      .corporateNameTitle("aaa");
 
     authorities[2]
       .sftUniformTitle(Collections.singletonList("bbb"));
@@ -150,7 +150,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .saftGenreTerm(Collections.singletonList("ccc"));
 
     authorities[4]
-      .personalName("ddd");
+      .personalNameTitle("ddd");
 
     return authorities;
   }

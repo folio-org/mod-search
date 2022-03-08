@@ -156,7 +156,7 @@ class KafkaMessageListenerTest {
 
   @Test
   void handleAuthorityEvent_negative_logFailedEvent() {
-    var payload = toMap(new Authority().id(RESOURCE_ID).personalName("test"));
+    var payload = toMap(new Authority().id(RESOURCE_ID).personalNameTitle("test"));
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, AUTHORITY_RESOURCE, UPDATE, payload, null));
 
     doAnswer(inv -> {

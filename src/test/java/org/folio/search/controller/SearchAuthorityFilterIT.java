@@ -170,27 +170,27 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .toArray(Authority[]::new);
 
     authorities[0]
-      .personalName("Resource 0")
+      .personalNameTitle("Resource 0")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"));
 
     authorities[1]
-      .personalName("Resource 1")
+      .personalNameTitle("Resource 1")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"));
 
     authorities[2]
-      .personalName("Resource 2")
+      .personalNameTitle("Resource 2")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"));
 
     authorities[3]
-      .personalName("Resource 3")
+      .personalNameTitle("Resource 3")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"));
 
     authorities[4]
-      .meetingName("ConferenceName")
+      .meetingNameTitle("ConferenceName")
       .subjectHeadings("b");
     authorities[5]
       .geographicName("GeographicName")
@@ -202,10 +202,10 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .genreTerm("GenreTerm")
       .subjectHeadings("c");
     authorities[8]
-      .corporateName("CorporateName")
+      .corporateNameTitle("CorporateName")
       .subjectHeadings("d");
     authorities[9]
-      .corporateName("CorporateName")
+      .corporateNameTitle("CorporateName")
       .subjectHeadings("d");
     authorities[10]
       .topicalTerm("TopicalTerm")
@@ -220,7 +220,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .saftUniformTitle(Collections.singletonList("UniformTitle"))
       .subjectHeadings("r");
     authorities[14]
-      .saftPersonalName(Collections.singletonList("PersonalName"))
+      .saftPersonalNameTitle(Collections.singletonList("PersonalName"))
       .subjectHeadings("r");
 
     return authorities;

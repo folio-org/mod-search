@@ -52,14 +52,14 @@ class AuthorityEventPreProcessorTest {
     var authority = fullAuthorityRecord();
     var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(authority, "personalName")),
-      event("sftPersonalName0", expectedAuthorityAsMap(authority, "sftPersonalName[0]")),
-      event("sftPersonalName1", expectedAuthorityAsMap(authority, "sftPersonalName[1]")),
-      event("saftPersonalName0", expectedAuthorityAsMap(authority, "saftPersonalName[0]")),
-      event("corporateName0", expectedAuthorityAsMap(authority, "corporateName")),
-      event("sftCorporateName0", expectedAuthorityAsMap(authority, "sftCorporateName[0]")),
-      event("saftCorporateName0", expectedAuthorityAsMap(authority, "saftCorporateName[0]")),
-      event("saftCorporateName1", expectedAuthorityAsMap(authority, "saftCorporateName[1]")),
+      event("personalNameTitle0", expectedAuthorityAsMap(authority, "personalNameTitle")),
+      event("sftPersonalNameTitle0", expectedAuthorityAsMap(authority, "sftPersonalNameTitle[0]")),
+      event("sftPersonalNameTitle1", expectedAuthorityAsMap(authority, "sftPersonalNameTitle[1]")),
+      event("saftPersonalNameTitle0", expectedAuthorityAsMap(authority, "saftPersonalNameTitle[0]")),
+      event("corporateNameTitle0", expectedAuthorityAsMap(authority, "corporateNameTitle")),
+      event("sftCorporateNameTitle0", expectedAuthorityAsMap(authority, "sftCorporateNameTitle[0]")),
+      event("saftCorporateNameTitle0", expectedAuthorityAsMap(authority, "saftCorporateNameTitle[0]")),
+      event("saftCorporateNameTitle1", expectedAuthorityAsMap(authority, "saftCorporateNameTitle[1]")),
       event("uniformTitle0", expectedAuthorityAsMap(authority, "uniformTitle")),
       event("sftUniformTitle0", expectedAuthorityAsMap(authority, "sftUniformTitle[0]")),
       event("saftUniformTitle0", expectedAuthorityAsMap(authority, "saftUniformTitle[0]"))
@@ -68,10 +68,10 @@ class AuthorityEventPreProcessorTest {
 
   @Test
   void process_positive_onlyPersonalIsPopulated() {
-    var authority = new Authority().id(RESOURCE_ID).personalName("a personal name");
+    var authority = new Authority().id(RESOURCE_ID).personalNameTitle("a personal name");
     var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(authority, "personalName"))));
+      event("personalNameTitle0", expectedAuthorityAsMap(authority, "personalNameTitle"))));
   }
 
   @Test
@@ -93,25 +93,25 @@ class AuthorityEventPreProcessorTest {
 
   @Test
   void process_positive_deleteEvent() {
-    var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").corporateName("corporate");
+    var oldAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal").corporateNameTitle("corporate");
     var event = resourceEvent(AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(oldAuthority));
     var actual = eventPreProcessor.process(event);
-    assertThat(actual).isEqualTo(List.of(deleteEvent("personalName0"), deleteEvent("corporateName0")));
+    assertThat(actual).isEqualTo(List.of(deleteEvent("personalNameTitle0"), deleteEvent("corporateNameTitle0")));
   }
 
   @Test
   void process_positive_updateEvent() {
-    var newAuthority = new Authority().id(RESOURCE_ID).personalName("personal")
-      .saftCorporateName(List.of("a new saft corporate name")).corporateName("corporate");
-    var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").uniformTitle("uniform title")
-      .saftCorporateName(List.of("saft corp 1", "saft corp 2"));
+    var newAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal")
+      .saftCorporateNameTitle(List.of("a new saft corporate name")).corporateNameTitle("corporate");
+    var oldAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal").uniformTitle("uniform title")
+      .saftCorporateNameTitle(List.of("saft corp 1", "saft corp 2"));
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(UPDATE).old(toMap(oldAuthority));
     var actual = eventPreProcessor.process(event);
     assertThat(actual).isEqualTo(List.of(
-      event("personalName0", expectedAuthorityAsMap(newAuthority, "personalName")),
-      event("corporateName0", expectedAuthorityAsMap(newAuthority, "corporateName")),
-      event("saftCorporateName0", expectedAuthorityAsMap(newAuthority, "saftCorporateName[0]")),
-      deleteEvent("saftCorporateName1"),
+      event("personalNameTitle0", expectedAuthorityAsMap(newAuthority, "personalNameTitle")),
+      event("corporateNameTitle0", expectedAuthorityAsMap(newAuthority, "corporateNameTitle")),
+      event("saftCorporateNameTitle0", expectedAuthorityAsMap(newAuthority, "saftCorporateNameTitle[0]")),
+      deleteEvent("saftCorporateNameTitle1"),
       deleteEvent("uniformTitle0")));
   }
 
@@ -126,12 +126,12 @@ class AuthorityEventPreProcessorTest {
   private static Authority fullAuthorityRecord() {
     return new Authority()
       .id(RESOURCE_ID)
-      .personalName("a personal name")
-      .sftPersonalName(List.of("a sft personal name 1", "a sft personal name 2"))
-      .saftPersonalName(List.of("a saft personal name"))
-      .corporateName("a corporate name")
-      .sftCorporateName(List.of("a sft corporate name"))
-      .saftCorporateName(List.of("a saft corporate name 1", "a saft corporate name 2"))
+      .personalNameTitle("a personal name")
+      .sftPersonalNameTitle(List.of("a sft personal name 1", "a sft personal name 2"))
+      .saftPersonalNameTitle(List.of("a saft personal name"))
+      .corporateNameTitle("a corporate name")
+      .sftCorporateNameTitle(List.of("a sft corporate name"))
+      .saftCorporateNameTitle(List.of("a saft corporate name 1", "a saft corporate name 2"))
       .uniformTitle("an uniform title")
       .sftUniformTitle(List.of("a sft uniform title"))
       .saftUniformTitle(List.of("a saft uniform title"))
@@ -148,12 +148,12 @@ class AuthorityEventPreProcessorTest {
       "identifiers", objectField(mapOf(
         "identifierTypeId", keywordField(),
         "value", keywordField())),
-      "personalName", authorityField("personalName"),
-      "sftPersonalName", authorityField("sftPersonalName"),
-      "saftPersonalName", authorityField("saftPersonalName"),
-      "corporateName", authorityField("corporateName"),
-      "sftCorporateName", authorityField("sftCorporateName"),
-      "saftCorporateName", authorityField("saftCorporateName"),
+      "personalNameTitle", authorityField("personalNameTitle"),
+      "sftPersonalNameTitle", authorityField("sftPersonalNameTitle"),
+      "saftPersonalNameTitle", authorityField("saftPersonalNameTitle"),
+      "corporateNameTitle", authorityField("corporateNameTitle"),
+      "sftCorporateNameTitle", authorityField("sftCorporateNameTitle"),
+      "saftCorporateNameTitle", authorityField("saftCorporateNameTitle"),
       "uniformTitle", authorityField("uniformTitle"),
       "sftUniformTitle", authorityField("sftUniformTitle"),
       "saftUniformTitle", authorityField("saftUniformTitle")

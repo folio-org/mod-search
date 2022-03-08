@@ -31,16 +31,18 @@ class HeadingRefProcessorTest {
   @Test
   void getFieldValue_positive_personalName() {
     when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "id")).thenReturn(of(keywordField()));
-    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "personalName")).thenReturn(of(authorityField()));
-    var authority = new Authority().id(RESOURCE_ID).personalName("test-name").saftPersonalName(List.of("test-name-2"));
+    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "personalNameTitle")).thenReturn(of(authorityField()));
+    var authority = new Authority().id(RESOURCE_ID).personalNameTitle("test-name")
+      .saftPersonalNameTitle(List.of("test-name-2"));
     var actual = headingRefProcessor.getFieldValue(toMap(authority));
     assertThat(actual).isEqualTo("test-name");
   }
 
   @Test
   void getFieldValue_positive_sftPersonalName() {
-    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "sftPersonalName")).thenReturn(of(authorityField()));
-    var authority = new Authority().sftPersonalName(List.of("test-name")).saftPersonalName(List.of("test-name-2"));
+    when(fieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "sftPersonalNameTitle")).thenReturn(of(authorityField()));
+    var authority = new Authority().sftPersonalNameTitle(List.of("test-name"))
+      .saftPersonalNameTitle(List.of("test-name-2"));
     var actual = headingRefProcessor.getFieldValue(toMap(authority));
     assertThat(actual).isEqualTo("test-name");
   }

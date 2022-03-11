@@ -7,26 +7,6 @@
       "type": "string",
       "description": "Authority UUID"
     },
-    "personalName": {
-      "type": "string",
-      "description": "Heading personal name"
-    },
-    "sftPersonalName": {
-      "type": "array",
-      "description": "See from tracing personal names",
-      "items": {
-        "type": "string",
-        "description": "See from tracing personal name"
-      }
-    },
-    "saftPersonalName": {
-      "type": "array",
-      "description": "See also from tracing personal names",
-      "items": {
-        "type": "string",
-        "description": "See also from tracing personal name"
-      }
-    },
     "personalNameTitle": {
       "type": "string",
       "description": "Heading personal name title"
@@ -45,26 +25,6 @@
         "type": "string"
       }
     },
-    "corporateName": {
-      "type": "string",
-      "description": "Heading corporate name"
-    },
-    "sftCorporateName": {
-      "type": "array",
-      "description": "See from tracing corporate names",
-      "items": {
-        "type": "string",
-        "description": "See from tracing corporate name"
-      }
-    },
-    "saftCorporateName": {
-      "type": "array",
-      "description": "See also from tracing corporate names",
-      "items": {
-        "type": "string",
-        "description": "See also from tracing corporate name"
-      }
-    },
     "corporateNameTitle": {
       "type": "string",
       "description": "Heading corporate name title"
@@ -81,26 +41,6 @@
       "description": "See also from tracing corporate name title",
       "items": {
         "type": "string"
-      }
-    },
-    "meetingName": {
-      "type": "string",
-      "description": "Heading meeting name"
-    },
-    "sftMeetingName": {
-      "type": "array",
-      "description": "See from tracing meeting names",
-      "items": {
-        "type": "string",
-        "description": "See from tracing meeting name"
-      }
-    },
-    "saftMeetingName": {
-      "type": "array",
-      "description": "See also from tracing meeting names",
-      "items": {
-        "type": "string",
-        "description": "See also from tracing meeting name"
       }
     },
     "meetingNameTitle": {

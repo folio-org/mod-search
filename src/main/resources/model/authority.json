@@ -9,27 +9,6 @@
       "index": "keyword",
       "showInResponse": true
     },
-    "personalName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "personalName",
-      "headingType": "Personal Name",
-      "authRefType": "Authorized"
-    },
-    "sftPersonalName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "sftPersonalName",
-      "headingType": "Personal Name",
-      "authRefType": "Reference"
-    },
-    "saftPersonalName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "saftPersonalName",
-      "headingType": "Personal Name",
-      "authRefType": "Auth/Ref"
-    },
     "personalNameTitle": {
       "type": "authority",
       "index": "standard",
@@ -54,27 +33,6 @@
       "headingType": "Personal Name",
       "authRefType": "Auth/Ref"
     },
-    "corporateName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "corporateName",
-      "headingType": "Corporate Name",
-      "authRefType": "Authorized"
-    },
-    "sftCorporateName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "sftCorporateName",
-      "headingType": "Corporate Name",
-      "authRefType": "Reference"
-    },
-    "saftCorporateName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "saftCorporateName",
-      "headingType": "Corporate Name",
-      "authRefType": "Auth/Ref"
-    },
     "corporateNameTitle": {
       "type": "authority",
       "index": "standard",
@@ -97,27 +55,6 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftCorporateNameTitle",
       "headingType": "Corporate Name",
-      "authRefType": "Auth/Ref"
-    },
-    "meetingName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "meetingName",
-      "headingType": "Conference Name",
-      "authRefType": "Authorized"
-    },
-    "sftMeetingName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "sftMeetingName",
-      "headingType": "Conference Name",
-      "authRefType": "Reference"
-    },
-    "saftMeetingName": {
-      "type": "authority",
-      "index": "standard",
-      "distinctType": "saftMeetingName",
-      "headingType": "Conference Name",
       "authRefType": "Auth/Ref"
     },
     "meetingNameTitle": {

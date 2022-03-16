@@ -128,7 +128,7 @@ paths:
       description: Provides list of instances for browsing by call number
       parameters:
         - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/browse-limit-param'
         - $ref: '#/components/parameters/expand-all-param'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/highlight-match'
@@ -472,6 +472,15 @@ components:
         type: integer
         minimum: 0
         maximum: 500
+        default: 100
+    browse-limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the browse response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
         default: 100
     offset-param:
       in: query

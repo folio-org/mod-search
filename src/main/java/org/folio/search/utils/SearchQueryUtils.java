@@ -1,8 +1,12 @@
 package org.folio.search.utils;
 
+import static java.util.Locale.ROOT;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
@@ -11,6 +15,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchQueryUtils {
@@ -67,5 +74,19 @@ public class SearchQueryUtils {
   public static boolean isFilterQuery(QueryBuilder query, Predicate<String> check) {
     return query instanceof TermQueryBuilder && check.test(((TermQueryBuilder) query).fieldName())
       || query instanceof RangeQueryBuilder && check.test(((RangeQueryBuilder) query).fieldName());
+  }
+
+  /**
+   * Creates subject count query from given subject list.
+   *
+   * @param subjects - list with subjects
+   * @return search source for subject counting
+   */
+  public static SearchSourceBuilder getSubjectCountsQuery(Collection<String> subjects) {
+    var lowercaseSubjects = subjects.stream().map(subject -> subject.toLowerCase(ROOT)).toArray(String[]::new);
+    var aggregation = AggregationBuilders.terms(SearchUtils.SUBJECT_AGGREGATION_NAME)
+      .size(subjects.size()).field(SearchUtils.getPathToFulltextPlainValue(SearchUtils.SUBJECT_AGGREGATION_NAME))
+      .includeExclude(new IncludeExclude(lowercaseSubjects, null));
+    return searchSource().query(matchAllQuery()).size(0).from(0).aggregation(aggregation);
   }
 }

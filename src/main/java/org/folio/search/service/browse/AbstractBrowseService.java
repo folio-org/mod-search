@@ -1,7 +1,5 @@
 package org.folio.search.service.browse;
 
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -9,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractBrowseService<T> {
 
-  protected CqlSearchQueryConverter cqlSearchQueryConverter;
+  private BrowseContextProvider browseContextProvider;
 
   /**
    * Finds related instances for call number browsing using given {@link BrowseRequest} object.
@@ -18,21 +16,35 @@ public abstract class AbstractBrowseService<T> {
    * @return search result with related instances by virtual shelf.
    */
   public SearchResult<T> browse(BrowseRequest request) {
-    var cqlSearchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
-    var context = getBrowseContext(request, cqlSearchSource);
+    var context = browseContextProvider.get(request);
     return context.isAroundBrowsing() ? browseAround(request, context) : browseInOneDirection(request, context);
   }
 
-  protected BrowseContext getBrowseContext(BrowseRequest request, SearchSourceBuilder cqlSearchSource) {
-    return BrowseContext.of(request, cqlSearchSource);
-  }
-
+  /**
+   * Defines the approach for browsing in one direction.
+   *
+   * @param request - {@link BrowseRequest} object for browsing
+   * @param context - {@link BrowseContext} object with query, limits, etc.
+   * @return {@link SearchResult} with browsing items
+   */
   protected abstract SearchResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context);
 
+  /**
+   * Defines the approach for browsing around.
+   *
+   * @param request - {@link BrowseRequest} object for browsing
+   * @param context - {@link BrowseContext} object with query, limits, and etc.
+   * @return {@link SearchResult} with browsing items
+   */
   protected abstract SearchResult<T> browseAround(BrowseRequest request, BrowseContext context);
 
+  /**
+   * Injects {@link BrowseContextProvider} bean from spring context.
+   *
+   * @param browseContextProvider - {@link BrowseContextProvider} bean
+   */
   @Autowired
-  public void setCqlSearchQueryConverter(CqlSearchQueryConverter cqlSearchQueryConverter) {
-    this.cqlSearchQueryConverter = cqlSearchQueryConverter;
+  public void setBrowseContextProvider(BrowseContextProvider browseContextProvider) {
+    this.browseContextProvider = browseContextProvider;
   }
 }

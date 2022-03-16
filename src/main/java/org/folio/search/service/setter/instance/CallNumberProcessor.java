@@ -53,7 +53,7 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
     cleanCallNumber = cleanCallNumber.substring(0, Math.min(MAX_CHARS, cleanCallNumber.length()));
     long result = 0L;
     for (int i = 0; i < cleanCallNumber.length(); i++) {
-      result += getCharValue(cleanCallNumber.charAt(i)) * (long) Math.pow(39, MAX_CHARS - i);
+      result += getCharValue(cleanCallNumber.charAt(i)) * (long) Math.pow(39, (double) MAX_CHARS - i);
     }
     return result;
   }

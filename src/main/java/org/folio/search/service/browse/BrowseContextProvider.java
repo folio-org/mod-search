@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BrowseContextProvider {
 
+  private static final String QUERY_ERROR_PARAM = "query";
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
 
   /**
@@ -36,13 +37,13 @@ public class BrowseContextProvider {
     var cqlQuery = request.getQuery();
     if (isNotEmpty(searchSource.sorts())) {
       throw new RequestValidationException(
-        "Invalid CQL query for browsing, 'sortBy' is not supported", "query", cqlQuery);
+        "Invalid CQL query for browsing, 'sortBy' is not supported", QUERY_ERROR_PARAM, cqlQuery);
     }
 
     var query = searchSource.query();
     if (!isBoolQuery(query)) {
       if (!isValidRangeQuery(request.getTargetField(), query)) {
-        throw new RequestValidationException("Invalid CQL query for browsing.", "query", cqlQuery);
+        throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
@@ -70,7 +71,7 @@ public class BrowseContextProvider {
       }
     }
 
-    throw new RequestValidationException("Invalid CQL query for browsing.", "query", cqlQuery);
+    throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
   }
 
   private static BrowseContext createBrowsingContext(BrowseRequest request, List<QueryBuilder> filters,
@@ -141,7 +142,8 @@ public class BrowseContextProvider {
 
     if (!Objects.equals(firstAnchor, secondAnchor)) {
       throw new RequestValidationException(
-        "Invalid CQL query for browsing. Anchors must be the same in range conditions.", "query", request.getQuery());
+        "Invalid CQL query for browsing. Anchors must be the same in range conditions.",
+        QUERY_ERROR_PARAM, request.getQuery());
     }
 
     return firstAnchor;

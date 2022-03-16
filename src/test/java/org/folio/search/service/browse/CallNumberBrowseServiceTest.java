@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-public class CallNumberBrowseServiceTest {
+class CallNumberBrowseServiceTest {
 
   private static final String ANCHOR = "B";
   @InjectMocks private CallNumberBrowseService callNumberBrowseService;

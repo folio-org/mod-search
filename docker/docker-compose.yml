@@ -3,13 +3,21 @@ version: "3.8"
 services:
   mod-search:
     container_name: mod-search
-    image: dev.folio/mod-search:latest
+    image: folioci/mod-search:latest
     ports:
       - "8081:8081"
     environment:
       DB_HOST: db
       JAVA_OPTIONS: -Xmx120m -Xms120m
       okapi.url: http://okapi:9130
+
+  okapi:
+    container_name: okapi
+    image: folioci/okapi:latest
+    ports:
+      - "9130:9130"
+    command:
+      - dev
 
   elasticsearch:
     container_name: elasticsearch

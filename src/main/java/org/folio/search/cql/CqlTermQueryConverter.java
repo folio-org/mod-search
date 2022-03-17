@@ -62,7 +62,8 @@ public class CqlTermQueryConverter {
       return matchAllQuery();
     }
 
-    var fieldName = termNode.getIndex();
+    var fieldsList = searchFieldProvider.getFields(resource, termNode.getIndex());
+    var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : termNode.getIndex();
     var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
     var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());
@@ -73,7 +74,6 @@ public class CqlTermQueryConverter {
         "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
     }
 
-    var fieldsList = searchFieldProvider.getFields(resource, termNode.getIndex());
     if (CollectionUtils.isNotEmpty(fieldsList)) {
       return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));
     }

@@ -52,7 +52,7 @@ class EffectiveShelvingOrderTermProcessorTest {
     "3591.52 263 220", "3641.5943 M68 L"})
   void getSearchTerm_parameterized_validDeweyDecimalShelfKey(String given) {
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(actual);
+    assertThat(actual).isEqualTo(given);
   }
 
   @ParameterizedTest

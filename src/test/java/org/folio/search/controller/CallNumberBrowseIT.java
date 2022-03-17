@@ -186,7 +186,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // checks if collapsing by the same result works correctly
-      arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(43, List.of(
+      arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
         cnBrowseItem(0, "FC", null, true),
@@ -195,7 +195,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // checks if collapsing by the same result works correctly
-      arguments(aroundIncludingQuery, "fc", 5, cnBrowseResult(43, List.of(
+      arguments(aroundIncludingQuery, "fc", 5, cnBrowseResult(47, List.of(
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
         cnBrowseItem(0, "FC", null, true),
@@ -265,7 +265,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // check that collapsing works for browsing backward
-      arguments(backwardQuery, "G", 5, cnBrowseResult(32, List.of(
+      arguments(backwardQuery, "G", 5, cnBrowseResult(40, List.of(
         cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14"),
         cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),

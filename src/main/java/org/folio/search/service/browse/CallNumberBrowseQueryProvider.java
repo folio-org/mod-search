@@ -34,7 +34,6 @@ public class CallNumberBrowseQueryProvider {
   private final SearchFieldProvider searchFieldProvider;
   private final CallNumberTermConverter callNumberTermConverter;
   private final SearchQueryConfigurationProperties queryConfiguration;
-  private final CallNumberBrowseRangeService callNumberBrowseRangeService;
 
   /**
    * Creates query as {@link SearchSourceBuilder} object for call number browsing.
@@ -49,9 +48,9 @@ public class CallNumberBrowseQueryProvider {
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, singletonMap("cn", ctx.getAnchor()));
 
     var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
-    var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isForwardBrowsing) * multiplier));
-    var searchSource = searchSource().from(0).size(pageSize)
-      .query(getQuery(ctx, request.getTenantId(), pageSize, isForwardBrowsing))
+    var searchSource = searchSource().from(0)
+      .query(getQuery(ctx, isForwardBrowsing))
+      .size((int) (Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isForwardBrowsing) * multiplier))))
       .sort(scriptSort(script, STRING).order(isForwardBrowsing ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {
@@ -62,19 +61,10 @@ public class CallNumberBrowseQueryProvider {
     return searchSource;
   }
 
-  private QueryBuilder getQuery(BrowseContext ctx, String tenantId, int size, boolean isBrowsingForward) {
-    var anchor = ctx.getAnchor();
-    var callNumberAsLong = callNumberTermConverter.convert(anchor);
+  private QueryBuilder getQuery(BrowseContext ctx, boolean isBrowsingForward) {
+    var callNumberAsLong = callNumberTermConverter.convert(ctx.getAnchor());
     var rangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD);
     rangeQuery = isBrowsingForward ? rangeQuery.gte(callNumberAsLong) : rangeQuery.lte(callNumberAsLong);
-
-    if (queryConfiguration.isCallNumberBrowseOptimizationEnabled()) {
-      var boundary = callNumberBrowseRangeService
-        .getRangeBoundaryForBrowsing(tenantId, anchor, size, isBrowsingForward)
-        .orElse(null);
-      rangeQuery = isBrowsingForward ? rangeQuery.lte(boundary) : rangeQuery.gte(boundary);
-    }
-
     var filters = ctx.getFilters();
     if (filters.isEmpty()) {
       return rangeQuery;

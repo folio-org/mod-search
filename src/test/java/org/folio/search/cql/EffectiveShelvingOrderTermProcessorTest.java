@@ -20,7 +20,7 @@ class EffectiveShelvingOrderTermProcessorTest {
     "DA 3880 O6 J72", "E 211 N52 VOL 14", "F 43733 L370 41992",
     "E 12.11 I12 288 D", "CE 16 B6713 X 41993", "3185.25 ",
     "3350.21", "3362.82 292 220", "3591.52 263 220", "3641.5943 M68 L",
-    "4123", "4782"
+    "4123", "4782", "K 11 M44 V 270 NO 11 16 41984 JAN JUNE 11"
   })
   void getSearchTerm_parameterized_validShelfKey(String given) {
     var actual = searchTermProcessor.getSearchTerm(given);
@@ -30,7 +30,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   @ParameterizedTest
   @ValueSource(strings = {
     "a1", "a 1", "DA880.19", "A10", "za123 a23",
-    "DA880 o6 j18", "raw2", "isju2ng", "RAW 2"
+    "DA880 o6 j18", "raw2", "isju2ng", "RAW 2", "T 22.1:866"
   })
   void getSearchTerm_parameterized_callNumber(String given) {
     var expected = new LCCallNumber(given).getShelfKey();
@@ -44,6 +44,15 @@ class EffectiveShelvingOrderTermProcessorTest {
     var expected = new DeweyCallNumber(given).getShelfKey();
     var actual = searchTermProcessor.getSearchTerm(given);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
+    "3591.52 263 220", "3641.5943 M68 L"})
+  void getSearchTerm_parameterized_validDeweyDecimalShelfKey(String given) {
+    var actual = searchTermProcessor.getSearchTerm(given);
+    assertThat(actual).isEqualTo(actual);
   }
 
   @ParameterizedTest

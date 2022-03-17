@@ -2,7 +2,6 @@ package org.folio.search.controller;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -21,6 +20,7 @@ import java.util.List;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.service.FacetService;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -49,7 +49,7 @@ class FacetControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("facet", "source:5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -72,7 +72,7 @@ class FacetControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("facet", "source:5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -95,7 +95,7 @@ class FacetControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("facet", "source:5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -115,7 +115,7 @@ class FacetControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("facet", "source:5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())

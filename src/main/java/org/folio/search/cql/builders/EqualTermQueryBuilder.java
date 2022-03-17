@@ -17,15 +17,16 @@ public class EqualTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
-    return multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS);
+    return fields.length == 1 && isEmptyString(term)
+      ? existsQuery(updatePathForTermQueries(resource, fields[0]))
+      : multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS);
   }
 
   @Override
   public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
-    if (isEmptyString(term)) {
-      return existsQuery(getPathToFulltextPlainValue(fieldName));
-    }
-    return getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
+    return isEmptyString(term)
+      ? existsQuery(getPathToFulltextPlainValue(fieldName))
+      : getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override

@@ -41,7 +41,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   @Override
   protected AuthorityBrowseItem getEmptyBrowseItem(BrowseContext ctx) {
-    return new AuthorityBrowseItem().isAnchor(true).headingRef((String) ctx.getAnchor());
+    return new AuthorityBrowseItem().isAnchor(true).headingRef(ctx.getAnchor());
   }
 
   @Override
@@ -49,7 +49,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
-      .searchAfter(new Object[] {((String) ctx.getAnchor()).toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward))
       .fetchSource(getIncludedSourceFields(request), null)

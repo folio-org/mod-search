@@ -12,6 +12,10 @@
       "keyword_lowercase": {
         "filter": [ "lowercase" ],
         "type": "custom"
+      },
+      "keyword_uppercase": {
+        "filter": [ "uppercase" ],
+        "type": "custom"
       }
     },
     "analyzer": {

@@ -5,13 +5,12 @@ import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
-import static org.folio.search.utils.TestUtils.browseRequest;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.hamcrest.Matchers.is;
@@ -27,6 +26,7 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -53,7 +53,7 @@ class BrowseControllerTest {
       .queryParam("query", query)
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -64,7 +64,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesByCallNumber_positive_allFields() throws Exception {
     var query = "callNumber > B";
-    var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, "callNumber", true, true, 5);
+    var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, CALL_NUMBER_BROWSING_FIELD, true, true, 5);
     when(callNumberBrowseService.browse(request)).thenReturn(searchResult());
 
     var requestBuilder = get(instanceCallNumberBrowsePath())
@@ -74,7 +74,7 @@ class BrowseControllerTest {
       .queryParam("highlightMatch", "true")
       .queryParam("precedingRecordsCount", "5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -91,7 +91,7 @@ class BrowseControllerTest {
       .queryParam("query", query)
       .queryParam("limit", "25")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class BrowseControllerTest {
       .queryParam("query", query)
       .queryParam("limit", "25")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -125,7 +125,7 @@ class BrowseControllerTest {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     var expectedErrorMessage = "Required request parameter 'query' for method parameter type String is not present";
     mockMvc.perform(requestBuilder)
@@ -143,7 +143,7 @@ class BrowseControllerTest {
       .queryParam("limit", "5")
       .queryParam("precedingRecordsCount", "10")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -153,5 +153,10 @@ class BrowseControllerTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("10")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  public static BrowseRequest browseRequest(String query, int limit) {
+    return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit,
+      CALL_NUMBER_BROWSING_FIELD, false, true, limit / 2);
   }
 }

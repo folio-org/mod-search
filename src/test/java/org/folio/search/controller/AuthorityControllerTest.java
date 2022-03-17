@@ -2,7 +2,6 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
@@ -16,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.service.SearchService;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,7 +42,7 @@ class AuthorityControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("limit", "100")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())

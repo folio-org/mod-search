@@ -52,7 +52,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.search.utils.BrowseUtils;
+import org.folio.search.utils.SearchQueryUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -276,7 +276,7 @@ class InstanceSubjectRepositoryTest {
       .forEach(entry -> aggregationBuckets.add(jsonObject("key", entry.getKey(), "doc_count", entry.getValue())));
 
     var countQueryResponse = mock(SearchResponse.class);
-    var subjectsQuerySource = BrowseUtils.getSubjectCountsQuery(subjectCounts.keySet());
+    var subjectsQuerySource = SearchQueryUtils.getSubjectCountsQuery(subjectCounts.keySet());
     var request = SimpleResourceRequest.of(INSTANCE_RESOURCE, TENANT_ID);
     when(searchRepository.search(request, subjectsQuerySource)).thenReturn(countQueryResponse);
     when(countQueryResponse.getAggregations()).thenReturn(

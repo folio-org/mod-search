@@ -1,12 +1,12 @@
 package org.folio.search.controller;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
-import static org.folio.search.utils.BrowseUtils.AUTHORITY_BROWSING_FIELD;
-import static org.folio.search.utils.BrowseUtils.CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.utils.BrowseUtils.SUBJECT_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
@@ -69,7 +69,7 @@ public class BrowseController implements BrowseApi {
 
   private static BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
     Boolean expandAll, Boolean highlightMatch, Integer precedingRecordsCount) {
-    if (precedingRecordsCount != null && precedingRecordsCount > limit) {
+    if (precedingRecordsCount != null && precedingRecordsCount >= limit) {
       throw new RequestValidationException("Preceding records count must be less than request limit",
         "precedingRecordsCount", String.valueOf(precedingRecordsCount));
     }

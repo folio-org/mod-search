@@ -12,6 +12,7 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
@@ -27,6 +28,20 @@ class CallNumberProcessorTest {
     assertThat(actual).containsExactlyElementsOf(expected);
   }
 
+  @CsvSource({
+    "A, AA", "A, AB", "AB, ABB", "A,AZ", "NZ,O", "EZ,F", "Z, ZZ", "1 1,1.2", "1,2", "EZZZZZZZZ,F", "EZ,G",
+    "199999999,2", "0,1", "9,A", "9999999999, A", "99999999,a", "YZ,Z", "Z 12,Z12", "Z 12,Z.12",
+    "HD 11, HD 22", "ZZ 8982, ZZ 9999999", "ABC, abc aab", "3327.21, 3327.21 OVERSIZE", "3325.21, 3325.22",
+    "HD 11.2,HD 225.6", "HD 45214.8, HD 45214.9", "3100.12345, 3100.12346", "3100.12345, 3100/12346"
+  })
+  @DisplayName("getFieldValue_parameterized_comparePairs")
+  @ParameterizedTest(name = "[{index}] cn1={0}, cn2={1}")
+  void getFieldValue_parameterized(String firstCallNumber, String secondCallNumber) {
+    var firstResult = callNumberProcessor.getCallNumberAsLong(firstCallNumber);
+    var secondResult = callNumberProcessor.getCallNumberAsLong(secondCallNumber);
+    assertThat(firstResult).isLessThan(secondResult);
+  }
+
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),
@@ -35,69 +50,52 @@ class CallNumberProcessorTest {
       arguments("item with empty effectiveShelvingOrder", instance(item("")), emptyList()),
       arguments("item with blank effectiveShelvingOrder", instance(item(" ")), emptyList()),
 
-      arguments("item shelf='abc'", instance(item("abc")), emptyList()),
-      arguments("item shelf='abc aab'", instance(item("abc aab")), emptyList()),
-      arguments("item shelf='abc aab j2'", instance(item("abc aab j2")), emptyList()),
+      arguments("item shelf='abc'", instance(item("abc")), List.of(108827756302620654L)),
+      arguments("item shelf='abc aab'", instance(item("abc aab")), List.of(108827803251592308L)),
+      arguments("item shelf='abc aab j2'", instance(item("abc aab j2")), List.of(108827803251625965L)),
+      arguments("item shelf='0'", instance(item("0")), List.of(24421218255574803L)),
+      arguments("item shelf='0 '", instance(item("0 ")), List.of(24421218255574803L)),
+
+      arguments("item shelf='3327.21'", instance(item("3327.21")), List.of(50122943013589875L)),
+      arguments("item shelf='3327.21 OVERSIZE'", instance(item("3327.21 OVERSIZE")), List.of(50122943013632268L)),
+      arguments("item shelf='3641.5943 M68l'", instance(item("3641.5943 M68L")), List.of(50759009019151524L)),
+      arguments("item shelf='SHELF /1'", instance(item("SHELF /1")), List.of(256621496907955140L)),
+      arguments("item shelf='SHELF '", instance(item("SHELF ")), List.of(256621496903090982L)),
+      arguments("item shelf='SHELF'", instance(item("SHELF")), List.of(256621496903090982L)),
 
       // general class only
-      arguments("item shelf='A'", instance(item("A")), List.of(cnValue(1))),
-      arguments("item shelf='B'", instance(item("B")), List.of(cnValue(28))),
-      arguments("item shelf='BA'", instance(item("BA")), List.of(cnValue(29))),
-      arguments("item shelf='BC'", instance(item("BC")), List.of(cnValue(31))),
-      arguments("item shelf='C'", instance(item("C")), List.of(cnValue(55))),
-      arguments("item shelf='SO'", instance(item("SO")), List.of(cnValue(502))),
-      arguments("item shelf='HD'", instance(item("HD")), List.of(cnValue(194))),
-      arguments("item shelf='N'", instance(item("N")), List.of(cnValue(352))),
-      arguments("item shelf='NN'", instance(item("NN")), List.of(cnValue(366))),
-      arguments("item shelf='Z'", instance(item("Z")), List.of(cnValue(676))),
-      arguments("item shelf='ZZ'", instance(item("ZZ")), List.of(cnValue(702))),
+      arguments("item shelf='A'", instance(item("A")), List.of(105825279107490813L)),
+      arguments("item shelf='Z '", instance(item("Z ")), List.of(309335431237280838L)),
+      arguments("item shelf='ZZ'", instance(item("ZZ")), List.of(317267108961313680L)),
 
       // general class + simple classification number
-      arguments("item shelf='HD 11'", instance(item("HD 11")), List.of(cnValue(194, 110000))),
-      arguments("item shelf='HD 15'", instance(item("HD 15")), List.of(cnValue(194, 150000))),
-      arguments("item shelf='HD 225'", instance(item("HD 225")), List.of(cnValue(194, 225000))),
-      arguments("item shelf='HD 294'", instance(item("HD 294")), List.of(cnValue(194, 294000))),
-      arguments("item shelf='HD 3561'", instance(item("HD 3561")), List.of(cnValue(194, 356100))),
-      arguments("item shelf='HD 44826'", instance(item("HD 44826")), List.of(cnValue(194, 448260))),
-      arguments("item shelf='HD 552141'", instance(item("HD 552141")), List.of(cnValue(194, 552141))),
-      arguments("item shelf='HD 6123456'", instance(item("HD 6123456")), List.of(cnValue(194, 612345))),
-      arguments("item shelf='ZZ 6999999'", instance(item("ZZ 6999999")), List.of(cnValue(702, 699999))),
-      arguments("item shelf='ZZ 999999999'", instance(item("ZZ 999999999")), List.of(cnValue(702, 999999))),
+      arguments("item shelf='HD 11'", instance(item("HD 11")), List.of(166148338481373924L)),
+      arguments("item shelf='ZZ 999999999'", instance(item("ZZ 999999999")), List.of(317268799069501188L)),
 
       // general class + simple classification number + decimal value
-      arguments("item shelf='HD 11.2'", instance(item("HD 11.2")), List.of(cnValue(194, 110002))),
-      arguments("item shelf='HD 225.6'", instance(item("HD 225.6")), List.of(cnValue(194, 225006))),
-      arguments("item shelf='HD 3561.1'", instance(item("HD 3561.1")), List.of(cnValue(194, 356101))),
-      arguments("item shelf='HD 44826.8'", instance(item("HD 44826.8")), List.of(cnValue(194, 448268))),
-      arguments("item shelf='HD 44826.86'", instance(item("HD 44826.8")), List.of(cnValue(194, 448268))),
-      arguments("item shelf='HD 44826.81'", instance(item("HD 44826.8")), List.of(cnValue(194, 448268))),
-      arguments("item shelf='HD 552146.9'", instance(item("HD 552146.9")), List.of(cnValue(194, 552146))),
-      arguments("item shelf='HD 552141.92'", instance(item("HD 552141.92")), List.of(cnValue(194, 552141))),
-      arguments("item shelf='HD 552141.98'", instance(item("HD 552141.98")), List.of(cnValue(194, 552141))),
-      arguments("item shelf='HD 6123456.5'", instance(item("HD 6123456.5")), List.of(cnValue(194, 612345))),
-      arguments("item shelf='ZZ 6999999.9'", instance(item("ZZ 6999999.9")), List.of(cnValue(702, 699999))),
-      arguments("item shelf='ZZ 99999999999.9'", instance(item("ZZ 9999999.9")), List.of(cnValue(702, 999999))),
+      arguments("item shelf='HD 11.2'", instance(item("HD 11.2")), List.of(166148338583165328L)),
+      arguments("item shelf='ZZ 99999999999.9'", instance(item("ZZ 9999999.9")), List.of(317268799069501188L)),
 
       // general class + classification + single cutter
-      arguments("item shelf='A 11 I6'", instance(item("A 11 I6")), List.of(cnValue(1, 110000, 9600))),
-      arguments("item shelf='HD 44826 I6'", instance(item("HD 44826 I6")), List.of(cnValue(194, 448260, 9600))),
-      arguments("item shelf='HD 44826 I726'", instance(item("HD 44826 I726")), List.of(cnValue(194, 448260, 9726))),
-      arguments("item shelf='HD 44826 T9862'", instance(item("HD 44826 T9862")), List.of(cnValue(194, 448260, 20986))),
+      arguments("item shelf='A 11 I6'", instance(item("A 11 I6")), List.of(105847237984088601L)),
+      arguments("item shelf='HD 44826 I6'", instance(item("HD 44826 I6")), List.of(166148761735193328L)),
+      arguments("item shelf='HD 44826 I726'", instance(item("HD 44826 I726")), List.of(166148761735193328L)),
+      arguments("item shelf='HD 44826 T9862'", instance(item("HD 44826 T9862")), List.of(166148761735193757L)),
 
       // general class + classification + double cutter
       arguments("item shelf='HD.4826 Y28172 I726'",
-        instance(item("HD 44826 Y28172 I726")), List.of(cnValue(194, 448260, 25281, 9726))),
+        instance(item("HD 44826 Y28172 I726")), List.of(166148761735193952L)),
 
       // general class + classification + cutter + publication year
       arguments("item shelf='N 47433.3 K94 42012'",
-        instance(item("N 47433.3 K94 42012")), List.of(cnValue(352, 474333, 11940))),
+        instance(item("N 47433.3 K94 42012")), List.of(211689419776372395L)),
 
       // general class + classification + cutter + publication year
       arguments("item shelf='ZZ 9999999.9 Z9999 Z9999'",
-        instance(item("ZZ 9999999.9 Z9999 Z9999")), List.of(cnValue(702, 999999, 26999, 26999))),
+        instance(item("ZZ 9999999.9 Z9999 Z9999")), List.of(317268799069501188L)),
 
       arguments("item shelves=['HD 11', 'HD 12', 'HD 11']",
-        instance(item("HD 11"), item("HD 12"), item("HD 11")), List.of(cnValue(194, 110000), cnValue(194, 120000)))
+        instance(item("HD 11"), item("HD 12"), item("HD 11")), List.of(166148338481373924L, 166148342000117685L))
     );
   }
 
@@ -107,17 +105,5 @@ class CallNumberProcessorTest {
 
   private static Item item(String effectiveShelvingOrder) {
     return new Item().effectiveShelvingOrder(effectiveShelvingOrder);
-  }
-
-  private static long cnValue(long... numbers) {
-    var general = getValueOrDefault(numbers, 0);
-    var classification = getValueOrDefault(numbers, 1);
-    var firstCutter = getValueOrDefault(numbers, 2);
-    var secondCutter = getValueOrDefault(numbers, 3);
-    return general * (long) 1e16 + classification * (long) 1e10 + firstCutter * (long) 1e5 + secondCutter;
-  }
-
-  private static long getValueOrDefault(long[] values, int index) {
-    return values.length > index ? values[index] : 0L;
   }
 }

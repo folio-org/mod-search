@@ -1,12 +1,19 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.MapUtils.getString;
+import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.ITEM_SHELF_KEY_FIELD_NAME;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +69,7 @@ public class SearchDocumentConverter {
     var resourceDescriptionFields = context.getResourceDescription().getFields();
     var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
     var searchFields = searchFieldsProcessor.getSearchFields(context);
-    var resultDocument = mergeSafely(baseFields, searchFields);
+    var resultDocument = orderNestedDocuments(mergeSafely(baseFields, searchFields));
     return SearchDocumentBody.of(jsonConverter.toJson(resultDocument), resourceEvent, INDEX);
   }
 
@@ -139,5 +146,24 @@ public class SearchDocumentConverter {
     }
 
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  static Map<String, Object> orderNestedDocuments(Map<String, Object> document) {
+    var items = document.get(INSTANCE_ITEM_FIELD_NAME);
+    if (items == null) {
+      return document;
+    }
+
+    var orderedItems = ((List<Map<String, Object>>) items).stream()
+      .sorted(comparing(SearchDocumentConverter::getEffectiveShelvingOrder, nullsLast(naturalOrder())))
+      .collect(toList());
+
+    document.put(INSTANCE_ITEM_FIELD_NAME, orderedItems);
+    return document;
+  }
+
+  private static String getEffectiveShelvingOrder(Map<String, Object> item) {
+    return toRootUpperCase(getString(item, ITEM_SHELF_KEY_FIELD_NAME));
   }
 }

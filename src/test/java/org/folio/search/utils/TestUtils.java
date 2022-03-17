@@ -20,7 +20,6 @@ import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -80,7 +79,6 @@ import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.SearchType;
@@ -143,10 +141,6 @@ public class TestUtils {
 
   public static CqlFacetRequest facetServiceRequest(String resource, String query, String... facets) {
     return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
-  }
-
-  public static BrowseRequest browseRequest(String query, int limit) {
-    return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit, "callNumber", false, true, limit / 2);
   }
 
   public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {

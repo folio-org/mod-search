@@ -23,11 +23,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
@@ -50,7 +50,7 @@ class AuthorityBrowseServiceTest {
 
   @InjectMocks private AuthorityBrowseService authorityBrowseService;
   @Mock private SearchRepository searchRepository;
-  @Mock private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @Mock private BrowseContextProvider browseContextProvider;
   @Mock private ElasticsearchDocumentConverter documentConverter;
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private SearchResponse searchResponse;
@@ -59,7 +59,7 @@ class AuthorityBrowseServiceTest {
   void setUp() {
     authorityBrowseService.setDocumentConverter(documentConverter);
     authorityBrowseService.setSearchRepository(searchRepository);
-    authorityBrowseService.setCqlSearchQueryConverter(cqlSearchQueryConverter);
+    authorityBrowseService.setBrowseContextProvider(browseContextProvider);
   }
 
   @Test
@@ -67,8 +67,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef > s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
+    var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, searchSource("s0", 5, ASC))).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
@@ -84,9 +85,10 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef > s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, false, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
+    var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var expectedSearchSource = searchSource("s0", 5, ASC).fetchSource(new String[] {"id", "headingRef"}, null);
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
     when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE)).thenReturn(List.of("id", "headingRef"));
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
@@ -103,8 +105,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef < s4";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, true, false, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lt("s4");
+    var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, searchSource("s4", 3, DESC))).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s3", "s2", "s1")));
@@ -121,8 +124,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef >= s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
+    var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 5, ASC), anchorSearchSource("s0")),
       List.of(searchResult(authorities("s1", "s2", "s3", "s4", "s5")), searchResult(authority("s0"))));
@@ -139,8 +143,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef >= s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 10, TARGET_FIELD, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
+    var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(10).anchor("s0").build();
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 10, ASC), anchorSearchSource("s0")),
       List.of(SearchResult.of(10, authorities("s1", "s2", "s3")), searchResult(authority("s0"))));
@@ -157,8 +162,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef >= s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
+    var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 5, ASC), anchorSearchSource("s0")),
       List.of(searchResult(authorities("s1", "s2", "s3", "s4", "s5")), SearchResult.empty()));
@@ -175,7 +181,9 @@ class AuthorityBrowseServiceTest {
     var query = "headingRef <= s4";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, true, highlightMatch, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lte("s4");
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
+
+    when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
       List.of(searchSource("s4", 3, DESC), anchorSearchSource("s4")),
       List.of(searchResult(authorities("s3", "s2", "s1")), searchResult(authority("s4"))));
@@ -190,9 +198,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_around() {
     var query = "headingRef > s0 or headingRef < s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).gt("s0")).should(rangeQuery(TARGET_FIELD).lt("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC)),
       List.of(SearchResult.of(10, authorities("r2", "r1")), searchResult(authorities("s1", "s2", "s3"))));
@@ -206,9 +213,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_aroundWithoutHighlighting() {
     var query = "headingRef > s0 or headingRef < s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).gt("s0")).should(rangeQuery(TARGET_FIELD).lt("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC)),
       List.of(SearchResult.of(10, authorities("r2", "r1")), searchResult(authorities("s1", "s2", "s3"))));
@@ -222,9 +228,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_aroundIncluding() {
     var query = "headingRef < s0 or headingRef >= s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).lt("s0")).should(rangeQuery(TARGET_FIELD).gte("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC), anchorSearchSource("s0")),
       List.of(
@@ -241,9 +246,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_aroundIncludingWithoutHighlighting() {
     var query = "headingRef < s0 or headingRef >= s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).lt("s0")).should(rangeQuery(TARGET_FIELD).gte("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC), anchorSearchSource("s0")),
       List.of(
@@ -260,9 +264,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_aroundIncludingMissingAnchor() {
     var query = "headingRef <= s0 or headingRef > s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).lte("s0")).should(rangeQuery(TARGET_FIELD).gt("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC), anchorSearchSource("s0")),
       List.of(
@@ -279,9 +282,8 @@ class AuthorityBrowseServiceTest {
   void browse_positive_aroundIncludingMissingAnchorWithoutHighlighting() {
     var query = "headingRef <= s0 or headingRef > s0";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
-    var esQuery = boolQuery().should(rangeQuery(TARGET_FIELD).lte("s0")).should(rangeQuery(TARGET_FIELD).gt("s0"));
 
-    when(cqlSearchQueryConverter.convert(query, AUTHORITY_RESOURCE)).thenReturn(searchSource(esQuery));
+    when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
       List.of(searchSource("s0", 2, DESC), searchSource("s0", 3, ASC), anchorSearchSource("s0")),
       List.of(
@@ -338,5 +340,12 @@ class AuthorityBrowseServiceTest {
 
   private static AuthorityBrowseItem browseItem(String heading) {
     return new AuthorityBrowseItem().authority(authority(heading)).headingRef(heading);
+  }
+
+  private static BrowseContext browseContextAround(boolean includeAnchor) {
+    var precedingQuery = rangeQuery(TARGET_FIELD).lt("s0");
+    var succeedingQuery = includeAnchor ? rangeQuery(TARGET_FIELD).gte("s0") : rangeQuery(TARGET_FIELD).gt("s0");
+    return BrowseContext.builder().precedingQuery(precedingQuery).precedingLimit(2)
+      .succeedingQuery(succeedingQuery).succeedingLimit(3).anchor("s0").build();
   }
 }

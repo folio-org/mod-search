@@ -2,6 +2,7 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -209,6 +210,29 @@ class SearchDocumentConverterTest {
 
     assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject("id", RESOURCE_ID, "language", "rus",
       "multilang_value", jsonObject("src", "value"), "plain_multilang_value", "value")));
+  }
+
+  @Test
+  void convert_positive_instanceWithItems() {
+    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "items", List.of(
+      mapOf("id", "item#1"),
+      mapOf("id", "item#2", "effectiveShelvingOrder", "F10"),
+      mapOf("id", "item#3", "effectiveShelvingOrder", "C5"),
+      mapOf("id", "item#4"))));
+
+    when(languageConfigService.getAllLanguageCodes()).thenReturn(emptySet());
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+      resourceDescription(mapOf("id", keywordField(), "items", objectField(
+        mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));
+
+    var actual = documentMapper.convert(event);
+
+    assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject(
+      "id", RESOURCE_ID,
+      "items", jsonArray(
+        jsonObject("id", "item#3", "effectiveShelvingOrder", "C5"),
+        jsonObject("id", "item#2", "effectiveShelvingOrder", "F10"),
+        jsonObject("id", "item#1"), jsonObject("id", "item#4")))));
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

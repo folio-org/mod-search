@@ -14,6 +14,12 @@ class GtTermQueryBuilderTest {
   private final GtTermQueryBuilder queryBuilder = new GtTermQueryBuilder();
 
   @Test
+  void getQuery_positive_singleField() {
+    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "field");
+    assertThat(actual).isEqualTo(rangeQuery("field").gt("value"));
+  }
+
+  @Test
   void getQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2"))
       .isInstanceOf(UnsupportedOperationException.class)

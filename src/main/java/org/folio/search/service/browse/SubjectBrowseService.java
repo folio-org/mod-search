@@ -10,7 +10,7 @@ import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
-import static org.folio.search.utils.BrowseUtils.getSubjectCountsQuery;
+import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
-import org.folio.search.utils.BrowseUtils;
+import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,7 +54,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     for (var item : items) {
       if (item.getTotalRecords() == null) {
         var subjectAsMapKey = item.getSubject().toLowerCase(ROOT);
-        if (isHighlightedResult(request, context) && equalsIgnoreCase(subjectAsMapKey, (String) context.getAnchor())) {
+        if (isHighlightedResult(request, context) && equalsIgnoreCase(subjectAsMapKey, context.getAnchor())) {
           item.isAnchor(true);
         }
         item.totalRecords(subjectCounts.getOrDefault(subjectAsMapKey, 0L).intValue());
@@ -66,7 +66,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   @Override
   protected SubjectBrowseItem getEmptyBrowseItem(BrowseContext context) {
-    return new SubjectBrowseItem().subject((String) context.getAnchor()).totalRecords(0).isAnchor(true);
+    return new SubjectBrowseItem().subject(context.getAnchor()).totalRecords(0).isAnchor(true);
   }
 
   @Override
@@ -83,7 +83,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
     return searchSource().query(matchAllQuery())
-      .searchAfter(new Object[] {((String) ctx.getAnchor()).toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward))
       .from(0);
@@ -96,6 +96,6 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
     var resourceRequest = SimpleResourceRequest.of(INSTANCE_RESOURCE, request.getTenantId());
     var countSearchResult = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
-    return BrowseUtils.getSubjectCounts(countSearchResult);
+    return SearchUtils.getSubjectCounts(countSearchResult);
   }
 }

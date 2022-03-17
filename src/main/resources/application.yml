@@ -47,9 +47,6 @@ application:
     indexing:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
-  query:
-    properties:
-      call-number-range-offset: ${QUERY_CALL_NUMBER_RANGE_OFFSET:1e20}
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

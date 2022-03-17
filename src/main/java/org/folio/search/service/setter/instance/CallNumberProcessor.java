@@ -49,7 +49,7 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
    * </p>
    */
   public Long getCallNumberAsLong(String callNumber) {
-    var cleanCallNumber = callNumber.toUpperCase(ROOT).replaceAll("[^A-Z0-9. /]", " ").replaceAll("\\s+", " ");
+    var cleanCallNumber = callNumber.toUpperCase(ROOT).replaceAll("[^A-Z0-9. /]", " ").replaceAll("\\s+", " ").trim();
     cleanCallNumber = cleanCallNumber.substring(0, Math.min(MAX_CHARS, cleanCallNumber.length()));
     long result = 0L;
     for (int i = 0; i < cleanCallNumber.length(); i++) {
@@ -61,13 +61,13 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
   private static long getCharValue(char c) {
     switch (c) {
       case ASCII_SPACE:
-        return 1;
+        return 0;
       case ASCII_DOT:
-        return 2;
+        return 1;
       case ASCII_SLASH:
-        return 3;
+        return 2;
       default:
-        return c <= ASCII_9 ? c - ASCII_1 + 5 : c - ASCII_A + 14;
+        return c <= ASCII_9 ? c - ASCII_1 + 4 : c - ASCII_A + 13;
     }
   }
 }

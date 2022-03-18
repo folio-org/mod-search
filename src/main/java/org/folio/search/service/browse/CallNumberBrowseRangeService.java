@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CallNumberBrowseRangeService {
 
-  public static final String AGGREGATION_NAME = "cnRanges";
+  private static final String AGGREGATION_NAME = "cnRanges";
   private final SearchRepository searchRepository;
   private final CallNumberProcessor callNumberProcessor;
   private final Cache<String, List<CallNumberBrowseRangeValue>> cache;
@@ -56,7 +55,7 @@ public class CallNumberBrowseRangeService {
   public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, int size, boolean isBrowsingForward) {
     var ranges = getBrowseRanges(tenant);
     return isNotEmpty(ranges) && isRangeBoundaryCanBeProvided(anchor, isBrowsingForward, ranges)
-      ? getUpperRangeForBrowsingForward(ranges, anchor, size, isBrowsingForward)
+      ? Optional.ofNullable(getUpperRangeForBrowsingForward(ranges, anchor, size, isBrowsingForward))
       : Optional.empty();
   }
 
@@ -139,29 +138,45 @@ public class CallNumberBrowseRangeService {
     return rangeAggregation;
   }
 
-  private static Optional<Long> getUpperRangeForBrowsingForward(List<CallNumberBrowseRangeValue> ranges,
+  private static Long getUpperRangeForBrowsingForward(List<CallNumberBrowseRangeValue> ranges,
     String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
-    var loopCondition = (Predicate<Integer>) i -> isBrowsingForward ? i < ranges.size() : i >= 0;
+    return isBrowsingForward
+      ? getTopBoundaryForSucceedingQuery(ranges, anchor, expectedPageSize, foundPosition)
+      : getBottomBoundaryForPrecedingQuery(ranges, anchor, expectedPageSize, foundPosition);
+  }
+
+  private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges,
+    String anchor, int expectedPageSize, int foundPosition) {
     var element = ranges.get(foundPosition);
-    var startPosition = foundPosition + getPositionOffset(element.getKey(), anchor, isBrowsingForward);
-    long sum = isBrowsingForward && Objects.equals(element.getKey(), anchor) ? element.getCount() : 0L;
-    for (int i = startPosition; loopCondition.test(i); i += isBrowsingForward ? 1 : -1) {
+    var sum = Objects.equals(element.getKey(), anchor) ? element.getCount() : 0L;
+
+    for (int i = foundPosition + 1; i < ranges.size(); i++) {
       var current = ranges.get(i);
       sum += current.getCount();
       if (sum >= expectedPageSize) {
-        return Optional.of(current.getKeyAsLong());
+        return current.getKeyAsLong();
       }
     }
 
-    return Optional.empty();
+    return null;
   }
 
-  private static int getPositionOffset(String foundValue, String anchor, boolean isBrowsingForward) {
-    if (isBrowsingForward) {
-      return 1;
+  private static Long getBottomBoundaryForPrecedingQuery(List<CallNumberBrowseRangeValue> ranges,
+    String anchor, int expectedPageSize, int foundPosition) {
+    var element = ranges.get(foundPosition);
+    var startPosition = foundPosition - (Objects.equals(element.getKey(), anchor) ? 1 : 2);
+    var sum = 0L;
+
+    for (int i = startPosition; i >= 0; i--) {
+      var current = ranges.get(i);
+      sum += current.getCount();
+      if (sum >= expectedPageSize) {
+        return current.getKeyAsLong();
+      }
     }
-    return Objects.equals(foundValue, anchor) ? -1 : -2;
+
+    return null;
   }
 
   private static <T extends Comparable<T>> int getClosestPosition(List<T> list, T value, boolean isBrowsingForward) {
@@ -169,7 +184,8 @@ public class CallNumberBrowseRangeService {
     if (foundPosition >= 0) {
       return foundPosition;
     }
+
     foundPosition = -foundPosition - (isBrowsingForward ? 1 : 2);
-    return Math.min(foundPosition, list.size() - 1);
+    return Math.min(Math.max(0, foundPosition), list.size() - 1);
   }
 }

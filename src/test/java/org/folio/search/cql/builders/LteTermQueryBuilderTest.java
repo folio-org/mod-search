@@ -14,6 +14,12 @@ class LteTermQueryBuilderTest {
   private final LteTermQueryBuilder queryBuilder = new LteTermQueryBuilder();
 
   @Test
+  void getQuery_positive_singleField() {
+    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "field");
+    assertThat(actual).isEqualTo(rangeQuery("field").lte("value"));
+  }
+
+  @Test
   void getQuery_positive() {
     assertThatThrownBy(() -> queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2"))
       .isInstanceOf(UnsupportedOperationException.class)

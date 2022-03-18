@@ -6,7 +6,6 @@ import static org.awaitility.Duration.ONE_MINUTE;
 import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -90,7 +89,7 @@ public abstract class BaseIntegrationTest {
     var httpHeaders = new HttpHeaders();
 
     httpHeaders.setContentType(APPLICATION_JSON);
-    httpHeaders.add(X_OKAPI_TENANT_HEADER, tenant);
+    httpHeaders.add(XOkapiHeaders.TENANT, tenant);
     httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
 
     return httpHeaders;

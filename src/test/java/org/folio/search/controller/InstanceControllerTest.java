@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.folio.search.controller.IndexControllerTest.INDEX_NAME;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -39,6 +38,7 @@ import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -66,7 +66,7 @@ class InstanceControllerTest {
       .queryParam("query", cqlQuery)
       .queryParam("limit", "100")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -88,7 +88,7 @@ class InstanceControllerTest {
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -104,7 +104,7 @@ class InstanceControllerTest {
       .queryParam("query", "title all \"test-query\"")
       .queryParam("limit", "100000")
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -124,7 +124,7 @@ class InstanceControllerTest {
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -145,7 +145,7 @@ class InstanceControllerTest {
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
@@ -171,7 +171,7 @@ class InstanceControllerTest {
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
@@ -195,7 +195,7 @@ class InstanceControllerTest {
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)
       .contentType(TEXT_PLAIN)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())

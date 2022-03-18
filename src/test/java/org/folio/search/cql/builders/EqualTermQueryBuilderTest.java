@@ -7,6 +7,7 @@ import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,19 @@ class EqualTermQueryBuilderTest {
   void getQuery_positive() {
     var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2");
     assertThat(actual).isEqualTo(multiMatchQuery("value", "f1.*", "f2").operator(AND).type(CROSS_FIELDS));
+  }
+
+  @Test
+  void getQuery_positive_emptyValueAndSingleMultilangFieldWithAlias() {
+    var actual = queryBuilder.getQuery("", RESOURCE_NAME, "f1.*");
+    assertThat(actual).isEqualTo(existsQuery("plain_f1"));
+  }
+
+  @Test
+  void getQuery_positive_emptyValueAndSingleKeywordField() {
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
+    var actual = queryBuilder.getQuery("", RESOURCE_NAME, "field");
+    assertThat(actual).isEqualTo(existsQuery("field"));
   }
 
   @Test

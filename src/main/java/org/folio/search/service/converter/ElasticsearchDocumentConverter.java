@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
@@ -30,12 +31,29 @@ public class ElasticsearchDocumentConverter {
    * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
    *
    * @param response - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass - type for converting source in the {@link SearchHit} object
+   * @param <T> - generic type of conversion result for search hit source
    * @return created {@link SearchResult} object.
    */
   public <T> SearchResult<T> convertToSearchResult(SearchResponse response, Class<T> responseClass) {
+    return convertToSearchResult(response, responseClass, (hit, item) -> item);
+  }
+
+  /**
+   * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
+   *
+   * @param response - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass - type for converting source in the {@link SearchHit} object
+   * @param hitMapper - conversion {@link BiFunction} object, that used to transform hit and source into result type
+   * @param <T> - generic type of conversion result for search hit source
+   * @param <R> - generic type of response item in {@link SearchResult} object
+   * @return created {@link SearchResult} object.
+   */
+  public <T, R> SearchResult<R> convertToSearchResult(SearchResponse response, Class<T> responseClass,
+    BiFunction<SearchHit, T, R> hitMapper) {
     return Optional.ofNullable(response)
       .map(SearchResponse::getHits)
-      .map(hits -> SearchResult.of(getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass)))
+      .map(hits -> SearchResult.of(getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass, hitMapper)))
       .orElseGet(SearchResult::empty);
   }
 
@@ -57,13 +75,14 @@ public class ElasticsearchDocumentConverter {
     return objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
   }
 
-  private  <T> List<T> convertSearchHits(SearchHit[] searchHits, Class<T> type) {
+  private <T, R> List<R> convertSearchHits(
+    SearchHit[] searchHits, Class<T> type, BiFunction<SearchHit, T, R> searchHitMapper) {
     if (searchHits == null) {
       return emptyList();
     }
+
     return Arrays.stream(searchHits)
-      .map(SearchHit::getSourceAsMap)
-      .map(map -> convert(map, type))
+      .map(searchHit -> searchHitMapper.apply(searchHit, convert(searchHit.getSourceAsMap(), type)))
       .collect(toList());
   }
 

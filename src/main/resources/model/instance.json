@@ -488,6 +488,13 @@
       "index": "multilang",
       "processor": "holdingsPublicNotesProcessor"
     },
+    "oclc": {
+      "type": "search",
+      "processor": "oclcProcessor",
+      "searchTermProcessor": "oclcSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
+    },
     "isbn": {
       "type": "search",
       "processor": "isbnProcessor",

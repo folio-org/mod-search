@@ -97,6 +97,10 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
+    "statusId": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
     "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"

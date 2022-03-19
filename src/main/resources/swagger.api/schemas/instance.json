@@ -23,6 +23,10 @@
         "description": "UUID for a statistical code"
       }
     },
+    "statusId": {
+      "type": "string",
+      "description": "UUID for the Instance status term (e.g. cataloged, uncatalogued, batch loaded, temporary, other, not yet assigned)"
+    },
     "title": {
       "type": "string",
       "description": "The primary title (or label) associated with the resource"

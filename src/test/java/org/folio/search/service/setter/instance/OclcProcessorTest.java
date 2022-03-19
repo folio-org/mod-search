@@ -3,21 +3,23 @@ package org.folio.search.service.setter.instance;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.when;
-
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
 import static org.folio.search.utils.TestConstants.CANCELED_OCLC_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.OCLC_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.identifier;
 import static org.folio.search.utils.TestUtils.instanceWithIdentifiers;
 import static org.folio.search.utils.TestUtils.setOf;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,10 +29,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.folio.search.domain.dto.Identifiers;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.integration.ReferenceDataService;
-import org.folio.search.utils.types.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

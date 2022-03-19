@@ -1,9 +1,8 @@
 package org.folio.search.cql;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import org.folio.search.service.setter.instance.OclcProcessor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

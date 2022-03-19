@@ -3,16 +3,13 @@ package org.folio.search.cql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
+import org.folio.search.service.setter.instance.OclcProcessor;
+import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.folio.search.service.setter.instance.OclcProcessor;
-import org.folio.search.utils.types.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

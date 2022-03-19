@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
+import org.springframework.stereotype.Component;
 
 /**
  * Identifier field processor, which normalize OCLC numbers.

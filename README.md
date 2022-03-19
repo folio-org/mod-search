@@ -373,8 +373,9 @@ if it is defined but doesn't match.
 | `discoverySuppress`                    |   term    | `discoverySuppress==true`                                         | Matches instances that are suppressed from discovery                                                                 |
 | `publicNotes`                          | full-text | `publicNotes all "public note"`                                   | Matches instances that have a public note (i.e. `note.staffOnly` is `false`)                                         |
 | `notes.note`                           | full-text | `notes.note all "librarian note"`                                 | Search by instance notes (include staffOnly)                                                                         |
-| `isbn`                                 |   term    | `isbn="1234*943"`                                                 | Matches instances that have an ISBN  identifier with the given value                                                 |
-| `issn`                                 |   term    | `issn="1234*943"`                                                 | Matches instances that have an ISSN  identifier with the given value                                                 |
+| `isbn`                                 |   term    | `isbn="1234*"`                                                    | Matches instances that have an ISBN identifier with the given value                                                  |
+| `issn`                                 |   term    | `issn="1234*"`                                                    | Matches instances that have an ISSN identifier with the given value                                                  |
+| `oclc`                                 |   term    | `oclc="1234*"`                                                    | Matches instances that have an OCLC identifier with the given value                                                  |
 
 
 ### Holdings-records search options

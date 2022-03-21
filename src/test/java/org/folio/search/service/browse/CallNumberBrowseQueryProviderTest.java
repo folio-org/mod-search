@@ -16,10 +16,13 @@ import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL
 import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.SORT_SCRIPT_FOR_PRECEDING_QUERY;
 import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.SORT_SCRIPT_FOR_SUCCEEDING_QUERY;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
@@ -44,7 +47,8 @@ class CallNumberBrowseQueryProviderTest {
   @InjectMocks private CallNumberBrowseQueryProvider queryProvider;
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private CallNumberTermConverter callNumberTermConverter;
-  @Spy private SearchQueryConfigurationProperties queryConfiguration = SearchQueryConfigurationProperties.of(3d);
+  @Mock private CallNumberBrowseRangeService browseRangeService;
+  @Spy private SearchQueryConfigurationProperties queryConfiguration = SearchQueryConfigurationProperties.of(3d, false);
 
   @Test
   void get_positive_forward() {
@@ -86,6 +90,21 @@ class CallNumberBrowseQueryProviderTest {
   }
 
   @Test
+  void get_positive_forwardWithEnabledOptimization() {
+    var size = 25;
+    when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
+    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, true)).thenReturn(Optional.of(100L));
+
+    var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
+    var actual = queryProvider.get(request(true), context, true);
+
+    var expectedRangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD).gte(ANCHOR_AS_NUMBER).lte(100L);
+    assertThat(actual).isEqualTo(expectedSucceedingQuery(size, expectedRangeQuery));
+    verify(queryConfiguration).getRangeQueryLimitMultiplier();
+  }
+
+  @Test
   void get_positive_backward() {
     when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("id", "title"));
@@ -108,21 +127,40 @@ class CallNumberBrowseQueryProviderTest {
     verify(queryConfiguration).getRangeQueryLimitMultiplier();
   }
 
+  @Test
+  void get_positive_backwardWithEnabledOptimization() {
+    var size = 25;
+    when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
+    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, false)).thenReturn(Optional.of(100L));
+
+    var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
+    var actual = queryProvider.get(request(true), context, false);
+
+    var expectedRangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD).lte(ANCHOR_AS_NUMBER).gte(100L);
+    assertThat(actual).isEqualTo(expectedPrecedingQuery(size, expectedRangeQuery));
+    verify(queryConfiguration).getRangeQueryLimitMultiplier();
+  }
+
   private static SearchSourceBuilder expectedSucceedingQuery(int size) {
+    return expectedSucceedingQuery(size, rangeQuery(CALL_NUMBER_RANGE_FIELD).gte(ANCHOR_AS_NUMBER));
+  }
+
+  private static SearchSourceBuilder expectedSucceedingQuery(int size, QueryBuilder queryBuilder) {
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, SORT_SCRIPT_FOR_SUCCEEDING_QUERY, singletonMap("cn", ANCHOR));
-    return searchSource().from(0).size(size)
-      .query(rangeQuery(CALL_NUMBER_RANGE_FIELD).gte(ANCHOR_AS_NUMBER))
-      .sort(scriptSort(script, STRING).order(ASC));
+    return searchSource().from(0).size(size).query(queryBuilder).sort(scriptSort(script, STRING).order(ASC));
   }
 
   private static SearchSourceBuilder expectedPrecedingQuery(int size) {
+    return expectedPrecedingQuery(size, rangeQuery(CALL_NUMBER_RANGE_FIELD).lte(ANCHOR_AS_NUMBER));
+  }
+
+  private static SearchSourceBuilder expectedPrecedingQuery(int size, QueryBuilder queryBuilder) {
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, SORT_SCRIPT_FOR_PRECEDING_QUERY, singletonMap("cn", ANCHOR));
-    return searchSource().from(0).size(size)
-      .query(rangeQuery(CALL_NUMBER_RANGE_FIELD).lte(ANCHOR_AS_NUMBER))
-      .sort(scriptSort(script, STRING).order(DESC));
+    return searchSource().from(0).size(size).query(queryBuilder).sort(scriptSort(script, STRING).order(DESC));
   }
 
   private static BrowseRequest request(boolean expandAll) {
-    return BrowseRequest.builder().resource(RESOURCE_NAME).expandAll(expandAll).build();
+    return BrowseRequest.builder().resource(RESOURCE_NAME).tenantId(TENANT_ID).expandAll(expandAll).build();
   }
 }

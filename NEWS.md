@@ -1,3 +1,9 @@
+## 1.6.1 2021-03-21
+* MSEARCH-308 Optimize call-number browsing
+* MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
+* FAT-1150 Update module descriptors to correctly delete tenant
+* MSEARCH-303 Remove unused search fields
+
 ## 1.6.0 2021-02-18
 * MSEARCH-186 publish isBoundWith in search results
 * MSEARCH-272 Include Item identifier in Identifier (all) search

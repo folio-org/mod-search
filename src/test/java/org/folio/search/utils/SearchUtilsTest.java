@@ -245,11 +245,6 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test
-  void getClosestElement() {
-
-  }
-
   private static Stream<Arguments> isEmptyStringDataSource() {
     return Stream.of(
       arguments(new Object(), false),

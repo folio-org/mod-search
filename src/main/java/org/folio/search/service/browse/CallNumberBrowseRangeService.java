@@ -55,7 +55,7 @@ public class CallNumberBrowseRangeService {
   public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, int size, boolean isBrowsingForward) {
     var ranges = getBrowseRanges(tenant);
     return isNotEmpty(ranges) && isRangeBoundaryCanBeProvided(anchor, isBrowsingForward, ranges)
-      ? Optional.ofNullable(getUpperRangeForBrowsingForward(ranges, anchor, size, isBrowsingForward))
+      ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
       : Optional.empty();
   }
 
@@ -138,7 +138,7 @@ public class CallNumberBrowseRangeService {
     return rangeAggregation;
   }
 
-  private static Long getUpperRangeForBrowsingForward(List<CallNumberBrowseRangeValue> ranges,
+  private static Long getRangeBoundaryFromCachedValue(List<CallNumberBrowseRangeValue> ranges,
     String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
     return isBrowsingForward

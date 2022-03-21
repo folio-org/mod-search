@@ -54,6 +54,7 @@ import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
+import org.elasticsearch.search.aggregations.bucket.range.ParsedRange;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
@@ -456,6 +457,7 @@ public class TestUtils {
   public static List<NamedXContentRegistry.Entry> elasticsearchClientNamedContentRegistryEntries() {
     Map<String, ContextParser<Object, ? extends Aggregation>> map = new HashMap<>();
     map.put("sterms", (p, c) -> ParsedStringTerms.fromXContent(p, (String) c));
+    map.put("range", (p, c) -> ParsedRange.fromXContent(p, (String) c));
     map.put("filter", (p, c) -> ParsedFilter.fromXContent(p, (String) c));
     map.put("string_stats", (p, c) -> ParsedStringStats.PARSER.parse(p, (String) c));
     return map.entrySet().stream()

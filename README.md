@@ -187,6 +187,7 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | SCROLL_QUERY_SIZE                         | 1000                      | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
 | STREAM_ID_RETRY_INTERVAL_MS               | 1000                      | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                  | 3                         | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
+| CN_BROWSE_OPTIMIZATION_ENABLED            | true                      | Defines if call-number browse optimization is enabled or not                                                                                                                          |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -413,6 +414,8 @@ if it is defined but doesn't match.
 | `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
 | `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have items with given tag                                                                              |
 | `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
+| `callNumber`                        |   term    | `callNumber="A 12"`                                          | An alias for search by `items.effectiveShelvingOrder` field                                                                   |
+| `items.effectiveShelvingOrder`      |   term    | `items.effectiveShelvingOrder="A 12"`                        | Matches instances that have items with given `effectiveShelvingOrder` value                                                   |
 | `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
 | `items.electronicAccess.linkText`   | full-text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text                                                                                         |
 | `items.electronicAccess.publicNote` | full-text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note                                                                                       |

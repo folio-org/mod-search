@@ -543,12 +543,14 @@
     "itemNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "items.normalizedCallNumbers" ],
       "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "holdings.normalizedCallNumbers" ],
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },

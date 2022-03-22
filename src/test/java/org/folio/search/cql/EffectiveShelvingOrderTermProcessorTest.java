@@ -39,7 +39,8 @@ class EffectiveShelvingOrderTermProcessorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"782", "123", "185.25", "350.21", "362.82/92 / 20", "591.52/63 / 20", "641.5943 M68l"})
+  @ValueSource(strings = {"782", "123", "185.25", "350.21", "362.82/92 / 20",
+    "591.52/63 / 20", "641.5943 M68l", "12", "11", "25", "1"})
   void getSearchTerm_parameterized_deweyDecimalNumbers(String given) {
     var expected = new DeweyCallNumber(given).getShelfKey();
     var actual = searchTermProcessor.getSearchTerm(given);
@@ -56,7 +57,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"rack №1", "raw", "unknown", "12", "11", "25"})
+  @ValueSource(strings = {"rack №1", "raw", "unknown"})
   void getSearchTerm_parameterized_freeText(String given) {
     var actual = searchTermProcessor.getSearchTerm(given);
     assertThat(actual).isEqualTo(given.toUpperCase(Locale.ROOT));

@@ -64,6 +64,6 @@ class FolioTenantControllerTest {
   void postTenant_positive_disableTenant() {
     tenantController.postTenant(new TenantAttributes().moduleFrom("mod-search").purge(true));
     verify(baseTenantService).deleteTenant();
-    verify(tenantService).removeElasticsearchIndexes();
+    verify(tenantService).disableTenant();
   }
 }

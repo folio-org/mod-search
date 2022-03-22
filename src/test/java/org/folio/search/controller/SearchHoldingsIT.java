@@ -33,6 +33,10 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   @CsvSource({
     "holdings.hrid=={value}, ho*7",
     "holdings.fullCallNumber=={value}, prefix*suffix",
+    "holdings.normalizedCallNumbers==\"{value}\", prefix",
+    "holdings.normalizedCallNumbers==\"{value}\", prefix:",
+    "holdings.normalizedCallNumbers==\"{value}\", callnumber",
+    "holdings.normalizedCallNumbers==\"{value}\", call:number",
     "holdingsNormalizedCallNumbers==\"{value}\", prefix",
     "holdingsNormalizedCallNumbers==\"{value}\", prefix:",
     "holdingsNormalizedCallNumbers==\"{value}\", callnumber",
@@ -51,6 +55,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
     "holdings.hrid=={value}, hold000000000009",
+    "holdings.normalizedCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
+    "holdings.normalizedCallNumbers==\"{value}\", TK510588815",
+    "holdings.normalizedCallNumbers==\"{value}\", TK5105.8881:5 . a58",
     "holdingsFullCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
     "holdingsNormalizedCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
     "holdingsNormalizedCallNumbers==\"{value}\", TK510588815",
@@ -68,6 +75,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
+    "holdings.normalizedCallNumbers==\"{value}\", call suffix",
+    "holdings.normalizedCallNumbers==\"{value}\", CAL/number suffix",
+    "holdings.normalizedCallNumbers==\"{value}\", prefix number",
     "holdingsNormalizedCallNumbers==\"{value}\", fix",
     "holdingsNormalizedCallNumbers==\"{value}\", number",
     "holdingsNormalizedCallNumbers==\"{value}\", c number",

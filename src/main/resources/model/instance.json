@@ -376,6 +376,10 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
+        "typeId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
         "permanentLocationId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
@@ -517,6 +521,12 @@
       "type": "search",
       "index": "keyword",
       "processor": "holdingsTagsProcessor"
+    },
+    "holdingsTypeId": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsTypeIdProcessor"
     },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],

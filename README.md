@@ -394,6 +394,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
+| `holdingsTypeId`                       |   term    | `holdingsTypeId=="123"`                              | Search by holdings type id
 | `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
 | `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
@@ -564,6 +565,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `holdings.discoverySuppress`   | term | Requests a holdings discovery suppress facet    |
 | `holdings.statisticalCodeIds`  | term | Requests a holdings statistical code ids        |
 | `holdings.sourceId`            | term | Requests a holdings sourceId facet              |
+| `holdingsTypeId`               | term | Requests a holdings typeId facet                |
 | `holdingsTags`                 | term | Requests a holdings tag facet                   |
 
 ### Item facets

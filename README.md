@@ -503,16 +503,16 @@ does not produce any values, so the following search options will return an empt
 Supported browsing values
 
 * subject (`${okapi}/browse/subjects/instances`)
-* callNumber (`${okapi}/browse/call-numbers/instances`)
+* callNumber (`${okapi}/browse/call-numbers/instances`, approach: [call number browsing](doc/browsing.md#call-number-browsing))
 
 **Query parameters**
 
-| Parameter             | Type    | Default value | Description                                                                                                                                                                                                                     |
-|:----------------------|:--------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| query                 | string  | -             | A Cql query for call-number browsing<br/>`{browsingValue} > {anchor}` - browsing forward<br/>`{browsingValue} < {anchor}` - browsing backward<br/>`{browsingValue} >= {anchor} or {browsingValue} < {anchor}` - browsing around |
-| limit                 | integer | 100           | Number of records in response                                                                                                                                                                                                   |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                                             |
-| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                                                 |
+| Parameter             | Type    | Default value | Description                                                                                         |
+|:----------------------|:--------|:--------------|:----------------------------------------------------------------------------------------------------|
+| query                 | string  | -             | A Cql query for call-number browsing (check the query syntax [here](doc/browsing.md#query-syntax)   |
+| limit                 | integer | 100           | Number of records in response                                                                       |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not |
+| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                     |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
@@ -632,4 +632,4 @@ and the [Docker image](https://hub.docker.com/r/folioorg/mod-search/)
 
 ### Development tips
 
-The development tips are described on the following page: [Development tips](DEVELOPMENT.md)
+The development tips are described on the following page: [Development tips](doc/development.md)

@@ -27,6 +27,8 @@ public class TestConstants {
   public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();
+  public static final String OCLC_IDENTIFIER_TYPE_ID = randomId();
+  public static final String CANCELED_OCLC_IDENTIFIER_TYPE_ID = randomId();
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();
   public static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = randomId();

@@ -15,6 +15,7 @@ import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
@@ -38,6 +39,7 @@ class SearchTenantServiceTest {
   @Mock private FolioExecutionContext context;
   @Mock private SystemUserService systemUserService;
   @Mock private LanguageConfigService languageConfigService;
+  @Mock private CallNumberBrowseRangeService callNumberBrowseRangeService;
   @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchConfigurationProperties searchConfigurationProperties;
 
@@ -107,11 +109,12 @@ class SearchTenantServiceTest {
   }
 
   @Test
-  void removeElasticsearchIndices_positive() {
+  void disableTenant_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    doNothing().when(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
 
-    searchTenantService.removeElasticsearchIndexes();
+    searchTenantService.disableTenant();
 
     verify(indexService).dropIndex(RESOURCE_NAME, TENANT_ID);
     verifyNoMoreInteractions(indexService);

@@ -170,6 +170,22 @@ class LocalSearchFieldProviderTest {
         + "'facet' can't group more than 1 field.]");
   }
 
+  @Test
+  void init_validateSearchAliases_failedToCreateAliasesWithSearchTermProcessor() {
+    var plainField = plainField(List.of("alias"));
+    plainField.setSearchTermProcessor("testProcessor");
+    var resourceDescription = resourceDescription(mapOf("field1", plainField, "field2", plainField), emptyMap());
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider);
+    when(metadataResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
+    when(metadataResourceProvider.getSearchFieldTypes()).thenReturn(searchFieldTypes());
+
+    assertThatThrownBy(searchFieldProvider::init)
+      .isInstanceOf(ResourceDescriptionException.class)
+      .hasMessage("Failed to create resource description for resource: 'test-resource', errors: "
+        + "[Invalid plain field descriptor for search alias 'alias'. Alias for field with "
+        + "searchTermProcessor can't group more than 1 field.]");
+  }
+
   private LocalSearchFieldProvider getSearchFieldProvider() {
     var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider);
     when(metadataResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription()));

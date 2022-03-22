@@ -43,10 +43,10 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
   }
 
   /**
-   * Returns normalized isbn value.
+   * Returns normalized oclc value.
    *
    * @param value value to process as {@link String}
-   * @return normalized isbn value
+   * @return normalized oclc value
    */
   public String normalizeOclc(String value) {
     var oclcValue = normalizeOclcValue(value);

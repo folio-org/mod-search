@@ -91,6 +91,24 @@ class CqlTermQueryConverterTest {
   }
 
   @Test
+  void getQuery_positive_shouldFindProcessorForSearchAlias() {
+    var fieldName = "nameA";
+    var fieldSearchAlias = "nameB";
+    var expectedQuery = rangeQuery(fieldName).gt(100L);
+    var fieldDesc = plainField("long");
+    fieldDesc.setSearchTermProcessor("processor");
+
+    when(termQueryBuilder.getQuery(100L, RESOURCE_NAME, fieldSearchAlias)).thenReturn(expectedQuery);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, fieldName)).thenReturn(List.of(fieldSearchAlias));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, fieldSearchAlias)).thenReturn(Optional.of(fieldDesc));
+    when(searchTermProcessor.getSearchTerm("value")).thenReturn(100L);
+
+    var actual = cqlTermQueryConverter.getQuery(cqlTermNode(fieldName + " all value"), RESOURCE_NAME);
+
+    assertThat(actual).isEqualTo(expectedQuery);
+  }
+
+  @Test
   void getQuery_negative_unsupportedComparator() {
     var termNode = cqlTermNode("field = value");
     assertThatThrownBy(() -> cqlTermQueryConverter.getQuery(termNode, RESOURCE_NAME))

@@ -97,6 +97,10 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
+    "statusId": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
     "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
@@ -491,6 +495,13 @@
       "type": "search",
       "index": "multilang",
       "processor": "holdingsPublicNotesProcessor"
+    },
+    "oclc": {
+      "type": "search",
+      "processor": "oclcProcessor",
+      "searchTermProcessor": "oclcSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
     },
     "isbn": {
       "type": "search",

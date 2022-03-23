@@ -76,6 +76,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "c898029e-9a02-4b61-bedb-6956cff21bc2",
     "3d413322-1dee-431b-bd73-b1e399063260");
 
+  private static final String[] STATUSES = array(
+    "54cb0be0-2b5b-4da5-a687-32dec54b016a",
+    "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  );
+
   private static final String[] HOLDINGS_TYPES = array(
     "eb003b9d-86f2-4bdf-9f8e-28851122617d",
     "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2");
@@ -147,6 +152,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[0]), List.of(IDS[1], IDS[2])),
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[1]), List.of(IDS[0], IDS[3], IDS[4])),
+
+      arguments(format("(id=* and statusId==%s) sortby title", STATUSES[0]), List.of(IDS[0], IDS[2])),
+      arguments(format("(id=* and statusId==%s) sortby title", STATUSES[1]), List.of(IDS[1], IDS[3], IDS[4])),
 
       arguments(format("(id=* and instanceFormatIds==\"%s\") sortby title", FORMATS[0]), List.of(IDS[3])),
       arguments(format("(id=* and instanceFormatIds==%s) sortby title", FORMATS[1]),
@@ -254,8 +262,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array("discoverySuppress", "staffSuppress", "languages", "instanceTags", "source",
-      "instanceTypeId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name", "holdingsTypeId",
-      "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
+      "instanceTypeId", "statusId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name",
+      "holdingsTypeId", "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
     return Stream.of(
       arguments("id=*", allFacets, mapOf(
         "discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2)),
@@ -266,6 +274,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           facetItem("casual", 1), facetItem("text", 1)),
         "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
         "instanceTypeId", facet(facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)),
+        "statusId", facet(facetItem(STATUSES[1], 3), facetItem(STATUSES[0], 2)),
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
 
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)),
@@ -310,6 +319,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("instanceTypeId"), mapOf("instanceTypeId", facet(
         facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)))),
+
+      arguments("id=*", array("statusId"), mapOf("statusId", facet(
+        facetItem(STATUSES[1], 3), facetItem(STATUSES[0], 2)))),
 
       arguments("id=*", array("instanceFormatIds"), mapOf("instanceFormatIds", facet(
         facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
@@ -376,6 +388,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .source("MARC")
       .languages(List.of("eng", "ita"))
       .instanceTypeId(TYPES[1])
+      .statusId(STATUSES[0])
       .staffSuppress(true)
       .discoverySuppress(true)
       .instanceFormatIds(List.of(FORMATS[1], FORMATS[2]))
@@ -399,6 +412,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .source("MARC")
       .languages(List.of("eng", "ger", "fra"))
       .instanceTypeId(TYPES[0])
+      .statusId(STATUSES[1])
       .staffSuppress(true)
       .discoverySuppress(true)
       .instanceFormatIds(List.of(FORMATS[1]))
@@ -421,6 +435,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .source("FOLIO")
       .languages(List.of("rus", "ukr"))
       .instanceTypeId(TYPES[0])
+      .statusId(STATUSES[0])
       .staffSuppress(true)
       .instanceFormatIds(List.of(FORMATS[2]))
       .tags(tags("future", "science"))
@@ -438,6 +453,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .instanceTypeId(TYPES[1])
+      .statusId(STATUSES[1])
       .instanceFormatIds(List.of(FORMATS))
       .tags(tags("casual", "cooking"))
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
@@ -459,6 +475,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .source("FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
+      .statusId(STATUSES[1])
       .instanceFormatIds(List.of(FORMATS[1]))
       .tags(tags("cooking"))
       .items(List.of(

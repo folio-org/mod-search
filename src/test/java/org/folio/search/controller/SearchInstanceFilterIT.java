@@ -81,6 +81,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   );
 
+  private static final String[] HOLDINGS_TYPES = array(
+    "eb003b9d-86f2-4bdf-9f8e-28851122617d",
+    "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2");
+
   @BeforeAll
   static void prepare() {
     setUpTenant(instances());
@@ -204,6 +208,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(itemTags==itag1) sortby title", List.of(IDS[0], IDS[2])),
       arguments("(holdingsTags==htag1) sortby title", List.of(IDS[0], IDS[4])),
 
+      arguments(format("(holdingsTypeId==%s) sortby title", HOLDINGS_TYPES[0]), List.of(IDS[0], IDS[3])),
+      arguments(format("(holdingsTypeId==%s) sortby title", HOLDINGS_TYPES[1]), List.of(IDS[1], IDS[3])),
+
       arguments("(metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
@@ -256,7 +263,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array("discoverySuppress", "staffSuppress", "languages", "instanceTags", "source",
       "instanceTypeId", "statusId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name",
-      "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
+      "holdingsTypeId", "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
     return Stream.of(
       arguments("id=*", allFacets, mapOf(
         "discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2)),
@@ -274,6 +281,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)),
         "items.materialTypeId", facet(facetItem(MATERIAL_TYPES[0], 2), facetItem(MATERIAL_TYPES[1], 3)),
 
+        "holdingsTypeId", facet(facetItem(HOLDINGS_TYPES[0], 2), facetItem(HOLDINGS_TYPES[1], 2)),
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
           facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)),
         "holdings.discoverySuppress", facet(facetItem("false", 3), facetItem("true", 1))
@@ -348,6 +356,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("holdingsTags"), mapOf(
         "holdingsTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),
 
+      arguments("id=*", array("holdingsTypeId"), mapOf(
+        "holdingsTypeId", facet(facetItem(HOLDINGS_TYPES[0], 2), facetItem(HOLDINGS_TYPES[1], 2)))),
+
       arguments("id=*", array("itemTags"), mapOf(
         "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2)))),
 
@@ -393,6 +404,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .tags(tags("itag1", "itag3"))))
       .holdings(List.of(
         new Holding().id(randomId())
+          .typeId(HOLDINGS_TYPES[0])
           .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
           .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
 
@@ -415,6 +427,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
           .tags(tags("itag2", "itag3"))))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
+        .typeId(HOLDINGS_TYPES[1])
         .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
 
@@ -450,9 +463,12 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
+          .typeId(HOLDINGS_TYPES[1])
           .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
           .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2")),
+        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1])
+          .typeId(HOLDINGS_TYPES[0])
+          .tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 
     instances[4]

@@ -7,7 +7,12 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LtTermQueryBuilder implements TermQueryBuilder {
+public class LtTermQueryBuilder implements RangeTermQueryBuilder {
+
+  @Override
+  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+    return getRangeQuery(fields).lt(term);
+  }
 
   @Override
   public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {

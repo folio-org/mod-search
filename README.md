@@ -187,6 +187,7 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | SCROLL_QUERY_SIZE                         | 1000                      | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
 | STREAM_ID_RETRY_INTERVAL_MS               | 1000                      | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                  | 3                         | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
+| CN_BROWSE_OPTIMIZATION_ENABLED            | true                      | Defines if call-number browse optimization is enabled or not                                                                                                                          |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -356,6 +357,7 @@ if it is defined but doesn't match.
 | `contributors.primary`                 |   term    | `contributors all "John" and contributors.primary==true`          | Matches instances that have a primary `John` contributor                                                             |
 | `subjects`                             | full-text | `subjects all "Chemistry"`                                        | Matches instances that have a `Chemistry` subject                                                                    |
 | `instanceTypeId`                       |   term    | `instanceTypeId == "123"`                                         | Matches instances with the `123` type                                                                                |
+| `statusId`                             |   term    | `statusId == "123"`                                               | Matches instances with the `123` status                                                                              |
 | `instanceFormatIds`                    |   term    | `instanceFormatIds == "123"`                                      | Matches instances with the `123` format id                                                                           |
 | `languages`                            |   term    | `languages == "eng"`                                              | Matches instances that have `eng` language                                                                           |
 | `metadata.createdDate`                 |   term    | `metadata.createdDate > "2020-12-12"`                             | Matches instances that were created after  `2020-12-12`                                                              |
@@ -373,8 +375,9 @@ if it is defined but doesn't match.
 | `discoverySuppress`                    |   term    | `discoverySuppress==true`                                         | Matches instances that are suppressed from discovery                                                                 |
 | `publicNotes`                          | full-text | `publicNotes all "public note"`                                   | Matches instances that have a public note (i.e. `note.staffOnly` is `false`)                                         |
 | `notes.note`                           | full-text | `notes.note all "librarian note"`                                 | Search by instance notes (include staffOnly)                                                                         |
-| `isbn`                                 |   term    | `isbn="1234*943"`                                                 | Matches instances that have an ISBN  identifier with the given value                                                 |
-| `issn`                                 |   term    | `issn="1234*943"`                                                 | Matches instances that have an ISSN  identifier with the given value                                                 |
+| `isbn`                                 |   term    | `isbn="1234*"`                                                    | Matches instances that have an ISBN identifier with the given value                                                  |
+| `issn`                                 |   term    | `issn="1234*"`                                                    | Matches instances that have an ISSN identifier with the given value                                                  |
+| `oclc`                                 |   term    | `oclc="1234*"`                                                    | Matches instances that have an OCLC identifier with the given value                                                  |
 
 
 ### Holdings-records search options
@@ -393,6 +396,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
+| `holdingsTypeId`                       |   term    | `holdingsTypeId=="123"`                              | Search by holdings type id
 | `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
 | `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
@@ -413,6 +417,8 @@ if it is defined but doesn't match.
 | `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
 | `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have items with given tag                                                                              |
 | `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
+| `callNumber`                        |   term    | `callNumber="A 12"`                                          | An alias for search by `items.effectiveShelvingOrder` field                                                                   |
+| `items.effectiveShelvingOrder`      |   term    | `items.effectiveShelvingOrder="A 12"`                        | Matches instances that have items with given `effectiveShelvingOrder` value                                                   |
 | `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
 | `items.electronicAccess.linkText`   | full-text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text                                                                                         |
 | `items.electronicAccess.publicNote` | full-text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note                                                                                       |
@@ -500,16 +506,16 @@ does not produce any values, so the following search options will return an empt
 Supported browsing values
 
 * subject (`${okapi}/browse/subjects/instances`)
-* callNumber (`${okapi}/browse/call-numbers/instances`)
+* callNumber (`${okapi}/browse/call-numbers/instances`, approach: [call number browsing](doc/browsing.md#call-number-browsing))
 
 **Query parameters**
 
-| Parameter             | Type    | Default value | Description                                                                                                                                                                                                                     |
-|:----------------------|:--------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| query                 | string  | -             | A Cql query for call-number browsing<br/>`{browsingValue} > {anchor}` - browsing forward<br/>`{browsingValue} < {anchor}` - browsing backward<br/>`{browsingValue} >= {anchor} or {browsingValue} < {anchor}` - browsing around |
-| limit                 | integer | 100           | Number of records in response                                                                                                                                                                                                   |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not                                                                                                                             |
-| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                                                                                                                                                 |
+| Parameter             | Type    | Default value | Description                                                                                         |
+|:----------------------|:--------|:--------------|:----------------------------------------------------------------------------------------------------|
+| query                 | string  | -             | A Cql query for call-number browsing (check the query syntax [here](doc/browsing.md#query-syntax)   |
+| limit                 | integer | 100           | Number of records in response                                                                       |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not |
+| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                     |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
@@ -543,6 +549,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 |:-------------------------|:-------:|:---------------------------------------------------------------------|
 | `source`                 |  term   | Requests a source facet                                              |
 | `instanceTypeId`         |  term   | Requests a type id facet                                             |
+| `statusId`               |  term   | Requests a status id facet                                           |
 | `instanceFormatIds`      |  term   | Requests a format id facet                                           |
 | `modeOfIssuanceId`       |  term   | Requests a mode of issuance id facet                                 |
 | `natureOfContentTermIds` |  term   | Requests a nature of content terms id facet                          |
@@ -561,6 +568,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `holdings.discoverySuppress`   | term | Requests a holdings discovery suppress facet    |
 | `holdings.statisticalCodeIds`  | term | Requests a holdings statistical code ids        |
 | `holdings.sourceId`            | term | Requests a holdings sourceId facet              |
+| `holdingsTypeId`               | term | Requests a holdings typeId facet                |
 | `holdingsTags`                 | term | Requests a holdings tag facet                   |
 
 ### Item facets
@@ -629,4 +637,4 @@ and the [Docker image](https://hub.docker.com/r/folioorg/mod-search/)
 
 ### Development tips
 
-The development tips are described on the following page: [Development tips](DEVELOPMENT.md)
+The development tips are described on the following page: [Development tips](doc/development.md)

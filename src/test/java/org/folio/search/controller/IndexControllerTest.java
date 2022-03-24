@@ -3,7 +3,6 @@ package org.folio.search.controller;
 import static org.folio.search.support.base.ApiEndpoints.createIndicesEndpoint;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -32,6 +31,7 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
@@ -163,7 +163,7 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
@@ -176,7 +176,7 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON)
         .content(asJsonString(request))
         .param("recreateIndex", "true"))
@@ -191,7 +191,7 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .param("recreateIndex", "true"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -209,7 +209,7 @@ class IndexControllerTest {
       new ConstraintViolationException("error", Set.<ConstraintViolation<?>>of(constraintViolation)));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -223,7 +223,7 @@ class IndexControllerTest {
     when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(new IllegalArgumentException("invalid value"));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -236,7 +236,7 @@ class IndexControllerTest {
     return post(endpoint)
       .content(requestBody)
       .contentType(APPLICATION_JSON)
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID);
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
   }
 
   private static CreateIndexRequest createIndexRequest() {

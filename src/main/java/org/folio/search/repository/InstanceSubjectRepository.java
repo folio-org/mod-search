@@ -9,15 +9,15 @@ import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.BrowseUtils.SUBJECT_BROWSING_FIELD;
-import static org.folio.search.utils.BrowseUtils.getSubjectCounts;
-import static org.folio.search.utils.BrowseUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
+import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.SearchUtils.getSubjectCounts;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.Arrays;

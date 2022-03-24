@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 public class SearchQueryConfigurationProperties {
 
   /**
-   * Provides access for customization for call number browsing range offset to improve performance of the query.
-   */
-  private double callNumberRangeOffset = 0.5e18;
-
-  /**
    * Provides range query limit multiplier as double.
    */
-  private double rangeQueryLimitMultiplier = 2d;
+  private double rangeQueryLimitMultiplier = 3d;
+
+  /**
+   * Defines if call-number browse optimization is enabled or not.
+   */
+  private boolean callNumberBrowseOptimizationEnabled = true;
 }

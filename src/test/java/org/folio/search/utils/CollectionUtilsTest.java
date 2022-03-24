@@ -7,6 +7,7 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
+import static org.folio.search.utils.CollectionUtils.allMatch;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
@@ -140,6 +141,18 @@ class CollectionUtilsTest {
   void anyMatchTest_negative() {
     var given = List.of(1, 2, 3);
     assertThat(anyMatch(given, e -> e == 5)).isFalse();
+  }
+
+  @Test
+  void allMatch_positive() {
+    var given = List.of(1, 2, 3);
+    assertThat(allMatch(given, e -> e > 0)).isTrue();
+  }
+
+  @Test
+  void allMatch_negative() {
+    var given = List.of(1, -2, 3);
+    assertThat(allMatch(given, e -> e > 0)).isFalse();
   }
 
   @DisplayName("getValueBy_parameterized")

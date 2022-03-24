@@ -97,6 +97,10 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
+    "statusId": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
     "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
@@ -282,7 +286,9 @@
           }
         },
         "effectiveShelvingOrder": {
-          "index": "source",
+          "index": "keyword_uppercase",
+          "searchAliases": "callNumber",
+          "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
           "showInResponse": true
         },
         "tags": {
@@ -371,6 +377,10 @@
           "index": "keyword"
         },
         "sourceId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
+        "typeId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -486,6 +496,13 @@
       "index": "multilang",
       "processor": "holdingsPublicNotesProcessor"
     },
+    "oclc": {
+      "type": "search",
+      "processor": "oclcProcessor",
+      "searchTermProcessor": "oclcSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
+    },
     "isbn": {
       "type": "search",
       "processor": "isbnProcessor",
@@ -516,6 +533,12 @@
       "index": "keyword",
       "processor": "holdingsTagsProcessor"
     },
+    "holdingsTypeId": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsTypeIdProcessor"
+    },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
@@ -537,12 +560,14 @@
     "itemNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "items.normalizedCallNumbers" ],
       "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "holdings.normalizedCallNumbers" ],
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
@@ -564,7 +589,7 @@
     "callNumber": {
       "type": "search",
       "index": "long",
-      "searchTermProcessor": "callNumberBrowseSearchTermProcessor",
+      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
       "processor": "callNumberProcessor"
     },
     "allInstances": {

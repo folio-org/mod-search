@@ -61,24 +61,36 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
   }
 
   @Test
-  void browseByCallNumber_browsingAroundWithPrecedingRecordsCount() {
+  void browseByCallNumber_browsingAroundWhenPrecedingRecordsCountIsSix() {
     var request = get(instanceCallNumberBrowsePath())
       .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
-      .param("limit", "10")
+      .param("limit", "5")
       .param("expandAll", "true")
-      .param("precedingRecordsCount", "2");
+      .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(47, List.of(
+    assertThat(actual).isEqualTo(cnBrowseResult(48, List.of(
+      cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220"),
+      cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
       cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
       cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+      cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", "CE 16 B6713 X 41993", true)
+    )));
+  }
+
+  @Test
+  void browseByCallNumber_browsingAroundWhenPrecedingRecordsIsZero() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
+      .param("limit", "5")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "0");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(48, List.of(
       cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", "CE 16 B6713 X 41993", true),
       cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
       cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
       cnBrowseItem(instance("instance #38"), "CE 210 K297 41858"),
-      cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
-      cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
-      cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
-      cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975")
+      cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79")
     )));
   }
 
@@ -91,7 +103,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
 
-    assertThat(actual).isEqualTo(cnBrowseResult(47, List.of(
+    assertThat(actual).isEqualTo(cnBrowseResult(48, List.of(
       cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
       cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
       cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
@@ -112,7 +124,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
     var secondAnchorCallNumber = "DA 3890 A1";
 
     return Stream.of(
-      arguments(aroundQuery, firstAnchorCallNumber, 5, cnBrowseResult(46, List.of(
+      arguments(aroundQuery, firstAnchorCallNumber, 5, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
         cnBrowseItem(0, "CE 210 K297 41858", null, true),
@@ -120,7 +132,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
 
-      arguments(aroundQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
+      arguments(aroundQuery, secondAnchorCallNumber, 5, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(0, "DA 3890 A1", null, true),
@@ -128,7 +140,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
       ))),
 
-      arguments(aroundIncludingQuery, firstAnchorCallNumber, 5, cnBrowseResult(47, List.of(
+      arguments(aroundIncludingQuery, firstAnchorCallNumber, 5, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
         cnBrowseItem(instance("instance #38"), "CE 210 K297 41858", "CE 210 K297 41858", true),
@@ -136,7 +148,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
       ))),
 
-      arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(47, List.of(
+      arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(0, "DA 3890 A1", null, true),
@@ -145,7 +157,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // checks order of closely placed call-numbers
-      arguments(aroundIncludingQuery, secondAnchorCallNumber, 25, cnBrowseResult(47, List.of(
+      arguments(aroundIncludingQuery, secondAnchorCallNumber, 25, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
         cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
         cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3"),
@@ -174,16 +186,25 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // checks if collapsing by the same result works correctly
-      arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(47, List.of(
+      arguments(aroundIncludingQuery, "FC", 5, cnBrowseResult(43, List.of(
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
         cnBrowseItem(0, "FC", null, true),
         cnBrowseItem(3, "FC 17 B89"),
-        cnBrowseItem(instance("instance #17"), "GA 16 A63 41581")
+        cnBrowseItem(instance("instance #31"), "G 45831 S2")
+      ))),
+
+      // checks if collapsing by the same result works correctly
+      arguments(aroundIncludingQuery, "fc", 5, cnBrowseResult(43, List.of(
+        cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
+        cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
+        cnBrowseItem(0, "FC", null, true),
+        cnBrowseItem(3, "FC 17 B89"),
+        cnBrowseItem(instance("instance #31"), "G 45831 S2")
       ))),
 
       // browsing forward
-      arguments(forwardQuery, firstAnchorCallNumber, 5, cnBrowseResult(39, List.of(
+      arguments(forwardQuery, firstAnchorCallNumber, 5, cnBrowseResult(40, List.of(
         cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
         cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
         cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
@@ -201,11 +222,11 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, cnBrowseResult(13, List.of(
+        cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
         cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
         cnBrowseItem(3, "FC 17 B89"),
-        cnBrowseItem(instance("instance #17"), "GA 16 A63 41581"),
-        cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A")
+        cnBrowseItem(instance("instance #31"), "G 45831 S2")
       ))),
 
       arguments(forwardQuery, "Z", 10, cnBrowseResult(0, emptyList())),
@@ -227,7 +248,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // browsing backward
-      arguments(backwardQuery, firstAnchorCallNumber, 5, cnBrowseResult(7, List.of(
+      arguments(backwardQuery, firstAnchorCallNumber, 5, cnBrowseResult(8, List.of(
         cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
         cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
         cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
@@ -235,7 +256,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998")
       ))),
 
-      arguments(backwardQuery, secondAnchorCallNumber, 5, cnBrowseResult(23, List.of(
+      arguments(backwardQuery, secondAnchorCallNumber, 5, cnBrowseResult(24, List.of(
         cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
         cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
@@ -244,7 +265,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       ))),
 
       // check that collapsing works for browsing backward
-      arguments(backwardQuery, "G", 5, cnBrowseResult(40, List.of(
+      arguments(backwardQuery, "G", 5, cnBrowseResult(32, List.of(
         cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14"),
         cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
         cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
@@ -262,7 +283,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #38"), "CE 210 K297 41858")
       ))),
 
-      arguments(backwardIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(23, List.of(
+      arguments(backwardIncludingQuery, secondAnchorCallNumber, 5, cnBrowseResult(24, List.of(
         cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
         cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),

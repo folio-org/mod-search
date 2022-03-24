@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.languageConfig;
@@ -29,6 +28,7 @@ import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -53,7 +53,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(post(ApiEndpoints.languageConfig())
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("code", is(code)));
@@ -67,7 +67,7 @@ class ConfigControllerTest {
 
     when(languageConfigService.getAll()).thenReturn(languageConfigs);
     mockMvc.perform(get(ApiEndpoints.languageConfig())
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(1)))
@@ -84,7 +84,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("code", is(code)))
@@ -101,7 +101,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("total_records", is(1)))
@@ -114,7 +114,7 @@ class ConfigControllerTest {
   void updateLanguageConfig_negative_invalidCode() throws Exception {
     mockMvc.perform(post(ApiEndpoints.languageConfig())
         .content(asJsonString(languageConfig("english", "english")))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("total_records", is(1)))
@@ -132,7 +132,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(post(ApiEndpoints.languageConfig())
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isUnprocessableEntity())
       .andExpect(jsonPath("total_records", is(1)))
@@ -147,7 +147,7 @@ class ConfigControllerTest {
     var languageCode = "eng";
     doNothing().when(languageConfigService).delete(languageCode);
     mockMvc.perform(delete(ApiEndpoints.languageConfig(languageCode))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isNoContent());
   }
@@ -158,7 +158,7 @@ class ConfigControllerTest {
     when(featureConfigService.getAll()).thenReturn(new FeatureConfigs().features(List.of(feature)).totalRecords(1));
 
     var request = get(ApiEndpoints.featureConfig())
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -175,7 +175,7 @@ class ConfigControllerTest {
 
     var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -192,7 +192,7 @@ class ConfigControllerTest {
 
     var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -208,7 +208,7 @@ class ConfigControllerTest {
   void saveFeatureConfiguration_negative_invalidFeatureName() throws Exception {
     var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", "unknown-feature-name", "enabled", true)))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -223,7 +223,7 @@ class ConfigControllerTest {
   void saveFeatureConfiguration_negative_unexpectedBooleanValue() throws Exception {
     var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", SEARCH_ALL_FIELDS.getValue(), "enabled", "unknown")))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -242,7 +242,7 @@ class ConfigControllerTest {
 
     var request = put(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -255,7 +255,7 @@ class ConfigControllerTest {
   void deleteFeatureConfigurationById_positive() throws Exception {
     doNothing().when(featureConfigService).delete(SEARCH_ALL_FIELDS);
     var request = delete(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request).andExpect(status().isNoContent());

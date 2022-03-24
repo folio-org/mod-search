@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.PostConstruct;
@@ -39,6 +40,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LocalSearchFieldProvider implements SearchFieldProvider {
+
+  private static final String MORE_THEN_ONE_FIELD_MESSAGE =
+    "Invalid plain field descriptor for search alias '%s'. Alias for field with %s can't group more than 1 field.";
 
   private final MetadataResourceProvider metadataResourceProvider;
 
@@ -124,10 +128,13 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     var errors = new ArrayList<String>();
     var flattenFields = desc.getFlattenFields();
     fields.forEach((alias, searchFields) -> {
-      var facetFieldDescriptionCount = getFacetFieldDescription(flattenFields, searchFields);
+      var facetFieldDescriptionCount = getFacetFieldCount(flattenFields, searchFields);
       if (facetFieldDescriptionCount != 0 && searchFields.size() > 1) {
-        errors.add(String.format("Invalid plain field descriptor for search alias '%s'. "
-          + "Alias for field with searchType='facet' can't group more than 1 field.", alias));
+        errors.add(String.format(MORE_THEN_ONE_FIELD_MESSAGE, alias, "searchType='facet'"));
+      }
+      var searchTermProcessorFieldCount = getSearchTermProcessorFieldCount(flattenFields, searchFields);
+      if (searchTermProcessorFieldCount != 0 && searchFields.size() > 1) {
+        errors.add(String.format(MORE_THEN_ONE_FIELD_MESSAGE, alias, "searchTermProcessor"));
       }
     });
 
@@ -137,11 +144,20 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     }
   }
 
-  private static long getFacetFieldDescription(Map<String, PlainFieldDescription> fields, List<String> fieldNames) {
+  private static long getFacetFieldCount(Map<String, PlainFieldDescription> fields, List<String> fieldNames) {
     return fieldNames.stream()
       .map(LocalSearchFieldProvider::cleanUpFieldNameForValidation)
       .map(fields::get)
       .filter(desc -> anyMatch(desc.getSearchTypes(), FACET::equals))
+      .count();
+  }
+
+  private static long getSearchTermProcessorFieldCount(Map<String, PlainFieldDescription> fields,
+                                                       List<String> fieldNames) {
+    return fieldNames.stream()
+      .map(LocalSearchFieldProvider::cleanUpFieldNameForValidation)
+      .map(fields::get)
+      .filter(desc -> !Objects.isNull(desc.getSearchTermProcessor()))
       .count();
   }
 

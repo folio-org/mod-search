@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
@@ -26,6 +27,7 @@ public class SearchTenantService {
   private final FolioExecutionContext context;
   private final SystemUserService systemUserService;
   private final LanguageConfigService languageConfigService;
+  private final CallNumberBrowseRangeService callNumberBrowseRangeService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
 
@@ -69,12 +71,14 @@ public class SearchTenantService {
   }
 
   /**
-   * Removes elasticsearch indices for all supported record types.
+   * Disables tenant by removes elasticsearch indices for all supported record types and cleaning related caches.
    */
-  public void removeElasticsearchIndexes() {
+  public void disableTenant() {
+    var tenantId = context.getTenantId();
+    callNumberBrowseRangeService.evictRangeCache(tenantId);
     resourceDescriptionService.getResourceNames().forEach(name -> {
-      log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, context.getTenantId());
-      indexService.dropIndex(name, context.getTenantId());
+      log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, tenantId);
+      indexService.dropIndex(name, tenantId);
     });
   }
 }

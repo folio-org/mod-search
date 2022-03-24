@@ -41,7 +41,7 @@ public class FolioTenantController extends TenantController {
   @Override
   public void disableTenant() {
     super.disableTenant();
-    tenantService.removeElasticsearchIndexes();
+    tenantService.disableTenant();
   }
 
   private static boolean isDeleteJob(TenantAttributes tenantAttributes) {

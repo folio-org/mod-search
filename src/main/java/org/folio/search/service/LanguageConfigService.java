@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.converter.LanguageConfigConverter;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
@@ -30,6 +31,7 @@ public class LanguageConfigService {
   private final LanguageConfigRepository configRepository;
   private final LocalSearchFieldProvider searchFieldProvider;
   private final TenantScopedExecutionService executionService;
+  private final SearchConfigurationProperties searchConfiguration;
 
   /**
    * Creates tenant's language configuration using given {@link LanguageConfig} dto object.
@@ -47,9 +49,12 @@ public class LanguageConfigService {
       throw new ValidationException("Language has no analyzer available", "code", languageCode);
     }
 
-    if (configRepository.count() > 4) {
-      log.warn("Tenant is allowed to have only 5 languages configured");
-      throw new ValidationException("Tenant is allowed to have only 5 languages configured", "code", languageCode);
+    var maxSupportedLanguages = searchConfiguration.getMaxSupportedLanguages();
+    if (configRepository.count() >= maxSupportedLanguages) {
+      log.warn("Tenant is allowed to have only {} languages configured", maxSupportedLanguages);
+      throw new ValidationException(String.format(
+        "Tenant is allowed to have only %s languages configured", maxSupportedLanguages),
+        "code", languageCode);
     }
 
     return toLanguageConfig(configRepository.save(entity));

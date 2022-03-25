@@ -1,10 +1,10 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.*;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
@@ -14,6 +14,8 @@ import java.util.List;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -54,6 +56,15 @@ class SearchServiceTest {
 
     var actual = searchService.search(searchRequest);
     assertThat(actual).isEqualTo(expectedSearchResult);
+  }
+
+  @Test
+  void search_negative_sumOfOffsetAndLimitExceeds10000() {
+    var searchRequest = CqlSearchRequest
+      .of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false);
+    assertThatThrownBy(() -> searchService.search(searchRequest))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("The sum of limit and offset should not exceed 10000.");
   }
 
   @Test

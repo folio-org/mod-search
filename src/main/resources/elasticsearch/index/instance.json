@@ -7,7 +7,13 @@
     "mapping.total_fields.limit": 1000
   },
   "analysis": {
-    "char_filter": { },
+    "char_filter": {
+      "apostrophe_replace_char_filter": {
+        "type": "pattern_replace",
+        "pattern": "(\\S+)'(\\S+)",
+        "replacement": "$1$2 $1 $2"
+      }
+    },
     "normalizer": {
       "keyword_lowercase": {
         "filter": [ "lowercase" ],
@@ -20,8 +26,9 @@
     },
     "analyzer": {
       "source_analyzer": {
-        "tokenizer": "standard",
+        "tokenizer": "icu_tokenizer",
         "filter": [ "lowercase", "icu_folding" ],
+        "char_filter": [ "apostrophe_replace_char_filter" ],
         "type": "custom"
       }
     },

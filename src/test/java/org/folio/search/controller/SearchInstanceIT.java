@@ -58,6 +58,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "itemPublicNotes == {value}, private circulation note",
     "holdingsPublicNotes == {value}, librarian private note",
     "issn = {value}, 03178471",
+    "oclc = {value}, 0262012103"
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
@@ -192,6 +193,11 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("issn = {value}", "0317-8471"),
       arguments("issn = {value}", "0317*"),
+
+      // search by oclc
+      arguments("oclc = {value}", "12345 800630"),
+      arguments("oclc = {value}", "ocm60710867"),
+      arguments("oclc = {value}", "60710*"),
 
       // search by item fields
       arguments("items.hrid = {value}", "item000000000014"),

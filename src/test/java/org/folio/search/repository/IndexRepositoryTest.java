@@ -1,6 +1,5 @@
 package org.folio.search.repository;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
@@ -134,7 +133,7 @@ class IndexRepositoryTest {
     var deleteIndexRequestCaptor = ArgumentCaptor.forClass(DeleteIndexRequest.class);
 
     when(restHighLevelClient.indices()).thenReturn(indices);
-    when(indices.delete(deleteIndexRequestCaptor.capture(), eq(DEFAULT))).thenReturn(AcknowledgedResponse.TRUE);
+    when(indices.delete(deleteIndexRequestCaptor.capture(), eq(DEFAULT))).thenReturn(new AcknowledgedResponse(true));
 
     indexRepository.dropIndex(INDEX_NAME);
 
@@ -144,7 +143,7 @@ class IndexRepositoryTest {
   @Test
   void refreshIndex_positive() throws IOException {
     var refreshRequest = ArgumentCaptor.forClass(RefreshRequest.class);
-    var refreshResponse = new RefreshResponse(1, 1, 0, emptyList());
+    var refreshResponse = mock(RefreshResponse.class);
 
     when(restHighLevelClient.indices()).thenReturn(indices);
     when(indices.refresh(refreshRequest.capture(), eq(DEFAULT))).thenReturn(refreshResponse);

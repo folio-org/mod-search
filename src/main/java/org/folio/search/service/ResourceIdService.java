@@ -77,7 +77,7 @@ public class ResourceIdService {
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())
       .fetchSource(new String[] {request.getSourceFieldPath()}, null)
-      .sort(List.of(fieldSort("_doc")));
+      .sort(fieldSort("_doc"));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);
   }

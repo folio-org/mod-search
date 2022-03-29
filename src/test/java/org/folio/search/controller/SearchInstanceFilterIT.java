@@ -404,7 +404,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .tags(tags("itag1", "itag3"))))
       .holdings(List.of(
         new Holding().id(randomId())
-          .typeId(HOLDINGS_TYPES[0])
+          .holdingsTypeId(HOLDINGS_TYPES[0])
           .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
           .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
 
@@ -427,7 +427,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
           .tags(tags("itag2", "itag3"))))
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
-        .typeId(HOLDINGS_TYPES[1])
+        .holdingsTypeId(HOLDINGS_TYPES[1])
         .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
 
@@ -463,11 +463,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
-          .typeId(HOLDINGS_TYPES[1])
+          .holdingsTypeId(HOLDINGS_TYPES[1])
           .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
           .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1])
-          .typeId(HOLDINGS_TYPES[0])
+          .holdingsTypeId(HOLDINGS_TYPES[0])
           .tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 

@@ -3,6 +3,7 @@ package org.folio.search.service.browse;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -38,7 +39,12 @@ class AbstractBrowseServiceBySearchAfterTest {
     }
 
     @Override
-    protected SearchResult mapToBrowseResult(SearchResult result, boolean isAnchor) {
+    protected BrowseResult mapToBrowseResult(SearchResult searchResult, boolean isAnchor) {
+      return null;
+    }
+
+    @Override
+    protected String getValueForBrowsing(Object browseItem) {
       return null;
     }
   }

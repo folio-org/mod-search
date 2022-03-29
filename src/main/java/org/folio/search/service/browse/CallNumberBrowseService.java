@@ -1,8 +1,6 @@
 package org.folio.search.service.browse;
 
 import static java.lang.Boolean.TRUE;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
@@ -12,7 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
-import org.folio.search.model.SearchResult;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
@@ -27,8 +25,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
 
   @Override
-  protected SearchResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
-    var isForwardBrowsing = context.isForwardBrowsing();
+  protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    var isForwardBrowsing = context.isBrowsingForward();
     var searchSource = callNumberBrowseQueryProvider.get(request, context, isForwardBrowsing);
     var searchResponse = searchRepository.search(request, searchSource);
 
@@ -38,7 +36,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   @Override
-  protected SearchResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
+  protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
     var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
     var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
@@ -53,12 +51,13 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var precedingRecords = trim(precedingResult.getRecords(), context, false);
     var succeedingRecords = trim(succeedingResult.getRecords(), context, true);
-    return SearchResult.of(
+    return BrowseResult.of(
       precedingResult.getTotalRecords() + succeedingResult.getTotalRecords(),
+      null, null,
       mergeSafelyToList(precedingRecords, succeedingRecords));
   }
 
-  private static void highlightMatchingCallNumber(BrowseContext ctx, SearchResult<CallNumberBrowseItem> result) {
+  private static void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var anchor = ctx.getAnchor();
 
@@ -81,12 +80,5 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
     return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
-  }
-
-  private static List<CallNumberBrowseItem> trim(List<CallNumberBrowseItem> items, BrowseContext ctx,
-    boolean isForwardBrowsing) {
-    return isForwardBrowsing
-      ? items.subList(0, min(ctx.getLimit(true), items.size()))
-      : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
   }
 }

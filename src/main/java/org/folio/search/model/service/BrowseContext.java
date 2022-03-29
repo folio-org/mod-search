@@ -40,7 +40,7 @@ public class BrowseContext {
    *
    * @return true - if context is purposed for browsing forward
    */
-  public boolean isForwardBrowsing() {
+  public boolean isBrowsingForward() {
     return this.succeedingQuery != null;
   }
 

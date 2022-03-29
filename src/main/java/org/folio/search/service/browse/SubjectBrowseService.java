@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static java.util.Collections.emptyMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
@@ -18,6 +17,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.SubjectBrowseItem;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.BrowseContext;
@@ -30,21 +30,20 @@ import org.springframework.stereotype.Service;
 public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<SubjectBrowseItem, SubjectBrowseItem> {
 
   @Override
-  protected SearchResult<SubjectBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
-    var searchResult = super.browseAround(request, context);
-    var records = getSubjectBrowseItems(request, context, searchResult.getRecords());
-    return SearchResult.of(searchResult.getTotalRecords(), records);
+  protected BrowseResult<SubjectBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
+    var browseResult = super.browseAround(request, context);
+    var records = getSubjectBrowseItems(request, browseResult.getRecords());
+    return browseResult.records(records);
   }
 
   @Override
-  protected SearchResult<SubjectBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
-    var searchResult = super.browseInOneDirection(request, context);
-    var subjectBrowseItems = getSubjectBrowseItems(request, context, searchResult.getRecords());
-    return SearchResult.of(searchResult.getTotalRecords(), subjectBrowseItems);
+  protected BrowseResult<SubjectBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    var browseResult = super.browseInOneDirection(request, context);
+    var subjectBrowseItems = getSubjectBrowseItems(request, browseResult.getRecords());
+    return browseResult.records(subjectBrowseItems);
   }
 
-  private List<SubjectBrowseItem> getSubjectBrowseItems(BrowseRequest request, BrowseContext context,
-    List<SubjectBrowseItem> items) {
+  private List<SubjectBrowseItem> getSubjectBrowseItems(BrowseRequest request, List<SubjectBrowseItem> items) {
     var subjects = items.stream()
       .filter(item -> item.getTotalRecords() == null)
       .map(SubjectBrowseItem::getSubject)
@@ -54,9 +53,6 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     for (var item : items) {
       if (item.getTotalRecords() == null) {
         var subjectAsMapKey = item.getSubject().toLowerCase(ROOT);
-        if (isHighlightedResult(request, context) && equalsIgnoreCase(subjectAsMapKey, context.getAnchor())) {
-          item.isAnchor(true);
-        }
         item.totalRecords(subjectCounts.getOrDefault(subjectAsMapKey, 0L).intValue());
       }
     }
@@ -70,9 +66,9 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   }
 
   @Override
-  protected SearchResult<SubjectBrowseItem> mapToBrowseResult(
-    SearchResult<SubjectBrowseItem> result, boolean isAnchor) {
-    return result;
+  protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(SearchResult<SubjectBrowseItem> res, boolean isAnchor) {
+    var browseResult = BrowseResult.of(res);
+    return isAnchor ? browseResult.map(record -> record.isAnchor(true)) : browseResult;
   }
 
   @Override
@@ -85,8 +81,13 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     return searchSource().query(matchAllQuery())
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .size(ctx.getLimit(isBrowsingForward))
+      .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
+  }
+
+  @Override
+  protected String getValueForBrowsing(SubjectBrowseItem browseItem) {
+    return browseItem.getSubject();
   }
 
   private Map<String, Long> getSubjectCounts(BrowseRequest request, List<String> subjects) {

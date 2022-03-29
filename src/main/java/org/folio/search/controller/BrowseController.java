@@ -41,7 +41,9 @@ public class BrowseController implements BrowseApi {
     var instanceByCallNumber = callNumberBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new CallNumberBrowseResult()
       .items(instanceByCallNumber.getRecords())
-      .totalRecords(instanceByCallNumber.getTotalRecords()));
+      .totalRecords(instanceByCallNumber.getTotalRecords())
+      .prev(instanceByCallNumber.getPrev())
+      .next(instanceByCallNumber.getNext()));
   }
 
   @Override
@@ -53,7 +55,9 @@ public class BrowseController implements BrowseApi {
     var browseResult = subjectBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new SubjectBrowseResult()
       .items(browseResult.getRecords())
-      .totalRecords(browseResult.getTotalRecords()));
+      .totalRecords(browseResult.getTotalRecords())
+      .prev(browseResult.getPrev())
+      .next(browseResult.getNext()));
   }
 
   @Override
@@ -64,7 +68,9 @@ public class BrowseController implements BrowseApi {
     var browseResult = authorityBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new AuthorityBrowseResult()
       .items(browseResult.getRecords())
-      .totalRecords(browseResult.getTotalRecords()));
+      .totalRecords(browseResult.getTotalRecords())
+      .prev(browseResult.getPrev())
+      .next(browseResult.getNext()));
   }
 
   private static BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,

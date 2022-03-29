@@ -533,6 +533,12 @@
       "index": "keyword",
       "processor": "holdingsTagsProcessor"
     },
+    "holdingsTypeId": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsTypeIdProcessor"
+    },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",

@@ -9,7 +9,7 @@
   "analysis": {
     "filter": {
       "folio_word_delimiter_graph": {
-        "type": "word_delimiter",
+        "type": "word_delimiter_graph",
         "catenate_words": true
       }
     },

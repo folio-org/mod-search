@@ -9,11 +9,8 @@
   "analysis": {
     "filter": {
       "folio_word_delimiter_graph": {
-        "type": "word_delimiter",
-        "generate_word_parts": true,
-        "generate_number_parts": true,
-        "catenate_words": true,
-        "catenate_numbers": false
+        "type": "word_delimiter_graph",
+        "catenate_words": true
       }
     },
     "normalizer": {

@@ -6,7 +6,7 @@
   },
   "fields": {
     "subject": {
-      "index": "plain_fulltext"
+      "index": "keyword_lowercase"
     }
   }
 }

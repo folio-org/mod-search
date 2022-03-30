@@ -472,13 +472,13 @@
     "sort_title": {
       "searchTypes": "sort",
       "type": "search",
-      "index": "lowercase_sort",
+      "index": "keyword_lowercase",
       "processor": "sortTitleProcessor"
     },
     "sort_contributors": {
       "searchTypes": "sort",
       "type": "search",
-      "index": "lowercase_sort",
+      "index": "keyword_lowercase",
       "processor": "sortContributorsProcessor"
     },
     "publicNotes": {

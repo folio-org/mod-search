@@ -7,11 +7,13 @@
     "mapping.total_fields.limit": 1000
   },
   "analysis": {
-    "char_filter": {
-      "apostrophe_replace_char_filter": {
-        "type": "pattern_replace",
-        "pattern": "(\\S+)'(\\S+)",
-        "replacement": "$1$2 $1 $2"
+    "filter": {
+      "folio_word_delimiter_graph": {
+        "type": "word_delimiter",
+        "generate_word_parts": true,
+        "generate_number_parts": true,
+        "catenate_words": true,
+        "catenate_numbers": false
       }
     },
     "normalizer": {
@@ -27,8 +29,7 @@
     "analyzer": {
       "source_analyzer": {
         "tokenizer": "icu_tokenizer",
-        "filter": [ "lowercase", "icu_folding" ],
-        "char_filter": [ "apostrophe_replace_char_filter" ],
+        "filter": [ "icu_folding", "folio_word_delimiter_graph" ],
         "type": "custom"
       }
     },

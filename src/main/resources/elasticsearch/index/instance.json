@@ -26,7 +26,7 @@
     "analyzer": {
       "source_analyzer": {
         "tokenizer": "icu_tokenizer",
-        "filter": [ "icu_folding", "folio_word_delimiter_graph" ],
+        "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
         "type": "custom"
       }
     },

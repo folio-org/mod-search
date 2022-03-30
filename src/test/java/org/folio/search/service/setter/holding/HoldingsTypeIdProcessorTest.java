@@ -45,7 +45,7 @@ class HoldingsTypeIdProcessorTest {
 
   private static Instance instanceWithHoldingsTypeId(String... ids) {
     var instance = new Instance();
-    Arrays.stream(ids).forEach(id -> instance.addHoldingsItem(new Holding().typeId(id)));
+    Arrays.stream(ids).forEach(id -> instance.addHoldingsItem(new Holding().holdingsTypeId(id)));
     return instance;
   }
 }

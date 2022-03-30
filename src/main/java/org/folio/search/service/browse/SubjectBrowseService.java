@@ -68,7 +68,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   @Override
   protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(SearchResult<SubjectBrowseItem> res, boolean isAnchor) {
     var browseResult = BrowseResult.of(res);
-    return isAnchor ? browseResult.map(record -> record.isAnchor(true)) : browseResult;
+    return isAnchor ? browseResult.map(item -> item.isAnchor(true)) : browseResult;
   }
 
   @Override

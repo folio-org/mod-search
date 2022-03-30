@@ -21,7 +21,7 @@ public abstract class AbstractBrowseService<T> {
    */
   public BrowseResult<T> browse(BrowseRequest request) {
     var context = browseContextProvider.get(request);
-    return context.isAroundBrowsing() ? browseAround(request, context) : browseInOneDirection(request, context);
+    return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
   }
 
   /**

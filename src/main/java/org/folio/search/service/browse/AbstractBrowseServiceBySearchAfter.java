@@ -119,17 +119,6 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    */
   protected abstract String getValueForBrowsing(T browseItem);
 
-  /**
-   * Checks if browsing result anchor value must be highlighted or not.
-   *
-   * @param request - {@link BrowseRequest} object with inputs from a user
-   * @param context - {@link BrowseContext} with necessary information for browsing.
-   * @return true - if anchor result must be highlighted, false - otherwise
-   */
-  protected static boolean isHighlightedResult(BrowseRequest request, BrowseContext context) {
-    return isTrue(request.getHighlightMatch()) && context.isAroundBrowsing();
-  }
-
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
     var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
     var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
@@ -148,16 +137,17 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
+    var isAnchorHighlighted = isTrue(request.getHighlightMatch());
     if (!context.isAnchorIncluded()) {
-      return isHighlightedResult(request, context)
+      return isAnchorHighlighted
         ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
         : BrowseResult.empty();
     }
 
     var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
-    return isHighlightedResult(request, context) && anchorResult.getTotalRecords() == 0
+    return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
       ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
-      : mapToBrowseResult(anchorResult, isHighlightedResult(request, context));
+      : mapToBrowseResult(anchorResult, isAnchorHighlighted);
   }
 
   private BrowseResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {

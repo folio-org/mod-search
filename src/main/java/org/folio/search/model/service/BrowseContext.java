@@ -31,7 +31,7 @@ public class BrowseContext {
    *
    * @return true - if context is purposed for browsing around
    */
-  public boolean isAroundBrowsing() {
+  public boolean isBrowsingAround() {
     return this.precedingQuery != null && this.succeedingQuery != null;
   }
 

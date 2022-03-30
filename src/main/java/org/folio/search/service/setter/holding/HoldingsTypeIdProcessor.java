@@ -15,8 +15,8 @@ public class HoldingsTypeIdProcessor implements FieldProcessor<Instance, Set<Str
   @Override
   public Set<String> getFieldValue(Instance instance) {
     return toStreamSafe(instance.getHoldings())
-      .filter(holding -> isNotBlank(holding.getTypeId()))
-      .map(holding -> holding.getTypeId().trim())
+      .filter(holding -> isNotBlank(holding.getHoldingsTypeId()))
+      .map(holding -> holding.getHoldingsTypeId().trim())
       .collect(toSet());
   }
 }

@@ -380,7 +380,7 @@
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
-        "typeId": {
+        "holdingsTypeId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },

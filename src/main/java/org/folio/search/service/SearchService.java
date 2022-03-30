@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
@@ -30,6 +31,10 @@ public class SearchService {
    * @return search result.
    */
   public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
+    if (request.getOffset() + request.getLimit() > 10_000L) {
+      throw new RequestValidationException("The sum of limit and offset should not exceed 10000.",
+        "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
+    }
     var resource = request.getResource();
     var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
       .from(request.getOffset())

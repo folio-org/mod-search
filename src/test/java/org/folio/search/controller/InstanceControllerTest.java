@@ -75,6 +75,25 @@ class InstanceControllerTest {
   }
 
   @Test
+  void search_offset_limit_10k() throws Exception {
+
+    var cqlQuery = "title all \"test-query\"";
+
+    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenReturn(searchResult());
+
+    var requestBuilder = get("/search/instances")
+      .queryParam("query", cqlQuery)
+      .queryParam("limit", "100")
+      .queryParam("offset", "10000")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest());
+  }
+
+
+  @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
     var elasticsearchException = new ElasticsearchException("Elasticsearch exception ["

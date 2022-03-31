@@ -13,12 +13,14 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
@@ -28,6 +30,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
 
@@ -309,6 +312,23 @@ public class SearchUtils {
       .stream()
       .flatMap(Collection::stream)
       .collect(toMap(Bucket::getKeyAsString, Bucket::getDocCount));
+  }
+
+  /**
+   * Returns number of requests in map as integer value.
+   *
+   * @param requestsPerResource - map with requests per resource name
+   * @return number of requests as integer value
+   */
+  public static int getNumberOfRequests(Map<String, List<SearchDocumentBody>> requestsPerResource) {
+    if (MapUtils.isEmpty(requestsPerResource)) {
+      return 0;
+    }
+
+    return requestsPerResource.values().stream()
+      .filter(Objects::nonNull)
+      .mapToInt(List::size)
+      .sum();
   }
 
   private static Object getMultilangValueObject(Object value) {

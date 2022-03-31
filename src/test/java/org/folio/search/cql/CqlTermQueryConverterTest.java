@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
+import static org.folio.search.utils.TestUtils.plainField;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -70,6 +72,39 @@ class CqlTermQueryConverterTest {
     when(searchFieldProvider.getFields(RESOURCE_NAME, "keyword")).thenReturn(List.of("title.*"));
     when(wildcardQueryBuilder.getQuery("book*", RESOURCE_NAME, "title.*")).thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("keyword all book*"), RESOURCE_NAME);
+    assertThat(actual).isEqualTo(expectedQuery);
+  }
+
+  @Test
+  void getQuery_positive_callNumberProcessing() {
+    var fieldDesc = plainField("long");
+    fieldDesc.setSearchTermProcessor("processor");
+    var expectedQuery = rangeQuery("callNumber").gt(100L);
+
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "callNumber")).thenReturn(Optional.of(fieldDesc));
+    when(searchTermProcessor.getSearchTerm("A")).thenReturn(100L);
+    when(termQueryBuilder.getTermLevelQuery(100L, "callNumber", RESOURCE_NAME, "long")).thenReturn(expectedQuery);
+
+    var actual = cqlTermQueryConverter.getQuery(cqlTermNode("callNumber all A"), RESOURCE_NAME);
+
+    assertThat(actual).isEqualTo(expectedQuery);
+  }
+
+  @Test
+  void getQuery_positive_shouldFindProcessorForSearchAlias() {
+    var fieldName = "nameA";
+    var fieldSearchAlias = "nameB";
+    var expectedQuery = rangeQuery(fieldName).gt(100L);
+    var fieldDesc = plainField("long");
+    fieldDesc.setSearchTermProcessor("processor");
+
+    when(termQueryBuilder.getQuery(100L, RESOURCE_NAME, fieldSearchAlias)).thenReturn(expectedQuery);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, fieldName)).thenReturn(List.of(fieldSearchAlias));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, fieldSearchAlias)).thenReturn(Optional.of(fieldDesc));
+    when(searchTermProcessor.getSearchTerm("value")).thenReturn(100L);
+
+    var actual = cqlTermQueryConverter.getQuery(cqlTermNode(fieldName + " all value"), RESOURCE_NAME);
+
     assertThat(actual).isEqualTo(expectedQuery);
   }
 

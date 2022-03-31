@@ -169,6 +169,17 @@ class CqlSearchQueryConverterTest {
   }
 
   @Test
+  void convert_positive_oclcSearch() {
+    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
+      Optional.of(keywordFieldWithProcessor("oclcSearchTermProcessor")));
+
+    var actual = cqlSearchQueryConverter.convert(FIELD + " = 00061712", RESOURCE_NAME);
+
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "61712").operator(AND)));
+  }
+
+  @Test
   void convert_negative_searchTermProcessorNotFound() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("termProcessor")));
@@ -437,13 +448,18 @@ class CqlSearchQueryConverterTest {
   }
 
   @TestConfiguration
-  @Import(CqlTermQueryConverter.class)
+  @Import({CqlTermQueryConverter.class, CqlQueryParser.class})
   @ComponentScan("org.folio.search.cql.builders")
   static class ConverterTestConfiguration {
 
     @Bean
     SearchTermProcessor isbnSearchTermProcessor() {
       return inputTerm -> inputTerm.replaceAll("\\s+", "");
+    }
+
+    @Bean
+    SearchTermProcessor oclcSearchTermProcessor() {
+      return inputTerm -> inputTerm.replaceAll("0", "");
     }
   }
 }

@@ -42,6 +42,10 @@
       "description": "arbitrary tags associated with this holding",
       "$ref": "tags.json"
     },
+    "holdingsTypeId": {
+      "type": "string",
+      "description": "unique ID for the type of this holdings record, a UUID"
+    },
     "callNumberPrefix": {
       "type": "string",
       "description": "Prefix of the call number on the holding level."
@@ -67,6 +71,9 @@
       "items": {
         "$ref": "note.json"
       }
+    },
+    "metadata": {
+      "$ref": "metadata.json"
     }
   }
 }

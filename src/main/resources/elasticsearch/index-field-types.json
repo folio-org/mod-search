@@ -9,6 +9,17 @@
       "type": "boolean"
     }
   },
+  "long": {
+    "mapping": {
+      "type": "long"
+    }
+  },
+  "keyword_uppercase": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_uppercase"
+    }
+  },
   "lowercase_sort": {
     "mapping": {
       "type": "keyword",

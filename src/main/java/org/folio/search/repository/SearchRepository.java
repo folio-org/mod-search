@@ -5,16 +5,21 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
+import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
-import static org.folio.search.utils.SearchUtils.getElasticsearchIndexName;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.MultiSearchRequest;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.MultiSearchResponse.Item;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
@@ -23,6 +28,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +44,7 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
-  private final RestHighLevelClient elasticsearchClient;
+  private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
 
@@ -50,13 +56,35 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
-    var index = getElasticsearchIndexName(resourceRequest);
-    var searchRequest = new SearchRequest()
-      .routing(resourceRequest.getTenantId())
-      .source(searchSource)
-      .indices(index);
+    var index = getIndexName(resourceRequest);
+    var searchRequest = buildSearchRequest(resourceRequest, index, searchSource);
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, "searchApi");
+  }
 
-    return performExceptionalOperation(() -> elasticsearchClient.search(searchRequest, DEFAULT), index, "searchApi");
+  /**
+   * Executes multi-search request to elasticsearch and returns search result with related documents.
+   *
+   * @param resourceRequest resource request as {@link ResourceRequest} object.
+   * @param searchSources - collection with elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @return search result as {@link MultiSearchResponse} object.
+   */
+  public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
+    var index = getIndexName(resourceRequest);
+    var request = new MultiSearchRequest();
+    searchSources.forEach(source -> request.add(buildSearchRequest(resourceRequest, index, source)));
+    var response = performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi");
+
+    if (isFailedMultiSearchRequest(response.getResponses(), searchSources.size())) {
+      var failureMessages = stream(response.getResponses())
+        .map(Item::getFailureMessage)
+        .filter(Objects::nonNull)
+        .collect(toList());
+
+      throw new SearchServiceException(String.format(
+        "Failed to perform multi-search operation [errors: %s]", failureMessages));
+    }
+
+    return response;
   }
 
   /**
@@ -66,7 +94,7 @@ public class SearchRepository {
    * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
-    var index = getElasticsearchIndexName(req);
+    var index = getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
       .routing(req.getTenantId())
@@ -74,7 +102,7 @@ public class SearchRepository {
       .indices(index);
 
     var searchResponse = performExceptionalOperation(
-      () -> elasticsearchClient.search(searchRequest, DEFAULT), index, "searchApi");
+      () -> client.search(searchRequest, DEFAULT), index, "searchApi");
     var scrollId = searchResponse.getScrollId();
     var searchHits = searchResponse.getHits().getHits();
 
@@ -82,7 +110,7 @@ public class SearchRepository {
       consumer.accept(getResourceIds(searchHits, req.getSourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
       var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
-        () -> elasticsearchClient.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
+        () -> client.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();
     }
@@ -90,11 +118,15 @@ public class SearchRepository {
     clearScrollAfterStreaming(index, scrollId);
   }
 
+  private static SearchRequest buildSearchRequest(ResourceRequest request, String index, SearchSourceBuilder source) {
+    return new SearchRequest().routing(request.getTenantId()).source(source).indices(index);
+  }
+
   private void clearScrollAfterStreaming(String index, String scrollId) {
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
     var clearScrollResponse = performExceptionalOperation(
-      () -> elasticsearchClient.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi");
+      () -> client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi");
     if (!clearScrollResponse.isSucceeded()) {
       log.warn("Failed to clear scroll [index: {}, scrollId: '{}']", index, scrollId);
     }
@@ -106,5 +138,9 @@ public class SearchRepository {
       .map(sourceMap -> getValuesByPath(sourceMap, sourceFieldPath))
       .flatMap(Collection::stream)
       .collect(toList());
+  }
+
+  private static boolean isFailedMultiSearchRequest(Item[] responses, int expectedCount) {
+    return responses.length != expectedCount || anyMatch(List.of(responses), resp -> resp.getFailure() != null);
   }
 }

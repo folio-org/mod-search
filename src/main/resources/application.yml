@@ -9,10 +9,9 @@ spring:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
   elasticsearch:
-    rest:
-      username: ${ELASTICSEARCH_USERNAME:}
-      password: ${ELASTICSEARCH_PASSWORD:}
-      uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
+    uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
@@ -24,7 +23,6 @@ spring:
       key-store-location: ${KAFKA_SSL_KEYSTORE_LOCATION:}
       trust-store-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
       trust-store-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
-
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
@@ -48,6 +46,14 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     search-features:
       search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+    indexing:
+      instance-subjects:
+        retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
+  query:
+    properties:
+      call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
+  cache:
+    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterAccess=300s
   module-user:
     store-type: ${MODULE_USER_STORE_TYPE:ephemeral}
     cache-capacity: ${MODULE_USER_CACHE_CAPACITY:100}
@@ -78,7 +84,7 @@ application:
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${application.environment}-mod-search-events-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
@@ -89,6 +95,3 @@ server.port: 8081
 management.endpoints.web:
   base-path: /admin
   exposure.include: info,health,liquibase,threaddump,heapdump
-
-logging:
-  config: classpath:logger/log4j2.xml

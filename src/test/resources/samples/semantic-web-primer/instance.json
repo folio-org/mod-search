@@ -47,6 +47,14 @@
     {
       "value": "0317-8471",
       "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+    },
+    {
+      "value": "(OCoLC)ocm0060710867",
+      "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+    },
+    {
+      "value": "ocm0012345 800630",
+      "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
     }
   ],
   "contributors": [
@@ -126,6 +134,7 @@
   "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
   "catalogedDate": "2019-04-05",
   "discoverySuppress": false,
+  "isBoundWith": true,
   "statisticalCodeIds": [
     "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
   ],

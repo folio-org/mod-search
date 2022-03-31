@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UniformTitleProcessor implements FieldProcessor<Instance, Set<String>> {
 
-  private final InstanceReferenceDataService referenceDataService;
+  private final ReferenceDataService referenceDataService;
   private final List<String> uniformTitleTypeNames = singletonList("Uniform Title");
 
   @Override

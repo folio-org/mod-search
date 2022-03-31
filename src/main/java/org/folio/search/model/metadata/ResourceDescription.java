@@ -23,6 +23,11 @@ public class ResourceDescription {
   private String name;
 
   /**
+   * Name of the parent resource description (can be used if the resource is created from the parent for some purposes).
+   */
+  private String parent;
+
+  /**
    * Related java class for event body.
    */
   private Class<?> eventBodyJavaClass;
@@ -59,6 +64,11 @@ public class ResourceDescription {
    * Mappings source definition.
    */
   private Map<String, List<String>> mappingsSource;
+
+  /**
+   * Resource indexing configuration - pre-processing, resource repository settings etc.
+   */
+  private ResourceIndexingConfiguration indexingConfiguration;
 
   /**
    * Map with field description where key is the flattened path.

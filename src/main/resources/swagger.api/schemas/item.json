@@ -22,6 +22,10 @@
         "type": "string"
       }
     },
+    "itemIdentifier": {
+      "type": "string",
+      "description": "Item identifier number, e.g. imported from the union catalogue (read only)."
+    },
     "barcode": {
       "type": "string",
       "description": "Unique inventory control number for physical resources, used largely for circulation purposes"
@@ -66,6 +70,10 @@
         }
       }
     },
+    "effectiveShelvingOrder": {
+      "type": "string",
+      "description": "A system generated normalization of the call number that allows for call number sorting in reports and search results"
+    },
     "tags": {
       "description": "arbitrary tags associated with this item",
       "$ref": "tags.json"
@@ -98,6 +106,9 @@
       "items": {
         "$ref": "circulationNote.json"
       }
+    },
+    "metadata": {
+      "$ref": "metadata.json"
     }
   }
 }

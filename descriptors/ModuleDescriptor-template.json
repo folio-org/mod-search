@@ -69,6 +69,27 @@
       ]
     },
     {
+      "id": "browse",
+      "version": "0.3",
+      "handlers": [
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/browse/call-numbers/instances",
+          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/browse/subjects/instances",
+          "permissionsRequired": [ "browse.subjects.instances.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/browse/authorities",
+          "permissionsRequired": [ "browse.authorities.collection.get" ]
+        }
+      ]
+    },
+    {
       "id": "search-config",
       "version": "0.2",
       "handlers": [
@@ -116,7 +137,7 @@
     },
     {
       "id": "_tenant",
-      "version": "1.2",
+      "version": "2.0",
       "interfaceType": "system",
       "handlers": [
         {
@@ -126,15 +147,20 @@
             "users.collection.get",
             "users.item.post",
             "login.item.post",
-            "perms.users.item.post",
             "perms.users.get",
+            "perms.users.item.post",
+            "perms.users.assign.immutable",
+            "perms.users.assign.mutable",
             "inventory-storage.instance.reindex.post",
-            "authority-storage.authority.reindex.post"
+            "authority-storage.authority.reindex.post",
+            "inventory-storage.inventory-view.instances.collection.get",
+            "inventory-storage.identifier-types.collection.get",
+            "inventory-storage.alternative-title-types.collection.get"
           ]
         },
         {
           "methods": [ "DELETE", "GET" ],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant/{id}"
         }
       ]
     }
@@ -192,6 +218,21 @@
       "description": "Searches authorities by given query"
     },
     {
+      "permissionName": "browse.call-numbers.instances.collection.get",
+      "displayName": "Browse - provides collections of browse items for instance by call number",
+      "description": "Browse instances by given query"
+    },
+    {
+      "permissionName": "browse.subjects.instances.collection.get",
+      "displayName": "Browse - provides collections of browse items for instance by subjects",
+      "description": "Browse instances by given query"
+    },
+    {
+      "permissionName": "browse.authorities.collection.get",
+      "displayName": "Browse - provides collections of browse items for authorities",
+      "description": "Browse authorities by given query"
+    },
+    {
       "permissionName": "search.config.languages.item.post",
       "displayName": "Search - adds a language support for multi-lang indexes",
       "description": "Adds a language support for multi-lang indexes"
@@ -219,7 +260,8 @@
     {
       "permissionName": "search.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options by record type",
-      "description": "Returns facets for a query for given filter options by record type"
+      "description": "Returns facets for a query for given filter options by record type",
+      "replaces": ["search.instances.facets.collection.get"]
     },
     {
       "permissionName": "search.instances.ids.collection.get",

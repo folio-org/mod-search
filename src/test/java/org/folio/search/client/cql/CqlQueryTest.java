@@ -2,7 +2,7 @@ package org.folio.search.client.cql;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.client.cql.CqlQuery.exactMatchAny;
+import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;

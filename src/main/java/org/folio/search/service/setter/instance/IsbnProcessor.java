@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,8 +26,9 @@ import org.springframework.stereotype.Component;
  * <p><a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a></p>
  */
 @Component
-public class IsbnProcessor extends AbstractIdentifierProcessor {
-  static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
+public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
+
+  private static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
   private static final String SEP = "[-\\s]";
   private static final String GROUP_1 = "(\\d{1,5})";
@@ -52,25 +52,18 @@ public class IsbnProcessor extends AbstractIdentifierProcessor {
   /**
    * Used by dependency injection.
    *
-   * @param referenceDataService {@link InstanceReferenceDataService} bean
+   * @param referenceDataService {@link ReferenceDataService} bean
    */
-  public IsbnProcessor(InstanceReferenceDataService referenceDataService) {
-    super(referenceDataService);
+  public IsbnProcessor(ReferenceDataService referenceDataService) {
+    super(referenceDataService, ISBN_IDENTIFIER_NAMES);
   }
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return getInstanceIdentifiers(instance).stream()
-      .map(InstanceIdentifiers::getValue)
-      .filter(Objects::nonNull)
+    return filterIdentifiersValue(instance.getIdentifiers()).stream()
       .map(this::normalizeIsbn)
       .flatMap(Collection::stream)
       .collect(toCollection(LinkedHashSet::new));
-  }
-
-  @Override
-  protected List<String> getIdentifierNames() {
-    return ISBN_IDENTIFIER_NAMES;
   }
 
   /**

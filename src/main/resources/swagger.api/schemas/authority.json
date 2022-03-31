@@ -7,64 +7,58 @@
       "type": "string",
       "description": "Authority UUID"
     },
-    "personalName": {
+    "personalNameTitle": {
       "type": "string",
-      "description": "Heading personal name"
+      "description": "Heading personal name title"
     },
-    "sftPersonalName": {
+    "sftPersonalNameTitle": {
       "type": "array",
-      "description": "See from tracing personal names",
+      "description": "See from tracing personal name title",
       "items": {
-        "type": "string",
-        "description": "See from tracing personal name"
+        "type": "string"
       }
     },
-    "saftPersonalName": {
+    "saftPersonalNameTitle": {
       "type": "array",
-      "description": "See also from tracing personal names",
+      "description": "See also from tracing personal name title",
       "items": {
-        "type": "string",
-        "description": "See also from tracing personal name"
+        "type": "string"
       }
     },
-    "corporateName": {
+    "corporateNameTitle": {
       "type": "string",
-      "description": "Heading corporate name"
+      "description": "Heading corporate name title"
     },
-    "sftCorporateName": {
+    "sftCorporateNameTitle": {
       "type": "array",
-      "description": "See from tracing corporate names",
+      "description": "See from tracing corporate name title",
       "items": {
-        "type": "string",
-        "description": "See from tracing corporate name"
+        "type": "string"
       }
     },
-    "saftCorporateName": {
+    "saftCorporateNameTitle": {
       "type": "array",
-      "description": "See also from tracing corporate names",
+      "description": "See also from tracing corporate name title",
       "items": {
-        "type": "string",
-        "description": "See also from tracing corporate name"
+        "type": "string"
       }
     },
-    "meetingName": {
+    "meetingNameTitle": {
       "type": "string",
-      "description": "Heading meeting name"
+      "description": "Heading meeting name title"
     },
-    "sftMeetingName": {
+    "sftMeetingNameTitle": {
       "type": "array",
-      "description": "See from tracing meeting names",
+      "description": "See from tracing meeting name title",
       "items": {
-        "type": "string",
-        "description": "See from tracing meeting name"
+        "type": "string"
       }
     },
-    "saftMeetingName": {
+    "saftMeetingNameTitle": {
       "type": "array",
-      "description": "See also from tracing meeting names",
+      "description": "See also from tracing meeting name title",
       "items": {
-        "type": "string",
-        "description": "See also from tracing meeting name"
+        "type": "string"
       }
     },
     "uniformTitle": {
@@ -115,7 +109,7 @@
       "type": "string",
       "description": "Heading geographic name"
     },
-    "sftGeographicTerm": {
+    "sftGeographicName": {
       "type": "array",
       "description": "See from tracing geographic names",
       "items": {
@@ -123,7 +117,7 @@
         "description": "See from tracing geographic name"
       }
     },
-    "saftGeographicTerm": {
+    "saftGeographicName": {
       "type": "array",
       "description": "See also from tracing geographic names",
       "items": {
@@ -155,17 +149,7 @@
       "type": "array",
       "description": "An extensible set of name-value pairs of identifiers associated with the resource",
       "items": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string",
-            "description": "Resource identifier value"
-          },
-          "identifierTypeId": {
-            "type": "string",
-            "description": "Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)"
-          }
-        }
+        "$ref": "identifiers.json"
       }
     },
     "notes": {

@@ -42,6 +42,30 @@
     {
       "request": {
         "method": "GET",
+        "url": "/identifier-types?query=name%3D%3D%28%22OCLC%22%20or%20%22Cancelled%20OCLC%22%29"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "82fb97e1-f460-4099-9ac8-97518341ed1a",
+              "name": "Canceled OCLC"
+            },
+            {
+              "id": "c3c651c7-96b4-416c-a1af-17146ce0a409",
+              "name": "OCLC"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
         "url": "/identifier-types?query=name%3D%3D%28%22ISBN%22%20or%20%22Invalid%20ISBN%22%29"
       },
       "response": {
@@ -55,6 +79,26 @@
             {
               "id": "8261054f-be78-422d-bd51-4ed9f33c3422",
               "name": "ISBN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Control%20number%22%20or%20%22Other%20standard%20identifier%22%20or%20%22System%20control%20number%22%29"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+              "name": "LCCN"
             }
           ]
         },

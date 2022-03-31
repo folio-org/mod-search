@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.recordFacets;
 import static org.folio.search.utils.TestUtils.array;
@@ -88,17 +89,26 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(id=* and headingType==\"Genre\")", List.of(IDS[6], IDS[7])),
       arguments("(id=* and headingType==\"Corporate Name\")", List.of(IDS[8], IDS[9])),
       arguments("(id=* and headingType==\"Topical\")", List.of(IDS[10])),
-      arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
-      arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12])),
+      arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
+      arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
 
-      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", List.of(IDS[13], IDS[14])),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", emptyList()),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", List.of(IDS[13])),
       arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")",
         List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", List.of(IDS[4])),
 
-      arguments("(metadata.createdDate>= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(id=* and subjectHeadings==\"a\")", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(id=* and subjectHeadings==\"b\")", List.of(IDS[4])),
+      arguments("(id=* and subjectHeadings==\"c\")", List.of(IDS[5], IDS[6], IDS[7])),
+      arguments("(id=* and subjectHeadings==\"d\")", List.of(IDS[8], IDS[9])),
+      arguments("(id=* and subjectHeadings==\"k\")", List.of(IDS[10])),
+      arguments("(id=* and subjectHeadings==\"n\")", List.of(IDS[11], IDS[12])),
+      arguments("(subjectHeadings==\"n\")", List.of(IDS[11], IDS[12])),
+
+      arguments("(metadata.createdDate >= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate > 2021-03-01) ", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
+      arguments("(metadata.createdDate >= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
         List.of(IDS[0], IDS[2])),
 
       arguments("(metadata.updatedDate >= 2021-03-14) ", List.of(IDS[2], IDS[3])),
@@ -111,31 +121,48 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   }
 
   private static Stream<Arguments> facetQueriesProvider() {
+    var allFacets = array("headingType", "subjectHeadings");
     return Stream.of(
-      arguments("id=*", array("headingType"), mapOf("headingType", facet(
-        facetItem("Personal Name", 4), facetItem("Corporate Name", 2),
-        facetItem("Conference Name", 1), facetItem("Geographic Name", 1),
-        facetItem("Uniform Title", 2), facetItem("Topical", 1),
-        facetItem("Genre", 2), facetItem("Other", 2))
-      )),
+      arguments("id=*", allFacets, mapOf(
+        "headingType", facet(
+          facetItem("Personal Name", 5), facetItem("Uniform Title", 3),
+          facetItem("Corporate Name", 2), facetItem("Genre", 2),
+          facetItem("Conference Name", 1), facetItem("Geographic Name", 1),
+          facetItem("Topical", 1)),
+
+        "subjectHeadings", facet(
+          facetItem("a", 4), facetItem("b", 1),
+          facetItem("c", 3), facetItem("d", 2),
+          facetItem("k", 1), facetItem("n", 2),
+          facetItem("r", 2)
+        ))),
 
       arguments("id=*", array("headingType:2"), mapOf("headingType", facet(
-        facetItem("Personal Name", 4), facetItem("Corporate Name", 2)))),
+        facetItem("Personal Name", 5), facetItem("Uniform Title", 3)))),
 
       arguments("headingType==\"Genre\"", array("headingType:1"),
-        mapOf("headingType", facet(
-          facetItem("Genre", 2)))),
+        mapOf("headingType", facet(facetItem("Genre", 2)))),
 
       arguments("headingType==(\"Corporate Name\" or \"Conference Name\")", array("headingType:2"),
-        mapOf("headingType", facet(
-          facetItem("Corporate Name", 2), facetItem("Conference Name", 1)))),
+        mapOf("headingType", facet(facetItem("Corporate Name", 2), facetItem("Conference Name", 1)))),
 
       arguments("headingType==(\"Topical\" or \"Other\")", array("headingType:2"),
-        mapOf("headingType", facet(
-          facetItem("Topical", 1), facetItem("Other", 2))))
+        mapOf("headingType", facet(facetItem("Topical", 1)))),
+
+
+      arguments("id=*", array("subjectHeadings:2"), mapOf("subjectHeadings", facet(
+        facetItem("a", 4), facetItem("c", 3)))),
+
+      arguments("subjectHeadings==\"c\"", array("subjectHeadings:1"),
+        mapOf("subjectHeadings", facet(facetItem("c", 3)))),
+
+      arguments("subjectHeadings==(\"d\" or \"k\")", array("subjectHeadings:2"),
+        mapOf("subjectHeadings", facet(facetItem("d", 2), facetItem("k", 1)))),
+
+      arguments("subjectHeadings==(\"r\" or \"z\")", array("subjectHeadings:2"),
+        mapOf("subjectHeadings", facet(facetItem("r", 2))))
     );
   }
-
 
   private static Authority[] authorities() {
     var authorities = IntStream.range(0, RECORDS_COUNT)
@@ -143,43 +170,58 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .toArray(Authority[]::new);
 
     authorities[0]
-      .personalName("Resource 0")
+      .personalNameTitle("Resource 0")
+      .subjectHeadings("a")
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"));
 
     authorities[1]
-      .personalName("Resource 1")
+      .personalNameTitle("Resource 1")
+      .subjectHeadings("a")
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"));
 
     authorities[2]
-      .personalName("Resource 2")
+      .personalNameTitle("Resource 2")
+      .subjectHeadings("a")
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"));
 
     authorities[3]
-      .personalName("Resource 3")
+      .personalNameTitle("Resource 3")
+      .subjectHeadings("a")
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"));
 
     authorities[4]
-      .meetingName("ConferenceName");
+      .meetingNameTitle("ConferenceName")
+      .subjectHeadings("b");
     authorities[5]
-      .geographicName("GeographicName");
+      .geographicName("GeographicName")
+      .subjectHeadings("c");
     authorities[6]
-      .genreTerm("GenreTerm");
+      .genreTerm("GenreTerm")
+      .subjectHeadings("c");
     authorities[7]
-      .genreTerm("GenreTerm");
+      .genreTerm("GenreTerm")
+      .subjectHeadings("c");
     authorities[8]
-      .corporateName("CorporateName");
+      .corporateNameTitle("CorporateName")
+      .subjectHeadings("d");
     authorities[9]
-      .corporateName("CorporateName");
+      .corporateNameTitle("CorporateName")
+      .subjectHeadings("d");
     authorities[10]
-      .topicalTerm("TopicalTerm");
+      .topicalTerm("TopicalTerm")
+      .subjectHeadings("k");
     authorities[11]
-      .uniformTitle("UniformTitle");
+      .uniformTitle("UniformTitle")
+      .subjectHeadings("n");
     authorities[12]
-      .uniformTitle("UniformTitle");
+      .uniformTitle("UniformTitle")
+      .subjectHeadings("n");
     authorities[13]
-      .saftUniformTitle(Collections.singletonList("UniformTitle"));
+      .saftUniformTitle(Collections.singletonList("UniformTitle"))
+      .subjectHeadings("r");
     authorities[14]
-      .saftPersonalName(Collections.singletonList("PersonalName"));
+      .saftPersonalNameTitle(Collections.singletonList("PersonalName"))
+      .subjectHeadings("r");
 
     return authorities;
   }

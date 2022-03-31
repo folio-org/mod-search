@@ -23,6 +23,10 @@
         "description": "UUID for a statistical code"
       }
     },
+    "statusId": {
+      "type": "string",
+      "description": "UUID for the Instance status term (e.g. cataloged, uncatalogued, batch loaded, temporary, other, not yet assigned)"
+    },
     "title": {
       "type": "string",
       "description": "The primary title (or label) associated with the resource"
@@ -59,17 +63,7 @@
       "type": "array",
       "description": "Resource identifier value array",
       "items": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string",
-            "description": "Resource identifier value"
-          },
-          "identifierTypeId": {
-            "type": "string",
-            "description": "UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)"
-          }
-        }
+        "$ref": "identifiers.json"
       }
     },
     "contributors": {
@@ -157,6 +151,10 @@
     "discoverySuppress": {
       "type": "boolean",
       "description": "Records the fact that the record should not be displayed in a discovery system"
+    },
+    "isBoundWith": {
+      "description": "Indicates if this instance is included in a bound-with",
+      "type": "boolean"
     },
     "tags": {
       "description": "arbitrary tags associated with this instance",

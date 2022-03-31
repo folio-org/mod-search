@@ -28,11 +28,10 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   private static final String AUTHORIZED_TYPE = "Authorized";
   private static final String REFERENCE_TYPE = "Reference";
   private static final String AUTH_REF_TYPE = "Auth/Ref";
-  private static final String OTHER_HEADING_TYPE = "Other";
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 27, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 21, getAuthoritySampleAsMap());
   }
 
   @AfterAll
@@ -58,101 +57,91 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(27)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(21)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
-      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
-      authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft personal name"),
-
       authority("Personal Name", AUTHORIZED_TYPE, "a personal title"),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal title"),
-
-      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
-      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft corporate name"),
+      authority("Personal Name", AUTH_REF_TYPE, "a saft personal title"),
 
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title"),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title"),
-
-      authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
-      authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft conference name"),
+      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate title"),
 
       authority("Conference Name", AUTHORIZED_TYPE, "a conference title"),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference title"),
+      authority("Conference Name", AUTH_REF_TYPE, "a saft conference title"),
 
       authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft geographic name"),
+      authority("Geographic Name", AUTH_REF_TYPE, "a saft geographic name"),
 
       authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title"),
       authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft uniform title"),
+      authority("Uniform Title", AUTH_REF_TYPE, "a saft uniform title"),
 
       authority("Topical", AUTHORIZED_TYPE, "a topical term"),
       authority("Topical", REFERENCE_TYPE, "a sft topical term"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft topical term"),
+      authority("Topical", AUTH_REF_TYPE, "a saft topical term"),
 
       authority("Genre", AUTHORIZED_TYPE, "a genre term"),
       authority("Genre", REFERENCE_TYPE, "a sft genre term"),
-      authority(OTHER_HEADING_TYPE, AUTH_REF_TYPE, "a saft genre term")
+      authority("Genre", AUTH_REF_TYPE, "a saft genre term")
     ));
   }
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments("keyword all {value}", "\"Gary A. Wills\""),
-
-      arguments("personalName all {value}", "\"Gary A. Wills\""),
-      arguments("personalName all {value}", "gary"),
-      arguments("personalName == {value}", "\"gary a.*\""),
-      arguments("personalName == {value} and headingType==\"Personal Name\"", "gary"),
-      arguments("personalName == {value} and authRefType==\"Authorized\"", "gary"),
-      arguments("sftPersonalName = {value}", "\"personal sft name\""),
-      arguments("sftPersonalName == {value}", "\"sft personal name\""),
-      arguments("sftPersonalName == {value}", "\"*persona*\""),
-      arguments("saftPersonalName = {value}", "\"saft name\""),
-      arguments("saftPersonalName == {value}", "\"*saft persona*\""),
+      arguments("keyword == {value}", "\"a personal title\""),
+      arguments("keyword all {value}", "\"a sft personal title\""),
+      arguments("keyword all {value}", "\"a saft personal title\""),
+      arguments("keyword == {value}", "\"a corporate title\""),
+      arguments("keyword all {value}", "\"a sft corporate title\""),
+      arguments("keyword all {value}", "\"a saft corporate title\""),
+      arguments("keyword == {value}", "\"a conference title\""),
+      arguments("keyword all {value}", "\"a sft conference title\""),
+      arguments("keyword all {value}", "\"a saft conference title\""),
+      arguments("keyword == {value}", "\"a geographic name\""),
+      arguments("keyword all {value}", "\"a sft geographic name\""),
+      arguments("keyword all {value}", "\"a saft geographic name\""),
+      arguments("keyword == {value}", "\"an uniform title\""),
+      arguments("keyword all {value}", "\"a sft uniform title\""),
+      arguments("keyword all {value}", "\"a saft uniform title\""),
+      arguments("keyword == {value}", "\"a topical term\""),
+      arguments("keyword all {value}", "\"a sft topical term\""),
+      arguments("keyword all {value}", "\"a saft topical term\""),
+      arguments("keyword == {value}", "\"a genre term\""),
+      arguments("keyword all {value}", "\"a sft genre term\""),
+      arguments("keyword all {value}", "\"a saft genre term\""),
 
       arguments("personalNameTitle all {value}", "\"personal title\""),
       arguments("personalNameTitle == {value}", "\"a personal title\""),
       arguments("sftPersonalNameTitle all {value}", "\"personal title\""),
       arguments("sftPersonalNameTitle == {value}", "\"a sft personal title\""),
-
-      arguments("corporateName = {value}", "\"corporate\""),
-      arguments("corporateName == {value}", "\"a corporate name\""),
-      arguments("corporateName == {value}", "\"*corporat*\""),
-      arguments("sftCorporateName = {value}", "\"corporate name\""),
-      arguments("sftCorporateName == {value}", "\"sft corporate\""),
-      arguments("saftCorporateName = {value} ", "\"name saft\""),
-      arguments("saftCorporateName == {value} ", "\"saft corporate name\""),
+      arguments("saftPersonalNameTitle all {value}", "\"a saft personal title\""),
+      arguments("saftPersonalNameTitle == {value}", "\"a saft personal title\""),
 
       arguments("corporateNameTitle all {value}", "\"corporate title\""),
       arguments("corporateNameTitle == {value}", "\"a corporate title\""),
       arguments("sftCorporateNameTitle all {value}", "\"corporate title\""),
       arguments("sftCorporateNameTitle == {value}", "\"a sft corporate title\""),
-
-      arguments("meetingName = {value}", "\"conference\""),
-      arguments("meetingName == {value}", "\"a conference name\""),
-      arguments("meetingName == {value}", "\"*onference*\""),
-      arguments("sftMeetingName = {value}", "\"conference name\""),
-      arguments("sftMeetingName == {value}", "\"sft conference\""),
-      arguments("saftMeetingName = {value} ", "\"conference saft\""),
-      arguments("saftMeetingName == {value} ", "\"saft conference name\""),
+      arguments("saftCorporateNameTitle all {value}", "\"corporate title\""),
+      arguments("saftCorporateNameTitle == {value}", "\"a saft corporate title\""),
 
       arguments("meetingNameTitle all {value}", "\"conference title\""),
       arguments("meetingNameTitle == {value}", "\"a conference title\""),
       arguments("sftMeetingNameTitle all {value}", "\"conference title\""),
       arguments("sftMeetingNameTitle == {value}", "\"a sft conference title\""),
+      arguments("saftMeetingNameTitle all {value}", "\"conference title\""),
+      arguments("saftMeetingNameTitle == {value}", "\"a saft conference title\""),
 
       arguments("geographicName = {value}", "\"geographic\""),
       arguments("geographicName == {value}", "\"a geographic name\""),
       arguments("geographicName == {value}", "\"*graph*\""),
-      arguments("sftGeographicTerm = {value}", "\"geographic name\""),
-      arguments("sftGeographicTerm == {value}", "\"sft geographic\""),
-      arguments("saftGeographicTerm = {value} ", "\"geographic saft\""),
-      arguments("saftGeographicTerm == {value} ", "\"saft geographic name\""),
+      arguments("sftGeographicName = {value}", "\"geographic name\""),
+      arguments("sftGeographicName == {value}", "\"sft geographic\""),
+      arguments("saftGeographicName = {value} ", "\"geographic saft\""),
+      arguments("saftGeographicName == {value} ", "\"saft geographic name\""),
 
       arguments("uniformTitle = {value}", "\"uniform\""),
       arguments("uniformTitle == {value}", "\"an uniform title\""),
@@ -182,10 +171,24 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftGenreTerm = {value}", "\"saft term\""),
       arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
 
-      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "\"a subject heading\""),
-      arguments("subjectHeadings all {value} and personalName==\"Gary\"", "subject"),
-      arguments("subjectHeadings == {value} and personalName==\"Gary\"", "\"a sub*\"")
+      arguments(specifyCommonField("lccn = {value}"), "3745-1086"),
+      arguments(specifyCommonField("lccn = {value}"), "3745*"),
+
+      arguments(specifyCommonField("identifiers.value == {value}"), "authority-identifier"),
+      arguments(specifyCommonField("identifiers.value all {value}"), "311417*"),
+      arguments(specifyCommonField("identifiers.value all {value}"), "*1086"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier or 3114176276 or 0000-0000"),
+      arguments(specifyCommonField("identifiers.value all ({value})"),
+        "authority-identifier and 3114176276 and 3745-1086"),
+
+      arguments(specifyCommonField("subjectHeadings all {value}"), "\"a subject heading\""),
+      arguments(specifyCommonField("subjectHeadings == {value}"), "\"a sub*\"")
     );
+  }
+
+  private static String specifyCommonField(String query) {
+    return query + " and sftPersonalNameTitle==\"*personal title\"";
   }
 
   private static Authority authority(String headingType, String authRefType, String headingRef) {

@@ -76,7 +76,7 @@ paths:
   /{recordType}/facets:
     get:
       operationId: getFacets
-      description: Provides list of facets for instance
+      description: Provides list of facets for the record type
       parameters:
         - name: recordType
           required: true
@@ -117,6 +117,77 @@ paths:
               example: examples/searchResult.sample
               schema:
                 $ref: '#/components/schemas/authoritySearchResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /browse/call-numbers/instances:
+    get:
+      operationId: browseInstancesByCallNumber
+      description: Provides list of instances for browsing by call number
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/browse-limit-param'
+        - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by call number'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/callNumberBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /browse/subjects/instances:
+    get:
+      operationId: browseInstancesBySubject
+      description: Provides list of instances for browsing by subject
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by call number'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/subjectBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /browse/authorities:
+    get:
+      operationId: browseAuthorities
+      description: Provides list of authorities by headingRef
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/limit-param'
+        - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+      responses:
+        '200':
+          description: 'Search result for browsing by authorities'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/authorityBrowseResult'
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -354,6 +425,12 @@ components:
       $ref: schemas/response/instanceSearchResult.json
     authoritySearchResult:
       $ref: schemas/response/authoritySearchResult.json
+    callNumberBrowseResult:
+      $ref: schemas/response/callNumberBrowseResult.json
+    subjectBrowseResult:
+      $ref: schemas/response/subjectBrowseResult.json
+    authorityBrowseResult:
+      $ref: schemas/response/authorityBrowseResult.json
     facetResult:
       $ref: schemas/response/facetResult.json
     resourceIds:
@@ -396,6 +473,15 @@ components:
         minimum: 0
         maximum: 500
         default: 100
+    browse-limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the browse response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
     offset-param:
       in: query
       name: offset
@@ -403,6 +489,7 @@ components:
       schema:
         type: integer
         minimum: 0
+        maximum: 9999
         default: 0
     cql-query:
       name: query
@@ -458,3 +545,20 @@ components:
       required: false
       schema:
         type: string
+    preceding-records-count:
+      in: query
+      name: precedingRecordsCount
+      description: Number of preceding records for browsing around and around-including options
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+    highlight-match:
+      in: query
+      name: highlightMatch
+      description: Whether to highlight matched resource by query input or not.
+      required: false
+      schema:
+        type: boolean
+        default: true

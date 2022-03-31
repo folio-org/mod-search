@@ -2,6 +2,9 @@ package org.folio.search.service;
 
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -12,6 +15,7 @@ import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
@@ -33,6 +37,7 @@ class SearchTenantServiceTest {
   @Mock private IndexService indexService;
   @Mock private FolioExecutionContext context;
   @Mock private LanguageConfigService languageConfigService;
+  @Mock private CallNumberBrowseRangeService callNumberBrowseRangeService;
   @Mock private ResourceDescriptionService resourceDescriptionService;
   @Mock private SearchConfigurationProperties searchConfigurationProperties;
 
@@ -65,8 +70,11 @@ class SearchTenantServiceTest {
 
   @Test
   void shouldRunReindexOnTenantParamPresent() {
+    var resourceDescription = secondaryResourceDescription("secondary", RESOURCE_NAME);
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME, "secondary"));
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(resourceDescriptionService.get("secondary")).thenReturn(resourceDescription);
     var attributes = TENANT_ATTRIBUTES.addParametersItem(new Parameter().key("runReindex").value("true"));
 
     searchTenantService.initializeTenant(attributes);
@@ -97,11 +105,12 @@ class SearchTenantServiceTest {
   }
 
   @Test
-  void removeElasticsearchIndices_positive() {
+  void disableTenant_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    doNothing().when(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
 
-    searchTenantService.removeElasticsearchIndexes();
+    searchTenantService.disableTenant();
 
     verify(indexService).dropIndex(RESOURCE_NAME, TENANT_ID);
     verifyNoMoreInteractions(indexService);

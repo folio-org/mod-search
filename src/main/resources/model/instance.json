@@ -2,6 +2,9 @@
   "name": "instance",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Instance",
   "languageSourcePaths": [ "$.languages" ],
+  "indexingConfiguration": {
+    "eventPreProcessor": "instanceEventPreProcessor"
+  },
   "fieldTypes": {
     "suppress": {
       "searchTypes": [ "facet", "filter" ],
@@ -29,7 +32,7 @@
     },
     "title": {
       "searchTypes": "sort",
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang",
       "showInResponse": true
     },
@@ -40,24 +43,24 @@
           "index": "source"
         },
         "alternativeTitle": {
-          "inventorySearchTypes": [ "title", "keyword" ],
+          "searchAliases": [ "title", "keyword" ],
           "index": "multilang"
         }
       }
     },
     "indexTitle": {
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang"
     },
     "series": {
-      "inventorySearchTypes": [ "title", "keyword" ],
+      "searchAliases": [ "title", "keyword" ],
       "index": "multilang"
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "inventorySearchTypes": "keyword",
+          "searchAliases": [ "keyword" ],
           "index": "keyword"
         },
         "identifierTypeId": {
@@ -69,7 +72,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "inventorySearchTypes": [ "contributors", "keyword" ],
+          "searchAliases": [ "contributors", "keyword" ],
           "index": "standard",
           "showInResponse": true
         },
@@ -91,6 +94,10 @@
       "index": "keyword"
     },
     "statisticalCodeIds": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
+    "statusId": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword"
     },
@@ -139,7 +146,7 @@
       "type": "object",
       "properties": {
         "publisher": {
-          "inventorySearchTypes": "publisher",
+          "searchAliases": [ "publisher" ],
           "index": "multilang",
           "showInResponse": true
         },
@@ -181,18 +188,18 @@
       "type": "object",
       "properties": {
         "uri": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "keyword"
         },
         "linkText": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "multilang"
         },
         "materialsSpecification": {
           "index": "none"
         },
         "publicNote": {
-          "inventorySearchTypes": "electronicAccess",
+          "searchAliases": [ "electronicAccess" ],
           "index": "multilang"
         }
       }
@@ -202,6 +209,12 @@
     },
     "discoverySuppress": {
       "$type": "visibleSuppress"
+    },
+    "isBoundWith": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": true
     },
     "items": {
       "type": "object",
@@ -216,6 +229,9 @@
           "index": "source"
         },
         "formerIds": {
+          "index": "source"
+        },
+        "itemIdentifier": {
           "index": "source"
         },
         "barcode": {
@@ -256,15 +272,24 @@
           "type": "object",
           "properties": {
             "callNumber": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "prefix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             },
             "suffix": {
-              "index": "source"
+              "index": "source",
+              "showInResponse": true
             }
           }
+        },
+        "effectiveShelvingOrder": {
+          "index": "keyword_uppercase",
+          "searchAliases": "callNumber",
+          "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+          "showInResponse": true
         },
         "tags": {
           "type": "object",
@@ -278,18 +303,18 @@
           "type": "object",
           "properties": {
             "uri": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "keyword"
             },
             "linkText": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "multilang"
             },
             "materialsSpecification": {
               "index": "none"
             },
             "publicNote": {
-              "inventorySearchTypes": "items.electronicAccess",
+              "searchAliases": [ "items.electronicAccess" ],
               "index": "multilang"
             }
           }
@@ -299,7 +324,7 @@
           "properties": {
             "note": {
               "index": "multilang",
-              "inventorySearchTypes": "items.notes.note"
+              "searchAliases": [ "items.notes.note" ]
             },
             "staffOnly": {
               "index": "bool"
@@ -311,10 +336,35 @@
           "properties": {
             "note": {
               "index": "multilang",
-              "inventorySearchTypes": "items.notes.note"
+              "searchAliases": [ "items.notes.note" ]
             },
             "staffOnly": {
               "index": "bool"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
             }
           }
         }
@@ -327,6 +377,10 @@
           "index": "keyword"
         },
         "sourceId": {
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword"
+        },
+        "holdingsTypeId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -359,18 +413,18 @@
           "type": "object",
           "properties": {
             "uri": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "keyword"
             },
             "linkText": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "multilang"
             },
             "materialsSpecification": {
               "index": "none"
             },
             "publicNote": {
-              "inventorySearchTypes": "holdings.electronicAccess",
+              "searchAliases": [ "holdings.electronicAccess" ],
               "index": "multilang"
             }
           }
@@ -383,6 +437,31 @@
             },
             "staffOnly": {
               "index": "bool"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "createdByUserId": {
+              "index": "keyword"
+            },
+            "createdByUsername": {
+              "index": "keyword"
+            },
+            "updatedDate": {
+              "searchTypes": "filter",
+              "index": "date"
+            },
+            "updatedByUserId": {
+              "index": "keyword"
+            },
+            "updatedByUsername": {
+              "index": "keyword"
             }
           }
         }
@@ -412,10 +491,17 @@
       "index": "multilang",
       "processor": "itemPublicNotesProcessor"
     },
-    "holdingPublicNotes": {
+    "holdingsPublicNotes": {
       "type": "search",
       "index": "multilang",
-      "processor": "holdingPublicNotesProcessor"
+      "processor": "holdingsPublicNotesProcessor"
+    },
+    "oclc": {
+      "type": "search",
+      "processor": "oclcProcessor",
+      "searchTermProcessor": "oclcSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
     },
     "isbn": {
       "type": "search",
@@ -441,11 +527,17 @@
       "index": "keyword",
       "processor": "itemTagsProcessor"
     },
-    "holdingTags": {
+    "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
       "index": "keyword",
-      "processor": "holdingTagsProcessor"
+      "processor": "holdingsTagsProcessor"
+    },
+    "holdingsTypeId": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "keyword",
+      "processor": "holdingsTypeIdProcessor"
     },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
@@ -453,34 +545,36 @@
       "index": "keyword",
       "processor": "statisticalCodesProcessor"
     },
-    "itemsFullCallNumbers": {
+    "itemFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "inventorySearchTypes": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "inventorySearchTypes": "holdings.fullCallNumber",
+      "searchAliases": [ "holdings.fullCallNumber" ],
       "processor": "holdingsCallNumberComponentsProcessor"
     },
-    "itemsNormalizedCallNumbers": {
+    "itemNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "processor": "itemsNormalizedCallNumbersProcessor",
+      "searchAliases": [ "items.normalizedCallNumbers" ],
+      "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
+      "searchAliases": [ "holdings.normalizedCallNumbers" ],
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
-    "holdingIdentifiers": {
+    "holdingsIdentifiers": {
       "type": "search",
       "index": "keyword",
-      "processor": "holdingIdentifiersProcessor"
+      "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {
       "type": "search",
@@ -492,13 +586,19 @@
       "index": "multilang",
       "processor": "uniformTitleProcessor"
     },
+    "callNumber": {
+      "type": "search",
+      "index": "long",
+      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+      "processor": "callNumberProcessor"
+    },
     "allInstances": {
       "type": "search",
       "index": "multilang",
       "processor": "instanceAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allInstances" ]
+      "searchAliases": [ "cql.all", "cql.allInstances" ]
     },
     "allItems": {
       "type": "search",
@@ -506,7 +606,7 @@
       "processor": "itemAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allItems" ]
+      "searchAliases": [ "cql.all", "cql.allItems" ]
     },
     "allHoldings": {
       "type": "search",
@@ -514,7 +614,7 @@
       "processor": "holdingAllFieldValuesProcessor",
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
-      "inventorySearchTypes": [ "cql.all", "cql.allHoldings" ]
+      "searchAliases": [ "cql.all", "cql.allHoldings" ]
     }
   },
   "mappingsSource": {

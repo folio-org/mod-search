@@ -2,21 +2,27 @@ package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
 import com.google.common.base.CaseFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -24,19 +30,26 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
-import org.folio.search.model.service.ResourceIdEvent;
-import org.folio.spring.integration.XOkapiHeaders;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
+  public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
+
   public static final String ID_FIELD = "id";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
+  public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
+  public static final String CALL_NUMBER_BROWSING_FIELD = "items.effectiveShelvingOrder";
+  public static final String SUBJECT_BROWSING_FIELD = "subject";
+  public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
+  public static final String SUBJECT_AGGREGATION_NAME = "subjects";
+  public static final String ITEM_SHELF_KEY_FIELD_NAME =
+    CALL_NUMBER_BROWSING_FIELD.substring(INSTANCE_ITEM_FIELD_NAME.length() + 1);
+
   public static final String CQL_META_FIELD_PREFIX = "cql.";
-  public static final String X_OKAPI_TENANT_HEADER = XOkapiHeaders.TENANT;
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
   public static final String PLAIN_FULLTEXT_PREFIX = "plain_";
   public static final String SELECTED_AGG_PREFIX = "selected_";
@@ -45,6 +58,7 @@ public class SearchUtils {
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
+
 
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
@@ -70,28 +84,18 @@ public class SearchUtils {
    * @param request - request as {@link ResourceRequest} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceRequest request) {
-    return getElasticsearchIndexName(request.getResource(), request.getTenantId());
+  public static String getIndexName(ResourceRequest request) {
+    return getIndexName(request.getResource(), request.getTenantId());
   }
 
   /**
    * Creates index name for passed resource id event.
    *
-   * @param event resource event as {@link ResourceIdEvent} object
+   * @param event resource event as {@link ResourceEvent} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(ResourceIdEvent event) {
-    return getElasticsearchIndexName(event.getType(), event.getTenant());
-  }
-
-  /**
-   * Creates index name for passed resource id event.
-   *
-   * @param event resource event as {@link ResourceIdEvent} object
-   * @return generated index name.
-   */
-  public static String getElasticsearchIndexName(ResourceEvent event) {
-    return getElasticsearchIndexName(event.getResourceName(), event.getTenant());
+  public static String getIndexName(ResourceEvent event) {
+    return getIndexName(event.getResourceName(), event.getTenant());
   }
 
   /**
@@ -101,7 +105,7 @@ public class SearchUtils {
    * @param tenantId tenant id as {@link String} object
    * @return generated index name.
    */
-  public static String getElasticsearchIndexName(String resource, String tenantId) {
+  public static String getIndexName(String resource, String tenantId) {
     return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
   }
 
@@ -277,6 +281,34 @@ public class SearchUtils {
    */
   public static String getResourceName(Class<?> resourceClass) {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, resourceClass.getSimpleName());
+  }
+
+  /**
+   * Check if passed value is {@link String} and it's empty.
+   *
+   * @param value - value to check
+   * @return true - if value is empty, false - otherwise
+   */
+  public static boolean isEmptyString(Object value) {
+    return value instanceof String && ((String) value).isEmpty();
+  }
+
+  /**
+   * Get subject count from count search request.
+   *
+   * @param searchResponse - search response as {@link SearchResponse} object.
+   * @return map with key as the subject name, value as the related subject count.
+   */
+  public static Map<String, Long> getSubjectCounts(SearchResponse searchResponse) {
+    return Optional.ofNullable(searchResponse)
+      .map(SearchResponse::getAggregations)
+      .map(aggregations -> aggregations.get(SUBJECT_AGGREGATION_NAME))
+      .filter(ParsedTerms.class::isInstance)
+      .map(ParsedTerms.class::cast)
+      .map(ParsedTerms::getBuckets)
+      .stream()
+      .flatMap(Collection::stream)
+      .collect(toMap(Bucket::getKeyAsString, Bucket::getDocCount));
   }
 
   private static Object getMultilangValueObject(Object value) {

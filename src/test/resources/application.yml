@@ -9,11 +9,8 @@ spring:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
   elasticsearch:
-    rest:
-      username: elastic
-      password: s3cret
-  jpa:
-    open-in-view: false
+    username: elastic
+    password: s3cret
   datasource:
     username: folio_admin
     password: password
@@ -39,6 +36,12 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search.all.fields: false
+    indexing:
+      instance-subjects:
+        retry-attempts: 3
+  query:
+    properties:
+      call-number-browse-optimization-enabled: true
   module-user:
     store-type: ephemeral
     ephemeral:
@@ -51,7 +54,7 @@ application:
     listener:
       events:
         concurrency: 2
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item)}
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${application.environment}-mod-search-events-group
       authorities:
         concurrency: 1
@@ -59,6 +62,5 @@ application:
         group-id: ${application.environment}-mod-search-authorities-group
 
 logging:
-  config: classpath:logger/log4j2.xml
   level:
     org.apache.kafka.clients.consumer.*: warn

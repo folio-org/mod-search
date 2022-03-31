@@ -19,8 +19,8 @@
   "sftMeetingNameTitle": [ "a sft conference title" ],
   "saftMeetingNameTitle": [ "a saft conference title" ],
   "geographicName": "a geographic name",
-  "sftGeographicTerm": [ "a sft geographic name" ],
-  "saftGeographicTerm": [ "a saft geographic name" ],
+  "sftGeographicName": [ "a sft geographic name" ],
+  "saftGeographicName": [ "a saft geographic name" ],
   "uniformTitle": "an uniform title",
   "sftUniformTitle": [ "a sft uniform title" ],
   "saftUniformTitle": [ "a saft uniform title" ],
@@ -35,6 +35,14 @@
     {
       "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
       "value": "authority-identifier"
+    },
+    {
+      "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+      "value": "3114176276"
+    },
+    {
+      "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+      "value": "3745-1086"
     }
   ],
   "metadata": {

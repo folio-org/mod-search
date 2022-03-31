@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -7,17 +8,23 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
+import static org.folio.search.utils.CollectionUtils.allMatch;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
@@ -43,7 +50,6 @@ class CollectionUtilsTest {
   @Test
   void shouldReturnMapIfNotEmpty() {
     Map<String, String> map = Map.of("key", "value");
-
     assertThat(nullIfEmpty(map)).isEqualTo(map);
   }
 
@@ -123,6 +129,12 @@ class CollectionUtilsTest {
   }
 
   @Test
+  void mergeSafelyToList_positive() {
+    var actual = mergeSafelyToList(List.of(1, 2, 3), List.of(3, 1, 2), List.of(5), null, emptySet());
+    assertThat(actual).containsExactly(1, 2, 3, 3, 1, 2, 5);
+  }
+
+  @Test
   void anyMatchTest_positive() {
     var given = List.of(1, 2, 3);
     assertThat(anyMatch(given, e -> e == 2)).isTrue();
@@ -134,6 +146,18 @@ class CollectionUtilsTest {
     assertThat(anyMatch(given, e -> e == 5)).isFalse();
   }
 
+  @Test
+  void allMatch_positive() {
+    var given = List.of(1, 2, 3);
+    assertThat(allMatch(given, e -> e > 0)).isTrue();
+  }
+
+  @Test
+  void allMatch_negative() {
+    var given = List.of(1, -2, 3);
+    assertThat(allMatch(given, e -> e > 0)).isFalse();
+  }
+
   @DisplayName("getValueBy_parameterized")
   @MethodSource("getValueByPathTestDataProvider")
   @ParameterizedTest(name = "[{index}] path=''{0}'', expected={2}")
@@ -142,23 +166,24 @@ class CollectionUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
+  void toLinkedHashMap_positive() {
+    var actual = Stream.of(1, 1, 2, 2).collect(toLinkedHashMap(Function.identity(), String::valueOf));
+    assertThat(actual).isInstanceOf(LinkedHashMap.class).isEqualTo(mapOf(1, "1", 2, "2"));
+  }
+
   @ParameterizedTest
-  @MethodSource("findFirstDataSource")
-  void findFirst_positive_parameterized(Collection<Object> given, Object expected) {
-    var actual = CollectionUtils.findFirst(given);
+  @MethodSource("findFirstDataProvider")
+  void findFirst_parameterized(List<Object> list, Object expected) {
+    var actual = CollectionUtils.findFirst(list);
     assertThat(actual).isEqualTo(Optional.ofNullable(expected));
   }
 
-  private static Stream<Arguments> findFirstDataSource() {
-    return Stream.of(
-      arguments(null, null),
-      arguments(List.of(1, 2, 3), 1),
-      arguments(List.of("str1", "str2"), "str1"),
-      arguments(null, null),
-      arguments(singletonList(null), null),
-      arguments(emptyList(), null),
-      arguments(emptySet(), null)
-    );
+  @ParameterizedTest
+  @MethodSource("findLastDataProvider")
+  void findLast_parameterized(List<Object> list, Object expected) {
+    var actual = CollectionUtils.findLast(list);
+    assertThat(actual).isEqualTo(Optional.ofNullable(expected));
   }
 
   private static Stream<Arguments> getValueByPathTestDataProvider() {
@@ -202,6 +227,28 @@ class CollectionUtilsTest {
         mapOf("k81", List.of(mapOf("k811", "str1"), mapOf("k811", "str2"))),
         mapOf("k81", List.of(mapOf("k811", "str3")))),
       "k9", List.of(mapOf("k91", "str1"), List.of("str2"), mapOf("k91", mapOf("k911", "str3")), mapOf("k91", "str4"))
+    );
+  }
+
+  private static Stream<Arguments> findFirstDataProvider() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(emptyList(), null),
+      arguments(asList(1, 2, 3), 1),
+      arguments(List.of(1), 1),
+      arguments(List.of("string"), "string"),
+      arguments(asList(null, null, null), null)
+    );
+  }
+
+  private static Stream<Arguments> findLastDataProvider() {
+    return Stream.of(
+      arguments(null, null),
+      arguments(emptyList(), null),
+      arguments(asList(1, 2, 3), 3),
+      arguments(List.of(1), 1),
+      arguments(List.of("string"), "string"),
+      arguments(asList(null, null, null), null)
     );
   }
 }

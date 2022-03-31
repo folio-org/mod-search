@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
-import static org.folio.search.utils.SearchUtils.X_OKAPI_TENANT_HEADER;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.languageConfig;
@@ -22,12 +21,14 @@ import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
+import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -45,6 +46,36 @@ class ConfigControllerTest {
   @MockBean private FeatureConfigService featureConfigService;
 
   @Test
+  void createLanguageConfig_positive() throws Exception {
+    var code = "eng";
+    var languageConfig = languageConfig(code);
+    when(languageConfigService.create(languageConfig)).thenReturn(languageConfig);
+
+    mockMvc.perform(post(ApiEndpoints.languageConfig())
+        .content(asJsonString(languageConfig))
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("code", is(code)));
+  }
+
+  @Test
+  void getAllLanguageConfigs_positive() throws Exception {
+    var languageConfigs = new LanguageConfigs()
+      .addLanguageConfigsItem(languageConfig("eng", "english"))
+      .totalRecords(1);
+
+    when(languageConfigService.getAll()).thenReturn(languageConfigs);
+    mockMvc.perform(get(ApiEndpoints.languageConfig())
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.languageConfigs[0].code", is("eng")))
+      .andExpect(jsonPath("$.languageConfigs[0].languageAnalyzer", is("english")));
+  }
+
+  @Test
   void updateLanguageConfig_positive() throws Exception {
     var code = "eng";
     var analyzer = "english";
@@ -53,7 +84,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("code", is(code)))
@@ -70,7 +101,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(put(ApiEndpoints.languageConfig() + "/eng")
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("total_records", is(1)))
@@ -83,7 +114,7 @@ class ConfigControllerTest {
   void updateLanguageConfig_negative_invalidCode() throws Exception {
     mockMvc.perform(post(ApiEndpoints.languageConfig())
         .content(asJsonString(languageConfig("english", "english")))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("total_records", is(1)))
@@ -101,7 +132,7 @@ class ConfigControllerTest {
 
     mockMvc.perform(post(ApiEndpoints.languageConfig())
         .content(asJsonString(languageConfig))
-        .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
       .andExpect(status().isUnprocessableEntity())
       .andExpect(jsonPath("total_records", is(1)))
@@ -112,12 +143,22 @@ class ConfigControllerTest {
   }
 
   @Test
+  void deleteLanguageConfig_positive() throws Exception {
+    var languageCode = "eng";
+    doNothing().when(languageConfigService).delete(languageCode);
+    mockMvc.perform(delete(ApiEndpoints.languageConfig(languageCode))
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
   void getAllFeatures_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.getAll()).thenReturn(new FeatureConfigs().features(List.of(feature)).totalRecords(1));
 
-    var request = get("/search/config/features")
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+    var request = get(ApiEndpoints.featureConfig())
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -128,13 +169,13 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_positive() throws Exception {
+  void saveFeatureConfiguration_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.create(feature)).thenReturn(feature);
 
-    var request = post("/search/config/features")
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -144,14 +185,14 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_alreadyExists() throws Exception {
+  void saveFeatureConfiguration_negative_alreadyExists() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.create(feature)).thenThrow(new RequestValidationException(
       "Feature configuration already exists", "feature", SEARCH_ALL_FIELDS.getValue()));
 
-    var request = post("/search/config/features")
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -164,10 +205,10 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_invalidFeatureName() throws Exception {
-    var request = post("/search/config/features")
+  void saveFeatureConfiguration_negative_invalidFeatureName() throws Exception {
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", "unknown-feature-name", "enabled", true)))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -179,10 +220,10 @@ class ConfigControllerTest {
   }
 
   @Test
-  void create_negative_unexpectedBooleanValue() throws Exception {
-    var request = post("/search/config/features")
+  void saveFeatureConfiguration_negative_unexpectedBooleanValue() throws Exception {
+    var request = post(ApiEndpoints.featureConfig())
       .content(asJsonString(mapOf("feature", SEARCH_ALL_FIELDS.getValue(), "enabled", "unknown")))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -195,13 +236,13 @@ class ConfigControllerTest {
   }
 
   @Test
-  void update_positive() throws Exception {
+  void updateFeatureConfiguration_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
     when(featureConfigService.update(SEARCH_ALL_FIELDS, feature)).thenReturn(feature);
 
-    var request = put("/search/config/features/search.all.fields")
+    var request = put(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
       .content(asJsonString(feature))
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request)
@@ -211,10 +252,10 @@ class ConfigControllerTest {
   }
 
   @Test
-  void delete_positive() throws Exception {
+  void deleteFeatureConfigurationById_positive() throws Exception {
     doNothing().when(featureConfigService).delete(SEARCH_ALL_FIELDS);
-    var request = delete("/search/config/features/search.all.fields")
-      .header(X_OKAPI_TENANT_HEADER, TENANT_ID)
+    var request = delete(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS))
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request).andExpect(status().isNoContent());

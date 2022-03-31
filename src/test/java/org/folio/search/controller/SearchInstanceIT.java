@@ -56,8 +56,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "publicNotes == {value}, librarian",
     "itemPublicNotes == {value}, private note for item",
     "itemPublicNotes == {value}, private circulation note",
-    "holdingPublicNotes == {value}, librarian private note",
+    "holdingsPublicNotes == {value}, librarian private note",
     "issn = {value}, 03178471",
+    "oclc = {value}, 0262012103"
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
@@ -171,6 +172,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publicNotes all {value}", "development"),
       arguments("notes.note == {value}", "Librarian private note"),
       arguments("notes.note == {value}", "The development of the Semantic Web,"),
+      arguments("callNumber = {value}", "\"\""),
 
       // search by isbn10
       arguments("isbn = {value}", "047144250X"),
@@ -187,6 +189,11 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("issn = {value}", "0317-8471"),
       arguments("issn = {value}", "0317*"),
 
+      // search by oclc
+      arguments("oclc = {value}", "12345 800630"),
+      arguments("oclc = {value}", "ocm60710867"),
+      arguments("oclc = {value}", "60710*"),
+
       // search by item fields
       arguments("items.hrid = {value}", "item000000000014"),
       arguments("items.hrid = {value}", "item*"),
@@ -199,6 +206,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("itemIdentifiers all {value}", "item000000000014"),
       arguments("itemIdentifiers all {value}", "81ae0f60-f2bc-450c-84c8-5a21096daed9"),
       arguments("itemIdentifiers all {value}", "item_accession_number"),
+      arguments("itemIdentifiers all {value}", "7212ba6a-8dcf-45a1-be9a-ffaa847c4423"),
+      arguments("itemIdentifiers all {value}", "itemIdentifierFieldValue"),
 
       arguments("items.notes.note == {value}", "Librarian public note for item"),
       arguments("items.notes.note == {value}", "Librarian private note for item"),
@@ -217,7 +226,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.electronicAccess.publicNote all {value}", "table of contents"),
 
       // search by holding fields
-      arguments("holdingPublicNotes all {value}", "bibliographical references"),
+      arguments("holdingsPublicNotes all {value}", "bibliographical references"),
       arguments("holdings.notes.note == {value}", "Librarian public note for holding"),
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),
 
@@ -226,9 +235,10 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdings.electronicAccess.linkText all {value}", "link text"),
       arguments("holdings.electronicAccess.publicNote all {value}", "note"),
 
-      arguments("holdingIdentifiers all {value}", "hold000000000009"),
-      arguments("holdingIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
-      arguments("holdingIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946")
-    );
+      arguments("holdingsIdentifiers all {value}", "hold000000000009"),
+      arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
+      arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
+      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
+      );
   }
 }

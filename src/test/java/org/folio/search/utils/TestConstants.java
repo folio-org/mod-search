@@ -23,9 +23,13 @@ public class TestConstants {
   public static final String INVENTORY_ITEM_TOPIC = "inventory.item";
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
+  public static final String INVENTORY_BOUND_WITH_TOPIC = "inventory.bound-with";
 
+  public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();
+  public static final String OCLC_IDENTIFIER_TYPE_ID = randomId();
+  public static final String CANCELED_OCLC_IDENTIFIER_TYPE_ID = randomId();
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();
   public static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = randomId();
@@ -60,6 +64,14 @@ public class TestConstants {
 
   public static String inventoryAuthorityTopic(String tenantId) {
     return getTopicName(tenantId, AUTHORITY_TOPIC);
+  }
+
+  public static String inventoryBoundWithTopic() {
+    return inventoryBoundWithTopic(TENANT_ID);
+  }
+
+  public static String inventoryBoundWithTopic(String tenantId) {
+    return getTopicName(tenantId, INVENTORY_BOUND_WITH_TOPIC);
   }
 
   private static String getTopicName(String tenantId, String topic) {

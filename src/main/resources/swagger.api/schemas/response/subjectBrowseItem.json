@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Subject browse search result item",
+  "type": "object",
+  "properties": {
+    "subject": {
+      "type": "string",
+      "description": "Shelf key value to be used for browsing"
+    },
+    "isAnchor": {
+      "type": "boolean",
+      "description": "Marks if current value is anchor or not"
+    },
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of records for the subject browse item"
+    }
+  }
+}

@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
-import static org.folio.search.service.setter.instance.IssnProcessor.ISSN_IDENTIFIER_NAMES;
 import static org.folio.search.utils.TestConstants.INVALID_ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISSN_IDENTIFIER_TYPE_ID;
@@ -17,9 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceIdentifiers;
-import org.folio.search.integration.InstanceReferenceDataService;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class IssnProcessorTest {
 
   @InjectMocks private IssnProcessor issnProcessor;
-  @Mock private InstanceReferenceDataService referenceDataService;
+  @Mock private ReferenceDataService referenceDataService;
 
   @MethodSource("issnDataProvider")
   @DisplayName("getFieldValue_parameterized")
@@ -44,7 +43,7 @@ class IssnProcessorTest {
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
       var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
-      when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, ISSN_IDENTIFIER_NAMES)).thenReturn(identifiers);
+      mockFetchReferenceData(identifiers);
     }
 
     var actual = issnProcessor.getFieldValue(instance);
@@ -53,7 +52,7 @@ class IssnProcessorTest {
 
   @Test
   void getFieldValue_negative_failedToLoadReferenceData() {
-    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, ISSN_IDENTIFIER_NAMES)).thenReturn(emptySet());
+    mockFetchReferenceData(emptySet());
     var actual = issnProcessor.getFieldValue(instanceWithIdentifiers(issn("123456")));
     assertThat(actual).isEmpty();
   }
@@ -77,11 +76,16 @@ class IssnProcessorTest {
     );
   }
 
-  private static InstanceIdentifiers issn(String value) {
+  private static Identifiers issn(String value) {
     return identifier(ISSN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private static InstanceIdentifiers invalidIssn(String value) {
+  private static Identifiers invalidIssn(String value) {
     return identifier(INVALID_ISSN_IDENTIFIER_TYPE_ID, value);
+  }
+
+  private void mockFetchReferenceData(Set<String> referenceData) {
+    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, issnProcessor.getIdentifierNames()))
+      .thenReturn(referenceData);
   }
 }

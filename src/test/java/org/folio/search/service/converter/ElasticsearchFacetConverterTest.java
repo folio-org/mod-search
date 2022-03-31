@@ -2,11 +2,10 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
+import static org.folio.search.utils.TestUtils.aggregationsFromJson;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetResult;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -15,20 +14,10 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.analytics.ParsedStringStats;
-import org.elasticsearch.common.ParseField;
-import org.elasticsearch.common.xcontent.ContextParser;
-import org.elasticsearch.common.xcontent.NamedXContentRegistry;
-import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
@@ -46,8 +35,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchFacetConverterTest {
 
-  private static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
-    new NamedXContentRegistry(getNamedContentRegistryEntries());
   private static final String AGG_NAME = "item";
 
   @InjectMocks private ElasticsearchFacetConverter facetConverter;
@@ -55,7 +42,7 @@ class ElasticsearchFacetConverterTest {
   @MethodSource("aggregationsDataProvider")
   @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] agg = {0}")
-  void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) throws Exception {
+  void convert_positive_parameterized(JsonNode aggregations, Map<String, Facet> expected) {
     var actual = facetConverter.convert(aggregationsFromJson(aggregations));
     assertThat(actual).isEqualTo(facetResult(expected));
   }
@@ -83,31 +70,6 @@ class ElasticsearchFacetConverterTest {
       arguments(filterFacetAggregationWithOnlySelectedTerms(), mapOf(AGG_NAME, facet(List.of(
         facetItem("v3", 300), facetItem("v4", 10)))))
     );
-  }
-
-  public static Aggregations aggregationsFromJson(JsonNode aggregationNode) throws Exception {
-    XContentParser parser = JsonXContent.jsonXContent.createParser(
-      NAMED_XCONTENT_REGISTRY, IGNORE_DEPRECATIONS, searchResponse(aggregationNode).toString());
-    return SearchResponse.fromXContent(parser).getAggregations();
-  }
-
-  public static List<NamedXContentRegistry.Entry> getNamedContentRegistryEntries() {
-    Map<String, ContextParser<Object, ? extends Aggregation>> map = new HashMap<>();
-    map.put("sterms", (p, c) -> ParsedStringTerms.fromXContent(p, (String) c));
-    map.put("filter", (p, c) -> ParsedFilter.fromXContent(p, (String) c));
-    map.put("string_stats", (p, c) -> ParsedStringStats.PARSER.parse(p, (String) c));
-    return map.entrySet().stream()
-      .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue()))
-      .collect(toList());
-  }
-
-  private static JsonNode searchResponse(JsonNode aggregationValue) {
-    return jsonObject(
-      "took", 0,
-      "timed_out", false,
-      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
-      "hits", jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
-      "aggregations", aggregationValue);
   }
 
   private static ObjectNode filterFacetAggregation() {

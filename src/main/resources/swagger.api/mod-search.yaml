@@ -530,6 +530,7 @@ components:
         type: string
         enum:
           - search.all.fields
+          - browse.cn.intermediate.values
     x-okapi-tenant-header:
       name: x-okapi-tenant
       in: header

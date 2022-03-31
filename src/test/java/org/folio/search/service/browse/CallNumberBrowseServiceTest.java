@@ -41,7 +41,7 @@ class CallNumberBrowseServiceTest {
   @Mock private SearchRepository searchRepository;
   @Mock private BrowseContextProvider browseContextProvider;
   @Mock private CallNumberBrowseQueryProvider browseQueryProvider;
-  @Mock private CallNumberBrowseResultConverter resultConverter;
+  @Mock private CallNumberBrowseResultConverter browseResultConverter;
 
   @Mock private SearchResponse precedingResponse;
   @Mock private SearchResponse succeedingResponse;
@@ -123,7 +123,8 @@ class CallNumberBrowseServiceTest {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
-    when(resultConverter.convert(succeedingResponse, context, true)).thenReturn(searchResult(browseItems("C1", "C2")));
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(
+      searchResult(browseItems("C1", "C2")));
 
     var actual = callNumberBrowseService.browse(request);
 
@@ -140,7 +141,8 @@ class CallNumberBrowseServiceTest {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
-    when(resultConverter.convert(precedingResponse, context, false)).thenReturn(searchResult(browseItems("A1", "A2")));
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(
+      searchResult(browseItems("A1", "A2")));
 
     var actual = callNumberBrowseService.browse(request);
 
@@ -156,8 +158,8 @@ class CallNumberBrowseServiceTest {
 
     var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
-    when(resultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
-    when(resultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
   }
 
   private static MultiSearchResponse msearchResponse(SearchResponse... responses) {

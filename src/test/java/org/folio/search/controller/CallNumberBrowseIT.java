@@ -5,6 +5,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
@@ -112,6 +113,29 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
     )));
   }
 
+  @Test
+  void browseByCalNumber_browseAroundWithEnabledIntermediateValues() {
+    enableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
+
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"DA 3880 O5 C3 V1\""))
+      .param("limit", "7")
+      .param("expandAll", "true");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+
+    assertThat(actual).isEqualTo(cnBrowseResult(48, List.of(
+      cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
+      cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
+      cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
+      cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V1", "DA 3880 O5 C3 V1", true),
+      cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V2"),
+      cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
+      cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5")
+    )));
+
+    disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
+  }
+
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
     var aroundQuery = "callNumber > {value} or callNumber < {value}";
     var aroundIncludingQuery = "callNumber >= {value} or callNumber < {value}";
@@ -160,11 +184,11 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       arguments(aroundIncludingQuery, secondAnchorCallNumber, 25, cnBrowseResult(48, List.of(
         cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
         cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
-        cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3"),
+        cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
         cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5"),
         cnBrowseItem(instance("instance #01"), "DA 3880 O6 J72"),
         cnBrowseItem(instance("instance #03"), "DA 3880 O6 L5 41955"),
-        cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6"),
+        cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V3"),
         cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
         cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
@@ -175,7 +199,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
         cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
         cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-        cnBrowseItem(instance("instance #34"), "DA 3900 C89"),
+        cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1"),
         cnBrowseItem(instance("instance #28"), "DB 11 A31 BD 3124"),
         cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
         cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
@@ -217,7 +241,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
         cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
         cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-        cnBrowseItem(instance("instance #34"), "DA 3900 C89")
+        cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1")
       ))),
 
       // checks if collapsing works in forward direction
@@ -244,7 +268,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
         cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
         cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-        cnBrowseItem(instance("instance #34"), "DA 3900 C89")
+        cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1")
       ))),
 
       // browsing backward
@@ -330,7 +354,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       List.of("instance #03", List.of("DA 3880 O6 L5 41955")),
       List.of("instance #04", List.of("CE 16 D86 X 41998")),
       List.of("instance #05", List.of("DA 3880 O6 M15")),
-      List.of("instance #06", List.of("DA 3880 O6 L6")),
+      List.of("instance #06", List.of("DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2", "DA 3880 O6 L6 V3")),
       List.of("instance #07", List.of("DA 3870 H47 41975")),
       List.of("instance #08", List.of("AC 11 A67 X 42000")),
       List.of("instance #09", List.of("DA 3700 C95 NO 18")),
@@ -354,11 +378,11 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
       List.of("instance #27", List.of("E 211 A506", "F 43733 L370 41992")),
       List.of("instance #28", List.of("DB 11 A31 BD 3124")),
       List.of("instance #29", List.of("DA 3880 O6 D5")),
-      List.of("instance #30", List.of("GA 16 G32 41557")),
+      List.of("instance #30", List.of("GA 16 G32 41557 V1", "GA 16 G32 41557 V2", "GA 16 G32 41557 V3")),
       List.of("instance #31", List.of("AB 14 C72 NO 220", "G 45831 S2")),
-      List.of("instance #32", List.of("DA 3880 O5 C3")),
+      List.of("instance #32", List.of("DA 3880 O5 C3 V1", "DA 3880 O5 C3 V2", "DA 3880 O5 C3 V3")),
       List.of("instance #33", List.of("E 12.11 I2 298")),
-      List.of("instance #34", List.of("DA 3900 C89")),
+      List.of("instance #34", List.of("DA 3900 C89 V1", "DA 3900 C89 V2", "DA 3900 C89 V3")),
       List.of("instance #35", List.of("E 12.11 I12 288 D")),
       List.of("instance #36", List.of("DA 3700 B91 L79")),
       List.of("instance #37", List.of("FC 17 B89")),

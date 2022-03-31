@@ -31,10 +31,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var isForwardBrowsing = context.isForwardBrowsing();
     var searchSource = callNumberBrowseQueryProvider.get(request, context, isForwardBrowsing);
     var searchResponse = searchRepository.search(request, searchSource);
-
     var searchResult = callNumberBrowseResultConverter.convert(searchResponse, context, isForwardBrowsing);
-    searchResult.setRecords(trim(searchResult.getRecords(), context, isForwardBrowsing));
-    return searchResult;
+    return searchResult.records(trim(searchResult.getRecords(), context, isForwardBrowsing));
   }
 
   @Override

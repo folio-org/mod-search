@@ -5,6 +5,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Component;
 public class CallNumberBrowseResultConverter {
 
   private final ElasticsearchDocumentConverter documentConverter;
+  private final FeatureConfigService featureConfigService;
 
   /**
    * Converts received {@link SearchResponse} from Elasticsearch to browsing {@link SearchResult} object.
@@ -50,7 +54,10 @@ public class CallNumberBrowseResultConverter {
     }
 
     var items = isForwardBrowsing ? browseItems : reverse(browseItems);
-    var populatedItems = populateCallNumberBrowseItems(items, ctx, isForwardBrowsing);
+    var populatedItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)
+      ? populateItemsWithIntermediateResults(items, ctx, isForwardBrowsing)
+      : fillItemsWithFullCallNumbers(items, ctx, isForwardBrowsing);
+
     return searchResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
 
@@ -59,7 +66,7 @@ public class CallNumberBrowseResultConverter {
     return new CallNumberBrowseItem().totalRecords(1).instance(instance).shelfKey(shelfKey);
   }
 
-  private static List<CallNumberBrowseItem> populateCallNumberBrowseItems(List<CallNumberBrowseItem> browseItems,
+  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(List<CallNumberBrowseItem> browseItems,
     BrowseContext ctx, boolean isBrowsingForward) {
     var lower = browseItems.get(0).getShelfKey();
     var upper = browseItems.get(browseItems.size() - 1).getShelfKey();
@@ -68,6 +75,14 @@ public class CallNumberBrowseResultConverter {
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
       .sorted(comparing(CallNumberBrowseItem::getShelfKey))
+      .collect(toList());
+  }
+
+  private static List<CallNumberBrowseItem> fillItemsWithFullCallNumbers(
+    List<CallNumberBrowseItem> items, BrowseContext ctx, boolean isBrowsingForward) {
+    return items.stream()
+      .filter(item -> isValidBrowseItem(item, ctx, isBrowsingForward))
+      .map(browseItem -> browseItem.fullCallNumber(getFullCallNumber(browseItem)))
       .collect(toList());
   }
 
@@ -92,22 +107,34 @@ public class CallNumberBrowseResultConverter {
       .distinct()
       .map(StringUtils::toRootUpperCase)
       .filter(shelfKey -> shelfKey.compareTo(lower) >= 0 && shelfKey.compareTo(upper) <= 0)
-      .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, itemsByShelfKeys.get(shelfKey)))
+      .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))))
       .collect(toList());
   }
 
-  private static CallNumberBrowseItem mapToCallNumberBrowseItem(CallNumberBrowseItem browseItem,
-    String shelfKey, List<Item> relatedItems) {
-    var fullCallNumber = findFirst(relatedItems)
+  private static CallNumberBrowseItem mapToCallNumberBrowseItem(
+    CallNumberBrowseItem browseItem, String shelfKey, Optional<Item> optionalOfItem) {
+    return new CallNumberBrowseItem()
+      .shelfKey(shelfKey)
+      .fullCallNumber(getFullCallNumber(optionalOfItem))
+      .instance(browseItem.getInstance())
+      .totalRecords(1);
+  }
+
+  private static String getFullCallNumber(CallNumberBrowseItem browseItem) {
+    return getFullCallNumber(
+      Optional.ofNullable(browseItem.getInstance())
+        .map(Instance::getItems)
+        .stream()
+        .flatMap(Collection::stream)
+        .filter(item -> Objects.equals(browseItem.getShelfKey(), item.getEffectiveShelvingOrder()))
+        .findFirst());
+  }
+
+  private static String getFullCallNumber(Optional<Item> optionalOfItem) {
+    return optionalOfItem
       .map(Item::getEffectiveCallNumberComponents)
       .map(cn -> getEffectiveCallNumber(cn.getPrefix(), cn.getCallNumber(), cn.getSuffix()))
       .orElse(null);
-
-    return new CallNumberBrowseItem()
-      .shelfKey(shelfKey)
-      .fullCallNumber(fullCallNumber)
-      .instance(browseItem.getInstance())
-      .totalRecords(1);
   }
 
   private static List<CallNumberBrowseItem> collapseCallNumberBrowseItems(List<CallNumberBrowseItem> items) {

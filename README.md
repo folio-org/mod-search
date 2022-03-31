@@ -2,8 +2,8 @@
 
 Copyright (C) 2020-2021 The Open Library Foundation
 
-This software is distributed under the terms of the Apache License, Version 2.0. See the file "[LICENSE](LICENSE)" for
-more information.
+This software is distributed under the terms of the Apache License,
+Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Table of contents
 
@@ -29,21 +29,22 @@ more information.
 ## Introduction
 
 This module provides a search functionality for instance and authorities via REST API. It uses
-[The Contextual Query Language](https://www.loc.gov/standards/sru/cql/) as a formal language to query records using
-filters, boolean conditions, etc.
+[The Contextual Query Language](https://www.loc.gov/standards/sru/cql/) as a formal language to query
+records using filters, boolean conditions, etc.
 
 ## Compiling
 
 ```shell
 mvn install
 ```
-
 See that it says "BUILD SUCCESS" near the end.
 
 ## Running it
 
 Run locally with proper environment variables set (see
-[Environment vaiables](#environment-variables) below) on listening port 8081 (default listening port):
+[Environment vaiables](#environment-variables) below) on listening port 8081 (default
+listening port):
+
 
 ```
 KAFA_PORT=localhost KAFA_PORT=9092 \
@@ -67,10 +68,9 @@ docker run -t -i -p 8081:8081 mod-search
 
 ## Multi-language search support
 
-Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title,
-contributors, etc.). This can be done via following API (`languageAnalyzer` field is optional):
+Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title, contributors, etc.).
+This can be done via following API (`languageAnalyzer` field is optional):
 `POST /search/config/languages`
-
 ```json
 {
   "code":"eng",
@@ -79,7 +79,6 @@ contributors, etc.). This can be done via following API (`languageAnalyzer` fiel
 ```
 
 The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-installed languages analyzers:
-
 - ara
 - ger
 - eng
@@ -96,12 +95,13 @@ The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-ins
 ### Adding new languages via REST
 
 It is allowed to add new languages via rest endpoint `/search/config/languages`.
-**Please note, when you add a new language, a whole reindex is required in order to apply new configuration**.
+**Please note, when you add a new language, a whole reindex is required in order to
+apply new configuration**.
 
 ### Defining initial languages via ENV variable
 
-It is possible to define initial languages via `INITIAL_LANGUAGES` env variable. These languages will be added on tenant
-init and applied to index. Example usage:
+It is possible to define initial languages via `INITIAL_LANGUAGES` env variable.
+These languages will be added on tenant init and applied to index. Example usage:
 `INITIAL_LANGUAGES=eng,fre,kor,chi,spa`. If the variable is not defined, only
 `eng` code is added.
 
@@ -112,7 +112,6 @@ init and applied to index. Example usage:
 ### Configuring on-premise Elasticsearch instance
 
 It is required to install some required plugins for your ES instance, here is the list:
-
 * analysis-icu
 * analysis-kuromoji
 * analysis-smartcn
@@ -120,7 +119,6 @@ It is required to install some required plugins for your ES instance, here is th
 * analysis-phonetic
 
 You can find sample Dockerfile in `docker/elasticsearch/Dockerfile` or install plugins manually:
-
 ```shell
 ${ES_HOME}/bin/elasticsearch-plugin install --batch \
   analysis-icu \
@@ -133,27 +131,23 @@ ${ES_HOME}/bin/elasticsearch-plugin install --batch \
 See also [Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docker.html).
 
 There is an alternative ES image from Bitnami - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
-that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to
-install.
+that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to install.
 
-For production installations it is strongly recommended enabling security for instance and set-up user/password. The
-user must have at least following permissions:
-
+For production installations it is strongly recommended enabling security for instance and set-up user/password. The user
+must have at least following permissions:
 * Create/delete/update index and mappings for it.
 * Create/update/delete documents in index.
 
 ### Recommended production set-up
 
-The data nodes Elasticsearch configuration completely depends on the data. If there are 7 mln of instances the
-configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well. The nodes were both master and data
-node. We performed performance tests for this configuration, and it showed good results. We would recommend to
-performing additional performance testing (try to reindex and search with different configurations)
+The data nodes Elasticsearch configuration completely depends on the data.
+If there are 7 mln of instances the configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well.
+The nodes were both master and data node. We performed performance tests for this configuration, and it showed good results.
+We would recommend to performing additional performance testing (try to reindex and search with different configurations)
 with different type of nodes, and see what configuration is sufficient for what data volume.
 
-Also, for fault tolerance Elasticsearch requires dedicated master nodes (not to have quorum problem which is called
-split brain)
-with less powerful configuration (
-see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)).
+Also, for fault tolerance Elasticsearch requires dedicated master nodes (not to have quorum problem which is called split brain)
+with less powerful configuration (see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)).
 
 ## Environment variables:
 
@@ -186,11 +180,11 @@ see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current
 | KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR  | -                         | Replication factor for authority topic.                                                                                                                                               |
 | INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS | 3                         | Amount of retry attempts to delete instance subject resources.                                                                                                                        |
 | INITIAL_LANGUAGES                         | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
-| ~~SYSTEM_USER_PASSWORD~~                 | -                         | (DEPRECATED, use [module-user-configuration](#module-user-configuration) Password for `mod-search` system user (not required for dev envs)                                            |
-| MODULE_USER_STORE_TYPE                   | ephemeral                 | Module user store type                                                                                                                                                                |
-| MODULE_USER_CACHE_CAPACITY               | 100                       | Cache capacity for token cache.                                                                                                                                                       |
-| MODULE_USER_CACHE_TTL_MS                 | 3600000                   | Token cache ttl in ms.                                                                                                                                                                |
-| MODULE_USER_FAILURE_CACHE_TTL_MS         | 30000                     | Failure token cache ttl in ms.                                                                                                                                                        |
+| ~~SYSTEM_USER_PASSWORD~~                  | -                         | (DEPRECATED, use [module-user-configuration](#module-user-configuration) Password for `mod-search` system user (not required for dev envs)                                            |
+| MODULE_USER_STORE_TYPE                    | ephemeral                 | Module user store type                                                                                                                                                                |
+| MODULE_USER_CACHE_CAPACITY                | 100                       | Cache capacity for token cache.                                                                                                                                                       |
+| MODULE_USER_CACHE_TTL_MS                  | 3600000                   | Token cache ttl in ms.                                                                                                                                                                |
+| MODULE_USER_FAILURE_CACHE_TTL_MS          | 30000                     | Failure token cache ttl in ms.                                                                                                                                                        |
 | OKAPI_URL                                 | -                         | OKAPI URL used to login system user, required                                                                                                                                         |
 | ENV                                       | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
 | SEARCH_BY_ALL_FIELDS_ENABLED              | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
@@ -255,7 +249,6 @@ documentation [Spring Boot Externalized Configuration](https://docs.spring.io/sp
 ### Configuring connection to elasticsearch
 
 In order to configure connection to elasticsearch you have to provide following env variables:
-
 * `ELASTICSEARCH_URL` - URL to elasticsearch master node (e.g. http(s)://elasticsearch:9200);
 * `ELASTICSEARCH_USERNAME` - username of the user to connect to elasticsearch;
 * `ELASTICSEARCH_PASSWORD` - password for the user (see
@@ -274,8 +267,8 @@ It is possible to define specific tenant parameters during module's initializati
 
 ### Recreating Elasticsearch index
 
-Sometimes we need to recreate Elasticsearch index, for example when a breaking change introduced to ES index structure (
-mapping). It can be fixed by running reindex request:
+Sometimes we need to recreate Elasticsearch index, for example when a breaking change introduced to ES index
+structure (mapping). It can be fixed by running reindex request:
 
 ```http
 POST [OKAPI_URL]/search/index/inventory/reindex
@@ -290,25 +283,23 @@ x-okapi-token: [JWT_TOKEN]
 ```
 
 * `resourceName` parameter is optional and equal to `instance` by default
-* `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search will
-  drop existing indices for tenant and resource, creating them again. Executing request with this parameter equal
-  to `true` in query will erase all the tenant data in mod-search.
+* `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
+will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
+equal to `true` in query will erase all the tenant data in mod-search.
+
 
 ### Monitoring reindex process
 
-There is no end-to-end monitoring implemented yet, however it is possible to monitor it partially. In order to check how
-many records published to Kafka topic use inventory API:
-
+There is no end-to-end monitoring implemented yet, however it is possible to monitor it partially. In order to check
+how many records published to Kafka topic use inventory API:
 ```http
 GET [OKAPI_URL]/instance-storage/reindex/[reindex job id]
 ```
-
 _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
 `totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
-see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query)
-.
+see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
 
 ## API
 
@@ -326,16 +317,15 @@ Module exposes next API for searching:
 
 ### Searching and filtering
 
-The main endpoint that provides search capabilities is `GET /search/instances`. It consumes following request
-parameters:
+The main endpoint that provides search capabilities is `GET /search/instances`. It consumes following
+request parameters:
 
 | Name      | Required              | Default value | Description                                                                        |
 |:----------|:----------------------|:--------------|:-----------------------------------------------------------------------------------|
 | query     | Yes                   | -             | A CQL query to execute                                                             |
 | limit     | No (default to 100)   | 100           | Maximum number of records to fetch                                                 |
 | offset    | No (default to 0)     | 0             | Instructs to skip first N records that matches the query                           |
-| expandAll | No (default to false) | false         | If false than only _*
-basic_ instance properties returned, otherwise all properties |
+| expandAll | No (default to false) | false         | If false than only _*basic_ instance properties returned, otherwise all properties |
 
 > *_Basic fields are following:_
 > * _id_
@@ -343,19 +333,17 @@ basic_ instance properties returned, otherwise all properties |
 > * _contributors_
 > * _publication_
 
-We use CQL query for search queries,
-see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
+We use CQL query for search queries, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
 for more details.
 
 In mod-search there are two main types of searchable fields:
-
 1. _Full text_ capable fields (aka. multi-lang fields) - analyzed and preprocessed fields;
 2. _Term_ fields (keywords, bool, date fields, etc.) - non-analyzed fields.
 
 ### CQL query operators
 
-Depending on field type, CQL operators will be handled in different ways or not supported at all. Here is table of
-supported operators.
+Depending on field type, CQL operators will be handled in different ways or not supported at all.
+Here is table of supported operators.
 
 | Operator   | Full text usage                | Term field usage               | Description                                                                                                                                        |
 |:-----------|:-------------------------------|:-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -374,18 +362,18 @@ Here is a table with supported search options.
 
 ### Matching all records
 
-A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest
-option)
-or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex
-query, for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending`
+A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest option)
+or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query,
+for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending`
 
 - `cql.allRecords=1 NOT contributors=Smith` matches all records where contributors name does not contain `Smith`
-  as a word.
+as a word.
 
 ### Matching undefined or empty values
 
-A relation does not match if the value on the left-hand side is undefined. A negation (using NOT) of a relation matches
-if the value on the left-hand side is not defined or if it is defined but doesn't match.
+A relation does not match if the value on the left-hand side is undefined.
+A negation (using NOT) of a relation matches if the value on the left-hand side is not defined or
+if it is defined but doesn't match.
 
 - `name=""` matches all records where name is defined.
 - `cql.allRecords=1 NOT name=""` matches all records where name is not defined.
@@ -435,6 +423,7 @@ if the value on the left-hand side is not defined or if it is defined but doesn'
 | `issn`                                 |   term    | `issn="1234*"`                                                    | Matches instances that have an ISSN identifier with the given value                                                  |
 | `oclc`                                 |   term    | `oclc="1234*"`                                                    | Matches instances that have an OCLC identifier with the given value                                                  |
 
+
 ### Holdings-records search options
 
 | Option                                 |   Type    | Example                                              | Description                                                                                            |
@@ -451,11 +440,12 @@ if the value on the left-hand side is not defined or if it is defined but doesn'
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
-| `holdingsTypeId`                       |   term    | `holdingsTypeId=="123"`                              | Search by holdings type id
+| `holdingsTypeId`                       |   term    | `holdingsTypeId=="123"`                              | Search by holdings type id                                                                             |
 | `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
 | `holdingsIdentifiers`                  |   term    | `holdingsIdentifiers == "ho00000000006"`             | Search by holdings Identifiers: `holdings.id`, `holdings.hrid`, `holdings.formerIds`                   |
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
+
 ### Items search options
 
 | Option                              |   Type    | Example                                                      | Description                                                                                                                   |
@@ -529,26 +519,24 @@ if the value on the left-hand side is not defined or if it is defined but doesn'
 
 ### Search by all field values
 
-Search by all feature is optional and disabled by default. However, it can be enabled for tenant using following HTTP
-request:
+Search by all feature is optional and disabled by default. However, it can be enabled for tenant using
+following HTTP request:
 
 `POST /search/config/features`
-
 ```json
 {
   "feature": "search.all.fields",
   "enabled": true
 }
 ```
-
 Also, search by all fields can be enabled globally by passing to mod-search service following ENV variable:
 
 ```
 SEARCH_BY_ALL_FIELDS_ENABLED=true
 ```
 
-By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and does
-not produce any values, so the following search options will return an empty result.
+By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and
+does not produce any values, so the following search options will return an empty result.
 
 | Option             |       Type        | Example                          | Description                                                                       |
 |:-------------------|:-----------------:|:---------------------------------|:----------------------------------------------------------------------------------|
@@ -648,11 +636,9 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 ## Sorting results
 
 The default sorting is by relevancy. The `sortBy` clause is used to define sorting, for example:
-
 ```
 title all "semantic web" sortBy title/sort.descending - sort by title in descending order
 ```
-
 In case where options are similar, secondary sort is used
 
 ### Instance sort options
@@ -671,6 +657,7 @@ In case where options are similar, secondary sort is used
 | `headingType` | term | `headingRef`   | Sort authorities by Type of heading     |
 | `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
 
+
 ## Additional Information
 
 ### Issue tracker
@@ -688,8 +675,9 @@ This module's [API documentation](https://dev.folio.org/reference/api/#mod-searc
 
 ### Download and configuration
 
-The built artifacts for this module are available. See [configuration](https://dev.folio.org/download/artifacts) for
-repository access, and the [Docker image](https://hub.docker.com/r/folioorg/mod-search/)
+The built artifacts for this module are available.
+See [configuration](https://dev.folio.org/download/artifacts) for repository access,
+and the [Docker image](https://hub.docker.com/r/folioorg/mod-search/)
 
 ### Development tips
 

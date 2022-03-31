@@ -98,9 +98,11 @@ class ModuleUserProviderTest {
   @Test
   void getOkapiToken_negative_invalidResponseFromServer() throws NotFoundException {
     var rq = mock(Request.class);
+    var exception = new Forbidden("forbidden", rq, null, emptyMap());
+
     when(tokenCache.get(ENV, TENANT_ID, MODULE_NAME)).thenReturn(null);
     when(secureStore.get(ENV, TENANT_ID, MODULE_NAME)).thenReturn("pwd");
-    when(authnClient.getApiKey(UserCredentials.of(MODULE_NAME, "pwd"))).thenThrow(new Forbidden("forbidden", rq, null));
+    when(authnClient.getApiKey(UserCredentials.of(MODULE_NAME, "pwd"))).thenThrow(exception);
 
     assertThatThrownBy(() -> moduleUserProvider.getOkapiToken(TENANT_ID))
       .isInstanceOf(Forbidden.class)

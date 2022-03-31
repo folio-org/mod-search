@@ -9,8 +9,6 @@ import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.ModuleConfigurationProperties;
 import org.folio.search.service.context.SystemFolioExecutionContext;
 import org.folio.search.service.systemuser.ModuleUserProvider;
-import org.folio.search.model.context.FolioExecutionContextBuilder;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.springframework.stereotype.Service;

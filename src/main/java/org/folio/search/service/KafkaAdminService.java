@@ -30,6 +30,7 @@ public class KafkaAdminService {
 
   public static final String EVENT_LISTENER_ID = "mod-search-events-listener";
   public static final String AUTHORITY_LISTENER_ID = "mod-search-authorities-listener";
+  public static final String CONTRIBUTOR_LISTENER_ID = "mod-search-contributor-listener";
   private static final String KAFKA_TOPICS_FILE = "kafka/kafka-topics.json";
 
   private final KafkaAdmin kafkaAdmin;

@@ -306,6 +306,20 @@ public final class CollectionUtils {
     return result;
   }
 
+  /**
+   * Subtracts target collection from the source and returns it as a new set value.
+   *
+   * @param source - source collection to subtract from
+   * @param target - target collection to be subtracted
+   * @param <T> - generic type for collection elements
+   * @return a new {@link LinkedHashSet} object with a subtraction result
+   */
+  public static <T> Set<T> subtract(Collection<T> source, Collection<T> target) {
+    var result = new LinkedHashSet<>(source);
+    target.forEach(result::remove);
+    return result;
+  }
+
   private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {
     return stream(iterable.spliterator(), false)
       .filter(Map.class::isInstance)

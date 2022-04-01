@@ -1,9 +1,9 @@
-version: "3.8"
-
 services:
   mod-search:
     container_name: mod-search
     image: folioci/mod-search:latest
+    networks:
+      - mod-search-local
     ports:
       - "8081:8081"
     environment:
@@ -14,10 +14,12 @@ services:
   api-mock:
     image: wiremock/wiremock:2.32.0
     container_name: api-mock
+    networks:
+      - mod-search-local
     command:
       - "--verbose"
     ports:
-    - "9130:8080"
+      - "9130:8080"
     volumes:
       - ../src/test/resources/mappings:/home/wiremock/mappings
 
@@ -25,7 +27,10 @@ services:
     container_name: elasticsearch
     image: opendistro-elasticsearch-it:1.13.2
     build:
-      dockerfile: elasticsearch/Dockerfile
+      context: elasticsearch
+      dockerfile: Dockerfile
+    networks:
+      - mod-search-local
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -40,6 +45,8 @@ services:
   zookeeper:
     image: zookeeper:3.6.2
     container_name: zookeeper
+    networks:
+      - mod-search-local
     ports:
       - "2181:2181"
       - "8080:8080"
@@ -51,6 +58,8 @@ services:
     image: wurstmeister/kafka:2.13-2.6.0
     container_name: kafka
     hostname: kafka
+    networks:
+      - mod-search-local
     depends_on:
       - zookeeper
     ports:
@@ -65,19 +74,22 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_MESSAGE_MAX_BYTES: 1000000
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      MIN_INSYNC_REPLICAS: 2
-      KAFKA_CREATE_TOPICS: >-
-        inventory.instance:4:1
 
   db:
     container_name: db
     image: postgres:13.4-alpine
+    networks:
+      - mod-search-local
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: okapi_modules
+
+networks:
+  mod-search-local:
+    driver: bridge
 
 volumes:
   es-data: { }

@@ -1,0 +1,21 @@
+{
+  "name": "contributor",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.Contributor",
+  "indexingConfiguration": {
+    "resourceRepository": "instanceContributorsRepository"
+  },
+  "fields": {
+    "name": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "contributorTypeId": {
+      "index": "keyword",
+      "showInResponse": true
+    },
+    "instances": {
+      "index": "source",
+      "showInResponse": true
+    }
+  }
+}

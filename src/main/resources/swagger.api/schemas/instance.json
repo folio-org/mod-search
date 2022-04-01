@@ -70,21 +70,7 @@
       "type": "array",
       "description": "List of contributors names",
       "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Personal name, corporate name, meeting name"
-          },
-          "contributorNameTypeId": {
-            "type": "string",
-            "description": "UUID of contributor name type term defined by the MARC code list for relators"
-          },
-          "primary": {
-            "type": "boolean",
-            "description": "Whether this is the primary contributor"
-          }
-        }
+        "$ref": "contributor.json"
       }
     },
     "subjects": {

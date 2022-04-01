@@ -22,6 +22,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
@@ -38,6 +39,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  @Disabled
   void responseContainsOnlyBasicInstanceProperties() throws Exception {
     var expected = getSemanticWeb();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
@@ -64,6 +66,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  @Disabled
   void responseContainsAllInstanceProperties() throws Exception {
     var expected = getSemanticWeb();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true)

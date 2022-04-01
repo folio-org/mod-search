@@ -24,6 +24,11 @@
       "name": "inventory.authority",
       "numPartitions": "${KAFKA_AUTHORITY_TOPIC_PARTITIONS:50}",
       "replicationFactor": "${KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR:}"
+    },
+    {
+      "name": "search.instance-contributor",
+      "numPartitions": "${KAFKA_CONTRIBUTOR_TOPIC_PARTITIONS:50}",
+      "replicationFactor": "${KAFKA_CONTRIBUTOR_TOPIC_REPLICATION_FACTOR:}"
     }
   ]
 }

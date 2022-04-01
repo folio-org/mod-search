@@ -68,6 +68,10 @@ application:
         concurrency: 1
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority}
         group-id: ${application.environment}-mod-search-authorities-group
+      contributors:
+        concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
+        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)search\.instance-contributor}
+        group-id: ${application.environment}-mod-search-contributors-group
 
 logging:
   level:

@@ -16,6 +16,7 @@ import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
+import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
@@ -35,6 +36,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.service.ResourceService;
+import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +55,10 @@ class KafkaMessageListenerTest {
   @Mock private ResourceService resourceService;
   @Spy private final FolioMessageBatchProcessor batchProcessor =
     new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
+
+  @Spy
+  @SuppressWarnings("unused")
+  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
   void handleEvents() {

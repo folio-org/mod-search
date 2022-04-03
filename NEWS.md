@@ -1,3 +1,10 @@
+## 1.6.2 2021-04-03
+* MSEARCH-268 Increment the minor version of spring-kafka
+* MSEARCH-323 Make populating of intermediate shelf-keys configurable
+* MSEARCH-308 Add documentation for call-number browsing
+* MSEARCH-308 Optimize call-number browsing
+* MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
+
 ## 1.6.1 2021-03-21
 * MSEARCH-308 Optimize call-number browsing
 * MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers

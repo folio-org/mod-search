@@ -17,7 +17,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 * [Data indexing](#data-indexing)
 * [Supported search types](#supported-search-types)
   * [Instance search options](#instance-search-options)
-  * [Item search options](#items-search-options)
+  * [Item search options](#item-search-options)
   * [Holding record search options](#holdings-records-search-options)
   * [Authority search options](#authority-search-options)
 * [Records browsing](#records-browsing)
@@ -402,7 +402,34 @@ if it is defined but doesn't match.
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
-### Items search options
+### Item search options
+
+| Option                              |   Type    | Example                                                      | Description                                                                                                                   |
+|:------------------------------------|:---------:|:-------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------|
+| `item.id`                           |   term    | `item.id=="1234567"`                                         | Matches instances that have an item with the id                                                                               |
+| `item.hrid`                         |   term    | `item.hrid=="it001"`                                         | Matches instances that have an item with the HRID                                                                             |
+| `item.barcode`                      |   term    | `item.barcode=="10011"`                                      | Matches instances that have an item with the barcode                                                                          |
+| `item.effectiveLocationId`          |   term    | `item.effectiveLocationId=="1212"`                           | Matches instances that have item with the effective location                                                                 |
+| `item.status.name`                  |   term    | `item.status.name=="Available"`                              | Matches instances that have item with given status                                                                           |
+| `item.materialTypeId`               |   term    | `item.materialTypeId="23434"`                                | Matches instances that have item with given material type                                                                    |
+| `item.discoverySuppress`            |   term    | `item.discoverySuppress=true`                                | Matches instances that have item suppressed/not suppressed from discovery                                                    |
+| `itemFullCallNumbers`               |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have item with given call number string (prefix + call number + suffix)                               |
+| `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have item with given call number and might not be formatted correctly                                 |
+| `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have item with given tag                                                                              |
+| `item.electronicAccess`             | full-text | `item.electronicAccess any "resource"`                       | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
+| `callNumber`                        |   term    | `callNumber="A 12"`                                          | An alias for search by `item.effectiveShelvingOrder` field                                                                   |
+| `item.effectiveShelvingOrder`       |   term    | `item.effectiveShelvingOrder="A 12"`                         | Matches instances that have item with given `effectiveShelvingOrder` value                                                   |
+| `item.electronicAccess.uri`         |   term    | `item.electronicAccess.uri="http://folio.org*"`              | Search by electronic access URI                                                                                               |
+| `item.electronicAccess.linkText`    | full-text | `item.electronicAccess.linkText="Folio website"`             | Search by electronic access link text                                                                                         |
+| `item.electronicAccess.publicNote`  | full-text | `item.electronicAccess.publicNote="a rare book"`             | Search by electronic access public note                                                                                       |
+| `item.notes.note`                   | full-text | `item.notes.note all "librarian note"`                       | Search by item notes and circulation notes                                                                                    |
+| `item.circulationNotes.note`        | full-text | `item.circulationNotes.note all "circulation note"`          | Search by item circulation notes                                                                                              |
+| `itemPublicNotes`                   | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                                             |
+| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `item.id`, `item.hrid`, `item.formerIds`, `item.accessionNumber`, `item.itemIdentifier`      |
+| `item.metadata.createdDate`         |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with item that were created after  `2020-12-12`                                                            |
+| `item.metadata.updatedDate`         |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with item that were updated after  `2020-12-12`                                                            |
+
+### Items search options (Backward compatibility - should be removed in next release)
 
 | Option                              |   Type    | Example                                                      | Description                                                                                                                   |
 |:------------------------------------|:---------:|:-------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------|
@@ -413,19 +440,15 @@ if it is defined but doesn't match.
 | `items.status.name`                 |   term    | `items.status.name=="Available"`                             | Matches instances that have items with given status                                                                           |
 | `items.materialTypeId`              |   term    | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type                                                                    |
 | `items.discoverySuppress`           |   term    | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery                                                    |
-| `itemFullCallNumbers`               |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
-| `itemNormalizedCallNumbers`         |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
-| `itemTags`                          |   term    | `itemTags="important"`                                       | Matches instances that have items with given tag                                                                              |
+| `items.fullCallNumber`              |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
+| `items.normalizedCallNumbers`       |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
 | `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
-| `callNumber`                        |   term    | `callNumber="A 12"`                                          | An alias for search by `items.effectiveShelvingOrder` field                                                                   |
 | `items.effectiveShelvingOrder`      |   term    | `items.effectiveShelvingOrder="A 12"`                        | Matches instances that have items with given `effectiveShelvingOrder` value                                                   |
 | `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
 | `items.electronicAccess.linkText`   | full-text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text                                                                                         |
 | `items.electronicAccess.publicNote` | full-text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note                                                                                       |
 | `items.notes.note`                  | full-text | `items.notes.note all "librarian note"`                      | Search by item notes and circulation notes                                                                                    |
 | `items.circulationNotes.note`       | full-text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes                                                                                              |
-| `itemPublicNotes`                   | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                                             |
-| `itemIdentifiers`                   |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `items.id`, `items.hrid`, `items.formerIds`, `items.accessionNumber`, `items.itemIdentifier`      |
 | `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                            |
 | `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                            |
 
@@ -558,7 +581,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `staffSuppress`          | boolean | Requests a staff suppress facet                                      |
 | `discoverySuppress`      | boolean | Requests a discovery suppress facet                                  |
 | `statisticalCodeIds`     |  term   | Requests a statistical code ids facet                                |
-| `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, items facet |
+| `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, item facet  |
 
 ### Holding facets
 
@@ -575,12 +598,22 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 | Option                      |  Type   | Description                                  |
 |:----------------------------|:-------:|:---------------------------------------------|
+| `item.effectiveLocationId`  |  term   | Requests an item effective location id facet |
+| `item.status.name`          |  term   | Requests an item status facet                |
+| `item.materialTypeId`       |  term   | Requests an item material type id facet      |
+| `item.discoverySuppress`    | boolean | Requests an item discovery suppress facet    |
+| `item.statisticalCodeIds`   | boolean | Requests an item statistical code ids facet  |
+| `itemTags`                  |  term   | Requests an item tag facet                   |
+
+### Items facets (backward-compatibility)
+
+| Option                      |  Type   | Description                                  |
+|:----------------------------|:-------:|:---------------------------------------------|
 | `items.effectiveLocationId` |  term   | Requests an item effective location id facet |
 | `items.status.name`         |  term   | Requests an item status facet                |
 | `items.materialTypeId`      |  term   | Requests an item material type id facet      |
 | `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
 | `items.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
-| `itemTags`                  |  term   | Requests an item tag facet                   |
 
 ### Authority facets
 
@@ -604,6 +637,7 @@ In case where options are similar, secondary sort is used
 | `title`             | full text | relevancy      | Sort instances by title        |
 | `contributors`      |   term    | relevancy      | Sort instances by contributors |
 | `items.status.name` |   term    | `title`        | Sort instances by status       |
+| `item.status.name`  |   term    | `title`        | Sort instances by status       |
 
 ### Authority sort options
 

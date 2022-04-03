@@ -220,36 +220,46 @@
       "type": "object",
       "properties": {
         "id": {
+          "searchAliases": "item.id",
           "index": "keyword"
         },
         "hrid": {
+          "searchAliases": "item.hrid",
           "index": "keyword"
         },
         "accessionNumber": {
+          "searchAliases": "item.accessionNumber",
           "index": "source"
         },
         "formerIds": {
+          "searchAliases": "item.formerIds",
           "index": "source"
         },
         "itemIdentifier": {
+          "searchAliases": "item.itemIdentifier",
           "index": "source"
         },
         "barcode": {
+          "searchAliases": "item.barcode",
           "index": "keyword"
         },
         "effectiveLocationId": {
+          "searchAliases": "item.effectiveLocationId",
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
         "statisticalCodeIds": {
+          "searchAliases": "item.statisticalCodeIds",
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
         "status": {
+          "searchAliases": "item.status",
           "type": "object",
           "properties": {
             "name": {
               "searchTypes": [ "facet", "filter", "sort" ],
+              "searchAliases": "item.status.name",
               "index": "keyword",
               "sort": {
                 "fieldName": "items.status.name",
@@ -260,110 +270,132 @@
           }
         },
         "materialTypeId": {
+          "searchAliases": "item.materialTypeId",
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
         "discoverySuppress": {
+          "searchAliases": "item.discoverySuppress",
           "searchTypes": [ "facet", "filter" ],
           "index": "bool",
           "default": false
         },
         "effectiveCallNumberComponents": {
+          "searchAliases": "item.effectiveCallNumberComponents",
           "type": "object",
           "properties": {
             "callNumber": {
+              "searchAliases": "item.callNumber",
               "index": "source",
               "showInResponse": true
             },
             "prefix": {
+              "searchAliases": "item.prefix",
               "index": "source",
               "showInResponse": true
             },
             "suffix": {
+              "searchAliases": "item.suffix",
               "index": "source",
               "showInResponse": true
             }
           }
         },
+
         "effectiveShelvingOrder": {
           "index": "keyword_uppercase",
-          "searchAliases": "callNumber",
+          "searchAliases": [ "callNumber", "item.effectiveShelvingOrder" ],
           "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
           "showInResponse": true
         },
         "tags": {
+          "searchAliases": "item.tags",
           "type": "object",
           "properties": {
             "tagList": {
+              "searchAliases": "item.tagList",
               "index": "multilang"
             }
           }
         },
         "electronicAccess": {
+          "searchAliases": "item.electronicAccess",
           "type": "object",
           "properties": {
             "uri": {
-              "searchAliases": [ "items.electronicAccess" ],
+              "searchAliases": [ "items.electronicAccess", "item.electronicAccess", "item.electronicAccess.uri" ],
               "index": "keyword"
             },
             "linkText": {
-              "searchAliases": [ "items.electronicAccess" ],
+              "searchAliases": [ "items.electronicAccess", "item.electronicAccess", "item.electronicAccess.linkText" ],
               "index": "multilang"
             },
             "materialsSpecification": {
+              "searchAliases": "item.electronicAccess.materialsSpecification",
               "index": "none"
             },
             "publicNote": {
-              "searchAliases": [ "items.electronicAccess" ],
+              "searchAliases": [ "items.electronicAccess", "item.electronicAccess", "item.electronicAccess.publicNote" ],
               "index": "multilang"
             }
           }
         },
         "notes": {
+          "searchAliases": "item.notes",
           "type": "object",
           "properties": {
             "note": {
               "index": "multilang",
-              "searchAliases": [ "items.notes.note" ]
+              "searchAliases": [ "items.notes.note", "item.notes.note" ]
             },
             "staffOnly": {
+              "searchAliases": "item.notes.staffOnly",
               "index": "bool"
             }
           }
         },
         "circulationNotes": {
+          "searchAliases": "item.circulationNotes",
           "type": "object",
           "properties": {
             "note": {
               "index": "multilang",
-              "searchAliases": [ "items.notes.note" ]
+              "searchAliases": [ "items.notes.note", "item.notes.note", "item.circulationNotes.note" ]
             },
             "staffOnly": {
+              "searchAliases": "item.circulationNotes.staffOnly",
               "index": "bool"
             }
           }
         },
         "metadata": {
+          "searchAliases": "item.metadata",
           "type": "object",
           "properties": {
             "createdDate": {
+              "searchAliases": "item.metadata.createdDate",
               "searchTypes": "filter",
               "index": "date"
             },
             "createdByUserId": {
+              "searchAliases": "item.metadata.createdByUserId",
               "index": "keyword"
             },
             "createdByUsername": {
+              "searchAliases": "item.metadata.createdByUsername",
               "index": "keyword"
             },
             "updatedDate": {
+              "searchAliases": "item.metadata.updatedDate",
               "searchTypes": "filter",
               "index": "date"
             },
             "updatedByUserId": {
+              "searchAliases": "item.metadata.updatedByUserId",
               "index": "keyword"
             },
             "updatedByUsername": {
+              "searchAliases": "item.metadata.updatedByUsername",
               "index": "keyword"
             }
           }
@@ -469,6 +501,12 @@
     }
   },
   "searchFields": {
+    "sort_item.status.name": {
+      "searchTypes": "sort",
+      "type": "search",
+      "index": "lowercase_sort",
+      "processor": "sortItemStatusProcessor"
+    },
     "sort_title": {
       "searchTypes": "sort",
       "type": "search",
@@ -548,7 +586,7 @@
     "itemFullCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
+      "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber", "item.effectiveCallNumberComponents", "item.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
@@ -560,7 +598,7 @@
     "itemNormalizedCallNumbers": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "items.normalizedCallNumbers" ],
+      "searchAliases": [ "items.normalizedCallNumbers", "item.normalizedCallNumbers" ],
       "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },

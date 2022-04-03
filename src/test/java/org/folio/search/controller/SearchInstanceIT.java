@@ -52,6 +52,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "contributors.name all {value}, franks",
     "electronicAccess.materialsSpecification all {value}, material",
     "items.electronicAccess.materialsSpecification all {value}, table",
+    "item.electronicAccess.materialsSpecification all {value}, table",
     "holdings.electronicAccess.materialsSpecification all {value}, specification",
     "publicNotes == {value}, librarian",
     "itemPublicNotes == {value}, private note for item",
@@ -195,10 +196,10 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("oclc = {value}", "60710*"),
 
       // search by item fields
-      arguments("items.hrid = {value}", "item000000000014"),
-      arguments("items.hrid = {value}", "item*"),
-      arguments("items.hrid = {value}", "*00014"),
-      arguments("items.hrid = {value}", "item*00014"),
+      arguments("item.hrid = {value}", "item000000000014"),
+      arguments("item.hrid = {value}", "item*"),
+      arguments("item.hrid = {value}", "*00014"),
+      arguments("item.hrid = {value}", "item*00014"),
 
       arguments("itemPublicNotes all {value}", "bibliographical references"),
       arguments("itemPublicNotes all {value}", "public circulation note"),
@@ -208,6 +209,28 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("itemIdentifiers all {value}", "item_accession_number"),
       arguments("itemIdentifiers all {value}", "7212ba6a-8dcf-45a1-be9a-ffaa847c4423"),
       arguments("itemIdentifiers all {value}", "itemIdentifierFieldValue"),
+
+      arguments("item.notes.note == {value}", "Librarian public note for item"),
+      arguments("item.notes.note == {value}", "Librarian private note for item"),
+      arguments("item.notes.note == {value}", "testCirculationNote"),
+      arguments("item.notes.note == {value}", "private circulation note"),
+
+      arguments("item.circulationNotes.note == {value}", "testCirculationNote"),
+      arguments("item.circulationNotes.note all {value}", "public circulation note"),
+      arguments("item.circulationNotes.note all {value}", "private circulation note"),
+      arguments("item.circulationNotes.note all {value}", "*Note"),
+      arguments("item.circulationNotes.note all {value}", "private circulation*"),
+
+      arguments("item.electronicAccess==\"{value}\"", "table"),
+      arguments("item.electronicAccess.uri==\"{value}\"", "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"),
+      arguments("item.electronicAccess.linkText all {value}", "links available"),
+      arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
+
+      // Search by item fields (Backward compatibility)
+      arguments("items.hrid = {value}", "item000000000014"),
+      arguments("items.hrid = {value}", "item*"),
+      arguments("items.hrid = {value}", "*00014"),
+      arguments("items.hrid = {value}", "item*00014"),
 
       arguments("items.notes.note == {value}", "Librarian public note for item"),
       arguments("items.notes.note == {value}", "Librarian private note for item"),

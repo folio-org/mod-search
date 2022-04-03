@@ -175,23 +175,23 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(id=* and instanceTags==science) sortby title", List.of(IDS[0], IDS[2])),
       arguments("(instanceTags==science) sortby title", List.of(IDS[0], IDS[2])),
 
-      arguments(format("(id=* and items.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
+      arguments(format("(id=* and item.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
         List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
-      arguments(format("(id=* and items.effectiveLocationId==%s) sortby title", LOCATIONS[1]),
+      arguments(format("(id=* and item.effectiveLocationId==%s) sortby title", LOCATIONS[1]),
         List.of(IDS[1], IDS[2], IDS[4])),
-      arguments(format("(items.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
+      arguments(format("(item.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
         List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
 
-      arguments("(items.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
-      arguments("(items.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),
-      arguments("(items.status.name==\"Checked out\") sortby title", List.of(IDS[2], IDS[4])),
-      arguments("(items.status.name==Available and source==MARC) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(item.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
+      arguments("(item.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(item.status.name==\"Checked out\") sortby title", List.of(IDS[2], IDS[4])),
+      arguments("(item.status.name==Available and source==MARC) sortby title", List.of(IDS[0], IDS[1])),
 
-      arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[0]), List.of(IDS[0], IDS[2])),
-      arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[1]), List.of(IDS[1], IDS[3], IDS[4])),
+      arguments(format("(item.materialTypeId==%s) sortby title", MATERIAL_TYPES[0]), List.of(IDS[0], IDS[2])),
+      arguments(format("(item.materialTypeId==%s) sortby title", MATERIAL_TYPES[1]), List.of(IDS[1], IDS[3], IDS[4])),
 
-      arguments("items.discoverySuppress==true sortBy title", List.of(IDS[0], IDS[2])),
-      arguments("items.discoverySuppress==false sortBy title", List.of(IDS[1], IDS[2], IDS[3], IDS[4])),
+      arguments("item.discoverySuppress==true sortBy title", List.of(IDS[0], IDS[2])),
+      arguments("item.discoverySuppress==false sortBy title", List.of(IDS[1], IDS[2], IDS[3], IDS[4])),
 
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[0]),
         List.of(IDS[0], IDS[3])),
@@ -235,16 +235,16 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(holdings.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[3])),
 
-      arguments("(items.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
-      arguments("(items.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
+      arguments("(item.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(item.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(item.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0], IDS[2])),
 
-      arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
-      arguments("(items.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
-      arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
-      arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
+      arguments("(item.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(item.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(item.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(item.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(item.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3])),
 
       arguments("statisticalCodes == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", List.of(IDS[0])),
@@ -255,8 +255,42 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("statisticalCodeIds == a2b01891-c9ab-4d04-8af8-8989af1c6aad", emptyList()),
       arguments("holdings.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
       arguments("holdings.statisticalCodeIds == a2b01891-c9ab-4d04-8af8-8989af1c6aad", List.of(IDS[3])),
+      arguments("item.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
+      arguments("item.statisticalCodeIds == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1])),
+
+      // Search by item filter (Backward compatibility)
+      arguments(format("(id=* and items.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
+        List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
+      arguments(format("(id=* and items.effectiveLocationId==%s) sortby title", LOCATIONS[1]),
+        List.of(IDS[1], IDS[2], IDS[4])),
+      arguments(format("(items.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
+        List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
+
+      arguments("(items.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
+      arguments("(items.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(items.status.name==\"Checked out\") sortby title", List.of(IDS[2], IDS[4])),
+      arguments("(items.status.name==Available and source==MARC) sortby title", List.of(IDS[0], IDS[1])),
+
+      arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[0]), List.of(IDS[0], IDS[2])),
+      arguments(format("(items.materialTypeId==%s) sortby title", MATERIAL_TYPES[1]), List.of(IDS[1], IDS[3], IDS[4])),
+
+      arguments("items.discoverySuppress==true sortBy title", List.of(IDS[0], IDS[2])),
+      arguments("items.discoverySuppress==false sortBy title", List.of(IDS[1], IDS[2], IDS[3], IDS[4])),
+
       arguments("items.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
-      arguments("items.statisticalCodeIds == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1]))
+      arguments("items.statisticalCodeIds == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1])),
+
+      arguments("(items.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
+        List.of(IDS[0], IDS[2])),
+
+      arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
+      arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
+        List.of(IDS[2], IDS[3]))
     );
   }
 

@@ -3,8 +3,11 @@ package org.folio.search.utils;
 import static java.util.Locale.ROOT;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.folio.search.utils.SearchUtils.SUBJECT_AGGREGATION_NAME;
+import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -84,9 +87,11 @@ public class SearchQueryUtils {
    */
   public static SearchSourceBuilder getSubjectCountsQuery(Collection<String> subjects) {
     var lowercaseSubjects = subjects.stream().map(subject -> subject.toLowerCase(ROOT)).toArray(String[]::new);
-    var aggregation = AggregationBuilders.terms(SearchUtils.SUBJECT_AGGREGATION_NAME)
-      .size(subjects.size()).field(SearchUtils.getPathToFulltextPlainValue(SearchUtils.SUBJECT_AGGREGATION_NAME))
+    var keywordField = getPathToFulltextPlainValue(SUBJECT_AGGREGATION_NAME);
+    var query = boolQuery().filter(termsQuery(keywordField, lowercaseSubjects));
+    var aggregation = AggregationBuilders.terms(SUBJECT_AGGREGATION_NAME)
+      .size(subjects.size()).field(keywordField)
       .includeExclude(new IncludeExclude(lowercaseSubjects, null));
-    return searchSource().query(matchAllQuery()).size(0).from(0).aggregation(aggregation);
+    return searchSource().query(query).size(0).from(0).aggregation(aggregation);
   }
 }

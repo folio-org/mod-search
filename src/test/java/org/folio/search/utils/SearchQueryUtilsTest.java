@@ -5,10 +5,15 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
+import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.List;
 import java.util.stream.Stream;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,6 +63,16 @@ class SearchQueryUtilsTest {
   void isFilterQuery_parameterized(QueryBuilder queryBuilder, boolean expected) {
     var actual = SearchQueryUtils.isFilterQuery(queryBuilder, FIELD::equals);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void getSubjectCountsQuery_positive() {
+    var actual = SearchQueryUtils.getSubjectCountsQuery(List.of("s1", "s2"));
+    assertThat(actual).isEqualTo(searchSource().from(0).size(0)
+      .query(boolQuery().filter(termsQuery("plain_subjects", "s1", "s2")))
+      .aggregation(terms("subjects").size(2).field("plain_subjects")
+        .includeExclude(new IncludeExclude(new String[] {"s1", "s2"}, null)))
+    );
   }
 
   private static Stream<Arguments> isDisjunctionFilterQueryDataProvider() {

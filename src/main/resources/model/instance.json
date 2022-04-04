@@ -505,7 +505,8 @@
       "searchTypes": "sort",
       "type": "search",
       "index": "lowercase_sort",
-      "processor": "sortItemStatusProcessor"
+      "processor": "sortItemStatusProcessor",
+      "secondarySort": [ "sort_title" ]
     },
     "sort_title": {
       "searchTypes": "sort",

@@ -15,12 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor {
 
-  private static final Pattern DEWEY_NUMBER_PATTERN = Pattern.compile("\\d{4}(\\.\\d+)?(\\s.*)*");
-  private static final Pattern SIMPLE_DIGITS_PATTERN = Pattern.compile("\\d{1,2}\\s?");
+  private static final Pattern DEWEY_NUMBER_PATTERN = Pattern.compile("\\d{4}(\\.\\d+)?(\\s.{0,10}){0,10}");
   private static final Pattern SHELF_KEY_PATTERN =
-    Pattern.compile("([A-Z]+)\\s(\\d{2,}(\\.\\d+)?)(\\s[A-Z]\\d{1,10}){0,2}(\\s.*)*");
+    Pattern.compile("([A-Z]+)\\s(\\d{2,}(\\.\\d+)?)(\\s[A-Z]\\d{1,10}){0,2}(\\s.{0,10}){0,10}");
 
-  private static final List<Pattern> PATTERNS = List.of(SHELF_KEY_PATTERN, DEWEY_NUMBER_PATTERN, SIMPLE_DIGITS_PATTERN);
+  private static final List<Pattern> PATTERNS = List.of(SHELF_KEY_PATTERN, DEWEY_NUMBER_PATTERN);
 
   @Override
   public String getSearchTerm(String inputTerm) {

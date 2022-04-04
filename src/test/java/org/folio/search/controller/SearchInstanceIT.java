@@ -46,7 +46,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] {0}")
   @CsvSource({
     "title == {value}, web semantic",
+    "title <> {value}, A semantic web primer",
     "title all {value}, semantic web word",
+    "indexTitle <> {value}, Semantic web primer",
     "uniformTitle all {value}, deja vu",
     "uniformTitle all {value}, déjà vu",
     "contributors.name all {value}, franks",
@@ -61,7 +63,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(0)));
+    doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
   }
 
   @Test
@@ -90,6 +92,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("id = {value}", getSemanticWebId()),
       arguments("id = {value}", "5bf370e0*a0a39"),
       arguments("id == {value}", getSemanticWebId()),
+
+      arguments("title <> {value}", "unknown value"),
+      arguments("indexTitle <> {value}", "unknown value"),
 
       arguments("title all {value}", "semantic"),
       arguments("title all {value}", "primers"),
@@ -233,6 +238,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
       arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
       arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
-      );
+    );
   }
 }

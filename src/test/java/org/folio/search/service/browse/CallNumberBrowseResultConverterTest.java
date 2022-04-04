@@ -28,7 +28,7 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.model.SearchResult;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
@@ -67,7 +67,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
 
-    assertThat(actual).isEqualTo(SearchResult.of(100, expected));
+    assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -79,7 +79,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
 
-    assertThat(actual).isEqualTo(SearchResult.empty());
+    assertThat(actual).isEqualTo(BrowseResult.empty());
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -91,7 +91,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
 
-    assertThat(actual).isEqualTo(SearchResult.empty());
+    assertThat(actual).isEqualTo(BrowseResult.empty());
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -108,7 +108,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
 
-    assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2", "C2"), "B1"), cnBrowseItem(instance("C1", "C2"), "C1"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
@@ -126,7 +126,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
 
-    assertThat(actual).isEqualTo(SearchResult.of(10, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2"), "B2"), cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }

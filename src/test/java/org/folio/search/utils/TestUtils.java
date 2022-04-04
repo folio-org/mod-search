@@ -58,7 +58,6 @@ import org.elasticsearch.search.aggregations.bucket.range.ParsedRange;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
-import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -73,6 +72,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -184,10 +184,6 @@ public class TestUtils {
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
     return new SubjectBrowseItem().subject(subject);
-  }
-
-  public static AuthorityBrowseResult authorityBrowseResult(int totalRecords, List<AuthorityBrowseItem> items) {
-    return new AuthorityBrowseResult().totalRecords(totalRecords).items(items);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {
@@ -368,8 +364,18 @@ public class TestUtils {
     return new SearchResult<T>().totalRecords(records.length).records(List.of(records));
   }
 
+  @SafeVarargs
+  public static <T> SearchResult<T> searchResult(int totalRecords, T... records) {
+    return new SearchResult<T>().totalRecords(totalRecords).records(List.of(records));
+  }
+
   public static <T> SearchResult<T> searchResult(List<T> records) {
     return new SearchResult<T>().totalRecords(records.size()).records(records);
+  }
+
+  @SafeVarargs
+  public static <T> BrowseResult<T> browseResult(T... records) {
+    return new BrowseResult<T>().totalRecords(records.length).records(List.of(records));
   }
 
   public static Facet facet(List<FacetItem> items) {

@@ -62,7 +62,6 @@ public class SearchUtils {
   public static final String KEYWORD_FIELD_INDEX = "keyword";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
-
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
    *

@@ -41,18 +41,18 @@ public class CallNumberBrowseQueryProvider {
    *
    * @param request - {@link BrowseRequest} object
    * @param ctx - {@link BrowseContext} object with parsed and validated queries, anchor, limits
-   * @param isForwardBrowsing - defines the direction of browsing
+   * @param isBrowsingForward - defines the direction of browsing
    * @return created Elasticsearch query as {@link SearchSourceBuilder} object
    */
-  public SearchSourceBuilder get(BrowseRequest request, BrowseContext ctx, boolean isForwardBrowsing) {
-    var scriptCode = isForwardBrowsing ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
+  public SearchSourceBuilder get(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
+    var scriptCode = isBrowsingForward ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, singletonMap("cn", ctx.getAnchor()));
 
     var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
-    var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isForwardBrowsing) * multiplier));
+    var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isBrowsingForward) * multiplier));
     var searchSource = searchSource().from(0).size(pageSize)
-      .query(getQuery(ctx, request.getTenantId(), pageSize, isForwardBrowsing))
-      .sort(scriptSort(script, STRING).order(isForwardBrowsing ? ASC : DESC));
+      .query(getQuery(ctx, request.getTenantId(), pageSize, isBrowsingForward))
+      .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(request.getResource()).toArray(String[]::new);

@@ -149,7 +149,6 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("headingType==(\"Topical\" or \"Other\")", array("headingType:2"),
         mapOf("headingType", facet(facetItem("Topical", 1)))),
 
-
       arguments("id=*", array("subjectHeadings:2"), mapOf("subjectHeadings", facet(
         facetItem("a", 4), facetItem("c", 3)))),
 

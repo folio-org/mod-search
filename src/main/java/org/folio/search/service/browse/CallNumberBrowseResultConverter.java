@@ -25,6 +25,7 @@ import org.elasticsearch.search.SearchHit;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.service.FeatureConfigService;
@@ -46,11 +47,12 @@ public class CallNumberBrowseResultConverter {
    * @param isForwardBrowsing - direction of browsing
    * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
    */
-  public SearchResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isForwardBrowsing) {
+  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isForwardBrowsing) {
     var searchResult = documentConverter.convertToSearchResult(resp, Instance.class, this::mapToBrowseItem);
-    var browseItems = searchResult.getRecords();
+    var browseResult = BrowseResult.of(searchResult);
+    var browseItems = browseResult.getRecords();
     if (CollectionUtils.isEmpty(browseItems)) {
-      return searchResult;
+      return browseResult;
     }
 
     var items = isForwardBrowsing ? browseItems : reverse(browseItems);
@@ -58,7 +60,7 @@ public class CallNumberBrowseResultConverter {
       ? populateItemsWithIntermediateResults(items, ctx, isForwardBrowsing)
       : fillItemsWithFullCallNumbers(items, ctx, isForwardBrowsing);
 
-    return searchResult.records(collapseCallNumberBrowseItems(populatedItems));
+    return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
 
   private CallNumberBrowseItem mapToBrowseItem(SearchHit searchHit, Instance instance) {

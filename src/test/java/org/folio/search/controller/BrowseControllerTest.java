@@ -11,7 +11,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
-import static org.folio.search.utils.TestUtils.searchResult;
+import static org.folio.search.utils.TestUtils.browseResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -48,7 +48,7 @@ class BrowseControllerTest {
   void browseInstancesByCallNumber_positive() throws Exception {
     var query = "callNumber > PR4034 .P7 2019";
     var request = browseRequest(query, 5);
-    when(callNumberBrowseService.browse(request)).thenReturn(searchResult());
+    when(callNumberBrowseService.browse(request)).thenReturn(browseResult());
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", query)
       .queryParam("limit", "5")
@@ -65,7 +65,7 @@ class BrowseControllerTest {
   void browseInstancesByCallNumber_positive_allFields() throws Exception {
     var query = "callNumber > B";
     var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, 20, CALL_NUMBER_BROWSING_FIELD, true, true, 5);
-    when(callNumberBrowseService.browse(request)).thenReturn(searchResult());
+    when(callNumberBrowseService.browse(request)).thenReturn(browseResult());
 
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", query)
@@ -86,7 +86,7 @@ class BrowseControllerTest {
   void browseInstancesBySubject_positive() throws Exception {
     var query = "subject > water";
     var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "subject", null, true, 12);
-    when(subjectBrowseService.browse(request)).thenReturn(searchResult(subjectBrowseItem(10, "water treatment")));
+    when(subjectBrowseService.browse(request)).thenReturn(browseResult(subjectBrowseItem(10, "water treatment")));
     var requestBuilder = get(instanceSubjectBrowsePath())
       .queryParam("query", query)
       .queryParam("limit", "25")
@@ -105,7 +105,7 @@ class BrowseControllerTest {
     var query = "headingRef > mark";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 25, "headingRef", false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
-    when(authorityBrowseService.browse(request)).thenReturn(searchResult(authorityBrowseItem("mark twain", authority)));
+    when(authorityBrowseService.browse(request)).thenReturn(browseResult(authorityBrowseItem("mark twain", authority)));
     var requestBuilder = get(authorityBrowsePath())
       .queryParam("query", query)
       .queryParam("limit", "25")

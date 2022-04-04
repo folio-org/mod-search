@@ -134,7 +134,6 @@ public final class CollectionUtils {
     initial.addAll(startIndex, sourceValues);
   }
 
-
   /**
    * Returns a Collector that accumulates the input elements into a new {@link LinkedHashSet}, in encounter order.
    *

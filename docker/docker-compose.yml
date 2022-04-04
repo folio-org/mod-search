@@ -19,6 +19,17 @@ services:
     command:
       - dev
 
+  wiremock:
+    image: wiremock/wiremock:2.32.0
+    container_name: wiremock-api
+    command:
+      - "--verbose"
+    ports:
+      - "7070:8080"
+      - "7443:8443"
+    volumes:
+      - ../src/test/resources/mappings:/home/wiremock/mappings
+
   elasticsearch:
     container_name: elasticsearch
     image: dev.folio/elasticsearch:latest

@@ -16,6 +16,7 @@ import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -31,12 +32,11 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   private final SearchFieldProvider searchFieldProvider;
 
   @Override
-  protected SearchResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
-    return result.map(authority -> new AuthorityBrowseItem()
+  protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
+    return BrowseResult.of(result).map(authority -> new AuthorityBrowseItem()
       .authority(authority)
       .headingRef(authority.getHeadingRef())
-      .isAnchor(isAnchor ? true : null)
-    );
+      .isAnchor(isAnchor ? true : null));
   }
 
   @Override
@@ -51,7 +51,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
     return searchSource().query(boolQuery)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .size(ctx.getLimit(isBrowsingForward))
+      .size(ctx.getLimit(isBrowsingForward) + 1)
       .fetchSource(getIncludedSourceFields(request), null)
       .from(0);
   }
@@ -61,6 +61,11 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
     var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery).from(0).size(1).fetchSource(getIncludedSourceFields(request), null);
+  }
+
+  @Override
+  protected String getValueForBrowsing(AuthorityBrowseItem browseItem) {
+    return browseItem.getHeadingRef();
   }
 
   private String[] getIncludedSourceFields(BrowseRequest request) {

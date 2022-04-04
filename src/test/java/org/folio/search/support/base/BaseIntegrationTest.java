@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.hamcrest.Matchers.is;
@@ -41,6 +42,7 @@ import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -79,6 +81,11 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void cleanUpCaches(@Autowired CacheManager cacheManager) {
     TestUtils.cleanUpCaches(cacheManager);
+  }
+
+  @AfterAll
+  static void afterAll() {
+    removeEnvProperty();
   }
 
   public static HttpHeaders defaultHeaders() {
@@ -291,7 +298,6 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  @SuppressWarnings("SameParameterValue")
   protected static void enableFeature(TenantConfiguredFeature feature) {
     enableFeature(TENANT_ID, feature);
   }
@@ -302,6 +308,21 @@ public abstract class BaseIntegrationTest {
     mockMvc.perform(post(ApiEndpoints.featureConfig())
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(true))))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  @SuppressWarnings("SameParameterValue")
+  protected static void disableFeature(TenantConfiguredFeature feature) {
+    disableFeature(TENANT_ID, feature);
+  }
+
+  @SneakyThrows
+  @SuppressWarnings("SameParameterValue")
+  protected static void disableFeature(String tenantId, TenantConfiguredFeature feature) {
+    mockMvc.perform(put(ApiEndpoints.featureConfig(feature))
+        .headers(defaultHeaders(tenantId))
+        .content(asJsonString(new FeatureConfig().feature(feature).enabled(false))))
       .andExpect(status().isOk());
   }
 

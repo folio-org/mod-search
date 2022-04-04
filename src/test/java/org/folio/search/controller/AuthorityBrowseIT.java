@@ -3,7 +3,6 @@ package org.folio.search.controller;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
-import static org.folio.search.utils.TestUtils.authorityBrowseResult;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -57,15 +56,16 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
-    assertThat(actual).isEqualTo(authorityBrowseResult(14, List.of(
-      authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-      authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-      authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE).isAnchor(true),
-      authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
-      authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED),
-      authorityBrowseItem("Poetry", 20, "Genre", REFERENCE),
-      authorityBrowseItem("Science", 16, "Topical", AUTHORIZED)
-    )));
+    assertThat(actual).isEqualTo(new AuthorityBrowseResult()
+      .totalRecords(14).prev("Fantasy").next("Science")
+      .items(List.of(
+        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE).isAnchor(true),
+        authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
+        authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED),
+        authorityBrowseItem("Poetry", 20, "Genre", REFERENCE),
+        authorityBrowseItem("Science", 16, "Topical", AUTHORIZED))));
   }
 
   @Test
@@ -76,13 +76,14 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
 
-    assertThat(actual).isEqualTo(authorityBrowseResult(14, List.of(
-      authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-      authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-      authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-      authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-      authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)
-    )));
+    assertThat(actual).isEqualTo(new AuthorityBrowseResult()
+      .totalRecords(14).prev("Comic-Con").next("James Rollins")
+      .items(List.of(
+        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE))));
   }
 
   private static Stream<Arguments> authorityBrowsingDataProvider() {
@@ -94,147 +95,190 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
     var backwardIncludingQuery = "headingRef <= {value}";
 
     return Stream.of(
-      arguments(aroundQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        emptyAuthorityBrowseItem("Brian K. Vaughan"),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)
-      ))),
+      arguments(aroundQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Biomedical Symposium").next("Disney")
+        .items(List.of(
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          emptyAuthorityBrowseItem("Brian K. Vaughan"),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)))),
 
-      arguments(aroundQuery, "harry", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        emptyAuthorityBrowseItem("harry"),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)
-      ))),
+      arguments(aroundQuery, "harry", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Disney").next("James Rollins")
+        .items(List.of(
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          emptyAuthorityBrowseItem("harry"),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)))),
 
-      arguments(aroundIncludingQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED).isAnchor(true),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)
-      ))),
+      arguments(aroundQuery, "a", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("Biomedical Symposium")
+        .items(List.of(
+          emptyAuthorityBrowseItem("a"),
+          authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE)))),
 
-      arguments(aroundIncludingQuery, "harry", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        emptyAuthorityBrowseItem("harry"),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)
-      ))),
+      arguments(aroundQuery, "z", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Science").next(null)
+        .items(List.of(
+          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED),
+          authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE),
+          emptyAuthorityBrowseItem("z")))),
 
-      arguments(aroundIncludingQuery, "music", 25, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
-        emptyAuthorityBrowseItem("music"),
-        authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
-        authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED),
-        authorityBrowseItem("Poetry", 20, "Genre", REFERENCE),
-        authorityBrowseItem("Science", 16, "Topical", AUTHORIZED),
-        authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE)
-      ))),
+      arguments(aroundIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Biomedical Symposium").next("Disney")
+        .items(List.of(
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED).isAnchor(true),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)))),
 
-      arguments(aroundIncludingQuery, "FC", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        emptyAuthorityBrowseItem("FC"),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)
-      ))),
+      arguments(aroundIncludingQuery, "harry", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Disney").next("James Rollins")
+        .items(List.of(
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          emptyAuthorityBrowseItem("harry"),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)))),
+
+      arguments(aroundIncludingQuery, "music", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Harry Potter").next("Novel")
+        .items(List.of(
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
+          emptyAuthorityBrowseItem("music"),
+          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED)))),
+
+      arguments(aroundIncludingQuery, "music", 25, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next(null)
+        .items(List.of(
+          authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
+          emptyAuthorityBrowseItem("music"),
+          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED),
+          authorityBrowseItem("Poetry", 20, "Genre", REFERENCE),
+          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED),
+          authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE)))),
+
+      arguments(aroundIncludingQuery, "FC", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Disney").next("James Rollins")
+        .items(List.of(
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          emptyAuthorityBrowseItem("FC"),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)))),
 
       // browsing forward
-      arguments(forwardQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)
-      ))),
+      arguments(forwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("James Rollins")
+        .items(List.of(
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)))),
 
-      arguments(forwardQuery, "biology", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)
-      ))),
+      arguments(forwardQuery, "biology", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("Disney")
+        .items(List.of(
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)))),
 
       // checks if collapsing works in forward direction
-      arguments(forwardQuery, "F", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
-        authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
-        authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
-        authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED)
-      ))),
+      arguments(forwardQuery, "F", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("Novel")
+        .items(List.of(
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
+          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED)))),
 
-      arguments(forwardQuery, "Z", 10, authorityBrowseResult(14, emptyList())),
+      arguments(forwardQuery, "Z", 10, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next(null)
+        .items(emptyList())),
 
-      arguments(forwardIncludingQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
-        authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED)
-      ))),
+      arguments(forwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("Harry Potter")
+        .items(List.of(
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED)))),
 
-      arguments(forwardIncludingQuery, "biology", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)
-      ))),
+      arguments(forwardIncludingQuery, "biology", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next("Disney")
+        .items(List.of(
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED)))),
 
       // browsing backward
-      arguments(backwardQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE)
-      ))),
+      arguments(backwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next(null)
+        .items(List.of(
+          authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE)))),
 
-      arguments(backwardQuery, "fun", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)
-      ))),
+      arguments(backwardQuery, "fun", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .items(List.of(
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)))),
 
-      arguments(backwardQuery, "G", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)
-      ))),
+      arguments(backwardQuery, "G", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .items(List.of(
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)))),
 
-      arguments(backwardQuery, "A", 10, authorityBrowseResult(14, emptyList())),
+      arguments(backwardQuery, "A", 10, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next(null)
+        .items(emptyList())),
 
-      arguments(backwardIncludingQuery, "Brian K. Vaughan", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
-        authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED)
-      ))),
+      arguments(backwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev(null).next(null)
+        .items(List.of(
+          authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
+          authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED)))),
 
-      arguments(backwardIncludingQuery, "fun", 5, authorityBrowseResult(14, List.of(
-        authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
-        authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
-        authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)
-      )))
+      arguments(backwardIncludingQuery, "fun", 5, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .items(List.of(
+          authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
+          authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE))))
     );
   }
 

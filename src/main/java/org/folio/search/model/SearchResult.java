@@ -1,11 +1,8 @@
 package org.folio.search.model;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.utils.CollectionUtils.reverse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,28 +16,12 @@ public class SearchResult<T> {
   /**
    * Amount of records found.
    */
-  private int totalRecords;
+  protected int totalRecords;
 
   /**
    * List with found records.
    */
-  private List<T> records;
-
-  /**
-   * Maps search result records using given mapping function.
-   *
-   * @param mappingFunction - mapping function for result element conversion
-   * @param <R> - generic type for search result elements.
-   * @return new search result object with mapped elements
-   */
-  public <R> SearchResult<R> map(Function<T, R> mappingFunction) {
-    var resultList = new ArrayList<R>();
-    for (T record : this.records) {
-      resultList.add(mappingFunction.apply(record));
-    }
-
-    return new SearchResult<>(this.totalRecords, resultList);
-  }
+  protected List<T> records;
 
   /**
    * Creates empty {@link SearchResult} object.
@@ -71,11 +52,6 @@ public class SearchResult<T> {
    */
   public SearchResult<T> records(List<T> records) {
     this.records = records;
-    return this;
-  }
-
-  public SearchResult<T> withReversedRecords() {
-    this.records = reverse(this.records);
     return this;
   }
 

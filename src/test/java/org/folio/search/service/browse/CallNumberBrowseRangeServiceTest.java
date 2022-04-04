@@ -104,7 +104,6 @@ class CallNumberBrowseRangeServiceTest {
     assertThat(actual).isEmpty();
   }
 
-
   @ParameterizedTest
   @MethodSource("getRangeBoundaryDataSource")
   void getRangeBoundaryForBrowsing_parameterized(String anchor, int size, boolean isBrowsingForward, Long expected) {

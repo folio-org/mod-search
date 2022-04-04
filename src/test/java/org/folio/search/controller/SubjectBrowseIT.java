@@ -77,15 +77,16 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
-      subjectBrowseItem(1, "Textbooks"),
-      subjectBrowseItem(1, "United States"),
-      subjectBrowseItem(1, "Water", true),
-      subjectBrowseItem(1, "Water--Analysis"),
-      subjectBrowseItem(1, "Water--Microbiology"),
-      subjectBrowseItem(1, "Water--Purification"),
-      subjectBrowseItem(1, "Water-supply")
-    )));
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(22).prev("Textbooks")
+      .items(List.of(
+        subjectBrowseItem(1, "Textbooks"),
+        subjectBrowseItem(1, "United States"),
+        subjectBrowseItem(1, "Water", true),
+        subjectBrowseItem(1, "Water--Analysis"),
+        subjectBrowseItem(1, "Water--Microbiology"),
+        subjectBrowseItem(1, "Water--Purification"),
+        subjectBrowseItem(1, "Water-supply"))));
   }
 
   @Test
@@ -96,13 +97,14 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
-    assertThat(actual).isEqualTo(subjectBrowseResult(22, List.of(
-      subjectBrowseItem(1, "Database management"),
-      subjectBrowseItem(1, "Europe"),
-      subjectBrowseItem(1, "Fantasy"),
-      subjectBrowseItem(3, "History"),
-      subjectBrowseItem(3, "Music")
-    )));
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(22).prev("Database management").next("Music")
+      .items(List.of(
+        subjectBrowseItem(1, "Database management"),
+        subjectBrowseItem(1, "Europe"),
+        subjectBrowseItem(1, "Fantasy"),
+        subjectBrowseItem(3, "History"),
+        subjectBrowseItem(3, "Music"))));
   }
 
   private static Stream<Arguments> subjectBrowsingDataProvider() {
@@ -114,152 +116,182 @@ class SubjectBrowseIT extends BaseIntegrationTest {
     var backwardIncludingQuery = "subject <= {value}";
 
     return Stream.of(
-      arguments(aroundQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(0, "water", true),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology")
-      ))),
+      arguments(aroundQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Textbooks").next("Water--Microbiology")
+        .items(List.of(
+          subjectBrowseItem(1, "Textbooks"),
+          subjectBrowseItem(1, "United States"),
+          subjectBrowseItem(0, "water", true),
+          subjectBrowseItem(1, "Water--Analysis"),
+          subjectBrowseItem(1, "Water--Microbiology")))),
 
-      arguments(aroundQuery, "biology", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(2, "Biography"),
-        subjectBrowseItem(0, "biology", true),
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design")
-      ))),
+      arguments(aroundQuery, "biology", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Database design")
+        .items(List.of(
+          subjectBrowseItem(2, "Biography"),
+          subjectBrowseItem(0, "biology", true),
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design")))),
 
-      arguments(aroundIncludingQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "Water", true),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology")
-      ))),
+      arguments(aroundIncludingQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Textbooks").next("Water--Microbiology")
+        .items(List.of(
+          subjectBrowseItem(1, "Textbooks"),
+          subjectBrowseItem(1, "United States"),
+          subjectBrowseItem(1, "Water", true),
+          subjectBrowseItem(1, "Water--Analysis"),
+          subjectBrowseItem(1, "Water--Microbiology")))),
 
-      arguments(aroundIncludingQuery, "biology", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(2, "Biography"),
-        subjectBrowseItem(0, "biology", true),
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design")
-      ))),
+      arguments(aroundIncludingQuery, "biology", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Database design")
+        .items(List.of(
+          subjectBrowseItem(2, "Biography"),
+          subjectBrowseItem(0, "biology", true),
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design")))),
 
-      arguments(aroundIncludingQuery, "music", 25, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(2, "Biography"),
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "History"),
-        subjectBrowseItem(3, "Music", true),
-        subjectBrowseItem(1, "Philosophy"),
-        subjectBrowseItem(1, "Religion"),
-        subjectBrowseItem(1, "Rules"),
-        subjectBrowseItem(1, "Science"),
-        subjectBrowseItem(1, "Science--Methodology"),
-        subjectBrowseItem(1, "Science--Philosophy"),
-        subjectBrowseItem(1, "Text"),
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "Water"),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology")
-      ))),
+      arguments(aroundIncludingQuery, "music", 25, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Water--Microbiology")
+        .items(List.of(
+          subjectBrowseItem(2, "Biography"),
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(3, "History"),
+          subjectBrowseItem(3, "Music", true),
+          subjectBrowseItem(1, "Philosophy"),
+          subjectBrowseItem(1, "Religion"),
+          subjectBrowseItem(1, "Rules"),
+          subjectBrowseItem(1, "Science"),
+          subjectBrowseItem(1, "Science--Methodology"),
+          subjectBrowseItem(1, "Science--Philosophy"),
+          subjectBrowseItem(1, "Text"),
+          subjectBrowseItem(1, "Textbooks"),
+          subjectBrowseItem(1, "United States"),
+          subjectBrowseItem(1, "Water"),
+          subjectBrowseItem(1, "Water--Analysis"),
+          subjectBrowseItem(1, "Water--Microbiology")))),
 
-      arguments(aroundIncludingQuery, "FC", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(0, "FC", true),
-        subjectBrowseItem(3, "History"),
-        subjectBrowseItem(3, "Music")
-      ))),
+      arguments(aroundIncludingQuery, "FC", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Europe").next("Music")
+        .items(List.of(
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(0, "FC", true),
+          subjectBrowseItem(3, "History"),
+          subjectBrowseItem(3, "Music")))),
+
+      arguments(aroundIncludingQuery, "a", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Book")
+        .items(List.of(
+          subjectBrowseItem(0, "a", true),
+          subjectBrowseItem(2, "Biography"),
+          subjectBrowseItem(1, "Book")))),
+
+      arguments(aroundIncludingQuery, "z", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Water--Purification").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Water--Purification"),
+          subjectBrowseItem(1, "Water-supply"),
+          subjectBrowseItem(0, "z", true)))),
 
       // browsing forward
-      arguments(forwardQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology"),
-        subjectBrowseItem(1, "Water--Purification"),
-        subjectBrowseItem(1, "Water-supply")
-      ))),
+      arguments(forwardQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Water--Analysis"),
+          subjectBrowseItem(1, "Water--Microbiology"),
+          subjectBrowseItem(1, "Water--Purification"),
+          subjectBrowseItem(1, "Water-supply")))),
 
-      arguments(forwardQuery, "biology", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy")
-      ))),
+      arguments(forwardQuery, "biology", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Fantasy")
+        .items(List.of(
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy")))),
 
       // checks if collapsing works in forward direction
-      arguments(forwardQuery, "F", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "History"),
-        subjectBrowseItem(3, "Music"),
-        subjectBrowseItem(1, "Philosophy"),
-        subjectBrowseItem(1, "Religion")
-      ))),
+      arguments(forwardQuery, "F", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Religion")
+        .items(List.of(
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(3, "History"),
+          subjectBrowseItem(3, "Music"),
+          subjectBrowseItem(1, "Philosophy"),
+          subjectBrowseItem(1, "Religion")))),
 
       arguments(forwardQuery, "Z", 10, subjectBrowseResult(22, emptyList())),
 
-      arguments(forwardIncludingQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Water"),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology"),
-        subjectBrowseItem(1, "Water--Purification"),
-        subjectBrowseItem(1, "Water-supply")
-      ))),
+      arguments(forwardIncludingQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Water"),
+          subjectBrowseItem(1, "Water--Analysis"),
+          subjectBrowseItem(1, "Water--Microbiology"),
+          subjectBrowseItem(1, "Water--Purification"),
+          subjectBrowseItem(1, "Water-supply")))),
 
-      arguments(forwardIncludingQuery, "biology", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy")
-      ))),
+      arguments(forwardIncludingQuery, "biology", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev(null).next("Fantasy")
+        .items(List.of(
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy")))),
 
       // browsing backward
-      arguments(backwardQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Science--Methodology"),
-        subjectBrowseItem(1, "Science--Philosophy"),
-        subjectBrowseItem(1, "Text"),
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States")
-      ))),
+      arguments(backwardQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Science--Methodology").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Science--Methodology"),
+          subjectBrowseItem(1, "Science--Philosophy"),
+          subjectBrowseItem(1, "Text"),
+          subjectBrowseItem(1, "Textbooks"),
+          subjectBrowseItem(1, "United States")))),
 
-      arguments(backwardQuery, "fun", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy")
-      ))),
+      arguments(backwardQuery, "fun", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Book").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy")))),
 
-      arguments(backwardQuery, "G", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy")
-      ))),
+      arguments(backwardQuery, "G", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Book").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy")))),
 
       arguments(backwardQuery, "A", 10, subjectBrowseResult(22, emptyList())),
 
-      arguments(backwardIncludingQuery, "water", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Science--Philosophy"),
-        subjectBrowseItem(1, "Text"),
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "Water")
-      ))),
+      arguments(backwardIncludingQuery, "water", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Science--Philosophy").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Science--Philosophy"),
+          subjectBrowseItem(1, "Text"),
+          subjectBrowseItem(1, "Textbooks"),
+          subjectBrowseItem(1, "United States"),
+          subjectBrowseItem(1, "Water")))),
 
-      arguments(backwardIncludingQuery, "fun", 5, subjectBrowseResult(22, List.of(
-        subjectBrowseItem(1, "Book"),
-        subjectBrowseItem(1, "Database design"),
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy")
-      )))
+      arguments(backwardIncludingQuery, "fun", 5, new SubjectBrowseResult()
+        .totalRecords(22).prev("Book").next(null)
+        .items(List.of(
+          subjectBrowseItem(1, "Book"),
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy"))))
     );
   }
 

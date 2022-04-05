@@ -18,7 +18,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 * [Supported search types](#supported-search-types)
   * [Instance search options](#instance-search-options)
   * [Item search options](#item-search-options)
-  * [Holding record search options](#holdings-records-search-options)
+  * [Holdings record search options](#holdings-records-search-options)
   * [Authority search options](#authority-search-options)
 * [Records browsing](#records-browsing)
 * [Search facets](#search-facets)

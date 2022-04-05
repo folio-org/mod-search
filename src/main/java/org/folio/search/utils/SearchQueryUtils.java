@@ -92,15 +92,15 @@ public class SearchQueryUtils {
 
 
   /**
-   * Backward compatibility
-   * Used to rename item to items search field
+   * Backward compatibility.
+   * Used to rename item to items search field.
    *
    * @param index - field name searched for
    * @return field name with replaced items name
    */
   public static String getIndexAndReplaceItem(String index) {
     if (index.startsWith("item.")) {
-      return index.replace("item.", "items.");
+      return index.replace("item", "items");
     }
     return index;
   }

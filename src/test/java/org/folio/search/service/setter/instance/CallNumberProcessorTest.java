@@ -32,7 +32,8 @@ class CallNumberProcessorTest {
     "A, AA", "A, AB", "AB, ABB", "A,AZ", "NZ,O", "EZ,F", "Z, ZZ", "1 1,1.2", "1,2", "EZZZZZZZZ,F", "EZ,G",
     "199999999,2", "0,1", "9,A", "9999999999, A", "99999999,a", "YZ,Z", "Z 12,Z12", "Z 12,Z.12",
     "HD 11, HD 22", "ZZ 8982, ZZ 9999999", "ABC, abc aab", "3327.21, 3327.21 OVERSIZE", "3325.21, 3325.22",
-    "HD 11.2,HD 225.6", "HD 45214.8, HD 45214.9", "3100.12345, 3100.12346", "3100.12345, 3100/12346"
+    "HD 11.2,HD 225.6", "HD 45214.8, HD 45214.9", "3100.12345, 3100.12346", "3100.12345, 3100/12346",
+    "F  PR1866.S63 V.1 C.1, F 11"
   })
   @DisplayName("getFieldValue_parameterized_comparePairs")
   @ParameterizedTest(name = "[{index}] cn1={0}, cn2={1}")

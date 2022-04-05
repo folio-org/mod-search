@@ -4,6 +4,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.folio.search.utils.SearchQueryUtils.getIndexAndReplaceItem;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 
 import java.util.ArrayList;
@@ -62,8 +63,9 @@ public class CqlTermQueryConverter {
       return matchAllQuery();
     }
 
-    var fieldsList = searchFieldProvider.getFields(resource, termNode.getIndex());
-    var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : termNode.getIndex();
+    var index = getIndexAndReplaceItem(termNode.getIndex());
+    var fieldsList = searchFieldProvider.getFields(resource, index);
+    var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : index;
     var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
     var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());

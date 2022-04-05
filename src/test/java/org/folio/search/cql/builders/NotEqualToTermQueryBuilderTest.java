@@ -1,31 +1,44 @@
 package org.folio.search.cql.builders;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
+import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.keywordField;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
+@ExtendWith(MockitoExtension.class)
 class NotEqualToTermQueryBuilderTest {
 
-  private final NotEqualToTermQueryBuilder queryBuilder = new NotEqualToTermQueryBuilder();
+  @InjectMocks private NotEqualToTermQueryBuilder queryBuilder;
+  @Mock private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2"))
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("Query is not supported yet [operator(s): [<>], field(s): [f1.*, f2]]");
+    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2");
+    assertThat(actual).isEqualTo(boolQuery()
+      .mustNot(multiMatchQuery("value", "f1.*", "f2").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test
   void getFulltextQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME))
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("Query is not supported yet [operator(s): [<>], field(s): [field]]");
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(boolQuery()
+      .mustNot(multiMatchQuery("val", "field").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test

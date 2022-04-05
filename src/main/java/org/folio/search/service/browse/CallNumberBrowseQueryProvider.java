@@ -34,24 +34,25 @@ public class CallNumberBrowseQueryProvider {
   private final SearchFieldProvider searchFieldProvider;
   private final CallNumberTermConverter callNumberTermConverter;
   private final SearchQueryConfigurationProperties queryConfiguration;
+  private final CallNumberBrowseRangeService callNumberBrowseRangeService;
 
   /**
    * Creates query as {@link SearchSourceBuilder} object for call number browsing.
    *
    * @param request - {@link BrowseRequest} object
    * @param ctx - {@link BrowseContext} object with parsed and validated queries, anchor, limits
-   * @param isForwardBrowsing - defines the direction of browsing
+   * @param isBrowsingForward - defines the direction of browsing
    * @return created Elasticsearch query as {@link SearchSourceBuilder} object
    */
-  public SearchSourceBuilder get(BrowseRequest request, BrowseContext ctx, boolean isForwardBrowsing) {
-    var scriptCode = isForwardBrowsing ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
+  public SearchSourceBuilder get(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
+    var scriptCode = isBrowsingForward ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, singletonMap("cn", ctx.getAnchor()));
 
     var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
-    var searchSource = searchSource().from(0)
-      .query(getQuery(ctx, isForwardBrowsing))
-      .size((int) (Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isForwardBrowsing) * multiplier))))
-      .sort(scriptSort(script, STRING).order(isForwardBrowsing ? ASC : DESC));
+    var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isBrowsingForward) * multiplier));
+    var searchSource = searchSource().from(0).size(pageSize)
+      .query(getQuery(ctx, request.getTenantId(), pageSize, isBrowsingForward))
+      .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(request.getResource()).toArray(String[]::new);
@@ -61,10 +62,19 @@ public class CallNumberBrowseQueryProvider {
     return searchSource;
   }
 
-  private QueryBuilder getQuery(BrowseContext ctx, boolean isBrowsingForward) {
-    var callNumberAsLong = callNumberTermConverter.convert(ctx.getAnchor());
+  private QueryBuilder getQuery(BrowseContext ctx, String tenantId, int size, boolean isBrowsingForward) {
+    var anchor = ctx.getAnchor();
+    var callNumberAsLong = callNumberTermConverter.convert(anchor);
     var rangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD);
     rangeQuery = isBrowsingForward ? rangeQuery.gte(callNumberAsLong) : rangeQuery.lte(callNumberAsLong);
+
+    if (queryConfiguration.isCallNumberBrowseOptimizationEnabled()) {
+      var boundary = callNumberBrowseRangeService
+        .getRangeBoundaryForBrowsing(tenantId, anchor, size, isBrowsingForward)
+        .orElse(null);
+      rangeQuery = isBrowsingForward ? rangeQuery.lte(boundary) : rangeQuery.gte(boundary);
+    }
+
     var filters = ctx.getFilters();
     if (filters.isEmpty()) {
       return rangeQuery;

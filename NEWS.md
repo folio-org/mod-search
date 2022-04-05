@@ -1,3 +1,7 @@
+## 1.6.4 2021-05-03
+* MSEARCH-331 Fix the"<>" operator for full-text queries
+* MSEARCH-308 Fix the optimization of call-number browsing requests
+
 ## 1.6.2 2021-04-03
 * MSEARCH-268 Increment the minor version of spring-kafka
 * MSEARCH-323 Make populating of intermediate shelf-keys configurable

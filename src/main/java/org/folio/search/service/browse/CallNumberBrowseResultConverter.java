@@ -44,10 +44,10 @@ public class CallNumberBrowseResultConverter {
    *
    * @param resp - Elasticsearch {@link SearchResponse} object
    * @param ctx - {@link BrowseContext} value
-   * @param isForwardBrowsing - direction of browsing
+   * @param isBrowsingForward - direction of browsing
    * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
    */
-  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isForwardBrowsing) {
+  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isBrowsingForward) {
     var searchResult = documentConverter.convertToSearchResult(resp, Instance.class, this::mapToBrowseItem);
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
@@ -55,10 +55,10 @@ public class CallNumberBrowseResultConverter {
       return browseResult;
     }
 
-    var items = isForwardBrowsing ? browseItems : reverse(browseItems);
+    var items = isBrowsingForward ? browseItems : reverse(browseItems);
     var populatedItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)
-      ? populateItemsWithIntermediateResults(items, ctx, isForwardBrowsing)
-      : fillItemsWithFullCallNumbers(items, ctx, isForwardBrowsing);
+      ? populateItemsWithIntermediateResults(items, ctx, isBrowsingForward)
+      : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
     return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
@@ -68,8 +68,8 @@ public class CallNumberBrowseResultConverter {
     return new CallNumberBrowseItem().totalRecords(1).instance(instance).shelfKey(shelfKey);
   }
 
-  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(List<CallNumberBrowseItem> browseItems,
-    BrowseContext ctx, boolean isBrowsingForward) {
+  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(
+    List<CallNumberBrowseItem> browseItems, BrowseContext ctx, boolean isBrowsingForward) {
     var lower = browseItems.get(0).getShelfKey();
     var upper = browseItems.get(browseItems.size() - 1).getShelfKey();
     return browseItems.stream()

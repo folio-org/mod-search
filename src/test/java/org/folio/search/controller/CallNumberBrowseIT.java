@@ -215,7 +215,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
           cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
           cnBrowseItem(0, "FC", null, true),
-          cnBrowseItem(3, "FC 17 B89"),
+          cnBrowseItem(2, "FC 17 B89"),
           cnBrowseItem(instance("instance #31"), "G 45831 S2")
         ))),
 
@@ -240,7 +240,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new CallNumberBrowseResult()
-        .totalRecords(13).prev(null).next("G 45831 S2").items(List.of(
+        .totalRecords(13).prev(null).next("FC 17 B89").items(List.of(
           cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
           cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
@@ -290,16 +290,16 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // check that collapsing works for browsing backward
       arguments(backwardQuery, "G", 5, new CallNumberBrowseResult()
-        .totalRecords(32).prev("E 211 N52 VOL 14").next(null).items(List.of(
-          cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14"),
+        .totalRecords(32).prev("F  PR1866.S63 V.1 C.1").next(null).items(List.of(
+          cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
           cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
           cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-          cnBrowseItem(3, "FC 17 B89")
+          cnBrowseItem(2, "FC 17 B89")
         ))),
 
       arguments(backwardQuery, "F 1", 5, new CallNumberBrowseResult()
-        .totalRecords(32).prev("E 211 N52 VOL 14").next(null).items(List.of(
+        .totalRecords(32).prev("E 12.11 I12 288 D").next(null).items(List.of(
           cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
           cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
           cnBrowseItem(instance("instance #27"), "E 211 A506"),

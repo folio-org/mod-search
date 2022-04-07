@@ -7,6 +7,6 @@ public class ItemSearchQueryModifier implements SearchQueryModifier {
 
   @Override
   public String modify(String inputQuery) {
-    return inputQuery.replaceAll("item.", "items.");
+    return inputQuery.replace("item.", "items.");
   }
 }

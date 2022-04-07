@@ -34,7 +34,7 @@ services:
     environment:
       - discovery.type=single-node
       - discovery.zen.minimum_master_nodes=1
-      - plugins.security.disabled=true
+      - opendistro_security.disabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   zookeeper:

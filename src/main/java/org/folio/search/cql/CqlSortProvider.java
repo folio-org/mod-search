@@ -8,7 +8,6 @@ import static org.elasticsearch.search.sort.SortMode.MAX;
 import static org.elasticsearch.search.sort.SortMode.MIN;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.folio.search.model.types.SearchType.SORT;
-import static org.folio.search.utils.SearchQueryUtils.getIndexAndReplaceItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +52,7 @@ public class CqlSortProvider {
   }
 
   private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, String resource) {
-    var sortField = getIndexAndReplaceItem(sortIndex.getBase());
+    var sortField = sortIndex.getBase();
     var sortFieldDesc = getValidSortField(resource, sortField);
     var esSortOrder = getSortOrder(getCqlModifiers(sortIndex).getCqlSort());
 

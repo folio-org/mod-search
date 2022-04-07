@@ -38,6 +38,11 @@ public class ResourceDescription {
   private List<String> languageSourcePaths = Collections.emptyList();
 
   /**
+   * Contains list of modify query processors, which pre-processes incoming query for elasticsearch request.
+   */
+  private List<String> searchQueryModifiers = Collections.emptyList();
+
+  /**
    * Map with field descriptions.
    *
    * <p>The field description should contain json path to the value in event document and elasticsearch representation

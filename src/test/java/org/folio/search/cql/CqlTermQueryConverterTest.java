@@ -26,6 +26,8 @@ import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.z3950.zing.cql.CQLParseException;
@@ -51,9 +53,10 @@ class CqlTermQueryConverterTest {
     cqlTermQueryConverter = new CqlTermQueryConverter(searchFieldProvider, termQueryBuilders, searchTermProcessors);
   }
 
-  @Test
-  void getQuery_positive_matchAll() {
-    var actual = cqlTermQueryConverter.getQuery(cqlTermNode("cql.allRecords=1"), RESOURCE_NAME);
+  @ParameterizedTest
+  @ValueSource(strings = {"cql.allRecords=1", "cql.allRecords = 1", "keyword=*", "keyword = *", "keyword = \"*\""})
+  void getQuery_positive_matchAll(String query) {
+    var actual = cqlTermQueryConverter.getQuery(cqlTermNode(query), RESOURCE_NAME);
     assertThat(actual).isEqualTo(matchAllQuery());
   }
 

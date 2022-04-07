@@ -23,7 +23,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
-    image: local.test/opensearch:1.3.1
+    image: opendistro-elasticsearch-it:1.13.2
     build:
       dockerfile: elasticsearch/Dockerfile
     ports:

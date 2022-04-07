@@ -41,6 +41,7 @@ application:
   environment: ${ENV:folio}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
+    max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
     search-features:
       search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
     indexing:

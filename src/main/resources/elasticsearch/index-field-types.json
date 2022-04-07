@@ -20,7 +20,7 @@
       "normalizer": "keyword_uppercase"
     }
   },
-  "lowercase_sort": {
+  "keyword_lowercase": {
     "mapping": {
       "type": "keyword",
       "normalizer": "keyword_lowercase"
@@ -42,12 +42,6 @@
     "mapping": {
       "type": "text",
       "analyzer": "source_analyzer"
-    }
-  },
-  "plain_fulltext": {
-    "mapping": {
-      "type": "keyword",
-      "normalizer": "keyword_lowercase"
     }
   },
   "multilang": {

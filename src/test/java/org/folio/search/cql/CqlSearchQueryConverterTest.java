@@ -21,6 +21,7 @@ import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,7 +40,9 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
+import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -62,8 +65,14 @@ class CqlSearchQueryConverterTest {
   private static final String FIELD = "field";
 
   @Autowired private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @MockBean private ResourceDescriptionService resourceDescriptionService;
   @MockBean private LocalSearchFieldProvider searchFieldProvider;
   @MockBean private CqlSortProvider cqlSortProvider;
+
+  @BeforeEach
+  void setUp() {
+   when(resourceDescriptionService.get(any())).thenReturn(resourceDescription(RESOURCE_NAME));
+  }
 
   @MethodSource("convertCqlQueryDataProvider")
   @DisplayName("convert_positive_parameterized")
@@ -177,6 +186,19 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convert(FIELD + " = 00061712", RESOURCE_NAME);
 
     assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "61712").operator(AND)));
+  }
+
+  @Test
+  void convert_positive_itemQueryModify() {
+    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    resourceDescription.setSearchQueryModifiers(List.of("itemSearchQueryModifier"));
+    when(resourceDescriptionService.get(any())).thenReturn(resourceDescription);
+
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+
+    var actual = cqlSearchQueryConverter.convert("item.field = test", RESOURCE_NAME);
+
+    assertThat(actual).isEqualTo(searchSource().query(matchQuery("items.field", "test").operator(AND)));
   }
 
   @Test
@@ -460,6 +482,11 @@ class CqlSearchQueryConverterTest {
     @Bean
     SearchTermProcessor oclcSearchTermProcessor() {
       return inputTerm -> inputTerm.replaceAll("0", "");
+    }
+
+    @Bean
+    SearchQueryModifier itemSearchQueryModifier() {
+      return inputQuery -> inputQuery.replaceAll("item.", "items.");
     }
   }
 }

@@ -127,6 +127,11 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("alternativeTitles.alternativeTitle all {value}", "uniform"),
       arguments("alternativeTitles.alternativeTitle all {value}", "deja vu"),
       arguments("alternativeTitles.alternativeTitle all {value}", "déjà vu"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "pangok"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "pang'ok"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "pang ok"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "bangk'asyurangsŭ"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "asyurangsŭ"),
 
       arguments("uniformTitle all {value}", "uniform"),
 

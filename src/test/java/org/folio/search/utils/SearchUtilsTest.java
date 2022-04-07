@@ -20,16 +20,19 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.folio.search.utils.TestUtils.standardFulltextField;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -245,6 +248,13 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @ParameterizedTest
+  @MethodSource("getNumberOfRequestsDataSource")
+  void getNumberOfRequests_parameterized(Map<String, List<SearchDocumentBody>> requests, int expected) {
+    var actual = SearchUtils.getNumberOfRequests(requests);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Stream<Arguments> isEmptyStringDataSource() {
     return Stream.of(
       arguments(new Object(), false),
@@ -252,6 +262,16 @@ class SearchUtilsTest {
       arguments("", true),
       arguments("  ", false),
       arguments("value", false)
+    );
+  }
+
+  private static Stream<Arguments> getNumberOfRequestsDataSource() {
+    return Stream.of(
+      arguments(emptyMap(), 0),
+      arguments(null, 0),
+      arguments(mapOf(RESOURCE_NAME, null), 0),
+      arguments(mapOf(RESOURCE_NAME, List.of(searchDocumentBody(), searchDocumentBody())), 2),
+      arguments(mapOf("r1", List.of(searchDocumentBody()), "r2", List.of(searchDocumentBody())), 2)
     );
   }
 }

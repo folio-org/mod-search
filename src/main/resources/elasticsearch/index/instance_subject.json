@@ -9,17 +9,9 @@
     "sort.order": "asc"
   },
   "analysis": {
-    "char_filter": { },
     "normalizer": {
       "keyword_lowercase": {
         "filter": [ "lowercase" ],
-        "type": "custom"
-      }
-    },
-    "analyzer": {
-      "source_analyzer": {
-        "tokenizer": "standard",
-        "filter": [ "lowercase", "icu_folding" ],
         "type": "custom"
       }
     },

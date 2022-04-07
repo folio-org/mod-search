@@ -9,6 +9,7 @@ import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class ResourceService {
 
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
     if (bulkIndexResponse.getErrorMessage() == null) {
-      log.info("Records added/updated [size: {}]", eventsToIndex.size());
+      log.info("Records added/updated [size: {}]", getNumberOfRequests(elasticsearchDocuments));
     } else {
       log.info("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
     }
@@ -93,7 +94,7 @@ public class ResourceService {
 
     var response = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
-      indexDocuments.size(), removeDocuments.size());
+      getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments));
 
     return response;
   }

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.persistence.EntityNotFoundException;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.config.LanguageConfigEntity;
@@ -40,9 +41,11 @@ class LanguageConfigServiceTest {
   @Mock private LanguageConfigRepository configRepository;
   @Mock private LocalSearchFieldProvider searchFieldProvider;
   @Mock private TenantScopedExecutionService tenantScopedExecutionService;
+  @Mock private SearchConfigurationProperties searchConfigurationProperties;
 
   @Test
   void canAddLanguageConfig() {
+    when(searchConfigurationProperties.getMaxSupportedLanguages()).thenReturn(5L);
     when(configRepository.count()).thenReturn(0L);
     when(searchFieldProvider.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
     when(configRepository.save(any(LanguageConfigEntity.class)))
@@ -71,6 +74,7 @@ class LanguageConfigServiceTest {
   void cannotAddConfigIfThereIsAlready5Languages() {
     final var languageConfig = new LanguageConfig().code(SUPPORTED_LANGUAGE_CODE);
 
+    when(searchConfigurationProperties.getMaxSupportedLanguages()).thenReturn(5L);
     when(configRepository.count()).thenReturn(5L);
     when(searchFieldProvider.isSupportedLanguage(SUPPORTED_LANGUAGE_CODE)).thenReturn(true);
 

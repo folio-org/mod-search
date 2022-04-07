@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.utils.CollectionUtils.findFirst;
@@ -128,7 +129,7 @@ public class CallNumberBrowseResultConverter {
         .map(Instance::getItems)
         .stream()
         .flatMap(Collection::stream)
-        .filter(item -> Objects.equals(browseItem.getShelfKey(), item.getEffectiveShelvingOrder()))
+        .filter(item -> equalsIgnoreCase(browseItem.getShelfKey(), item.getEffectiveShelvingOrder()))
         .findFirst());
   }
 

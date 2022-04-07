@@ -58,7 +58,6 @@ import org.elasticsearch.search.aggregations.bucket.range.ParsedRange;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
-import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -184,10 +183,6 @@ public class TestUtils {
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
     return new SubjectBrowseItem().subject(subject);
-  }
-
-  public static AuthorityBrowseResult authorityBrowseResult(int totalRecords, List<AuthorityBrowseItem> items) {
-    return new AuthorityBrowseResult().totalRecords(totalRecords).items(items);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {
@@ -366,6 +361,11 @@ public class TestUtils {
   @SafeVarargs
   public static <T> SearchResult<T> searchResult(T... records) {
     return new SearchResult<T>().totalRecords(records.length).records(List.of(records));
+  }
+
+  @SafeVarargs
+  public static <T> SearchResult<T> searchResult(int totalRecords, T... records) {
+    return new SearchResult<T>().totalRecords(totalRecords).records(List.of(records));
   }
 
   public static <T> SearchResult<T> searchResult(List<T> records) {

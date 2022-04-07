@@ -1,6 +1,10 @@
 package org.folio.search.service.browse;
 
-import org.folio.search.model.SearchResult;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+import java.util.List;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +17,11 @@ public abstract class AbstractBrowseService<T> {
    * Finds related instances for call number browsing using given {@link BrowseRequest} object.
    *
    * @param request - service request as {@link BrowseRequest} object
-   * @return search result with related instances by virtual shelf.
+   * @return {@link BrowseResult} with related instances by virtual shelf.
    */
-  public SearchResult<T> browse(BrowseRequest request) {
+  public BrowseResult<T> browse(BrowseRequest request) {
     var context = browseContextProvider.get(request);
-    return context.isAroundBrowsing() ? browseAround(request, context) : browseInOneDirection(request, context);
+    return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
   }
 
   /**
@@ -25,18 +29,18 @@ public abstract class AbstractBrowseService<T> {
    *
    * @param request - {@link BrowseRequest} object for browsing
    * @param context - {@link BrowseContext} object with query, limits, etc.
-   * @return {@link SearchResult} with browsing items
+   * @return {@link BrowseResult} with browsing items
    */
-  protected abstract SearchResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context);
+  protected abstract BrowseResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context);
 
   /**
    * Defines the approach for browsing around.
    *
    * @param request - {@link BrowseRequest} object for browsing
    * @param context - {@link BrowseContext} object with query, limits, and etc.
-   * @return {@link SearchResult} with browsing items
+   * @return {@link BrowseResult} with browsing items
    */
-  protected abstract SearchResult<T> browseAround(BrowseRequest request, BrowseContext context);
+  protected abstract BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context);
 
   /**
    * Injects {@link BrowseContextProvider} bean from spring context.
@@ -46,5 +50,11 @@ public abstract class AbstractBrowseService<T> {
   @Autowired
   public void setBrowseContextProvider(BrowseContextProvider browseContextProvider) {
     this.browseContextProvider = browseContextProvider;
+  }
+
+  protected static <T> List<T> trim(List<T> items, BrowseContext ctx, boolean isBrowsingForward) {
+    return isBrowsingForward
+      ? items.subList(0, min(ctx.getLimit(true), items.size()))
+      : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
   }
 }

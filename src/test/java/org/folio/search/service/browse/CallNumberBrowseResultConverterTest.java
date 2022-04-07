@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
@@ -27,10 +28,13 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -47,8 +51,9 @@ class CallNumberBrowseResultConverterTest {
   @InjectMocks private CallNumberBrowseResultConverter resultConverter;
   @Spy private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER);
 
-  @Mock private SearchResponse searchResponse;
   @Mock private SearchHits searchHits;
+  @Mock private SearchResponse searchResponse;
+  @Mock private FeatureConfigService featureConfigService;
 
   @MethodSource("testDataProvider")
   @DisplayName("convert_positive_parameterized")
@@ -58,17 +63,76 @@ class CallNumberBrowseResultConverterTest {
     when(searchResponse.getHits()).thenReturn(searchHits);
     when(searchHits.getHits()).thenReturn(hits.toArray(SearchHit[]::new));
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(100, Relation.EQUAL_TO));
+    when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(true);
 
     var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
 
-    assertThat(actual.getRecords()).isEqualTo(expected);
-    assertThat(actual.getTotalRecords()).isEqualTo(100);
+    assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
+    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void convert_positive_forwardZeroResults() {
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getHits()).thenReturn(new SearchHit[0]);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(0, Relation.EQUAL_TO));
+
+    var actual = resultConverter.convert(searchResponse, forwardContext(), true);
+
+    assertThat(actual).isEqualTo(BrowseResult.empty());
+    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void convert_positive_backwardZeroResults() {
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getHits()).thenReturn(new SearchHit[0]);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(0, Relation.EQUAL_TO));
+
+    var actual = resultConverter.convert(searchResponse, backwardContext(), false);
+
+    assertThat(actual).isEqualTo(BrowseResult.empty());
+    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void convert_positive_intermediateResultsNotPopulatedForBrowsingForward() {
+    var hits = new SearchHit[] {
+      searchHit("A", instance("A", "A1", "A2")),
+      searchHit("B1", instance("B1", "B2", "C2")),
+      searchHit("C1", instance("C1", "C2"))};
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getHits()).thenReturn(hits);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(10, Relation.EQUAL_TO));
+    when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
+
+    var actual = resultConverter.convert(searchResponse, forwardContext(), true);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
+      cnBrowseItem(instance("B1", "B2", "C2"), "B1"), cnBrowseItem(instance("C1", "C2"), "C1"))));
+    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void convert_positive_intermediateResultsNotPopulatedForBrowsingBackward() {
+    var hits = new SearchHit[] {
+      searchHit("F", instance("E1", "E2", "F")),
+      searchHit("C4", instance("C1", "C2", "C4")),
+      searchHit("B2", instance("B1", "B2"))};
+    when(searchResponse.getHits()).thenReturn(searchHits);
+    when(searchHits.getHits()).thenReturn(hits);
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(10, Relation.EQUAL_TO));
+    when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
+
+    var actual = resultConverter.convert(searchResponse, backwardContext(), false);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
+      cnBrowseItem(instance("B1", "B2"), "B2"), cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments("forward: 0 resources", emptyList(), forwardContext(), true, emptyList()),
       arguments("forward: 1 resource", searchHits("B1"), forwardContext(), true, List.of(browseItem("B1"))),
       arguments("forward: 1 resource(included anchor)", searchHits("A"), forwardContext(), true, emptyList()),
       arguments("forward: 1 resource(excluded anchor)",
@@ -100,7 +164,6 @@ class CallNumberBrowseResultConverterTest {
       arguments("forward: n resources, invalid resources are ignored (anchor excluded)",
         searchHits("0", "123", "928", "A", "A1", "A2"), forwardContext(), true, browseItems("A1", "A2")),
 
-      arguments("backward: 0 resources", emptyList(), backwardContext(), false, emptyList()),
       arguments("backward: 1 resource", searchHits("C"), backwardContext(), false, browseItems("C")),
       arguments("backward: 1 resource (excluding anchor)", searchHits("F"), backwardContext(), false, emptyList()),
       arguments("backward: 1 resource (including anchor)",

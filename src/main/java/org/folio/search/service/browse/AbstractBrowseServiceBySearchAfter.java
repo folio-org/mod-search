@@ -9,6 +9,7 @@ import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 import java.util.List;
 import org.elasticsearch.action.search.MultiSearchResponse.Item;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -55,87 +56,128 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   @Override
-  protected SearchResult<T> browseAround(BrowseRequest request, BrowseContext context) {
+  protected BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context) {
     var succeedingQuery = getSearchQuery(request, context, true);
     var precedingQuery = getSearchQuery(request, context, false);
-    var searchSources = context.isAnchorIncluded()
+    var searchSources = context.isAnchorIncluded(true)
       ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
       : List.of(precedingQuery, succeedingQuery);
-
     var responses = searchRepository.msearch(request, searchSources).getResponses();
-    var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
-    var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
-    var anchorRes = getAnchorSearchResult(request, context, responses);
-
-    var succeedingRecords = mapToBrowseResult(succeedingResult, false).getRecords();
-    return SearchResult.of(precedingResult.getTotalRecords(), mergeSafelyToList(
-      reverse(mapToBrowseResult(precedingResult, false).getRecords()),
-      anchorRes.getRecords(),
-      trimSearchResult(anchorRes.isEmpty(), context.getLimit(true), succeedingRecords)
-    ));
+    return createBrowseResult(responses, request, context);
   }
 
   @Override
-  protected SearchResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context) {
-    return context.isAnchorIncluded(context.isForwardBrowsing())
+  protected BrowseResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    return context.isAnchorIncluded(context.isBrowsingForward())
       ? getSearchResultWithAnchor(request, context)
       : getSearchResultWithoutAnchor(request, context);
   }
 
-  private SearchResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
-    if (!context.isAnchorIncluded()) {
-      return isHighlightedResult(request, context)
-        ? SearchResult.of(0, singletonList(getEmptyBrowseItem(context)))
-        : SearchResult.empty();
-    }
-
-    var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
-    return isHighlightedResult(request, context) && anchorResult.getTotalRecords() == 0
-      ? SearchResult.of(1, singletonList(getEmptyBrowseItem(context)))
-      : mapToBrowseResult(anchorResult, isHighlightedResult(request, context));
-  }
-
-  private SearchResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {
-    var anchorQuery = getAnchorSearchQuery(request, context);
-    var searchSource = getSearchQuery(request, context, context.isForwardBrowsing());
-    var responses = searchRepository.msearch(request, List.of(searchSource, anchorQuery)).getResponses();
-    return mapToBrowseResult(getMergedSearchResults(context,
-      documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass),
-      documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass)), false);
-  }
-
-  private SearchResult<T> getSearchResultWithoutAnchor(BrowseRequest request, BrowseContext context) {
-    var searchSource = getSearchQuery(request, context, context.isForwardBrowsing());
-    var searchResponse = searchRepository.search(request, searchSource);
-    var searchResult = documentConverter.convertToSearchResult(searchResponse, browseResponseClass);
-    var authoritiesSearchResult = context.isForwardBrowsing() ? searchResult : searchResult.withReversedRecords();
-    return mapToBrowseResult(authoritiesSearchResult, false);
-  }
-
-  private static <T> SearchResult<T> getMergedSearchResults(BrowseContext ctx, SearchResult<T> result,
-    SearchResult<T> anchorResult) {
-    var records = result.getRecords();
-    var totalRecords = result.getTotalRecords();
-    var subjectRecords = trimSearchResult(anchorResult.isEmpty(), ctx.getLimit(ctx.isForwardBrowsing()), records);
-    return ctx.isForwardBrowsing()
-      ? SearchResult.of(totalRecords, mergeSafelyToList(anchorResult.getRecords(), subjectRecords))
-      : SearchResult.of(totalRecords, mergeSafelyToList(reverse(subjectRecords), anchorResult.getRecords()));
-  }
-
-  private static <T> List<T> trimSearchResult(boolean isAnchorEmpty, int limit, List<T> result) {
-    return isAnchorEmpty || result.size() < limit ? result : result.subList(0, limit - 1);
-  }
-
+  /**
+   * Provides anchor search query for the given {@link BrowseRequest} and {@link BrowseContext} objects.
+   *
+   * @param request - {@link BrowseRequest} object with inputs from a user
+   * @param context - {@link BrowseContext} with necessary information for browsing.
+   * @return created Elasticsearch query as {@link SearchSourceBuilder} object
+   */
   protected abstract SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context);
 
+  /**
+   * Provides search query for the given {@link BrowseRequest} and {@link BrowseContext} objects.
+   *
+   * @param request - {@link BrowseRequest} object with inputs from a user
+   * @param context - {@link BrowseContext} with necessary information for browsing.
+   * @param isBrowsingForward - direction of browsing.
+   * @return created Elasticsearch query as {@link SearchSourceBuilder} object
+   */
   protected abstract SearchSourceBuilder getSearchQuery(
     BrowseRequest request, BrowseContext context, boolean isBrowsingForward);
 
+  /**
+   * Provides empty browse item if highlight match is specified for browsing around.
+   *
+   * @param context - {@link BrowseContext} with necessary information for browsing.
+   * @return empty browse item
+   */
   protected abstract T getEmptyBrowseItem(BrowseContext context);
 
-  protected abstract SearchResult<T> mapToBrowseResult(SearchResult<R> result, boolean isAnchor);
+  /**
+   * Maps received {@link SearchResult} object to the {@link BrowseResult} value.
+   *
+   * @param searchResult - converted Elasticsearch response as {@link SearchResult} value.
+   * @param isAnchor - defines if the given result is anchor or not.
+   * @return created {@link BrowseResult} object
+   */
+  protected abstract BrowseResult<T> mapToBrowseResult(SearchResult<R> searchResult, boolean isAnchor);
 
-  protected static boolean isHighlightedResult(BrowseRequest request, BrowseContext context) {
-    return isTrue(request.getHighlightMatch()) && context.isAroundBrowsing();
+  /**
+   * Returns the value for browsing as {@link String} from {@link T} item.
+   *
+   * @param browseItem - browse item to process.
+   * @return value for next/prev field in browse response
+   */
+  protected abstract String getValueForBrowsing(T browseItem);
+
+  private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
+    var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
+    var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
+
+    var anchorRecords = getAnchorSearchResult(request, context, responses).getRecords();
+    var precedingRecords = mapToBrowseResult(precedingResult, false).getRecords();
+    var succeedingRecords = mergeSafelyToList(anchorRecords, mapToBrowseResult(succeedingResult, false).getRecords());
+
+    return new BrowseResult<T>()
+      .totalRecords(precedingResult.getTotalRecords())
+      .prev(getNextValueForBrowsing(precedingRecords, context.getPrecedingLimit()))
+      .next(getNextValueForBrowsing(succeedingRecords, context.getSucceedingLimit()))
+      .records(mergeSafelyToList(
+        trim(reverse(precedingRecords), context, false),
+        trim(succeedingRecords, context, true)));
+  }
+
+  private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
+    var isAnchorHighlighted = isTrue(request.getHighlightMatch());
+    if (!context.isAnchorIncluded(true)) {
+      return isAnchorHighlighted
+        ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
+        : BrowseResult.empty();
+    }
+
+    var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
+    return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
+      ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
+      : mapToBrowseResult(anchorResult, isAnchorHighlighted);
+  }
+
+  private BrowseResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {
+    var anchorQuery = getAnchorSearchQuery(request, context);
+    var isBrowsingForward = context.isBrowsingForward();
+    var searchSource = getSearchQuery(request, context, isBrowsingForward);
+    var responses = searchRepository.msearch(request, List.of(searchSource, anchorQuery)).getResponses();
+    var browseResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
+    var anchorResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
+    var records = mergeSafelyToList(anchorResult.getRecords(), browseResult.getRecords());
+    return getBrowseResult(SearchResult.of(browseResult.getTotalRecords(), records), request, context);
+  }
+
+  private BrowseResult<T> getSearchResultWithoutAnchor(BrowseRequest request, BrowseContext context) {
+    var isBrowsingForward = context.isBrowsingForward();
+    var searchSource = getSearchQuery(request, context, isBrowsingForward);
+    var searchResponse = searchRepository.search(request, searchSource);
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, browseResponseClass);
+    return getBrowseResult(searchResult, request, context);
+  }
+
+  private BrowseResult<T> getBrowseResult(SearchResult<R> result, BrowseRequest request, BrowseContext context) {
+    var isBrowsingForward = context.isBrowsingForward();
+    var browseResult = mapToBrowseResult(result, false);
+    var nextValue = getNextValueForBrowsing(browseResult.getRecords(), request.getLimit());
+    browseResult = isBrowsingForward ? browseResult.next(nextValue) : browseResult.prev(nextValue);
+    var records = isBrowsingForward ? browseResult.getRecords() : reverse(browseResult.getRecords());
+    return browseResult.records(trim(records, context, isBrowsingForward));
+  }
+
+  private String getNextValueForBrowsing(List<T> records, int limit) {
+    return records.size() <= limit ? null : getValueForBrowsing(records.get(limit - 1));
   }
 }

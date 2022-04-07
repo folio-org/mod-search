@@ -8,7 +8,6 @@ import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
-import static org.folio.search.utils.TestUtils.searchResult;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -19,7 +18,7 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.model.SearchResult;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
@@ -41,7 +40,7 @@ class CallNumberBrowseServiceTest {
   @Mock private SearchRepository searchRepository;
   @Mock private BrowseContextProvider browseContextProvider;
   @Mock private CallNumberBrowseQueryProvider browseQueryProvider;
-  @Mock private CallNumberBrowseResultConverter resultConverter;
+  @Mock private CallNumberBrowseResultConverter browseResultConverter;
 
   @Mock private SearchResponse precedingResponse;
   @Mock private SearchResponse succeedingResponse;
@@ -58,12 +57,12 @@ class CallNumberBrowseServiceTest {
     var request = request("callNumber >= B or callNumber < B", true);
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
-      searchResult(browseItems("A1", "A2", "A3", "A4")),
-      searchResult(browseItems("C1", "C2", "C3", "C4", "C5", "C6", "C7")));
+      BrowseResult.of(4, browseItems("A1", "A2", "A3", "A4")),
+      BrowseResult.of(7, browseItems("C1", "C2", "C3", "C4", "C5", "C6", "C7")));
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(11, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
       cnBrowseItem(instance("A3"), "A3"),
       cnBrowseItem(instance("A4"), "A4"),
       cnBrowseItem(0, "B", null, true),
@@ -77,12 +76,12 @@ class CallNumberBrowseServiceTest {
 
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
-      searchResult(browseItem("A 11")),
-      searchResult(browseItem("B"), browseItem("C 11")));
+      BrowseResult.of(1, browseItems("A 11")),
+      BrowseResult.of(2, browseItems("B", "C 11")));
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(3, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
       cnBrowseItem(instance("B"), "B", "B", true),
       cnBrowseItem(instance("C 11"), "C 11"))));
@@ -91,11 +90,12 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
-    prepareMockForBrowsingAround(request, contextAroundIncluding(), searchResult(browseItem("A 11")), searchResult());
+    prepareMockForBrowsingAround(request,
+      contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11")), BrowseResult.empty());
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(1, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
       cnBrowseItem(0, "B", null, true))));
   }
@@ -103,13 +103,15 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_noHighlightMatch() {
     var request = request("callNumber >= B or callNumber < B", false);
-    var context = contextAroundIncluding();
 
-    prepareMockForBrowsingAround(request, context, searchResult(browseItem("A 11")), searchResult(browseItem("C 11")));
+    prepareMockForBrowsingAround(request,
+      contextAroundIncluding(),
+      BrowseResult.of(1, browseItems("A 11")),
+      BrowseResult.of(1, browseItems("C 11")));
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(2, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
@@ -123,11 +125,30 @@ class CallNumberBrowseServiceTest {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
-    when(resultConverter.convert(succeedingResponse, context, true)).thenReturn(searchResult(browseItems("C1", "C2")));
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(
+      BrowseResult.of(2, browseItems("C1", "C2")));
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(2, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
+      cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
+  }
+
+  @Test
+  void browse_positive_forwardWithNextValue() {
+    var request = request("callNumber >= B", false);
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(2).anchor(ANCHOR).build();
+
+    when(browseContextProvider.get(request)).thenReturn(context);
+    when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
+    when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(
+      BrowseResult.of(5, browseItems("C1", "C2", "C3", "C4", "C5")));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(5, null, "C2", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -140,24 +161,43 @@ class CallNumberBrowseServiceTest {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
-    when(resultConverter.convert(precedingResponse, context, false)).thenReturn(searchResult(browseItems("A1", "A2")));
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(
+      BrowseResult.of(2, browseItems("A1", "A2")));
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(SearchResult.of(2, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
   }
 
+  @Test
+  void browse_positive_backwardWithPrevValue() {
+    var request = request("callNumber < B", false);
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
+    var context = BrowseContext.builder().precedingQuery(query).precedingLimit(2).anchor(ANCHOR).build();
+
+    when(browseContextProvider.get(request)).thenReturn(context);
+    when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
+    when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(
+      BrowseResult.of(5, browseItems("A1", "A2", "A3", "A4", "A5")));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", null, List.of(
+      cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
+  }
+
   private void prepareMockForBrowsingAround(BrowseRequest request, BrowseContext context,
-    SearchResult<CallNumberBrowseItem> precedingResult, SearchResult<CallNumberBrowseItem> succeedingResult) {
+    BrowseResult<CallNumberBrowseItem> precedingResult, BrowseResult<CallNumberBrowseItem> succeedingResult) {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
 
     var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
-    when(resultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
-    when(resultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
   }
 
   private static MultiSearchResponse msearchResponse(SearchResponse... responses) {
@@ -205,9 +245,9 @@ class CallNumberBrowseServiceTest {
       .totalRecords(1);
   }
 
-  private static CallNumberBrowseItem[] browseItems(String... shelfKeys) {
+  private static List<CallNumberBrowseItem> browseItems(String... shelfKeys) {
     return stream(shelfKeys)
       .map(CallNumberBrowseServiceTest::browseItem)
-      .toArray(CallNumberBrowseItem[]::new);
+      .collect(toList());
   }
 }

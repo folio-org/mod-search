@@ -1,8 +1,6 @@
 package org.folio.search.service.browse;
 
 import static java.lang.Boolean.TRUE;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
@@ -12,7 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
-import org.folio.search.model.SearchResult;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
@@ -27,18 +25,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
 
   @Override
-  protected SearchResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
-    var isForwardBrowsing = context.isForwardBrowsing();
-    var searchSource = callNumberBrowseQueryProvider.get(request, context, isForwardBrowsing);
+  protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    var isBrowsingForward = context.isBrowsingForward();
+    var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
-
-    var searchResult = callNumberBrowseResultConverter.convert(searchResponse, context, isForwardBrowsing);
-    searchResult.setRecords(trim(searchResult.getRecords(), context, isForwardBrowsing));
-    return searchResult;
+    var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
+    var nextBrowsingValue = getNextBrowsingValue(browseResult.getRecords(), context, isBrowsingForward);
+    browseResult = isBrowsingForward ? browseResult.next(nextBrowsingValue) : browseResult.prev(nextBrowsingValue);
+    return browseResult.records(trim(browseResult.getRecords(), context, isBrowsingForward));
   }
 
   @Override
-  protected SearchResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
+  protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
     var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
     var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
@@ -51,14 +49,17 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       highlightMatchingCallNumber(context, succeedingResult);
     }
 
-    var precedingRecords = trim(precedingResult.getRecords(), context, false);
-    var succeedingRecords = trim(succeedingResult.getRecords(), context, true);
-    return SearchResult.of(
-      precedingResult.getTotalRecords() + succeedingResult.getTotalRecords(),
-      mergeSafelyToList(precedingRecords, succeedingRecords));
+    return new BrowseResult<CallNumberBrowseItem>()
+      .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
+      .prev(getNextBrowsingValue(precedingResult.getRecords(), context, false))
+      .next(getNextBrowsingValue(succeedingResult.getRecords(), context, true))
+      .records(mergeSafelyToList(
+        trim(precedingResult.getRecords(), context, false),
+        trim(succeedingResult.getRecords(), context, true)));
+
   }
 
-  private static void highlightMatchingCallNumber(BrowseContext ctx, SearchResult<CallNumberBrowseItem> result) {
+  private static void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var anchor = ctx.getAnchor();
 
@@ -83,10 +84,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
   }
 
-  private static List<CallNumberBrowseItem> trim(List<CallNumberBrowseItem> items, BrowseContext ctx,
-    boolean isForwardBrowsing) {
-    return isForwardBrowsing
-      ? items.subList(0, min(ctx.getLimit(true), items.size()))
-      : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
+  private static String getNextBrowsingValue(
+    List<CallNumberBrowseItem> items, BrowseContext ctx, boolean isBrowsingForward) {
+    var limit = ctx.getLimit(isBrowsingForward);
+    var idx = isBrowsingForward ? limit - 1 : items.size() - limit;
+    return items.size() <= limit ? null : items.get(idx).getShelfKey();
   }
 }

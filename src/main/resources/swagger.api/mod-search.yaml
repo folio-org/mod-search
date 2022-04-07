@@ -531,6 +531,7 @@ components:
         type: string
         enum:
           - search.all.fields
+          - browse.cn.intermediate.values
     x-okapi-tenant-header:
       name: x-okapi-tenant
       in: header
@@ -552,7 +553,7 @@ components:
       required: false
       schema:
         type: integer
-        minimum: 0
+        minimum: 1
         maximum: 100
     highlight-match:
       in: query

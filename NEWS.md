@@ -1,21 +1,25 @@
-## 1.6.4 2021-05-03
+## 1.6.4 2022-04-07
+MSEARCH-336 Fix item matching for browsing by call-numbers
+MSEARCH-334 Fix the invalid search results for call-numbers with 2+ spaces
+
+## 1.6.3 2022-04-05
 * MSEARCH-331 Fix the"<>" operator for full-text queries
 * MSEARCH-308 Fix the optimization of call-number browsing requests
 
-## 1.6.2 2021-04-03
+## 1.6.2 2022-04-03
 * MSEARCH-268 Increment the minor version of spring-kafka
 * MSEARCH-323 Make populating of intermediate shelf-keys configurable
 * MSEARCH-308 Add documentation for call-number browsing
 * MSEARCH-308 Optimize call-number browsing
 * MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
 
-## 1.6.1 2021-03-21
+## 1.6.1 2022-03-21
 * MSEARCH-308 Optimize call-number browsing
 * MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
 * FAT-1150 Update module descriptors to correctly delete tenant
 * MSEARCH-303 Remove unused search fields
 
-## 1.6.0 2021-02-18
+## 1.6.0 2022-02-18
 * MSEARCH-186 publish isBoundWith in search results
 * MSEARCH-272 Include Item identifier in Identifier (all) search
 * MSEARCH-253 Implement Call Number browse

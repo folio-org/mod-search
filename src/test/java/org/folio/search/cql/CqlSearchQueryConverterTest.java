@@ -71,7 +71,7 @@ class CqlSearchQueryConverterTest {
 
   @BeforeEach
   void setUp() {
-   when(resourceDescriptionService.get(any())).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(resourceDescriptionService.get(any())).thenReturn(resourceDescription(RESOURCE_NAME));
   }
 
   @MethodSource("convertCqlQueryDataProvider")

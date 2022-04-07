@@ -160,6 +160,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("hrid == {value}", "*00022"),
       arguments("hrid == {value}", "*00000002*"),
 
+      arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
       arguments("subjects all {value}", "semantic"),
 

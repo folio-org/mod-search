@@ -11,28 +11,21 @@ services:
       JAVA_OPTIONS: -Xmx120m -Xms120m
       okapi.url: okapi
 
-  okapi:
-    container_name: okapi
-    image: folioci/okapi:latest
-    ports:
-      - "9130:9130"
-    command:
-      - dev
-
-  wiremock:
+  api-mock:
     image: wiremock/wiremock:2.32.0
-    container_name: wiremock-api
+    container_name: api-mock
     command:
       - "--verbose"
     ports:
-      - "7070:8080"
-      - "7443:8443"
+    - "9130:8080"
     volumes:
       - ../src/test/resources/mappings:/home/wiremock/mappings
 
   elasticsearch:
     container_name: elasticsearch
-    image: dev.folio/elasticsearch:latest
+    image: local.test/opensearch:1.3.1
+    build:
+      dockerfile: elasticsearch/Dockerfile
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -41,8 +34,7 @@ services:
     environment:
       - discovery.type=single-node
       - discovery.zen.minimum_master_nodes=1
-      - xpack.monitoring.enabled=false
-      - opendistro_security.disabled=true
+      - plugins.security.disabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   zookeeper:

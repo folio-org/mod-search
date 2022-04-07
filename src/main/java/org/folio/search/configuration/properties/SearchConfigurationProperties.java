@@ -5,6 +5,7 @@ import static java.util.Collections.emptySet;
 
 import java.util.Map;
 import java.util.Set;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -26,6 +27,13 @@ public class SearchConfigurationProperties {
   @NotEmpty
   @Size(max = 5)
   private Set<String> initialLanguages = emptySet();
+
+  /**
+   * Provides the maximum number of supported languages.
+   */
+  @Min(1)
+  @Max(50)
+  private long maxSupportedLanguages = 5L;
 
   /**
    * Provides map with global features configuration. Can be overwritten by tenant configuration.

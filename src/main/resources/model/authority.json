@@ -256,7 +256,7 @@
     },
     "headingRef": {
       "type": "search",
-      "index": "plain_fulltext",
+      "index": "keyword_lowercase",
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
       "rawProcessing": true,

@@ -7,7 +7,12 @@
     "mapping.total_fields.limit": 1000
   },
   "analysis": {
-    "char_filter": { },
+    "filter": {
+      "folio_word_delimiter_graph": {
+        "type": "word_delimiter_graph",
+        "catenate_words": true
+      }
+    },
     "normalizer": {
       "keyword_lowercase": {
         "filter": [ "lowercase" ],
@@ -16,8 +21,8 @@
     },
     "analyzer": {
       "source_analyzer": {
-        "tokenizer": "standard",
-        "filter": [ "lowercase", "icu_folding" ],
+        "tokenizer": "icu_tokenizer",
+        "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
         "type": "custom"
       }
     },

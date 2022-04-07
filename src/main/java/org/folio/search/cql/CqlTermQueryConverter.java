@@ -29,6 +29,7 @@ public class CqlTermQueryConverter {
 
   public static final String WILDCARD_OPERATOR = "wildcard";
   private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
+  private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
 
   private final SearchFieldProvider searchFieldProvider;
   private final Map<String, TermQueryBuilder> termQueryBuilders;
@@ -58,7 +59,7 @@ public class CqlTermQueryConverter {
    * @return created Elasticsearch {@link QueryBuilder} object
    */
   public QueryBuilder getQuery(CQLTermNode termNode, String resource) {
-    if (MATCH_ALL_CQL_QUERY.equals(termNode.toCQL())) {
+    if (isMatchAllQuery(termNode.toCQL())) {
       return matchAllQuery();
     }
 
@@ -126,5 +127,9 @@ public class CqlTermQueryConverter {
     }
 
     return unmodifiableMap(queryBuildersMap);
+  }
+
+  private static boolean isMatchAllQuery(String cqlQuery) {
+    return MATCH_ALL_CQL_QUERY.equals(cqlQuery) || KEYWORD_ALL_CQL_QUERY.equals(cqlQuery);
   }
 }

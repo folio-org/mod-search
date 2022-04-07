@@ -553,7 +553,7 @@ components:
       required: false
       schema:
         type: integer
-        minimum: 0
+        minimum: 1
         maximum: 100
     highlight-match:
       in: query

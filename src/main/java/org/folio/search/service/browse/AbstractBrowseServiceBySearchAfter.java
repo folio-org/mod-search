@@ -1,7 +1,6 @@
 package org.folio.search.service.browse;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
@@ -60,7 +59,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   protected BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context) {
     var succeedingQuery = getSearchQuery(request, context, true);
     var precedingQuery = getSearchQuery(request, context, false);
-    var searchSources = context.isAnchorIncluded()
+    var searchSources = context.isAnchorIncluded(true)
       ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
       : List.of(precedingQuery, succeedingQuery);
     var responses = searchRepository.msearch(request, searchSources).getResponses();
@@ -138,7 +137,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
 
   private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
     var isAnchorHighlighted = isTrue(request.getHighlightMatch());
-    if (!context.isAnchorIncluded()) {
+    if (!context.isAnchorIncluded(true)) {
       return isAnchorHighlighted
         ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
         : BrowseResult.empty();
@@ -179,6 +178,6 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   private String getNextValueForBrowsing(List<T> records, int limit) {
-    return isEmpty(records) || records.size() <= limit ? null : getValueForBrowsing(records.get(limit - 1));
+    return records.size() <= limit ? null : getValueForBrowsing(records.get(limit - 1));
   }
 }

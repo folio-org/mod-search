@@ -72,7 +72,6 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
-import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -371,11 +370,6 @@ public class TestUtils {
 
   public static <T> SearchResult<T> searchResult(List<T> records) {
     return new SearchResult<T>().totalRecords(records.size()).records(records);
-  }
-
-  @SafeVarargs
-  public static <T> BrowseResult<T> browseResult(T... records) {
-    return new BrowseResult<T>().totalRecords(records.length).records(List.of(records));
   }
 
   public static Facet facet(List<FacetItem> items) {

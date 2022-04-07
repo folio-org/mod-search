@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -149,15 +150,15 @@ public class CqlSearchQueryConverter {
   }
 
   private String getModifiedQuery(String query, ResourceDescription resourceDescription) {
-    var searchQueryModifiers = resourceDescription.getSearchQueryModifiers();
-    if (searchQueryModifiers == null){
-      return query;
-    }
+    var queryWrapper = new Object() {
+      String value = query;
+    };
 
-    var queryWrapper = new Object(){ String value = query; };
-    searchQueryModifiers.stream()
+    resourceDescription.getSearchQueryModifiers().stream()
       .map(searchTermModifiers::get)
-      .forEach(searchQueryModifier -> queryWrapper.value = searchQueryModifier.modify(queryWrapper.value));
+      .filter(Objects::nonNull)
+      .forEach(queryModifier ->
+        queryWrapper.value = queryModifier.modify(queryWrapper.value));
 
     return queryWrapper.value;
   }

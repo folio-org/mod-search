@@ -3,17 +3,29 @@ version: "3.8"
 services:
   mod-search:
     container_name: mod-search
-    image: dev.folio/mod-search:latest
+    image: folioci/mod-search:latest
     ports:
       - "8081:8081"
     environment:
       DB_HOST: db
       JAVA_OPTIONS: -Xmx120m -Xms120m
-      okapi.url: http://okapi:9130
+      okapi.url: okapi
+
+  api-mock:
+    image: wiremock/wiremock:2.32.0
+    container_name: api-mock
+    command:
+      - "--verbose"
+    ports:
+    - "9130:8080"
+    volumes:
+      - ../src/test/resources/mappings:/home/wiremock/mappings
 
   elasticsearch:
     container_name: elasticsearch
-    image: dev.folio/elasticsearch:latest
+    image: opendistro-elasticsearch-it:1.13.2
+    build:
+      dockerfile: elasticsearch/Dockerfile
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -22,11 +34,7 @@ services:
     environment:
       - discovery.type=single-node
       - discovery.zen.minimum_master_nodes=1
-      - xpack.security.enabled=false
-      - xpack.monitoring.enabled=false
-      - xpack.ml.enabled=false
-      - xpack.graph.enabled=false
-      - xpack.watcher.enabled=false
+      - opendistro_security.disabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   zookeeper:

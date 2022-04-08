@@ -1,7 +1,5 @@
 package org.folio.search.model.metadata;
 
-import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,7 +22,7 @@ public class PlainFieldDescription extends FieldDescription {
   public static final String MULTILANG_FIELD_TYPE = "multilang";
   public static final String STANDARD_FIELD_TYPE = "standard";
   public static final Set<String> FULLTEXT_FIELD_TYPES = Set.of(MULTILANG_FIELD_TYPE, STANDARD_FIELD_TYPE);
-  public static final String PLAIN_FULLTEXT_FIELD_TYPE = PLAIN_FULLTEXT_PREFIX + "fulltext";
+  public static final String PLAIN_FULLTEXT_FIELD_TYPE = "keyword_lowercase";
 
   /**
    * List of search types, that is used to identify search options for given field.

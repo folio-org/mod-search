@@ -38,7 +38,7 @@ public class ResourceDescription {
   private List<String> languageSourcePaths = Collections.emptyList();
 
   /**
-   * Contains list of field modifiers, which pre-processes incoming field for elasticsearch request.
+   * Contains a list of field modifiers, which pre-processes incoming field for elasticsearch request.
    */
   private List<String> searchFieldModifiers = Collections.emptyList();
 

@@ -18,7 +18,7 @@ class ItemSearchFieldModifierTest {
 
   @Test
   void getSearchTerm_positive() {
-    var field = "items.field";
+    var field = "item.field";
     var expected = "items.field";
     var actual = itemSearchFieldModifier.modify(field);
     assertThat(actual).isEqualTo(expected);

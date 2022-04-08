@@ -7,6 +7,9 @@ public class ItemSearchFieldModifier implements SearchFieldModifier {
 
   @Override
   public String modify(String inputField) {
-    return inputField.replace("item.", "items.");
+    if (inputField.startsWith("item.")) {
+      inputField = inputField.replace("item.", "items.");
+    }
+    return inputField;
   }
 }

@@ -429,7 +429,7 @@ if it is defined but doesn't match.
 | `item.metadata.createdDate`         |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with item that were created after  `2020-12-12`                                                            |
 | `item.metadata.updatedDate`         |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with item that were updated after  `2020-12-12`                                                            |
 
-### Items search options (Backward compatibility - should be removed in next release)
+### Items search options (Backward compatibility)
 
 | Option                              |   Type    | Example                                                      | Description                                                                                                                   |
 |:------------------------------------|:---------:|:-------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------|

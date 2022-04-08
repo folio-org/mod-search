@@ -58,6 +58,9 @@ class SortItemIT extends BaseIntegrationTest {
     return Stream.of(
       arguments("(id=*) sortby title", asIdsList(0, 2, 3, 4, 1)),
       arguments("(id=*) sortby title/sort.descending", asIdsList(1, 4, 3, 2, 0)),
+      arguments("(id=*) sortby item.status.name", asIdsList(0, 1, 3, 2, 4)),
+      arguments("(id=*) sortby item.status.name/sort.descending", asIdsList(4, 0, 3, 1, 2)),
+
       arguments("(id=*) sortby items.status.name", asIdsList(0, 1, 3, 2, 4)),
       arguments("(id=*) sortby items.status.name/sort.descending", asIdsList(4, 0, 3, 1, 2))
     );

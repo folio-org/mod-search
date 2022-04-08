@@ -63,8 +63,9 @@ public class CqlTermQueryConverter {
       return matchAllQuery();
     }
 
-    var fieldsList = searchFieldProvider.getFields(resource, termNode.getIndex());
-    var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : termNode.getIndex();
+    var fieldIndex = searchFieldProvider.getModifiedField(termNode.getIndex(), resource);
+    var fieldsList = searchFieldProvider.getFields(resource, fieldIndex);
+    var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : fieldIndex;
     var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
     var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());

@@ -60,4 +60,13 @@ public interface SearchFieldProvider {
    * @return true if field by path is multi-language, false - otherwise
    */
   boolean isMultilangField(String resourceName, String path);
+
+  /**
+   * Apply resource field modifiers for field.
+   *
+   * @param field that should be modified {@link String} object
+   * @param resource resource name as {@link String} object
+   * @return modified field
+   */
+  String getModifiedField(String field, String resource);
 }

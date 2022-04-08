@@ -52,7 +52,7 @@ public class CqlSortProvider {
   }
 
   private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, String resource) {
-    var sortField = sortIndex.getBase();
+    var sortField = searchFieldProvider.getModifiedField(sortIndex.getBase(), resource);
     var sortFieldDesc = getValidSortField(resource, sortField);
     var esSortOrder = getSortOrder(getCqlModifiers(sortIndex).getCqlSort());
 

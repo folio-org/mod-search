@@ -11,6 +11,8 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.folio.search.cql.SearchFieldModifier;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -93,6 +96,30 @@ class LocalSearchFieldProviderTest {
     assertThat(actual).isEmpty();
   }
 
+  @Test
+  void getModifiedField_positive() {
+    var fieldName = "field";
+    var modifiedField = "modifiedField";
+    var modifierName = "modifier";
+
+    var resourceDescription = resourceDescription();
+    resourceDescription.setSearchFieldModifiers(List.of(modifierName));
+    var modifiersMap = Map.of(modifierName, getModifier(modifiedField));
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider, modifiersMap);
+    when(metadataResourceProvider.getResourceDescription(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription));
+
+    var actual = searchFieldProvider.getModifiedField(fieldName, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(modifiedField);
+  }
+
+  @Test
+  void getModifiedField_positive_shouldNotModify() {
+    var fieldName = "field";
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider, emptyMap());
+    var actual = searchFieldProvider.getModifiedField(fieldName, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(fieldName);
+  }
+
   @MethodSource("getPlainFieldsByPathDataProvider")
   @ParameterizedTest(name = "[{index}] path={0}")
   void getPlainFieldByPath_positive_parameterized(String path, FieldDescription expected) {
@@ -159,7 +186,7 @@ class LocalSearchFieldProviderTest {
   void init_validateSearchAliases_failedToCreateAliasOnKeywordFacetField() {
     var plainField = plainField(List.of("alias"), FACET);
     var resourceDescription = resourceDescription(mapOf("field1", plainField, "field2", plainField), emptyMap());
-    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider);
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider, emptyMap());
     when(metadataResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     when(metadataResourceProvider.getSearchFieldTypes()).thenReturn(searchFieldTypes());
 
@@ -175,7 +202,7 @@ class LocalSearchFieldProviderTest {
     var plainField = plainField(List.of("alias"));
     plainField.setSearchTermProcessor("testProcessor");
     var resourceDescription = resourceDescription(mapOf("field1", plainField, "field2", plainField), emptyMap());
-    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider);
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider, emptyMap());
     when(metadataResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     when(metadataResourceProvider.getSearchFieldTypes()).thenReturn(searchFieldTypes());
 
@@ -187,7 +214,7 @@ class LocalSearchFieldProviderTest {
   }
 
   private LocalSearchFieldProvider getSearchFieldProvider() {
-    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider);
+    var searchFieldProvider = new LocalSearchFieldProvider(metadataResourceProvider, emptyMap());
     when(metadataResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription()));
     when(metadataResourceProvider.getSearchFieldTypes()).thenReturn(searchFieldTypes());
     searchFieldProvider.init();
@@ -273,5 +300,11 @@ class LocalSearchFieldProviderTest {
     fieldDescription.setSearchAliases(List.of(searchAliases));
     fieldDescription.setProcessor("processor");
     return fieldDescription;
+  }
+
+  private static SearchFieldModifier getModifier(String newValue) {
+    var modifier = mock(SearchFieldModifier.class);
+    when(modifier.modify(any())).thenReturn(newValue);
+    return modifier;
   }
 }

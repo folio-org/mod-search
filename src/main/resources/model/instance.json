@@ -5,6 +5,9 @@
   "indexingConfiguration": {
     "eventPreProcessor": "instanceEventPreProcessor"
   },
+  "searchFieldModifiers": [
+    "itemSearchFieldModifier"
+  ],
   "fieldTypes": {
     "suppress": {
       "searchTypes": [ "facet", "filter" ],

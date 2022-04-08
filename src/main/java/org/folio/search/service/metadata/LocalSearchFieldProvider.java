@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.folio.search.cql.SearchFieldModifier;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -45,6 +46,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     "Invalid plain field descriptor for search alias '%s'. Alias for field with %s can't group more than 1 field.";
 
   private final MetadataResourceProvider metadataResourceProvider;
+  private final Map<String, SearchFieldModifier> searchFieldModifiers;
 
   private Set<String> supportedLanguages;
   private Map<String, List<String>> sourceFields;
@@ -99,6 +101,23 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   @Override
   public boolean isMultilangField(String resourceName, String path) {
     return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
+  }
+
+  @Override
+  public String getModifiedField(String field, String resource) {
+    var queryWrapper = new Object() {
+      String value = field;
+    };
+
+    metadataResourceProvider.getResourceDescription(resource)
+      .ifPresent(description -> description.getSearchFieldModifiers().stream()
+        .map(searchFieldModifiers::get)
+        .filter(Objects::nonNull)
+        .forEach(modifier ->
+          queryWrapper.value = modifier.modify(queryWrapper.value))
+      );
+
+    return queryWrapper.value;
   }
 
   private static Map<String, List<String>> collectFieldsBySearchAlias(ResourceDescription resourceDescription) {

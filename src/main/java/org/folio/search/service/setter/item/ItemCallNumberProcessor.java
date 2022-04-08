@@ -1,6 +1,7 @@
-package org.folio.search.service.setter.instance;
+package org.folio.search.service.setter.item;
 
-import static java.util.Locale.ROOT;
+import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.getIntValue;
+import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
@@ -14,15 +15,9 @@ import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
-public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> {
+public class ItemCallNumberProcessor implements FieldProcessor<Instance, Set<Long>> {
 
-  public static final int MAX_CHARS = 10;
-  public static final int ASCII_A = 'A';
-  public static final int ASCII_1 = '1';
-  public static final int ASCII_9 = '9';
-  public static final int ASCII_SPACE = ' ';
-  public static final int ASCII_DOT = '.';
-  public static final int ASCII_SLASH = '/';
+  private static final int MAX_CHARS = 10;
 
   @Override
   public Set<Long> getFieldValue(Instance instance) {
@@ -30,6 +25,7 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
       .map(Item::getEffectiveShelvingOrder)
       .filter(StringUtils::isNotBlank)
       .map(this::getCallNumberAsLong)
+      .filter(value -> value > 0)
       .sorted()
       .collect(toLinkedHashSet());
   }
@@ -43,31 +39,22 @@ public class CallNumberProcessor implements FieldProcessor<Instance, Set<Long>> 
    * <ul>
    *   <li>Each character has own unique int value ({@code ' '=1}, {@code '.'=2},
    *   {@code '/'=3}, {@code '0'=4}, {@code '9'-13}, {@code 'A'=14}, {@code 'Z'=39})</li>
-   *   <li>each char numeric value multiplied by {@code 39^(10-characterPosition}</li>
+   *   <li>each char numeric value multiplied by {@code 41^(10-characterPosition}</li>
    *   <li>all received values are summed to the result value</li>
    * </ul>
    * </p>
+   *
+   * @param callNumber - effective shelving order value from query or from instance item to process
+   * @return numeric representation of given call-number value
    */
   public Long getCallNumberAsLong(String callNumber) {
-    var cleanCallNumber = callNumber.toUpperCase(ROOT).replaceAll("[^A-Z0-9. /]", " ").trim();
-    cleanCallNumber = cleanCallNumber.substring(0, Math.min(MAX_CHARS, cleanCallNumber.length()));
+    var normalizedCallNumber = normalizeValue(callNumber);
+    var cleanCallNumber = normalizedCallNumber.substring(0, Math.min(MAX_CHARS, normalizedCallNumber.length()));
     long result = 0L;
     for (int i = 0; i < cleanCallNumber.length(); i++) {
-      result += getCharValue(cleanCallNumber.charAt(i)) * (long) Math.pow(39, (double) MAX_CHARS - i);
+      var characterValue = getIntValue(cleanCallNumber.charAt(i), 0);
+      result += characterValue * (long) Math.pow(52, (double) MAX_CHARS - i);
     }
     return result;
-  }
-
-  private static long getCharValue(char c) {
-    switch (c) {
-      case ASCII_SPACE:
-        return 0;
-      case ASCII_DOT:
-        return 1;
-      case ASCII_SLASH:
-        return 2;
-      default:
-        return c <= ASCII_9 ? c - ASCII_1 + 4 : c - ASCII_A + 13;
-    }
   }
 }

@@ -45,7 +45,7 @@ public class SearchUtils {
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
-  public static final String CALL_NUMBER_BROWSING_FIELD = "items.effectiveShelvingOrder";
+  public static final String CALL_NUMBER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
   public static final String SUBJECT_BROWSING_FIELD = "subject";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects";

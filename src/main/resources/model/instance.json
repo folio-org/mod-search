@@ -289,9 +289,7 @@
           }
         },
         "effectiveShelvingOrder": {
-          "index": "keyword_uppercase",
-          "searchAliases": "callNumber",
-          "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+          "index": "source",
           "showInResponse": true
         },
         "tags": {
@@ -593,7 +591,14 @@
       "type": "search",
       "index": "long",
       "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
-      "processor": "callNumberProcessor"
+      "processor": "itemCallNumberProcessor"
+    },
+    "itemEffectiveShelvingOrder": {
+      "type": "search",
+      "index": "keyword",
+      "searchAliases": [ "callNumber", "items.effectiveShelvingOrder" ],
+      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+      "processor": "itemEffectiveShelvingOrderProcessor"
     },
     "allInstances": {
       "type": "search",
@@ -625,7 +630,8 @@
       "allInstance.*", "plain_allInstance",
       "allItems.*", "plain_allItems",
       "allHoldings.*", "plain_allHoldings",
-      "sort_title", "sort_contributors"
+      "sort_title", "sort_contributors",
+      "callNumber", "itemEffectiveShelvingOrder"
     ]
   },
   "indexMappings": { }

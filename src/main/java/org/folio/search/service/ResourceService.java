@@ -68,7 +68,7 @@ public class ResourceService {
     if (bulkIndexResponse.getErrorMessage() == null) {
       log.info("Records added/updated [size: {}]", getNumberOfRequests(elasticsearchDocuments));
     } else {
-      log.info("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
+      log.warn("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
     }
 
     return bulkIndexResponse;
@@ -92,11 +92,15 @@ public class ResourceService {
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
 
-    var response = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
-    log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
-      getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments));
+    var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
+    if (bulkIndexResponse.getErrorMessage() == null) {
+      log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
+        getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments));
+    } else {
+      log.warn("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
+    }
 
-    return response;
+    return bulkIndexResponse;
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

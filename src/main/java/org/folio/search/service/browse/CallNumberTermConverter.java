@@ -2,14 +2,14 @@ package org.folio.search.service.browse;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
-import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class CallNumberTermConverter {
 
-  private final CallNumberProcessor callNumberProcessor;
+  private final ItemCallNumberProcessor itemCallNumberProcessor;
   private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   /**
@@ -20,6 +20,6 @@ public class CallNumberTermConverter {
    */
   public Long convert(String term) {
     var searchTerm = effectiveShelvingOrderTermProcessor.getSearchTerm(term);
-    return callNumberProcessor.getCallNumberAsLong(searchTerm);
+    return itemCallNumberProcessor.getCallNumberAsLong(searchTerm);
   }
 }

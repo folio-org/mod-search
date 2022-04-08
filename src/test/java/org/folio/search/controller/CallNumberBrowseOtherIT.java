@@ -49,13 +49,15 @@ class CallNumberBrowseOtherIT extends BaseIntegrationTest {
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(10, List.of(
+    assertThat(actual).isEqualTo(cnBrowseResult(12, List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
+      cnBrowseItem(instance("instance #11"), "F-1,452"),
       cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
       cnBrowseItem(0, "G", null, true),
+      cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
       cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
       cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
@@ -72,13 +74,15 @@ class CallNumberBrowseOtherIT extends BaseIntegrationTest {
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(10, List.of(
+    assertThat(actual).isEqualTo(cnBrowseResult(12, List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
+      cnBrowseItem(instance("instance #11"), "F-1,452"),
       cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
       cnBrowseItem(0, "G", null, true),
+      cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
       cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
       cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
@@ -130,7 +134,9 @@ class CallNumberBrowseOtherIT extends BaseIntegrationTest {
       List.of("instance #07", List.of("RAW 22")),
       List.of("instance #08", List.of("PIRANHA 19 _C 11")),
       List.of("instance #09", List.of("F  PR1866.S63 V.1 C.1")),
-      List.of("instance #10", List.of("FA 42010 3546 256"))
+      List.of("instance #10", List.of("FA 42010 3546 256")),
+      List.of("instance #11", List.of("F-1,452")),
+      List.of("instance #12", List.of("G (shelf#1)"))
     );
   }
 }

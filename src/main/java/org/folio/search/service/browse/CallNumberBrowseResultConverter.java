@@ -4,9 +4,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
+import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
@@ -117,20 +117,20 @@ public class CallNumberBrowseResultConverter {
   private static CallNumberBrowseItem mapToCallNumberBrowseItem(
     CallNumberBrowseItem browseItem, String shelfKey, Optional<Item> optionalOfItem) {
     return new CallNumberBrowseItem()
-      .shelfKey(shelfKey)
+      .shelfKey(normalizeValue(shelfKey))
       .fullCallNumber(getFullCallNumber(optionalOfItem))
       .instance(browseItem.getInstance())
       .totalRecords(1);
   }
 
   private static String getFullCallNumber(CallNumberBrowseItem browseItem) {
-    return getFullCallNumber(
-      Optional.ofNullable(browseItem.getInstance())
-        .map(Instance::getItems)
-        .stream()
-        .flatMap(Collection::stream)
-        .filter(item -> equalsIgnoreCase(browseItem.getShelfKey(), item.getEffectiveShelvingOrder()))
-        .findFirst());
+    var firstMatchedItem = Optional.ofNullable(browseItem.getInstance())
+      .map(Instance::getItems)
+      .stream()
+      .flatMap(Collection::stream)
+      .filter(item -> browseItem.getShelfKey().equals(normalizeValue(item.getEffectiveShelvingOrder())))
+      .findFirst();
+    return getFullCallNumber(firstMatchedItem);
   }
 
   private static String getFullCallNumber(Optional<Item> optionalOfItem) {

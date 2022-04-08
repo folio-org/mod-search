@@ -46,10 +46,10 @@ class CqlTermQueryConverterTest {
 
   @BeforeEach
   void setUp() {
-    var searchTermProcessors = Map.of("processor", searchTermProcessor);
+    lenient().when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
     when(termQueryBuilder.getSupportedComparators()).thenReturn(Set.of("all"));
     when(wildcardQueryBuilder.getSupportedComparators()).thenReturn(Set.of("wildcard"));
-    lenient().when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+    var searchTermProcessors = Map.of("processor", searchTermProcessor);
     var termQueryBuilders = List.of(termQueryBuilder, wildcardQueryBuilder);
     cqlTermQueryConverter = new CqlTermQueryConverter(searchFieldProvider, termQueryBuilders, searchTermProcessors);
   }
@@ -164,8 +164,10 @@ class CqlTermQueryConverterTest {
   void getQuery_positive_fieldModify() {
     var expectedQuery = termQuery("modifiedField", "book");
     when(searchFieldProvider.getModifiedField("subjects", RESOURCE_NAME)).thenReturn("modifiedField");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField")).thenReturn(Optional.of(keywordField()));
-    when(termQueryBuilder.getTermLevelQuery("book", "modifiedField", RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField"))
+      .thenReturn(Optional.of(keywordField()));
+    when(termQueryBuilder.getTermLevelQuery("book", "modifiedField", RESOURCE_NAME, "keyword"))
+      .thenReturn(expectedQuery);
 
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);

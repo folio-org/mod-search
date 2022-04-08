@@ -14,6 +14,7 @@ import static org.folio.search.model.types.SortFieldType.COLLECTION;
 import static org.folio.search.model.types.SortFieldType.SINGLE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import org.folio.search.model.metadata.SortDescription;
 import org.folio.search.model.types.SortFieldType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +41,11 @@ class CqlSortProviderTest {
 
   @InjectMocks private CqlSortProvider cqlSortProvider;
   @Mock private SearchFieldProvider searchFieldProvider;
+
+  @BeforeEach
+  void setUp() {
+    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+  }
 
   @Test
   void getSort_positive_ascOrder() throws Exception {
@@ -63,6 +70,15 @@ class CqlSortProviderTest {
       of(sortField(sortDescription("customField", SINGLE))));
     var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
     assertThat(sort).isEqualTo(List.of(fieldSort("customField")));
+  }
+
+  @Test
+  void getSort_positive_modifyFieldName() throws Exception {
+    var cqlSortNode = sortNode("(keyword all value) sortby field");
+    when(searchFieldProvider.getModifiedField(FIELD_NAME, RESOURCE_NAME)).thenReturn("modifiedField");
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField")).thenReturn(of(keywordField(SORT)));
+    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    assertThat(sort).isEqualTo(List.of(fieldSort("sort_" + "modifiedField").order(ASC)));
   }
 
   @Test

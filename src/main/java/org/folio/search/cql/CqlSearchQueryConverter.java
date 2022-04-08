@@ -7,17 +7,13 @@ import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.types.SearchType;
-import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
@@ -40,9 +36,6 @@ public class CqlSearchQueryConverter {
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
   private final CqlTermQueryConverter cqlTermQueryConverter;
-  private final ResourceDescriptionService resourceDescriptionService;
-
-  private final Map<String, SearchQueryModifier> searchTermModifiers;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -52,10 +45,7 @@ public class CqlSearchQueryConverter {
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
   public SearchSourceBuilder convert(String query, String resource) {
-    var resourceDescription = resourceDescriptionService.get(resource);
-    var modifiedQuery = getModifiedQuery(query, resourceDescription);
-
-    var cqlNode = cqlQueryParser.parseCqlQuery(modifiedQuery, resource);
+    var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
     var queryBuilder = new SearchSourceBuilder();
 
     if (cqlNode instanceof CQLSortNode) {
@@ -147,20 +137,6 @@ public class CqlSearchQueryConverter {
     mustConditions.clear();
     mustConditions.addAll(mustQueryConditions);
     return query;
-  }
-
-  private String getModifiedQuery(String query, ResourceDescription resourceDescription) {
-    var queryWrapper = new Object() {
-      String value = query;
-    };
-
-    resourceDescription.getSearchQueryModifiers().stream()
-      .map(searchTermModifiers::get)
-      .filter(Objects::nonNull)
-      .forEach(queryModifier ->
-        queryWrapper.value = queryModifier.modify(queryWrapper.value));
-
-    return queryWrapper.value;
   }
 
   private boolean isFilterInnerQuery(QueryBuilder query, Predicate<String> filterFieldPredicate) {

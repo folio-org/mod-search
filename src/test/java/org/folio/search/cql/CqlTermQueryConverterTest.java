@@ -11,6 +11,8 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.plainField;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -47,6 +49,7 @@ class CqlTermQueryConverterTest {
     var searchTermProcessors = Map.of("processor", searchTermProcessor);
     when(termQueryBuilder.getSupportedComparators()).thenReturn(Set.of("all"));
     when(wildcardQueryBuilder.getSupportedComparators()).thenReturn(Set.of("wildcard"));
+    lenient().when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
     var termQueryBuilders = List.of(termQueryBuilder, wildcardQueryBuilder);
     cqlTermQueryConverter = new CqlTermQueryConverter(searchFieldProvider, termQueryBuilders, searchTermProcessors);
   }
@@ -155,6 +158,17 @@ class CqlTermQueryConverterTest {
     assertThatThrownBy(() -> cqlTermQueryConverter.getQuery(termNode, RESOURCE_NAME))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid search field provided in the CQL query");
+  }
+
+  @Test
+  void getQuery_positive_fieldModify() {
+    var expectedQuery = termQuery("modifiedField", "book");
+    when(searchFieldProvider.getModifiedField("subjects", RESOURCE_NAME)).thenReturn("modifiedField");
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField")).thenReturn(Optional.of(keywordField()));
+    when(termQueryBuilder.getTermLevelQuery("book", "modifiedField", RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
+
+    var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
+    assertThat(actual).isEqualTo(expectedQuery);
   }
 
   @Test

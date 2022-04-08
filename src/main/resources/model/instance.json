@@ -5,8 +5,8 @@
   "indexingConfiguration": {
     "eventPreProcessor": "instanceEventPreProcessor"
   },
-  "searchQueryModifiers": [
-    "itemSearchQueryModifier"
+  "searchFieldModifiers": [
+    "itemSearchFieldModifier"
   ],
   "fieldTypes": {
     "suppress": {

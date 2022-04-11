@@ -58,6 +58,7 @@ public class FacetQueryBuilder {
    */
   public List<AggregationBuilder> getFacetAggregations(CqlFacetRequest request, QueryBuilder query) {
     return request.getFacet().stream()
+      .map(facet -> searchFieldProvider.getModifiedField(facet, request.getResource()))
       .map(facet -> getFacetFieldAndLimitAsPair(request.getResource(), facet))
       .map(facet -> getFacetAggregation(request, query, facet))
       .flatMap(Collection::stream)

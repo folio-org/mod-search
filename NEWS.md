@@ -1,4 +1,25 @@
-## 1.6.0 2021-02-18
+## 1.6.4 2022-04-07
+MSEARCH-336 Fix item matching for browsing by call-numbers
+MSEARCH-334 Fix the invalid search results for call-numbers with 2+ spaces
+
+## 1.6.3 2022-04-05
+* MSEARCH-331 Fix the"<>" operator for full-text queries
+* MSEARCH-308 Fix the optimization of call-number browsing requests
+
+## 1.6.2 2022-04-03
+* MSEARCH-268 Increment the minor version of spring-kafka
+* MSEARCH-323 Make populating of intermediate shelf-keys configurable
+* MSEARCH-308 Add documentation for call-number browsing
+* MSEARCH-308 Optimize call-number browsing
+* MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
+
+## 1.6.1 2022-03-21
+* MSEARCH-308 Optimize call-number browsing
+* MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
+* FAT-1150 Update module descriptors to correctly delete tenant
+* MSEARCH-303 Remove unused search fields
+
+## 1.6.0 2022-02-18
 * MSEARCH-186 publish isBoundWith in search results
 * MSEARCH-272 Include Item identifier in Identifier (all) search
 * MSEARCH-253 Implement Call Number browse
@@ -41,6 +62,19 @@
 * MSEARCH-264 Implement Subject browse - preceding entries and placeholder for missing match
 * MSEARCH-275 Highlight browse result using Boolean value
 
+## 1.5.4 2021-12-17
+* Log4j vulnerability verification and correction (MSEARCH-255)
+
+## 1.5.3 2021-11-18
+* Added retry mechanism for streaming ids
+
+## 1.5.2 2021-11-10
+* Suppressed from discovery field added for instance/holdings/item (MSEARCH-223)
+* Updated template for module descriptor
+
+## 1.5.1 2021-10-25
+* Fixed format filters (MSEARCH-199)
+
 ## 1.5.0 2021-10-01
 * Add contributorNameTypeId field for contributors (MSEARCH-194)
 * Support search by all fields (MSEARCH-182)
@@ -54,6 +88,26 @@
 * Handle gracefully message processing failures (MSEARCH-155)
 * Support full text search for notes of linked holding-records (MSEARCH-117)
 * Remove multi-language support from the contributors fields (MSEARCH-134 )
+
+## 1.4.4 2021-12-17
+* Log4j vulnerability verification and correction (MSEARCH-257)
+
+## 1.4.3 2021-08-06
+* Added  environment variable to support custom subscription pattern (MSEARCH-164)
+
+## 1.4.2 2021-07-28
+* Fixed "Failed to create index: Limit of total fields [250] has been exceeded" error (MSEARCH-160)
+
+## 1.4.1 2021-07-20
+
+* Supports full-text search for all instance notes (MSEARCH-116)
+* Supports full-text search for public and all holding records notes (MSEARECH-117)
+* Supports full-text search for public and all item notes (MSEARCH-118)
+* Provides kafka topics names using ENV variable and tenant id (MSEARCH-132)
+* Documents list of available facets (MSEARCH-133)
+* Removes multi-language support from the contributors field (MSEARCH-134)
+* Adds sorting adjustment by title using index title (MSEARCH-136)
+* Handles gracefully Kafka message processing failures (MSEARCH-155)
 
 ## 1.4.0 2021-06-18
 
@@ -72,6 +126,12 @@
 * Adds list of specified plugins required for on-premise Elasticsearch (MSEARCH-127)
 * Makes consumer group name different per environment (MSEARCH-129)
 
+## 1.3.1 2021-07-12
+
+* Makes consumer group name different per environment (MSEARCH-129)
+* Allows custom prefix when creating index name (MSEARCH-95)
+* Provides kafka topics names created by pattern: `${env}.${tenantId}.inventory.(instance|item|holdings-record)`
+
 ## 1.3.0 2021-04-22
 
 * Makes sure ES index exists before indexing resources (MSEARCH-112)
@@ -89,6 +149,12 @@
 * Implements `GET/DELETE` `/_/tenant` endpoints (MSEARCH-45)
 * Implements sorting by item status (MSEARCH-41)
 * Provides `search v0.5`
+
+## 1.2.1 2021-04-07
+
+* Do not add resources if index does not exist (MSEARCH-86)
+* Support DELETE event for items/holdings/instances (MSEARCH-90)
+* Change multi-match operator from `OR` to `AND` (MSEARCH-91)
 
 ## 1.2.0 2021-04-02
 

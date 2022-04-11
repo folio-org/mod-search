@@ -17,6 +17,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.keywordField;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.TestUtils;
 import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,11 +46,25 @@ class FacetQueryBuilderTest {
   @InjectMocks private FacetQueryBuilder facetQueryBuilder;
   @Mock private SearchFieldProvider searchFieldProvider;
 
+  @BeforeEach
+  void setUp() {
+    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+  }
+
   @Test
   void getFacetAggregations_positive_queryWithoutFilters() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), matchAllQuery());
     assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(MAX_VALUE));
+  }
+
+  @Test
+  void getFacetAggregations_positive_modifyFacetName() {
+    var modifiedField = "newField";
+    when(searchFieldProvider.getModifiedField(FIELD, RESOURCE_NAME)).thenReturn(modifiedField);
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, modifiedField)).thenReturn(of(keywordField(FACET)));
+    var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), matchAllQuery());
+    assertThat(actual).containsExactly(terms(modifiedField).field(modifiedField).size(MAX_VALUE));
   }
 
   @Test

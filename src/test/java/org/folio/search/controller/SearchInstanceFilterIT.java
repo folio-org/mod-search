@@ -379,6 +379,28 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("items.discoverySuppress"), mapOf(
         "items.discoverySuppress", facet(facetItem("true", 2), facetItem("false", 4)))),
 
+      arguments("id=*", array("items.statisticalCodeIds"), mapOf(
+        "items.statisticalCodeIds", facet(facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
+
+      arguments("id=*", array("item.effectiveLocationId"), mapOf(
+        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
+
+      arguments("source==MARC", array("source", "item.effectiveLocationId"), mapOf(
+        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
+        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 2), facetItem(LOCATIONS[1], 1)))),
+
+      arguments("id=*", array("item.status.name"), mapOf(
+        "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
+
+      arguments("id=*", array("item.discoverySuppress"), mapOf(
+        "items.discoverySuppress", facet(facetItem("true", 2), facetItem("false", 4)))),
+
+      arguments("id=*", array("item.statisticalCodeIds"), mapOf(
+        "items.statisticalCodeIds", facet(facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
+
+      arguments("id=*", array("itemTags"), mapOf(
+        "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2)))),
+
       arguments("id=*", array("holdings.permanentLocationId"), mapOf(
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
           facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)))),
@@ -393,9 +415,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("holdingsTypeId"), mapOf(
         "holdingsTypeId", facet(facetItem(HOLDINGS_TYPES[0], 2), facetItem(HOLDINGS_TYPES[1], 2)))),
 
-      arguments("id=*", array("itemTags"), mapOf(
-        "itemTags", facet(facetItem("itag3", 4), facetItem("itag1", 2), facetItem("itag2", 2)))),
-
       arguments("id=*", array("statisticalCodes"), mapOf(
         "statisticalCodes", facet(facetItem("b5968c9e-cddc-4576-99e3-8e60aed8b0dd", 1),
           facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1), facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
@@ -405,9 +424,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("holdings.statisticalCodeIds"), mapOf(
         "holdings.statisticalCodeIds", facet(facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1)))),
-
-      arguments("id=*", array("items.statisticalCodeIds"), mapOf(
-        "items.statisticalCodeIds", facet(facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
 
       arguments("id=*", array("holdings.sourceId"), mapOf("holdings.sourceId", facet(facetItem("FOLIO", 1))))
     );

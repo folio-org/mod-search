@@ -379,7 +379,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("items.discoverySuppress"), mapOf(
         "items.discoverySuppress", facet(facetItem("true", 2), facetItem("false", 4)))),
 
-      arguments("id=*", array("item.statisticalCodeIds"), mapOf(
+      arguments("id=*", array("items.statisticalCodeIds"), mapOf(
         "items.statisticalCodeIds", facet(facetItem("615e9911-edb1-4ab3-a9c3-a461a3de02f8", 1)))),
 
       arguments("id=*", array("item.effectiveLocationId"), mapOf(

@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
+import static org.folio.search.support.base.ApiEndpoints.authorityIds;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -17,6 +18,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -46,6 +48,13 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.authorities[0].id", is(getAuthoritySampleId())));
+  }
+
+  @Test
+  void streamAuthorityIds() throws Exception {
+    doGet(authorityIds("cql.allRecords=1"))
+      .andExpect(jsonPath("totalRecords", is(21)))
+      .andExpect(jsonPath("ids[0].id", is(getAuthoritySampleId())));
   }
 
   @CsvSource({

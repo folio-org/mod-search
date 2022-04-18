@@ -12,8 +12,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.folio.search.converter.StreamIdsJobMapper;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.StreamIdsJobService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,9 @@ import org.springframework.test.web.servlet.MockMvc;
 class AuthorityControllerTest {
 
   @MockBean private SearchService searchService;
+  @MockBean private ResourceIdsStreamHelper resourceIdsStreamHelper;
+  @MockBean private StreamIdsJobService streamIdsJobService;
+  @MockBean private StreamIdsJobMapper streamIdsJobMapper;
   @Autowired private MockMvc mockMvc;
 
   @Test

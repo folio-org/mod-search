@@ -34,4 +34,17 @@
       </column>
     </createTable>
   </changeSet>
+
+  <changeSet id="05_create_stream_job_table" author="oleksii_kuzminov@epam.com">
+    <createTable tableName="stream_job">
+      <column name="id" type="varchar(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="query" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="varchar(32)"/>
+      <column name="created_date" type="date"/>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>

@@ -122,6 +122,72 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /authorities/ids/jobs/{jobId}:
+    get:
+      operationId: getAuthorityIdsJob
+      description: Get a job for the stream of authority ids.
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/job-stream-id'
+      responses:
+        '200':
+          description: 'Job for the stream of authority ids'
+          content:
+            application/json:
+              example: examples/streamIdsJobResponse.sample
+              schema:
+                $ref: schemas/streamIdsJob.json
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /authorities/ids/jobs:
+    post:
+      operationId: submitAuthorityIdsJob
+      description: Creates a job for the stream of authority ids.
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      requestBody:
+        content:
+          application/json:
+            example: examples/streamIdsJobRequest.sample
+            schema:
+              $ref: schemas/streamIdsJob.json
+      responses:
+        '200':
+          description: 'Job for the stream of authority ids'
+          content:
+            application/json:
+              example: examples/streamIdsJobResponse.sample
+              schema:
+                $ref: schemas/streamIdsJob.json
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /authorities/ids:
+    get:
+      operationId: getAuthorityIds
+      description: Get a list of authority ids for CQL query
+      parameters:
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/content-type-header'
+      responses:
+        '200':
+          description: 'Authorities ids as json stream'
+          content:
+            application/json:
+              example: examples/AuthorityIdsResult.sample
+            application/text:
+              example: examples/IdsTextResult.sample
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /browse/call-numbers/instances:
     get:
       operationId: browseInstancesByCallNumber
@@ -563,3 +629,10 @@ components:
       schema:
         type: boolean
         default: true
+    job-stream-id:
+      in: path
+      name: jobId
+      description: UUID of the job to get
+      required: true
+      schema:
+        type: string

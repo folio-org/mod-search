@@ -40,6 +40,14 @@ public class ResourceIdService {
     streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
   }
 
+  //todo
+  public void streamIdsToDb(CqlResourceIdsRequest request) {
+    var totalRecordsCounter = new AtomicInteger();
+    streamResourceIds(request, ids -> {
+      //todo save to db
+    });
+  }
+
   /**
    * Returns resource ids for passed cql query in json type.
    *

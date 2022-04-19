@@ -17,8 +17,12 @@ import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.model.types.StreamJobStatus;
+import org.folio.search.repository.ResourceIdsJobRepository;
+import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,8 @@ public class ResourceIdService {
   private final ObjectMapper objectMapper;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter queryConverter;
+  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
+  private final ResourceIdsJobRepository jobRepository;
 
   /**
    * Returns resource ids for passed cql query in text type.
@@ -40,12 +46,40 @@ public class ResourceIdService {
     streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
   }
 
-  //todo
-  public void streamIdsToDb(CqlResourceIdsRequest request) {
-    var totalRecordsCounter = new AtomicInteger();
-    streamResourceIds(request, ids -> {
-      //todo save to db
-    });
+  @Transactional(readOnly = true)
+  public void streamIdsFromDatabaseAsJson(CqlResourceIdsRequest request, OutputStream outputStream) {
+    var job = jobRepository.getLastActualJob(request.getQuery().trim());
+    if (job == null || !job.getStatus().equals(StreamJobStatus.COMPLETED)) {
+      throw new SearchServiceException("");
+    }
+
+    try (var json = objectMapper.createGenerator(outputStream)) {
+      json.writeStartObject();
+      json.writeFieldName("ids");
+      json.writeStartArray();
+
+      var totalRecordsCounter = new AtomicInteger();
+
+      idsTemporaryRepository.streamIds(job.getTemporaryTableName(), resultSet -> {
+        try {
+          json.writeStartObject();
+          json.writeStringField("id", resultSet.getString(1));
+          json.writeEndObject();
+          totalRecordsCounter.incrementAndGet();
+        } catch (IOException e) {
+          throw new SearchServiceException(
+            String.format("Failed to write id value into json stream [reason: %s]", e.getMessage()), e);
+        }
+      });
+
+      json.writeEndArray();
+      json.writeNumberField("totalRecords", totalRecordsCounter.get());
+      json.writeEndObject();
+      json.flush();
+    } catch (IOException e) {
+      throw new SearchServiceException(
+        String.format("Failed to write data into json [reason: %s]", e.getMessage()), e);
+    }
   }
 
   /**

@@ -14,7 +14,19 @@
     "status": {
       "type": "string",
       "description": "Ids streaming status.",
-      "enum": [ "in_progress", "error", "completed" ]
+      "enum": [
+        "IN_PROGRESS",
+        "ERROR",
+        "COMPLETED",
+        "DEPRECATED"
+      ]
+    },
+    "entityType": {
+      "type": "string",
+      "description": "Type of entity for streaming ids.",
+      "enum": [
+        "AUTHORITY"
+      ]
     },
     "createdDate": {
       "description": "Date and time when the record was created.",
@@ -22,5 +34,7 @@
     }
   },
   "additionalProperties": false,
-  "required": [ "query" ]
+  "required": [
+    "query"
+  ]
 }

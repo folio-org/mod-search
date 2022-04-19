@@ -124,7 +124,7 @@ paths:
 
   /authorities/ids/jobs/{jobId}:
     get:
-      operationId: getAuthorityIdsJob
+      operationId: getAuthoritiesIdsJob
       description: Get a job for the stream of authority ids.
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -136,7 +136,7 @@ paths:
             application/json:
               example: examples/streamIdsJobResponse.sample
               schema:
-                $ref: schemas/streamIdsJob.json
+                $ref: schemas/resourceIdsJob.json
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -144,7 +144,7 @@ paths:
 
   /authorities/ids/jobs:
     post:
-      operationId: submitAuthorityIdsJob
+      operationId: submitAuthoritiesIdsJob
       description: Creates a job for the stream of authority ids.
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -153,7 +153,7 @@ paths:
           application/json:
             example: examples/streamIdsJobRequest.sample
             schema:
-              $ref: schemas/streamIdsJob.json
+              $ref: schemas/resourceIdsJob.json
       responses:
         '200':
           description: 'Job for the stream of authority ids'
@@ -161,7 +161,7 @@ paths:
             application/json:
               example: examples/streamIdsJobResponse.sample
               schema:
-                $ref: schemas/streamIdsJob.json
+                $ref: schemas/resourceIdsJob.json
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':
@@ -174,15 +174,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/content-type-header'
       responses:
         '200':
-          description: 'Authorities ids as json stream'
+          description: 'Authorities ids as a json stream'
           content:
             application/json:
               example: examples/AuthorityIdsResult.sample
-            application/text:
-              example: examples/IdsTextResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':

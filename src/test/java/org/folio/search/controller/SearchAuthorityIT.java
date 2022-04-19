@@ -1,18 +1,23 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
 import static org.folio.search.support.base.ApiEndpoints.authorityIds;
+import static org.folio.search.support.base.ApiEndpoints.authorityIdsJob;
 import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.awaitility.Duration;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
+import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -52,8 +57,19 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void streamAuthorityIds() throws Exception {
-    doGet(authorityIds("cql.allRecords=1"))
-      .andExpect(jsonPath("totalRecords", is(21)))
+    var query = "cql.allRecords=1";
+    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
+      .andExpect(jsonPath("$.query", is(query)))
+      .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Duration.TWO_SECONDS).until(() -> {
+      var response = doGet(authorityIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+    });
+
+    doGet(authorityIds(query))
+      .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("ids[0].id", is(getAuthoritySampleId())));
   }
 

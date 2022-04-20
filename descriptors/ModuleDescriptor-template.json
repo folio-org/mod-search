@@ -69,6 +69,27 @@
       ]
     },
     {
+      "id": "resource-ids-streaming",
+      "version": "0.1",
+      "handlers": [
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/search/authorities/ids",
+          "permissionsRequired": [ "search.authorities.ids.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/search/authorities/ids/jobs/{id}",
+          "permissionsRequired": [ "search.authorities.ids.jobs.get" ]
+        },
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/search/authorities/ids/jobs",
+          "permissionsRequired": [ "search.authorities.ids.jobs.post" ]
+        }
+      ]
+    },
+    {
       "id": "browse",
       "version": "0.3",
       "handlers": [
@@ -272,6 +293,21 @@
       "permissionName": "search.holdings.ids.collection.get",
       "displayName": "Search - returns a list of holding ids found for the CQL query by instances",
       "description": "Returns list of resource ids for a cql query"
+    },
+    {
+      "permissionName": "search.authorities.ids.collection.get",
+      "displayName": "Search - returns a list of authority ids found for the CQL query",
+      "description": "Returns list of resource ids for a cql query"
+    },
+    {
+      "permissionName": "search.authorities.ids.jobs.get",
+      "displayName": "Job for streaming authority ids",
+      "description": "Returns a job for streaming authority ids by the the CQL query"
+    },
+    {
+      "permissionName": "search.authorities.ids.jobs.post",
+      "displayName": "Creates a job for streaming authority ids",
+      "description": "Creates a job for streaming authority ids by the the CQL query"
     },
     {
       "permissionName": "search.config.features.collection.get",

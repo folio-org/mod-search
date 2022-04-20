@@ -36,7 +36,7 @@ public class AuthorityController implements AuthoritiesApi {
   @Override
   public ResponseEntity<ResourceIdsJob> submitAuthoritiesIdsJob(String tenantId, ResourceIdsJob resourceIdsJob) {
     resourceIdsJob.setEntityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY);
-    return ResponseEntity.ok(resourceIdsJobService.createStreamJob(resourceIdsJob));
+    return ResponseEntity.ok(resourceIdsJobService.createStreamJob(resourceIdsJob, tenantId));
   }
 
   @Override

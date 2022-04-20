@@ -114,7 +114,7 @@ public class ResourceIdService {
     return new OutputStreamWriter(outputStream, UTF_8);
   }
 
-  private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
+  public void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
     var resource = request.getResource();
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())

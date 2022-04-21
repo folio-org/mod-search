@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.List;
 import org.folio.search.model.BrowseResult;
@@ -21,6 +22,9 @@ public abstract class AbstractBrowseService<T> {
    */
   public BrowseResult<T> browse(BrowseRequest request) {
     var context = browseContextProvider.get(request);
+    if (isEmpty(context.getAnchor())) {
+      return BrowseResult.empty();
+    }
     return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
   }
 

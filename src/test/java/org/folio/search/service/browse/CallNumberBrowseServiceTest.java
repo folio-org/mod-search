@@ -135,6 +135,18 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
+  void browse_positive_emptyAnchor() {
+    var request = request("callNumber >= []", false);
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor("").build();
+    when(browseContextProvider.get(request)).thenReturn(context);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.empty());
+  }
+
+  @Test
   void browse_positive_forwardWithNextValue() {
     var request = request("callNumber >= B", false);
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);

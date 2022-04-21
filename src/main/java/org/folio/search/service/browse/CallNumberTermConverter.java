@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CallNumberTermConverter {
 
-  private final ItemCallNumberProcessor itemCallNumberProcessor;
+  private final ItemCallNumberProcessor callNumberProcessor;
   private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   /**
@@ -20,6 +20,6 @@ public class CallNumberTermConverter {
    */
   public Long convert(String term) {
     var searchTerm = effectiveShelvingOrderTermProcessor.getSearchTerm(term);
-    return itemCallNumberProcessor.getCallNumberAsLong(searchTerm);
+    return callNumberProcessor.getCallNumberAsLong(searchTerm);
   }
 }

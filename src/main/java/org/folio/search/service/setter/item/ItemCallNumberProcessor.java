@@ -37,9 +37,10 @@ public class ItemCallNumberProcessor implements FieldProcessor<Instance, Set<Lon
    * This algorithm takes first 10 character from call-number and converts them into long value using following
    * approach:
    * <ul>
-   *   <li>Each character has own unique int value ({@code ' '=1}, {@code '.'=2},
-   *   {@code '/'=3}, {@code '0'=4}, {@code '9'-13}, {@code 'A'=14}, {@code 'Z'=39})</li>
-   *   <li>each char numeric value multiplied by {@code 41^(10-characterPosition}</li>
+   *   <li>Each character has own unique int value ({@code ' '=0}, {@code '.'=6},
+   *   {@code '/'=7}, {@code '0'=8}, {@code '9'-17}, {@code 'A'=23}, {@code 'Z'=48})</li>
+   *   <li>each char numeric value multiplied by 52<sup>(10-{charPosition})</sup> (
+   *   52 - is the maximum base to not exceed long max value - 2<sup>63</sup>-1)</li>
    *   <li>all received values are summed to the result value</li>
    * </ul>
    * </p>

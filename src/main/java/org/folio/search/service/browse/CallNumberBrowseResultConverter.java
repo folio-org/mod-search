@@ -124,12 +124,13 @@ public class CallNumberBrowseResultConverter {
   }
 
   private static String getFullCallNumber(CallNumberBrowseItem browseItem) {
-    return getFullCallNumber(Optional.ofNullable(browseItem.getInstance())
-      .map(Instance::getItems)
-      .stream()
-      .flatMap(Collection::stream)
-      .filter(item -> browseItem.getShelfKey().equals(normalizeValue(item.getEffectiveShelvingOrder())))
-      .findFirst());
+    return getFullCallNumber(
+      Optional.ofNullable(browseItem.getInstance())
+        .map(Instance::getItems)
+        .stream()
+        .flatMap(Collection::stream)
+        .filter(item -> browseItem.getShelfKey().equals(normalizeValue(item.getEffectiveShelvingOrder())))
+        .findFirst());
   }
 
   private static String getFullCallNumber(Optional<Item> optionalOfItem) {

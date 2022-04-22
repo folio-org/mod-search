@@ -50,7 +50,7 @@ class ItemEffectiveShelvingOrderProcessorTest {
   @MethodSource("supportedCharactersDataset")
   void isSupportedCharacter_positive(char given) {
     var actual = ItemEffectiveShelvingOrderProcessor.isSupportedCharacter(given);
-    assertThat(actual).isEqualTo(true);
+    assertThat(actual).isTrue();
   }
 
   @ParameterizedTest

@@ -40,14 +40,13 @@ class ItemCallNumberProcessorTest {
     "/samples/cn-browse/cn-browse-other-schema.csv"
   })
   void getFieldValue_comparedPairs_parameterized(String firstCallNumber, String secondCallNumber) {
-    assertThat(compareIgnoreCase(firstCallNumber, secondCallNumber)).isLessThan(0);
+    assertThat(compareIgnoreCase(firstCallNumber, secondCallNumber)).isNegative();
 
     var firstResult = callNumberProcessor.getCallNumberAsLong(firstCallNumber);
     var secondResult = callNumberProcessor.getCallNumberAsLong(secondCallNumber);
 
-    assertThat(firstResult).isLessThan(secondResult);
-    assertThat(firstResult).isGreaterThanOrEqualTo(0L);
-    assertThat(secondResult).isGreaterThanOrEqualTo(0L);
+    assertThat(firstResult).isLessThan(secondResult).isNotNegative();
+    assertThat(secondResult).isNotNegative();
   }
 
   private static Instance instance(Item... items) {

@@ -67,6 +67,6 @@ class EffectiveShelvingOrderTermProcessorTest {
   @ValueSource(strings = {"", "  ", "   "})
   void getSearchTerm_parameterized_emptyValues(String searchTerm) {
     var actual = searchTermProcessor.getSearchTerm(searchTerm);
-    assertThat(actual).isEqualTo("");
+    assertThat(actual).isEmpty();
   }
 }

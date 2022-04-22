@@ -2,9 +2,9 @@ package org.folio.search.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Locale;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
@@ -57,16 +57,16 @@ class EffectiveShelvingOrderTermProcessorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"rack №1", "raw", "unknown"})
-  void getSearchTerm_parameterized_freeText(String given) {
+  @CsvSource({"rack №1, RACK  1", "raw, RAW", "unknown, UNKNOWN"})
+  void getSearchTerm_parameterized_freeText(String given, String expected) {
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(given.toUpperCase(Locale.ROOT));
+    assertThat(actual).isEqualTo(expected);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"", "  ", "   "})
   void getSearchTerm_parameterized_emptyValues(String searchTerm) {
     var actual = searchTermProcessor.getSearchTerm(searchTerm);
-    assertThat(actual).isEqualTo(searchTerm);
+    assertThat(actual).isEqualTo("");
   }
 }

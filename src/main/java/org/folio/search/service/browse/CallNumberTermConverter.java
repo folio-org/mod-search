@@ -2,14 +2,14 @@ package org.folio.search.service.browse;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
-import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class CallNumberTermConverter {
 
-  private final CallNumberProcessor callNumberProcessor;
+  private final ItemCallNumberProcessor callNumberProcessor;
   private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   /**

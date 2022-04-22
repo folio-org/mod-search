@@ -12,9 +12,6 @@ import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.STR
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
-import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL_NUMBER_RANGE_FIELD;
-import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.SORT_SCRIPT_FOR_PRECEDING_QUERY;
-import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.SORT_SCRIPT_FOR_SUCCEEDING_QUERY;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
@@ -42,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CallNumberBrowseQueryProviderTest {
 
   private static final String ANCHOR = "A";
+  private static final String RANGE_FIELD = "callNumber";
   private static final long ANCHOR_AS_NUMBER = 200L;
 
   @InjectMocks private CallNumberBrowseQueryProvider queryProvider;
@@ -99,7 +97,7 @@ class CallNumberBrowseQueryProviderTest {
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
     var actual = queryProvider.get(request(true), context, true);
 
-    var expectedRangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD).gte(ANCHOR_AS_NUMBER).lte(100L);
+    var expectedRangeQuery = rangeQuery(RANGE_FIELD).gte(ANCHOR_AS_NUMBER).lte(100L);
     assertThat(actual).isEqualTo(expectedSucceedingQuery(size, expectedRangeQuery));
     verify(queryConfiguration).getRangeQueryLimitMultiplier();
   }
@@ -137,30 +135,44 @@ class CallNumberBrowseQueryProviderTest {
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
     var actual = queryProvider.get(request(true), context, false);
 
-    var expectedRangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD).lte(ANCHOR_AS_NUMBER).gte(100L);
+    var expectedRangeQuery = rangeQuery(RANGE_FIELD).lte(ANCHOR_AS_NUMBER).gte(100L);
     assertThat(actual).isEqualTo(expectedPrecedingQuery(size, expectedRangeQuery));
     verify(queryConfiguration).getRangeQueryLimitMultiplier();
   }
 
   private static SearchSourceBuilder expectedSucceedingQuery(int size) {
-    return expectedSucceedingQuery(size, rangeQuery(CALL_NUMBER_RANGE_FIELD).gte(ANCHOR_AS_NUMBER));
+    return expectedSucceedingQuery(size, rangeQuery(RANGE_FIELD).gte(ANCHOR_AS_NUMBER));
   }
 
   private static SearchSourceBuilder expectedSucceedingQuery(int size, QueryBuilder queryBuilder) {
-    var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, SORT_SCRIPT_FOR_SUCCEEDING_QUERY, singletonMap("cn", ANCHOR));
+    var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, succeedingQuerySortScript(), singletonMap("cn", ANCHOR));
     return searchSource().from(0).size(size).query(queryBuilder).sort(scriptSort(script, STRING).order(ASC));
   }
 
   private static SearchSourceBuilder expectedPrecedingQuery(int size) {
-    return expectedPrecedingQuery(size, rangeQuery(CALL_NUMBER_RANGE_FIELD).lte(ANCHOR_AS_NUMBER));
+    return expectedPrecedingQuery(size, rangeQuery(RANGE_FIELD).lte(ANCHOR_AS_NUMBER));
   }
 
   private static SearchSourceBuilder expectedPrecedingQuery(int size, QueryBuilder queryBuilder) {
-    var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, SORT_SCRIPT_FOR_PRECEDING_QUERY, singletonMap("cn", ANCHOR));
+    var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, precedingQuerySortScript(), singletonMap("cn", ANCHOR));
     return searchSource().from(0).size(size).query(queryBuilder).sort(scriptSort(script, STRING).order(DESC));
   }
 
   private static BrowseRequest request(boolean expandAll) {
     return BrowseRequest.builder().resource(RESOURCE_NAME).tenantId(TENANT_ID).expandAll(expandAll).build();
+  }
+
+  private static String precedingQuerySortScript() {
+    return "def f=doc['itemEffectiveShelvingOrder'];"
+      + "def a=Collections.binarySearch(f,params['cn']);"
+      + "if(a>=0) return f[a];a=-a-2"
+      + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
+  }
+
+  private static String succeedingQuerySortScript() {
+    return "def f=doc['itemEffectiveShelvingOrder'];"
+      + "def a=Collections.binarySearch(f,params['cn']);"
+      + "if(a>=0) return f[a];a=-a-1"
+      + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
   }
 }

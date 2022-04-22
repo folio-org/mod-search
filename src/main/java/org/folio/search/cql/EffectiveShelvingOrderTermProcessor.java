@@ -1,6 +1,7 @@
 package org.folio.search.cql;
 
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
+import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
 
     return getValidShelfKey(new LCCallNumber(inputTerm))
       .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
-      .orElse(toRootUpperCase(inputTerm));
+      .orElse(normalizeValue(inputTerm));
   }
 
   private static Optional<String> getValidShelfKey(CallNumber value) {

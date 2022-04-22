@@ -31,7 +31,7 @@ import org.elasticsearch.search.aggregations.bucket.range.RangeAggregator.Range;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,7 +40,7 @@ public class CallNumberBrowseRangeService {
 
   private static final String AGGREGATION_NAME = "cnRanges";
   private final SearchRepository searchRepository;
-  private final CallNumberProcessor callNumberProcessor;
+  private final ItemCallNumberProcessor callNumberProcessor;
   private final Cache<String, List<CallNumberBrowseRangeValue>> cache;
 
   /**

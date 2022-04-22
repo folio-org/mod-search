@@ -27,7 +27,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class CallNumberBrowseRangeServiceTest {
   @InjectMocks private CallNumberBrowseRangeService callNumberBrowseRangeService;
 
   @Spy private final Cache<String, List<CallNumberBrowseRangeValue>> cache = Caffeine.from("maximumSize=50").build();
-  @Spy private final CallNumberProcessor callNumberProcessor = new CallNumberProcessor();
+  @Spy private final ItemCallNumberProcessor itemCallNumberProcessor = new ItemCallNumberProcessor();
   @Captor private ArgumentCaptor<SearchSourceBuilder> searchSourceCaptor;
 
   @Mock private SearchRepository searchRepository;
@@ -65,7 +65,7 @@ class CallNumberBrowseRangeServiceTest {
   void getBrowseRanges_positive() {
     var request = SimpleResourceRequest.of(INSTANCE_RESOURCE, TENANT_ID);
     when(searchRepository.search(eq(request), searchSourceCaptor.capture())).thenReturn(searchResponse);
-    when(callNumberProcessor.getCallNumberAsLong(anyString())).thenReturn(1L);
+    when(itemCallNumberProcessor.getCallNumberAsLong(anyString())).thenReturn(1L);
     when(searchResponse.getAggregations()).thenReturn(aggregationsFromJson(jsonObject(
       "range#cnRanges", jsonObject("buckets", jsonArray(bucket("A", 10), bucket("B", 20))))));
 
@@ -77,7 +77,7 @@ class CallNumberBrowseRangeServiceTest {
     var secondAttempt = callNumberBrowseRangeService.getBrowseRanges(TENANT_ID);
     assertThat(secondAttempt).isEqualTo(expectedRanges);
 
-    verify(callNumberProcessor, times(36)).getCallNumberAsLong(anyString());
+    verify(itemCallNumberProcessor, times(36)).getCallNumberAsLong(anyString());
 
     var searchSource = searchSourceCaptor.getValue();
     var aggregations = searchSource.aggregations();

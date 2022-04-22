@@ -27,8 +27,8 @@ import org.springframework.stereotype.Component;
 public class CallNumberBrowseQueryProvider {
 
   public static final String CALL_NUMBER_RANGE_FIELD = "callNumber";
-  public static final String SORT_SCRIPT_FOR_SUCCEEDING_QUERY = getSortingScript(true);
-  public static final String SORT_SCRIPT_FOR_PRECEDING_QUERY = getSortingScript(false);
+  private static final String SORT_SCRIPT_FOR_SUCCEEDING_QUERY = getSortingScript(true);
+  private static final String SORT_SCRIPT_FOR_PRECEDING_QUERY = getSortingScript(false);
   private static final int MIN_QUERY_SIZE = 25;
 
   private final SearchFieldProvider searchFieldProvider;
@@ -86,7 +86,7 @@ public class CallNumberBrowseQueryProvider {
   }
 
   private static String getSortingScript(boolean isBrowsingForward) {
-    return "def f=doc['items.effectiveShelvingOrder'];"
+    return "def f=doc['itemEffectiveShelvingOrder'];"
       + "def a=Collections.binarySearch(f,params['cn']);"
       + "if(a>=0) return f[a];a=-a-" + (isBrowsingForward ? "1" : "2")
       + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";

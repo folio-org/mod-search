@@ -64,14 +64,11 @@ public class ResourceService {
     var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
 
-    var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
-    if (bulkIndexResponse.getErrorMessage() == null) {
-      log.info("Records added/updated [size: {}]", getNumberOfRequests(elasticsearchDocuments));
-    } else {
-      log.warn("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
-    }
+    var response = indexSearchDocuments(elasticsearchDocuments);
+    log.info("Records added/updated [size: {}{}]",
+      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(response));
 
-    return bulkIndexResponse;
+    return response;
   }
 
   /**
@@ -93,12 +90,8 @@ public class ResourceService {
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
 
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
-    if (bulkIndexResponse.getErrorMessage() == null) {
-      log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}]",
-        getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments));
-    } else {
-      log.warn("Failed to save some resources [errors: {}]", bulkIndexResponse.getErrorMessage());
-    }
+    log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
+      getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
   }
@@ -118,7 +111,7 @@ public class ResourceService {
     var errorMessage = responses.stream()
       .map(FolioIndexOperationResponse::getErrorMessage)
       .filter(Objects::nonNull)
-      .collect(joining("\n"));
+      .collect(joining(", "));
 
     return errorMessage.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errorMessage);
   }
@@ -163,5 +156,9 @@ public class ResourceService {
 
   private static IndexActionType getEventIndexType(ResourceEvent event) {
     return event.getType() == ResourceEventType.DELETE ? DELETE : INDEX;
+  }
+
+  private static String getErrorMessage(FolioIndexOperationResponse bulkIndexResponse) {
+    return bulkIndexResponse.getErrorMessage() != null ? ", errors: [" + bulkIndexResponse.getErrorMessage() + "]" : "";
   }
 }

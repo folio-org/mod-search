@@ -7,6 +7,7 @@ import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +22,8 @@ public class ItemEffectiveShelvingOrderProcessor implements FieldProcessor<Insta
 
   private static final char ASCII_SPACE = ' ';
   private static final int MAX_SUPPORTED_CHARACTERS = 52;
-  private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final String SUPPORTED_CHARACTERS_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ .,:;=-+~_/\\#$@?";
+  private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
 
   @Override
   public Set<String> getFieldValue(Instance eventBody) {
@@ -77,16 +78,23 @@ public class ItemEffectiveShelvingOrderProcessor implements FieldProcessor<Insta
   }
 
   private static Map<Character, Integer> getValidCharactersMap() {
-    var supportedCharacters = SUPPORTED_CHARACTERS_STRING.chars().mapToObj(e -> (char) e).sorted().collect(toList());
+    var supportedCharacters = getSupportedCharactersAsList();
     Assert.isTrue(supportedCharacters.size() <= MAX_SUPPORTED_CHARACTERS, "Number of supported characters is limited.");
 
     var resultMap = new HashMap<Character, Integer>();
     for (int i = 0; i < supportedCharacters.size(); i++) {
       var key = supportedCharacters.get(i);
-      Assert.isNull(resultMap.get(key), "Duplicated character found: " + key);
       resultMap.put(key, i);
     }
 
     return unmodifiableMap(resultMap);
+  }
+
+  private static List<Character> getSupportedCharactersAsList() {
+    return SUPPORTED_CHARACTERS_STRING.chars()
+      .mapToObj(character -> (char) character)
+      .distinct()
+      .sorted()
+      .collect(toList());
   }
 }

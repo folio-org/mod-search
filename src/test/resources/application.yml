@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  main:
+     banner-mode: off
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -25,7 +27,7 @@ spring:
       - tenant-languages
       - tenant-features
     caffeine:
-      spec: maximumSize=500,expireAfterAccess=3600s
+      spec: maximumSize=500,expireAfterWrite=3600s
 
 server.port: 8081
 
@@ -34,7 +36,8 @@ application:
   search-config:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
-      search.all.fields: false
+      search-all-fields: false
+      browse-cn-intermediate-values: false
     indexing:
       instance-subjects:
         retry-attempts: 3
@@ -42,7 +45,7 @@ application:
     properties:
       call-number-browse-optimization-enabled: true
   cache:
-    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterAccess=300s
+    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterWrite=60s
   system-user:
     username: mod-search
     password: Mod-search-1-0-0

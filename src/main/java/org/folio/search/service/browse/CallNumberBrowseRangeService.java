@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -142,36 +141,32 @@ public class CallNumberBrowseRangeService {
     String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
     return isBrowsingForward
-      ? getTopBoundaryForSucceedingQuery(ranges, anchor, expectedPageSize, foundPosition)
-      : getBottomBoundaryForPrecedingQuery(ranges, anchor, expectedPageSize, foundPosition);
+      ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
+      : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
   }
 
-  private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges,
-    String anchor, int expectedPageSize, int foundPosition) {
-    var element = ranges.get(foundPosition);
-    var sum = Objects.equals(element.getKey(), anchor) ? element.getCount() : 0L;
+  private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {
+    var element = ranges.get(pos);
+    var sum = element.getCount();
 
-    for (int i = foundPosition + 1; i < ranges.size(); i++) {
+    for (int i = pos + 1; i < ranges.size(); i++) {
       var current = ranges.get(i);
-      sum += current.getCount();
-      if (sum >= expectedPageSize) {
+      if (sum >= size) {
         return current.getKeyAsLong();
       }
+      sum += current.getCount();
     }
 
     return null;
   }
 
-  private static Long getBottomBoundaryForPrecedingQuery(List<CallNumberBrowseRangeValue> ranges,
-    String anchor, int expectedPageSize, int foundPosition) {
-    var element = ranges.get(foundPosition);
-    var startPosition = foundPosition - (Objects.equals(element.getKey(), anchor) ? 1 : 2);
+  private static Long getBottomBoundaryForPrecedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {
     var sum = 0L;
 
-    for (int i = startPosition; i >= 0; i--) {
+    for (int i = pos - 1; i >= 0; i--) {
       var current = ranges.get(i);
       sum += current.getCount();
-      if (sum >= expectedPageSize) {
+      if (sum >= size) {
         return current.getKeyAsLong();
       }
     }

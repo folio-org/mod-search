@@ -117,33 +117,54 @@ class CallNumberBrowseRangeServiceTest {
       // browse forward
       arguments(".", 10, true, 2L),
       arguments("1", 10, true, 2L),
+
       arguments("A", 10, true, 2L),
+      arguments("A", 20, true, 2L),
+      arguments("A", 25, true, 3L),
       arguments("A", 50, true, 5L),
-      arguments("AZ", 10, true, 3L),
-      arguments("AZ", 50, true, 5L),
-      arguments("E", 10, true, 6L),
-      arguments("A", 200, true, null),
+      arguments("A", 100, true, 6L),
+
+      arguments("AM", 10, true, 3L),
+      arguments("AM", 20, true, 4L),
+      arguments("AM", 25, true, 4L),
+      arguments("AM", 50, true, 5L),
+      arguments("AM", 100, true, null),
+
       arguments("F", 20, true, null),
       arguments("Z", 20, true, null),
-      arguments("E", 35, true, null),
+
+      arguments("D", 20, true, 5L),
+      arguments("D", 50, true, 6L),
+      arguments("D", 100, true, null),
+
+      arguments("DM", 20, true, 6L),
+      arguments("DM", 50, true, null),
+      arguments("DM", 100, true, null),
 
       //browse backward
       arguments("A", 50, false, null),
       arguments("1", 50, false, null),
-      arguments("C", 10, false, 2L),
-      arguments("C", 30, false, 1L),
       arguments("F", 40, false, 4L),
-      arguments("CZ", 10, false, 2L),
+
+      arguments("C", 5, false, 2L),
+      arguments("C", 12, false, 2L),
+      arguments("C", 20, false, 1L),
+      arguments("C", 50, false, null),
+
+      arguments("CM", 5, false, 2L),
+      arguments("CM", 12, false, 2L),
+      arguments("CM", 20, false, 1L),
+      arguments("CM", 50, false, null),
 
       arguments("E", 10, false, 4L),
       arguments("E", 30, false, 3L),
       arguments("E", 45, false, 2L),
       arguments("E", 60, false, 1L),
 
-      arguments("EZ", 10, false, 4L),
-      arguments("EZ", 30, false, 3L),
-      arguments("EZ", 45, false, 2L),
-      arguments("EZ", 60, false, 1L)
+      arguments("EM", 10, false, 4L),
+      arguments("EM", 30, false, 3L),
+      arguments("EM", 45, false, 2L),
+      arguments("EM", 60, false, 1L)
     );
   }
 

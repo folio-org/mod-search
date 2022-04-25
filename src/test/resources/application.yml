@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  main:
+     banner-mode: off
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -34,7 +36,8 @@ application:
   search-config:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
-      search.all.fields: false
+      search-all-fields: false
+      browse-cn-intermediate-values: false
     indexing:
       instance-subjects:
         retry-attempts: 3

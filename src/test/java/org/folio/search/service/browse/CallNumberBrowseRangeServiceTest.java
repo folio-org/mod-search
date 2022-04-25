@@ -115,16 +115,17 @@ class CallNumberBrowseRangeServiceTest {
   public static Stream<Arguments> getRangeBoundaryDataSource() {
     return Stream.of(
       // browse forward
-      arguments("A", 10, true, 2L),
       arguments(".", 10, true, 2L),
       arguments("1", 10, true, 2L),
-      arguments("A", 50, true, 4L),
+      arguments("A", 10, true, 2L),
+      arguments("A", 50, true, 5L),
       arguments("AZ", 10, true, 3L),
       arguments("AZ", 50, true, 5L),
       arguments("E", 10, true, 6L),
       arguments("A", 200, true, null),
       arguments("F", 20, true, null),
       arguments("Z", 20, true, null),
+      arguments("E", 35, true, null),
 
       //browse backward
       arguments("A", 50, false, null),
@@ -132,9 +133,17 @@ class CallNumberBrowseRangeServiceTest {
       arguments("C", 10, false, 2L),
       arguments("C", 30, false, 1L),
       arguments("F", 40, false, 4L),
-      arguments("EZ", 40, false, 1L),
-      arguments("EZ", 60, false, null),
-      arguments("CZ", 10, false, 1L)
+      arguments("CZ", 10, false, 2L),
+
+      arguments("E", 10, false, 4L),
+      arguments("E", 30, false, 3L),
+      arguments("E", 45, false, 2L),
+      arguments("E", 60, false, 1L),
+
+      arguments("EZ", 10, false, 4L),
+      arguments("EZ", 30, false, 3L),
+      arguments("EZ", 45, false, 2L),
+      arguments("EZ", 60, false, 1L)
     );
   }
 

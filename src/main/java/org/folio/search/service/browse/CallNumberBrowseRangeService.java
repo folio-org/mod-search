@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -149,14 +148,14 @@ public class CallNumberBrowseRangeService {
   private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges,
     String anchor, int expectedPageSize, int foundPosition) {
     var element = ranges.get(foundPosition);
-    var sum = Objects.equals(element.getKey(), anchor) ? element.getCount() : 0L;
+    var sum = anchor.compareTo(element.getKey()) <= 0 ? element.getCount() : 0L;
 
     for (int i = foundPosition + 1; i < ranges.size(); i++) {
       var current = ranges.get(i);
-      sum += current.getCount();
       if (sum >= expectedPageSize) {
         return current.getKeyAsLong();
       }
+      sum += current.getCount();
     }
 
     return null;
@@ -165,7 +164,7 @@ public class CallNumberBrowseRangeService {
   private static Long getBottomBoundaryForPrecedingQuery(List<CallNumberBrowseRangeValue> ranges,
     String anchor, int expectedPageSize, int foundPosition) {
     var element = ranges.get(foundPosition);
-    var startPosition = foundPosition - (Objects.equals(element.getKey(), anchor) ? 1 : 2);
+    var startPosition = foundPosition - (anchor.compareTo(element.getKey()) >= 0 ? 1 : 2);
     var sum = 0L;
 
     for (int i = startPosition; i >= 0; i--) {

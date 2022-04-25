@@ -35,7 +35,7 @@ spring:
       - tenant-languages
       - tenant-features
     caffeine:
-      spec: maximumSize=500,expireAfterAccess=3600s
+      spec: maximumSize=500,expireAfterWrite=3600s
 
 application:
   environment: ${ENV:folio}
@@ -52,7 +52,7 @@ application:
     properties:
       call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
   cache:
-    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterAccess=60s
+    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterWrite=60s
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

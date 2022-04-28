@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -71,6 +72,29 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     doGet(authorityIds(query))
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("ids[0].id", is(getAuthoritySampleId())));
+  }
+
+  @Test
+  void cantStreamDeprecatedJob() throws Exception {
+    var query = "cql.allRecords=1";
+    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Duration.TWO_SECONDS).until(() -> {
+      var response = doGet(authorityIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+    });
+
+    doGet(authorityIds(query));
+
+    doGet(authorityIdsJob(postResponse.getId()))
+      .andExpect(jsonPath("$.status", is("DEPRECATED")));
+  }
+
+  @Test
+  void cantStreamNotCompletedJob() throws Exception {
+    var query = "id<>2";
+    attemptGet(authorityIds(query)).andExpect(status().is4xxClientError());
   }
 
   @CsvSource({

@@ -35,7 +35,7 @@ spring:
       - tenant-languages
       - tenant-features
     caffeine:
-      spec: maximumSize=500,expireAfterAccess=3600s
+      spec: maximumSize=500,expireAfterWrite=3600s
 
 application:
   environment: ${ENV:folio}
@@ -43,7 +43,8 @@ application:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
     search-features:
-      search.all.fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+      search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+      browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:false}
     indexing:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
@@ -51,7 +52,7 @@ application:
     properties:
       call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
   cache:
-    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterAccess=300s
+    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterWrite=60s
   system-user:
     username: mod-search
     password: ${SYSTEM_USER_PASSWORD:Mod-search-1-0-0}

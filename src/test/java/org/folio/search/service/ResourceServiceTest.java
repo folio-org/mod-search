@@ -121,7 +121,7 @@ class ResourceServiceTest {
   }
 
   @Test
-  void canIndexResourcesById_positive() {
+  void indexResourcesById_positive() {
     var resourceEvents = List.of(resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, null, null));
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
@@ -138,7 +138,7 @@ class ResourceServiceTest {
   }
 
   @Test
-  void indexResources_positive_updateEvent() {
+  void indexResourcesById_positive_updateEvent() {
     var newData = mapOf("id", RESOURCE_ID, "title", "new title");
     var oldData = mapOf("id", RESOURCE_ID, "title", "old title");
     var resourceEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, oldData);
@@ -167,6 +167,23 @@ class ResourceServiceTest {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
 
     var expectedResponse = getSuccessIndexOperationResponse();
+    when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
+
+    var actual = indexService.indexResourcesById(resourceEvents);
+    assertThat(actual).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  void indexResourcesById_negative_failedEvents() {
+    var resourceEvents = List.of(resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, null, null));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
+    var expectedResponse = getErrorIndexOperationResponse("Bulk failed: errors: ['test-error']");
+    var expectedDocuments = List.of(searchDocumentBody());
+
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+    when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
+    when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(mapOf(RESOURCE_NAME, expectedDocuments));
+    when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
 
     var actual = indexService.indexResourcesById(resourceEvents);

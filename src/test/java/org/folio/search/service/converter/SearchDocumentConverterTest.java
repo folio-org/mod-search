@@ -230,9 +230,10 @@ class SearchDocumentConverterTest {
     assertThat(actual).isEqualTo(expectedSearchDocument(event, jsonObject(
       "id", RESOURCE_ID,
       "items", jsonArray(
-        jsonObject("id", "item#3", "effectiveShelvingOrder", "C5"),
+        jsonObject("id", "item#1"),
         jsonObject("id", "item#2", "effectiveShelvingOrder", "F10"),
-        jsonObject("id", "item#1"), jsonObject("id", "item#4")))));
+        jsonObject("id", "item#3", "effectiveShelvingOrder", "C5"),
+        jsonObject("id", "item#4")))));
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
-import org.folio.search.service.setter.instance.CallNumberProcessor;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CallNumberTermConverterTest {
 
   @InjectMocks private CallNumberTermConverter searchTermProcessor;
-  @Mock private CallNumberProcessor callNumberProcessor;
+  @Mock private ItemCallNumberProcessor itemCallNumberProcessor;
   @Mock private EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   @Test
@@ -25,7 +25,7 @@ class CallNumberTermConverterTest {
     var term = "value";
     var numericValue = 100L;
     when(effectiveShelvingOrderTermProcessor.getSearchTerm(term)).thenReturn(term);
-    when(callNumberProcessor.getCallNumberAsLong(term)).thenReturn(numericValue);
+    when(itemCallNumberProcessor.getCallNumberAsLong(term)).thenReturn(numericValue);
 
     var actual = searchTermProcessor.convert(term);
 

@@ -97,6 +97,20 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     attemptGet(authorityIds(query)).andExpect(status().is4xxClientError());
   }
 
+  @Test
+  void cantStreamErrorJob() throws Exception {
+    var query = "fail query";
+    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Duration.TWO_SECONDS).until(() -> {
+      var response = doGet(authorityIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
+    });
+
+    attemptGet(authorityIds(query)).andExpect(status().is4xxClientError());
+  }
+
   @CsvSource({
     "cql.allRecords=1,",
     "id={value}, \"\"",

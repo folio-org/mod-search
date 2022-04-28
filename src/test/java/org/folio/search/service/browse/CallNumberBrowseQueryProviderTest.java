@@ -46,7 +46,7 @@ class CallNumberBrowseQueryProviderTest {
   @Mock private SearchFieldProvider searchFieldProvider;
   @Mock private CallNumberTermConverter callNumberTermConverter;
   @Mock private CallNumberBrowseRangeService browseRangeService;
-  @Spy private SearchQueryConfigurationProperties queryConfiguration = SearchQueryConfigurationProperties.of(3d, false);
+  @Spy private final SearchQueryConfigurationProperties queryConfiguration = getSearchQueryConfigurationProperties();
 
   @Test
   void get_positive_forward() {
@@ -174,5 +174,11 @@ class CallNumberBrowseQueryProviderTest {
       + "def a=Collections.binarySearch(f,params['cn']);"
       + "if(a>=0) return f[a];a=-a-1"
       + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
+  }
+
+  private static SearchQueryConfigurationProperties getSearchQueryConfigurationProperties() {
+    var config = new SearchQueryConfigurationProperties();
+    config.setRangeQueryLimitMultiplier(3d);
+    return config;
   }
 }

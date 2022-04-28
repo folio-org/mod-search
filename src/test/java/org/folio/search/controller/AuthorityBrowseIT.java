@@ -184,7 +184,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
 
       // browsing forward
       arguments(forwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next("James Rollins")
+        .totalRecords(14).prev("Comic-Con").next("James Rollins")
         .items(List.of(
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
@@ -193,7 +193,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
           authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE)))),
 
       arguments(forwardQuery, "biology", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next("Disney")
+        .totalRecords(14).prev("Biomedical Symposium").next("Disney")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
@@ -203,7 +203,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next("Novel")
+        .totalRecords(14).prev("Fantasy").next("Novel")
         .items(List.of(
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
@@ -216,7 +216,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
         .items(emptyList())),
 
       arguments(forwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next("Harry Potter")
+        .totalRecords(14).prev("Brian K. Vaughan").next("Harry Potter")
         .items(List.of(
           authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
@@ -225,7 +225,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED)))),
 
       arguments(forwardIncludingQuery, "biology", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next("Disney")
+        .totalRecords(14).prev("Biomedical Symposium").next("Disney")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
@@ -235,14 +235,14 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
 
       // browsing backward
       arguments(backwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next(null)
+        .totalRecords(14).prev(null).next("Blumberg Green Beauty")
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE)))),
 
       arguments(backwardQuery, "fun", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .totalRecords(14).prev("Blumberg Green Beauty").next("Fantasy")
         .items(List.of(
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
           authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
@@ -251,7 +251,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE)))),
 
       arguments(backwardQuery, "G", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .totalRecords(14).prev("Blumberg Green Beauty").next("Fantasy")
         .items(List.of(
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
           authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),
@@ -264,7 +264,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
         .items(emptyList())),
 
       arguments(backwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev(null).next(null)
+        .totalRecords(14).prev(null).next("Brian K. Vaughan")
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE),
@@ -272,7 +272,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
           authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED)))),
 
       arguments(backwardIncludingQuery, "fun", 5, new AuthorityBrowseResult()
-        .totalRecords(14).prev("Blumberg Green Beauty").next(null)
+        .totalRecords(14).prev("Blumberg Green Beauty").next("Fantasy")
         .items(List.of(
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE),
           authorityBrowseItem("Brian K. Vaughan", 1, "Personal Name", AUTHORIZED),

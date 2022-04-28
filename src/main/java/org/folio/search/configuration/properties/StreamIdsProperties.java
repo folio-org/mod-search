@@ -27,4 +27,20 @@ public class StreamIdsProperties {
    * How many delivery attempts to perform when message failed.
    */
   private long retryAttempts = 3;
+
+  /**
+   * ThreadPoolExecutor's core pool size.
+   */
+  private int corePoolSize = 2;
+
+  /**
+   * ThreadPoolExecutor's max pool size.
+   */
+  private int maxPoolSize = 2;
+
+  /**
+   * LinkedBlockingQueue capacity for the ThreadPoolExecutor.
+   */
+  private int queueCapacity = 500;
+
 }

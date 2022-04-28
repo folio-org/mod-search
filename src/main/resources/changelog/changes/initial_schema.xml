@@ -34,4 +34,25 @@
       </column>
     </createTable>
   </changeSet>
+
+  <changeSet id="05_create_resource_ids_job_table" author="oleksii_kuzminov@epam.com">
+    <createTable tableName="resource_ids_job">
+      <column name="id" type="varchar(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="query" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="temp_table_name" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="status" type="varchar(32)"/>
+      <column name="entity_type" type="varchar(32)"/>
+      <column name="created_date" type="date"/>
+    </createTable>
+    <createIndex tableName="resource_ids_job" unique="true"
+                 indexName="resource_ids_job_temp_table_name_uk">
+      <column name="temp_table_name"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>

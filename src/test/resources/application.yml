@@ -55,6 +55,9 @@ application:
     scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
     retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}
     retry-attempts: ${STREAM_ID_RETRY_ATTEMPTS:3}
+    core-pool-size: ${STREAM_ID_CORE_POOL_SIZE:2}
+    core-max-size: ${STREAM_ID_MAX_POOL_SIZE:2}
+    core-queue-capacity: ${STREAM_ID_QUEUE_CAPACITY:500}
   kafka:
     listener:
       events:

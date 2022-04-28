@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -138,7 +139,8 @@ public class ResourceIdService {
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);
   }
 
-  private void processStreamToJson(OutputStream outputStream, IdsStreamProcessor sp) {
+  private void processStreamToJson(OutputStream outputStream,
+                                   BiConsumer<JsonGenerator, AtomicInteger> idsStreamProcessor) {
     try (var json = objectMapper.createGenerator(outputStream)) {
       json.writeStartObject();
       json.writeFieldName("ids");
@@ -146,7 +148,7 @@ public class ResourceIdService {
 
       var totalRecordsCounter = new AtomicInteger();
 
-      sp.processIdsStream(json, totalRecordsCounter);
+      idsStreamProcessor.accept(json, totalRecordsCounter);
 
       json.writeEndArray();
       json.writeNumberField("totalRecords", totalRecordsCounter.get());
@@ -190,11 +192,6 @@ public class ResourceIdService {
       throw new SearchServiceException(
         format("Failed to write id value into output stream [reason: %s]", e.getMessage()), e);
     }
-  }
-
-  @FunctionalInterface
-  public interface IdsStreamProcessor {
-    void processIdsStream(JsonGenerator json, AtomicInteger counter);
   }
 
 }

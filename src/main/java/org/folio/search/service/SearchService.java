@@ -1,6 +1,7 @@
 package org.folio.search.service;
 
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.CqlSearchQueryConverter;
@@ -42,7 +43,7 @@ public class SearchService {
       .trackTotalHits(true);
 
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource).toArray(String[]::new);
+      var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
       queryBuilder.fetchSource(includes, null);
     }
 

@@ -11,6 +11,7 @@ import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.STR
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -55,7 +56,7 @@ public class CallNumberBrowseQueryProvider {
       .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(request.getResource()).toArray(String[]::new);
+      var includes = searchFieldProvider.getSourceFields(request.getResource(), CN_BROWSE);
       searchSource.fetchSource(includes, null);
     }
 

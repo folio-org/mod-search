@@ -1,8 +1,11 @@
 package org.folio.search.service;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.common.unit.TimeValue;
+import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.SearchResult;
@@ -23,6 +26,7 @@ public class SearchService {
   private final SearchFieldProvider searchFieldProvider;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final ElasticsearchDocumentConverter documentConverter;
+  private final SearchQueryConfigurationProperties searchQueryConfiguration;
 
   /**
    * Prepares search query and executes search request to the search engine.
@@ -36,10 +40,12 @@ public class SearchService {
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
     }
     var resource = request.getResource();
+    var requestTimeout = searchQueryConfiguration.getRequestTimeout();
     var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
       .from(request.getOffset())
       .size(request.getLimit())
-      .trackTotalHits(true);
+      .trackTotalHits(true)
+      .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource).toArray(String[]::new);

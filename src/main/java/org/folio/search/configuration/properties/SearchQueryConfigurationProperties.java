@@ -1,5 +1,6 @@
 package org.folio.search.configuration.properties;
 
+import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,11 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor(staticName = "of")
 @ConfigurationProperties(prefix = "application.query.properties")
 public class SearchQueryConfigurationProperties {
+
+  /**
+   * Search request timeout.
+   */
+  private Duration requestTimeout = Duration.ofSeconds(25);
 
   /**
    * Provides range query limit multiplier as double.

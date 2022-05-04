@@ -30,9 +30,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
-    var nextBrowsingValue = getNextBrowsingValue(browseResult.getRecords(), context, isBrowsingForward);
-    browseResult = isBrowsingForward ? browseResult.next(nextBrowsingValue) : browseResult.prev(nextBrowsingValue);
-    return browseResult.records(trim(browseResult.getRecords(), context, isBrowsingForward));
+    var records = browseResult.getRecords();
+    return new BrowseResult<CallNumberBrowseItem>()
+      .records(trim(records, context, isBrowsingForward))
+      .totalRecords(browseResult.getTotalRecords())
+      .prev(getPrevBrowsingValue(records, context, isBrowsingForward))
+      .next(getNextBrowsingValue(records, context, isBrowsingForward));
   }
 
   @Override
@@ -51,12 +54,17 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
-      .prev(getNextBrowsingValue(precedingResult.getRecords(), context, false))
+      .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))
       .next(getNextBrowsingValue(succeedingResult.getRecords(), context, true))
       .records(mergeSafelyToList(
         trim(precedingResult.getRecords(), context, false),
         trim(succeedingResult.getRecords(), context, true)));
 
+  }
+
+  @Override
+  protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
+    return browseItem.getShelfKey();
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<CallNumberBrowseItem> result) {
@@ -82,12 +90,5 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
     return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
-  }
-
-  private static String getNextBrowsingValue(
-    List<CallNumberBrowseItem> items, BrowseContext ctx, boolean isBrowsingForward) {
-    var limit = ctx.getLimit(isBrowsingForward);
-    var idx = isBrowsingForward ? limit - 1 : items.size() - limit;
-    return items.size() <= limit ? null : items.get(idx).getShelfKey();
   }
 }

@@ -7,7 +7,7 @@
   "fields": {
     "id": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": [ "search", "browse" ]
     },
     "personalNameTitle": {
       "type": "authority",
@@ -234,7 +234,7 @@
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "headingType",
         "type": "collection",
@@ -247,7 +247,7 @@
       "processor": "authRefTypeProcessor",
       "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "authRefType",
         "type": "collection",
@@ -260,7 +260,7 @@
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "mappings": {
         "copy_to": [ "sort_headingRef" ]
       }

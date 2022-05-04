@@ -15,7 +15,6 @@ import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
-import java.util.List;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;

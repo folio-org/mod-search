@@ -64,7 +64,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
+    await().atMost(Duration.FIVE_SECONDS).until(() -> {
       var response = doGet(authorityIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });
@@ -80,7 +80,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
+    await().atMost(Duration.FIVE_SECONDS).until(() -> {
       var response = doGet(authorityIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });
@@ -103,7 +103,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
+    await().atMost(Duration.FIVE_SECONDS).until(() -> {
       var response = doGet(authorityIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
     });

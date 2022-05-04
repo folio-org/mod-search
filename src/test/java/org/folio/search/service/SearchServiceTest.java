@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -14,7 +15,6 @@ import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
-import java.util.List;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -56,7 +56,7 @@ class SearchServiceTest {
       .trackTotalHits(true).fetchSource(array("field1", "field2"), null).timeout(new TimeValue(25000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("field1", "field2"));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, SEARCH)).thenReturn(new String[] {"field1", "field2"});
     when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class)).thenReturn(expectedSearchResult);

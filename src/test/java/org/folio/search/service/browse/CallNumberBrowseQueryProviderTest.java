@@ -12,6 +12,7 @@ import static org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType.STR
 import static org.elasticsearch.search.sort.SortBuilders.scriptSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
@@ -51,7 +52,7 @@ class CallNumberBrowseQueryProviderTest {
   @Test
   void get_positive_forward() {
     when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("id", "title"));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
 
     var actual = queryProvider.get(request(false), context, true);
@@ -63,7 +64,7 @@ class CallNumberBrowseQueryProviderTest {
   @Test
   void get_positive_forwardQueryWithFilters() {
     when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("id", "title"));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var filterQuery = termQuery("effectiveLocationId", "location#1");
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5)
       .filters(List.of(filterQuery)).build();
@@ -105,7 +106,7 @@ class CallNumberBrowseQueryProviderTest {
   @Test
   void get_positive_backward() {
     when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME)).thenReturn(List.of("id", "title"));
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
 
     var actual = queryProvider.get(request(false), context, false);

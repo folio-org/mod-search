@@ -8,6 +8,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
@@ -77,7 +78,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, null, null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, "s1", null, List.of(
       browseItem("s1"), browseItem("s2"), browseItem("s3"), browseItem("s4"), browseItem("s5"))));
   }
 
@@ -91,13 +92,13 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE)).thenReturn(List.of("id", "headingRef"));
+    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[]{"id", "headingRef"});
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, null, null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, "s1", null, List.of(
       browseItem("s1"), browseItem("s2"), browseItem("s3"), browseItem("s4"), browseItem("s5"))));
   }
 
@@ -115,7 +116,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(3, null, null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(3, null, "s3", List.of(
       browseItem("s1"), browseItem("s2"), browseItem("s3"))));
   }
 
@@ -134,7 +135,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, null, "s4", List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, "s0", "s4", List.of(
       browseItem("s0"), browseItem("s1"), browseItem("s2"), browseItem("s3"), browseItem("s4"))));
   }
 
@@ -153,7 +154,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(10, null, null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(10, "s0", null, List.of(
       browseItem("s0"), browseItem("s1"), browseItem("s2"), browseItem("s3"))));
   }
 
@@ -172,7 +173,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(6, null, "s5", List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(6, "s1", "s5", List.of(
       browseItem("s1"), browseItem("s2"), browseItem("s3"), browseItem("s4"), browseItem("s5"))));
   }
 
@@ -191,7 +192,7 @@ class AuthorityBrowseServiceTest {
 
     var browseSearchResult = authorityBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(3, "s2", null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(3, "s2", "s4", List.of(
       browseItem("s2"), browseItem("s3"), browseItem("s4"))));
   }
 

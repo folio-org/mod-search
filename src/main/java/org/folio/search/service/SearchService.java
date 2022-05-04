@@ -2,6 +2,7 @@ package org.folio.search.service;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.common.unit.TimeValue;
@@ -48,7 +49,7 @@ public class SearchService {
       .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
 
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource).toArray(String[]::new);
+      var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
       queryBuilder.fetchSource(includes, null);
     }
 

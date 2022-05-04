@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.folio.search.model.types.ResponseGroupType;
 import org.folio.search.model.types.SearchType;
 
 /**
@@ -43,7 +44,7 @@ public class PlainFieldDescription extends FieldDescription {
   /**
    * Specifies if fields should be returned as part of elasticsearch response or not.
    */
-  private boolean showInResponse;
+  private List<ResponseGroupType> showInResponse = Collections.emptyList();
 
   /**
    * Search term processor, which pre-processes incoming term for elasticsearch request.

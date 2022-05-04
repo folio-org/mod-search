@@ -75,7 +75,7 @@ class SubjectBrowseServiceTest {
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(6, null, "s5", List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(6, "s1", "s5", List.of(
       subjectBrowseItem(1, "s1"), subjectBrowseItem(2, "s2"), subjectBrowseItem(3, "s3"),
       subjectBrowseItem(2, "s4"), subjectBrowseItem(1, "s5"))));
   }
@@ -114,7 +114,7 @@ class SubjectBrowseServiceTest {
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(4, "s1", null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(4, "s1", "s3", List.of(
       subjectBrowseItem(1, "s1"), subjectBrowseItem(2, "s2"), subjectBrowseItem(3, "s3"))));
   }
 
@@ -137,7 +137,7 @@ class SubjectBrowseServiceTest {
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, null, "s4", List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, "s0", "s4", List.of(
       subjectBrowseItem(1, "s0"), subjectBrowseItem(2, "s1"), subjectBrowseItem(3, "s2"),
       subjectBrowseItem(2, "s3"), subjectBrowseItem(1, "s4"))));
   }
@@ -161,7 +161,7 @@ class SubjectBrowseServiceTest {
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, null, null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(5, "s1", null, List.of(
       subjectBrowseItem(2, "s1"), subjectBrowseItem(3, "s2"), subjectBrowseItem(2, "s3"),
       subjectBrowseItem(1, "s4"), subjectBrowseItem(10, "s5"))));
   }
@@ -183,7 +183,7 @@ class SubjectBrowseServiceTest {
 
     var browseSearchResult = subjectBrowseService.browse(request);
 
-    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(4, "s2", null, List.of(
+    assertThat(browseSearchResult).isEqualTo(BrowseResult.of(4, "s2", "s4", List.of(
       subjectBrowseItem(14, "s2"), subjectBrowseItem(5, "s3"), subjectBrowseItem(10, "s4"))));
   }
 
@@ -203,7 +203,7 @@ class SubjectBrowseServiceTest {
 
     var actual = subjectBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, null, null, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, "s1", null, List.of(
       subjectBrowseItem(1, "s1"), subjectBrowseItem(2, "s2"))));
   }
 

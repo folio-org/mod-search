@@ -64,7 +64,7 @@
       "properties": {
         "value": {
           "searchAliases": [ "keyword" ],
-          "index": "keyword"
+          "index": "whitespace"
         },
         "identifierTypeId": {
           "index": "source"

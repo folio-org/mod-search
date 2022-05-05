@@ -221,7 +221,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // browsing forward
       arguments(forwardQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(28).prev(null).next("DA 3880 K56 M27 41984").items(List.of(
+        .totalRecords(28).prev("DA 3700 B91 L79").next("DA 3880 K56 M27 41984").items(List.of(
           cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
           cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
           cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
@@ -230,7 +230,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         ))),
 
       arguments(forwardQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev(null).next("DA 3900 C89 V1").items(List.of(
+        .totalRecords(24).prev("DA 3890 A1 I72 41885").next("DA 3900 C89 V1").items(List.of(
           cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
           cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -240,7 +240,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new CallNumberBrowseResult()
-        .totalRecords(13).prev(null).next("FC 17 B89").items(List.of(
+        .totalRecords(13).prev("F  PR1866.S63 V.1 C.1").next("FC 17 B89").items(List.of(
           cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
           cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
@@ -252,7 +252,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         .totalRecords(0).prev(null).next(null).items(emptyList())),
 
       arguments(forwardIncludingQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(28).prev(null).next("DA 3870 H47 41975").items(List.of(
+        .totalRecords(28).prev("CE 210 K297 41858").next("DA 3870 H47 41975").items(List.of(
           cnBrowseItem(instance("instance #38"), "CE 210 K297 41858"),
           cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
           cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
@@ -261,7 +261,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         ))),
 
       arguments(forwardIncludingQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev(null).next("DA 3900 C89 V1").items(List.of(
+        .totalRecords(24).prev("DA 3890 A1 I72 41885").next("DA 3900 C89 V1").items(List.of(
           cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
           cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -271,7 +271,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // browsing backward
       arguments(backwardQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(8).prev("AC 11 A67 X 42000").next(null).items(List.of(
+        .totalRecords(8).prev("AC 11 A67 X 42000").next("CE 16 D86 X 41998").items(List.of(
           cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
           cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
           cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
@@ -280,7 +280,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         ))),
 
       arguments(backwardQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev("DA 3880 O6 L75").next(null).items(List.of(
+        .totalRecords(24).prev("DA 3880 O6 L75").next("DA 3880 O6 M96").items(List.of(
           cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
           cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
           cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
@@ -290,7 +290,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
       // check that collapsing works for browsing backward
       arguments(backwardQuery, "G", 5, new CallNumberBrowseResult()
-        .totalRecords(32).prev("F  PR1866.S63 V.1 C.1").next(null).items(List.of(
+        .totalRecords(32).prev("F  PR1866.S63 V.1 C.1").next("FC 17 B89").items(List.of(
           cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
           cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
@@ -299,7 +299,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         ))),
 
       arguments(backwardQuery, "F 1", 5, new CallNumberBrowseResult()
-        .totalRecords(28).prev("E 12.11 I12 288 D").next(null).items(List.of(
+        .totalRecords(28).prev("E 12.11 I12 288 D").next("F  PR1866.S63 V.1 C.1").items(List.of(
           cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
           cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
           cnBrowseItem(instance("instance #27"), "E 211 A506"),
@@ -311,7 +311,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         .totalRecords(0).prev(null).next(null).items(emptyList())),
 
       arguments(backwardIncludingQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(8).prev("AC 11 E8 NO 14 P S1487").next(null).items(List.of(
+        .totalRecords(8).prev("AC 11 E8 NO 14 P S1487").next("CE 210 K297 41858").items(List.of(
           cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
           cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
           cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
@@ -320,7 +320,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
         ))),
 
       arguments(backwardIncludingQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev("DA 3880 O6 L75").next(null).items(List.of(
+        .totalRecords(24).prev("DA 3880 O6 L75").next("DA 3880 O6 M96").items(List.of(
           cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
           cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
           cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),

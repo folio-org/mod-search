@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.List;
@@ -56,9 +57,41 @@ public abstract class AbstractBrowseService<T> {
     this.browseContextProvider = browseContextProvider;
   }
 
+  /**
+   * Returns the value for browsing as {@link String} from {@link T} item.
+   *
+   * @param browseItem - browse item to process.
+   * @return value for next/prev field in browse response
+   */
+  protected abstract String getValueForBrowsing(T browseItem);
+
   protected static <T> List<T> trim(List<T> items, BrowseContext ctx, boolean isBrowsingForward) {
     return isBrowsingForward
       ? items.subList(0, min(ctx.getLimit(true), items.size()))
       : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
+  }
+
+  protected String getPrevBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
+    if (isBrowsingForward) {
+      return getShelfKeyByIndex(records, 0);
+    }
+    var limit = ctx.getLimit(false);
+    return getShelfKeyByIndex(records, limit, records.size() - limit);
+  }
+
+  protected String getNextBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
+    if (isBrowsingForward) {
+      var limit = ctx.getLimit(true);
+      return getShelfKeyByIndex(records, limit, limit - 1);
+    }
+    return getShelfKeyByIndex(records, records.size() - 1);
+  }
+
+  private String getShelfKeyByIndex(List<T> items, int index) {
+    return isNotEmpty(items) ? getValueForBrowsing(items.get(index)) : null;
+  }
+
+  private String getShelfKeyByIndex(List<T> items, int limit, int idx) {
+    return items.size() <= limit ? null : getValueForBrowsing(items.get(idx));
   }
 }

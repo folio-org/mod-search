@@ -57,16 +57,16 @@ public class ApiEndpoints {
     return String.format("/search/instances/ids?query=%s", query);
   }
 
-  public static String authorityIds(String query) {
-    return String.format("/search/authorities/ids?query=%s", query);
+  public static String resourcesIds(String query) {
+    return String.format("/search/resources/ids/%s", query);
   }
 
-  public static String authorityIdsJob() {
-    return "/search/authorities/ids/jobs";
+  public static String resourcesIdsJob() {
+    return "/search/resources/jobs";
   }
 
-  public static String authorityIdsJob(String id) {
-    return String.format("/search/authorities/ids/jobs/%s", id);
+  public static String resourcesIdsJob(String id) {
+    return String.format("/search/resources/jobs/%s", id);
   }
 
   public static String holdingIds(String query) {

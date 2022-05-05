@@ -4,8 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
-import static org.folio.search.support.base.ApiEndpoints.authorityIds;
-import static org.folio.search.support.base.ApiEndpoints.authorityIdsJob;
+import static org.folio.search.support.base.ApiEndpoints.resourcesIds;
+import static org.folio.search.support.base.ApiEndpoints.resourcesIdsJob;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
@@ -59,56 +59,45 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @Test
   void streamAuthorityIds() throws Exception {
     var query = "cql.allRecords=1";
-    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.query", is(query)))
       .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
-      var response = doGet(authorityIdsJob(postResponse.getId()));
+    await().atMost(Duration.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });
 
-    doGet(authorityIds(query))
+    doGet(resourcesIds(postResponse.getId()))
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("ids[0].id", is(getAuthoritySampleId())));
   }
 
   @Test
   void cantStreamDeprecatedJob() throws Exception {
-    var query = "cql.allRecords=1";
-    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
+    var query = "title=*";
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
-      var response = doGet(authorityIdsJob(postResponse.getId()));
+    await().atMost(Duration.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });
 
-    doGet(authorityIds(query));
+    doGet(resourcesIds(postResponse.getId()));
 
-    doGet(authorityIdsJob(postResponse.getId()))
+    doGet(resourcesIds(postResponse.getId()))
       .andExpect(jsonPath("$.status", is("DEPRECATED")));
   }
 
   @Test
   void cantStreamNotCompletedJob() throws Exception {
-    var query = "id<>2";
-    attemptGet(authorityIds(query)).andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void cantStreamErrorJob() throws Exception {
-    var query = "fail query";
-    var postResponse = parseResponse(doPost(authorityIdsJob(), new ResourceIdsJob().query(query))
-      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
-
-    await().atMost(Duration.TWO_SECONDS).until(() -> {
-      var response = doGet(authorityIdsJob(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
-    });
-
-    attemptGet(authorityIds(query)).andExpect(status().is4xxClientError());
+    attemptGet(resourcesIds("randomUUID")).andExpect(status().is4xxClientError());
   }
 
   @CsvSource({

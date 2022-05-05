@@ -270,7 +270,6 @@ Module exposes next API for searching:
 | GET    | `/search/{recordType}/facets` | Get facets for the record with `${recordType}`                     |
 | GET    | `/search/instances/ids`       | Stream instance ids as JSON or plain text                          |
 | GET    | `/search/holdings/ids`        | Stream holding record ids as JSON or plain text                    |
-| GET    | `/search/authorities/ids`     | Stream authority records ids as JSON or plain text                 |
 
 ## Supported search types
 

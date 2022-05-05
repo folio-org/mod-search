@@ -327,8 +327,7 @@
       "index": "keyword",
       "processor": "headingTypeRefProcessor",
       "searchTypes": [ "filter" ],
-      "rawProcessing": true,
-      "showInResponse": false
+      "rawProcessing": true
     },
     "authRefType": {
       "type": "search",

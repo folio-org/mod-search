@@ -78,7 +78,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void cantStreamDeprecatedJob() throws Exception {
-    var query = "title=*";
+    var query = "cql.allRecords=1";
     var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
       .query(query)
       .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
@@ -91,8 +91,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
     doGet(resourcesIds(postResponse.getId()));
 
-    doGet(resourcesIds(postResponse.getId()))
-      .andExpect(jsonPath("$.status", is("DEPRECATED")));
+    attemptGet(resourcesIds(postResponse.getId()))
+      .andExpect(status().is4xxClientError());
   }
 
   @Test

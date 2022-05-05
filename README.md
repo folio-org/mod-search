@@ -42,12 +42,12 @@ See that it says "BUILD SUCCESS" near the end.
 ## Running it
 
 Run locally with proper environment variables set (see
-[Environment vaiables](#environment-variables) below) on listening port 8081 (default
+[Environment variables](#environment-variables) below) on listening port 8081 (default
 listening port):
 
 
 ```
-KAFA_PORT=localhost KAFA_PORT=9092 \
+KAFKA_HOST=localhost KAFKA_PORT=9092 \
    java -Dserver.port=8081 -jar target/mod-search-*.jar
 
 ```

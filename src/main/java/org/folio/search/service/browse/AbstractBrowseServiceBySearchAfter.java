@@ -115,16 +115,14 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
 
     var anchorRecords = getAnchorSearchResult(request, context, responses).getRecords();
-    var precedingRecords = mapToBrowseResult(precedingResult, false).getRecords();
+    var precedingRecords = reverse(mapToBrowseResult(precedingResult, false).getRecords());
     var succeedingRecords = mergeSafelyToList(anchorRecords, mapToBrowseResult(succeedingResult, false).getRecords());
 
     return new BrowseResult<T>()
       .totalRecords(precedingResult.getTotalRecords())
       .prev(getPrevBrowsingValue(precedingRecords, context, false))
       .next(getNextBrowsingValue(succeedingRecords, context, true))
-      .records(mergeSafelyToList(
-        trim(reverse(precedingRecords), context, false),
-        trim(succeedingRecords, context, true)));
+      .records(mergeSafelyToList(trim(precedingRecords, context, false), trim(succeedingRecords, context, true)));
   }
 
   private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {

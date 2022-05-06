@@ -73,25 +73,25 @@ public abstract class AbstractBrowseService<T> {
 
   protected String getPrevBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     if (isBrowsingForward) {
-      return getShelfKeyByIndex(records, 0);
+      return getBrowsingValueByIndex(records, 0);
     }
     var limit = ctx.getLimit(false);
-    return getShelfKeyByIndex(records, limit, records.size() - limit);
+    return getBrowsingValueByIndex(records, limit, records.size() - limit);
   }
 
   protected String getNextBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     if (isBrowsingForward) {
       var limit = ctx.getLimit(true);
-      return getShelfKeyByIndex(records, limit, limit - 1);
+      return getBrowsingValueByIndex(records, limit, limit - 1);
     }
-    return getShelfKeyByIndex(records, records.size() - 1);
+    return getBrowsingValueByIndex(records, records.size() - 1);
   }
 
-  private String getShelfKeyByIndex(List<T> items, int index) {
+  private String getBrowsingValueByIndex(List<T> items, int index) {
     return isNotEmpty(items) ? getValueForBrowsing(items.get(index)) : null;
   }
 
-  private String getShelfKeyByIndex(List<T> items, int limit, int idx) {
+  private String getBrowsingValueByIndex(List<T> items, int limit, int idx) {
     return items.size() <= limit ? null : getValueForBrowsing(items.get(idx));
   }
 }

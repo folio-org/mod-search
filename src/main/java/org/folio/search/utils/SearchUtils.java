@@ -4,7 +4,6 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
-import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
 import com.google.common.base.CaseFormat;
@@ -49,8 +48,6 @@ public class SearchUtils {
   public static final String SUBJECT_BROWSING_FIELD = "subject";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects";
-  public static final String ITEM_SHELF_KEY_FIELD_NAME =
-    CALL_NUMBER_BROWSING_FIELD.substring(INSTANCE_ITEM_FIELD_NAME.length() + 1);
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
@@ -218,7 +215,7 @@ public class SearchUtils {
     if (description.isMultilang()) {
       return getMultilangValue(fieldName, fieldValue, languages);
     }
-    if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
+    if (description.hasFulltextIndex()) {
       return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
     }
     return Collections.singletonMap(fieldName, fieldValue);

@@ -174,6 +174,21 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water--Analysis"),
           subjectBrowseItem(1, "Water--Microbiology")))),
 
+      arguments(aroundIncludingQuery, "music", 11, new SubjectBrowseResult()
+        .totalRecords(22).prev("Database design").next("Science--Methodology")
+        .items(List.of(
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(3, "History"),
+          subjectBrowseItem(3, "Music", true),
+          subjectBrowseItem(1, "Philosophy"),
+          subjectBrowseItem(1, "Religion"),
+          subjectBrowseItem(1, "Rules"),
+          subjectBrowseItem(1, "Science"),
+          subjectBrowseItem(1, "Science--Methodology")))),
+
       arguments(aroundIncludingQuery, "FC", 5, new SubjectBrowseResult()
         .totalRecords(22).prev("Europe").next("Music")
         .items(List.of(

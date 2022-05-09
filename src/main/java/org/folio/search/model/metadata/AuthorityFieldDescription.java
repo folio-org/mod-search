@@ -18,6 +18,8 @@ public class AuthorityFieldDescription extends PlainFieldDescription {
    */
   private String headingType;
 
+  private String headingTypeExt;
+
   /**
    * Authorized, Reference or Auth/Ref type for divided authority record.
    */

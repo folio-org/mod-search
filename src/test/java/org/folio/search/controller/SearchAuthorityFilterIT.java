@@ -92,6 +92,8 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(id=* and headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
       arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
 
+      arguments("(headingTypeExt==\"Title\")", List.of(IDS[2], IDS[4])),
+
       arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", emptyList()),
       arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", List.of(IDS[13])),
       arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")",
@@ -169,12 +171,12 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .toArray(Authority[]::new);
 
     authorities[0]
-      .personalNameTitle("Resource 0")
+      .personalName("Resource 0")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"));
 
     authorities[1]
-      .personalNameTitle("Resource 1")
+      .personalName("Resource 1")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"));
 
@@ -184,7 +186,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"));
 
     authorities[3]
-      .personalNameTitle("Resource 3")
+      .personalName("Resource 3")
       .subjectHeadings("a")
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"));
 
@@ -201,10 +203,10 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .genreTerm("GenreTerm")
       .subjectHeadings("c");
     authorities[8]
-      .corporateNameTitle("CorporateName")
+      .corporateName("CorporateName")
       .subjectHeadings("d");
     authorities[9]
-      .corporateNameTitle("CorporateName")
+      .corporateName("CorporateName")
       .subjectHeadings("d");
     authorities[10]
       .topicalTerm("TopicalTerm")
@@ -219,7 +221,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       .saftUniformTitle(Collections.singletonList("UniformTitle"))
       .subjectHeadings("r");
     authorities[14]
-      .saftPersonalNameTitle(Collections.singletonList("PersonalName"))
+      .saftPersonalName(Collections.singletonList("PersonalName"))
       .subjectHeadings("r");
 
     return authorities;

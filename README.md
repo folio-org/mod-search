@@ -650,9 +650,46 @@ In case where options are similar, secondary sort is used
 | `headingType` | term | `headingRef`   | Sort authorities by Type of heading     |
 | `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
 
+## Stream IDs by CQL query
+### Authorities
+
+The process of retrieving ids has two steps:
+- Create a job with a CQL query
+- Retrieve ids when a job is completed
+
+#### Create Job
+Send a POST request to create a Job
+`POST /search/resources/jobs`
+```json
+{
+  "query":"id=*",
+  "entityType": "AUTHORITY"
+}
+```
+It is possible to check job status by jobs Id.
+
+`GET /search/authorities/jobs/{jobId}`
+
+**Response**
+```json
+{
+  "id": "36233d1c-e4c1-4403-a6ee-1d4b5d460dc5",
+  "query": "id=*",
+  "status": "COMPLETED",
+  "entityType": "AUTHORITY",
+  "createdDate": "2022-04-29 00:00"
+}
+```
+
+#### Retrieve ids
+
+When the job is COMPLETED, it is possible to retrieve ids by job id
+
+`GET /search/resources/jobs/ids/{jobId}`
+
+After retrieving ids, job should change status to "DEPRECATED". If there are no completed job with prepared ids, client can't receive ids by query.
 
 ## Additional Information
-
 ### Issue tracker
 
 See project [MSEARCH](https://issues.folio.org/browse/MSEARCH)

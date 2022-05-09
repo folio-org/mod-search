@@ -300,11 +300,14 @@
       }
     },
     "notes": {
-      "noteTypeId": {
-        "index": "source"
-      },
-      "value": {
-        "index": "source"
+      "type": "object",
+      "properties": {
+        "noteTypeId": {
+          "index": "source"
+        },
+        "value": {
+          "index": "source"
+        }
       }
     }
   },
@@ -361,7 +364,7 @@
   },
   "mappingsSource": { },
   "indexMappings": {
-    "sort_headingRef" : {
+    "sort_headingRef": {
       "type": "keyword",
       "normalizer": "keyword_lowercase"
     }

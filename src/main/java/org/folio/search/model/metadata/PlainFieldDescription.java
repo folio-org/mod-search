@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.folio.search.model.types.ResponseGroupType;
@@ -22,8 +22,12 @@ public class PlainFieldDescription extends FieldDescription {
 
   public static final String MULTILANG_FIELD_TYPE = "multilang";
   public static final String STANDARD_FIELD_TYPE = "standard";
-  public static final Set<String> FULLTEXT_FIELD_TYPES = Set.of(MULTILANG_FIELD_TYPE, STANDARD_FIELD_TYPE);
   public static final String PLAIN_FULLTEXT_FIELD_TYPE = "keyword_lowercase";
+
+  public static final Map<String, String> FULLTEXT_FIELD_TYPES = Map.of(
+    MULTILANG_FIELD_TYPE, PLAIN_FULLTEXT_FIELD_TYPE,
+    STANDARD_FIELD_TYPE, PLAIN_FULLTEXT_FIELD_TYPE,
+    "whitespace", "keyword_trimmed");
 
   /**
    * List of search types, that is used to identify search options for given field.
@@ -93,7 +97,7 @@ public class PlainFieldDescription extends FieldDescription {
    */
   @JsonProperty
   public boolean hasFulltextIndex() {
-    return FULLTEXT_FIELD_TYPES.contains(index) && indexPlainValue;
+    return FULLTEXT_FIELD_TYPES.containsKey(index) && indexPlainValue;
   }
 
   /**

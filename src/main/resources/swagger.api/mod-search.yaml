@@ -122,16 +122,16 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /authorities/ids/jobs/{jobId}:
+  /resources/jobs/{jobId}:
     get:
-      operationId: getAuthoritiesIdsJob
-      description: Get a job for the stream of authority ids.
+      operationId: getIdsJob
+      description: Get a job for the stream of resource ids.
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/job-stream-id'
       responses:
         '200':
-          description: 'Job for the stream of authority ids'
+          description: 'Job for the stream of resource ids'
           content:
             application/json:
               example: examples/streamIdsJobResponse.sample
@@ -142,10 +142,10 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /authorities/ids/jobs:
+  /resources/jobs:
     post:
-      operationId: submitAuthoritiesIdsJob
-      description: Creates a job for the stream of authority ids.
+      operationId: submitIdsJob
+      description: Creates a job for the stream of resource ids.
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
@@ -156,7 +156,7 @@ paths:
               $ref: schemas/resourceIdsJob.json
       responses:
         '200':
-          description: 'Job for the stream of authority ids'
+          description: 'Job for the stream of resource ids'
           content:
             application/json:
               example: examples/streamIdsJobResponse.sample
@@ -167,16 +167,16 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /authorities/ids:
+  /resources/ids/{jobId}:
     get:
-      operationId: getAuthorityIds
-      description: Get a list of authority ids for CQL query
+      operationId: getResourceIds
+      description: Get a list of resource ids by job id
       parameters:
-        - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: '#/components/parameters/job-stream-id'
       responses:
         '200':
-          description: 'Authorities ids as a json stream'
+          description: 'Resources ids as a json stream'
           content:
             application/json:
               example: examples/AuthorityIdsResult.sample

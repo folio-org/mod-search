@@ -46,12 +46,12 @@ public class ResourceIdsStreamHelper {
   /**
    * Provides ability to stream prepared resource ids from the database using given request object.
    *
-   * @param request - request as {@link CqlResourceIdsRequest} object
+   * @param jobId - async jobs id with prepared query
    * @return response with found resource ids using http streaming approach.
    */
-  public ResponseEntity<Void> streamResourceIdsFromDb(CqlResourceIdsRequest request) {
+  public ResponseEntity<Void> streamResourceIdsFromDb(String jobId) {
     try {
-      resourceIdService.streamIdsFromDatabaseAsJson(request, prepareHttpResponse().getOutputStream());
+      resourceIdService.streamIdsFromDatabaseAsJson(jobId, prepareHttpResponse().getOutputStream());
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);

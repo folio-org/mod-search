@@ -173,6 +173,21 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
           authorityBrowseItem("Science", 16, "Topical", AUTHORIZED),
           authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE)))),
 
+      arguments(aroundIncludingQuery, "music", 11, new AuthorityBrowseResult()
+        .totalRecords(14).prev("Comic-Con").next(null)
+        .items(List.of(
+          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED),
+          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE),
+          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED),
+          authorityBrowseItem("James Rollins", 2, "Personal Name", REFERENCE),
+          emptyAuthorityBrowseItem("music"),
+          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED),
+          authorityBrowseItem("Poetry", 20, "Genre", REFERENCE),
+          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED),
+          authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE)))),
+
       arguments(aroundIncludingQuery, "FC", 5, new AuthorityBrowseResult()
         .totalRecords(14).prev("Disney").next("James Rollins")
         .items(List.of(

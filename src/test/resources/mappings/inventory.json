@@ -18,7 +18,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22%29"
       },
       "response": {
         "status": 200,

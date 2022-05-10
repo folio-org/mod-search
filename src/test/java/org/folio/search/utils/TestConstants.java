@@ -32,6 +32,7 @@ public class TestConstants {
   public static final String UNIFORM_ALTERNATIVE_TITLE_ID = randomId();
   public static final String INVALID_ISBN_IDENTIFIER_TYPE_ID = randomId();
   public static final String INVALID_ISSN_IDENTIFIER_TYPE_ID = randomId();
+  public static final String LINKING_ISSN_IDENTIFIER_TYPE_ID = randomId();
 
   public static String inventoryInstanceTopic() {
     return inventoryInstanceTopic(TENANT_ID);

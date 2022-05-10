@@ -43,7 +43,9 @@ class IssnProcessorTest {
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
-      var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID, LINKING_ISSN_IDENTIFIER_TYPE_ID);
+      var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID,
+        INVALID_ISSN_IDENTIFIER_TYPE_ID,
+        LINKING_ISSN_IDENTIFIER_TYPE_ID);
       mockFetchReferenceData(identifiers);
     }
 

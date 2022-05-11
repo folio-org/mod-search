@@ -15,11 +15,15 @@
     },
     "normalizer": {
       "keyword_lowercase": {
-        "filter": [ "lowercase" ],
+        "filter": [ "lowercase", "trim" ],
         "type": "custom"
       },
       "keyword_uppercase": {
-        "filter": [ "uppercase" ],
+        "filter": [ "uppercase", "trim" ],
+        "type": "custom"
+      },
+      "keyword_trimmed": {
+        "filter": [ "trim" ],
         "type": "custom"
       }
     },

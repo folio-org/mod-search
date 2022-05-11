@@ -168,6 +168,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
+      arguments("keyword all {value}", "semantic Antoniou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
 
       arguments("tags.tagList all {value}", "book"),

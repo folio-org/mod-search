@@ -180,6 +180,7 @@ class CallNumberBrowseQueryProviderTest {
   private static SearchQueryConfigurationProperties getSearchQueryConfigurationProperties() {
     var config = new SearchQueryConfigurationProperties();
     config.setRangeQueryLimitMultiplier(3d);
+    config.setCallNumberBrowseOptimizationEnabled(false);
     return config;
   }
 }

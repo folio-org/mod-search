@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.Operator.AND;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 
@@ -14,6 +15,20 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
+    if (term instanceof String) {
+      var stringTerm = (String) term;
+      var terms = stringTerm.split("\\s+");
+      if (terms.length == 1) {
+        return multiMatchQuery(terms[0], fields);
+      }
+
+      var boolQuery = boolQuery();
+      for (var singleTerm : terms) {
+        boolQuery.must(multiMatchQuery(singleTerm, fields));
+      }
+      return boolQuery;
+    }
+
     return multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS);
   }
 

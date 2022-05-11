@@ -1,29 +1,5 @@
 {
   "topics": [
-    {
-      "name": "inventory.instance",
-      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
-      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
-    },
-    {
-      "name": "inventory.item",
-      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
-      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
-    },
-    {
-      "name": "inventory.holdings-record",
-      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
-      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
-    },
-    {
-      "name": "inventory.bound-with",
-      "numPartitions": "${KAFKA_EVENT_TOPICS_PARTITIONS:50}",
-      "replicationFactor": "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"
-    },
-    {
-      "name": "inventory.authority",
-      "numPartitions": "${KAFKA_AUTHORITY_TOPIC_PARTITIONS:50}",
-      "replicationFactor": "${KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR:}"
-    }
+
   ]
 }

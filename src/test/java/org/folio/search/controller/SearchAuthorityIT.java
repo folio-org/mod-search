@@ -39,7 +39,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 21, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 30, getAuthoritySampleAsMap());
   }
 
   @AfterAll
@@ -109,16 +109,28 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(21)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).isEqualTo(List.of(
+      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
+      authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
+      authority("Personal Name", AUTH_REF_TYPE, "a saft personal name"),
+
       authority("Personal Name", AUTHORIZED_TYPE, "a personal title"),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal title"),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal title"),
 
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
+      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
+      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate name"),
+
       authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title"),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title"),
       authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate title"),
+
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
+      authority("Conference Name", AUTH_REF_TYPE, "a saft conference name"),
 
       authority("Conference Name", AUTHORIZED_TYPE, "a conference title"),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference title"),
@@ -166,6 +178,17 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("keyword all {value}", "\"a sft genre term\""),
       arguments("keyword all {value}", "\"a saft genre term\""),
 
+      arguments("personalName all {value}", "\"Gary A. Wills\""),
+      arguments("personalName all {value}", "gary"),
+      arguments("personalName == {value}", "\"gary a.*\""),
+      arguments("personalName == {value} and headingType==\"Personal Name\"", "gary"),
+      arguments("personalName == {value} and authRefType==\"Authorized\"", "gary"),
+      arguments("sftPersonalName = {value}", "\"personal sft name\""),
+      arguments("sftPersonalName == {value}", "\"sft personal name\""),
+      arguments("sftPersonalName == {value}", "\"*persona*\""),
+      arguments("saftPersonalName = {value}", "\"saft name\""),
+      arguments("saftPersonalName == {value}", "\"*saft persona*\""),
+
       arguments("personalNameTitle all {value}", "\"personal title\""),
       arguments("personalNameTitle == {value}", "\"a personal title\""),
       arguments("sftPersonalNameTitle all {value}", "\"personal title\""),
@@ -173,12 +196,28 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftPersonalNameTitle all {value}", "\"a saft personal title\""),
       arguments("saftPersonalNameTitle == {value}", "\"a saft personal title\""),
 
+      arguments("corporateName = {value}", "\"corporate\""),
+      arguments("corporateName == {value}", "\"a corporate name\""),
+      arguments("corporateName == {value}", "\"*corporat*\""),
+      arguments("sftCorporateName = {value}", "\"corporate name\""),
+      arguments("sftCorporateName == {value}", "\"sft corporate\""),
+      arguments("saftCorporateName = {value} ", "\"name saft\""),
+      arguments("saftCorporateName == {value} ", "\"saft corporate name\""),
+
       arguments("corporateNameTitle all {value}", "\"corporate title\""),
       arguments("corporateNameTitle == {value}", "\"a corporate title\""),
       arguments("sftCorporateNameTitle all {value}", "\"corporate title\""),
       arguments("sftCorporateNameTitle == {value}", "\"a sft corporate title\""),
       arguments("saftCorporateNameTitle all {value}", "\"corporate title\""),
       arguments("saftCorporateNameTitle == {value}", "\"a saft corporate title\""),
+
+      arguments("meetingName = {value}", "\"conference\""),
+      arguments("meetingName == {value}", "\"a conference name\""),
+      arguments("meetingName == {value}", "\"*onference*\""),
+      arguments("sftMeetingName = {value}", "\"conference name\""),
+      arguments("sftMeetingName == {value}", "\"sft conference\""),
+      arguments("saftMeetingName = {value} ", "\"conference saft\""),
+      arguments("saftMeetingName == {value} ", "\"saft conference name\""),
 
       arguments("meetingNameTitle all {value}", "\"conference title\""),
       arguments("meetingNameTitle == {value}", "\"a conference title\""),
@@ -240,7 +279,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   }
 
   private static String specifyCommonField(String query) {
-    return query + " and sftPersonalNameTitle==\"*personal title\"";
+    return query + " and sftPersonalName==\"*personal name\"";
   }
 
   private static Authority authority(String headingType, String authRefType, String headingRef) {

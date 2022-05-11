@@ -122,8 +122,8 @@ class IndexingIT extends BaseIntegrationTest {
   @Test
   void shouldRemoveAuthority() {
     var authorityId = randomId();
-    var authority = new Authority().id(authorityId).personalNameTitle("personal name")
-      .corporateNameTitle("corporate name").uniformTitle("uniform title");
+    var authority = new Authority().id(authorityId).personalName("personal name")
+      .corporateName("corporate name").uniformTitle("uniform title");
     var resourceEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
     assertCountByQuery(authoritySearchPath(), "id", List.of(authorityId), 3);

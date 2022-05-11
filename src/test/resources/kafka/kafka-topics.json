@@ -1,0 +1,29 @@
+{
+  "topics": [
+    {
+      "name": "inventory.instance",
+      "numPartitions": "10",
+      "replicationFactor": "1"
+    },
+    {
+      "name": "inventory.item",
+      "numPartitions": "10",
+      "replicationFactor": "1"
+    },
+    {
+      "name": "inventory.holdings-record",
+      "numPartitions": "10",
+      "replicationFactor": "1"
+    },
+    {
+      "name": "inventory.bound-with",
+      "numPartitions": "10",
+      "replicationFactor": "1"
+    },
+    {
+      "name": "inventory.authority",
+      "numPartitions": "10",
+      "replicationFactor": "1"
+    }
+  ]
+}

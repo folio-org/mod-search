@@ -7,6 +7,7 @@ import static org.folio.search.client.InventoryReferenceDataClient.ReferenceData
 import static org.folio.search.utils.TestConstants.INVALID_ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISSN_IDENTIFIER_TYPE_ID;
+import static org.folio.search.utils.TestConstants.LINKING_ISSN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestUtils.identifier;
 import static org.folio.search.utils.TestUtils.instanceWithIdentifiers;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -42,7 +43,9 @@ class IssnProcessorTest {
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
     if (CollectionUtils.isNotEmpty(instance.getIdentifiers())) {
-      var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID, INVALID_ISSN_IDENTIFIER_TYPE_ID);
+      var identifiers = Set.of(ISSN_IDENTIFIER_TYPE_ID,
+        INVALID_ISSN_IDENTIFIER_TYPE_ID,
+        LINKING_ISSN_IDENTIFIER_TYPE_ID);
       mockFetchReferenceData(identifiers);
     }
 
@@ -62,6 +65,7 @@ class IssnProcessorTest {
       arguments("all empty fields", new Instance(), emptyList()),
       arguments("issn identifier=null", instanceWithIdentifiers(issn(null)), emptyList()),
       arguments("invalid issn identifier=null", instanceWithIdentifiers(invalidIssn(null)), emptyList()),
+      arguments("linking issn identifier=null", instanceWithIdentifiers(invalidIssn(null)), emptyList()),
       arguments("issn identifier='0317-8471'", instanceWithIdentifiers(issn("0317-8471")), List.of("0317-8471")),
       arguments("issn identifier='0317-8471'",
         instanceWithIdentifiers(issn("0317-8471"), issn("0317-8471")), List.of("0317-8471")),
@@ -71,6 +75,10 @@ class IssnProcessorTest {
         instanceWithIdentifiers(invalidIssn(" 0317-8471 ")), List.of("0317-8471")),
       arguments("invalid issn identifier='03178471 '",
         instanceWithIdentifiers(invalidIssn("03178471 ")), List.of("03178471")),
+      arguments("linking issn identifier=' 0317-8471 '",
+        instanceWithIdentifiers(linkingIssn(" 0317-8471 ")), List.of("0317-8471")),
+      arguments("linking issn identifier='03178471 '",
+        instanceWithIdentifiers(linkingIssn("03178471 ")), List.of("03178471")),
       arguments("isbn identifier='047144250X'",
         instanceWithIdentifiers(identifier(ISBN_IDENTIFIER_TYPE_ID, "047144250X")), emptyList())
     );
@@ -82,6 +90,10 @@ class IssnProcessorTest {
 
   private static Identifiers invalidIssn(String value) {
     return identifier(INVALID_ISSN_IDENTIFIER_TYPE_ID, value);
+  }
+
+  private static Identifiers linkingIssn(String value) {
+    return identifier(LINKING_ISSN_IDENTIFIER_TYPE_ID, value);
   }
 
   private void mockFetchReferenceData(Set<String> referenceData) {

@@ -18,12 +18,16 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22%29"
       },
       "response": {
         "status": 200,
         "jsonBody": {
           "identifierTypes": [
+            {
+              "id": "5860f255-a27f-4916-a830-262aa900a6b9",
+              "name": "Linking ISSN"
+            },
             {
               "id": "3cb3e0cd-ccd9-47af-a570-6f3851571dca",
               "name": "Invalid ISSN"

@@ -42,12 +42,12 @@ See that it says "BUILD SUCCESS" near the end.
 ## Running it
 
 Run locally with proper environment variables set (see
-[Environment vaiables](#environment-variables) below) on listening port 8081 (default
+[Environment variables](#environment-variables) below) on listening port 8081 (default
 listening port):
 
 
 ```
-KAFA_PORT=localhost KAFA_PORT=9092 \
+KAFKA_HOST=localhost KAFKA_PORT=9092 \
    java -Dserver.port=8081 -jar target/mod-search-*.jar
 
 ```
@@ -172,12 +172,8 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | KAFKA_SSL_TRUSTSTORE_PASSWORD             | -                         | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled.                            |
 | KAFKA_EVENTS_CONSUMER_PATTERN             | -                         | Custom subscription pattern for Kafka consumers.                                                                                                                                      |
 | KAFKA_EVENTS_CONCURRENCY                  | 2                         | Custom number of kafka concurrent threads for message consuming.                                                                                                                      |
-| KAFKA_EVENT_TOPICS_PARTITIONS             | 50                        | Amount of partitions for instance event topics.                                                                                                                                       |
-| KAFKA_EVENT_TOPICS_REPLICATION_FACTOR     | -                         | Replication factor for instance event topics.                                                                                                                                         |
 | KAFKA_AUTHORITIES_CONSUMER_PATTERN        | -                         | Custom subscription pattern for Kafka authority message consumers.                                                                                                                    |
 | KAFKA_AUTHORITIES_CONCURRENCY             | 1                         | Custom number of kafka concurrent threads for authority message consuming.                                                                                                            |
-| KAFKA_AUTHORITY_TOPIC_PARTITIONS          | 50                        | Amount of partitions for authority topic.                                                                                                                                             |
-| KAFKA_AUTHORITY_TOPIC_REPLICATION_FACTOR  | -                         | Replication factor for authority topic.                                                                                                                                               |
 | INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS | 3                         | Amount of retry attempts to delete instance subject resources.                                                                                                                        |
 | INITIAL_LANGUAGES                         | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
 | MAX_SUPPORTED_LANGUAGES                   | 5                         | Provides the maximum number of supported languages                                                                                                                                    |

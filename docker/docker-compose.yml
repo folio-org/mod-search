@@ -25,7 +25,8 @@ services:
     container_name: elasticsearch
     image: opendistro-elasticsearch-it:1.13.2
     build:
-      dockerfile: elasticsearch/Dockerfile
+      dockerfile: Dockerfile
+      context: ./elasticsearch
     ports:
       - "9200:9200"
       - "9300:9300"

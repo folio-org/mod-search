@@ -43,8 +43,9 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), ctx.getAnchor()})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
+      .sort(fieldSort("contributorNameTypeId").order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

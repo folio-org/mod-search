@@ -147,7 +147,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publisher all {value}", "mit"),
       arguments("publisher all {value}", "press"),
 
-      arguments("contributors all {value} and contributors.contributorNameTypeId = {value}", "frank", randomId()),
       arguments("contributors all {value}", "Frank"),
       arguments("contributors all {value}", "grigoris"),
       arguments("contributors all {value}", "Grigoris Antoniou"),

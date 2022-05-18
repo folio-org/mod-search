@@ -61,7 +61,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   @DisplayName("searchByAuthorities_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void searchByAuthorities_parameterized(String query, List<String> expectedIds) throws Exception {
-    doSearchByAuthorities(query+ " sortBy id/sort.ascending")
+    doSearchByAuthorities(query)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
       .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));

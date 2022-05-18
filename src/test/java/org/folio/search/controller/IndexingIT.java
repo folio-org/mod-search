@@ -34,7 +34,6 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -80,8 +79,7 @@ class IndexingIT extends BaseIntegrationTest {
   @Test
   void shouldUpdateAndDeleteInstance() {
     var instanceId = randomId();
-    var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of("s1", "s2"))
-      .contributors(List.of(new Contributor().name("c1").contributorTypeId("2e48e713-17f3-4c13-a9f8-23845bb210aa")));
+    var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of("s1", "s2"));
 
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);

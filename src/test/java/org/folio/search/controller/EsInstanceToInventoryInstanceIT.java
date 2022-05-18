@@ -39,7 +39,6 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
-  @Disabled
   void responseContainsOnlyBasicInstanceProperties() throws Exception {
     var expected = getSemanticWeb();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
@@ -66,7 +65,6 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
-  @Disabled
   void responseContainsAllInstanceProperties() throws Exception {
     var expected = getSemanticWeb();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true)

@@ -26,52 +26,9 @@ public class ContributorBrowseService extends
 
   private static final ExistsQueryBuilder FILTER_QUERY = existsQuery("instances");
 
-//  @Override
-//  protected BrowseResult<InstanceContributorBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
-//    var succeedingQuery = getSearchQuery(request, context, true);
-//    var precedingQuery = getSearchQuery(request, context, false);
-//    var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
-//
-//    var responses = multiSearchResponse.getResponses();
-//    var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
-//    var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
-//    var precedingRecords = mapToBrowseResult(precedingResult, false);
-//    var succeedingRecords = mapToBrowseResult(succeedingResult, false);
-//    if (TRUE.equals(request.getHighlightMatch())) {
-//      highlightMatchingCallNumber(context, succeedingRecords);
-//    }
-//
-//
-//    return new BrowseResult<InstanceContributorBrowseItem>()
-//      .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
-//      .prev(getNextValueForBrowsing(precedingRecords.getRecords(), context.getPrecedingLimit()))
-//      .next(getNextValueForBrowsing(succeedingRecords.getRecords(), context.getSucceedingLimit()))
-//      .records(mergeSafelyToList(
-//        trim(reverse(precedingRecords.getRecords()), context, false),
-//        trim(succeedingRecords.getRecords(), context, true)));
-//
-//  }
-//
-//  private void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<InstanceContributorBrowseItem> result) {
-//    var items = result.getRecords();
-//    var anchor = ctx.getAnchor();
-//
-//    if (isEmpty(items)) {
-//      result.setRecords(singletonList(getEmptyBrowseItem(ctx)));
-//      return;
-//    }
-//
-//    var firstBrowseItem = items.get(0);
-//    if (!StringUtils.equals(firstBrowseItem.getName(), anchor)) {
-//      var browseItemsWithEmptyValue = new ArrayList<InstanceContributorBrowseItem>();
-//      browseItemsWithEmptyValue.add(getEmptyBrowseItem(ctx));
-//      browseItemsWithEmptyValue.addAll(items);
-//      result.setRecords(browseItemsWithEmptyValue);
-//      return;
-//    }
-//
-//    firstBrowseItem.setIsAnchor(true);
-//  }
+  private int calculateTotalRecords(ContributorResource item) {
+    return ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue();
+  }
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
@@ -79,7 +36,6 @@ public class ContributorBrowseService extends
       .must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
     return searchSource().query(termQuery(request.getTargetField(), context.getAnchor())).from(0).size(1);
-//      .size(context.getLimit(context.isBrowsingForward()));
   }
 
   @Override
@@ -88,9 +44,7 @@ public class ContributorBrowseService extends
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
-//      .searchAfter(new Object[]{ctx.getAnchor().toLowerCase(ROOT), ""})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-//      .sort(fieldSort("contributorNameTypeId").order(isBrowsingForward ? ASC : DESC).missing("_first"))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }
@@ -109,8 +63,7 @@ public class ContributorBrowseService extends
         .contributorTypeId(toListSafe(item.getContributorTypeId()))
         .contributorNameTypeId(item.getContributorNameTypeId())
         .isAnchor(isAnchor)
-        .totalRecords(
-          ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue()));
+        .totalRecords(calculateTotalRecords(item)));
   }
 
   @Override

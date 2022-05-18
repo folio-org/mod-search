@@ -8,11 +8,13 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
+import static org.folio.search.utils.TestConstants.inventoryContributorTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
@@ -35,6 +37,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.UnitTest;
@@ -172,6 +175,38 @@ class KafkaMessageListenerTest {
 
     messageListener.handleAuthorityEvents(List.of(new ConsumerRecord<>(
       inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, UPDATE, payload, null))));
+
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleContributorEvent_positive() {
+    var contributorEventBuilder = ContributorEvent.builder()
+      .id(RESOURCE_ID).name(randomId()).nameTypeId(randomId()).instanceId(randomId()).build();
+    var payload = toMap(contributorEventBuilder);
+    var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, CONTRIBUTOR_RESOURCE, CREATE, payload, null));
+
+    messageListener.handleContributorEvents(List.of(new ConsumerRecord<>(
+      inventoryContributorTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, CREATE, payload, null))));
+
+    verify(resourceService).indexResources(expectedEvents);
+    verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleContributorEvent_negative_logFailedEvent() {
+    var contributorEventBuilder = ContributorEvent.builder()
+      .id(RESOURCE_ID).name(randomId()).nameTypeId(randomId()).instanceId(randomId()).build();
+    var payload = toMap(contributorEventBuilder);
+    var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, CONTRIBUTOR_RESOURCE, CREATE, payload, null));
+
+    doAnswer(inv -> {
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      return null;
+    }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+
+    messageListener.handleContributorEvents(List.of(new ConsumerRecord<>(
+      inventoryContributorTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, CREATE, payload, null))));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }

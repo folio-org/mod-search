@@ -3,6 +3,8 @@ package org.folio.search.controller;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceIds;
+import static org.folio.search.utils.TestUtils.randomId;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -145,7 +147,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publisher all {value}", "mit"),
       arguments("publisher all {value}", "press"),
 
-      arguments("contributors all {value}", "frank"),
+      arguments("contributors all {value} and contributors.contributorNameTypeId = {value}", "frank", randomId()),
       arguments("contributors all {value}", "Frank"),
       arguments("contributors all {value}", "grigoris"),
       arguments("contributors all {value}", "Grigoris Antoniou"),

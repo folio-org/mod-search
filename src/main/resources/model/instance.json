@@ -84,7 +84,11 @@
           "showInResponse": true
         },
         "contributorNameTypeId": {
-          "index": "source",
+          "index": "standard",
+          "showInResponse": true
+        },
+        "contributorTypeId": {
+          "index": "standard",
           "showInResponse": true
         }
       }

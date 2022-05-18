@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -197,6 +198,17 @@ public final class CollectionUtils {
   }
 
   /**
+   * Returns list if set is not null or empty, null otherwise.
+   *
+   * @param nullableSet nullable value to check
+   * @param <T> generic type for value
+   * @return list if it is not null or empty, null otherwise.
+   */
+  public static <T> List<T> toListSafe(Set<T> nullableSet) {
+    return isEmpty(nullableSet) ? null : new ArrayList<>(nullableSet);
+  }
+
+  /**
    * Return the last element of the given list.
    *
    * @param list - list to process as {@link List} object
@@ -318,6 +330,12 @@ public final class CollectionUtils {
     var result = new LinkedHashSet<>(source);
     target.forEach(result::remove);
     return result;
+  }
+
+  public static <T> Set<T> subtractSorted(Collection<T> source, Collection<T> target) {
+    return subtract(source, target).stream()
+      .sorted()
+      .collect(toCollection(LinkedHashSet::new));
   }
 
   private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {

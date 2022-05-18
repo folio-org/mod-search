@@ -13,6 +13,10 @@
       "index": "keyword",
       "showInResponse": true
     },
+    "contributorNameTypeId": {
+      "index": "keyword",
+      "showInResponse": true
+    },
     "instances": {
       "index": "source",
       "showInResponse": true

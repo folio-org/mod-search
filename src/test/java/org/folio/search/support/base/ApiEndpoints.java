@@ -24,6 +24,10 @@ public class ApiEndpoints {
     return "/browse/subjects/instances";
   }
 
+  public static String instanceContributorBrowsePath() {
+    return "/browse/contributors/instances";
+  }
+
   public static String authorityBrowsePath() {
     return "/browse/authorities";
   }

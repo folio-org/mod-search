@@ -91,7 +91,7 @@
     },
     {
       "id": "browse",
-      "version": "0.3",
+      "version": "0.4",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -102,6 +102,11 @@
           "methods": [ "GET" ],
           "pathPattern": "/browse/subjects/instances",
           "permissionsRequired": [ "browse.subjects.instances.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/browse/contributors/instances",
+          "permissionsRequired": [ "browse.contributors.instances.collection.get" ]
         },
         {
           "methods": [ "GET" ],
@@ -246,6 +251,11 @@
     {
       "permissionName": "browse.subjects.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by subjects",
+      "description": "Browse instances by given query"
+    },
+    {
+      "permissionName": "browse.contributors.instances.collection.get",
+      "displayName": "Browse - provides collections of browse items for instance by contributors",
       "description": "Browse instances by given query"
     },
     {

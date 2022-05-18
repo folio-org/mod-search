@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
@@ -9,22 +8,26 @@ import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
-import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
+import static org.folio.search.utils.KafkaUtils.getTenantTopicName;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +36,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.service.KafkaAdminService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -48,9 +53,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageListener {
 
+  private static final String INSTANCE_CONTRIBUTOR_TOPIC_NAME = "search.instance-contributor";
+
   private final JsonConverter jsonConverter;
   private final ResourceService resourceService;
-  private final KafkaTemplate<String, String> defaultKafkaTemplate;
+  private final KafkaTemplate<String, Object> kafkaTemplate;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
 
   /**
@@ -141,7 +148,7 @@ public class KafkaMessageListener {
       return event.key();
     }
     var eventPayload = getEventPayload(body);
-    return isInstanceResource(event) ? getString(eventPayload, "id") : getString(eventPayload, "instanceId");
+    return isInstanceResource(event) ? getString(eventPayload, ID_FIELD) : getString(eventPayload, INSTANCE_ID_FIELD);
   }
 
   private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
@@ -155,33 +162,40 @@ public class KafkaMessageListener {
 
   private void sendContributorEventsToKafka(ResourceEvent event) {
     var type = new TypeReference<List<Contributor>>() {};
-    var oldContributors = jsonConverter.convert(getObject(getOldAsMap(event), "contributors", emptyList()), type);
-    var newContributors = jsonConverter.convert(getObject(getNewAsMap(event), "contributors", emptyList()), type);
+    var oldContributors = getContributors(getOldAsMap(event), type);
+    var newContributors = getContributors(getNewAsMap(event), type);
 
     sendContributorEventsToKafka(event, subtract(newContributors, oldContributors), CREATE);
     sendContributorEventsToKafka(event, subtract(oldContributors, newContributors), DELETE);
   }
 
-  private void sendContributorEventsToKafka(ResourceEvent evt, Set<Contributor> contributors, ResourceEventType type) {
-    var tenantId = evt.getTenant();
-    var topicName = getTopicName(tenantId);
-    var instanceId = getResourceEventId(evt);
-    for (var contributor : contributors) {
-      var id = getContributorId(tenantId, contributor);
-      var contributorsMap = jsonConverter.convert(contributor, MAP_TYPE_REFERENCE);
-      contributorsMap.put("id", id);
-      contributorsMap.put("instanceId", instanceId);
-      var eventBody = new ResourceEvent().type(type).tenant(tenantId);
-      eventBody = type == CREATE ? eventBody._new(contributorsMap) : eventBody.old(contributorsMap);
-      defaultKafkaTemplate.send(topicName, id, jsonConverter.toJson(eventBody));
-    }
+  private List<Contributor> getContributors(Map<String, Object> objectMap, TypeReference<List<Contributor>> type) {
+    return jsonConverter.convert(getObject(objectMap, INSTANCE_CONTRIBUTORS_FIELD_NAME, emptyList()), type);
   }
 
-  private static String getTopicName(String tenantId) {
-    return format("%s.%s.search.instance-contributor", getFolioEnvName(), tenantId);
+  private void sendContributorEventsToKafka(ResourceEvent evt, Set<Contributor> contributors, ResourceEventType type) {
+    var tenantId = evt.getTenant();
+    var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
+    var instanceId = getResourceEventId(evt);
+    contributors.stream()
+      .map(contributor -> prepareResourceEvent(contributor, instanceId, type, tenantId))
+      .forEach(resourceEvent -> kafkaTemplate.send(topicName, resourceEvent.getId(), resourceEvent));
+  }
+
+  private ResourceEvent prepareResourceEvent(Contributor contributor, String instanceId, ResourceEventType type,
+                                             String tenantId) {
+    var contributorEvent = ContributorEvent.builder()
+      .id(getContributorId(tenantId, contributor))
+      .instanceId(instanceId)
+      .name(contributor.getName())
+      .nameTypeId(contributor.getContributorNameTypeId())
+      .typeId(contributor.getContributorTypeId())
+      .build();
+    var eventBody = new ResourceEvent().type(type).tenant(tenantId);
+    return type == CREATE ? eventBody._new(contributorEvent) : eventBody.old(contributorEvent);
   }
 
   private static String getContributorId(String tenantId, Contributor contributor) {
-    return sha1Hex(tenantId + "|" + contributor.getContributorTypeId() + "|" + toRootLowerCase(contributor.getName()));
+    return sha1Hex(tenantId + "|" + contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
   }
 }

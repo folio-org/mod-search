@@ -7,7 +7,13 @@
   "fields": {
     "id": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": true,
+      "searchTypes": [ "sort" ],
+      "sort": {
+        "fieldName": "id",
+        "type": "collection",
+        "secondarySort": [ "headingRef" ]
+      }
     },
     "personalNameTitle": {
       "type": "authority",

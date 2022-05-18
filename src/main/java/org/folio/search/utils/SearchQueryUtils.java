@@ -22,6 +22,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import org.folio.search.model.Pair;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchQueryUtils {
 
@@ -94,4 +96,42 @@ public class SearchQueryUtils {
       .includeExclude(new IncludeExclude(lowercaseSubjects, null));
     return searchSource().query(query).size(0).from(0).aggregation(aggregation);
   }
+
+
+//  GET folio_instance_diku/_search?routing=diku
+//  {
+//    "query": {
+//    "bool": {
+//      "must": [
+//      {
+//        "match_phrase": {
+//        "contributors.plain_name": "Augustin, Harald"
+//      }
+//      },
+//      {
+//        "match_phrase": {
+//        "contributors.contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
+//      }
+//      }
+//      ]
+//    }
+//  }
+//  }
+//  /**
+//   * Creates subject count query from given subject list.
+//   *
+//   * @param contributors - list with contributors
+//   * @return search source for subject counting
+//   */
+//  public static SearchSourceBuilder getContributorsCountsQuery(Collection<Pair<String, String>> contributors) {
+//    var nameField = getPathToFulltextPlainValue("contributors.name");
+//    var typeField = getPathToFulltextPlainValue("contributors.contributorNameTypeId");
+//    var lowercaseSubjects = contributors.stream().map(subject -> subject.toLowerCase(ROOT)).toArray(String[]::new);
+//    boolQuery().must()
+//    var query = boolQuery().filter(termsQuery(nameField, lowercaseSubjects));
+//    var aggregation = AggregationBuilders.terms(SUBJECT_AGGREGATION_NAME)
+//      .size(contributors.size()).field(nameField)
+//      .includeExclude(new IncludeExclude(lowercaseSubjects, null));
+//    return searchSource().query(query).size(0).from(0).aggregation(aggregation);
+//  }
 }

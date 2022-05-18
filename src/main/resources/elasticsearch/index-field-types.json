@@ -26,6 +26,18 @@
       "normalizer": "keyword_lowercase"
     }
   },
+  "keyword_trimmed": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_trimmed"
+    }
+  },
+  "whitespace": {
+    "mapping": {
+      "type": "text",
+      "analyzer": "whitespace"
+    }
+  },
   "date": {
     "mapping": {
       "type": "date",

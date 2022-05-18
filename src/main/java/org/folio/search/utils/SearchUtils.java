@@ -4,7 +4,6 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
-import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 
 import com.google.common.base.CaseFormat;
@@ -221,7 +220,7 @@ public class SearchUtils {
     if (description.isMultilang()) {
       return getMultilangValue(fieldName, fieldValue, languages);
     }
-    if (STANDARD_FIELD_TYPE.equals(description.getIndex())) {
+    if (description.hasFulltextIndex()) {
       return getStandardFulltextValue(fieldName, fieldValue, description.isIndexPlainValue());
     }
     return Collections.singletonMap(fieldName, fieldValue);

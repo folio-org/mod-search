@@ -58,7 +58,7 @@ import org.springframework.context.annotation.Import;
 @SpringBootTest(classes = {CqlSearchQueryConverter.class, ConverterTestConfiguration.class}, webEnvironment = NONE)
 class CqlSearchQueryConverterTest {
 
-  private static final List<String> TITLE_FIELDS = List.of("title.*", "source.*", "source");
+  private static final String[] TITLE_FIELDS = new String[] {"title.*", "source.*", "source"};
   private static final String TITLE_SEARCH_TYPE = "title";
   private static final String FIELD = "field";
 
@@ -84,7 +84,7 @@ class CqlSearchQueryConverterTest {
   @MethodSource("convertCqlQuerySearchGroupDataProvider")
   @DisplayName("convert_positive_parameterizedSearchGroup")
   void convert_positive_parameterizedSearchGroup(String cqlQuery, SearchSourceBuilder expected) {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE)).thenReturn(TITLE_FIELDS);
+    when(searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE)).thenReturn(List.of(TITLE_FIELDS));
     when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
 
     var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
@@ -95,8 +95,7 @@ class CqlSearchQueryConverterTest {
   void convert_positive_searchByGroupOfOneField() {
     when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
     var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
-    var expectedQuery = multiMatchQuery("value", "field").operator(AND).type(CROSS_FIELDS);
-    assertThat(actual).isEqualTo(searchSource().query(expectedQuery));
+    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field")));
   }
 
   @Test
@@ -138,8 +137,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(
-      multiMatchQuery("value", "field.*").operator(AND).type(CROSS_FIELDS)));
+    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")));
   }
 
   @Test
@@ -398,34 +396,31 @@ class CqlSearchQueryConverterTest {
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",
-        searchSource().query(multiMatchQuery("test-query",
-          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title any \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)))),
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title adj \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new))
-          .operator(AND).type(CROSS_FIELDS))),
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title == \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).type(PHRASE))),
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS).type(PHRASE))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
+          .must(multiMatchQuery("test-query", TITLE_FIELDS))
           .must(boolQuery()
             .should(matchQuery("languages", "eng").operator(AND))
             .should(matchQuery("languages", "ger").operator(AND))))),
 
       arguments("title all \"test-query\" not contributors = \"test-contributor\"",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))
+          .must(multiMatchQuery("test-query", TITLE_FIELDS))
           .mustNot(matchQuery("contributors", "test-contributor").operator(AND)))),
 
       arguments("title all \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query",
-          TITLE_FIELDS.toArray(String[]::new)).operator(AND).type(CROSS_FIELDS))),
+        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()

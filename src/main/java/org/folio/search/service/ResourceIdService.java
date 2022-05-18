@@ -56,15 +56,15 @@ public class ResourceIdService {
    * Returns resource ids for passed cql query in json format.
    * Should have a prepared job with ids in the database.
    *
-   * @param request      resource ids request as {@link CqlResourceIdsRequest} object
+   * @param jobId        async jobs id with prepared query
    * @param outputStream output stream where json will be written in.
    */
   @Transactional
-  public void streamIdsFromDatabaseAsJson(CqlResourceIdsRequest request, OutputStream outputStream) {
-    var job = jobRepository.getLastActualJob(request.getQuery().trim());
-    if (job == null) {
+  public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
+    var job = jobRepository.getById(jobId);
+    if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
-        format("Completed async job with query=[%s] was not found.", request.getQuery()));
+        format("Completed async job with query=[%s] was not found.", job.getQuery()));
     }
     processStreamToJson(outputStream, (json, counter) ->
       idsTemporaryRepository.streamIds(job.getTemporaryTableName(), resultSet -> {

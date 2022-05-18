@@ -7,7 +7,31 @@
   "fields": {
     "id": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": [ "search", "browse" ]
+    },
+    "personalName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "personalName",
+      "headingType": "Personal Name",
+      "authRefType": "Authorized"
+    },
+    "sftPersonalName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftPersonalName",
+      "headingType": "Personal Name",
+      "authRefType": "Reference"
+    },
+    "saftPersonalName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftPersonalName",
+      "headingType": "Personal Name",
+      "authRefType": "Auth/Ref"
     },
     "personalNameTitle": {
       "type": "authority",
@@ -15,6 +39,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "personalNameTitle",
       "headingType": "Personal Name",
+      "headingTypeExt": "Title",
       "authRefType": "Authorized"
     },
     "sftPersonalNameTitle": {
@@ -23,6 +48,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftPersonalNameTitle",
       "headingType": "Personal Name",
+      "headingTypeExt": "Title",
       "authRefType": "Reference"
     },
     "saftPersonalNameTitle": {
@@ -31,6 +57,31 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftPersonalNameTitle",
       "headingType": "Personal Name",
+      "headingTypeExt": "Title",
+      "authRefType": "Auth/Ref"
+    },
+    "corporateName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "corporateName",
+      "headingType": "Corporate Name",
+      "authRefType": "Authorized"
+    },
+    "sftCorporateName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftCorporateName",
+      "headingType": "Corporate Name",
+      "authRefType": "Reference"
+    },
+    "saftCorporateName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftCorporateName",
+      "headingType": "Corporate Name",
       "authRefType": "Auth/Ref"
     },
     "corporateNameTitle": {
@@ -39,6 +90,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "corporateNameTitle",
       "headingType": "Corporate Name",
+      "headingTypeExt": "Title",
       "authRefType": "Authorized"
     },
     "sftCorporateNameTitle": {
@@ -47,6 +99,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftCorporateNameTitle",
       "headingType": "Corporate Name",
+      "headingTypeExt": "Title",
       "authRefType": "Reference"
     },
     "saftCorporateNameTitle": {
@@ -55,6 +108,31 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftCorporateNameTitle",
       "headingType": "Corporate Name",
+      "headingTypeExt": "Title",
+      "authRefType": "Auth/Ref"
+    },
+    "meetingName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "meetingName",
+      "headingType": "Conference Name",
+      "authRefType": "Authorized"
+    },
+    "sftMeetingName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftMeetingName",
+      "headingType": "Conference Name",
+      "authRefType": "Reference"
+    },
+    "saftMeetingName": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftMeetingName",
+      "headingType": "Conference Name",
       "authRefType": "Auth/Ref"
     },
     "meetingNameTitle": {
@@ -63,6 +141,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "meetingNameTitle",
       "headingType": "Conference Name",
+      "headingTypeExt": "Title",
       "authRefType": "Authorized"
     },
     "sftMeetingNameTitle": {
@@ -71,6 +150,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftMeetingNameTitle",
       "headingType": "Conference Name",
+      "headingTypeExt": "Title",
       "authRefType": "Reference"
     },
     "saftMeetingNameTitle": {
@@ -79,6 +159,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftMeetingNameTitle",
       "headingType": "Conference Name",
+      "headingTypeExt": "Title",
       "authRefType": "Auth/Ref"
     },
     "geographicName": {
@@ -219,11 +300,14 @@
       }
     },
     "notes": {
-      "noteTypeId": {
-        "index": "source"
-      },
-      "value": {
-        "index": "source"
+      "type": "object",
+      "properties": {
+        "noteTypeId": {
+          "index": "source"
+        },
+        "value": {
+          "index": "source"
+        }
       }
     }
   },
@@ -234,12 +318,19 @@
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "headingType",
         "type": "collection",
         "secondarySort": [ "headingRef" ]
       }
+    },
+    "headingTypeExt": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "headingTypeRefProcessor",
+      "searchTypes": [ "filter" ],
+      "rawProcessing": true
     },
     "authRefType": {
       "type": "search",
@@ -247,7 +338,7 @@
       "processor": "authRefTypeProcessor",
       "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "authRefType",
         "type": "collection",
@@ -260,7 +351,7 @@
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
       "rawProcessing": true,
-      "showInResponse": true,
+      "showInResponse": [ "search", "browse" ],
       "mappings": {
         "copy_to": [ "sort_headingRef" ]
       }
@@ -273,7 +364,7 @@
   },
   "mappingsSource": { },
   "indexMappings": {
-    "sort_headingRef" : {
+    "sort_headingRef": {
       "type": "keyword",
       "normalizer": "keyword_lowercase"
     }

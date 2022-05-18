@@ -174,6 +174,21 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water--Analysis"),
           subjectBrowseItem(1, "Water--Microbiology")))),
 
+      arguments(aroundIncludingQuery, "music", 11, new SubjectBrowseResult()
+        .totalRecords(22).prev("Database design").next("Science--Methodology")
+        .items(List.of(
+          subjectBrowseItem(1, "Database design"),
+          subjectBrowseItem(1, "Database management"),
+          subjectBrowseItem(1, "Europe"),
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(3, "History"),
+          subjectBrowseItem(3, "Music", true),
+          subjectBrowseItem(1, "Philosophy"),
+          subjectBrowseItem(1, "Religion"),
+          subjectBrowseItem(1, "Rules"),
+          subjectBrowseItem(1, "Science"),
+          subjectBrowseItem(1, "Science--Methodology")))),
+
       arguments(aroundIncludingQuery, "FC", 5, new SubjectBrowseResult()
         .totalRecords(22).prev("Europe").next("Music")
         .items(List.of(
@@ -199,7 +214,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
 
       // browsing forward
       arguments(forwardQuery, "water", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev(null).next(null)
+        .totalRecords(22).prev("Water--Analysis").next(null)
         .items(List.of(
           subjectBrowseItem(1, "Water--Analysis"),
           subjectBrowseItem(1, "Water--Microbiology"),
@@ -207,7 +222,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water-supply")))),
 
       arguments(forwardQuery, "biology", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev(null).next("Fantasy")
+        .totalRecords(22).prev("Book").next("Fantasy")
         .items(List.of(
           subjectBrowseItem(1, "Book"),
           subjectBrowseItem(1, "Database design"),
@@ -217,7 +232,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev(null).next("Religion")
+        .totalRecords(22).prev("Fantasy").next("Religion")
         .items(List.of(
           subjectBrowseItem(1, "Fantasy"),
           subjectBrowseItem(3, "History"),
@@ -228,7 +243,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       arguments(forwardQuery, "Z", 10, subjectBrowseResult(22, emptyList())),
 
       arguments(forwardIncludingQuery, "water", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev(null).next(null)
+        .totalRecords(22).prev("Water").next(null)
         .items(List.of(
           subjectBrowseItem(1, "Water"),
           subjectBrowseItem(1, "Water--Analysis"),
@@ -237,7 +252,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water-supply")))),
 
       arguments(forwardIncludingQuery, "biology", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev(null).next("Fantasy")
+        .totalRecords(22).prev("Book").next("Fantasy")
         .items(List.of(
           subjectBrowseItem(1, "Book"),
           subjectBrowseItem(1, "Database design"),
@@ -247,7 +262,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
 
       // browsing backward
       arguments(backwardQuery, "water", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev("Science--Methodology").next(null)
+        .totalRecords(22).prev("Science--Methodology").next("United States")
         .items(List.of(
           subjectBrowseItem(1, "Science--Methodology"),
           subjectBrowseItem(1, "Science--Philosophy"),
@@ -256,7 +271,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "United States")))),
 
       arguments(backwardQuery, "fun", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev("Book").next(null)
+        .totalRecords(22).prev("Book").next("Fantasy")
         .items(List.of(
           subjectBrowseItem(1, "Book"),
           subjectBrowseItem(1, "Database design"),
@@ -265,7 +280,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Fantasy")))),
 
       arguments(backwardQuery, "G", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev("Book").next(null)
+        .totalRecords(22).prev("Book").next("Fantasy")
         .items(List.of(
           subjectBrowseItem(1, "Book"),
           subjectBrowseItem(1, "Database design"),
@@ -276,7 +291,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
       arguments(backwardQuery, "A", 10, subjectBrowseResult(22, emptyList())),
 
       arguments(backwardIncludingQuery, "water", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev("Science--Philosophy").next(null)
+        .totalRecords(22).prev("Science--Philosophy").next("Water")
         .items(List.of(
           subjectBrowseItem(1, "Science--Philosophy"),
           subjectBrowseItem(1, "Text"),
@@ -285,7 +300,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water")))),
 
       arguments(backwardIncludingQuery, "fun", 5, new SubjectBrowseResult()
-        .totalRecords(22).prev("Book").next(null)
+        .totalRecords(22).prev("Book").next("Fantasy")
         .items(List.of(
           subjectBrowseItem(1, "Book"),
           subjectBrowseItem(1, "Database design"),

@@ -18,13 +18,13 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": true
+      "showInResponse": [ "search", "call-number-browse" ]
     }
   },
   "fields": {
     "id": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": [ "search", "call-number-browse" ]
     },
     "hrid": {
       "index": "keyword"
@@ -37,7 +37,7 @@
       "searchTypes": "sort",
       "searchAliases": [ "title", "keyword" ],
       "index": "multilang",
-      "showInResponse": true
+      "showInResponse": [ "search", "call-number-browse" ]
     },
     "alternativeTitles": {
       "type": "object",
@@ -64,7 +64,7 @@
       "properties": {
         "value": {
           "searchAliases": [ "keyword" ],
-          "index": "keyword"
+          "index": "whitespace"
         },
         "identifierTypeId": {
           "index": "source"
@@ -77,11 +77,11 @@
         "name": {
           "searchAliases": [ "contributors", "keyword" ],
           "index": "standard",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "primary": {
           "index": "bool",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorNameTypeId": {
           "index": "standard",
@@ -89,7 +89,7 @@
         },
         "contributorTypeId": {
           "index": "standard",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         }
       }
     },
@@ -155,11 +155,11 @@
         "publisher": {
           "searchAliases": [ "publisher" ],
           "index": "multilang",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "dateOfPublication": {
           "index": "source",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         }
       }
     },
@@ -221,7 +221,7 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": true
+      "showInResponse": [ "search", "call-number-browse" ]
     },
     "items": {
       "type": "object",
@@ -280,21 +280,21 @@
           "properties": {
             "callNumber": {
               "index": "source",
-              "showInResponse": true
+              "showInResponse": [ "search", "call-number-browse" ]
             },
             "prefix": {
               "index": "source",
-              "showInResponse": true
+              "showInResponse": [ "search", "call-number-browse" ]
             },
             "suffix": {
               "index": "source",
-              "showInResponse": true
+              "showInResponse": [ "search", "call-number-browse" ]
             }
           }
         },
         "effectiveShelvingOrder": {
           "index": "source",
-          "showInResponse": true
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "tags": {
           "type": "object",

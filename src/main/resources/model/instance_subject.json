@@ -6,7 +6,8 @@
   },
   "fields": {
     "subject": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "browse" ]
     }
   }
 }

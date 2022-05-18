@@ -5,7 +5,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.SearchType.FACET;
@@ -22,17 +25,21 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.cql.SearchFieldModifier;
 import org.folio.search.exception.ResourceDescriptionException;
+import org.folio.search.model.Pair;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.model.types.ResponseGroupType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,7 +56,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   private final Map<String, SearchFieldModifier> searchFieldModifiers;
 
   private Set<String> supportedLanguages;
-  private Map<String, List<String>> sourceFields;
+  private Map<String, Map<ResponseGroupType, String[]>> sourceFields;
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
   private Map<String, Map<String, List<String>>> fieldsBySearchAlias;
 
@@ -82,8 +89,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public List<String> getSourceFields(String resource) {
-    return sourceFields.getOrDefault(resource, emptyList());
+  public String[] getSourceFields(String resource, ResponseGroupType groupType) {
+    return sourceFields.getOrDefault(resource, emptyMap()).get(groupType);
   }
 
   @Override
@@ -172,7 +179,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   private static long getSearchTermProcessorFieldCount(Map<String, PlainFieldDescription> fields,
-                                                       List<String> fieldNames) {
+    List<String> fieldNames) {
     return fieldNames.stream()
       .map(LocalSearchFieldProvider::cleanUpFieldNameForValidation)
       .map(fields::get)
@@ -193,18 +200,27 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       : singletonList(path);
   }
 
-  private static Map<String, List<String>> collectSourceFields(List<ResourceDescription> descriptions) {
-    var sourceFieldPerResource = new LinkedHashMap<String, List<String>>();
+  private static Map<String, Map<ResponseGroupType, String[]>> collectSourceFields(
+    List<ResourceDescription> descriptions) {
+    var sourceFieldPerResource = new LinkedHashMap<String, Map<ResponseGroupType, String[]>>();
+
     for (var desc : descriptions) {
       var sourcePaths = desc.getFlattenFields().entrySet().stream()
-        .filter(entry -> entry.getValue().isShowInResponse())
-        .map(entry -> entry.getValue().isMultilang() ? getPathToFulltextPlainValue(entry.getKey()) : entry.getKey())
-        .collect(toUnmodifiableList());
-
+        .flatMap(LocalSearchFieldProvider::getResponseGroupFieldNamePairs)
+        .collect(groupingBy(Pair::getFirst, mapping(
+          Pair::getSecond, collectingAndThen(toList(), list -> list.toArray(String[]::new)))));
       sourceFieldPerResource.put(desc.getName(), sourcePaths);
     }
 
     return unmodifiableMap(sourceFieldPerResource);
+  }
+
+  private static Stream<Pair<ResponseGroupType, String>> getResponseGroupFieldNamePairs(
+    Entry<String, PlainFieldDescription> entry) {
+    var name = entry.getKey();
+    var fieldDesc = entry.getValue();
+    var sourceFieldName = fieldDesc.isMultilang() ? getPathToFulltextPlainValue(name) : name;
+    return fieldDesc.getShowInResponse().stream().map(groupType -> Pair.of(groupType, sourceFieldName));
   }
 
   private Set<String> getSupportedLanguages() {

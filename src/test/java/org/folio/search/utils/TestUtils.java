@@ -58,6 +58,7 @@ import org.elasticsearch.search.aggregations.bucket.range.ParsedRange;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
+import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -212,6 +213,10 @@ public class TestUtils {
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority, boolean isAnchor) {
     return new AuthorityBrowseItem().headingRef(heading).isAnchor(isAnchor).authority(authority);
+  }
+
+  public static AuthorityBrowseResult authorityBrowseResult(int size, List<AuthorityBrowseItem> items) {
+    return new AuthorityBrowseResult().items(items).totalRecords(size);
   }
 
   public static String randomId() {

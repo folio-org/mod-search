@@ -35,6 +35,7 @@
   },
   "additionalProperties": false,
   "required": [
-    "query"
+    "query",
+    "entityType"
   ]
 }

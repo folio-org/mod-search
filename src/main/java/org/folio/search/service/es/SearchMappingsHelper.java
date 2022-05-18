@@ -3,7 +3,7 @@ package org.folio.search.service.es;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toMap;
-import static org.folio.search.model.metadata.PlainFieldDescription.PLAIN_FULLTEXT_FIELD_TYPE;
+import static org.folio.search.model.metadata.PlainFieldDescription.FULLTEXT_FIELD_TYPES;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
@@ -110,7 +110,7 @@ public class SearchMappingsHelper {
       }
 
       var fulltextEsMappings = new LinkedHashMap<String, JsonNode>(2, 1.0f);
-      var plainFieldMappings = getSearchFieldTypeMappings(PLAIN_FULLTEXT_FIELD_TYPE);
+      var plainFieldMappings = getSearchFieldTypeMappings(FULLTEXT_FIELD_TYPES.get(indexType));
       fulltextEsMappings.put(name, mappings);
       fulltextEsMappings.put(PLAIN_FULLTEXT_PREFIX + name, withCustomMappings(plainFieldMappings, customMappings));
       return fulltextEsMappings;

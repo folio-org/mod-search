@@ -110,29 +110,19 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    */
   protected abstract BrowseResult<T> mapToBrowseResult(SearchResult<R> searchResult, boolean isAnchor);
 
-  /**
-   * Returns the value for browsing as {@link String} from {@link T} item.
-   *
-   * @param browseItem - browse item to process.
-   * @return value for next/prev field in browse response
-   */
-  protected abstract String getValueForBrowsing(T browseItem);
-
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
     var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
     var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
 
     var anchorRecords = getAnchorSearchResult(request, context, responses).getRecords();
-    var precedingRecords = mapToBrowseResult(precedingResult, false).getRecords();
+    var precedingRecords = reverse(mapToBrowseResult(precedingResult, false).getRecords());
     var succeedingRecords = mergeSafelyToList(anchorRecords, mapToBrowseResult(succeedingResult, false).getRecords());
 
     return new BrowseResult<T>()
       .totalRecords(precedingResult.getTotalRecords())
-      .prev(getNextValueForBrowsing(precedingRecords, context.getPrecedingLimit()))
-      .next(getNextValueForBrowsing(succeedingRecords, context.getSucceedingLimit()))
-      .records(mergeSafelyToList(
-        trim(reverse(precedingRecords), context, false),
-        trim(succeedingRecords, context, true)));
+      .prev(getPrevBrowsingValue(precedingRecords, context, false))
+      .next(getNextBrowsingValue(succeedingRecords, context, true))
+      .records(mergeSafelyToList(trim(precedingRecords, context, false), trim(succeedingRecords, context, true)));
   }
 
   private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
@@ -157,7 +147,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var browseResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
     var anchorResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
     var records = mergeSafelyToList(anchorResult.getRecords(), browseResult.getRecords());
-    return getBrowseResult(SearchResult.of(browseResult.getTotalRecords(), records), request, context);
+    return getBrowseResult(SearchResult.of(browseResult.getTotalRecords(), records), context);
   }
 
   private BrowseResult<T> getSearchResultWithoutAnchor(BrowseRequest request, BrowseContext context) {
@@ -165,19 +155,17 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var searchSource = getSearchQuery(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
     var searchResult = documentConverter.convertToSearchResult(searchResponse, browseResponseClass);
-    return getBrowseResult(searchResult, request, context);
+    return getBrowseResult(searchResult, context);
   }
 
-  private BrowseResult<T> getBrowseResult(SearchResult<R> result, BrowseRequest request, BrowseContext context) {
+  private BrowseResult<T> getBrowseResult(SearchResult<R> result, BrowseContext context) {
     var isBrowsingForward = context.isBrowsingForward();
     var browseResult = mapToBrowseResult(result, false);
-    var nextValue = getNextValueForBrowsing(browseResult.getRecords(), request.getLimit());
-    browseResult = isBrowsingForward ? browseResult.next(nextValue) : browseResult.prev(nextValue);
     var records = isBrowsingForward ? browseResult.getRecords() : reverse(browseResult.getRecords());
-    return browseResult.records(trim(records, context, isBrowsingForward));
-  }
-
-  private String getNextValueForBrowsing(List<T> records, int limit) {
-    return records.size() <= limit ? null : getValueForBrowsing(records.get(limit - 1));
+    return new BrowseResult<T>()
+      .totalRecords(browseResult.getTotalRecords())
+      .prev(getPrevBrowsingValue(records, context, isBrowsingForward))
+      .next(getNextBrowsingValue(records, context, isBrowsingForward))
+      .records(trim(records, context, isBrowsingForward));
   }
 }

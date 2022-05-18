@@ -31,13 +31,13 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
 
-  public static final String SCRIPT_1 = "def instanceIds=new LinkedHashSet(ctx._source.instances);" +
-    "instanceIds.addAll(params.ins);" +
-    "params.del.forEach(instanceIds::remove);" +
-    "ctx._source.instances=instanceIds;" +
-    "def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1])" +
-    ".sorted().collect(Collectors.toCollection(LinkedHashSet::new));" +
-    "ctx._source.contributorTypeId=typeIds";
+  public static final String SCRIPT_1 = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
+    + "instanceIds.addAll(params.ins);"
+    + "params.del.forEach(instanceIds::remove);"
+    + "ctx._source.instances=instanceIds;"
+    + "def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1])"
+    + ".sorted().collect(Collectors.toCollection(LinkedHashSet::new));"
+    + "ctx._source.contributorTypeId=typeIds";
 
   private final JsonConverter jsonConverter;
 

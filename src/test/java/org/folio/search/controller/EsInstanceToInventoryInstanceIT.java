@@ -22,7 +22,6 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest

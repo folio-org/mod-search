@@ -10,6 +10,7 @@ import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.contributorBrowseItem;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -43,16 +44,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 @IntegrationTest
 class ContributorBrowseIT extends BaseIntegrationTest {
 
-  private static final String[] NAME_TYPE_IDS = new String[] {
+  private static final String[] NAME_TYPE_IDS = array(
     "e2ef4075-310a-4447-a231-712bf10cc985",
     "0ad0a89a-741d-4f1a-85a6-ada214751013",
     "1f857623-89ca-4f0b-ab56-5c30f706df3e"
-  };
-  private static final String[] TYPE_IDS = new String[] {
+  );
+  private static final String[] TYPE_IDS = array(
     "2a165833-1673-493f-934b-f3d3c8fcb299",
     "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
     "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
-  };
+  );
   private static final Instance[] INSTANCES = instances();
 
   @BeforeAll
@@ -239,7 +240,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
     return new Instance()
       .id(randomId())
       .title((String) data.get(0))
-      .contributors(((List<Contributor>) data.get(1)))
+      .contributors((List<Contributor>) data.get(1))
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());
@@ -294,11 +295,6 @@ class ContributorBrowseIT extends BaseIntegrationTest {
     actual.getItems().sort(Comparator.comparing(InstanceContributorBrowseItem::getName, StringUtils::compareIgnoreCase)
       .thenComparing((o1, o2) -> StringUtils.compare(o1.getContributorNameTypeId(), o2.getContributorNameTypeId())));
     assertThat(actual).isEqualTo(expected);
-//      .extracting("totalRecords", "prev", "next")
-//      .contains(expected.getTotalRecords(), expected.getPrev(), expected.getNext());
-//    assertThat(actual.getItems()).matches(instanceContributorBrowseItems -> {
-//
-//    })
   }
 
 }

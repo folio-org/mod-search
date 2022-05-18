@@ -58,48 +58,6 @@ public class KafkaMessageListener {
   private final KafkaTemplate<String, Object> kafkaTemplate;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
 
-  private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
-    return events.stream()
-      .map(KafkaMessageListener::getInstanceResourceEvent)
-      .filter(Objects::nonNull)
-      .distinct()
-      .collect(toList());
-  }
-
-  private static ResourceEvent getInstanceResourceEvent(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    var instanceId = getInstanceId(consumerRecord);
-    var value = consumerRecord.value();
-    if (instanceId == null) {
-      log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\s+", " "));
-      return null;
-    }
-    var operation = isInstanceResource(consumerRecord) ? value.getType() : CREATE;
-    return value.id(instanceId).type(operation).resourceName(INSTANCE_RESOURCE);
-  }
-
-  private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
-    var body = event.value();
-    if (body.getType() == REINDEX) {
-      return event.key();
-    }
-    var eventPayload = getEventPayload(body);
-    return isInstanceResource(event) ? getString(eventPayload, ID_FIELD) : getString(eventPayload, INSTANCE_ID_FIELD);
-  }
-
-  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
-  }
-
-  private static void logFailedEvent(ResourceEvent event, Exception e) {
-    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
-      event.getType().getValue(), event.getType(), event.getTenant(), event.getId(), e);
-  }
-
-  private static String getContributorId(String tenantId, Contributor contributor) {
-    return sha1Hex(
-      tenantId + "|" + contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
-  }
-
   /**
    * Handles instance events and indexes them by id.
    *
@@ -163,6 +121,48 @@ public class KafkaMessageListener {
       resourceService::indexResources, KafkaMessageListener::logFailedEvent);
   }
 
+  private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
+    return events.stream()
+      .map(KafkaMessageListener::getInstanceResourceEvent)
+      .filter(Objects::nonNull)
+      .distinct()
+      .collect(toList());
+  }
+
+  private static ResourceEvent getInstanceResourceEvent(ConsumerRecord<String, ResourceEvent> consumerRecord) {
+    var instanceId = getInstanceId(consumerRecord);
+    var value = consumerRecord.value();
+    if (instanceId == null) {
+      log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\s+", " "));
+      return null;
+    }
+    var operation = isInstanceResource(consumerRecord) ? value.getType() : CREATE;
+    return value.id(instanceId).type(operation).resourceName(INSTANCE_RESOURCE);
+  }
+
+  private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
+    var body = event.value();
+    if (body.getType() == REINDEX) {
+      return event.key();
+    }
+    var eventPayload = getEventPayload(body);
+    return isInstanceResource(event) ? getString(eventPayload, ID_FIELD) : getString(eventPayload, INSTANCE_ID_FIELD);
+  }
+
+  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
+    return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
+  }
+
+  private static void logFailedEvent(ResourceEvent event, Exception e) {
+    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
+      event.getType().getValue(), event.getType(), event.getTenant(), event.getId(), e);
+  }
+
+  private static String getContributorId(String tenantId, Contributor contributor) {
+    return sha1Hex(
+      tenantId + "|" + contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
+  }
+
   private void sendContributorEventsToKafka(ResourceEvent event) {
     var type = new TypeReference<List<Contributor>>() { };
     var oldContributors = getContributors(getOldAsMap(event), type);
@@ -172,10 +172,6 @@ public class KafkaMessageListener {
     sendContributorEventsToKafka(event, subtract(oldContributors, newContributors), DELETE);
   }
 
-  private List<Contributor> getContributors(Map<String, Object> objectMap, TypeReference<List<Contributor>> type) {
-    return jsonConverter.convert(getObject(objectMap, INSTANCE_CONTRIBUTORS_FIELD_NAME, emptyList()), type);
-  }
-
   private void sendContributorEventsToKafka(ResourceEvent evt, Set<Contributor> contributors, ResourceEventType type) {
     var tenantId = evt.getTenant();
     var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
@@ -183,6 +179,10 @@ public class KafkaMessageListener {
     contributors.stream()
       .map(contributor -> prepareResourceEvent(contributor, instanceId, type, tenantId))
       .forEach(resourceEvent -> kafkaTemplate.send(topicName, resourceEvent.getId(), resourceEvent));
+  }
+
+  private List<Contributor> getContributors(Map<String, Object> objectMap, TypeReference<List<Contributor>> type) {
+    return jsonConverter.convert(getObject(objectMap, INSTANCE_CONTRIBUTORS_FIELD_NAME, emptyList()), type);
   }
 
   private ResourceEvent prepareResourceEvent(Contributor contributor, String instanceId, ResourceEventType type,

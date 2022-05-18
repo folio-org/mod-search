@@ -7,19 +7,18 @@
   "fields": {
     "name": {
       "index": "keyword_lowercase",
-      "showInResponse": true
+      "showInResponse": [ "browse" ]
     },
     "contributorTypeId": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": [ "browse" ]
     },
     "contributorNameTypeId": {
       "index": "keyword",
-      "showInResponse": true
+      "showInResponse": [ "browse" ]
     },
     "instances": {
-      "index": "source",
-      "showInResponse": true
+      "index": "source"
     }
   }
 }

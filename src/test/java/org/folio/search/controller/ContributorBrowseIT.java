@@ -102,15 +102,6 @@ class ContributorBrowseIT extends BaseIntegrationTest {
           contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[0], TYPE_IDS[1])))),
 
-      arguments(aroundIncludingQuery, "bon jovi", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev("Anthony Kiedis").next("George Harrison")
-        .items(List.of(
-          contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0]),
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2])))),
-
       arguments(aroundIncludingQuery, "Meine", 5, new InstanceContributorBrowseResult()
         .totalRecords(10).prev("Klaus Meine").next(null)
         .items(List.of(

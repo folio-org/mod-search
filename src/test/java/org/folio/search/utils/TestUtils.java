@@ -191,8 +191,9 @@ public class TestUtils {
     return contributorBrowseItem(totalRecords, false, name, nameTypeId, typeIds);
   }
 
-  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name) {
-    return new InstanceContributorBrowseItem()      .name(name)      .totalRecords(totalRecords)      .isAnchor(isAnchor);
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
+                                                                    String name) {
+    return new InstanceContributorBrowseItem().name(name).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name,
@@ -437,7 +438,7 @@ public class TestUtils {
   }
 
   public static Map<String, Object> toMap(Object value) {
-    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() {});
+    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() { });
   }
 
   public static <T> void doIfNotNull(T value, Consumer<T> valueConsumer) {

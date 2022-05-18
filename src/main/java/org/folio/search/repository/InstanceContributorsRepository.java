@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_LANG;
 import static org.elasticsearch.script.ScriptType.INLINE;
-
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
@@ -15,13 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.script.Script;
-import org.springframework.stereotype.Repository;
-
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.model.index.ContributorResource;
@@ -29,6 +25,7 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor

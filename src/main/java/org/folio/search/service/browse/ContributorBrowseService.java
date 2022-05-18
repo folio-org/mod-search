@@ -1,41 +1,24 @@
 package org.folio.search.service.browse;
 
-import static java.lang.Boolean.TRUE;
-import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
-
-import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
-import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toListSafe;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortMode;
-import org.springframework.stereotype.Service;
-
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ContributorBrowseService extends
@@ -90,8 +73,6 @@ public class ContributorBrowseService extends
 //    firstBrowseItem.setIsAnchor(true);
 //  }
 
-
-
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     var boolQuery = boolQuery().filter(FILTER_QUERY)
@@ -106,7 +87,7 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
-      .searchAfter(new Object[]{ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
 //      .searchAfter(new Object[]{ctx.getAnchor().toLowerCase(ROOT), ""})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
 //      .sort(fieldSort("contributorNameTypeId").order(isBrowsingForward ? ASC : DESC).missing("_first"))
@@ -120,7 +101,8 @@ public class ContributorBrowseService extends
   }
 
   @Override
-  protected BrowseResult<InstanceContributorBrowseItem> mapToBrowseResult(SearchResult<ContributorResource> res, boolean isAnchor) {
+  protected BrowseResult<InstanceContributorBrowseItem> mapToBrowseResult(SearchResult<ContributorResource> res,
+                                                                          boolean isAnchor) {
     return BrowseResult.of(res)
       .map(item -> new InstanceContributorBrowseItem()
         .name(item.getName())

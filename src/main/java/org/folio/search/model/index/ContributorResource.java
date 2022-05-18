@@ -1,8 +1,6 @@
 package org.folio.search.model.index;
 
-import java.util.List;
 import java.util.Set;
-
 import lombok.Data;
 
 @Data

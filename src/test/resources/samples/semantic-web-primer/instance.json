@@ -64,13 +64,13 @@
     {
       "name": "Antoniou, Grigoris",
       "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-      "contributorTypeText": "",
+      "contributorTypeText": null,
       "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
     },
     {
       "name": "Van Harmelen, Frank",
       "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-      "contributorTypeText": "",
+      "contributorTypeText": null,
       "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
       "primary": true
     }

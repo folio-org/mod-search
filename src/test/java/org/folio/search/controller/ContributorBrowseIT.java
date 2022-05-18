@@ -159,12 +159,12 @@ class ContributorBrowseIT extends BaseIntegrationTest {
 
       // browsing forward
       arguments(forwardQuery, "ringo", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev(null).next(null)
+        .totalRecords(10).prev("Ringo Starr").next(null)
         .items(List.of(
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[0], TYPE_IDS[1])))),
 
       arguments(forwardQuery, "anthony", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev(null).next("George Harrison")
+        .totalRecords(10).prev("Anthony Kiedis").next("George Harrison")
         .items(List.of(
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0]),
@@ -175,12 +175,12 @@ class ContributorBrowseIT extends BaseIntegrationTest {
       arguments(forwardQuery, "Z", 10, new InstanceContributorBrowseResult().totalRecords(10).items(emptyList())),
 
       arguments(forwardIncludingQuery, "Ringo Starr", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev(null).next(null)
+        .totalRecords(10).prev("Ringo Starr").next(null)
         .items(List.of(
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[0], TYPE_IDS[1])))),
 
       arguments(forwardIncludingQuery, "anthony", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev(null).next("George Harrison")
+        .totalRecords(10).prev("Anthony Kiedis").next("George Harrison")
         .items(List.of(
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0]),
@@ -190,7 +190,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
 
       // browsing backward
       arguments(backwardQuery, "Ringo Starr", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev("George Harrison").next(null)
+        .totalRecords(10).prev("George Harrison").next("Paul McCartney")
         .items(List.of(
           contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
@@ -199,7 +199,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
           contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2])))),
 
       arguments(backwardQuery, "R", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev("George Harrison").next(null)
+        .totalRecords(10).prev("George Harrison").next("Paul McCartney")
         .items(List.of(
           contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
@@ -210,7 +210,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
       arguments(backwardQuery, "A", 10, new InstanceContributorBrowseResult().totalRecords(10).items(emptyList())),
 
       arguments(backwardIncludingQuery, "Ringo Starr", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev("John Lennon").next(null)
+        .totalRecords(10).prev("John Lennon").next("Ringo Starr")
         .items(List.of(
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
           contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], (String[]) null),
@@ -219,7 +219,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[0], TYPE_IDS[1])))),
 
       arguments(backwardIncludingQuery, "ringo", 5, new InstanceContributorBrowseResult()
-        .totalRecords(10).prev("George Harrison").next(null)
+        .totalRecords(10).prev("George Harrison").next("Paul McCartney")
         .items(List.of(
           contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),

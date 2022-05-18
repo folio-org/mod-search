@@ -25,6 +25,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
+import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -44,6 +45,7 @@ class BrowseControllerTest {
   @MockBean private SubjectBrowseService subjectBrowseService;
   @MockBean private AuthorityBrowseService authorityBrowseService;
   @MockBean private CallNumberBrowseService callNumberBrowseService;
+  @MockBean private ContributorBrowseService contributorBrowseService;
 
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {

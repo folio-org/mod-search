@@ -159,8 +159,8 @@ public class KafkaMessageListener {
   }
 
   private static String getContributorId(String tenantId, Contributor contributor) {
-    return sha1Hex(
-      tenantId + "|" + contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
+    return sha1Hex(tenantId + "|" + //NOSONAR
+      contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
   }
 
   private void sendContributorEventsToKafka(ResourceEvent event) {

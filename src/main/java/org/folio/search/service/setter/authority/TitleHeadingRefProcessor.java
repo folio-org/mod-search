@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class HeadingTypeRefProcessor extends AbstractAuthorityProcessor {
+public class TitleHeadingRefProcessor extends AbstractAuthorityProcessor {
 
   @Override
   public String getFieldValue(Map<String, Object> eventBody) {
-    return getAuthorityType(eventBody, AuthorityFieldDescription::getHeadingTypeExt, null);
+    return getAuthorityType(eventBody, AuthorityFieldDescription::getIsTitleHeadingRef, Boolean.FALSE.toString());
   }
 }

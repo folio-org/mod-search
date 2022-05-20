@@ -93,7 +93,8 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(headingType==\"Uniform Title\")", List.of(IDS[11], IDS[12], IDS[13])),
 
       arguments("(isTitleHeadingRef==true)", List.of(IDS[2], IDS[4])),
-      arguments("(isTitleHeadingRef==false and headingType==\"Personal Name\")", List.of(IDS[0], IDS[1], IDS[3], IDS[14])),
+      arguments("(isTitleHeadingRef==false and headingType==\"Personal Name\")",
+        List.of(IDS[0], IDS[1], IDS[3], IDS[14])),
 
       arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", emptyList()),
       arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", List.of(IDS[13])),

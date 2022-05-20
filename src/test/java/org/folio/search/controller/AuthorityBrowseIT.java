@@ -52,9 +52,9 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithAdditionalFilters() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value}) " +
-        "and isTitleHeadingRef==false " +
-        "and headingType==(\"Personal Name\")", "\"James Rollins\""))
+      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value}) "
+        + "and isTitleHeadingRef==false "
+        + "and headingType==(\"Personal Name\")", "\"James Rollins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);

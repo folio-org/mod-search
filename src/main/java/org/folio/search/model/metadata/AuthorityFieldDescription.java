@@ -19,7 +19,7 @@ public class AuthorityFieldDescription extends PlainFieldDescription {
   private String headingType;
 
   /**
-   * Specify if this authority has title in heading
+   * Specify if this authority has title in heading.
    */
   private String isTitleHeadingRef;
 

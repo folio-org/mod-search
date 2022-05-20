@@ -28,6 +28,11 @@ public class ResourceDescription {
   private String parent;
 
   /**
+   * Indicates if the resource could be reindexed.
+   */
+  private boolean reindexSupported = false;
+
+  /**
    * Related java class for event body.
    */
   private Class<?> eventBodyJavaClass;

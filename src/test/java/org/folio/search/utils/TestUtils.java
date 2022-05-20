@@ -265,13 +265,6 @@ public class TestUtils {
     return resourceDescription(RESOURCE_NAME, fields);
   }
 
-  public static ResourceDescription resourceDescription(String name, Map<String, FieldDescription> fields) {
-    var resourceDescription = new ResourceDescription();
-    resourceDescription.setName(name);
-    resourceDescription.setFields(fields);
-    return resourceDescription;
-  }
-
   public static ResourceDescription resourceDescription(
     Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
     var resourceDescription = resourceDescription(RESOURCE_NAME, fields);
@@ -282,6 +275,15 @@ public class TestUtils {
   public static ResourceDescription secondaryResourceDescription(String name, String parent) {
     var resourceDescription = resourceDescription(name, emptyMap());
     resourceDescription.setParent(parent);
+    resourceDescription.setReindexSupported(false);
+    return resourceDescription;
+  }
+
+  public static ResourceDescription resourceDescription(String name, Map<String, FieldDescription> fields) {
+    var resourceDescription = new ResourceDescription();
+    resourceDescription.setName(name);
+    resourceDescription.setFields(fields);
+    resourceDescription.setReindexSupported(true);
     return resourceDescription;
   }
 

@@ -66,6 +66,7 @@ import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -184,6 +185,26 @@ public class TestUtils {
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
     return new SubjectBrowseItem().subject(subject);
+  }
+
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
+                                                                    String nameTypeId, String... typeIds) {
+    return contributorBrowseItem(totalRecords, false, name, nameTypeId, typeIds);
+  }
+
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
+                                                                    String name) {
+    return new InstanceContributorBrowseItem().name(name).totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name,
+                                                                    String nameTypeId, String... typeIds) {
+    return new InstanceContributorBrowseItem()
+      .name(name)
+      .contributorNameTypeId(nameTypeId)
+      .contributorTypeId(typeIds != null ? Arrays.asList(typeIds) : null)
+      .totalRecords(totalRecords)
+      .isAnchor(isAnchor);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {
@@ -422,7 +443,7 @@ public class TestUtils {
   }
 
   public static Map<String, Object> toMap(Object value) {
-    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() {});
+    return OBJECT_MAPPER.convertValue(value, new TypeReference<>() { });
   }
 
   public static <T> void doIfNotNull(T value, Consumer<T> valueConsumer) {

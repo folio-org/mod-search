@@ -10,7 +10,6 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.utils.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,9 +40,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   private static Stream<ResourceEvent> getSubjectsAsStreamSubtracting(
     List<String> subjects, List<String> subjectsToRemove, String tenantId, ResourceEventType eventType) {
-    var result = new LinkedHashSet<>(subjects);
-    subjectsToRemove.forEach(result::remove);
-    return result.stream()
+    return CollectionUtils.subtract(subjects, subjectsToRemove).stream()
       .filter(StringUtils::isNotBlank)
       .map(StringUtils::trim)
       .map(subject -> convertToBrowseEvent(subject, tenantId, eventType));

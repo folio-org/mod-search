@@ -80,6 +80,7 @@ class IndexingIT extends BaseIntegrationTest {
   void shouldUpdateAndDeleteInstance() {
     var instanceId = randomId();
     var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of("s1", "s2"));
+
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);
     assertSubjectExistenceById(sha256Hex("s1"), true);

@@ -4,6 +4,8 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
@@ -11,6 +13,7 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.BrowseRequest;
@@ -18,6 +21,7 @@ import org.folio.search.model.service.BrowseRequest.BrowseRequestBuilder;
 import org.folio.search.rest.resource.BrowseApi;
 import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
+import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +35,22 @@ public class BrowseController implements BrowseApi {
   private final SubjectBrowseService subjectBrowseService;
   private final AuthorityBrowseService authorityBrowseService;
   private final CallNumberBrowseService callNumberBrowseService;
+  private final ContributorBrowseService contributorBrowseService;
+
+  @Override
+  public ResponseEntity<ContributorBrowseResult> browseInstancesByContributor(String query, String tenant,
+                                                                              Integer limit, Boolean highlightMatch,
+                                                                              Integer precedingRecordsCount) {
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
+      .resource(CONTRIBUTOR_RESOURCE).targetField(CONTRIBUTOR_BROWSING_FIELD).build();
+
+    var browseResult = contributorBrowseService.browse(browseRequest);
+    return ResponseEntity.ok(new ContributorBrowseResult()
+      .items(browseResult.getRecords())
+      .totalRecords(browseResult.getTotalRecords())
+      .prev(browseResult.getPrev())
+      .next(browseResult.getNext()));
+  }
 
   @Override
   public ResponseEntity<CallNumberBrowseResult> browseInstancesByCallNumber(String query, String tenant,

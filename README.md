@@ -528,6 +528,7 @@ does not produce any values, so the following search options will return an empt
 Supported browsing values
 
 * subject (`${okapi}/browse/subjects/instances`)
+* contributor (`${okapi}/browse/contributors/instances`)
 * callNumber (`${okapi}/browse/call-numbers/instances`, approach: [call number browsing](doc/browsing.md#call-number-browsing))
 
 **Query parameters**

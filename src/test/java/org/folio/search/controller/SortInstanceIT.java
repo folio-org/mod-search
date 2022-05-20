@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -82,7 +82,7 @@ class SortInstanceIT extends BaseIntegrationTest {
   }
 
   private static Instance[] instances() {
-    var instances = new Instance[]{
+    var instances = new Instance[] {
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
       getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
@@ -91,23 +91,23 @@ class SortInstanceIT extends BaseIntegrationTest {
     instances[0]
       .title("Animal farm")
       .indexTitle("B1 Animal farm")
-      .addContributorsItem(new InstanceContributors().name("yyy zzz"));
+      .addContributorsItem(new Contributor().name("yyy zzz"));
 
     instances[1]
       .title("Zero Minus Ten")
       .indexTitle(null)
-      .addContributorsItem(new InstanceContributors().name("aaa bbb").primary(false))
-      .addContributorsItem(new InstanceContributors().name("bbb ccc").primary(true));
+      .addContributorsItem(new Contributor().name("aaa bbb").primary(false))
+      .addContributorsItem(new Contributor().name("bbb ccc").primary(true));
 
     instances[2]
       .title("Calling Me Home")
       .indexTitle("A1 Calling Me Home")
-      .addContributorsItem(new InstanceContributors().name("bcc ccc"));
+      .addContributorsItem(new Contributor().name("bcc ccc"));
 
     instances[3]
       .title("Walk in My Soul")
       .indexTitle(null)
-      .addContributorsItem(new InstanceContributors().name("1111 2222").primary(true));
+      .addContributorsItem(new Contributor().name("1111 2222").primary(true));
 
     return instances;
   }

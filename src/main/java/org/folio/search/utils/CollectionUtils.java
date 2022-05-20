@@ -46,8 +46,8 @@ public final class CollectionUtils {
    * Merges given array of maps into single {@link LinkedHashMap} object.
    *
    * @param maps array of maps to merge into single one.
-   * @param <K> generic type for map key
-   * @param <V> generic type for map value
+   * @param <K>  generic type for map key
+   * @param <V>  generic type for map value
    * @return merged maps into one {@link LinkedHashMap} object, null - if result is empty.
    */
   @SafeVarargs
@@ -66,12 +66,12 @@ public final class CollectionUtils {
   /**
    * Converts iterable to {@link LinkedHashMap} using given mapper functions.
    *
-   * @param iterable - iterable value to process as {@link Iterable} object
-   * @param keyMapper - key mapper as {@link Function} object
+   * @param iterable    - iterable value to process as {@link Iterable} object
+   * @param keyMapper   - key mapper as {@link Function} object
    * @param valueMapper - value mapper as {@link Function} object
-   * @param <T> generic type for iterable value
-   * @param <K> generic type for map key
-   * @param <V> generic type for map value
+   * @param <T>         generic type for iterable value
+   * @param <K>         generic type for map key
+   * @param <V>         generic type for map value
    * @return created {@link LinkedHashMap} object from {@link Iterable}
    */
   public static <T, K, V> Map<K, V> toMap(Iterable<T> iterable, Function<T, K> keyMapper, Function<T, V> valueMapper) {
@@ -86,7 +86,7 @@ public final class CollectionUtils {
    * Merges given array of collections into single {@link LinkedHashSet} object.
    *
    * @param collections array of sets to merge into single one.
-   * @param <T> generic type for collection value
+   * @param <T>         generic type for collection value
    * @return merged maps into one {@link LinkedHashSet} object.
    */
   @SafeVarargs
@@ -104,7 +104,7 @@ public final class CollectionUtils {
    * Merges given array of collections into single {@link ArrayList} object.
    *
    * @param collections array of collection to merge into single one.
-   * @param <T> generic type for collection value
+   * @param <T>         generic type for collection value
    * @return merged maps into one {@link LinkedHashSet} object.
    */
   @SafeVarargs
@@ -121,10 +121,10 @@ public final class CollectionUtils {
   /**
    * Adds all values from the passed list to the initial. Does nothing if initial or given list is null.
    *
-   * @param initial initial list, where values should be added
+   * @param initial      initial list, where values should be added
    * @param sourceValues list with source values
-   * @param addToTop boolean property, which specifies if values should be added to the beginning of the list or not
-   * @param <T> generic type for list values
+   * @param addToTop     boolean property, which specifies if values should be added to the beginning of the list or not
+   * @param <T>          generic type for list values
    */
   public static <T> void addToList(List<T> initial, List<T> sourceValues, boolean addToTop) {
     if (initial == null || sourceValues == null) {
@@ -148,8 +148,8 @@ public final class CollectionUtils {
    * Collects elements from the given {@link Iterable} object into the new {@link LinkedHashMap} object.
    *
    * @param keyMapper - key mapper as {@link Function} object
-   * @param <K> - generic type for map keys
-   * @param <V> - generic type for map values
+   * @param <K>       - generic type for map keys
+   * @param <V>       - generic type for map values
    * @return {@link LinkedHashMap} object with elements from iterable in encounter order.
    */
   public static <K, V> Map<K, V> toLinkedHashMap(Iterable<V> iterable, Function<V, K> keyMapper) {
@@ -162,8 +162,8 @@ public final class CollectionUtils {
    * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
    *
    * @param keyMapper - key mapper as {@link Function} object
-   * @param <K> - generic type for map keys
-   * @param <V> - generic type for map values
+   * @param <K>       - generic type for map keys
+   * @param <V>       - generic type for map values
    * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
    */
   public static <K, V> Collector<V, ?, Map<K, V>> toLinkedHashMap(Function<V, K> keyMapper) {
@@ -173,11 +173,11 @@ public final class CollectionUtils {
   /**
    * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
    *
-   * @param keyMapper - key mapper as {@link Function} object
+   * @param keyMapper   - key mapper as {@link Function} object
    * @param valueMapper - value mapper as {@link Function} object
-   * @param <T> - generic type for input values
-   * @param <K> - generic type for map keys
-   * @param <V> - generic type for map values
+   * @param <T>         - generic type for input values
+   * @param <K>         - generic type for map keys
+   * @param <V>         - generic type for map values
    * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
    */
   public static <T, K, V> Collector<T, ?, Map<K, V>> toLinkedHashMap(
@@ -189,7 +189,7 @@ public final class CollectionUtils {
    * Returns nullableList if it is not null or empty, defaultList otherwise.
    *
    * @param nullableList nullable value to check
-   * @param <T> generic type for value
+   * @param <T>          generic type for value
    * @return nullableList if it is not null or empty, defaultList otherwise.
    */
   public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
@@ -197,10 +197,21 @@ public final class CollectionUtils {
   }
 
   /**
+   * Returns list if set is not null or empty, null otherwise.
+   *
+   * @param nullableSet nullable value to check
+   * @param <T>         generic type for value
+   * @return list if it is not null or empty, null otherwise.
+   */
+  public static <T> List<T> toListSafe(Set<T> nullableSet) {
+    return isEmpty(nullableSet) ? null : new ArrayList<>(nullableSet);
+  }
+
+  /**
    * Return the last element of the given list.
    *
    * @param list - list to process as {@link List} object
-   * @param <T> - generic type for list elements
+   * @param <T>  - generic type for list elements
    * @return {@link Optional} of the latest element of the list, it will be empty if the given list is empty.
    */
   public static <T> Optional<T> findLast(List<T> list) {
@@ -211,7 +222,7 @@ public final class CollectionUtils {
    * Return the first element of the given list.
    *
    * @param list - list to process as {@link List} object
-   * @param <T> - generic type for list elements
+   * @param <T>  - generic type for list elements
    * @return {@link Optional} of the first element of the list, it will be empty if the given list is empty.
    */
   public static <T> Optional<T> findFirst(List<T> list) {
@@ -222,8 +233,8 @@ public final class CollectionUtils {
    * Verifies that some element in iterable satisfies given condition.
    *
    * @param iterable - iterable to check
-   * @param checker - predicate for iterable elements
-   * @param <T> generic type for iterable elements
+   * @param checker  - predicate for iterable elements
+   * @param <T>      generic type for iterable elements
    * @return true if any element matched
    */
   public static <T> boolean anyMatch(Iterable<T> iterable, Predicate<T> checker) {
@@ -239,8 +250,8 @@ public final class CollectionUtils {
    * Verifies that all elements in iterable do not satisfy given condition.
    *
    * @param iterable - iterable to check
-   * @param checker - predicate for iterable elements
-   * @param <T> generic type for iterable element
+   * @param checker  - predicate for iterable elements
+   * @param <T>      generic type for iterable element
    * @return true if all elements do not match given condition
    */
   public static <T> boolean noneMatch(Iterable<T> iterable, Predicate<T> checker) {
@@ -251,8 +262,8 @@ public final class CollectionUtils {
    * Verifies that all elements in iterable satisfy given condition.
    *
    * @param iterable - iterable to check
-   * @param checker - predicate for iterable elements
-   * @param <T> generic type for iterable elements
+   * @param checker  - predicate for iterable elements
+   * @param <T>      generic type for iterable elements
    * @return true if any element matched
    */
   public static <T> boolean allMatch(Iterable<T> iterable, Predicate<T> checker) {
@@ -267,7 +278,7 @@ public final class CollectionUtils {
   /**
    * Returns {@link List} with {@link String} values by path from passed map.
    *
-   * @param map - map with resource fields
+   * @param map  - map with resource fields
    * @param path - search path, where fields are separated with {@code .} character
    * @return {@link List} with {@link String} values, it would be empty if map does not contain correct value by path.
    */
@@ -294,7 +305,7 @@ public final class CollectionUtils {
    * Reverses the elements in the given list.
    *
    * @param list - a list to process
-   * @param <T> - generic type for the list elements
+   * @param <T>  - generic type for the list elements
    * @return reversed list
    */
   public static <T> List<T> reverse(List<T> list) {
@@ -304,6 +315,26 @@ public final class CollectionUtils {
       result.add(listIterator.previous());
     }
     return result;
+  }
+
+  /**
+   * Subtracts target collection from the source and returns it as a new set value.
+   *
+   * @param source - source collection to subtract from
+   * @param target - target collection to be subtracted
+   * @param <T>    - generic type for collection elements
+   * @return a new {@link LinkedHashSet} object with a subtraction result
+   */
+  public static <T> Set<T> subtract(Collection<T> source, Collection<T> target) {
+    var result = new LinkedHashSet<>(source);
+    target.forEach(result::remove);
+    return result;
+  }
+
+  public static <T> Set<T> subtractSorted(Collection<T> source, Collection<T> target) {
+    return subtract(source, target).stream()
+      .sorted()
+      .collect(toCollection(LinkedHashSet::new));
   }
 
   private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {

@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -63,7 +63,7 @@ class SearchByEmptyValuesIT extends BaseIntegrationTest {
         .languages(List.of("eng"))
         .instanceTypeId(randomId())
         .subjects(emptyList())
-        .contributors(List.of(new InstanceContributors().name("c1"))),
+        .contributors(List.of(new Contributor().name("c1"))),
 
       new Instance()
         .id(INSTANCE_ID_2)

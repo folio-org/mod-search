@@ -3,8 +3,7 @@ package org.folio.search.service;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
-import static org.folio.search.service.KafkaAdminService.KafkaTopic.getTenantTopicName;
+import static org.folio.search.utils.KafkaUtils.getTenantTopicName;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,6 +29,7 @@ public class KafkaAdminService {
 
   public static final String EVENT_LISTENER_ID = "mod-search-events-listener";
   public static final String AUTHORITY_LISTENER_ID = "mod-search-authorities-listener";
+  public static final String CONTRIBUTOR_LISTENER_ID = "mod-search-contributor-listener";
   private static final String KAFKA_TOPICS_FILE = "kafka/kafka-topics.json";
 
   private final KafkaAdmin kafkaAdmin;
@@ -143,15 +143,5 @@ public class KafkaAdminService {
       );
     }
 
-    /**
-     * Returns topic name in the format - `{env}.{tenant}.inventory.{resource-type}`
-     *
-     * @param initialName initial topic name as {@link String}
-     * @param tenantId tenant id as {@link String}
-     * @return topic name as {@link String} object
-     */
-    static String getTenantTopicName(String initialName, String tenantId) {
-      return String.format("%s.%s.%s", getFolioEnvName(), tenantId, initialName);
-    }
   }
 }

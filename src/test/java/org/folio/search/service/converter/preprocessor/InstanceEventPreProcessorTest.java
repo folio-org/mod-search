@@ -16,11 +16,15 @@ import static org.folio.search.utils.TestUtils.resourceEvent;
 import java.util.List;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
+@ExtendWith(MockitoExtension.class)
 class InstanceEventPreProcessorTest {
 
-  private final InstanceEventPreProcessor preProcessor = new InstanceEventPreProcessor();
+  @InjectMocks private InstanceEventPreProcessor preProcessor;
 
   @Test
   void process_positive() {

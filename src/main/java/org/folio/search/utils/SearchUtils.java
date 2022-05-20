@@ -25,6 +25,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
@@ -39,13 +40,17 @@ public class SearchUtils {
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
+  public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
 
   public static final String ID_FIELD = "id";
+  public static final String INSTANCE_ID_FIELD = "instanceId";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
+  public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
   public static final String SUBJECT_BROWSING_FIELD = "subject";
+  public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects";
 

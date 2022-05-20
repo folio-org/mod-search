@@ -94,4 +94,5 @@ public class SearchQueryUtils {
       .includeExclude(new IncludeExclude(lowercaseSubjects, null));
     return searchSource().query(query).size(0).from(0).aggregation(aggregation);
   }
+
 }

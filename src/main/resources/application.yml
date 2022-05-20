@@ -21,6 +21,12 @@ spring:
       key-store-location: ${KAFKA_SSL_KEYSTORE_LOCATION:}
       trust-store-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
       trust-store-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        retries: 5
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
@@ -78,6 +84,10 @@ application:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority}
         group-id: ${application.environment}-mod-search-authorities-group
+      contributors:
+        concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
+        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)search\.instance-contributor}
+        group-id: ${application.environment}-mod-search-contributors-group
 
 server.port: 8081
 management.endpoints.web:

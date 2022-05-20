@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceContributors;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +16,8 @@ class SortContributorsProcessorTest {
   @Test
   void shouldReturnFirstContributorIfNoPrimary() {
     var map = new Instance()
-      .addContributorsItem(new InstanceContributors().name("first"))
-      .addContributorsItem(new InstanceContributors().name("second"));
+      .addContributorsItem(new Contributor().name("first"))
+      .addContributorsItem(new Contributor().name("second"));
 
     assertThat(processor.getFieldValue(map)).isEqualTo("first");
   }
@@ -25,8 +25,8 @@ class SortContributorsProcessorTest {
   @Test
   void shouldReturnPrimaryContributorRegardlessPosition() {
     var map = new Instance()
-      .addContributorsItem(new InstanceContributors().name("first"))
-      .addContributorsItem(new InstanceContributors().name("second").primary(true));
+      .addContributorsItem(new Contributor().name("first"))
+      .addContributorsItem(new Contributor().name("second").primary(true));
 
     assertThat(processor.getFieldValue(map)).isEqualTo("second");
   }

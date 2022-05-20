@@ -84,7 +84,11 @@
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorNameTypeId": {
-          "index": "source",
+          "index": "standard",
+          "showInResponse": [ "search", "call-number-browse" ]
+        },
+        "contributorTypeId": {
+          "index": "standard",
           "showInResponse": [ "search", "call-number-browse" ]
         }
       }

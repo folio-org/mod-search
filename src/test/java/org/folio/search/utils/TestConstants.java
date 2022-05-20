@@ -19,6 +19,7 @@ public class TestConstants {
   public static final String INDEX_NAME = String.join("_", ENV, RESOURCE_NAME, TENANT_ID);
 
   public static final String AUTHORITY_TOPIC = "inventory.authority";
+  public static final String CONTRIBUTOR_TOPIC = "search.instance-contributor";
   public static final String INVENTORY_ITEM_TOPIC = "inventory.item";
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
@@ -64,6 +65,14 @@ public class TestConstants {
 
   public static String inventoryAuthorityTopic(String tenantId) {
     return getTopicName(tenantId, AUTHORITY_TOPIC);
+  }
+
+  public static String inventoryContributorTopic() {
+    return inventoryContributorTopic(TENANT_ID);
+  }
+
+  public static String inventoryContributorTopic(String tenantId) {
+    return getTopicName(tenantId, CONTRIBUTOR_TOPIC);
   }
 
   public static String inventoryBoundWithTopic() {

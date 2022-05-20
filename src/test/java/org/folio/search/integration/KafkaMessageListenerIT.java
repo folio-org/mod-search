@@ -69,12 +69,15 @@ import org.springframework.retry.annotation.EnableRetry;
     "KAFKA_EVENTS_CONSUMER_PATTERN="
       + "(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
     "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.authority",
+    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)search\\.instance-contributors",
     "application.environment=${ENV:folio}",
     "application.kafka.retry-interval-ms=10",
     "application.kafka.retry-delivery-attempts=3",
     "application.kafka.listener.events.concurrency=1",
+    "application.kafka.listener.contributors.concurrency=1",
     "application.kafka.listener.events.group-id=${application.environment}-test-group",
     "application.kafka.listener.authorities.group-id=${application.environment}-authority-test-group",
+    "application.kafka.listener.contributors.group-id=${application.environment}-contributor-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {

@@ -1,6 +1,7 @@
 {
   "name": "authority",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Authority",
+  "reindexSupported": true,
   "indexingConfiguration": {
     "eventPreProcessor": "authorityEventPreProcessor"
   },

@@ -39,7 +39,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "personalNameTitle",
       "headingType": "Personal Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Authorized"
     },
     "sftPersonalNameTitle": {
@@ -48,7 +48,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftPersonalNameTitle",
       "headingType": "Personal Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Reference"
     },
     "saftPersonalNameTitle": {
@@ -57,7 +57,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftPersonalNameTitle",
       "headingType": "Personal Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Auth/Ref"
     },
     "corporateName": {
@@ -90,7 +90,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "corporateNameTitle",
       "headingType": "Corporate Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Authorized"
     },
     "sftCorporateNameTitle": {
@@ -99,7 +99,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftCorporateNameTitle",
       "headingType": "Corporate Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Reference"
     },
     "saftCorporateNameTitle": {
@@ -108,7 +108,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftCorporateNameTitle",
       "headingType": "Corporate Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Auth/Ref"
     },
     "meetingName": {
@@ -141,7 +141,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "meetingNameTitle",
       "headingType": "Conference Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Authorized"
     },
     "sftMeetingNameTitle": {
@@ -150,7 +150,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "sftMeetingNameTitle",
       "headingType": "Conference Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Reference"
     },
     "saftMeetingNameTitle": {
@@ -159,7 +159,7 @@
       "searchAliases": [ "keyword" ],
       "distinctType": "saftMeetingNameTitle",
       "headingType": "Conference Name",
-      "headingTypeExt": "Title",
+      "isTitleHeadingRef": true,
       "authRefType": "Auth/Ref"
     },
     "geographicName": {
@@ -325,11 +325,11 @@
         "secondarySort": [ "headingRef" ]
       }
     },
-    "headingTypeExt": {
+    "isTitleHeadingRef": {
       "type": "search",
-      "index": "keyword",
-      "processor": "headingTypeRefProcessor",
+      "index": "bool",
       "searchTypes": [ "filter" ],
+      "processor": "titleHeadingRefProcessor",
       "rawProcessing": true
     },
     "authRefType": {

@@ -18,7 +18,10 @@ public class AuthorityFieldDescription extends PlainFieldDescription {
    */
   private String headingType;
 
-  private String headingTypeExt;
+  /**
+   * Specify if this authority has title in heading.
+   */
+  private String isTitleHeadingRef;
 
   /**
    * Authorized, Reference or Auth/Ref type for divided authority record.

@@ -1,6 +1,7 @@
 {
   "name": "instance",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Instance",
+  "reindexSupported": true,
   "languageSourcePaths": [ "$.languages" ],
   "indexingConfiguration": {
     "eventPreProcessor": "instanceEventPreProcessor"

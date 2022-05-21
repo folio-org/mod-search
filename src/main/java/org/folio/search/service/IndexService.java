@@ -126,7 +126,9 @@ public class IndexService {
   private List<String> getResourceNamesToReindex(ReindexRequest reindexRequest) {
     var resourceName = getReindexRequestResourceName(reindexRequest);
     var resourceDescription = resourceDescriptionService.get(resourceName);
-    if (resourceDescription == null || resourceDescription.getParent() != null) {
+    if (resourceDescription == null
+      || resourceDescription.getParent() != null
+      || !resourceDescription.isReindexSupported()) {
       throw new RequestValidationException(
         "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
     }

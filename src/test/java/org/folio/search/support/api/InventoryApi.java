@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class InventoryApi {
   private static final Map<String, Map<String, ItemEvent>> ITEM_STORE = new LinkedHashMap<>();
   private static final String ID_FIELD = "id";
 
-  private final KafkaTemplate<String, Object> kafkaTemplate;
+  private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
   public void createInstance(String tenantId, Instance instance) {
     createInstance(tenantId, toMap(instance));

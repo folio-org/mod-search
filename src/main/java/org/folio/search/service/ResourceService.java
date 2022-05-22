@@ -23,6 +23,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -43,6 +44,7 @@ public class ResourceService {
 
   private static final String PRIMARY_INDEXING_REPOSITORY_NAME = "primary";
 
+  private final KafkaMessageProducer messageProducer;
   private final IndexRepository indexRepository;
   private final ResourceFetchService resourceFetchService;
   private final PrimaryResourceRepository primaryResourceRepository;
@@ -86,9 +88,10 @@ public class ResourceService {
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
+    messageProducer.sendContributorEvents(fetchedInstances);
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
-
+    messageProducer.sendContributorEvents(groupedByOperation.get(DELETE));
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));

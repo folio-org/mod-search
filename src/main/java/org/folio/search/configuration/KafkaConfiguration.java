@@ -68,12 +68,12 @@ public class KafkaConfiguration {
   /**
    * Creates and configures {@link ProducerFactory} as Spring bean.
    *
-   * <p>Key type - {@link String}, value - {@link Object}.</p>
+   * <p>Key type - {@link String}, value - {@link ResourceEvent}.</p>
    *
    * @return typed {@link ProducerFactory} object as Spring bean.
    */
   @Bean
-  public ProducerFactory<String, Object> producerFactory() {
+  public ProducerFactory<String, ResourceEvent> producerFactory() {
     Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties());
     configProps.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
@@ -83,12 +83,12 @@ public class KafkaConfiguration {
   /**
    * Creates and configures {@link KafkaTemplate} as Spring bean.
    *
-   * <p>Key type - {@link String}, value - {@link Object}.</p>
+   * <p>Key type - {@link String}, value - {@link ResourceEvent}.</p>
    *
    * @return typed {@link KafkaTemplate} object as Spring bean.
    */
   @Bean
-  public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+  public KafkaTemplate<String, ResourceEvent> kafkaTemplate(ProducerFactory<String, ResourceEvent> producerFactory) {
     return new KafkaTemplate<>(producerFactory);
   }
 }

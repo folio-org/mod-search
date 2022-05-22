@@ -32,6 +32,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.extension.EnableElasticSearch;
@@ -65,13 +66,13 @@ public abstract class BaseIntegrationTest {
 
   protected static MockMvc mockMvc;
   protected static InventoryApi inventoryApi;
-  protected static KafkaTemplate<String, Object> kafkaTemplate;
+  protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
 
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate) {
+    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate) {
     setEnvProperty("folio-test");
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;

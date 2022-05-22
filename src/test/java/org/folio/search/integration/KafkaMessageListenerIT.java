@@ -85,7 +85,7 @@ class KafkaMessageListenerIT {
   private static final String INSTANCE_ID = randomId();
   private static final String KAFKA_LISTENER_IT_ENV = "kafka-listener-it";
 
-  @Autowired private KafkaTemplate<String, Object> kafkaTemplate;
+  @Autowired private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   @Autowired private FolioKafkaProperties kafkaProperties;
   @MockBean private ResourceService resourceService;
 

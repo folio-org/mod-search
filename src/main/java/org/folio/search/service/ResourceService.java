@@ -88,10 +88,10 @@ public class ResourceService {
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
-    messageProducer.sendContributorEvents(fetchedInstances);
+    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
-    messageProducer.sendContributorEvents(groupedByOperation.get(DELETE));
+    messageProducer.prepareAndSendContributorEvents(groupedByOperation.get(DELETE));
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));

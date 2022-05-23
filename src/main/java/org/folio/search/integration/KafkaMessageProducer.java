@@ -37,7 +37,7 @@ public class KafkaMessageProducer {
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
-  public void sendContributorEvents(List<ResourceEvent> resourceEvents) {
+  public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
     if (resourceEvents != null && !resourceEvents.isEmpty()) {
       resourceEvents.stream()
         .map(this::getContributorEvents)

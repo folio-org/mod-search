@@ -136,7 +136,7 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(mapOf(RESOURCE_NAME, expectedDocuments));
     when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
-    doNothing().when(kafkaMessageProducer).sendContributorEvents(anyList());
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexResourcesById(resourceEvents);
     assertThat(actual).isEqualTo(expectedResponse);
@@ -156,7 +156,7 @@ class ResourceServiceTest {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
-    doNothing().when(kafkaMessageProducer).sendContributorEvents(anyList());
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var response = indexService.indexResourcesById(List.of(resourceEvent));
     assertThat(response).isEqualTo(expectedResponse);
@@ -171,7 +171,7 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(RESOURCE_NAME, expectedDocuments));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
-    doNothing().when(kafkaMessageProducer).sendContributorEvents(anyList());
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var expectedResponse = getSuccessIndexOperationResponse();
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
@@ -192,7 +192,7 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(mapOf(RESOURCE_NAME, expectedDocuments));
     when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
-    doNothing().when(kafkaMessageProducer).sendContributorEvents(anyList());
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexResourcesById(resourceEvents);
     assertThat(actual).isEqualTo(expectedResponse);
@@ -219,7 +219,7 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
-    doNothing().when(kafkaMessageProducer).sendContributorEvents(anyList());
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexResourcesById(eventIds);
 

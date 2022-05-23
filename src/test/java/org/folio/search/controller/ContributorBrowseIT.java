@@ -211,34 +211,36 @@ class ContributorBrowseIT extends BaseIntegrationTest {
 
   private static List<List<Object>> contributorBrowseInstanceData() {
     return List.of(List.of("instance #01", List.of(
-        new Contributor().name("Bon Jovi").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[0]),
-        new Contributor().name("Klaus Meine").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[0]),
-        new Contributor().name("Anthony Kiedis").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[0])
+        contributor("Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[0]),
+        contributor("Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[0]),
+        contributor("Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0])
       )),
       List.of("instance #02", List.of(
-        new Contributor().name("Bon Jovi").contributorNameTypeId(NAME_TYPE_IDS[1]).contributorTypeId(TYPE_IDS[0]),
-        new Contributor().name("Klaus Meine").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[1]),
-        new Contributor().name("Anthony Kiedis").contributorNameTypeId(NAME_TYPE_IDS[1]).contributorTypeId(TYPE_IDS[2])
+        contributor("Bon Jovi", NAME_TYPE_IDS[1], TYPE_IDS[0]),
+        contributor("Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[1]),
+        contributor("Anthony Kiedis", NAME_TYPE_IDS[1], TYPE_IDS[2])
       )),
       List.of("instance #03", List.of(
-        new Contributor().name("Bon Jovi").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[1]),
-        new Contributor().name("Bon Jovi").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[2]),
-        new Contributor().name("Klaus Meine").contributorNameTypeId(NAME_TYPE_IDS[1])
+        contributor("Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[1]),
+        contributor("Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[2]),
+        contributor("Klaus Meine", NAME_TYPE_IDS[1], null)
       )),
       List.of("instance #04", List.of(
-        new Contributor().name("John Lennon").contributorNameTypeId(NAME_TYPE_IDS[2]).contributorTypeId(TYPE_IDS[0]),
-        new Contributor().name("Paul McCartney").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[1]),
-        new Contributor().name("George Harrison").contributorNameTypeId(NAME_TYPE_IDS[1])
-          .contributorTypeId(TYPE_IDS[2]),
-        new Contributor().name("Ringo Starr").contributorNameTypeId(NAME_TYPE_IDS[1]).contributorTypeId(TYPE_IDS[0])
+        contributor("John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
+        contributor("Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[1]),
+        contributor("George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
+        contributor("Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[0])
       )),
       List.of("instance #05", List.of(
-        new Contributor().name("John Lennon").contributorNameTypeId(NAME_TYPE_IDS[2]).contributorTypeId(TYPE_IDS[0]),
-        new Contributor().name("Paul McCartney").contributorNameTypeId(NAME_TYPE_IDS[0]).contributorTypeId(TYPE_IDS[2]),
-        new Contributor().name("George Harrison").contributorNameTypeId(NAME_TYPE_IDS[1])
-          .contributorTypeId(TYPE_IDS[2]),
-        new Contributor().name("Ringo Starr").contributorNameTypeId(NAME_TYPE_IDS[1]).contributorTypeId(TYPE_IDS[1])
+        contributor("John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
+        contributor("Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[2]),
+        contributor("George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
+        contributor("Ringo Starr", NAME_TYPE_IDS[1], TYPE_IDS[1])
       )));
+  }
+
+  private static Contributor contributor(String name, String nameTypeId, String typeId) {
+    return new Contributor().name(name).contributorNameTypeId(nameTypeId).contributorTypeId(typeId);
   }
 
   private static Stream<Arguments> facetQueriesProvider() {

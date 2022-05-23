@@ -528,7 +528,7 @@ components:
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
     RecordType:
-      enum: [ "instances", "authorities" ]
+      enum: [ "instances", "authorities", "contributors" ]
       type: string
 
   responses:

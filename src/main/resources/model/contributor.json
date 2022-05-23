@@ -16,6 +16,7 @@
     },
     "contributorNameTypeId": {
       "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "browse" ]
     },
     "instances": {

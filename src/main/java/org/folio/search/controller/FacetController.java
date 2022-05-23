@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/search")
 public class FacetController implements RecordTypeApi {
 
-  private static final Map<RecordType, String> recordTypeToResourceMap = Map.of(
+  private static final Map<RecordType, String> RECORD_TYPE_TO_RESOURCE_MAP = Map.of(
     RecordType.INSTANCES, INSTANCE_RESOURCE,
     RecordType.AUTHORITIES, AUTHORITY_RESOURCE,
     RecordType.CONTRIBUTORS, CONTRIBUTOR_RESOURCE
@@ -34,7 +34,7 @@ public class FacetController implements RecordTypeApi {
   @Override
   public ResponseEntity<FacetResult> getFacets(RecordType recordType, String query,
                                                List<String> facet, String tenantId) {
-    String recordResource = recordTypeToResourceMap.getOrDefault(recordType, recordType.getValue());
+    String recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, recordType.getValue());
     var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }

@@ -1,5 +1,6 @@
 {
   "name": "contributor",
+  "parent": "instance",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Contributor",
   "indexingConfiguration": {
     "resourceRepository": "instanceContributorsRepository"

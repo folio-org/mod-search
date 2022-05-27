@@ -2,19 +2,19 @@ package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
-import static org.elasticsearch.search.sort.SortOrder.ASC;
-import static org.elasticsearch.search.sort.SortOrder.DESC;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.index.query.TermsQueryBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.index.query.TermsQueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;

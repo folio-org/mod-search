@@ -3,7 +3,7 @@ package org.folio.search.cql.builders;
 import static java.util.Arrays.asList;
 
 import java.util.Set;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
 
 public interface TermQueryBuilder {
 

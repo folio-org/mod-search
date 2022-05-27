@@ -2,7 +2,7 @@ package org.folio.search.cql.builders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 
 import org.folio.search.utils.types.UnitTest;

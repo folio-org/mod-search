@@ -1,9 +1,9 @@
 package org.folio.search.cql.builders;
 
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.Set;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component

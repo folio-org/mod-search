@@ -1,13 +1,13 @@
 package org.folio.search.cql.builders;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.cql.CqlTermQueryConverter.WILDCARD_OPERATOR;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Set;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.WildcardQueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component

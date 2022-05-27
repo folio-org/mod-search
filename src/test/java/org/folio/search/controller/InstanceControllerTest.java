@@ -26,8 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.index.Index;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
@@ -96,13 +96,13 @@ class InstanceControllerTest {
   @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var elasticsearchException = new ElasticsearchException("Elasticsearch exception ["
+    var OpenSearchException = new OpenSearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
-    elasticsearchException.setIndex(new Index(INDEX_NAME, randomId()));
+    OpenSearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
     when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenThrow(
-      new SearchOperationException("error", elasticsearchException));
+      new SearchOperationException("error", OpenSearchException));
 
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
@@ -113,7 +113,7 @@ class InstanceControllerTest {
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index not found: " + INDEX_NAME)))
-      .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
+      .andExpect(jsonPath("$.errors[0].type", is("OpenSearchException")))
       .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
 

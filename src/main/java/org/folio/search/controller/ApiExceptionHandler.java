@@ -20,8 +20,8 @@ import javax.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.index.Index;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.folio.search.domain.dto.Error;
 import org.folio.search.domain.dto.ErrorResponse;
 import org.folio.search.domain.dto.Parameter;
@@ -81,8 +81,8 @@ public class ApiExceptionHandler {
     logException(DEBUG, exception);
 
     var cause = exception.getCause();
-    return cause instanceof ElasticsearchException
-      ? handleElasticsearchException((ElasticsearchException) cause)
+    return cause instanceof OpenSearchException
+      ? handleOpenSearchException((OpenSearchException) cause)
       : buildResponseEntity(exception, INTERNAL_SERVER_ERROR, exception.getErrorCode());
   }
 
@@ -245,7 +245,7 @@ public class ApiExceptionHandler {
     return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);
   }
 
-  private static ResponseEntity<ErrorResponse> handleElasticsearchException(ElasticsearchException exception) {
+  private static ResponseEntity<ErrorResponse> handleOpenSearchException(OpenSearchException exception) {
     var message = exception.getMessage();
     var indexName = Optional.ofNullable(exception.getIndex()).map(Index::getName).orElse(null);
     if (StringUtils.contains(message, "index_not_found")) {
@@ -286,7 +286,7 @@ public class ApiExceptionHandler {
   private static ErrorResponse buildErrorResponse(String message) {
     return new ErrorResponse()
       .addErrorsItem(new Error().message(message)
-        .type(ElasticsearchException.class.getSimpleName())
+        .type(OpenSearchException.class.getSimpleName())
         .code(ELASTICSEARCH_ERROR.getValue()))
       .totalRecords(1);
   }

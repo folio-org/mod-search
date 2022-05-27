@@ -1,9 +1,9 @@
 package org.folio.search.repository;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.elasticsearch.common.xcontent.XContentType.JSON;
-import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.elasticsearch.script.ScriptType.INLINE;
+import static org.opensearch.common.xcontent.XContentType.JSON;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.script.Script;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.update.UpdateRequest;
+import org.opensearch.script.Script;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.model.index.ContributorResource;

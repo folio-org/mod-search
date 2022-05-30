@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.folio.search.configuration.opensearch;
+package org.folio.search.configuration.properties;
 
 import java.time.Duration;
 import java.util.ArrayList;

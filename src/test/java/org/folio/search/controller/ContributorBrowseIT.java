@@ -124,8 +124,8 @@ class ContributorBrowseIT extends BaseIntegrationTest {
         new InstanceContributorBrowseResult().totalRecords(9).prev("George Harrison").next("Paul McCartney").items(
           List.of(contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], TYPE_IDS[2]),
             contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], TYPE_IDS[0]),
-            contributorBrowseItem(1, true,"Klaus Meine", NAME_TYPE_IDS[1], (String[]) null),
-            contributorBrowseItem(2, true,"Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(1, true, "Klaus Meine", NAME_TYPE_IDS[1], (String[]) null),
+            contributorBrowseItem(2, true, "Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
             contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2])))),
 
       arguments(aroundIncludingQuery, "Zak", 25,

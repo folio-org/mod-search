@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.facet;
@@ -17,11 +18,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.service.FacetService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,37 +43,23 @@ class FacetControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @Test
-  void getFacetsForAuthority_positive() throws Exception {
-    var cqlQuery = "headingType all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(AUTHORITY_RESOURCE, cqlQuery, "source:5");
-    when(facetService.getFacets(expectedFacetRequest)).thenReturn(
-      facetResult(mapOf("source", facet(List.of(facetItem("Personal Name", 20), facetItem("Corporate Name", 10))))));
-
-    var requestBuilder = get("/search/authorities/facets")
-      .queryParam("query", cqlQuery)
-      .queryParam("facet", "source:5")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.facets.source.totalRecords", is(2)))
-      .andExpect(jsonPath("$.facets.source.values[0].id", is("Personal Name")))
-      .andExpect(jsonPath("$.facets.source.values[0].totalRecords", is(20)))
-      .andExpect(jsonPath("$.facets.source.values[1].id", is("Corporate Name")))
-      .andExpect(jsonPath("$.facets.source.values[1].totalRecords", is(10)));
+  public static Stream<Arguments> facetsTestSource() {
+    return Stream.of(
+      Arguments.arguments("authorities", AUTHORITY_RESOURCE),
+      Arguments.arguments("instances", INSTANCE_RESOURCE),
+      Arguments.arguments("contributors", CONTRIBUTOR_RESOURCE)
+    );
   }
 
-  @Test
-  void getFacetsForInstances_positive() throws Exception {
-    var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
+  @MethodSource("facetsTestSource")
+  @ParameterizedTest
+  void getFacets_positive(String recordType, String resource) throws Exception {
+    var cqlQuery = "source all \"test-query\"";
+    var expectedFacetRequest = facetServiceRequest(resource, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenReturn(
       facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
 
-    var requestBuilder = get("/search/instances/facets")
+    var requestBuilder = get("/search/" + recordType + "/facets")
       .queryParam("query", cqlQuery)
       .queryParam("facet", "source:5")
       .contentType(APPLICATION_JSON)

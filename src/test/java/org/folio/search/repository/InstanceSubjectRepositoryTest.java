@@ -329,6 +329,7 @@ class InstanceSubjectRepositoryTest {
       "_type", "_doc",
       "_id", sha256Hex(subject),
       "_index", indexName,
+      "found", false,
       "error", jsonObject(
         "root_cause", jsonArray(jsonObject(
           "type", "routing_missing_exception",

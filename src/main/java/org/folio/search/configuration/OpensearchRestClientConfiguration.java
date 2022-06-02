@@ -19,7 +19,6 @@ package org.folio.search.configuration;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -29,13 +28,11 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
-import org.folio.search.configuration.properties.OpensearchRestClientProperties;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.client.sniff.Sniffer;
-import org.opensearch.client.sniff.SnifferBuilder;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.context.annotation.Bean;
@@ -43,19 +40,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 @Configuration
-@RequiredArgsConstructor
 public class OpensearchRestClientConfiguration {
 
-  private final OpensearchProperties properties;
-
   @Bean
-  RestClientBuilderCustomizer defaultRestClientBuilderCustomizer() {
-    return new DefaultRestClientBuilderCustomizer(this.properties);
+  RestClientBuilderCustomizer defaultRestClientBuilderCustomizer(OpensearchProperties properties) {
+    return new DefaultRestClientBuilderCustomizer(properties);
   }
 
   @Bean
-  RestClientBuilder elasticsearchRestClientBuilder(ObjectProvider<RestClientBuilderCustomizer> builderCustomizers) {
-    HttpHost[] hosts = this.properties.getUris().stream().map(this::createHttpHost).toArray(HttpHost[]::new);
+  @ConditionalOnMissingBean(RestClientBuilder.class)
+  RestClientBuilder elasticsearchRestClientBuilder(ObjectProvider<RestClientBuilderCustomizer> builderCustomizers,
+                                                   OpensearchProperties properties) {
+    HttpHost[] hosts = properties.getUris().stream().map(this::createHttpHost).toArray(HttpHost[]::new);
     RestClientBuilder builder = RestClient.builder(hosts);
     builder.setHttpClientConfigCallback((httpClientBuilder) -> {
       builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(httpClientBuilder));
@@ -65,8 +61,8 @@ public class OpensearchRestClientConfiguration {
       builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(requestConfigBuilder));
       return requestConfigBuilder;
     });
-    if (this.properties.getPathPrefix() != null) {
-      builder.setPathPrefix(this.properties.getPathPrefix());
+    if (properties.getPathPrefix() != null) {
+      builder.setPathPrefix(properties.getPathPrefix());
     }
     builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
     return builder;
@@ -78,18 +74,7 @@ public class OpensearchRestClientConfiguration {
   }
 
   @Bean
-  @ConditionalOnMissingBean
-  Sniffer elasticsearchSniffer(RestClient client, OpensearchRestClientProperties properties) {
-    SnifferBuilder builder = Sniffer.builder(client);
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    Duration interval = properties.getSniffer().getInterval();
-    map.from(interval).asInt(Duration::toMillis).to(builder::setSniffIntervalMillis);
-    Duration delayAfterFailure = properties.getSniffer().getDelayAfterFailure();
-    map.from(delayAfterFailure).asInt(Duration::toMillis).to(builder::setSniffAfterFailureDelayMillis);
-    return builder.build();
-  }
-
-  @Bean
+  @ConditionalOnClass(RestHighLevelClient.class)
   RestClient elasticsearchRestClient(RestHighLevelClient restHighLevelClient) {
     return restHighLevelClient.getLowLevelClient();
   }
@@ -101,18 +86,6 @@ public class OpensearchRestClientConfiguration {
       return HttpHost.create(uri);
     }
   }
-
-//  @Configuration(proxyBeanMethods = false)
-//  @ConditionalOnMissingClass("RestHighLevelClient")
-//  @ConditionalOnMissingBean(RestClient.class)
-//  public static class RestClientConfiguration {
-//
-//    @Bean
-//    RestClient elasticsearchRestClient(RestClientBuilder restClientBuilder) {
-//      return restClientBuilder.build();
-//    }
-//
-//  }
 
   private HttpHost createHttpHost(URI uri) {
     if (!StringUtils.hasLength(uri.getUserInfo())) {
@@ -132,8 +105,7 @@ public class OpensearchRestClientConfiguration {
 
     private final OpensearchProperties properties;
 
-    DefaultRestClientBuilderCustomizer(
-      OpensearchProperties properties) {
+    DefaultRestClientBuilderCustomizer(OpensearchProperties properties) {
       this.properties = properties;
     }
 

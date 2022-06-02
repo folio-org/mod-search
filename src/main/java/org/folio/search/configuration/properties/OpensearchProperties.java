@@ -20,9 +20,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+@Data
 @Component
 @ConfigurationProperties("spring.opensearch")
 public class OpensearchProperties {
@@ -38,53 +40,5 @@ public class OpensearchProperties {
   private Duration socketTimeout = Duration.ofSeconds(30);
 
   private String pathPrefix;
-
-  public List<String> getUris() {
-    return this.uris;
-  }
-
-  public void setUris(List<String> uris) {
-    this.uris = uris;
-  }
-
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return this.password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public Duration getConnectionTimeout() {
-    return this.connectionTimeout;
-  }
-
-  public void setConnectionTimeout(Duration connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
-  }
-
-  public Duration getSocketTimeout() {
-    return this.socketTimeout;
-  }
-
-  public void setSocketTimeout(Duration socketTimeout) {
-    this.socketTimeout = socketTimeout;
-  }
-
-  public String getPathPrefix() {
-    return this.pathPrefix;
-  }
-
-  public void setPathPrefix(String pathPrefix) {
-    this.pathPrefix = pathPrefix;
-  }
 
 }

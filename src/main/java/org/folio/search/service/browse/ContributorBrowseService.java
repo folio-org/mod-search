@@ -35,7 +35,9 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery().filter(FILTER_QUERY)
       .must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor())).from(0).size(1);
+    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor()))
+      .size(context.getLimit(context.isBrowsingForward()))
+      .from(0);
   }
 
   @Override
@@ -43,9 +45,8 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), ctx.getAnchor()})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .sort(fieldSort("contributorNameTypeId").order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

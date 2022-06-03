@@ -124,7 +124,16 @@ Then the mappings' helper will create the following mappings object:
 
 ### Adding mod-search specific kafka topics
 
-In order to make mod-search create his own topic for kafka, it should be added to application.yml file with application.kafka.topics path, f.e.:
+In order to make mod-search create his own topic for kafka, it should be added to application.yml file with application.kafka.topics path.
+
+#### Topic parameters:
+| Property name     | Description                                                                                              |
+|-------------------|----------------------------------------------------------------------------------------------------------|
+| name              | Topic base name that will be concatenated with environment name and tenant name.                         |
+| numPartitions     | Break a topic into multiple partitions. Can be left blank in order to use default '-1' value.            |
+| replicationFactor | Specify how much replicas do you need for a topic. Can be left blank in order to use default '-1' value. |
+
+#### Example
 ```yaml
 application:
   kafka:

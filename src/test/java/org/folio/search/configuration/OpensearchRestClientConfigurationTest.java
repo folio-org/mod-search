@@ -11,6 +11,8 @@ import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,27 +34,15 @@ class OpensearchRestClientConfigurationTest {
   @Mock
   private RestClientBuilder restClientBuilder;
 
-  @Test
-  void opensearchRestClientBuilder() {
+  @ValueSource(strings = {
+    "http://elasticsearch:9200",
+    "http://elasticsearch:spock123@enterprisecom",
+    "\\elasticsearch"
+  })
+  @ParameterizedTest
+  void opensearchRestClientBuilder(String uri) {
     when(properties.getPathPrefix()).thenReturn(null);
-    when(properties.getUris()).thenReturn(List.of("http://elasticsearch:9200"));
-    var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
-    assertThat(builder).isNotNull();
-  }
-
-  @Test
-  void opensearchRestClientBuilder_withUserInfo() {
-    when(properties.getPathPrefix()).thenReturn(null);
-    when(properties.getUris()).thenReturn(List.of("http://elasticsearch:spock123@enterprisecom"));
-    var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
-    assertThat(builder).isNotNull();
-  }
-
-
-  @Test
-  void opensearchRestClientBuilder_withInvalidUri() {
-    when(properties.getPathPrefix()).thenReturn(null);
-    when(properties.getUris()).thenReturn(List.of("\\elasticsearch"));
+    when(properties.getUris()).thenReturn(List.of(uri));
     var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
     assertThat(builder).isNotNull();
   }

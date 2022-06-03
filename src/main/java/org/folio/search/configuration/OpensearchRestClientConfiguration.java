@@ -49,33 +49,32 @@ public class OpensearchRestClientConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(RestClientBuilder.class)
-  RestClientBuilder elasticsearchRestClientBuilder(ObjectProvider<RestClientBuilderCustomizer> builderCustomizers,
-                                                   OpensearchProperties properties) {
+  RestClientBuilder opensearchRestClientBuilder(ObjectProvider<RestClientBuilderCustomizer> builderCustomizers,
+                                                OpensearchProperties properties) {
     HttpHost[] hosts = properties.getUris().stream().map(this::createHttpHost).toArray(HttpHost[]::new);
     RestClientBuilder builder = RestClient.builder(hosts);
-    builder.setHttpClientConfigCallback((httpClientBuilder) -> {
-      builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(httpClientBuilder));
+    builder.setHttpClientConfigCallback(httpClientBuilder -> {
+      builderCustomizers.orderedStream().forEach(customizer -> customizer.customize(httpClientBuilder));
       return httpClientBuilder;
     });
-    builder.setRequestConfigCallback((requestConfigBuilder) -> {
-      builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(requestConfigBuilder));
+    builder.setRequestConfigCallback(requestConfigBuilder -> {
+      builderCustomizers.orderedStream().forEach(customizer -> customizer.customize(requestConfigBuilder));
       return requestConfigBuilder;
     });
     if (properties.getPathPrefix() != null) {
       builder.setPathPrefix(properties.getPathPrefix());
     }
-    builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
     return builder;
   }
 
   @Bean
-  RestHighLevelClient elasticsearchRestHighLevelClient(RestClientBuilder restClientBuilder) {
+  RestHighLevelClient opensearchRestHighLevelClient(RestClientBuilder restClientBuilder) {
     return new RestHighLevelClient(restClientBuilder);
   }
 
   @Bean
   @ConditionalOnClass(RestHighLevelClient.class)
-  RestClient elasticsearchRestClient(RestHighLevelClient restHighLevelClient) {
+  RestClient opensearchRestClient(RestHighLevelClient restHighLevelClient) {
     return restHighLevelClient.getLowLevelClient();
   }
 
@@ -107,10 +106,6 @@ public class OpensearchRestClientConfiguration {
 
     DefaultRestClientBuilderCustomizer(OpensearchProperties properties) {
       this.properties = properties;
-    }
-
-    @Override
-    public void customize(RestClientBuilder builder) {
     }
 
     @Override

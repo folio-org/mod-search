@@ -69,12 +69,12 @@ public class FolioKafkaProperties {
     private String name;
 
     /**
-     * Number of partitions for topic as spring placeholder expression.
+     * Number of partitions for topic.
      */
     private Integer numPartitions;
 
     /**
-     * Replication factor for topic as spring placeholder expression.
+     * Replication factor for topic.
      */
     private Short replicationFactor;
   }

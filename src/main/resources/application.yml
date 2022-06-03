@@ -77,8 +77,8 @@ application:
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
     topics:
       - name: search.instance-contributor
-        numPartitions: ${KAFKA_EVENT_TOPICS_PARTITIONS:50}
-        replicationFactor: ${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}
+        numPartitions: ${KAFKA_CONTIBUTORS_TOPIC_PARTITIONS:50}
+        replicationFactor: ${KAFKA_CONTIBUTORS_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}

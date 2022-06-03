@@ -32,7 +32,7 @@ public class KafkaAdminService {
   private final FolioKafkaProperties kafkaProperties;
 
   /**
-   * Creates kafka topics using existing configuration in kafka/kafka-topics.json.
+   * Creates kafka topics using existing configuration in application.kafka.topics.
    */
   public void createKafkaTopics() {
     var configTopics = kafkaProperties.getTopics();

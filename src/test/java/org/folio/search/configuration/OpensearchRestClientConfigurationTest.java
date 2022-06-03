@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.utils.types.UnitTest;
@@ -40,6 +41,15 @@ class OpensearchRestClientConfigurationTest {
   }
 
   @Test
+  void opensearchRestClientBuilder_withUserInfo() {
+    when(properties.getPathPrefix()).thenReturn(null);
+    when(properties.getUris()).thenReturn(List.of("http://elasticsearch:spock123@enterprisecom"));
+    var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
+    assertThat(builder).isNotNull();
+  }
+
+
+  @Test
   void opensearchRestClientBuilder_withInvalidUri() {
     when(properties.getPathPrefix()).thenReturn(null);
     when(properties.getUris()).thenReturn(List.of("\\elasticsearch"));
@@ -51,6 +61,20 @@ class OpensearchRestClientConfigurationTest {
   void opensearchRestHighLevelClient() {
     when(restClientBuilder.build()).thenReturn(mock(RestClient.class));
     var restHighLevelClient = restClientConfiguration.opensearchRestHighLevelClient(restClientBuilder);
+    assertThat(restHighLevelClient).isNotNull();
+  }
+
+  @Test
+  void opensearchRestHighLevelClient_withUserInfo() {
+    when(properties.getPathPrefix()).thenReturn(null);
+    when(properties.getUris()).thenReturn(List.of("http://elasticsearch:spock123@enterprisecom"));
+    when(properties.getUsername()).thenReturn("username");
+    when(properties.getPassword()).thenReturn("password");
+    when(customizers.orderedStream())
+      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties)))
+      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties)));
+    var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
+    var restHighLevelClient = restClientConfiguration.opensearchRestHighLevelClient(builder);
     assertThat(restHighLevelClient).isNotNull();
   }
 

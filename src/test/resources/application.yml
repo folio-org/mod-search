@@ -60,6 +60,25 @@ application:
     core-max-size: ${STREAM_ID_MAX_POOL_SIZE:2}
     core-queue-capacity: ${STREAM_ID_QUEUE_CAPACITY:500}
   kafka:
+    topics:
+      - name: inventory.instance
+        numPartitions: 10
+        replicationFactor: 1
+      - name: inventory.item
+        numPartitions: 10
+        replicationFactor: 1
+      - name: inventory.holdings-record
+        numPartitions: 10
+        replicationFactor: 1
+      - name: inventory.bound-with
+        numPartitions: 10
+        replicationFactor: 1
+      - name: inventory.authority
+        numPartitions: 10
+        replicationFactor: 1
+      - name: search.instance-contributor
+        numPartitions: 10
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2

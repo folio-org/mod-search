@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,10 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.folio.search.configuration.properties.FolioEnvironment;
-import org.folio.search.service.KafkaAdminService.KafkaTopic;
-import org.folio.search.service.KafkaAdminService.KafkaTopics;
+import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.service.KafkaAdminServiceTest.KafkaAdminServiceTestConfiguration;
-import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -40,51 +37,25 @@ class KafkaAdminServiceTest {
   @Autowired private KafkaAdminService kafkaAdminService;
   @Autowired private ApplicationContext applicationContext;
   @MockBean private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-  @MockBean private LocalFileProvider localFileProvider;
   @MockBean private KafkaAdmin kafkaAdmin;
+  @MockBean private FolioKafkaProperties kafkaProperties;
 
   @Test
   void createKafkaTopics_positive() {
-    System.setProperty("KAFKA_TOPIC2_PARTITIONS", "50");
-    System.setProperty("KAFKA_TOPIC2_REPLICATION_FACTOR", "3");
-    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class)).thenReturn(KafkaTopics.of(
-      List.of(
-        KafkaTopic.of("topic1", "${KAFKA_TOPIC1_PARTITIONS:20}", "${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}"),
-        KafkaTopic.of("topic2", "${KAFKA_TOPIC2_PARTITIONS}", "${KAFKA_TOPIC2_REPLICATION_FACTOR}"),
-        KafkaTopic.of("topic3", "40", "2"))));
+    when(kafkaProperties.getTopics()).thenReturn(List.of(
+      FolioKafkaProperties.KafkaTopic.of("topic1", 10, null),
+      FolioKafkaProperties.KafkaTopic.of("topic2", null, (short) 2),
+      FolioKafkaProperties.KafkaTopic.of("topic3", 30, (short) -1)));
 
     kafkaAdminService.createKafkaTopics();
     verify(kafkaAdmin).initialize();
 
     var beansOfType = applicationContext.getBeansOfType(NewTopic.class);
     assertThat(beansOfType.values()).containsExactlyInAnyOrderElementsOf(List.of(
-      new NewTopic("folio.test_tenant.topic1", Optional.of(20), Optional.empty()),
-      new NewTopic("folio.test_tenant.topic2", Optional.of(50), Optional.of((short) 3)),
-      new NewTopic("folio.test_tenant.topic3", Optional.of(40), Optional.of((short) 2))
+      new NewTopic("folio.test_tenant.topic1", Optional.of(10), Optional.empty()),
+      new NewTopic("folio.test_tenant.topic2", Optional.empty(), Optional.of((short) 2)),
+      new NewTopic("folio.test_tenant.topic3", Optional.of(30), Optional.of((short) -1))
     ));
-  }
-
-  @Test
-  void createKafkaTopics_negative_failedToResolvePlaceholders() {
-    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class)).thenReturn(KafkaTopics.of(
-      List.of(KafkaTopic.of("topic2", "${KAFKA_PARTITIONS}", "${KAFKA_REPLICATION_FACTOR}"))));
-
-    assertThatThrownBy(() -> kafkaAdminService.createKafkaTopics())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Could not resolve placeholder 'KAFKA_PARTITIONS' in value \"${KAFKA_PARTITIONS}\"");
-  }
-
-  @Test
-  void getTenantKafkaTopics() {
-    when(localFileProvider.readAsObject("kafka/kafka-topics.json", KafkaTopics.class))
-      .thenReturn(KafkaTopics.of(List.of(
-        KafkaTopic.of("topic1", "20", "1"),
-        KafkaTopic.of("topic2", "50", "3"),
-        KafkaTopic.of("topic3", "40", "2")
-      )));
-    var tenantKafkaTopics = kafkaAdminService.getDefaultTenantKafkaTopics();
-    assertThat(tenantKafkaTopics).isEqualTo(List.of(
-      "folio.test_tenant.topic1", "folio.test_tenant.topic2", "folio.test_tenant.topic3"));
   }
 
   @Test
@@ -101,7 +72,7 @@ class KafkaAdminServiceTest {
 
     @Bean(name = "folio.test_tenant.topic3.topic")
     NewTopic firstTopic() {
-      return new NewTopic("folio.test_tenant.topic3", 40, (short) 2);
+      return new NewTopic("folio.test_tenant.topic3", 30, (short) -1);
     }
 
     @Bean

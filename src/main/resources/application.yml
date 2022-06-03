@@ -75,6 +75,10 @@ application:
   kafka:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
+    topics:
+      - name: search.instance-contributor
+        numPartitions: ${KAFKA_EVENT_TOPICS_PARTITIONS:50}
+        replicationFactor: ${KAFKA_EVENT_TOPICS_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}

@@ -1,3 +1,6 @@
+## 1.7.0-SNAPSHOT xxxx-xx-xx
+MSEARCH-380 Browse contributors: listener not working for new tenants
+
 ## 1.6.4 2022-04-07
 MSEARCH-336 Fix item matching for browsing by call-numbers
 MSEARCH-334 Fix the invalid search results for call-numbers with 2+ spaces

@@ -1,7 +1,10 @@
 package org.folio.search.configuration.properties;
 
+import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +32,11 @@ public class FolioKafkaProperties {
   private long retryDeliveryAttempts = 5;
 
   /**
+   * What topics should be created by mod-search.
+   */
+  private List<KafkaTopic> topics;
+
+  /**
    * Contains set of settings for specific kafka listener.
    */
   @Data
@@ -48,5 +56,26 @@ public class FolioKafkaProperties {
      * The group id.
      */
     private String groupId;
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor(staticName = "of")
+  public static class KafkaTopic {
+
+    /**
+     * Topic name.
+     */
+    private String name;
+
+    /**
+     * Number of partitions for topic as spring placeholder expression.
+     */
+    private Integer numPartitions;
+
+    /**
+     * Replication factor for topic as spring placeholder expression.
+     */
+    private Short replicationFactor;
   }
 }

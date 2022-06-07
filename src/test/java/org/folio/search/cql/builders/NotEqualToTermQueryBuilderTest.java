@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.elasticsearch.index.query.Operator.AND;
@@ -23,8 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class NotEqualToTermQueryBuilderTest {
 
-  @InjectMocks private NotEqualToTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private NotEqualToTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
@@ -36,7 +39,7 @@ class NotEqualToTermQueryBuilderTest {
   @Test
   void getFulltextQuery_positive() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(boolQuery()
       .mustNot(multiMatchQuery("val", "field").operator(AND).type(CROSS_FIELDS)));
   }

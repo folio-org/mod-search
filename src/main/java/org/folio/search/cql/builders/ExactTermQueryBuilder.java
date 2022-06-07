@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchUtils.EMPTY_ARRAY;
 import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
+import java.util.List;
 import java.util.Set;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.ScriptQueryBuilder;
@@ -20,14 +21,16 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   public static final String SCRIPT_TEMPLATE = "doc['%s'].size() == 0";
 
+  private static final String STRING_MODIFIER = "string";
+
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
     return multiMatchQuery(term, fields).type(PHRASE);
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
-    if (SearchUtils.isEmptyString(term)) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
+    if (SearchUtils.isEmptyString(term) || modifiers.contains(STRING_MODIFIER)) {
       return termQuery(getPathToFulltextPlainValue(fieldName), term);
     }
 

@@ -1,5 +1,6 @@
 package org.folio.search.cql;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -126,7 +127,8 @@ class CqlTermQueryConverterTest {
   void getQuery_positive_singleMultilangField() {
     var expectedQuery = multiMatchQuery("book", "subjects.*");
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(multilangField()));
-    when(termQueryBuilder.getFulltextQuery("book", "subjects", RESOURCE_NAME)).thenReturn(expectedQuery);
+    when(termQueryBuilder.getFulltextQuery("book", "subjects", RESOURCE_NAME, emptyList()))
+      .thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
   }

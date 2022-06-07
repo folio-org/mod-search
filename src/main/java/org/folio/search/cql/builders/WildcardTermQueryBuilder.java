@@ -5,6 +5,7 @@ import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.cql.CqlTermQueryConverter.WILDCARD_OPERATOR;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
+import java.util.List;
 import java.util.Set;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
@@ -27,7 +28,7 @@ public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
     return getWildcardQuery(term, getPathToFulltextPlainValue(fieldName));
   }
 

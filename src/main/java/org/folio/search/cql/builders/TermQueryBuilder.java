@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static java.util.Arrays.asList;
 
+import java.util.List;
 import java.util.Set;
 import org.elasticsearch.index.query.QueryBuilder;
 
@@ -10,9 +11,9 @@ public interface TermQueryBuilder {
   /**
    * Provides query for given term and field names.
    *
-   * @param term - search term as {@link String} object
-   * @param resource - resource name for querying as {@link String object}
-   * @param fields - resource fields name as {@code array} of {@link String} objects
+   * @param term     search term as {@link String} object
+   * @param resource resource name for querying as {@link String object}
+   * @param fields   resource fields name as {@code array} of {@link String} objects
    * @return Elasticsearch {@link QueryBuilder} object
    */
   default QueryBuilder getQuery(Object term, String resource, String... fields) {
@@ -22,22 +23,23 @@ public interface TermQueryBuilder {
   /**
    * Provides full-text query for given term and field name.
    *
-   * @param term - search term as {@link String} object
-   * @param fieldName - resource field name as {@link String} object
-   * @param resource - resource name for querying as {@link String object}
+   * @param term      search term as {@link String} object
+   * @param fieldName resource field name as {@link String} object
+   * @param resource  resource name for querying as {@link String object}
+   * @param modifiers search term modifiers
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
+  default QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
     throw unsupportedException(fieldName);
   }
 
   /**
    * Provides term-level query for given term and field name.
    *
-   * @param term - search term as {@link String} object
-   * @param fieldName - resource field name as {@link String} object
-   * @param resource - resource name for querying as {@link String object}
-   * @param fieldIndex - field index mappings as {@link String} object
+   * @param term       search term as {@link String} object
+   * @param fieldName  resource field name as {@link String} object
+   * @param resource   resource name for querying as {@link String object}
+   * @param fieldIndex field index mappings as {@link String} object
    * @return Elasticsearch {@link QueryBuilder} object
    */
   default QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
@@ -54,7 +56,7 @@ public interface TermQueryBuilder {
   /**
    * Creates {@link  UnsupportedOperationException} object.
    *
-   * @param fieldNames - list of fields from term query builder implementation
+   * @param fieldNames list of fields from term query builder implementation
    * @return created {@link  UnsupportedOperationException} object
    */
   default UnsupportedOperationException unsupportedException(String... fieldNames) {

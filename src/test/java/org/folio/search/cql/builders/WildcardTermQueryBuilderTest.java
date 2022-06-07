@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -22,8 +23,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class WildcardTermQueryBuilderTest {
 
-  @InjectMocks private WildcardTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private WildcardTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
+
+  private static WildcardQueryBuilder wildcardQuery(String field, String term) {
+    return QueryBuilders.wildcardQuery(field, term).rewrite("constant_score");
+  }
 
   @Test
   void getQuery_positive() {
@@ -51,7 +58,7 @@ class WildcardTermQueryBuilderTest {
 
   @Test
   void getFulltextQuery_positive() {
-    var actual = queryBuilder.getFulltextQuery("val*", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val*", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "val*"));
   }
 
@@ -65,9 +72,5 @@ class WildcardTermQueryBuilderTest {
   void getSupportedComparators_positive() {
     var actual = queryBuilder.getSupportedComparators();
     assertThat(actual).containsExactly("wildcard");
-  }
-
-  private static WildcardQueryBuilder wildcardQuery(String field, String term) {
-    return QueryBuilders.wildcardQuery(field, term).rewrite("constant_score");
   }
 }

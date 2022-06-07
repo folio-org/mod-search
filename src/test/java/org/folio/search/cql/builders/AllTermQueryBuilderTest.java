@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.Operator.AND;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -24,8 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AllTermQueryBuilderTest {
 
-  @InjectMocks private AllTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private AllTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
@@ -38,21 +41,21 @@ class AllTermQueryBuilderTest {
   @Test
   void getFulltextQuery_positive_multilangField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*"));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field"));
   }
 
   @Test
   void getFulltextQuery_positive_standardFieldWithObject() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery(1234, "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery(1234, "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery(1234, "field").type(Type.CROSS_FIELDS).operator(AND));
   }
 

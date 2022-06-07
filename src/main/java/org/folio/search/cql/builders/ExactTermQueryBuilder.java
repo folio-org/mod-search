@@ -1,17 +1,17 @@
 package org.folio.search.cql.builders;
 
-import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.scriptQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
+import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.opensearch.index.query.QueryBuilders.scriptQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.folio.search.utils.SearchUtils.EMPTY_ARRAY;
 import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Set;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.ScriptQueryBuilder;
-import org.elasticsearch.script.Script;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.ScriptQueryBuilder;
+import org.opensearch.script.Script;
 import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
 

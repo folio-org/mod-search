@@ -1,6 +1,6 @@
-FROM amazon/opendistro-for-elasticsearch:1.13.2
+FROM opensearchproject/opensearch:1.3.2
 
-RUN elasticsearch-plugin install --batch \
+RUN opensearch-plugin install --batch \
   analysis-icu \
   analysis-kuromoji \
   analysis-smartcn \

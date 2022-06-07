@@ -1,8 +1,8 @@
 package org.folio.search.cql.builders;
 
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.opensearch.index.query.RangeQueryBuilder;
 
 public interface RangeTermQueryBuilder extends TermQueryBuilder {
 

@@ -1,6 +1,6 @@
 package org.folio.search.cql;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;

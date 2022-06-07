@@ -7,8 +7,8 @@ import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
-import org.elasticsearch.action.search.MultiSearchResponse.Item;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.action.search.MultiSearchResponse.Item;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;

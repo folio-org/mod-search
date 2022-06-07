@@ -1,8 +1,8 @@
 package org.folio.search.repository;
 
 import static java.util.stream.Collectors.joining;
-import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.common.xcontent.XContentType.JSON;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.XContentType.JSON;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -10,12 +10,12 @@ import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.opensearch.action.DocWriteRequest;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.springframework.beans.factory.annotation.Autowired;

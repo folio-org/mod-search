@@ -5,8 +5,8 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.RangeQueryBuilder;
 
 @Data
 @Builder

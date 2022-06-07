@@ -1,18 +1,18 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.facetServiceRequest;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.Aggregations;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.Aggregations;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;

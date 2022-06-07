@@ -1,11 +1,11 @@
 package org.folio.search.cql.builders;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 
 import java.util.List;
 import java.util.Set;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component

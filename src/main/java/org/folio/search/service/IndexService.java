@@ -11,7 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;

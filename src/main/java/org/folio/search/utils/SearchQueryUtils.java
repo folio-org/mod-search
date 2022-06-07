@@ -3,9 +3,9 @@ package org.folio.search.utils;
 import static java.util.Locale.ROOT;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.utils.SearchUtils.SUBJECT_AGGREGATION_NAME;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
@@ -14,13 +14,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.RangeQueryBuilder;
+import org.opensearch.index.query.TermQueryBuilder;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchQueryUtils {

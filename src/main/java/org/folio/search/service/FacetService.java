@@ -4,8 +4,8 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;

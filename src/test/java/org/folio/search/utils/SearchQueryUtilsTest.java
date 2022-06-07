@@ -1,19 +1,19 @@
 package org.folio.search.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
-import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.search.aggregations.AggregationBuilders.terms;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -2,7 +2,7 @@ package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;

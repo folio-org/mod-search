@@ -2,9 +2,9 @@ package org.folio.search.repository;
 
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
-import static org.elasticsearch.common.xcontent.json.JsonXContent.jsonXContent;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
+import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -35,19 +35,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import lombok.SneakyThrows;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkItemResponse.Failure;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetRequest.Item;
-import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
+import org.opensearch.action.DocWriteRequest;
+import org.opensearch.action.bulk.BulkItemResponse;
+import org.opensearch.action.bulk.BulkItemResponse.Failure;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.get.MultiGetRequest;
+import org.opensearch.action.get.MultiGetRequest.Item;
+import org.opensearch.action.get.MultiGetResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
@@ -329,6 +329,7 @@ class InstanceSubjectRepositoryTest {
       "_type", "_doc",
       "_id", sha256Hex(subject),
       "_index", indexName,
+      "found", false,
       "error", jsonObject(
         "root_cause", jsonArray(jsonObject(
           "type", "routing_missing_exception",

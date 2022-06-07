@@ -6,7 +6,7 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
-  elasticsearch:
+  opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
     uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}

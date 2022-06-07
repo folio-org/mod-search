@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.index.Index;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
@@ -68,35 +68,35 @@ class IndexControllerTest {
 
   @Test
   void createIndex_negative_indexAlreadyExists() throws Exception {
-    var elasticsearchException = new ElasticsearchException("Elasticsearch exception "
+    var OpenSearchException = new OpenSearchException("Elasticsearch exception "
       + "[type=resource_already_exists_exception, "
       + "reason=index [instance_test-tenant/um_SBtCaRLKUOBbdmFZeKQ] already exists]");
-    elasticsearchException.setIndex(new Index(INDEX_NAME, randomId()));
+    OpenSearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
-      new SearchOperationException("error", elasticsearchException));
+      new SearchOperationException("error", OpenSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index already exists: " + INDEX_NAME)))
-      .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
+      .andExpect(jsonPath("$.errors[0].type", is("OpenSearchException")))
       .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
 
   @Test
   void createIndex_negative_unknownElasticsearchError() throws Exception {
     var errorMessage = "Elasticsearch exception [type=unknown_error, reason=mappings not found]";
-    var elasticsearchException = new ElasticsearchException(errorMessage);
+    var OpenSearchException = new OpenSearchException(errorMessage);
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
-      new SearchOperationException("i/o error", elasticsearchException));
+      new SearchOperationException("i/o error", OpenSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
-      .andExpect(jsonPath("$.errors[0].type", is("ElasticsearchException")))
+      .andExpect(jsonPath("$.errors[0].type", is("OpenSearchException")))
       .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
 

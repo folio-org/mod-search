@@ -3,7 +3,7 @@ package org.folio.search.cql;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;

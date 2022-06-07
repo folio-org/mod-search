@@ -2,10 +2,10 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.scriptQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
+import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.opensearch.index.query.QueryBuilders.scriptQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.elasticsearch.script.Script;
+import org.opensearch.script.Script;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;

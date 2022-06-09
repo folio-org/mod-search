@@ -8,6 +8,7 @@ import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 import static org.folio.search.utils.SearchUtils.isEmptyString;
 
+import java.util.List;
 import java.util.Set;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class EqualTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
     return isEmptyString(term)
       ? existsQuery(getPathToFulltextPlainValue(fieldName))
       : getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));

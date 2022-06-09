@@ -152,11 +152,13 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors any {value}", "Grigoris frank"),
       arguments("contributors all {value}", "Van Harmelen, Frank"),
       arguments("contributors == {value}", "Van Harmelen, Frank"),
+      arguments("contributors ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors = {value}", "Van Harmelen, Fr*"),
       arguments("contributors = {value}", "*rmelen, Frank"),
 
       arguments("contributors.name = {value}", "Van Harmelen, Frank"),
-      arguments("contributors.name == {value}", "Van Harmelen, Frank"),
+      arguments("contributors.name == {value}", "Van Harmelen"),
+      arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
       arguments("contributors.name = {value}", "Anton*"),
       arguments("contributors.name = {value}", "*rmelen, Frank"),
@@ -170,6 +172,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword all {value}", "semantic web primer"),
       arguments("keyword all {value}", "semantic Antoniou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
+      arguments("subjects ==/string {value}", "semantic web"),
 
       arguments("tags.tagList all {value}", "book"),
       arguments("tags.tagList all {value}", "electronic"),

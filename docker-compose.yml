@@ -56,8 +56,6 @@ services:
     build:
       context: docker/dashboards
       dockerfile: Dockerfile
-    volumes:
-      - ./docker/kibana/opensearch_dashboards.yml:/usr/share/kibana/config/opensearch_dashboards.yml
     ports:
       - "5601:5601"
     environment:

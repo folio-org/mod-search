@@ -36,7 +36,7 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     return new GenericContainer<>(new ImageFromDockerfile(ES_IMAGE_NAME, false)
       .withDockerfile(ES_DOCKERFILE_PATH))
       .withEnv("discovery.type", "single-node")
-      .withEnv("plugins.security.disabled", "true")
+      .withEnv("DISABLE_SECURITY_PLUGIN", "true")
       .withExposedPorts(9200);
   }
 }

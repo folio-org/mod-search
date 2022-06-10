@@ -3,15 +3,21 @@ version: "3.8"
 services:
   mod-search:
     container_name: mod-search
-    image: folioci/mod-search:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       - mod-search-local
     ports:
       - "8081:8081"
+      - "5010:5010"
+    depends_on:
+      - api-mock
     environment:
       DB_HOST: db
       JAVA_OPTIONS: -Xmx120m -Xms120m
-      okapi.url: okapi
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5010,server=y,suspend=n
+      okapi.url: http://api-mock:8080
 
   api-mock:
     image: wiremock/wiremock:2.32.0
@@ -23,13 +29,13 @@ services:
     ports:
       - "9130:8080"
     volumes:
-      - ../src/test/resources/mappings:/home/wiremock/mappings
+      - ./src/test/resources/mappings:/home/wiremock/mappings
 
   elasticsearch:
     container_name: elasticsearch
-    image: opendistro-elasticsearch-it:1.13.2
+    image: opensearch-it:1.3.2
     build:
-      context: elasticsearch
+      context: docker/elasticsearch
       dockerfile: Dockerfile
     networks:
       - mod-search-local
@@ -41,8 +47,25 @@ services:
     environment:
       - discovery.type=single-node
       - discovery.zen.minimum_master_nodes=1
-      - opendistro_security.disabled=true
+      - "DISABLE_SECURITY_PLUGIN=true"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  opensearch-dashboards:
+    container_name: opensearch-dashboards
+    image: opensearch-dashboards-it:1.3.2
+    build:
+      context: docker/dashboards
+      dockerfile: Dockerfile
+    volumes:
+      - ./docker/kibana/opensearch_dashboards.yml:/usr/share/kibana/config/opensearch_dashboards.yml
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    networks:
+      - mod-search-local
+    depends_on:
+      - elasticsearch
 
   zookeeper:
     image: zookeeper:3.6.2
@@ -65,11 +88,11 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_LISTENERS: INSIDE://:9091,OUTSIDE://:9092
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9091,OUTSIDE://kafka:9092
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:29092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://localhost:29092
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT

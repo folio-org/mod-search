@@ -21,7 +21,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.metrics.ParsedValueCount;
 import org.folio.search.domain.dto.Contributor;
@@ -65,6 +66,13 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
     setUpTenant(INSTANCES);
+
+    // this is needed to test deleting contributors when there are contributors with zero linked instances
+    var instanceToUpdate = INSTANCES[0];
+    var oldContributors = instanceToUpdate.getContributors();
+    instanceToUpdate.setContributors(Collections.emptyList());
+    inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
+
     await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var aggregation = AggregationBuilders.count("contributorTypeId").field("contributorTypeId");
       var searchRequest = new SearchRequest().source(
@@ -219,7 +227,11 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   }
 
   private static List<List<Object>> contributorBrowseInstanceData() {
-    return List.of(List.of("instance #01", List.of(
+    return List.of(
+      List.of("instance #00", List.of(
+        contributor("Darth Vader", NAME_TYPE_IDS[0], TYPE_IDS[0])
+      )),
+      List.of("instance #01", List.of(
         contributor("Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[0]),
         contributor("Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[0]),
         contributor("Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0])

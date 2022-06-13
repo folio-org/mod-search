@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.opensearch.index.query.Operator.AND;
@@ -25,8 +26,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class EqualTermQueryBuilderTest {
 
-  @InjectMocks private EqualTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private EqualTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
@@ -50,20 +53,20 @@ class EqualTermQueryBuilderTest {
   @Test
   void getFulltextQuery_positive_multilangField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*").operator(AND).type(CROSS_FIELDS));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field").operator(AND).type(CROSS_FIELDS));
   }
 
   @Test
   void getFulltextQuery_positive_emptyTermValue() {
-    var actual = queryBuilder.getFulltextQuery("", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(existsQuery("plain_field"));
   }
 

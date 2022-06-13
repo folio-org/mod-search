@@ -312,7 +312,13 @@ Here is table of supported operators.
 | `<=`, `>=` | N/A                            | `createdDate <= "2020-12-12"`  | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
 | `*`        | `title="mode* europe*"`        | `hrid = "hr10*"`               | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
 
-Here is a table with supported search options.
+### CQL query modifiers
+
+CQL operators could have modifiers that change search behaviour
+
+| Operator | Modifier | Usage                            | Description                      |
+|:---------|:---------|:---------------------------------|:---------------------------------|
+| `==`     | `string` | `title ==\string "semantic web"` | Exact match for full text fields | 
 
 ## Search Options
 

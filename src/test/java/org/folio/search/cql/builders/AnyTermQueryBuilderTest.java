@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
@@ -21,8 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AnyTermQueryBuilderTest {
 
-  @InjectMocks private AnyTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private AnyTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
@@ -33,14 +36,14 @@ class AnyTermQueryBuilderTest {
   @Test
   void getFulltextQuery_positive_multilangField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*"));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field"));
   }
 

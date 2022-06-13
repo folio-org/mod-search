@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.metrics.ParsedValueCount;
 import org.folio.search.domain.dto.Contributor;
@@ -67,9 +66,8 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
     setUpTenant(INSTANCES);
 
-    // this is needed to test deleting contributors when there are contributors with zero linked instances
+    // this is needed to test deleting contributors when all instances are unlinked from a contributor
     var instanceToUpdate = INSTANCES[0];
-    var oldContributors = instanceToUpdate.getContributors();
     instanceToUpdate.setContributors(Collections.emptyList());
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
 

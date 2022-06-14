@@ -2,7 +2,6 @@ package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
@@ -10,7 +9,6 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.CollectionUtils.toListSafe;
 
-import org.opensearch.index.query.ExistsQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -24,15 +22,13 @@ import org.springframework.stereotype.Service;
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
-  private static final ExistsQueryBuilder FILTER_QUERY = existsQuery("instances");
-
   private int calculateTotalRecords(ContributorResource item) {
     return ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue();
   }
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
-    var boolQuery = boolQuery().filter(FILTER_QUERY)
+    var boolQuery = boolQuery()
       .must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
     return searchSource().query(termQuery(request.getTargetField(), context.getAnchor()))
@@ -42,7 +38,7 @@ public class ContributorBrowseService extends
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
-    var boolQuery = boolQuery().filter(FILTER_QUERY);
+    var boolQuery = boolQuery();
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})

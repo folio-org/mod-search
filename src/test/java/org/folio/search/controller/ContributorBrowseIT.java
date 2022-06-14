@@ -30,8 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.search.aggregations.AggregationBuilders;
-import org.opensearch.search.aggregations.metrics.ParsedValueCount;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
@@ -72,12 +70,12 @@ class ContributorBrowseIT extends BaseIntegrationTest {
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var aggregation = AggregationBuilders.count("contributorTypeId").field("contributorTypeId");
-      var searchRequest = new SearchRequest().source(
-          searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100).aggregation(aggregation))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID)).routing(TENANT_ID);
+      var searchRequest = new SearchRequest()
+        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
+        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID))
+        .routing(TENANT_ID);
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(((ParsedValueCount) searchResponse.getAggregations().asList().get(0)).getValue()).isEqualTo(14);
+      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(10);
     });
   }
 

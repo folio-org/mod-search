@@ -1,5 +1,6 @@
 package org.folio.search.cql.builders;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
@@ -10,6 +11,7 @@ import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.opensearch.script.Script;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -24,8 +26,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ExactTermQueryBuilderTest {
 
-  @InjectMocks private ExactTermQueryBuilder queryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private ExactTermQueryBuilder queryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getQuery_positive() {
@@ -36,26 +40,32 @@ class ExactTermQueryBuilderTest {
   @Test
   void getFulltextQuery_positive() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*").type(PHRASE));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(multiMatchQuery("val", "field").type(PHRASE));
   }
 
   @Test
   void getFulltextQuery_positive_emptyTermValue() {
-    var actual = queryBuilder.getFulltextQuery("", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(termQuery("plain_field", ""));
   }
 
   @Test
+  void getFulltextQuery_positive_stringModifier() {
+    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, List.of("string"));
+    assertThat(actual).isEqualTo(termQuery("plain_field", "val"));
+  }
+
+  @Test
   void getFulltextQuery_positive_emptyArrayValue() {
-    var actual = queryBuilder.getFulltextQuery("[]", "field", RESOURCE_NAME);
+    var actual = queryBuilder.getFulltextQuery("[]", "field", RESOURCE_NAME, emptyList());
     assertThat(actual).isEqualTo(scriptQuery(new Script("doc['plain_field'].size() == 0")));
   }
 

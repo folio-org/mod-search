@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.opensearch.index.query.QueryBuilder;
@@ -23,6 +24,7 @@ import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.z3950.zing.cql.CQLTermNode;
+import org.z3950.zing.cql.Modifier;
 
 @Component
 public class CqlTermQueryConverter {
@@ -83,8 +85,12 @@ public class CqlTermQueryConverter {
     var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
       "Invalid search field provided in the CQL query", "field", fieldName));
 
+    var modifiers = termNode.getRelation().getModifiers().stream()
+      .map(Modifier::getType)
+      .collect(Collectors.toList());
+
     return plainFieldByPath.hasFulltextIndex()
-      ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource)
+      ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
       : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, plainFieldByPath.getIndex());
   }
 

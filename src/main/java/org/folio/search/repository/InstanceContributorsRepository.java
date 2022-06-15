@@ -34,6 +34,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
   public static final String SCRIPT_1 = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
     + "instanceIds.addAll(params.ins);"
     + "params.del.forEach(instanceIds::remove);"
+    + "if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}"
     + "ctx._source.instances=instanceIds;"
     + "def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1])"
     + ".sorted().collect(Collectors.toCollection(LinkedHashSet::new));"
@@ -55,14 +56,14 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         var eventPayload = getPayload(document);
         var action = document.getAction();
         var instanceId = eventPayload.getInstanceId();
-        var typeNameId = eventPayload.getTypeId();
-        var pair = instanceId + "|" + typeNameId;
+        var typeId = eventPayload.getTypeId();
+        var pair = instanceId + "|" + typeId;
         if (action == IndexActionType.INDEX) {
           instanceIdsToCreate.add(pair);
-          nameIdsToCreate.add(typeNameId);
+          nameIdsToCreate.add(typeId);
         } else {
           instanceIdsToDelete.add(pair);
-          nameIdsToDelete.add(typeNameId);
+          nameIdsToDelete.add(typeId);
         }
       }
 

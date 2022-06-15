@@ -1,5 +1,6 @@
 ## 1.7.0-SNAPSHOT xxxx-xx-xx
 MSEARCH-380 Browse contributors: listener not working for new tenants
+MSEARCH-381 Delete contributors that have no links to instance records
 
 ## 1.6.4 2022-04-07
 MSEARCH-336 Fix item matching for browsing by call-numbers

@@ -40,14 +40,14 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
    * characters, second 1-7, third 1-6, and fourth is 1 digit or an X.
    */
   private static final Pattern ISBN10_REGEX = Pattern.compile(
-    "^(?:(\\d{9}[0-9X])|(" + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9X])))");
+    "^(?:(\\d{9}[\\dX])|(" + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([\\dX])))");
 
   /**
    * ISBN-13 consists of 5 groups of numbers separated by either dashes (-) or spaces.  The first group is 978 or 979,
    * the second group is 1-5 characters, third 1-7, fourth 1-6, and fifth is 1 digit.
    */
   private static final Pattern ISBN13_REGEX = Pattern.compile(
-    "^(978|979)(?:(\\d{10})|(" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "([0-9])))");
+    "^(978|979)(?:(\\d{10})|(" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "(\\d)))");
 
   /**
    * Used by dependency injection.

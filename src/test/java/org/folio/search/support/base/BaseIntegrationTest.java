@@ -2,8 +2,8 @@ package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Duration.ONE_MINUTE;
-import static org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;

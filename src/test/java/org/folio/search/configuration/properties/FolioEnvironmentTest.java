@@ -7,6 +7,7 @@ import static org.folio.search.utils.TestUtils.setEnvProperty;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -48,11 +49,13 @@ class FolioEnvironmentTest {
   @ParameterizedTest
   @ValueSource(strings = {"!", "@", "%$$#", "def qa"})
   void shouldThrowExceptionWhenEnvHasDisallowedChars(String env) {
-    var validator = Validation.buildDefaultValidatorFactory().getValidator();
-    var folioEnvironment = FolioEnvironment.of(env);
-    var validationResponse = validator.validate(folioEnvironment);
-    assertThat(validationResponse).isNotEmpty()
-      .map(ConstraintViolation::getMessage)
-      .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
+    try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+      var validator = validatorFactory.getValidator();
+      var folioEnvironment = FolioEnvironment.of(env);
+      var validationResponse = validator.validate(folioEnvironment);
+      assertThat(validationResponse).isNotEmpty()
+        .map(ConstraintViolation::getMessage)
+        .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
+    }
   }
 }

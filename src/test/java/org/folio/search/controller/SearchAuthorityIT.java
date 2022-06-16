@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
 import org.folio.search.domain.dto.ResourceIdsJob;
@@ -66,7 +66,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.FIVE_SECONDS).until(() -> {
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });
@@ -84,7 +84,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
-    await().atMost(Duration.FIVE_SECONDS).until(() -> {
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJob(postResponse.getId()));
       return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
     });

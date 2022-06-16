@@ -202,7 +202,7 @@ public class SearchUtils {
   public static String getNormalizedCallNumber(String... callNumberValues) {
     return Stream.of(callNumberValues)
       .filter(StringUtils::isNotBlank)
-      .map(s -> s.toLowerCase().replaceAll("[^a-z0-9]", ""))
+      .map(s -> s.toLowerCase().replaceAll("[^a-z\\d]", ""))
       .collect(Collectors.joining(""));
   }
 

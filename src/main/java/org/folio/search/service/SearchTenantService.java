@@ -27,7 +27,6 @@ public class SearchTenantService extends TenantService {
   private static final String REINDEX_PARAM_NAME = "runReindex";
 
   private final IndexService indexService;
-  private final FolioExecutionContext context;
   private final KafkaAdminService kafkaAdminService;
   private final SystemUserService systemUserService;
   private final LanguageConfigService languageConfigService;
@@ -45,7 +44,6 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
-    this.context = context;
     this.systemUserService = systemUserService;
     this.languageConfigService = languageConfigService;
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;

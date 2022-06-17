@@ -25,8 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class HeadingRefProcessorTest {
 
-  @InjectMocks private HeadingRefProcessor headingRefProcessor;
-  @Mock private SearchFieldProvider fieldProvider;
+  @InjectMocks
+  private HeadingRefProcessor headingRefProcessor;
+  @Mock
+  private SearchFieldProvider fieldProvider;
 
   @Test
   void getFieldValue_positive_personalName() {

@@ -26,8 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.opensearch.OpenSearchException;
-import org.opensearch.index.Index;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
@@ -40,6 +38,8 @@ import org.folio.search.service.SearchService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.Test;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,9 +51,12 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class})
 class InstanceControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-  @MockBean private SearchService searchService;
-  @MockBean private ResourceIdService resourceIdService;
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private SearchService searchService;
+  @MockBean
+  private ResourceIdService resourceIdService;
 
   @Test
   void search_positive() throws Exception {
@@ -92,17 +95,16 @@ class InstanceControllerTest {
       .andExpect(status().isBadRequest());
   }
 
-
   @Test
   void search_negative_indexNotFound() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var OpenSearchException = new OpenSearchException("Elasticsearch exception ["
+    var openSearchException = new OpenSearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
-    OpenSearchException.setIndex(new Index(INDEX_NAME, randomId()));
+    openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
     when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenThrow(
-      new SearchOperationException("error", OpenSearchException));
+      new SearchOperationException("error", openSearchException));
 
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)

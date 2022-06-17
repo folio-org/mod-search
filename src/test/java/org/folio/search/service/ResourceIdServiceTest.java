@@ -3,7 +3,6 @@ package org.folio.search.service;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -15,13 +14,13 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.ResourceId;
@@ -36,6 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -45,11 +45,17 @@ class ResourceIdServiceTest {
   private static final String TEST_QUERY = "id==" + RANDOM_ID;
   private static final Integer QUERY_SIZE = 1000;
 
-  @Spy @InjectMocks private ResourceIdService resourceIdService;
-  @Mock private SearchRepository searchRepository;
-  @Mock private CqlSearchQueryConverter queryConverter;
-  @Mock private StreamIdsProperties properties;
-  @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
+  @Spy
+  @InjectMocks
+  private ResourceIdService resourceIdService;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private CqlSearchQueryConverter queryConverter;
+  @Mock
+  private StreamIdsProperties properties;
+  @Spy
+  private final ObjectMapper objectMapper = OBJECT_MAPPER;
 
   @Test
   void streamResourceIds() throws IOException {

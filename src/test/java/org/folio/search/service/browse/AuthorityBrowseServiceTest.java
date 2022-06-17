@@ -1,13 +1,6 @@
 package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.index.query.QueryBuilders.termsQuery;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -15,15 +8,17 @@ import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.opensearch.action.search.MultiSearchResponse;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.search.sort.SortOrder;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -43,6 +38,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortOrder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -50,12 +50,18 @@ class AuthorityBrowseServiceTest {
 
   private static final String TARGET_FIELD = "headingRef";
 
-  @InjectMocks private AuthorityBrowseService authorityBrowseService;
-  @Mock private SearchRepository searchRepository;
-  @Mock private BrowseContextProvider browseContextProvider;
-  @Mock private ElasticsearchDocumentConverter documentConverter;
-  @Mock private SearchFieldProvider searchFieldProvider;
-  @Mock private SearchResponse searchResponse;
+  @InjectMocks
+  private AuthorityBrowseService authorityBrowseService;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private BrowseContextProvider browseContextProvider;
+  @Mock
+  private ElasticsearchDocumentConverter documentConverter;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
+  @Mock
+  private SearchResponse searchResponse;
 
   @BeforeEach
   void setUp() {
@@ -92,7 +98,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[]{"id", "headingRef"});
+    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[] {"id", "headingRef"});
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
 
@@ -318,7 +324,7 @@ class AuthorityBrowseServiceTest {
   }
 
   private void mockMultiSearchRequest(ResourceRequest request,
-    List<SearchSourceBuilder> queries, List<SearchResult<Authority>> results) {
+                                      List<SearchSourceBuilder> queries, List<SearchResult<Authority>> results) {
     var multiSearchResponse = mock(MultiSearchResponse.class);
     var items = new MultiSearchResponse.Item[results.size()];
     for (int i = 0; i < results.size(); i++) {

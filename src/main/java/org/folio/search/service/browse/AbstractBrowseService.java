@@ -67,8 +67,8 @@ public abstract class AbstractBrowseService<T> {
 
   protected static <T> List<T> trim(List<T> items, BrowseContext ctx, boolean isBrowsingForward) {
     return isBrowsingForward
-      ? items.subList(0, min(ctx.getLimit(true), items.size()))
-      : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
+           ? items.subList(0, min(ctx.getLimit(true), items.size()))
+           : items.subList(max(items.size() - ctx.getLimit(false), 0), items.size());
   }
 
   protected String getPrevBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {

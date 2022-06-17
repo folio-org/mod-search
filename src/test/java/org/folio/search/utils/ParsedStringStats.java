@@ -13,7 +13,7 @@ import org.opensearch.common.xcontent.XContentParser;
 import org.opensearch.search.aggregations.ParsedAggregation;
 
 @Getter
-public class ParsedStringStats extends ParsedAggregation {
+public final class ParsedStringStats extends ParsedAggregation {
   private static final ParseField COUNT_FIELD = new ParseField("count");
   private static final ParseField MIN_LENGTH_FIELD = new ParseField("min_length");
   private static final ParseField MAX_LENGTH_FIELD = new ParseField("max_length");
@@ -77,11 +77,11 @@ public class ParsedStringStats extends ParsedAggregation {
     this.distribution = distribution;
   }
 
-
   public String getType() {
     return "string_stats";
   }
 
+  @Override
   protected XContentBuilder doXContentBody(XContentBuilder builder, ToXContent.Params params) throws IOException {
     builder.field(COUNT_FIELD.getPreferredName(), this.count);
     if (this.count == 0L) {

@@ -18,7 +18,7 @@ public class ResourceDescriptionException extends RuntimeException {
   /**
    * Creates exception instance from given message.
    *
-   * @param message exception message as{@link String} object
+   * @param message   exception message as{@link String} object
    * @param throwable exception cause as {@link Throwable} object
    */
   public ResourceDescriptionException(String message, Throwable throwable) {

@@ -23,7 +23,7 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields for given search type.
    *
-   * @param resource resource type as {@link String}
+   * @param resource   resource type as {@link String}
    * @param searchType search type as {@link String}
    * @return list of fields.
    */
@@ -33,7 +33,7 @@ public interface SearchFieldProvider {
    * Provides plain field description for given path.
    *
    * @param resource resource type as {@link String}
-   * @param path path to field as {@link String}
+   * @param path     path to field as {@link String}
    * @return {@link Optional} of resource field description by path, it would be empty if plain field by path not found
    */
   Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path);
@@ -41,7 +41,7 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields of source fields for resource and response group type.
    *
-   * @param resource resource type as {@link String}
+   * @param resource  resource type as {@link String}
    * @param groupType - response group type as {@link ResponseGroupType} object
    * @return list of fields.
    */
@@ -58,7 +58,7 @@ public interface SearchFieldProvider {
    * Checks if field by path is multi-language or not.
    *
    * @param resourceName resource name as {@link String} object
-   * @param path path to the field as {@link String} object
+   * @param path         path to the field as {@link String} object
    * @return true if field by path is multi-language, false - otherwise
    */
   boolean isMultilangField(String resourceName, String path);
@@ -66,7 +66,7 @@ public interface SearchFieldProvider {
   /**
    * Apply resource field modifiers for field.
    *
-   * @param field that should be modified {@link String} object
+   * @param field    that should be modified {@link String} object
    * @param resource resource name as {@link String} object
    * @return modified field
    */

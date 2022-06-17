@@ -6,12 +6,12 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.opensearch.index.query.QueryBuilders.existsQuery;
-import static org.opensearch.search.aggregations.AggregationBuilders.range;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL_NUMBER_RANGE_FIELD;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.opensearch.index.query.QueryBuilders.existsQuery;
+import static org.opensearch.search.aggregations.AggregationBuilders.range;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import java.util.ArrayList;
@@ -22,15 +22,15 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.model.SimpleResourceRequest;
+import org.folio.search.model.service.CallNumberBrowseRangeValue;
+import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.aggregations.bucket.range.ParsedRange;
 import org.opensearch.search.aggregations.bucket.range.Range.Bucket;
 import org.opensearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.opensearch.search.aggregations.bucket.range.RangeAggregator.Range;
-import org.folio.search.model.SimpleResourceRequest;
-import org.folio.search.model.service.CallNumberBrowseRangeValue;
-import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,17 +45,17 @@ public class CallNumberBrowseRangeService {
   /**
    * Get range boundary to optimize call-number browsing.
    *
-   * @param tenant - tenant id to retrieve range facet if it's not loaded yet
-   * @param anchor - call-number browsing anchor as {@link String}
-   * @param size - requested page size for Elasticsearch query
+   * @param tenant            - tenant id to retrieve range facet if it's not loaded yet
+   * @param anchor            - call-number browsing anchor as {@link String}
+   * @param size              - requested page size for Elasticsearch query
    * @param isBrowsingForward - browsing direction
    * @return {@link Optional} of {@link Long} value as range boundary
    */
   public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, int size, boolean isBrowsingForward) {
     var ranges = getBrowseRanges(tenant);
     return isNotEmpty(ranges) && isRangeBoundaryCanBeProvided(anchor, isBrowsingForward, ranges)
-      ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
-      : Optional.empty();
+           ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
+           : Optional.empty();
   }
 
   /**
@@ -138,11 +138,11 @@ public class CallNumberBrowseRangeService {
   }
 
   private static Long getRangeBoundaryFromCachedValue(List<CallNumberBrowseRangeValue> ranges,
-    String anchor, int expectedPageSize, boolean isBrowsingForward) {
+                                                      String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
     return isBrowsingForward
-      ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
-      : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
+           ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
+           : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
   }
 
   private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {

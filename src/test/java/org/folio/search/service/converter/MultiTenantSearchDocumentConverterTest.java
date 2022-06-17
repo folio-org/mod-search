@@ -46,12 +46,18 @@ class MultiTenantSearchDocumentConverterTest {
 
   private static final String CUSTOM_PRE_PROCESSOR = "testPreProcessor";
 
-  @InjectMocks private MultiTenantSearchDocumentConverter multiTenantConverter;
-  @Mock private SearchDocumentConverter searchDocumentConverter;
-  @Mock private TenantScopedExecutionService executionService;
-  @Mock private EventPreProcessor customEventPreProcessor;
-  @Mock private Map<String, EventPreProcessor> eventPreProcessorBeans;
-  @Mock private ResourceDescriptionService resourceDescriptionService;
+  @InjectMocks
+  private MultiTenantSearchDocumentConverter multiTenantConverter;
+  @Mock
+  private SearchDocumentConverter searchDocumentConverter;
+  @Mock
+  private TenantScopedExecutionService executionService;
+  @Mock
+  private EventPreProcessor customEventPreProcessor;
+  @Mock
+  private Map<String, EventPreProcessor> eventPreProcessorBeans;
+  @Mock
+  private ResourceDescriptionService resourceDescriptionService;
 
   @Test
   void convert_positive() {

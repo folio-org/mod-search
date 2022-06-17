@@ -10,4 +10,4 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ExtendWith(PostgresContainerExtension.class)
-public @interface EnablePostgres {}
+public @interface EnablePostgres { }

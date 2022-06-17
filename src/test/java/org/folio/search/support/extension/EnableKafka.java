@@ -10,4 +10,4 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ExtendWith(KafkaContainerExtension.class)
-public @interface EnableKafka {}
+public @interface EnableKafka { }

@@ -54,7 +54,9 @@ public class BrowseController implements BrowseApi {
 
   @Override
   public ResponseEntity<CallNumberBrowseResult> browseInstancesByCallNumber(String query, String tenant,
-    Integer limit, Boolean expandAll, Boolean highlightMatch, Integer precedingRecordsCount) {
+                                                                            Integer limit, Boolean expandAll,
+                                                                            Boolean highlightMatch,
+                                                                            Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_RESOURCE).targetField(CALL_NUMBER_BROWSING_FIELD).build();
 
@@ -68,7 +70,8 @@ public class BrowseController implements BrowseApi {
 
   @Override
   public ResponseEntity<SubjectBrowseResult> browseInstancesBySubject(String query, String tenant,
-    Integer limit, Boolean highlightMatch, Integer precedingRecordsCount) {
+                                                                      Integer limit, Boolean highlightMatch,
+                                                                      Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_SUBJECT_RESOURCE).targetField(SUBJECT_BROWSING_FIELD).build();
 
@@ -82,7 +85,9 @@ public class BrowseController implements BrowseApi {
 
   @Override
   public ResponseEntity<AuthorityBrowseResult> browseAuthorities(String query, String tenant,
-    Integer limit, Boolean expandAll, Boolean highlightMatch, Integer precedingRecordsCount) {
+                                                                 Integer limit, Boolean expandAll,
+                                                                 Boolean highlightMatch,
+                                                                 Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
       .resource(AUTHORITY_RESOURCE).targetField(AUTHORITY_BROWSING_FIELD).build();
     var browseResult = authorityBrowseService.browse(browseRequest);
@@ -94,7 +99,8 @@ public class BrowseController implements BrowseApi {
   }
 
   private static BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
-    Boolean expandAll, Boolean highlightMatch, Integer precedingRecordsCount) {
+                                                              Boolean expandAll, Boolean highlightMatch,
+                                                              Integer precedingRecordsCount) {
     if (precedingRecordsCount != null && precedingRecordsCount >= limit) {
       throw new RequestValidationException("Preceding records count must be less than request limit",
         "precedingRecordsCount", String.valueOf(precedingRecordsCount));

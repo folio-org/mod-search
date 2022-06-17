@@ -1,18 +1,15 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.facetServiceRequest;
+import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.facetServiceRequest;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.aggregations.AggregationBuilders;
-import org.opensearch.search.aggregations.Aggregations;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;
@@ -25,6 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.Aggregations;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -32,13 +32,20 @@ class FacetServiceTest {
 
   private static final String QUERY = "test-query";
 
-  @InjectMocks private FacetService facetService;
-  @Mock private CqlSearchQueryConverter cqlSearchQueryConverter;
-  @Mock private ElasticsearchFacetConverter facetConverter;
-  @Mock private FacetQueryBuilder facetQueryBuilder;
-  @Mock private SearchRepository searchRepository;
-  @Mock private SearchResponse searchResponse;
-  @Mock private Aggregations aggregations;
+  @InjectMocks
+  private FacetService facetService;
+  @Mock
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @Mock
+  private ElasticsearchFacetConverter facetConverter;
+  @Mock
+  private FacetQueryBuilder facetQueryBuilder;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private SearchResponse searchResponse;
+  @Mock
+  private Aggregations aggregations;
 
   @Test
   void getFacets_positive() {

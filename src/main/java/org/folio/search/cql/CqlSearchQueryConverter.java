@@ -1,20 +1,20 @@
 package org.folio.search.cql;
 
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.model.types.SearchType;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.folio.search.model.types.SearchType;
-import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -40,7 +40,7 @@ public class CqlSearchQueryConverter {
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
    *
-   * @param query cql query to parse
+   * @param query    cql query to parse
    * @param resource resource name
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
@@ -90,7 +90,7 @@ public class CqlSearchQueryConverter {
   }
 
   private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource,
-    Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
+                                            Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
     var rightOperandQuery = convertToQuery(node.getRightOperand(), resource);
     var leftOperandQuery = convertToQuery(node.getLeftOperand(), resource);
 

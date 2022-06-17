@@ -37,11 +37,16 @@ class LanguageConfigServiceTest {
   private static final String SUPPORTED_LANGUAGE_CODE = "supported";
   private static final String UNSUPPORTED_LANGUAGE_CODE = "unsupported";
 
-  @InjectMocks private LanguageConfigService configService;
-  @Mock private LanguageConfigRepository configRepository;
-  @Mock private LocalSearchFieldProvider searchFieldProvider;
-  @Mock private TenantScopedExecutionService tenantScopedExecutionService;
-  @Mock private SearchConfigurationProperties searchConfigurationProperties;
+  @InjectMocks
+  private LanguageConfigService configService;
+  @Mock
+  private LanguageConfigRepository configRepository;
+  @Mock
+  private LocalSearchFieldProvider searchFieldProvider;
+  @Mock
+  private TenantScopedExecutionService tenantScopedExecutionService;
+  @Mock
+  private SearchConfigurationProperties searchConfigurationProperties;
 
   @Test
   void canAddLanguageConfig() {

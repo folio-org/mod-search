@@ -35,8 +35,10 @@ class JsonConverterTest {
   private static final String WRONG_JSON_BODY = "{\"field\":value}";
   private static final String FIELD_VALUE = "value";
 
-  @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
-  @InjectMocks private JsonConverter jsonConverter;
+  @Spy
+  private final ObjectMapper objectMapper = OBJECT_MAPPER;
+  @InjectMocks
+  private JsonConverter jsonConverter;
 
   @Test
   void toJson_positive() throws JsonProcessingException {
@@ -228,13 +230,13 @@ class JsonConverterTest {
 
   @Test
   void convert_positive_typeReference() {
-    var actual = jsonConverter.convert(mapOf("field", FIELD_VALUE), new TypeReference<TestClass>() {});
+    var actual = jsonConverter.convert(mapOf("field", FIELD_VALUE), new TypeReference<TestClass>() { });
     assertThat(actual).isEqualTo(TestClass.of(FIELD_VALUE));
   }
 
   @Test
   void convert_positive_typeReferenceNullValue() {
-    var actual = jsonConverter.convert(null, new TypeReference<TestClass>() {});
+    var actual = jsonConverter.convert(null, new TypeReference<TestClass>() { });
     assertThat(actual).isNull();
   }
 

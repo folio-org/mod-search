@@ -15,4 +15,4 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ExtendWith(OkapiExtension.class)
-public @interface EnableOkapi {}
+public @interface EnableOkapi { }

@@ -25,7 +25,7 @@ public class SearchConverterUtils {
    * value contain list of maps - it will extract all related values from each sub map.
    *
    * @param path path in format 'field1.field2.field3'
-   * @param map map to process
+   * @param map  map to process
    * @return field value by path.
    */
   public static Object getMapValueByPath(String path, Map<String, Object> map) {

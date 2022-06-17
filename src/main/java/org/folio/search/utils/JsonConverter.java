@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JsonConverter {
 
-  public static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<>() {};
+  public static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<>() { };
   public static final String SERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to serialize value [message: %s]";
   public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to deserialize value [value: {}]";
 
@@ -30,8 +30,8 @@ public class JsonConverter {
    * Converts {@link String} value as {@link T} class value.
    *
    * @param value json value as {@link String} object
-   * @param type target class to conversion value from json
-   * @param <T> generic type for class.
+   * @param type  target class to conversion value from json
+   * @param <T>   generic type for class.
    * @return converted {@link T} from json value
    */
   @SuppressWarnings("unused")
@@ -51,8 +51,8 @@ public class JsonConverter {
    * Converts {@link String} value as {@link T} class value.
    *
    * @param value json value as {@link String} object
-   * @param type target class for conversion value from json
-   * @param <T> generic type for class.
+   * @param type  target class for conversion value from json
+   * @param <T>   generic type for class.
    * @return converted {@link T} from json value
    */
   @SuppressWarnings("unused")
@@ -72,8 +72,8 @@ public class JsonConverter {
    * Converts {@link InputStream} value as {@link T} class value.
    *
    * @param inputStream json value stream as {@link InputStream} object
-   * @param type target class to conversion value from json
-   * @param <T> generic type for class.
+   * @param type        target class to conversion value from json
+   * @param <T>         generic type for class.
    * @return converted {@link T} object from input stream
    */
   public <T> T readJson(InputStream inputStream, Class<T> type) {
@@ -91,8 +91,8 @@ public class JsonConverter {
    * Converts {@link InputStream} value as {@link T} class value.
    *
    * @param inputStream json value stream as {@link InputStream} object
-   * @param type target class to conversion value from json
-   * @param <T> generic type for class.
+   * @param type        target class to conversion value from json
+   * @param <T>         generic type for class.
    * @return converted {@link T} object from input stream
    */
   public <T> T readJson(InputStream inputStream, TypeReference<T> type) {
@@ -193,8 +193,8 @@ public class JsonConverter {
    * Converts object value to the given type.
    *
    * @param value object value to convert
-   * @param type target type
-   * @param <T> generic type for target class
+   * @param type  target type
+   * @param <T>   generic type for target class
    * @return converted value
    */
   public <T> T convert(Object value, Class<T> type) {
@@ -208,8 +208,8 @@ public class JsonConverter {
    * Converts object value to the given type, specified in {@link TypeReference} object.
    *
    * @param value object value to convert
-   * @param type target type as {@link TypeReference} object
-   * @param <T> generic type for target class
+   * @param type  target type as {@link TypeReference} object
+   * @param <T>   generic type for target class
    * @return converted value
    */
   public <T> T convert(Object value, TypeReference<T> type) {

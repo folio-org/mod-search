@@ -3,11 +3,11 @@ package org.folio.search.utils;
 import static java.util.Locale.ROOT;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.folio.search.utils.SearchUtils.SUBJECT_AGGREGATION_NAME;
+import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.folio.search.utils.SearchUtils.SUBJECT_AGGREGATION_NAME;
-import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import java.util.Collection;
 import java.util.Objects;

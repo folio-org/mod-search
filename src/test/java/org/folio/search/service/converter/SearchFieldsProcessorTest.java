@@ -43,8 +43,10 @@ import org.springframework.context.annotation.Import;
 class SearchFieldsProcessorTest {
 
   private static final String FIELD = "generated";
-  @Autowired private SearchFieldsProcessor searchFieldsProcessor;
-  @MockBean private FeatureConfigService featureConfigService;
+  @Autowired
+  private SearchFieldsProcessor searchFieldsProcessor;
+  @MockBean
+  private FeatureConfigService featureConfigService;
 
   @Test
   void getSearchFields_positive_emptySearchFields() {
@@ -200,7 +202,7 @@ class SearchFieldsProcessorTest {
         var type = MapUtils.getString(value, "type");
         switch (type) {
           case "array":
-            return new String[] {};
+            return new String[] { };
           case "list":
             return emptyList();
           case "map":
@@ -216,5 +218,5 @@ class SearchFieldsProcessorTest {
     }
   }
 
-  private static class TestClass {}
+  private static class TestClass { }
 }

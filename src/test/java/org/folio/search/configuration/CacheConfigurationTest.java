@@ -15,8 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CacheConfigurationTest {
 
-  @InjectMocks private CacheConfiguration cacheConfiguration;
-  @Mock private SearchCacheConfigurationProperties cacheConfigurationProperties;
+  @InjectMocks
+  private CacheConfiguration cacheConfiguration;
+  @Mock
+  private SearchCacheConfigurationProperties cacheConfigurationProperties;
 
   @Test
   void createCallNumberRangesCache() {

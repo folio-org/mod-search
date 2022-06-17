@@ -54,8 +54,8 @@ public class SearchDocumentConverter {
     }
 
     return canConvertEvent(resourceEvent)
-      ? Optional.of(convert(buildConversionContext(resourceEvent)))
-      : Optional.empty();
+           ? Optional.of(convert(buildConversionContext(resourceEvent)))
+           : Optional.empty();
   }
 
   private SearchDocumentBody convert(ConversionContext context) {
@@ -110,7 +110,8 @@ public class SearchDocumentConverter {
   }
 
   private static Map<String, Object> getPlainFieldValue(Map<String, Object> fieldData,
-    Entry<String, FieldDescription> fieldEntry, ConversionContext ctx) {
+                                                        Entry<String, FieldDescription> fieldEntry,
+                                                        ConversionContext ctx) {
     var fieldName = fieldEntry.getKey();
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (desc.isNotIndexed()) {

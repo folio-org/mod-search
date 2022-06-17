@@ -44,7 +44,7 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
   }
 
   private void collectFieldValuesFromEventBody(String path, MultilangValue context,
-    Map<String, Object> fields, Predicate<String> keyFilter) {
+                                               Map<String, Object> fields, Predicate<String> keyFilter) {
     if (MapUtils.isEmpty(fields)) {
       return;
     }
@@ -65,7 +65,7 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
   }
 
   private void collectFieldValuesFromEventBody(String path, MultilangValue ctx,
-    Collection<?> collection, Predicate<String> keyFilter) {
+                                               Collection<?> collection, Predicate<String> keyFilter) {
     if (CollectionUtils.isNotEmpty(collection)) {
       collection.forEach(value -> collectFieldValuesFromEventBody(path, ctx, value, keyFilter));
     }

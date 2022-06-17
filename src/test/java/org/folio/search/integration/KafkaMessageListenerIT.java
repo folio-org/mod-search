@@ -85,9 +85,12 @@ class KafkaMessageListenerIT {
   private static final String INSTANCE_ID = randomId();
   private static final String KAFKA_LISTENER_IT_ENV = "kafka-listener-it";
 
-  @Autowired private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
-  @Autowired private FolioKafkaProperties kafkaProperties;
-  @MockBean private ResourceService resourceService;
+  @Autowired
+  private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  @Autowired
+  private FolioKafkaProperties kafkaProperties;
+  @MockBean
+  private ResourceService resourceService;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -211,7 +214,7 @@ class KafkaMessageListenerIT {
   }
 
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
-    Function<String, ResourceEvent> resourceEventFunction) {
+                                                        Function<String, ResourceEvent> resourceEventFunction) {
     var container = getKafkaListenerContainer(containerId);
     container.stop();
     ids.forEach(id -> kafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));

@@ -3,17 +3,14 @@ package org.folio.search.service.browse;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
-import org.opensearch.action.search.MultiSearchResponse;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -29,23 +26,35 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class CallNumberBrowseServiceTest {
 
   private static final String ANCHOR = "B";
-  @InjectMocks private CallNumberBrowseService callNumberBrowseService;
+  @InjectMocks
+  private CallNumberBrowseService callNumberBrowseService;
 
-  @Mock private SearchRepository searchRepository;
-  @Mock private BrowseContextProvider browseContextProvider;
-  @Mock private CallNumberBrowseQueryProvider browseQueryProvider;
-  @Mock private CallNumberBrowseResultConverter browseResultConverter;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private BrowseContextProvider browseContextProvider;
+  @Mock
+  private CallNumberBrowseQueryProvider browseQueryProvider;
+  @Mock
+  private CallNumberBrowseResultConverter browseResultConverter;
 
-  @Mock private SearchResponse precedingResponse;
-  @Mock private SearchResponse succeedingResponse;
-  @Mock private SearchSourceBuilder precedingQuery;
-  @Mock private SearchSourceBuilder succeedingQuery;
+  @Mock
+  private SearchResponse precedingResponse;
+  @Mock
+  private SearchResponse succeedingResponse;
+  @Mock
+  private SearchSourceBuilder precedingQuery;
+  @Mock
+  private SearchSourceBuilder succeedingQuery;
 
   @BeforeEach
   void setUp() {
@@ -241,7 +250,8 @@ class CallNumberBrowseServiceTest {
   }
 
   private void prepareMockForBrowsingAround(BrowseRequest request, BrowseContext context,
-    BrowseResult<CallNumberBrowseItem> precedingResult, BrowseResult<CallNumberBrowseItem> succeedingResult) {
+                                            BrowseResult<CallNumberBrowseItem> precedingResult,
+                                            BrowseResult<CallNumberBrowseItem> succeedingResult) {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);

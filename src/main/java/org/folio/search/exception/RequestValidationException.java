@@ -13,8 +13,8 @@ public class RequestValidationException extends BaseSearchException {
    * Creates {@link RequestValidationException} object for given message, key and value.
    *
    * @param message - validation error message
-   * @param key - validation key as field or parameter name
-   * @param value - invalid parameter value
+   * @param key     - validation key as field or parameter name
+   * @param value   - invalid parameter value
    */
   public RequestValidationException(String message, String key, String value) {
     super(message, ErrorCode.VALIDATION_ERROR);

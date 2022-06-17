@@ -4,10 +4,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.search.SearchHit.createFromMap;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -22,6 +18,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.search.SearchHit.createFromMap;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +29,15 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
+import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.utils.TestUtils.TestResource;
+import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.ClearScrollRequest;
 import org.opensearch.action.search.ClearScrollResponse;
 import org.opensearch.action.search.MultiSearchRequest;
@@ -43,15 +52,6 @@ import org.opensearch.common.bytes.BytesArray;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
-import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.folio.search.utils.TestUtils.TestResource;
-import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -62,10 +62,14 @@ class SearchRepositoryTest {
   private static final String SCROLL_ID = randomId();
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
 
-  @InjectMocks private SearchRepository searchRepository;
-  @Mock private RestHighLevelClient esClient;
-  @Mock private SearchResponse searchResponse;
-  @Mock private RetryTemplate retryTemplate;
+  @InjectMocks
+  private SearchRepository searchRepository;
+  @Mock
+  private RestHighLevelClient esClient;
+  @Mock
+  private SearchResponse searchResponse;
+  @Mock
+  private RetryTemplate retryTemplate;
 
   @Test
   void search_positive() throws IOException {

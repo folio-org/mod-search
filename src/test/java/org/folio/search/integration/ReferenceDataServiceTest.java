@@ -51,9 +51,12 @@ import org.springframework.context.annotation.Import;
 @SpringBootTest(classes = ReferenceDataService.class, webEnvironment = NONE)
 class ReferenceDataServiceTest {
 
-  @Autowired private CacheManager cacheManager;
-  @Autowired private ReferenceDataService referenceDataService;
-  @MockBean private InventoryReferenceDataClient inventoryReferenceDataClient;
+  @Autowired
+  private CacheManager cacheManager;
+  @Autowired
+  private ReferenceDataService referenceDataService;
+  @MockBean
+  private InventoryReferenceDataClient inventoryReferenceDataClient;
 
   @BeforeEach
   void setUp() {

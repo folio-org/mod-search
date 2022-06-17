@@ -36,8 +36,10 @@ class UniformTitleProcessorTest {
   private static final String SIMPLE_TITLE_TYPE_ID = randomId();
   private static final List<String> UNIFORM_TITLES = singletonList("Uniform Title");
 
-  @InjectMocks private UniformTitleProcessor uniformTitleProcessor;
-  @Mock private ReferenceDataService referenceDataService;
+  @InjectMocks
+  private UniformTitleProcessor uniformTitleProcessor;
+  @Mock
+  private ReferenceDataService referenceDataService;
 
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")

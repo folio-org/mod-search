@@ -17,10 +17,14 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 @ExtendWith(MockitoExtension.class)
 class KafkaConfigurationTest {
 
-  @InjectMocks private KafkaConfiguration kafkaConfiguration;
-  @InjectMocks private RetryTemplateConfiguration retryTemplateConfiguration;
-  @Mock private KafkaProperties kafkaProperties;
-  @Mock private FolioKafkaProperties folioKafkaProperties;
+  @InjectMocks
+  private KafkaConfiguration kafkaConfiguration;
+  @InjectMocks
+  private RetryTemplateConfiguration retryTemplateConfiguration;
+  @Mock
+  private KafkaProperties kafkaProperties;
+  @Mock
+  private FolioKafkaProperties folioKafkaProperties;
 
   @Test
   void kafkaListenerContainerFactory() {

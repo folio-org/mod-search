@@ -2,17 +2,16 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.Operator.AND;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.matchQuery;
-import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.Operator.AND;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 
 import java.util.Optional;
-import org.opensearch.index.query.MultiMatchQueryBuilder.Type;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.index.query.MultiMatchQueryBuilder.Type;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

@@ -21,9 +21,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
-import org.opensearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
@@ -33,6 +30,9 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
+import org.opensearch.search.aggregations.bucket.terms.ParsedTerms;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
@@ -67,9 +67,9 @@ public class SearchUtils {
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
    *
-   * @param func exceptional operation as {@link Callable} lambda.
+   * @param func  exceptional operation as {@link Callable} lambda.
    * @param index elasticsearch index for error message.
-   * @param type operation type for error message.
+   * @param type  operation type for error message.
    * @throws SearchOperationException if function call throws an exception during execution.
    */
   public static <T> T performExceptionalOperation(Callable<T> func, String index, String type) {
@@ -116,7 +116,7 @@ public class SearchUtils {
   /**
    * Calculates total pages for given total results and page size.
    *
-   * @param total total hits as long value
+   * @param total    total hits as long value
    * @param pageSize page size as integer value
    * @return total pages as long value
    */
@@ -128,7 +128,7 @@ public class SearchUtils {
    * Updates path for fulltext field.
    *
    * @param description plain field description as {@link PlainFieldDescription} object
-   * @param path path to field
+   * @param path        path to field
    * @return updated path as {@link String} object
    */
   public static String updatePathForFulltextField(PlainFieldDescription description, String path) {
@@ -164,8 +164,8 @@ public class SearchUtils {
   public static String getPathToFulltextPlainValue(String path) {
     var dotIndex = path.lastIndexOf('.');
     return dotIndex < 0
-      ? PLAIN_FULLTEXT_PREFIX + path
-      : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
+           ? PLAIN_FULLTEXT_PREFIX + path
+           : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
   }
 
   /**
@@ -181,9 +181,9 @@ public class SearchUtils {
   /**
    * Creates call number for passed prefix, call number and suffix.
    *
-   * @param prefix call number prefix
+   * @param prefix     call number prefix
    * @param callNumber call number value
-   * @param suffix call number suffix
+   * @param suffix     call number suffix
    * @return created effective call number as {@link String} value
    */
   public static String getEffectiveCallNumber(String prefix, String callNumber, String suffix) {
@@ -210,9 +210,9 @@ public class SearchUtils {
    * Returns plain field value for fulltext value.
    *
    * @param description plain field description as {@link PlainFieldDescription} object
-   * @param fieldName field name as {@link String} object
-   * @param fieldValue field value as {@link Object} object.
-   * @param languages list of supported languages for multi-language fields
+   * @param fieldName   field name as {@link String} object
+   * @param fieldValue  field value as {@link Object} object.
+   * @param languages   list of supported languages for multi-language fields
    * @return {@link Map} as a created field
    */
   public static Map<String, Object> getPlainFieldValue(
@@ -229,8 +229,8 @@ public class SearchUtils {
   /**
    * Generates multi-language field value for passed key, value and conversion context with supported languages.
    *
-   * @param key name of multi-language field as {@link String} object
-   * @param value multi-language field value as {@link Object} object
+   * @param key       name of multi-language field as {@link String} object
+   * @param value     multi-language field value as {@link Object} object
    * @param languages list of languages for multilang field
    * @return created multi-language value as {@link Map}
    */
@@ -251,8 +251,8 @@ public class SearchUtils {
   /**
    * Generates standard fulltext field value for passed key, value and boolean flag for plain field.
    *
-   * @param key name of multi-language field as {@link String} object
-   * @param value multi-language field value as {@link Object} object
+   * @param key             name of multi-language field as {@link String} object
+   * @param value           multi-language field value as {@link Object} object
    * @param indexPlainField boolean flag that specifies if plain value must be indexed or not
    * @return created standard fulltext value as {@link Map} object
    */

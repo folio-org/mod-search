@@ -34,11 +34,16 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 @SpringBootTest(classes = KafkaAdminService.class)
 class KafkaAdminServiceTest {
 
-  @Autowired private KafkaAdminService kafkaAdminService;
-  @Autowired private ApplicationContext applicationContext;
-  @MockBean private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-  @MockBean private KafkaAdmin kafkaAdmin;
-  @MockBean private FolioKafkaProperties kafkaProperties;
+  @Autowired
+  private KafkaAdminService kafkaAdminService;
+  @Autowired
+  private ApplicationContext applicationContext;
+  @MockBean
+  private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+  @MockBean
+  private KafkaAdmin kafkaAdmin;
+  @MockBean
+  private FolioKafkaProperties kafkaProperties;
 
   @Test
   void createKafkaTopics_positive() {

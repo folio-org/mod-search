@@ -33,8 +33,8 @@ public class SampleInstances {
   private static Map<String, Object> readSampleInstance(String sampleName) {
     var path = "/samples/" + sampleName + "/";
     var instance = readJsonFromFile(path + "instance.json", MAP_TYPE_REFERENCE);
-    var hrs = readJsonFromFile(path + "holdings.json", new TypeReference<List<Map<String, Object>>>() {});
-    var items = readJsonFromFile(path + "items.json", new TypeReference<List<Map<String, Object>>>() {});
+    var hrs = readJsonFromFile(path + "holdings.json", new TypeReference<List<Map<String, Object>>>() { });
+    var items = readJsonFromFile(path + "items.json", new TypeReference<List<Map<String, Object>>>() { });
     instance.put("holdings", hrs);
     instance.put("items", items);
 

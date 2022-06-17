@@ -22,9 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class TenantScopedExecutionServiceTest {
 
-  @InjectMocks private TenantScopedExecutionService tenantScopedExecutionService;
-  @Mock private FolioExecutionContextBuilder contextBuilder;
-  @Mock private SystemUserService systemUserService;
+  @InjectMocks
+  private TenantScopedExecutionService tenantScopedExecutionService;
+  @Mock
+  private FolioExecutionContextBuilder contextBuilder;
+  @Mock
+  private SystemUserService systemUserService;
 
   @Test
   void executeTenantScoped_positive() {

@@ -17,7 +17,6 @@ import java.util.Map;
  * description, and then it can be referenced in actual type via $type: [type] property.</li>
  * <li>Builds flattened map of field path and field description pairs.</li>
  * </ul>
- *
  */
 public class PostProcessResourceDescriptionConverter extends StdConverter<ResourceDescription, ResourceDescription> {
 

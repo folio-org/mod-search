@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 public final class CqlQuery {
   private final String query;
 
-  private static CqlQuery fromTemplate(String format, Object ... args) {
+  private static CqlQuery fromTemplate(String format, Object... args) {
     return new CqlQuery(String.format(format, args));
   }
 

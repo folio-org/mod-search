@@ -29,14 +29,15 @@ public class FolioMessageBatchProcessor {
    * by single value at one time, if the value would be failed to process - failedValueConsumer will be executed.
    * </p>
    *
-   * @param batch list of values as {@link List} object
-   * @param retryBeanName retry bean name, if it's not specified - default retry policy will be used.
-   * @param batchConsumer batch consumer as {@link Consumer} lambda function
+   * @param batch               list of values as {@link List} object
+   * @param retryBeanName       retry bean name, if it's not specified - default retry policy will be used.
+   * @param batchConsumer       batch consumer as {@link Consumer} lambda function
    * @param failedValueConsumer bi value consumer, where first - is the failed value, second is the related error
-   * @param <T> generic type for batch value
+   * @param <T>                 generic type for batch value
    */
   public <T> void consumeBatchWithFallback(List<T> batch, String retryBeanName,
-    Consumer<List<T>> batchConsumer, BiConsumer<T, Exception> failedValueConsumer) {
+                                           Consumer<List<T>> batchConsumer,
+                                           BiConsumer<T, Exception> failedValueConsumer) {
     var retryTemplate = retryTemplateBeans.getOrDefault(retryBeanName, defaultRetryTemplate);
     try {
       executeWithRetryTemplate(retryTemplate, batch, batchConsumer);
@@ -51,7 +52,8 @@ public class FolioMessageBatchProcessor {
   }
 
   private <T> void processMessagesOneByOne(List<T> batch, RetryTemplate retryTemplate,
-    Consumer<List<T>> batchConsumer, BiConsumer<T, Exception> failedValueConsumer) {
+                                           Consumer<List<T>> batchConsumer,
+                                           BiConsumer<T, Exception> failedValueConsumer) {
     for (T batchValue : batch) {
       try {
         executeWithRetryTemplate(retryTemplate, singletonList(batchValue), batchConsumer);

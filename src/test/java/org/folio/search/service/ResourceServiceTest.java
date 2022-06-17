@@ -49,14 +49,22 @@ class ResourceServiceTest {
 
   private static final String CUSTOM_REPOSITORY_NAME = "testRepository";
 
-  @InjectMocks private ResourceService indexService;
-  @Mock private IndexRepository indexRepository;
-  @Mock private ResourceFetchService resourceFetchService;
-  @Mock private PrimaryResourceRepository primaryResourceRepository;
-  @Mock private ResourceDescriptionService resourceDescriptionService;
-  @Mock private Map<String, ResourceRepository> resourceRepositoryBeans;
-  @Mock private MultiTenantSearchDocumentConverter searchDocumentConverter;
-  @Mock private KafkaMessageProducer kafkaMessageProducer;
+  @InjectMocks
+  private ResourceService indexService;
+  @Mock
+  private IndexRepository indexRepository;
+  @Mock
+  private ResourceFetchService resourceFetchService;
+  @Mock
+  private PrimaryResourceRepository primaryResourceRepository;
+  @Mock
+  private ResourceDescriptionService resourceDescriptionService;
+  @Mock
+  private Map<String, ResourceRepository> resourceRepositoryBeans;
+  @Mock
+  private MultiTenantSearchDocumentConverter searchDocumentConverter;
+  @Mock
+  private KafkaMessageProducer kafkaMessageProducer;
 
   @Test
   void indexResources_positive() {

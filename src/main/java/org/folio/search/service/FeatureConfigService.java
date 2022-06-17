@@ -66,7 +66,7 @@ public class FeatureConfigService {
    */
   @Transactional
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE,
-    key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
+              key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
   public FeatureConfig create(FeatureConfig featureConfig) {
     log.info("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
     var entity = featureConfigMapper.convert(featureConfig);
@@ -82,7 +82,7 @@ public class FeatureConfigService {
   /**
    * Updates tenant's feature configuration by given code and {@link FeatureConfig} dto.
    *
-   * @param feature - feature id as {@link TenantConfiguredFeature} object
+   * @param feature       - feature id as {@link TenantConfiguredFeature} object
    * @param featureConfig - feature config dto as {@link FeatureConfig} object
    * @return updated {@link FeatureConfig} dto.
    */

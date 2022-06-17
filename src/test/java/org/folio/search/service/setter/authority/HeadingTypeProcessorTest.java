@@ -20,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class HeadingTypeProcessorTest {
 
-  @InjectMocks private HeadingTypeProcessor headingTypeProcessor;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private HeadingTypeProcessor headingTypeProcessor;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getFieldValue_positive() {

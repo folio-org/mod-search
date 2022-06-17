@@ -19,9 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class FeignRequestInterceptorTest {
 
-  @InjectMocks private FeignRequestInterceptor requestInterceptor;
-  @Mock private FolioExecutionContext folioExecutionContext;
-  @Mock private RequestTemplate requestTemplate;
+  @InjectMocks
+  private FeignRequestInterceptor requestInterceptor;
+  @Mock
+  private FolioExecutionContext folioExecutionContext;
+  @Mock
+  private RequestTemplate requestTemplate;
 
   @Test
   void apply_positive() {

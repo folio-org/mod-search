@@ -8,12 +8,13 @@ import org.folio.search.model.types.ErrorCode;
  */
 public abstract class BaseSearchException extends RuntimeException {
 
-  @Getter private final ErrorCode errorCode;
+  @Getter
+  private final ErrorCode errorCode;
 
   /**
    * Creates exception instance from given message and error code.
    *
-   * @param message exception message as {@link String} object
+   * @param message   exception message as {@link String} object
    * @param errorCode exception error code as {@link ErrorCode} object
    */
   protected BaseSearchException(String message, ErrorCode errorCode) {
@@ -24,8 +25,8 @@ public abstract class BaseSearchException extends RuntimeException {
   /**
    * Creates exception instance from given message.
    *
-   * @param message exception message as{@link String} object
-   * @param cause exception cause as {@link Throwable} object
+   * @param message   exception message as{@link String} object
+   * @param cause     exception cause as {@link Throwable} object
    * @param errorCode exception error code as {@link ErrorCode} object
    */
   protected BaseSearchException(String message, Throwable cause, ErrorCode errorCode) {

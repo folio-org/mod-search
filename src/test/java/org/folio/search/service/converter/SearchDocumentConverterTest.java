@@ -49,11 +49,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
-  @InjectMocks private SearchDocumentConverter documentMapper;
-  @Mock private LanguageConfigService languageConfigService;
-  @Mock private SearchFieldsProcessor searchFieldsProcessor;
-  @Mock private ResourceDescriptionService descriptionService;
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @InjectMocks
+  private SearchDocumentConverter documentMapper;
+  @Mock
+  private LanguageConfigService languageConfigService;
+  @Mock
+  private SearchFieldsProcessor searchFieldsProcessor;
+  @Mock
+  private ResourceDescriptionService descriptionService;
+  @Spy
+  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
   void convert_positive() {

@@ -64,8 +64,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
     return event.getType() == ResourceEventType.UPDATE
-      ? getResourceEventsToUpdate(event)
-      : getResourceEvents(event, event.getType());
+           ? getResourceEventsToUpdate(event)
+           : getResourceEvents(event, event.getType());
   }
 
   private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
@@ -83,7 +83,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   }
 
   private List<ResourceEvent> generateResourceEvents(ResourceEvent event, ResourceEventType eventType,
-    Map<String, Object> eventPayload) {
+                                                     Map<String, Object> eventPayload) {
     var result = new ArrayList<ResourceEvent>();
     for (var entry : fieldTypes.entrySet()) {
       for (var field : entry.getValue()) {
@@ -95,7 +95,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   }
 
   private List<ResourceEvent> createResourceEvents(ResourceEvent event, String type, String name,
-    AtomicInteger counter, ResourceEventType eventType, Map<String, Object> body) {
+                                                   AtomicInteger counter, ResourceEventType eventType,
+                                                   Map<String, Object> body) {
     var value = body.get(name);
     if (value instanceof String) {
       return singletonList(createResourceEvent(type, event, name, value, eventType, counter.getAndIncrement(), body));
@@ -111,7 +112,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   }
 
   private ResourceEvent createResourceEvent(String type, ResourceEvent sourceEvent,
-    String fieldName, Object fieldValue, ResourceEventType eventType, int counter, Map<String, Object> eventPayload) {
+                                            String fieldName, Object fieldValue, ResourceEventType eventType,
+                                            int counter, Map<String, Object> eventPayload) {
     return new ResourceEvent()
       .id(type + counter + "_" + sourceEvent.getId())
       .resourceName(sourceEvent.getResourceName())

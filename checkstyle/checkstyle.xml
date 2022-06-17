@@ -254,6 +254,7 @@
     </module>
     <module name="AbbreviationAsWordInName">
       <property name="ignoreFinal" value="false"/>
+      <property name="ignoreOverriddenMethods" value="true"/>
       <property name="allowedAbbreviationLength" value="0"/>
       <property name="allowedAbbreviations" value="IT"/>
       <property name="tokens"

@@ -3,11 +3,6 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -15,6 +10,11 @@ import static org.folio.search.utils.TestUtils.plainField;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -41,10 +41,14 @@ import org.z3950.zing.cql.CQLTermNode;
 @ExtendWith(MockitoExtension.class)
 class CqlTermQueryConverterTest {
 
-  @Mock private LocalSearchFieldProvider searchFieldProvider;
-  @Mock private SearchTermProcessor searchTermProcessor;
-  @Mock private TermQueryBuilder termQueryBuilder;
-  @Mock private TermQueryBuilder wildcardQueryBuilder;
+  @Mock
+  private LocalSearchFieldProvider searchFieldProvider;
+  @Mock
+  private SearchTermProcessor searchTermProcessor;
+  @Mock
+  private TermQueryBuilder termQueryBuilder;
+  @Mock
+  private TermQueryBuilder wildcardQueryBuilder;
   private CqlTermQueryConverter cqlTermQueryConverter;
 
   @BeforeEach

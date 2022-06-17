@@ -54,9 +54,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageListenerTest {
 
-  @InjectMocks private KafkaMessageListener messageListener;
-  @Mock private ResourceService resourceService;
-  @Spy private final FolioMessageBatchProcessor batchProcessor =
+  @InjectMocks
+  private KafkaMessageListener messageListener;
+  @Mock
+  private ResourceService resourceService;
+  @Spy
+  private final FolioMessageBatchProcessor batchProcessor =
     new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
 
   @Spy

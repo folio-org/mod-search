@@ -17,7 +17,7 @@ public interface InventoryReferenceDataClient {
   /**
    * Fetches reference data by given URI and {@link CqlQuery} object.
    *
-   * @param uri - uri address to request for as {@link URI} object
+   * @param uri   - uri address to request for as {@link URI} object
    * @param query - cql query as {@link CqlQuery} object
    * @return {@link  ResultList} with {@link  ReferenceRecord} object
    */

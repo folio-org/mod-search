@@ -7,7 +7,6 @@ import static org.folio.search.utils.TestUtils.setEnvProperty;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

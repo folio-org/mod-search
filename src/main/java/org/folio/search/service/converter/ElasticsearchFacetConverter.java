@@ -12,14 +12,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetItem;
+import org.folio.search.domain.dto.FacetResult;
 import org.opensearch.search.aggregations.Aggregation;
 import org.opensearch.search.aggregations.Aggregations;
 import org.opensearch.search.aggregations.bucket.ParsedSingleBucketAggregation;
 import org.opensearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.opensearch.search.aggregations.bucket.terms.Terms.Bucket;
-import org.folio.search.domain.dto.Facet;
-import org.folio.search.domain.dto.FacetItem;
-import org.folio.search.domain.dto.FacetResult;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -67,8 +67,8 @@ public class ElasticsearchFacetConverter {
   private static List<FacetItem> getFacetItemsFromParsedTerms(ParsedTerms parsedTerms) {
     var buckets = parsedTerms.getBuckets();
     return CollectionUtils.isNotEmpty(buckets)
-      ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).collect(toList())
-      : emptyList();
+           ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).collect(toList())
+           : emptyList();
   }
 
   private static Facet facet(List<FacetItem> items) {

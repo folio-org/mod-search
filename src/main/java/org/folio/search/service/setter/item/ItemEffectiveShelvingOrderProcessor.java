@@ -69,7 +69,7 @@ public class ItemEffectiveShelvingOrderProcessor implements FieldProcessor<Insta
   /**
    * Provides integer value representation for the given character.
    *
-   * @param character - character to analyze.
+   * @param character    - character to analyze.
    * @param defaultValue - default value if character is not supported
    * @return integer representation for char value
    */

@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
-import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
@@ -19,6 +18,7 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getSubjectCounts;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +29,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
+import org.folio.search.configuration.properties.SearchConfigurationProperties.InstanceSubjectsIndexingSettings;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.model.Pair;
+import org.folio.search.model.SimpleResourceRequest;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.opensearch.action.DocWriteRequest;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkItemResponse.Failure;
@@ -41,13 +48,6 @@ import org.opensearch.action.get.MultiGetRequest;
 import org.opensearch.action.get.MultiGetRequest.Item;
 import org.opensearch.action.get.MultiGetResponse;
 import org.opensearch.search.fetch.subphase.FetchSourceContext;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.InstanceSubjectsIndexingSettings;
-import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.Pair;
-import org.folio.search.model.SimpleResourceRequest;
-import org.folio.search.model.index.SearchDocumentBody;
 import org.springframework.stereotype.Repository;
 
 @Log4j2
@@ -104,7 +104,8 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private List<String> deleteSubjects(Map<String, Long> subjectCounts,
-    Map<String, SearchDocumentBody> documentsBySubject, Map<String, GetResponse> esDocumentsById) {
+                                      Map<String, SearchDocumentBody> documentsBySubject,
+                                      Map<String, GetResponse> esDocumentsById) {
     Map<String, DocWriteRequest<?>> deleteRequestsBySubject = documentsBySubject.keySet().stream()
       .filter(subject -> subjectCounts.getOrDefault(subject, 0L) == 0L)
       .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, documentsBySubject, esDocumentsById)))
@@ -166,7 +167,8 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private static DocWriteRequest<?> prepareDeleteRequest(String subject,
-    Map<String, SearchDocumentBody> searchDocumentBySubject, Map<String, GetResponse> esDocumentsById) {
+                                                         Map<String, SearchDocumentBody> searchDocumentBySubject,
+                                                         Map<String, GetResponse> esDocumentsById) {
     var doc = searchDocumentBySubject.get(subject);
     var esDocument = esDocumentsById.get(doc.getId());
     return esDocument != null ? prepareDeleteRequest(doc, esDocument) : null;

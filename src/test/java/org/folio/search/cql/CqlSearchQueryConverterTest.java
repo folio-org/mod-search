@@ -3,6 +3,17 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.filterField;
+import static org.folio.search.utils.TestUtils.keywordField;
+import static org.folio.search.utils.TestUtils.multilangField;
+import static org.folio.search.utils.TestUtils.randomId;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.Operator.AND;
@@ -15,25 +26,11 @@ import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.filterField;
-import static org.folio.search.utils.TestUtils.keywordField;
-import static org.folio.search.utils.TestUtils.multilangField;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.index.query.QueryBuilders;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfiguration;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
@@ -46,6 +43,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -62,9 +62,12 @@ class CqlSearchQueryConverterTest {
   private static final String TITLE_SEARCH_TYPE = "title";
   private static final String FIELD = "field";
 
-  @Autowired private CqlSearchQueryConverter cqlSearchQueryConverter;
-  @MockBean private LocalSearchFieldProvider searchFieldProvider;
-  @MockBean private CqlSortProvider cqlSortProvider;
+  @Autowired
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @MockBean
+  private LocalSearchFieldProvider searchFieldProvider;
+  @MockBean
+  private CqlSortProvider cqlSortProvider;
 
   @BeforeEach
   void setUp() {

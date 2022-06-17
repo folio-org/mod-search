@@ -7,14 +7,14 @@ import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
-import org.opensearch.action.search.MultiSearchResponse.Item;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
+import org.opensearch.action.search.MultiSearchResponse.Item;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -60,8 +60,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var succeedingQuery = getSearchQuery(request, context, true);
     var precedingQuery = getSearchQuery(request, context, false);
     var searchSources = context.isAnchorIncluded(true)
-      ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
-      : List.of(precedingQuery, succeedingQuery);
+                        ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
+                        : List.of(precedingQuery, succeedingQuery);
     var responses = searchRepository.msearch(request, searchSources).getResponses();
     return createBrowseResult(responses, request, context);
   }
@@ -69,8 +69,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   @Override
   protected BrowseResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context) {
     return context.isAnchorIncluded(context.isBrowsingForward())
-      ? getSearchResultWithAnchor(request, context)
-      : getSearchResultWithoutAnchor(request, context);
+           ? getSearchResultWithAnchor(request, context)
+           : getSearchResultWithoutAnchor(request, context);
   }
 
   /**
@@ -85,8 +85,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   /**
    * Provides search query for the given {@link BrowseRequest} and {@link BrowseContext} objects.
    *
-   * @param request - {@link BrowseRequest} object with inputs from a user
-   * @param context - {@link BrowseContext} with necessary information for browsing.
+   * @param request           - {@link BrowseRequest} object with inputs from a user
+   * @param context           - {@link BrowseContext} with necessary information for browsing.
    * @param isBrowsingForward - direction of browsing.
    * @return created Elasticsearch query as {@link SearchSourceBuilder} object
    */
@@ -105,7 +105,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    * Maps received {@link SearchResult} object to the {@link BrowseResult} value.
    *
    * @param searchResult - converted Elasticsearch response as {@link SearchResult} value.
-   * @param isAnchor - defines if the given result is anchor or not.
+   * @param isAnchor     - defines if the given result is anchor or not.
    * @return created {@link BrowseResult} object
    */
   protected abstract BrowseResult<T> mapToBrowseResult(SearchResult<R> searchResult, boolean isAnchor);
@@ -129,14 +129,14 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var isAnchorHighlighted = isTrue(request.getHighlightMatch());
     if (!context.isAnchorIncluded(true)) {
       return isAnchorHighlighted
-        ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
-        : BrowseResult.empty();
+             ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
+             : BrowseResult.empty();
     }
 
     var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
     return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
-      ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
-      : mapToBrowseResult(anchorResult, isAnchorHighlighted);
+           ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
+           : mapToBrowseResult(anchorResult, isAnchorHighlighted);
   }
 
   private BrowseResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {

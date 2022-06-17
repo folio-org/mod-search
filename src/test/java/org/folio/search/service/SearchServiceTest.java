@@ -3,8 +3,6 @@ package org.folio.search.service;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -13,11 +11,10 @@ import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.time.Duration;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.common.unit.TimeValue;
-import org.opensearch.index.query.QueryBuilder;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -32,6 +29,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.index.query.QueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +40,20 @@ class SearchServiceTest {
   private static final String SEARCH_QUERY = "id==" + RESOURCE_ID;
   private static final QueryBuilder ES_TERM_QUERY = termQuery("id", RESOURCE_ID);
 
-  @InjectMocks private SearchService searchService;
-  @Mock private SearchRepository searchRepository;
-  @Mock private SearchFieldProvider searchFieldProvider;
-  @Mock private CqlSearchQueryConverter cqlSearchQueryConverter;
-  @Mock private ElasticsearchDocumentConverter documentConverter;
-  @Mock private SearchQueryConfigurationProperties searchQueryConfig;
-  @Mock private SearchResponse searchResponse;
+  @InjectMocks
+  private SearchService searchService;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
+  @Mock
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @Mock
+  private ElasticsearchDocumentConverter documentConverter;
+  @Mock
+  private SearchQueryConfigurationProperties searchQueryConfig;
+  @Mock
+  private SearchResponse searchResponse;
 
   @Test
   void search_positive() {

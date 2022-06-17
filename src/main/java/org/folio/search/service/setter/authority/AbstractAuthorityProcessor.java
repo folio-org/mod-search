@@ -22,7 +22,7 @@ public abstract class AbstractAuthorityProcessor implements FieldProcessor<Map<S
   }
 
   protected String getAuthorityType(Map<String, Object> eventBody,
-    Function<AuthorityFieldDescription, String> valueExtractor, String defaultValue) {
+                                    Function<AuthorityFieldDescription, String> valueExtractor, String defaultValue) {
     return eventBody.entrySet().stream()
       .map(entry -> getAuthorityFieldForEntry(entry).map(valueExtractor))
       .flatMap(Optional::stream)

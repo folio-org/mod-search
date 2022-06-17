@@ -33,11 +33,15 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 @ExtendWith(MockitoExtension.class)
 class LocalResourceProviderTest {
 
-  @InjectMocks private LocalResourceProvider localResourceProvider;
+  @InjectMocks
+  private LocalResourceProvider localResourceProvider;
 
-  @Mock private JsonConverter jsonConverter;
-  @Mock private LocalFileProvider localFileProvider;
-  @Mock private ResourcePatternResolver patternResolver;
+  @Mock
+  private JsonConverter jsonConverter;
+  @Mock
+  private LocalFileProvider localFileProvider;
+  @Mock
+  private ResourcePatternResolver patternResolver;
 
   @Test
   void getResourceDescriptions_positive() throws IOException {

@@ -8,13 +8,13 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.search.aggregations.AggregationBuilders.filter;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.folio.search.utils.SearchUtils.SELECTED_AGG_PREFIX;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.search.aggregations.AggregationBuilders.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +23,12 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.Pair;
+import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.service.CqlFacetRequest;
+import org.folio.search.model.types.SearchType;
+import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
@@ -30,12 +36,6 @@ import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.folio.search.exception.RequestValidationException;
-import org.folio.search.model.Pair;
-import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.model.service.CqlFacetRequest;
-import org.folio.search.model.types.SearchType;
-import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -53,7 +53,7 @@ public class FacetQueryBuilder {
    * Provides list of aggregations for passed {@link CqlFacetRequest} and elasticsearch query.
    *
    * @param request facet request as {@link CqlFacetRequest}
-   * @param query elasticsearch query as {@link QueryBuilder}
+   * @param query   elasticsearch query as {@link QueryBuilder}
    * @return {@link List} with elasticsearch {@link AggregationBuilder} values
    */
   public List<AggregationBuilder> getFacetAggregations(CqlFacetRequest request, QueryBuilder query) {
@@ -66,13 +66,13 @@ public class FacetQueryBuilder {
   }
 
   private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,
-    QueryBuilder query, Facet facet) {
+                                                       QueryBuilder query, Facet facet) {
     var field = facet.getField();
     validateFacetField(facet, request.getResource());
     var filterAndFacetTerms = getFilterQueryAndFacetTerms(field, query);
     return filterAndFacetTerms.getFirst() != null
-      ? singletonList(getFilterAggregation(filterAndFacetTerms, facet))
-      : getTermsAggs(facet.getAggregationName(), facet, filterAndFacetTerms.getSecond());
+           ? singletonList(getFilterAggregation(filterAndFacetTerms, facet))
+           : getTermsAggs(facet.getAggregationName(), facet, filterAndFacetTerms.getSecond());
   }
 
   private void validateFacetField(Facet facet, String resource) {

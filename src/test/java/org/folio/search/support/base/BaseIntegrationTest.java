@@ -238,13 +238,13 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> {}, asList(instances), instances.length,
+    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length,
       instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
-    setUpTenant(TENANT_ID, authoritySearchPath(), () -> {}, asList(authorities), expectedCount,
+    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount,
       record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, null, record)));
   }
 
@@ -257,13 +257,13 @@ public abstract class BaseIntegrationTest {
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> {}, rawRecords.length, rawRecords);
+    setUpTenant(type, tenant, () -> { }, rawRecords.length, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, () -> {}, expectedCount, rawRecords);
+    setUpTenant(type, TENANT_ID, () -> { }, expectedCount, rawRecords);
   }
 
   @SafeVarargs
@@ -275,7 +275,7 @@ public abstract class BaseIntegrationTest {
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
-    Map<String, Object>... records) {
+                                    Map<String, Object>... records) {
     if (type.equals(Instance.class)) {
       setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount,
         instance -> inventoryApi.createInstance(tenant, instance));
@@ -289,7 +289,7 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-    List<T> records, Integer expectedCount, Consumer<T> consumer) {
+                                      List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
     records.forEach(consumer);

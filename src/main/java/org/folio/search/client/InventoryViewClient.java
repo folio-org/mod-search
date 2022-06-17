@@ -28,7 +28,7 @@ public interface InventoryViewClient {
    * <p>Instances are retrieved as map to collect all fields that can be ignored by mod-search, but still can be
    * required to implement specific features, like searching by all fields.</p>
    *
-   * @param cql - CQL query
+   * @param cql   - CQL query
    * @param limit - limit of resources to fetch
    * @return {@link ResultList} with Instance objects inside.
    */

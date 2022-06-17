@@ -1,23 +1,20 @@
 package org.folio.search.repository;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.opensearch.common.xcontent.XContentType.JSON;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.opensearch.common.xcontent.XContentType.JSON;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.opensearch.action.bulk.BulkRequest;
-import org.opensearch.action.update.UpdateRequest;
-import org.opensearch.script.Script;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.model.index.ContributorResource;
@@ -25,6 +22,9 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.update.UpdateRequest;
+import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
 @Repository

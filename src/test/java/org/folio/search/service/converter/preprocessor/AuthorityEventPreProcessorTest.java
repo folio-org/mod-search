@@ -38,8 +38,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AuthorityEventPreProcessorTest {
 
-  @InjectMocks private AuthorityEventPreProcessor eventPreProcessor;
-  @Mock private ResourceDescriptionService resourceDescriptionService;
+  @InjectMocks
+  private AuthorityEventPreProcessor eventPreProcessor;
+  @Mock
+  private ResourceDescriptionService resourceDescriptionService;
 
   @BeforeEach
   void setUp() {

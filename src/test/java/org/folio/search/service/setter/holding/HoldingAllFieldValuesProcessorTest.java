@@ -34,8 +34,10 @@ class HoldingAllFieldValuesProcessorTest {
   private static final String HOLDING_ID_2 = randomId();
   private static final Set<String> MULTILANG_VALUE_PATHS = Set.of("holdings.notes.note", "holdings.tags.tagList");
 
-  @InjectMocks private HoldingAllFieldValuesProcessor processor;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private HoldingAllFieldValuesProcessor processor;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @BeforeEach
   void setUp() {

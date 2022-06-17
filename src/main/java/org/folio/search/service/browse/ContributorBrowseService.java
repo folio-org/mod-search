@@ -1,21 +1,21 @@
 package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
+import static org.folio.search.utils.CollectionUtils.toListSafe;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
-import static org.folio.search.utils.CollectionUtils.toListSafe;
 
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -51,7 +51,8 @@ class LocalSearchFieldProviderTest {
 
   private static final String TITLE_SEARCH_TYPE = "title";
 
-  @Mock private MetadataResourceProvider metadataResourceProvider;
+  @Mock
+  private MetadataResourceProvider metadataResourceProvider;
   private final PostProcessResourceDescriptionConverter converter = new PostProcessResourceDescriptionConverter();
 
   @BeforeEach

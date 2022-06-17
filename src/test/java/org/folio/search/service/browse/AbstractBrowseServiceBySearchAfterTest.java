@@ -2,13 +2,13 @@ package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @UnitTest
 class AbstractBrowseServiceBySearchAfterTest {

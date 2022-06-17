@@ -21,8 +21,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.SearchHit;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -31,6 +29,8 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.SearchHit;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,8 +43,8 @@ public class CallNumberBrowseResultConverter {
   /**
    * Converts received {@link SearchResponse} from Elasticsearch to browsing {@link SearchResult} object.
    *
-   * @param resp - Elasticsearch {@link SearchResponse} object
-   * @param ctx - {@link BrowseContext} value
+   * @param resp              - Elasticsearch {@link SearchResponse} object
+   * @param ctx               - {@link BrowseContext} value
    * @param isBrowsingForward - direction of browsing
    * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
    */
@@ -58,8 +58,8 @@ public class CallNumberBrowseResultConverter {
 
     var items = isBrowsingForward ? browseItems : reverse(browseItems);
     var populatedItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)
-      ? populateItemsWithIntermediateResults(items, ctx, isBrowsingForward)
-      : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
+                         ? populateItemsWithIntermediateResults(items, ctx, isBrowsingForward)
+                         : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
     return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
@@ -99,7 +99,7 @@ public class CallNumberBrowseResultConverter {
   }
 
   private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
-    String lower, String upper) {
+                                                                            String lower, String upper) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));

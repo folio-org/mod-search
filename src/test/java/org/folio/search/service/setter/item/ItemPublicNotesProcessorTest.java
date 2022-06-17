@@ -45,18 +45,18 @@ class ItemPublicNotesProcessorTest {
       arguments("items with duplicated notes", instance(
         item(note("note", false)), item(note("note", false)), item(note("note", true))), List.of("note")),
       arguments("items with notes and circulation notes", instance(item(
-        List.of(note("regular note", false)),
-        List.of(circulationNote("circ note", false), circulationNote("circ note2", false)))),
+          List.of(note("regular note", false)),
+          List.of(circulationNote("circ note", false), circulationNote("circ note2", false)))),
         List.of("regular note", "circ note", "circ note2")
       ),
       arguments("items with private notes and circulation notes", instance(item(
-        List.of(note("regular note", true), note("regular note2", true)),
-        List.of(circulationNote("circ note", false)))),
+          List.of(note("regular note", true), note("regular note2", true)),
+          List.of(circulationNote("circ note", false)))),
         List.of("circ note")
       ),
       arguments("item with notes and private circulation notes", instance(item(
-        List.of(note("regular note", false), note("regular note2", false)),
-        List.of(circulationNote("circ note", true), circulationNote("circ note2", true)))),
+          List.of(note("regular note", false), note("regular note2", false)),
+          List.of(circulationNote("circ note", true), circulationNote("circ note2", true)))),
         List.of("regular note", "regular note2")
       ));
   }

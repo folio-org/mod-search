@@ -16,9 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CallNumberTermConverterTest {
 
-  @InjectMocks private CallNumberTermConverter searchTermProcessor;
-  @Mock private ItemCallNumberProcessor itemCallNumberProcessor;
-  @Mock private EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
+  @InjectMocks
+  private CallNumberTermConverter searchTermProcessor;
+  @Mock
+  private ItemCallNumberProcessor itemCallNumberProcessor;
+  @Mock
+  private EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   @Test
   void convert_positive() {

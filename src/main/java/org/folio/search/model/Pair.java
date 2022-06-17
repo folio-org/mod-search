@@ -26,10 +26,10 @@ public class Pair<L, R> {
   /**
    * Creates pair object from given first and second objects.
    *
-   * @param first - First value of pair object.
+   * @param first  - First value of pair object.
    * @param second - Second value of pair object.
-   * @param <F> - first value generic type
-   * @param <S> - second value generic type
+   * @param <F>    - first value generic type
+   * @param <S>    - second value generic type
    * @return created {@link Pair} object
    */
   public static <F, S> Pair<F, S> pair(F first, S second) {

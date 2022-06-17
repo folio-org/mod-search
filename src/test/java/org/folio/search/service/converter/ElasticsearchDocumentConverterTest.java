@@ -22,9 +22,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.SearchHit;
-import org.opensearch.search.SearchHits;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
@@ -42,16 +39,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchDocumentConverterTest {
 
-  @InjectMocks private ElasticsearchDocumentConverter elasticsearchDocumentConverter;
-  @Spy private final ObjectMapper objectMapper = OBJECT_MAPPER;
-  @Mock private SearchResponse searchResponse;
-  @Mock private SearchHits searchHits;
-  @Mock private SearchHit searchHit;
+  @InjectMocks
+  private ElasticsearchDocumentConverter elasticsearchDocumentConverter;
+  @Spy
+  private final ObjectMapper objectMapper = OBJECT_MAPPER;
+  @Mock
+  private SearchResponse searchResponse;
+  @Mock
+  private SearchHits searchHits;
+  @Mock
+  private SearchHit searchHit;
 
   @ParameterizedTest
   @MethodSource("positiveConvertDataProvider")

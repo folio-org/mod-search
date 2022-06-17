@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -15,13 +13,12 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.folio.search.utils.TestUtils.subjectBrowseResult;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.opensearch.action.search.SearchRequest;
-import org.opensearch.client.RequestOptions;
-import org.opensearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -34,6 +31,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest

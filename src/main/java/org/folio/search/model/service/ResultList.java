@@ -53,7 +53,7 @@ public class ResultList<T> {
   }
 
   @SafeVarargs
-  public static <R> ResultList<R> asSinglePage(R ... records) {
+  public static <R> ResultList<R> asSinglePage(R... records) {
     return new ResultList<>(records.length, Arrays.asList(records));
   }
 }

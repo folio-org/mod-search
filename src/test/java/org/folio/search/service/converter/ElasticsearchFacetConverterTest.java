@@ -17,8 +17,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.opensearch.search.aggregations.Aggregations;
-import org.opensearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.utils.types.UnitTest;
@@ -30,6 +28,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.terms.ParsedStringTerms;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +37,8 @@ class ElasticsearchFacetConverterTest {
 
   private static final String AGG_NAME = "item";
 
-  @InjectMocks private ElasticsearchFacetConverter facetConverter;
+  @InjectMocks
+  private ElasticsearchFacetConverter facetConverter;
 
   @MethodSource("aggregationsDataProvider")
   @DisplayName("convert_positive_parameterized")

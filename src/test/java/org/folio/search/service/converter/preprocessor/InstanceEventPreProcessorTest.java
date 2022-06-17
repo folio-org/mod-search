@@ -24,7 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class InstanceEventPreProcessorTest {
 
-  @InjectMocks private InstanceEventPreProcessor preProcessor;
+  @InjectMocks
+  private InstanceEventPreProcessor preProcessor;
 
   @Test
   void process_positive() {

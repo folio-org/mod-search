@@ -3,12 +3,12 @@ package org.folio.search.repository;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +16,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.opensearch.action.search.ClearScrollRequest;
 import org.opensearch.action.search.MultiSearchRequest;
 import org.opensearch.action.search.MultiSearchResponse;
@@ -28,9 +31,6 @@ import org.opensearch.common.unit.TimeValue;
 import org.opensearch.search.Scroll;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.ResourceRequest;
-import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Repository;
@@ -52,7 +52,7 @@ public class SearchRepository {
    * Executes request to elasticsearch and returns search result with related documents.
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
-   * @param searchSource elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param searchSource    elasticsearch search source as {@link SearchSourceBuilder} object.
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
@@ -65,7 +65,7 @@ public class SearchRepository {
    * Executes multi-search request to elasticsearch and returns search result with related documents.
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
-   * @param searchSources - collection with elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param searchSources   - collection with elasticsearch search source as {@link SearchSourceBuilder} object.
    * @return search result as {@link MultiSearchResponse} object.
    */
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {

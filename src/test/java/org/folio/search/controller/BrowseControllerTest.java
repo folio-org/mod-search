@@ -41,11 +41,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({ApiExceptionHandler.class})
 class BrowseControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-  @MockBean private SubjectBrowseService subjectBrowseService;
-  @MockBean private AuthorityBrowseService authorityBrowseService;
-  @MockBean private CallNumberBrowseService callNumberBrowseService;
-  @MockBean private ContributorBrowseService contributorBrowseService;
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private SubjectBrowseService subjectBrowseService;
+  @MockBean
+  private AuthorityBrowseService authorityBrowseService;
+  @MockBean
+  private CallNumberBrowseService callNumberBrowseService;
+  @MockBean
+  private ContributorBrowseService contributorBrowseService;
 
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {

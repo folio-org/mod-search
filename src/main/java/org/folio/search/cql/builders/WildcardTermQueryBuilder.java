@@ -1,9 +1,9 @@
 package org.folio.search.cql.builders;
 
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 import static org.folio.search.cql.CqlTermQueryConverter.WILDCARD_OPERATOR;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 
 import java.util.List;
 import java.util.Set;

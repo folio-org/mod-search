@@ -38,8 +38,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class})
 class HoldingsControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-  @MockBean private ResourceIdService resourceIdService;
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private ResourceIdService resourceIdService;
 
   @Test
   void getHoldingsIds_positive() throws Exception {

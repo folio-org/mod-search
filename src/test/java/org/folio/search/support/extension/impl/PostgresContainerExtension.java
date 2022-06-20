@@ -7,7 +7,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgresContainerExtension implements BeforeAllCallback, AfterAllCallback {
   private static final String SPRING_PROPERTY_NAME = "spring.datasource.url";
-  private static final String POSTGRES_IMAGE = "postgres:10.6";
+  private static final String POSTGRES_IMAGE = "postgres:12-alpine";
   private static final PostgreSQLContainer<?> CONTAINER = new PostgreSQLContainer<>(POSTGRES_IMAGE)
     .withDatabaseName("folio_test").withUsername("folio_admin").withPassword("password");
 

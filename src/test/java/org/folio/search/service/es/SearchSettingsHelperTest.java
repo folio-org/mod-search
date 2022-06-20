@@ -22,9 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchSettingsHelperTest {
 
-  @InjectMocks private SearchSettingsHelper settingsHelper;
-  @Mock private JsonConverter jsonConverter;
-  @Mock private LocalFileProvider localFileProvider;
+  @InjectMocks
+  private SearchSettingsHelper settingsHelper;
+  @Mock
+  private JsonConverter jsonConverter;
+  @Mock
+  private LocalFileProvider localFileProvider;
 
   @Test
   void getSettings_positive() {

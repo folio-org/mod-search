@@ -30,8 +30,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LocalFileProviderTest {
 
-  @Spy private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
-  @InjectMocks private LocalFileProvider resourceService;
+  @Spy
+  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @InjectMocks
+  private LocalFileProvider resourceService;
 
   @Test
   void read_positive() {

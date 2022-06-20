@@ -41,9 +41,12 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(ConfigController.class)
 class ConfigControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-  @MockBean private LanguageConfigService languageConfigService;
-  @MockBean private FeatureConfigService featureConfigService;
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private LanguageConfigService languageConfigService;
+  @MockBean
+  private FeatureConfigService featureConfigService;
 
   @Test
   void createLanguageConfig_positive() throws Exception {

@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
@@ -13,14 +12,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import java.util.List;
-import org.opensearch.action.bulk.BulkRequest;
-import org.opensearch.action.bulk.BulkResponse;
-import org.opensearch.action.delete.DeleteRequest;
-import org.opensearch.action.index.IndexRequest;
-import org.opensearch.client.RestHighLevelClient;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -29,13 +24,20 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.client.RestHighLevelClient;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class PrimaryResourceRepositoryTest {
 
-  @InjectMocks private PrimaryResourceRepository resourceRepository;
-  @Mock private RestHighLevelClient restHighLevelClient;
+  @InjectMocks
+  private PrimaryResourceRepository resourceRepository;
+  @Mock
+  private RestHighLevelClient restHighLevelClient;
 
   @Test
   void indexResources_positive() throws IOException {

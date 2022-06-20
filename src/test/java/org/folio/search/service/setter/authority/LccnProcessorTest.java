@@ -32,8 +32,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LccnProcessorTest {
 
-  @InjectMocks private LccnProcessor lccnProcessor;
-  @Mock private ReferenceDataService referenceDataService;
+  @InjectMocks
+  private LccnProcessor lccnProcessor;
+  @Mock
+  private ReferenceDataService referenceDataService;
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")

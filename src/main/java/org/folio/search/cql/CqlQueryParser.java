@@ -11,7 +11,7 @@ public class CqlQueryParser {
   /**
    * Parses given CQL query and resource to the {@link CQLNode} object.
    *
-   * @param query - CQL query to parse
+   * @param query    - CQL query to parse
    * @param resource - resource name to provide meaningful error descriptions.
    * @return parsed query as {@link CQLNode} object
    */

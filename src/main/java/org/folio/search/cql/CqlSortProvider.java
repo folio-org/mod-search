@@ -3,11 +3,11 @@ package org.folio.search.cql;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.model.types.SearchType.SORT;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortMode.MAX;
 import static org.opensearch.search.sort.SortMode.MIN;
 import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.folio.search.model.types.SearchType.SORT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,9 +16,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.search.sort.FieldSortBuilder;
-import org.opensearch.search.sort.SortBuilder;
-import org.opensearch.search.sort.SortOrder;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
@@ -26,6 +23,9 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.SortFieldType;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.opensearch.search.sort.FieldSortBuilder;
+import org.opensearch.search.sort.SortBuilder;
+import org.opensearch.search.sort.SortOrder;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLSortNode;
 import org.z3950.zing.cql.ModifierSet;
@@ -64,8 +64,8 @@ public class CqlSortProvider {
     var sortType = sortDescription.getSortType();
     var fieldName = StringUtils.defaultString(sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField);
     return sortType == SortFieldType.COLLECTION
-      ? buildSortForCollection(esSortOrder, fieldName, sortDescription.getSecondarySort())
-      : singletonList(fieldSort(fieldName).order(esSortOrder));
+           ? buildSortForCollection(esSortOrder, fieldName, sortDescription.getSecondarySort())
+           : singletonList(fieldSort(fieldName).order(esSortOrder));
   }
 
   private static List<SortBuilder<FieldSortBuilder>> buildSortForCollection(

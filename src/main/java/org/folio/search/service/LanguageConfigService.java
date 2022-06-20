@@ -63,7 +63,7 @@ public class LanguageConfigService {
   /**
    * Updates tenant's language configuration by given code and {@link LanguageConfig} dto.
    *
-   * @param code language code as {@link String} object
+   * @param code           language code as {@link String} object
    * @param languageConfig language config dto as {@link LanguageConfig} object
    * @return updated {@link LanguageConfig} dto.
    */

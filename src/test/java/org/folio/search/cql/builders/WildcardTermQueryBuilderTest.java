@@ -3,14 +3,12 @@ package org.folio.search.cql.builders;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 
-import org.opensearch.index.query.QueryBuilders;
-import org.opensearch.index.query.WildcardQueryBuilder;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.query.WildcardQueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

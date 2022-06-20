@@ -2,6 +2,11 @@ package org.folio.search.service.browse;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -12,17 +17,9 @@ import static org.opensearch.search.sort.ScriptSortBuilder.ScriptSortType.STRING
 import static org.opensearch.search.sort.SortBuilders.scriptSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
-import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.script.Script;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -34,6 +31,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.script.Script;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -43,11 +43,16 @@ class CallNumberBrowseQueryProviderTest {
   private static final String RANGE_FIELD = "callNumber";
   private static final long ANCHOR_AS_NUMBER = 200L;
 
-  @InjectMocks private CallNumberBrowseQueryProvider queryProvider;
-  @Mock private SearchFieldProvider searchFieldProvider;
-  @Mock private CallNumberTermConverter callNumberTermConverter;
-  @Mock private CallNumberBrowseRangeService browseRangeService;
-  @Spy private final SearchQueryConfigurationProperties queryConfiguration = getSearchQueryConfigurationProperties();
+  @InjectMocks
+  private CallNumberBrowseQueryProvider queryProvider;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
+  @Mock
+  private CallNumberTermConverter callNumberTermConverter;
+  @Mock
+  private CallNumberBrowseRangeService browseRangeService;
+  @Spy
+  private final SearchQueryConfigurationProperties queryConfiguration = getSearchQueryConfigurationProperties();
 
   @Test
   void get_positive_forward() {

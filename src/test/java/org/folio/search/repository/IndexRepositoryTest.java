@@ -2,7 +2,6 @@ package org.folio.search.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
@@ -13,9 +12,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import java.util.List;
+import org.folio.search.exception.SearchOperationException;
+import org.folio.search.utils.types.UnitTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshResponse;
@@ -26,22 +34,17 @@ import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.CreateIndexResponse;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.client.indices.PutMappingRequest;
-import org.folio.search.exception.SearchOperationException;
-import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class IndexRepositoryTest {
 
-  @InjectMocks private IndexRepository indexRepository;
-  @Mock private RestHighLevelClient restHighLevelClient;
-  @Mock private IndicesClient indices;
+  @InjectMocks
+  private IndexRepository indexRepository;
+  @Mock
+  private RestHighLevelClient restHighLevelClient;
+  @Mock
+  private IndicesClient indices;
 
   @Test
   void createIndex_positive() throws IOException {

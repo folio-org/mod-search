@@ -16,8 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IsbnSearchTermProcessorTest {
 
-  @InjectMocks private IsbnSearchTermProcessor isbnSearchTermProcessor;
-  @Mock private IsbnProcessor isbnProcessor;
+  @InjectMocks
+  private IsbnSearchTermProcessor isbnSearchTermProcessor;
+  @Mock
+  private IsbnProcessor isbnProcessor;
 
   @Test
   void getSearchTerm_positive() {

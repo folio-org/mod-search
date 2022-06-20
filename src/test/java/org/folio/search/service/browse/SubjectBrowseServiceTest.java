@@ -1,12 +1,6 @@
 package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
@@ -18,15 +12,16 @@ import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.opensearch.action.search.MultiSearchResponse;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.search.sort.SortOrder;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.ResourceRequest;
@@ -45,6 +40,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortOrder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -53,11 +53,16 @@ class SubjectBrowseServiceTest {
   private static final String INSTANCE_SUBJECT = "instance_subject";
   private static final String TARGET_FIELD = "subject";
 
-  @InjectMocks private SubjectBrowseService subjectBrowseService;
-  @Mock private SearchRepository searchRepository;
-  @Mock private BrowseContextProvider browseContextProvider;
-  @Mock private ElasticsearchDocumentConverter documentConverter;
-  @Mock private SearchResponse searchResponse;
+  @InjectMocks
+  private SubjectBrowseService subjectBrowseService;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private BrowseContextProvider browseContextProvider;
+  @Mock
+  private ElasticsearchDocumentConverter documentConverter;
+  @Mock
+  private SearchResponse searchResponse;
 
   @Test
   void browse_positive_forward() {
@@ -367,7 +372,8 @@ class SubjectBrowseServiceTest {
   }
 
   private void mockMultiSearchRequest(ResourceRequest request,
-    List<SearchSourceBuilder> queries, List<SearchResult<SubjectBrowseItem>> results) {
+                                      List<SearchSourceBuilder> queries,
+                                      List<SearchResult<SubjectBrowseItem>> results) {
     var multiSearchResponse = mock(MultiSearchResponse.class);
     var items = new MultiSearchResponse.Item[results.size()];
     for (int i = 0; i < results.size(); i++) {

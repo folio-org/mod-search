@@ -37,9 +37,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ResourceFetchServiceTest {
 
-  @InjectMocks private ResourceFetchService resourceFetchService;
-  @Mock private TenantScopedExecutionService executionService;
-  @Mock private InventoryViewClient inventoryClient;
+  @InjectMocks
+  private ResourceFetchService resourceFetchService;
+  @Mock
+  private TenantScopedExecutionService executionService;
+  @Mock
+  private InventoryViewClient inventoryClient;
 
   @Test
   void fetchInstancesById_positive() {

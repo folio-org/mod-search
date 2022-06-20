@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.opensearch.index.query.BoolQueryBuilder;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.index.query.RangeQueryBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.RangeQueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -75,7 +75,7 @@ public class BrowseContextProvider {
   }
 
   private static BrowseContext createBrowsingContext(BrowseRequest request, List<QueryBuilder> filters,
-    RangeQueryBuilder rangeQuery) {
+                                                     RangeQueryBuilder rangeQuery) {
     var precedingQuery = getRangeQuery(rangeQuery, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(rangeQuery, query -> query.from() != null);
 

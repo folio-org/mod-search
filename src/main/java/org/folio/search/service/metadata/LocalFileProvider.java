@@ -45,7 +45,7 @@ public class LocalFileProvider {
    *
    * @param path path to file as {@link String} object
    * @param type target class for conversion value from json
-   * @param <T> generic type for response object
+   * @param <T>  generic type for response object
    * @return file content as {@link JsonNode} object
    */
   public <T> T readAsObject(String path, Class<T> type) {
@@ -55,9 +55,9 @@ public class LocalFileProvider {
   /**
    * Reads file from resources folder as {@link JsonNode} object.
    *
-   * @param path path to file as {@link String} object
+   * @param path          path to file as {@link String} object
    * @param typeReference type reference for conversion value from json
-   * @param <T> generic type for response object
+   * @param <T>           generic type for response object
    * @return file content as {@link JsonNode} object
    */
   public <T> T readAsObject(String path, TypeReference<T> typeReference) {

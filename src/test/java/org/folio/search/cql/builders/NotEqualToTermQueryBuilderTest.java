@@ -2,14 +2,14 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestUtils.keywordField;
+import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.opensearch.index.query.Operator.AND;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.keywordField;
-import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import org.folio.search.service.metadata.SearchFieldProvider;

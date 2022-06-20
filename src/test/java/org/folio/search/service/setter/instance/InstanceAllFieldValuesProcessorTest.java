@@ -34,8 +34,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class InstanceAllFieldValuesProcessorTest {
 
-  @InjectMocks private InstanceAllFieldValuesProcessor processor;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private InstanceAllFieldValuesProcessor processor;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @BeforeEach
   void setUp() {

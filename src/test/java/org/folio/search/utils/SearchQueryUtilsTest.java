@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
@@ -8,18 +9,17 @@ import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
 import static org.opensearch.search.aggregations.AggregationBuilders.terms;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 
 @UnitTest
 class SearchQueryUtilsTest {

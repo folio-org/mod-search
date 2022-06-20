@@ -11,7 +11,7 @@ public interface EventPreProcessor {
    *
    * @param event - resource event to process as {@link ResourceEvent} object
    * @return map with resource events, where key is the resource name and value is the {@link List} with generated
-   *   {@link ResourceEvent} objects
+   * {@link ResourceEvent} objects
    */
   List<ResourceEvent> process(ResourceEvent event);
 }

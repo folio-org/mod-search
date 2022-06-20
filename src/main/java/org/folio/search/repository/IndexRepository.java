@@ -1,17 +1,19 @@
 package org.folio.search.repository;
 
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.XContentType.JSON;
 import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.FolioCreateIndexResponse;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshRequest;
 import org.opensearch.client.RequestOptions;
@@ -19,8 +21,6 @@ import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.client.indices.PutMappingRequest;
-import org.folio.search.domain.dto.FolioCreateIndexResponse;
-import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
@@ -38,7 +38,7 @@ public class IndexRepository {
   /**
    * Creates index using passed settings and mappings JSONs.
    *
-   * @param index index name as {@link String} object
+   * @param index    index name as {@link String} object
    * @param settings settings JSON {@link String} object
    * @param mappings mappings JSON {@link String} object
    * @return {@link FolioCreateIndexResponse} object
@@ -54,14 +54,14 @@ public class IndexRepository {
       index, "createIndexApi");
 
     return createIndexResponse.isAcknowledged()
-      ? getSuccessFolioCreateIndexResponse(List.of(index))
-      : getErrorFolioCreateIndexResponse(List.of(index));
+           ? getSuccessFolioCreateIndexResponse(List.of(index))
+           : getErrorFolioCreateIndexResponse(List.of(index));
   }
 
   /**
    * Executes {@link PutMappingRequest} for passed index and mappings JSON.
    *
-   * @param index index name as {@link String} object
+   * @param index    index name as {@link String} object
    * @param mappings mappings JSON {@link String} object
    * @return {@link FolioCreateIndexResponse} object
    */
@@ -72,8 +72,8 @@ public class IndexRepository {
       index, "putMappingsApi");
 
     return putMappingsResponse.isAcknowledged()
-      ? getSuccessIndexOperationResponse()
-      : getErrorIndexOperationResponse("Failed to put mappings");
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse("Failed to put mappings");
   }
 
   /**

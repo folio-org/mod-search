@@ -35,8 +35,10 @@ class ItemAllFieldValuesProcessorTest {
   private static final String ITEM_ID_2 = randomId();
   private static final Set<String> MULTILANG_VALUE_PATHS = Set.of("items.notes.note", "items.tags.tagList");
 
-  @InjectMocks private ItemAllFieldValuesProcessor processor;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private ItemAllFieldValuesProcessor processor;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @BeforeEach
   void setUp() {

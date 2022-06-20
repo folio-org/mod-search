@@ -2,18 +2,17 @@ package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.opensearch.index.query.QueryBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.BrowseContext;
@@ -28,13 +27,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.index.query.QueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class BrowseContextProviderTest {
 
-  @InjectMocks private BrowseContextProvider browseContextProvider;
-  @Mock private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @InjectMocks
+  private BrowseContextProvider browseContextProvider;
+  @Mock
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
 
   @Test
   void get_positive_forward() {

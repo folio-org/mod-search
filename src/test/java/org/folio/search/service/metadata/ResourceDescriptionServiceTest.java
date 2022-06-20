@@ -44,8 +44,10 @@ class ResourceDescriptionServiceTest {
   private static final String FIELD = "field";
   private static final String SECONDARY_RESOURCE_NAME = "secondary";
 
-  @Autowired private ResourceDescriptionService descriptionService;
-  @MockBean private LocalResourceProvider localResourceProvider;
+  @Autowired
+  private ResourceDescriptionService descriptionService;
+  @MockBean
+  private LocalResourceProvider localResourceProvider;
 
   @BeforeEach
   void setUp() {
@@ -205,7 +207,7 @@ class ResourceDescriptionServiceTest {
     return indexFieldType;
   }
 
-  private static class TestFieldDescription extends FieldDescription {}
+  private static class TestFieldDescription extends FieldDescription { }
 
   /**
    * Beans in that method cannot be converted to lambda because in that case they cannot be processed by spring tools
@@ -255,5 +257,5 @@ class ResourceDescriptionServiceTest {
     }
   }
 
-  private static class TestEntityClass {}
+  private static class TestEntityClass { }
 }

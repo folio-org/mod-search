@@ -4,13 +4,6 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.index.query.QueryBuilders.matchQuery;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
-import static org.opensearch.search.aggregations.AggregationBuilders.filter;
-import static org.opensearch.search.aggregations.AggregationBuilders.terms;
 import static org.folio.search.model.types.SearchType.FACET;
 import static org.folio.search.utils.SearchUtils.SELECTED_AGG_PREFIX;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -19,10 +12,16 @@ import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.aggregations.AggregationBuilders.filter;
+import static org.opensearch.search.aggregations.AggregationBuilders.terms;
 
 import java.util.Arrays;
 import java.util.List;
-import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.CqlFacetRequest;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +43,10 @@ class FacetQueryBuilderTest {
   private static final String FIELD = "field";
   private static final String FACET_ALIAS = "facet.alias";
 
-  @InjectMocks private FacetQueryBuilder facetQueryBuilder;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private FacetQueryBuilder facetQueryBuilder;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @BeforeEach
   void setUp() {

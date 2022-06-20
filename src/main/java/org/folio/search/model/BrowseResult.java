@@ -39,7 +39,7 @@ public class BrowseResult<T> {
    * Creates {@link BrowseResult} object from {@link SearchResult} value.
    *
    * @param result - {@link SearchResult} object to be processed
-   * @param <R> - generic type for {@link BrowseResult} records
+   * @param <R>    - generic type for {@link BrowseResult} records
    * @return created {@link BrowseResult} object
    */
   public static <R> BrowseResult<R> of(SearchResult<R> result) {
@@ -50,8 +50,8 @@ public class BrowseResult<T> {
    * Creates {@link BrowseResult} object from the number of total records and list of items.
    *
    * @param totalRecords - number of found items
-   * @param records - found items
-   * @param <R> - generic type for {@link BrowseResult} records
+   * @param records      - found items
+   * @param <R>          - generic type for {@link BrowseResult} records
    * @return created {@link BrowseResult} object
    */
   public static <R> BrowseResult<R> of(int totalRecords, List<R> records) {
@@ -125,7 +125,7 @@ public class BrowseResult<T> {
    * Maps search result records using given mapping function.
    *
    * @param mappingFunction - mapping function for result element conversion
-   * @param <R> - generic type for search result elements.
+   * @param <R>             - generic type for search result elements.
    * @return new search result object with mapped elements
    */
   public <R> BrowseResult<R> map(Function<T, R> mappingFunction) {

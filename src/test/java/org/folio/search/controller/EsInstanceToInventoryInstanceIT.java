@@ -45,7 +45,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
       // make sure that no unexpected properties are present
       .andExpect(jsonPath("instances[0].length()", is(8)));
 
-    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
+    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
     assertThat(actual.getId(), is(expected.getId()));
     assertThat(actual.getTitle(), is(expected.getTitle()));
     assertThat(actual.getContributors(), is(expected.getContributors()));
@@ -69,7 +69,7 @@ class EsInstanceToInventoryInstanceIT extends BaseIntegrationTest {
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true)
       .andExpect(jsonPath("totalRecords", is(1)));
 
-    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() {}).getResult().get(0);
+    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
 
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
       .map(hr -> hr.discoverySuppress(false))

@@ -20,8 +20,6 @@ import javax.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
-import org.opensearch.OpenSearchException;
-import org.opensearch.index.Index;
 import org.folio.search.domain.dto.Error;
 import org.folio.search.domain.dto.ErrorResponse;
 import org.folio.search.domain.dto.Parameter;
@@ -30,6 +28,8 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.types.ErrorCode;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -82,8 +82,8 @@ public class ApiExceptionHandler {
 
     var cause = exception.getCause();
     return cause instanceof OpenSearchException
-      ? handleOpenSearchException((OpenSearchException) cause)
-      : buildResponseEntity(exception, INTERNAL_SERVER_ERROR, exception.getErrorCode());
+           ? handleOpenSearchException((OpenSearchException) cause)
+           : buildResponseEntity(exception, INTERNAL_SERVER_ERROR, exception.getErrorCode());
   }
 
   /**

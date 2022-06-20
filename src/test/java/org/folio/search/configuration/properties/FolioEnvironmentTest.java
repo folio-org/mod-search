@@ -48,11 +48,13 @@ class FolioEnvironmentTest {
   @ParameterizedTest
   @ValueSource(strings = {"!", "@", "%$$#", "def qa"})
   void shouldThrowExceptionWhenEnvHasDisallowedChars(String env) {
-    var validator = Validation.buildDefaultValidatorFactory().getValidator();
-    var folioEnvironment = FolioEnvironment.of(env);
-    var validationResponse = validator.validate(folioEnvironment);
-    assertThat(validationResponse).isNotEmpty()
-      .map(ConstraintViolation::getMessage)
-      .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
+    try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+      var validator = validatorFactory.getValidator();
+      var folioEnvironment = FolioEnvironment.of(env);
+      var validationResponse = validator.validate(folioEnvironment);
+      assertThat(validationResponse).isNotEmpty()
+        .map(ConstraintViolation::getMessage)
+        .containsExactly("Value must follow the pattern: '[\\w0-9\\-_]+'");
+    }
   }
 }

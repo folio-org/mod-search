@@ -4,7 +4,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -16,14 +15,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.SearchHit;
-import org.opensearch.search.SearchHits;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -43,23 +40,32 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class CallNumberBrowseResultConverterTest {
 
-  @InjectMocks private CallNumberBrowseResultConverter resultConverter;
-  @Spy private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER);
+  @InjectMocks
+  private CallNumberBrowseResultConverter resultConverter;
+  @Spy
+  private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER);
 
-  @Mock private SearchHits searchHits;
-  @Mock private SearchResponse searchResponse;
-  @Mock private FeatureConfigService featureConfigService;
+  @Mock
+  private SearchHits searchHits;
+  @Mock
+  private SearchResponse searchResponse;
+  @Mock
+  private FeatureConfigService featureConfigService;
 
   @MethodSource("testDataProvider")
   @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] {0}")
   void convert_positive_parameterized(@SuppressWarnings("unused") String name,
-    List<SearchHit> hits, BrowseContext ctx, boolean isBrowsingForward, List<CallNumberBrowseItem> expected) {
+                                      List<SearchHit> hits, BrowseContext ctx, boolean isBrowsingForward,
+                                      List<CallNumberBrowseItem> expected) {
     when(searchResponse.getHits()).thenReturn(searchHits);
     when(searchHits.getHits()).thenReturn(hits.toArray(SearchHit[]::new));
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(100, Relation.EQUAL_TO));

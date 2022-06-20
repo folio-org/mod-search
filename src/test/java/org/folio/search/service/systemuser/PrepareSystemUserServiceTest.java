@@ -35,12 +35,18 @@ import org.springframework.http.ResponseEntity;
 @ExtendWith(MockitoExtension.class)
 class PrepareSystemUserServiceTest {
 
-  @Mock private UsersClient usersClient;
-  @Mock private AuthnClient authnClient;
-  @Mock private PermissionsClient permissionsClient;
-  @Mock private FolioExecutionContextBuilder contextBuilder;
-  @Mock private ResponseEntity<String> expectedResponse;
-  @Mock private FolioExecutionContext context;
+  @Mock
+  private UsersClient usersClient;
+  @Mock
+  private AuthnClient authnClient;
+  @Mock
+  private PermissionsClient permissionsClient;
+  @Mock
+  private FolioExecutionContextBuilder contextBuilder;
+  @Mock
+  private ResponseEntity<String> expectedResponse;
+  @Mock
+  private FolioExecutionContext context;
 
   @Test
   void shouldCreateSystemUserWhenNotExist() {

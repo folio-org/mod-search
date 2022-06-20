@@ -100,7 +100,7 @@ public class OpensearchRestClientConfiguration {
 
   static class DefaultRestClientBuilderCustomizer implements RestClientBuilderCustomizer {
 
-    private static final PropertyMapper map = PropertyMapper.get();
+    private static final PropertyMapper MAPPER = PropertyMapper.get();
 
     private final OpensearchProperties properties;
 
@@ -115,9 +115,9 @@ public class OpensearchRestClientConfiguration {
 
     @Override
     public void customize(RequestConfig.Builder builder) {
-      map.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
+      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
         .to(builder::setConnectTimeout);
-      map.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
+      MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
         .to(builder::setSocketTimeout);
     }
 

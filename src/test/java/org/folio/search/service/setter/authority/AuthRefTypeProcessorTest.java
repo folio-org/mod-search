@@ -19,8 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AuthRefTypeProcessorTest {
 
-  @InjectMocks private AuthRefTypeProcessor authRefTypeProcessor;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private AuthRefTypeProcessor authRefTypeProcessor;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @Test
   void getFieldValue_positive() {

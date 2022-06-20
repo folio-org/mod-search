@@ -1,23 +1,23 @@
 package org.folio.search.repository;
 
 import static java.util.stream.Collectors.joining;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.XContentType.JSON;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.opensearch.action.DocWriteRequest;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.delete.DeleteRequest;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.RestHighLevelClient;
-import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.index.SearchDocumentBody;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractResourceRepository implements ResourceRepository {
@@ -34,8 +34,8 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
+           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+           : getSuccessIndexOperationResponse();
   }
 
   @Autowired

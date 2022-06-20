@@ -11,7 +11,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -23,6 +22,7 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -42,7 +42,7 @@ public class IndexService {
    * Creates index for resource with pre-defined settings and mappings.
    *
    * @param resourceName name of resource as {@link String} value.
-   * @param tenantId tenant id as {@link String} value.
+   * @param tenantId     tenant id as {@link String} value.
    * @return {@link FolioCreateIndexResponse} if index was created successfully
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
@@ -63,7 +63,7 @@ public class IndexService {
    * Updates elasticsearch index mappings for resource.
    *
    * @param resourceName resource name as {@link String} value.
-   * @param tenantId tenant id as {@link String} value.
+   * @param tenantId     tenant id as {@link String} value.
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
@@ -80,7 +80,7 @@ public class IndexService {
    * Creates Elasticsearch index if it is not exist.
    *
    * @param resourceName - resource name as {@link String} object.
-   * @param tenantId - tenant id as {@link String} object
+   * @param tenantId     - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(String resourceName, String tenantId) {
     var index = getIndexName(resourceName, tenantId);
@@ -92,7 +92,7 @@ public class IndexService {
   /**
    * Runs reindex request for mod-inventory-storage.
    *
-   * @param tenantId - tenant id as {@link String} object
+   * @param tenantId       - tenant id as {@link String} object
    * @param reindexRequest - reindex request as {@link ReindexRequest} object
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
@@ -114,7 +114,7 @@ public class IndexService {
    * Drops Elasticsearch index for given resource name and tenant id.
    *
    * @param resource - resource name as {@link String} object.
-   * @param tenant - tenant id as {@link String} object
+   * @param tenant   - tenant id as {@link String} object
    */
   public void dropIndex(String resource, String tenant) {
     var index = getIndexName(resource, tenant);

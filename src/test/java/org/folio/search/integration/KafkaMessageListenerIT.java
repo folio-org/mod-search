@@ -3,9 +3,9 @@ package org.folio.search.integration;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Duration.FIVE_SECONDS;
-import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Duration.ONE_MINUTE;
+import static org.awaitility.Durations.FIVE_SECONDS;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.service.KafkaAdminService.AUTHORITY_LISTENER_ID;
 import static org.folio.search.service.KafkaAdminService.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -85,9 +85,12 @@ class KafkaMessageListenerIT {
   private static final String INSTANCE_ID = randomId();
   private static final String KAFKA_LISTENER_IT_ENV = "kafka-listener-it";
 
-  @Autowired private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
-  @Autowired private FolioKafkaProperties kafkaProperties;
-  @MockBean private ResourceService resourceService;
+  @Autowired
+  private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  @Autowired
+  private FolioKafkaProperties kafkaProperties;
+  @MockBean
+  private ResourceService resourceService;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -211,7 +214,7 @@ class KafkaMessageListenerIT {
   }
 
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
-    Function<String, ResourceEvent> resourceEventFunction) {
+                                                        Function<String, ResourceEvent> resourceEventFunction) {
     var container = getKafkaListenerContainer(containerId);
     container.stop();
     ids.forEach(id -> kafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));

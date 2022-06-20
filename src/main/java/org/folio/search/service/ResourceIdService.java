@@ -2,9 +2,9 @@ package org.folio.search.service;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.folio.search.model.service.CqlResourceIdsRequest.AUTHORITY_ID_PATH;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;

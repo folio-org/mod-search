@@ -16,9 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RetryTemplateConfigurationTest {
 
-  @InjectMocks private RetryTemplateConfiguration configuration;
-  @Mock private FolioKafkaProperties folioKafkaProperties;
-  @Mock private StreamIdsProperties streamIdsProperties;
+  @InjectMocks
+  private RetryTemplateConfiguration configuration;
+  @Mock
+  private FolioKafkaProperties folioKafkaProperties;
+  @Mock
+  private StreamIdsProperties streamIdsProperties;
 
   @Test
   void createKafkaMessageListenerRetryTemplate_positive() {

@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class PrimaryResourceRepository extends AbstractResourceRepository {}
+public class PrimaryResourceRepository extends AbstractResourceRepository { }

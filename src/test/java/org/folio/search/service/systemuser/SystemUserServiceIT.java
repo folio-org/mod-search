@@ -16,8 +16,10 @@ import org.springframework.cache.CacheManager;
 @IntegrationTest
 class SystemUserServiceIT extends BaseIntegrationTest {
 
-  @Autowired private SystemUserService systemUserService;
-  @Autowired private CacheManager cacheManager;
+  @Autowired
+  private SystemUserService systemUserService;
+  @Autowired
+  private CacheManager cacheManager;
 
   @Test
   void shouldCreateSystemUserDuringTenantInit() {

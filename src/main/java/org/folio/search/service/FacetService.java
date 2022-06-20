@@ -4,14 +4,14 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.opensearch.index.query.BoolQueryBuilder;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 @Service

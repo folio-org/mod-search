@@ -67,7 +67,7 @@ public class ResourceFetchService {
   }
 
   private static ResourceEvent mapToResourceEvent(String tenantId, Map<String, Object> instanceMap,
-    Map<String, List<ResourceEvent>> eventsById) {
+                                                  Map<String, List<ResourceEvent>> eventsById) {
     var id = getResourceEventId(instanceMap);
     var resourceEvent = new ResourceEvent().id(id).resourceName(INSTANCE_RESOURCE)._new(instanceMap).tenant(tenantId);
     var lastElement = findLast(eventsById.get(id));

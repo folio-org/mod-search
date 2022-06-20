@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Collections.singletonMap;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
@@ -11,16 +12,15 @@ import static org.opensearch.search.sort.ScriptSortBuilder.ScriptSortType.STRING
 import static org.opensearch.search.sort.SortBuilders.scriptSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
-import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 
 import lombok.RequiredArgsConstructor;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.script.Script;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.script.Script;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,8 +40,8 @@ public class CallNumberBrowseQueryProvider {
   /**
    * Creates query as {@link SearchSourceBuilder} object for call number browsing.
    *
-   * @param request - {@link BrowseRequest} object
-   * @param ctx - {@link BrowseContext} object with parsed and validated queries, anchor, limits
+   * @param request           - {@link BrowseRequest} object
+   * @param ctx               - {@link BrowseContext} object with parsed and validated queries, anchor, limits
    * @param isBrowsingForward - defines the direction of browsing
    * @return created Elasticsearch query as {@link SearchSourceBuilder} object
    */

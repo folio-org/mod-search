@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import org.opensearch.OpenSearchException;
-import org.opensearch.index.Index;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
@@ -35,6 +33,8 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
+import org.opensearch.OpenSearchException;
+import org.opensearch.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,9 +51,12 @@ class IndexControllerTest {
   private static final String TENANT_ID = "test-tenant";
   public static final String INDEX_NAME = RESOURCE_NAME + "_" + TENANT_ID;
 
-  @Autowired private MockMvc mockMvc;
-  @MockBean private IndexService indexService;
-  @MockBean private ResourceService resourceService;
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private IndexService indexService;
+  @MockBean
+  private ResourceService resourceService;
 
   @Test
   void createIndex_positive() throws Exception {
@@ -68,13 +71,13 @@ class IndexControllerTest {
 
   @Test
   void createIndex_negative_indexAlreadyExists() throws Exception {
-    var OpenSearchException = new OpenSearchException("Elasticsearch exception "
+    var openSearchException = new OpenSearchException("Elasticsearch exception "
       + "[type=resource_already_exists_exception, "
       + "reason=index [instance_test-tenant/um_SBtCaRLKUOBbdmFZeKQ] already exists]");
-    OpenSearchException.setIndex(new Index(INDEX_NAME, randomId()));
+    openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
-      new SearchOperationException("error", OpenSearchException));
+      new SearchOperationException("error", openSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isBadRequest())
@@ -87,10 +90,10 @@ class IndexControllerTest {
   @Test
   void createIndex_negative_unknownElasticsearchError() throws Exception {
     var errorMessage = "Elasticsearch exception [type=unknown_error, reason=mappings not found]";
-    var OpenSearchException = new OpenSearchException(errorMessage);
+    var openSearchException = new OpenSearchException(errorMessage);
 
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
-      new SearchOperationException("i/o error", OpenSearchException));
+      new SearchOperationException("i/o error", openSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())

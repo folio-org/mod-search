@@ -4,11 +4,6 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.opensearch.search.sort.SortMode.MAX;
-import static org.opensearch.search.sort.SortMode.MIN;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
 import static org.folio.search.model.types.SearchType.SORT;
 import static org.folio.search.model.types.SortFieldType.COLLECTION;
 import static org.folio.search.model.types.SortFieldType.SINGLE;
@@ -16,6 +11,11 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortMode.MAX;
+import static org.opensearch.search.sort.SortMode.MIN;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.List;
 import org.folio.search.exception.RequestValidationException;
@@ -39,8 +39,10 @@ class CqlSortProviderTest {
 
   private static final String FIELD_NAME = "field";
 
-  @InjectMocks private CqlSortProvider cqlSortProvider;
-  @Mock private SearchFieldProvider searchFieldProvider;
+  @InjectMocks
+  private CqlSortProvider cqlSortProvider;
+  @Mock
+  private SearchFieldProvider searchFieldProvider;
 
   @BeforeEach
   void setUp() {

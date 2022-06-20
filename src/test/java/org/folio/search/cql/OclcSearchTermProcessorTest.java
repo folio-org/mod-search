@@ -15,8 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class OclcSearchTermProcessorTest {
 
-  @InjectMocks private OclcSearchTermProcessor oclcSearchTermProcessor;
-  @Mock private OclcProcessor oclcProcessor;
+  @InjectMocks
+  private OclcSearchTermProcessor oclcSearchTermProcessor;
+  @Mock
+  private OclcProcessor oclcProcessor;
 
   @Test
   void getSearchTerm_positive() {

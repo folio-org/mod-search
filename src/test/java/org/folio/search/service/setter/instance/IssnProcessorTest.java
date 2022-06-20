@@ -35,8 +35,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IssnProcessorTest {
 
-  @InjectMocks private IssnProcessor issnProcessor;
-  @Mock private ReferenceDataService referenceDataService;
+  @InjectMocks
+  private IssnProcessor issnProcessor;
+  @Mock
+  private ReferenceDataService referenceDataService;
 
   @MethodSource("issnDataProvider")
   @DisplayName("getFieldValue_parameterized")

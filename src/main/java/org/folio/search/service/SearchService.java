@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
 import lombok.RequiredArgsConstructor;
-import org.opensearch.common.unit.TimeValue;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -14,6 +13,7 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.opensearch.common.unit.TimeValue;
 import org.springframework.stereotype.Service;
 
 /**

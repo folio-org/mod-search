@@ -49,10 +49,14 @@ class FeatureConfigServiceTest {
   private static final TenantConfiguredFeature FEATURE = SEARCH_ALL_FIELDS;
   private static final String FEATURE_ID = SEARCH_ALL_FIELDS.getValue();
 
-  @Autowired private CacheManager cacheManager;
-  @Autowired private FeatureConfigService featureConfigService;
-  @MockBean private FeatureConfigRepository featureConfigRepository;
-  @MockBean private SearchConfigurationProperties searchConfigurationProperties;
+  @Autowired
+  private CacheManager cacheManager;
+  @Autowired
+  private FeatureConfigService featureConfigService;
+  @MockBean
+  private FeatureConfigRepository featureConfigRepository;
+  @MockBean
+  private SearchConfigurationProperties searchConfigurationProperties;
 
   @BeforeEach
   void setUp() {

@@ -23,7 +23,7 @@ public class ReferenceDataService {
   private final InventoryReferenceDataClient inventoryReferenceDataClient;
 
   @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
-    key = "@folioExecutionContext.tenantId + ':' + #names + ':' + #type.toString()")
+             key = "@folioExecutionContext.tenantId + ':' + #names + ':' + #type.toString()")
   public Set<String> fetchReferenceData(ReferenceDataType type, Collection<String> names) {
     log.info("Fetching identifiers [identifierNames: {}]", names);
     var uri = type.getUri();

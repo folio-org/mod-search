@@ -34,8 +34,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IsbnProcessorTest {
 
-  @InjectMocks private IsbnProcessor isbnProcessor;
-  @Mock private ReferenceDataService referenceDataService;
+  @InjectMocks
+  private IsbnProcessor isbnProcessor;
+  @Mock
+  private ReferenceDataService referenceDataService;
 
   @MethodSource("isbnDataProvider")
   @DisplayName("getFieldValue_parameterized")

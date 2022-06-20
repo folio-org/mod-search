@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class JsonUtils {
 
-  public static final TypeReference<List<Map<String, Object>>> LIST_OF_MAPS_TYPE_REFERENCE = new TypeReference<>() {};
+  public static final TypeReference<List<Map<String, Object>>> LIST_OF_MAPS_TYPE_REFERENCE = new TypeReference<>() { };
 
   public static ObjectNode jsonObject() {
     return OBJECT_MAPPER.createObjectNode();

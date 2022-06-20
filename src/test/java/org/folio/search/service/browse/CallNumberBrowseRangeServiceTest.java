@@ -21,9 +21,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.aggregations.bucket.range.RangeAggregationBuilder;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
@@ -41,20 +38,29 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.aggregations.bucket.range.RangeAggregationBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.lang.NonNull;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class CallNumberBrowseRangeServiceTest {
 
-  @InjectMocks private CallNumberBrowseRangeService callNumberBrowseRangeService;
+  @InjectMocks
+  private CallNumberBrowseRangeService callNumberBrowseRangeService;
 
-  @Spy private final Cache<String, List<CallNumberBrowseRangeValue>> cache = Caffeine.from("maximumSize=50").build();
-  @Spy private final ItemCallNumberProcessor itemCallNumberProcessor = new ItemCallNumberProcessor();
-  @Captor private ArgumentCaptor<SearchSourceBuilder> searchSourceCaptor;
+  @Spy
+  private final Cache<String, List<CallNumberBrowseRangeValue>> cache = Caffeine.from("maximumSize=50").build();
+  @Spy
+  private final ItemCallNumberProcessor itemCallNumberProcessor = new ItemCallNumberProcessor();
+  @Captor
+  private ArgumentCaptor<SearchSourceBuilder> searchSourceCaptor;
 
-  @Mock private SearchRepository searchRepository;
-  @Mock private SearchResponse searchResponse;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private SearchResponse searchResponse;
 
   @BeforeEach
   void setUp() {

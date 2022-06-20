@@ -45,13 +45,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IndexServiceTest {
 
-  @InjectMocks private IndexService indexService;
+  @InjectMocks
+  private IndexService indexService;
 
-  @Mock private IndexRepository indexRepository;
-  @Mock private SearchMappingsHelper mappingsHelper;
-  @Mock private SearchSettingsHelper settingsHelper;
-  @Mock private ResourceReindexClient resourceReindexClient;
-  @Mock private ResourceDescriptionService resourceDescriptionService;
+  @Mock
+  private IndexRepository indexRepository;
+  @Mock
+  private SearchMappingsHelper mappingsHelper;
+  @Mock
+  private SearchSettingsHelper settingsHelper;
+  @Mock
+  private ResourceReindexClient resourceReindexClient;
+  @Mock
+  private ResourceDescriptionService resourceDescriptionService;
 
   @Test
   void createIndex_positive() {

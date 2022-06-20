@@ -22,7 +22,7 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
 
   private static final List<String> OCLC_IDENTIFIER_NAMES = List.of("OCLC", "Cancelled OCLC");
 
-  private static final Pattern OCLC_REGEX = Pattern.compile("([1-9][0-9\\-]*)");
+  private static final Pattern OCLC_REGEX = Pattern.compile("([1-9][\\d\\-]*)");
   private static final Pattern WHITESPACE_REGEX = Pattern.compile("\\s+");
 
   /**

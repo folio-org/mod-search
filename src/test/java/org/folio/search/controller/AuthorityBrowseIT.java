@@ -339,7 +339,7 @@ class AuthorityBrowseIT extends BaseIntegrationTest {
         authority(20).sftGenreTerm(List.of("Poetry")),
         authority(21).saftGenreTerm(List.of("Prose", "Romance")),
         authority(22).personalName("Brian K. Vaughan"),
-      };
+        };
   }
 
   private static Authority authority(int index) {

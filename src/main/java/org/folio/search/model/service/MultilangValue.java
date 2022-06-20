@@ -26,7 +26,7 @@ public class MultilangValue {
   /**
    * Adds value to the {@link MultilangValue} object, using isMultilang flag.
    *
-   * @param value string value as {@link String} object
+   * @param value       string value as {@link String} object
    * @param isMultilang isMultilang flag as {@code boolean} value.
    */
   public void addValue(String value, boolean isMultilang) {

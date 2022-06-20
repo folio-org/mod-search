@@ -4,8 +4,8 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Duration.ONE_MINUTE;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
-import org.opensearch.action.get.GetRequest;
-import org.opensearch.client.RequestOptions;
-import org.opensearch.client.RestHighLevelClient;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
@@ -45,6 +42,9 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.opensearch.action.get.GetRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
@@ -55,7 +55,8 @@ class IndexingIT extends BaseIntegrationTest {
   private static final List<String> ITEM_IDS = getRandomIds(2);
   private static final List<String> HOLDING_IDS = getRandomIds(4);
 
-  @Autowired private RestHighLevelClient restHighLevelClient;
+  @Autowired
+  private RestHighLevelClient restHighLevelClient;
 
   @BeforeAll
   static void prepare() {

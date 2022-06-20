@@ -29,8 +29,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @ExtendWith(MockitoExtension.class)
 class ResourceIdsStreamHelperTest {
 
-  @InjectMocks private ResourceIdsStreamHelper resourceIdsStreamHelper;
-  @Mock private ResourceIdService resourceIdService;
+  @InjectMocks
+  private ResourceIdsStreamHelper resourceIdsStreamHelper;
+  @Mock
+  private ResourceIdService resourceIdService;
 
   @Test
   void streamResourceIds_positive() throws IOException {

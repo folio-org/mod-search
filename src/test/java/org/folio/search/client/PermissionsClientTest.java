@@ -20,7 +20,7 @@ class PermissionsClientTest {
     when(client.getUserPermissions(any()))
       .thenAnswer(invocationOnMock -> {
         var responseAsJson = "{\"permissionNames\": [\"perm1\", \"perm2\"], \"totalRecords\": 2}";
-        return OBJECT_MAPPER.readValue(responseAsJson, new TypeReference<ResultList<String>>() {});
+        return OBJECT_MAPPER.readValue(responseAsJson, new TypeReference<ResultList<String>>() { });
       });
 
     assertThat(client.getUserPermissions("").getResult())

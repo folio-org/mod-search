@@ -20,7 +20,7 @@ public abstract class FulltextQueryBuilder implements TermQueryBuilder {
    * contributors.name}.
    * </p>
    *
-   * @param resource - resource name as {@link String} object
+   * @param resource  - resource name as {@link String} object
    * @param fieldPath - path to field as {@link String} object
    * @return updated path for full-text querying
    */
@@ -38,7 +38,7 @@ public abstract class FulltextQueryBuilder implements TermQueryBuilder {
    * contributors.name}.
    * </p>
    *
-   * @param resource - resource name as {@link String} object
+   * @param resource  - resource name as {@link String} object
    * @param fieldPath - path to field as {@link String} object
    * @return updated path for term-level querying
    */

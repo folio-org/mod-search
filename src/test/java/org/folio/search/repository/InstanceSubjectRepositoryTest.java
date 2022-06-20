@@ -2,9 +2,6 @@ package org.folio.search.repository;
 
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
-import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -25,6 +22,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
+import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,19 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import lombok.SneakyThrows;
-import org.opensearch.action.DocWriteRequest;
-import org.opensearch.action.bulk.BulkItemResponse;
-import org.opensearch.action.bulk.BulkItemResponse.Failure;
-import org.opensearch.action.bulk.BulkRequest;
-import org.opensearch.action.bulk.BulkResponse;
-import org.opensearch.action.delete.DeleteRequest;
-import org.opensearch.action.get.MultiGetRequest;
-import org.opensearch.action.get.MultiGetRequest.Item;
-import org.opensearch.action.get.MultiGetResponse;
-import org.opensearch.action.index.IndexRequest;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
@@ -62,6 +49,19 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.DocWriteRequest;
+import org.opensearch.action.bulk.BulkItemResponse;
+import org.opensearch.action.bulk.BulkItemResponse.Failure;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.get.MultiGetRequest;
+import org.opensearch.action.get.MultiGetRequest.Item;
+import org.opensearch.action.get.MultiGetResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.search.fetch.subphase.FetchSourceContext;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -69,12 +69,18 @@ class InstanceSubjectRepositoryTest {
 
   private static final String INSTANCE_INDEX = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
 
-  @InjectMocks private InstanceSubjectRepository repository;
-  @Mock private IndexRepository indexRepository;
-  @Mock private SearchRepository searchRepository;
-  @Mock private RestHighLevelClient elasticsearchClient;
-  @Captor private ArgumentCaptor<BulkRequest> bulkRequestCaptor;
-  @Captor private ArgumentCaptor<MultiGetRequest> multiGetRequestCaptor;
+  @InjectMocks
+  private InstanceSubjectRepository repository;
+  @Mock
+  private IndexRepository indexRepository;
+  @Mock
+  private SearchRepository searchRepository;
+  @Mock
+  private RestHighLevelClient elasticsearchClient;
+  @Captor
+  private ArgumentCaptor<BulkRequest> bulkRequestCaptor;
+  @Captor
+  private ArgumentCaptor<MultiGetRequest> multiGetRequestCaptor;
 
   @BeforeEach
   void setUp() {
@@ -357,7 +363,7 @@ class InstanceSubjectRepositoryTest {
   }
 
   public static void validateBulkRequest(BulkRequest actual, BulkRequest expected,
-    BiConsumer<DocWriteRequest<?>, DocWriteRequest<?>> requestValidator) {
+                                         BiConsumer<DocWriteRequest<?>, DocWriteRequest<?>> requestValidator) {
     var actualRequests = actual.requests();
     var expectedRequests = expected.requests();
     assertThat(actualRequests).hasSameSizeAs(expectedRequests);

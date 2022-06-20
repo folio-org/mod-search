@@ -3,19 +3,18 @@ package org.folio.search.service.browse;
 import static java.util.Collections.emptyMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
+import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
-import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.opensearch.search.builder.SearchSourceBuilder;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
@@ -23,6 +22,7 @@ import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.utils.SearchUtils;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 @Service

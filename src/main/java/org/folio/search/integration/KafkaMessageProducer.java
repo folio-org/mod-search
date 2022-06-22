@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 public class KafkaMessageProducer {
 
   private static final String INSTANCE_CONTRIBUTOR_TOPIC_NAME = "search.instance-contributor";
+  private static final TypeReference<List<Contributor>> TYPE_REFERENCE = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
@@ -47,44 +48,54 @@ public class KafkaMessageProducer {
   }
 
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {
-    var type = new TypeReference<List<Contributor>>() { };
-    var oldContributors = getContributors(getOldAsMap(event), type);
-    var newContributors = getContributors(getNewAsMap(event), type);
+    var tenantId = event.getTenant();
+    var instanceId = getResourceEventId(event);
+    var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, tenantId);
+    var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
 
     return Stream.of(
-        prepareContributorEvents(event, subtract(newContributors, oldContributors), CREATE),
-        prepareContributorEvents(event, subtract(oldContributors, newContributors), DELETE))
+        prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, event.getTenant()),
+        prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, event.getTenant()))
       .flatMap(List::stream)
       .collect(Collectors.toList());
   }
 
-  private List<Contributor> getContributors(Map<String, Object> objectMap, TypeReference<List<Contributor>> type) {
-    return jsonConverter.convert(getObject(objectMap, INSTANCE_CONTRIBUTORS_FIELD_NAME, emptyList()), type);
-  }
-
-  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(ResourceEvent evt,
-                                                                               Set<Contributor> contributors,
-                                                                               ResourceEventType type) {
-    var tenantId = evt.getTenant();
-    var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
-    var instanceId = getResourceEventId(evt);
-    return contributors.stream()
-      .map(contributor -> prepareResourceEvent(contributor, instanceId, type, tenantId))
-      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
+  private List<ContributorEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
+                                                      String tenantId) {
+    return extractContributors(objectMap).stream()
+      .map(contributor -> toContributorEvent(contributor, instanceId, tenantId))
       .collect(Collectors.toList());
   }
 
-  private ResourceEvent prepareResourceEvent(Contributor contributor, String instanceId, ResourceEventType type,
-                                             String tenantId) {
+  private ContributorEvent toContributorEvent(Contributor contributor, String instanceId, String tenantId) {
     var id = getContributorId(tenantId, contributor);
-    var contributorEvent = ContributorEvent.builder()
+    return ContributorEvent.builder()
       .id(id)
       .instanceId(instanceId)
       .name(contributor.getName())
       .nameTypeId(contributor.getContributorNameTypeId())
       .typeId(contributor.getContributorTypeId())
       .build();
-    var eventBody = new ResourceEvent().id(id).type(type).tenant(tenantId);
+  }
+
+  private List<Contributor> extractContributors(Map<String, Object> objectMap) {
+    var contributorsObject = getObject(objectMap, INSTANCE_CONTRIBUTORS_FIELD_NAME, emptyList());
+    return jsonConverter.convert(contributorsObject, TYPE_REFERENCE);
+  }
+
+  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(Set<ContributorEvent> contributors,
+                                                                               ResourceEventType type,
+                                                                               String tenantId) {
+    var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
+    return contributors.stream()
+      .map(contributor -> prepareResourceEvent(contributor, type, tenantId))
+      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
+      .collect(Collectors.toList());
+  }
+
+  private ResourceEvent prepareResourceEvent(ContributorEvent contributorEvent, ResourceEventType type,
+                                             String tenantId) {
+    var eventBody = new ResourceEvent().id(contributorEvent.getId()).type(type).tenant(tenantId);
     return type == CREATE ? eventBody._new(contributorEvent) : eventBody.old(contributorEvent);
   }
 

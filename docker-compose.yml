@@ -18,6 +18,7 @@ services:
       - kafka
       - postgres
     environment:
+      ELASTICSEARCH_URL: http://opensearch:9200
       DB_HOST: postgres
       JAVA_OPTIONS: -Xmx120m -Xms120m
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5010,server=y,suspend=n
@@ -63,7 +64,7 @@ services:
     ports:
       - "5601:5601"
     environment:
-      OPENSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
     networks:
       - mod-search-local
     depends_on:
@@ -97,6 +98,22 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_MESSAGE_MAX_BYTES: 1000000
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+
+  kafka-ui:
+    container_name: kafka-ui-quick-marc
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - zookeeper
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_JMXPORT: 9997
+    networks:
+      - mod-search-local
 
   postgres:
     container_name: postgres

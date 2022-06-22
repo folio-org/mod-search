@@ -505,9 +505,9 @@ if it is defined but doesn't match.
 
 ### Contributors search options
 
-| Option              | Type | Example                         | Description                                     |
-|:--------------------|:----:|:--------------------------------|:------------------------------------------------|
-| `contributorTypeId` | term | `contributorTypeId == "123456"` | Matches contributors with `123456` name type id |
+| Option                  | Type | Example                             | Description                                     |
+|:------------------------|:----:|:------------------------------------|:------------------------------------------------|
+| `contributorNameTypeId` | term | `contributorNameTypeId == "123456"` | Matches contributors with `123456` name type id |
 
 
 ### Search by all field values
@@ -639,9 +639,9 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ### Contributors facets
 
-| Option              | Type | Description                            |
-|:--------------------|:----:|:---------------------------------------|
-| `contributorTypeId` | term | Requests a contributor name type facet |
+| Option                  | Type | Description                            |
+|:------------------------|:----:|:---------------------------------------|
+| `contributorNameTypeId` | term | Requests a contributor name type facet |
 
 ## Sorting results
 

@@ -54,8 +54,8 @@ public class KafkaMessageProducer {
     var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
 
     return Stream.of(
-        prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, event.getTenant()),
-        prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, event.getTenant()))
+        prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId),
+        prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, tenantId))
       .flatMap(List::stream)
       .collect(Collectors.toList());
   }

@@ -5,13 +5,13 @@ services:
     container_name: mod-search
     image: dev.folio/mod-search
     build:
-      context: ..
-      dockerfile: ../Dockerfile
+      context: ..\
+      dockerfile: Dockerfile
     networks:
       - mod-search-local
     ports:
-      - "8081:8081"
-      - "5010:5010"
+      - "${APP_PORT}:8081"
+      - "${DEBUG_PORT}:${DEBUG_PORT}"
     depends_on:
       - api-mock
       - opensearch
@@ -21,8 +21,8 @@ services:
       ELASTICSEARCH_URL: http://opensearch:9200
       DB_HOST: postgres
       JAVA_OPTIONS: -Xmx120m -Xms120m
-      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5010,server=y,suspend=n
-      okapi.url: http://api-mock:8080
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}
+      okapi.url: ${OKAPI_URL}
 
   api-mock:
     image: wiremock/wiremock:2.32.0
@@ -41,7 +41,7 @@ services:
     image: dev.folio/opensearch:1.3.2
     build:
       context: elasticsearch
-      dockerfile: elasticsearch/Dockerfile
+      dockerfile: Dockerfile
     networks:
       - mod-search-local
     ports:
@@ -60,7 +60,7 @@ services:
     image: dev.folio/opensearch-dashboards:1.3.2
     build:
       context: dashboards
-      dockerfile: dashboards/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "5601:5601"
     environment:

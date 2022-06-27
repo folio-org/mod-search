@@ -310,14 +310,14 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> invalidDateSearchQueriesProvider() {
     return Stream.of(
-      arguments("metadata.createdDate", "invalidDate"),
-      arguments("metadata.updatedDate", "2021-3-01"),
+      arguments("metadata.createdDate", "2022-6-27"),
+      arguments("metadata.updatedDate", "2022-06-1"),
 
-      arguments("holdings.metadata.createdDate", "2021-15-01"),
-      arguments("holdings.metadata.updatedDate", "2021-03-32"),
+      arguments("holdings.metadata.createdDate", "2022-15-01"),
+      arguments("holdings.metadata.updatedDate", "2022-06-40"),
 
-      arguments("item.metadata.updatedDate", "12345"),
-      arguments("item.metadata.createdDate", "2021-11-15T15:00:00.000")
+      arguments("item.metadata.updatedDate", "invalidDate"),
+      arguments("item.metadata.createdDate", "2022-06-15T15:00:00.000")
     );
   }
 

@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.folio.search.support.base.ApiEndpoints.recordFacets;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
@@ -12,6 +13,7 @@ import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Holding;
@@ -32,6 +35,7 @@ import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -118,6 +122,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       assertThat(actualFacet.getValues())
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
+  }
+
+  @MethodSource("invalidDateSearchQueriesProvider")
+  @DisplayName("searchByInvalidDates_parameterized")
+  @ParameterizedTest(name = "[{index}] value={1}")
+  void searchByInstances_negative_invalidDateFormat(String name, String value) throws Exception {
+    attemptSearchByInstances("(" + name + "==" + value + ")")
+      .andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
   }
 
   @Test
@@ -291,6 +309,19 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3]))
+    );
+  }
+
+  private static Stream<Arguments> invalidDateSearchQueriesProvider() {
+    return Stream.of(
+      arguments("metadata.createdDate", "invalidDate"),
+      arguments("metadata.updatedDate", "2021-3-01"),
+
+      arguments("holdings.metadata.createdDate", "2021-15-01"),
+      arguments("holdings.metadata.updatedDate", "2021-03-32"),
+
+      arguments("item.metadata.updatedDate", "12345"),
+      arguments("item.metadata.createdDate", "2021-11-15T15:00:00.000")
     );
   }
 

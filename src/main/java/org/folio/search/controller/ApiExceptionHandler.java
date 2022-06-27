@@ -248,7 +248,6 @@ public class ApiExceptionHandler {
   private static ResponseEntity<ErrorResponse> handleOpenSearchException(OpenSearchException exception) {
     var message = exception.getMessage();
     var indexName = Optional.ofNullable(exception.getIndex()).map(Index::getName).orElse(null);
-    var exceptionStatus = HttpStatus.valueOf(exception.status().getStatus());
     if (StringUtils.contains(message, "index_not_found")) {
       logException(DEBUG, exception);
       return buildResponseEntity(buildErrorResponse("Index not found: " + indexName), BAD_REQUEST);
@@ -258,7 +257,7 @@ public class ApiExceptionHandler {
       return buildResponseEntity(buildErrorResponse("Index already exists: " + indexName), BAD_REQUEST);
     }
     logException(WARN, exception);
-    return buildResponseEntity(exception, exceptionStatus, ELASTICSEARCH_ERROR);
+    return buildResponseEntity(exception, INTERNAL_SERVER_ERROR, ELASTICSEARCH_ERROR);
   }
 
   private static ErrorResponse buildValidationError(Exception exception, String key, String value) {

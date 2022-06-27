@@ -3,11 +3,10 @@ package org.folio.search.cql;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
-
-import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
-
 import static org.apache.commons.validator.GenericValidator.isDate;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+
+import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -19,6 +18,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.opensearch.index.query.QueryBuilder;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.z3950.zing.cql.CQLTermNode;
+import org.z3950.zing.cql.Modifier;
 
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
@@ -26,12 +30,6 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
-
-import org.opensearch.index.query.QueryBuilder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-import org.z3950.zing.cql.CQLTermNode;
-import org.z3950.zing.cql.Modifier;
 
 @Component
 public class CqlTermQueryConverter {

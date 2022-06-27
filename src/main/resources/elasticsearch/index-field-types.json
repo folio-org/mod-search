@@ -41,7 +41,7 @@
   "date": {
     "mapping": {
       "type": "date",
-      "format": "epoch_millis||strict_date_optional_time_nanos||strict_date_optional_time"
+      "format": "strict_date"
     }
   },
   "source": {

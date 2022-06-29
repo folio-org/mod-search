@@ -3,6 +3,7 @@ package org.folio.search.cql;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
+import static org.apache.commons.validator.GenericValidator.isDate;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 
@@ -17,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -32,6 +34,7 @@ public class CqlTermQueryConverter {
   public static final String WILDCARD_OPERATOR = "wildcard";
   private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
   private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
+  private static final String STRICT_DATE_PATTERN = "yyyy-MM-dd";
 
   private final SearchFieldProvider searchFieldProvider;
   private final Map<String, TermQueryBuilder> termQueryBuilders;
@@ -84,6 +87,8 @@ public class CqlTermQueryConverter {
 
     var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
       "Invalid search field provided in the CQL query", "field", fieldName));
+    var index = plainFieldByPath.getIndex();
+    validateIndexFormat(index, termNode);
 
     var modifiers = termNode.getRelation().getModifiers().stream()
       .map(Modifier::getType)
@@ -91,7 +96,7 @@ public class CqlTermQueryConverter {
 
     return plainFieldByPath.hasFulltextIndex()
            ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
-           : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, plainFieldByPath.getIndex());
+           : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
@@ -134,6 +139,13 @@ public class CqlTermQueryConverter {
     }
 
     return unmodifiableMap(queryBuildersMap);
+  }
+
+  private void validateIndexFormat(String index, CQLTermNode termNode) {
+    var value = termNode.getTerm();
+    if (index.equals("date") && !isDate(value, STRICT_DATE_PATTERN, true)) {
+      throw new ValidationException("Invalid date format", termNode.getIndex(), value);
+    }
   }
 
   private static boolean isMatchAllQuery(String cqlQuery) {

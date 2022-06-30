@@ -1,15 +1,22 @@
 package org.folio.search.controller;
 
+import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceIds;
+import static org.folio.search.support.base.ApiEndpoints.resourcesIds;
+import static org.folio.search.support.base.ApiEndpoints.resourcesIdsJob;
+import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.stream.Stream;
+import org.awaitility.Durations;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -73,6 +80,24 @@ class SearchInstanceIT extends BaseIntegrationTest {
     doGet(instanceIds("cql.allRecords=1"))
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
+  }
+
+  @Test
+  void streamHoldingResourceIds() throws Exception {
+    var query = "cql.allRecords=1";
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(ResourceIdsJob.EntityTypeEnum.HOLDING))
+      .andExpect(jsonPath("$.query", is(query)))
+      .andExpect(jsonPath("$.entityType", is("HOLDING")))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+    });
+
+    doGet(resourcesIds(postResponse.getId())).andExpect(jsonPath("totalRecords", is(3)));
   }
 
   @Test

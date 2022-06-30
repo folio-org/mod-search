@@ -511,6 +511,8 @@ components:
       $ref: schemas/response/instanceSearchResult.json
     authoritySearchResult:
       $ref: schemas/response/authoritySearchResult.json
+    holdingSearchResult:
+      $ref: schemas/response/holdingSearchResult.json
     callNumberBrowseResult:
       $ref: schemas/response/callNumberBrowseResult.json
     subjectBrowseResult:

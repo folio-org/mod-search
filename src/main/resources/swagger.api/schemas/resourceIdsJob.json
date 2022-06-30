@@ -25,7 +25,9 @@
       "type": "string",
       "description": "Type of entity for streaming ids.",
       "enum": [
-        "AUTHORITY"
+        "INSTANCE",
+        "AUTHORITY",
+        "HOLDING"
       ]
     },
     "createdDate": {

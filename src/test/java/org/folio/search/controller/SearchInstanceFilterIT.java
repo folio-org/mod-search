@@ -120,6 +120,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     });
   }
 
+  @MethodSource("invalidDateSearchQueriesProvider")
+  @DisplayName("searchByInvalidDates_parameterized")
+  @ParameterizedTest(name = "[{index}] value={1}")
+  void searchByInstances_negative_invalidDateFormat(String name, String value) throws Exception {
+    attemptSearchByInstances("(" + name + "==" + value + ")")
+      .andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
+  }
+
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {
     attemptGet(recordFacets(RecordType.INSTANCES, "cql.allRecords=1", "unknownFacet:5"))
@@ -291,6 +305,19 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3]))
+    );
+  }
+
+  private static Stream<Arguments> invalidDateSearchQueriesProvider() {
+    return Stream.of(
+      arguments("metadata.createdDate", "2022-6-27"),
+      arguments("metadata.updatedDate", "2022-06-1"),
+
+      arguments("holdings.metadata.createdDate", "2022-15-01"),
+      arguments("holdings.metadata.updatedDate", "2022-06-40"),
+
+      arguments("item.metadata.updatedDate", "invalidDate"),
+      arguments("item.metadata.createdDate", "2022-06-15T15:00:00.000")
     );
   }
 

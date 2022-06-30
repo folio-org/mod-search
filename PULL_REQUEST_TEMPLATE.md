@@ -1,10 +1,17 @@
-### Purpose
-_Describe the purpose of the pull request. Include background information if necessary._
+## Purpose
+_Describe the purpose of the pull request._
 
-### Approach
+## Approach
 _How does this change fulfill the purpose?_
 
-#### TODOS and Open Questions
+### Changes checklist
+- [ ] API paths, methods, request or response bodies changed, added, or removed
+- [ ] Database schema changes
+- [ ] Interface versions changes
+- [ ] Interface dependencies added, or removed
+- [ ] Permissions changed, added, or removed
+
+### TODOS and Open Questions
 - [ ] Use GitHub checklists. When solved, check the box and explain the answer.
 
 ### Learning

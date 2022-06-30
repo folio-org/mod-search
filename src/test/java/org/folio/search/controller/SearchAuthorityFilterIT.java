@@ -29,6 +29,7 @@ import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -82,6 +83,32 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
     });
   }
 
+  @MethodSource("invalidDateSearchQueriesProvider")
+  @DisplayName("searchByInvalidDates_parameterized")
+  @ParameterizedTest(name = "[{index}] value={1}")
+  void searchByAuthorities_negative_invalidDateFormat(String name, String value) throws Exception {
+    attemptSearchByAuthorities("(" + name + "==" + value + ")")
+      .andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
+  }
+
+  @Test
+  void searchByAuthorities_negative_invalidFacetName() throws Exception {
+    attemptGet(recordFacets(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("facet")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
+  }
+
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=* and headingType==\"Conference Name\")", List.of(IDS[4])),
@@ -121,6 +148,18 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(metadata.updatedDate < 2021-03-15) ", List.of(IDS[0], IDS[1])),
       arguments("(metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) ",
         List.of(IDS[2], IDS[3]))
+    );
+  }
+
+  private static Stream<Arguments> invalidDateSearchQueriesProvider() {
+    return Stream.of(
+      arguments("metadata.createdDate", "12345"),
+      arguments("metadata.createdDate", "2022-6-27"),
+      arguments("metadata.createdDate", "2022-06-1"),
+      arguments("metadata.createdDate", "2022-06-40"),
+      arguments("metadata.updatedDate", "2022-15-01"),
+      arguments("metadata.updatedDate", "invalidDate"),
+      arguments("metadata.updatedDate", "2022-11-15T15:00:00.000")
     );
   }
 

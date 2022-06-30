@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.exception.ValidationException;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -180,6 +181,18 @@ class CqlTermQueryConverterTest {
 
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
+  }
+
+  @Test
+  void getQuery_negative_invalidDateFormat() {
+    var termNode = cqlTermNode("subjects all book");
+    when(searchFieldProvider.getModifiedField("subjects", RESOURCE_NAME)).thenReturn("modifiedField");
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField"))
+      .thenReturn(Optional.of(plainField("date")));
+
+    assertThatThrownBy(() -> cqlTermQueryConverter.getQuery(termNode, RESOURCE_NAME))
+      .isInstanceOf(ValidationException.class)
+      .hasMessage("Invalid date format");
   }
 
   @Test

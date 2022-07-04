@@ -292,7 +292,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   @Test
   void browseByContributor_withNameTypeFilter() {
     var request = get(instanceContributorBrowsePath()).param("query",
-      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John" + '"') + ") and contributorNameTypeId=="
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") and contributorNameTypeId=="
         + NAME_TYPE_IDS[0]).param("limit", "5");
 
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
@@ -300,7 +300,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
       List.of(
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], TYPE_IDS[0]),
         contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-        contributorBrowseItem(0, true, "John"),
+        contributorBrowseItem(0, true, "John Lennon"),
         contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
         contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2])));
 

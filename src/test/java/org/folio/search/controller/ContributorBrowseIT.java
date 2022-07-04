@@ -292,8 +292,8 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   @Test
   void browseByContributor_withNameTypeFilter() {
     var request = get(instanceContributorBrowsePath()).param("query",
-      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") and contributorNameTypeId=="
-        + NAME_TYPE_IDS[0]).param("limit", "5");
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") "
+        + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param("limit", "5");
 
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
     var expected = new InstanceContributorBrowseResult().totalRecords(4).prev(null).next(null).items(

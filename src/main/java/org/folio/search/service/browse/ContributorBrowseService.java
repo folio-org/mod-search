@@ -31,7 +31,7 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery()
       .must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor()))
+    return searchSource().query(boolQuery)
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }

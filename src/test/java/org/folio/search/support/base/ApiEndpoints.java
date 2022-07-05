@@ -62,7 +62,7 @@ public class ApiEndpoints {
   }
 
   public static String resourcesIds(String query) {
-    return String.format("/search/resources/ids/%s", query);
+    return String.format("/search/resources/jobs/%s/ids", query);
   }
 
   public static String resourcesIdsJob() {

@@ -318,7 +318,7 @@ CQL operators could have modifiers that change search behaviour
 
 | Operator | Modifier | Usage                            | Description                      |
 |:---------|:---------|:---------------------------------|:---------------------------------|
-| `==`     | `string` | `title ==\string "semantic web"` | Exact match for full text fields | 
+| `==`     | `string` | `title ==\string "semantic web"` | Exact match for full text fields |
 
 ## Search Options
 
@@ -686,7 +686,7 @@ Send a POST request to create a Job
 ```
 It is possible to check job status by jobs Id.
 
-`GET /search/authorities/jobs/{jobId}`
+`GET /search/resources/jobs/{jobId}`
 
 **Response**
 ```json
@@ -703,7 +703,7 @@ It is possible to check job status by jobs Id.
 
 When the job is COMPLETED, it is possible to retrieve ids by job id
 
-`GET /search/resources/jobs/ids/{jobId}`
+`GET /search/resources/jobs/{jobId}/ids`
 
 After retrieving ids, job should change status to "DEPRECATED". If there are no completed job with prepared ids, client can't receive ids by query.
 

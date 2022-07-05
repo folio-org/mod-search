@@ -167,7 +167,7 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /resources/ids/{jobId}:
+  /resources/jobs/{jobId}/ids:
     get:
       operationId: getResourceIds
       description: Get a list of resource ids by job id

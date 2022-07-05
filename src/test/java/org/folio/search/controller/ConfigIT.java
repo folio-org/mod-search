@@ -42,7 +42,7 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
-class ConfigControllerIT extends BaseIntegrationTest {
+class ConfigIT extends BaseIntegrationTest {
 
   @Autowired
   private RestHighLevelClient elasticsearchClient;

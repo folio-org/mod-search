@@ -32,7 +32,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class CallNumberBrowseIT extends BaseIntegrationTest {
+class BrowseCallNumberIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
@@ -332,7 +332,7 @@ class CallNumberBrowseIT extends BaseIntegrationTest {
 
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
-      .map(CallNumberBrowseIT::instance)
+      .map(BrowseCallNumberIT::instance)
       .toArray(Instance[]::new);
   }
 

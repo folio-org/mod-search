@@ -2,12 +2,6 @@ package org.folio.search.service;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.folio.search.model.service.CqlResourceIdsRequest.AUTHORITY_ID_PATH;
-import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDING_ID_PATH;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.HOLDING_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -21,14 +15,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.model.streamids.ResourceIdsJobEntity;
-import org.folio.search.model.types.EntityType;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
@@ -99,14 +90,14 @@ public class ResourceIdService {
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
     try {
-      Pair<String, String> resourceParams = resolveResourceParams(job.getEntityType());
-      String resource = resourceParams.getLeft();
-      String sourceIdPath = resourceParams.getRight();
+      var entityType = job.getEntityType();
+      String resource = entityType.getResource();
+      String sourceIdPath = entityType.getSourceIdPath();
       var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
       var tableName = job.getTemporaryTableName();
       streamResourceIds(request, idsList -> {
         try {
-          idsTemporaryRepository.insertId(idsList, tableName);
+          idsTemporaryRepository.insertIds(idsList, tableName);
         } catch (Exception e) {
           job.setStatus(StreamJobStatus.ERROR);
           jobRepository.save(job);
@@ -118,23 +109,6 @@ public class ResourceIdService {
       job.setStatus(StreamJobStatus.ERROR);
       jobRepository.save(job);
     }
-  }
-
-  /**
-   * TODO FIXME - try to resolve params gracefully somehow another.
-   * For example, move params to EntityType enum, so that we don't need to write if - else statements
-   **/
-  private Pair<String, String> resolveResourceParams(EntityType entityType) {
-    String resource = INSTANCE_RESOURCE;
-    String sourceIdPath = INSTANCE_ID_PATH;
-    if (entityType == EntityType.AUTHORITY) {
-      resource = AUTHORITY_RESOURCE;
-      sourceIdPath = AUTHORITY_ID_PATH;
-    } else if (entityType == EntityType.HOLDING) {
-      resource = HOLDING_RESOURCE;
-      sourceIdPath = HOLDING_ID_PATH;
-    }
-    return Pair.of(resource, sourceIdPath);
   }
 
   /**

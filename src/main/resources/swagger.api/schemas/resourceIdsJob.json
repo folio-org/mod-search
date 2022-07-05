@@ -27,7 +27,7 @@
       "enum": [
         "INSTANCE",
         "AUTHORITY",
-        "HOLDING"
+        "HOLDINGS"
       ]
     },
     "createdDate": {

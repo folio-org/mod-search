@@ -87,9 +87,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
     var query = "cql.allRecords=1";
     var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
       .query(query)
-      .entityType(ResourceIdsJob.EntityTypeEnum.HOLDING))
+      .entityType(ResourceIdsJob.EntityTypeEnum.HOLDINGS))
       .andExpect(jsonPath("$.query", is(query)))
-      .andExpect(jsonPath("$.entityType", is("HOLDING")))
+      .andExpect(jsonPath("$.entityType", is("HOLDINGS")))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {

@@ -16,10 +16,6 @@ public class ApiEndpoints {
     return "/search/authorities";
   }
 
-  public static String holdingSearchPath() {
-    return "/search/holdings";
-  }
-
   public static String instanceCallNumberBrowsePath() {
     return "/browse/call-numbers/instances";
   }

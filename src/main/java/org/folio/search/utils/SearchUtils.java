@@ -23,7 +23,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
@@ -41,7 +40,6 @@ public class SearchUtils {
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
-  public static final String HOLDING_RESOURCE = getResourceName(Holding.class);
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
 
   public static final String ID_FIELD = "id";

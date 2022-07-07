@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
@@ -30,6 +31,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ResourceIdService {
@@ -92,23 +94,18 @@ public class ResourceIdService {
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
     try {
+      var tableName = job.getTemporaryTableName();
       var request = CqlResourceIdsRequest
         .of(AUTHORITY_RESOURCE, tenantId, job.getQuery(), AUTHORITY_ID_PATH);
-      var tableName = job.getTemporaryTableName();
-      streamResourceIds(request, idsList -> {
-        try {
-          idsTemporaryRepository.insertId(idsList, tableName);
-        } catch (Exception e) {
-          job.setStatus(StreamJobStatus.ERROR);
-          jobRepository.save(job);
-        }
-      });
+
+      streamResourceIds(request, idsList -> idsTemporaryRepository.insertId(idsList, tableName));
+
       job.setStatus(StreamJobStatus.COMPLETED);
-      jobRepository.save(job);
     } catch (Exception e) {
+      log.warn("Failed to process resource ids job with id = {}", job.getId());
       job.setStatus(StreamJobStatus.ERROR);
-      jobRepository.save(job);
     }
+    jobRepository.save(job);
   }
 
   /**

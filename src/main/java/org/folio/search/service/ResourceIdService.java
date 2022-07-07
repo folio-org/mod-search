@@ -106,8 +106,9 @@ public class ResourceIdService {
       log.warn("Failed to process resource ids job with id = {}", job.getId());
       idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
+    } finally {
+      jobRepository.save(job);
     }
-    jobRepository.save(job);
   }
 
   /**

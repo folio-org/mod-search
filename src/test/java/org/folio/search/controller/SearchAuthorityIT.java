@@ -96,6 +96,25 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   }
 
   @Test
+  void cantStreamInvalidQuery() throws Exception {
+    var query = "invalid query";
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
+      .andExpect(jsonPath("$.query", is(query)))
+      .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
+    });
+
+    doGet(resourcesIdsJob(postResponse.getId()))
+      .andExpect(jsonPath("status", is("ERROR")));
+  }
+
+  @Test
   void cantStreamNotCompletedJob() throws Exception {
     attemptGet(resourcesIds("randomUUID")).andExpect(status().is4xxClientError());
   }

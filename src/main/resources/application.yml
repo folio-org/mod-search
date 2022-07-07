@@ -1,8 +1,6 @@
 spring:
   application:
     name: mod-search
-  jpa:
-    open-in-view: false
   jackson:
     default-property-inclusion: non_null
     deserialization:

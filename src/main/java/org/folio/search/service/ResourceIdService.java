@@ -93,16 +93,18 @@ public class ResourceIdService {
   @Async
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
+    var tableName = job.getTemporaryTableName();
     try {
-      var tableName = job.getTemporaryTableName();
       var request = CqlResourceIdsRequest
         .of(AUTHORITY_RESOURCE, tenantId, job.getQuery(), AUTHORITY_ID_PATH);
 
+      idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertId(idsList, tableName));
 
       job.setStatus(StreamJobStatus.COMPLETED);
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}", job.getId());
+      idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
     }
     jobRepository.save(job);

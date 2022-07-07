@@ -9,7 +9,6 @@ import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
-import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResourceIdsJobService {
 
   private final ResourceIdsJobRepository jobRepository;
-  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
 

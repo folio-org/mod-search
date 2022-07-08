@@ -1,4 +1,4 @@
-## 1.7.0-SNAPSHOT 2022-07-08
+## 1.7.0 2022-07-08
 * MSEARCH-197 Add /authorities/ids API for Authority Records search
 * MSEARCH-268 Increment the minor version of spring-kafka
 * MSEARCH-282 Implement normalized search option for OCLC identifiers

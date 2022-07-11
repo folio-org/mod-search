@@ -50,7 +50,7 @@ import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
-class ContributorBrowseIT extends BaseIntegrationTest {
+class BrowseContributorIT extends BaseIntegrationTest {
 
   private static final String[] NAME_TYPE_IDS =
     array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",
@@ -213,7 +213,7 @@ class ContributorBrowseIT extends BaseIntegrationTest {
   }
 
   private static Instance[] instances() {
-    return contributorBrowseInstanceData().stream().map(ContributorBrowseIT::instance).toArray(Instance[]::new);
+    return contributorBrowseInstanceData().stream().map(BrowseContributorIT::instance).toArray(Instance[]::new);
   }
 
   @SuppressWarnings("unchecked")

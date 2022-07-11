@@ -27,6 +27,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
@@ -254,6 +256,26 @@ public abstract class BaseIntegrationTest {
     setUpTenant(type, TENANT_ID, rawRecords);
   }
 
+  @SneakyThrows
+  protected static void setUpTenant(List<TestData> testDataList, String tenant) {
+    enableTenant(TENANT_ID);
+    for (TestData testData : testDataList) {
+      var type = testData.getType();
+      var testRecords = testData.getTestRecords();
+      var expectedCount = testData.getExpectedCount();
+
+      if (type.equals(Instance.class)) {
+        saveRecords(tenant, instanceSearchPath(), testRecords, expectedCount,
+          instance -> inventoryApi.createInstance(tenant, instance));
+      }
+
+      if (type.equals(Authority.class)) {
+        saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
+          record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, record)));
+      }
+    }
+  }
+
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
@@ -292,6 +314,11 @@ public abstract class BaseIntegrationTest {
                                       List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
+    saveRecords(tenant, validationPath, records, expectedCount, consumer);
+  }
+
+  private static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
+                                      Consumer<T> consumer) {
     records.forEach(consumer);
     if (records.size() > 0) {
       checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
@@ -357,4 +384,14 @@ public abstract class BaseIntegrationTest {
   protected static String prepareQuery(String queryTemplate, String value) {
     return value != null ? queryTemplate.replace("{value}", value) : queryTemplate;
   }
+
+  @Getter
+  @RequiredArgsConstructor
+  protected static class TestData {
+
+    private final Class<?> type;
+    private final List<Map<String, Object>> testRecords;
+    private final int expectedCount;
+  }
+
 }

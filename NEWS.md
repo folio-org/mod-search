@@ -1,11 +1,49 @@
-## 1.7.0-SNAPSHOT xxxx-xx-xx
-MSEARCH-380 Browse contributors: listener not working for new tenants
-MSEARCH-381 Delete contributors that have no links to instance records
-MSEARCH-350 Change Holdings ids stream API to use jobs
+## 1.7.0 2022-07-08
+* MSEARCH-197 Add /authorities/ids API for Authority Records search
+* MSEARCH-268 Increment the minor version of spring-kafka
+* MSEARCH-282 Implement normalized search option for OCLC identifiers
+* MSEARCH-297 Fix SearchAliases not working for fields with "searchTermProcessor"
+* MSEARCH-301 Implement browsing by Dewey Decimal and Other schema numbers
+* MSEARCH-302 Implement prev/next value for call-number browsing
+* MSEARCH-306 Gracefully handle 500 error after the search reaches index.max_result_window
+* MSEARCH-308 Add documentation for call-number browsing
+* MSEARCH-308 Optimize call-number browsing
+* MSEARCH-311 Create an Instance status facet
+* MSEARCH-313 Add holdingsTypeId facet
+* MSEARCH-315 Implement cursor parameters for browsing
+* MSEARCH-317 Fix search by words with apostrophes
+* MSEARCH-319 Implement search across fields using operator 'and'
+* MSEARCH-320 Implement browsing by instance contributors
+* MSEARCH-323 Make populating of intermediate shelf-keys configurable
+* MSEARCH-324 Use match all query for 'keyword=*'
+* MSEARCH-325 Item search/facet/sort options: Support 'item' references
+* MSEARCH-325 Modify field in FacetQueryBuilder
+* MSEARCH-331 Fix unsupported 'not' operator for search aliases
+* MSEARCH-333 Optimize the query to retrieve subject counts
+* MSEARCH-334 Fix the invalid search results for call-number with 2+ spaces
+* MSEARCH-336 Fix item matching for browsing
+* MSEARCH-337 Set request timeout for search queries
+* MSEARCH-339 Call-Number browse: invalid search result call-number with ignored characters
+* MSEARCH-341 ISSN search: Include Linking ISSN in search
+* MSEARCH-342 Add default prev/next values for browsing forward/backward
+* MSEARCH-342 Fix an issue for prev value when browsing around
+* MSEARCH-344 Implement response fields per feature/endpoint
+* MSEARCH-345 Fix optimization for call-number browsing
+* MSEARCH-346 Revert non-title authority fields and add new headingTypeExt
+* MSEARCH-352 Create a Contributor Name Type facet
+* MSEARCH-357 Migration to Opensearch v2.0.0
+* MSEARCH-365 Add support of 'string' modifier for '=='
+* MSEARCH-368 Change headingTypeRef to bool isTitleHeadingRef
+* MSEARCH-370 Add new reindexSupported field to resource description
+* MSEARCH-371 Index contributors on reindex request
+* MSEARCH-375 Update spring-base to v4.1.0
+* MSEARCH-381 Delete contributors that have no links to instance records
+* MSEARCH-382 Fix 500 Error when searching by incorrect date
+* MSEARCH-388 Add filters to anchor-query for contributor browse
 
 ## 1.6.4 2022-04-07
-MSEARCH-336 Fix item matching for browsing by call-numbers
-MSEARCH-334 Fix the invalid search results for call-numbers with 2+ spaces
+* MSEARCH-336 Fix item matching for browsing by call-numbers
+* MSEARCH-334 Fix the invalid search results for call-numbers with 2+ spaces
 
 ## 1.6.3 2022-04-05
 * MSEARCH-331 Fix the"<>" operator for full-text queries

@@ -3,10 +3,10 @@ package org.folio.search.cql;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
-import static org.apache.commons.validator.GenericValidator.isDate;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +34,16 @@ public class CqlTermQueryConverter {
   public static final String WILDCARD_OPERATOR = "wildcard";
   private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
   private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
-  private static final String STRICT_DATE_PATTERN = "yyyy-MM-dd";
+
+  private static final DateTimeFormatter[] SUPPORTED_DATE_FORMATS = new DateTimeFormatter[] {
+    DateTimeFormatter.ISO_DATE,
+    DateTimeFormatter.ISO_DATE_TIME,
+    DateTimeFormatter.ISO_LOCAL_DATE,
+    DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+    DateTimeFormatter.ISO_OFFSET_DATE,
+    DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+    DateTimeFormatter.ISO_INSTANT
+  };
 
   private final SearchFieldProvider searchFieldProvider;
   private final Map<String, TermQueryBuilder> termQueryBuilders;
@@ -143,9 +152,20 @@ public class CqlTermQueryConverter {
 
   private void validateIndexFormat(String index, CQLTermNode termNode) {
     var value = termNode.getTerm();
-    if (index.equals("date") && !isDate(value, STRICT_DATE_PATTERN, true)) {
+    if (index.equals("date") && !isValidDate(value)) {
       throw new ValidationException("Invalid date format", termNode.getIndex(), value);
     }
+  }
+
+  private boolean isValidDate(String value) {
+    boolean isValidDate = false;
+    for (DateTimeFormatter dateFormat : SUPPORTED_DATE_FORMATS) {
+      try {
+        dateFormat.parse(value);
+        isValidDate = true;
+      } catch (Exception ignored) { }
+    }
+    return isValidDate;
   }
 
   private static boolean isMatchAllQuery(String cqlQuery) {

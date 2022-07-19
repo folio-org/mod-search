@@ -35,7 +35,7 @@ public class CqlTermQueryConverter {
   private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
   private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
 
-  private static final DateTimeFormatter[] SUPPORTED_DATE_FORMATS = new DateTimeFormatter[] {
+  private static final List<DateTimeFormatter> SUPPORTED_DATE_FORMATS = List.of(
     DateTimeFormatter.ISO_DATE,
     DateTimeFormatter.ISO_DATE_TIME,
     DateTimeFormatter.ISO_LOCAL_DATE,
@@ -43,7 +43,7 @@ public class CqlTermQueryConverter {
     DateTimeFormatter.ISO_OFFSET_DATE,
     DateTimeFormatter.ISO_OFFSET_DATE_TIME,
     DateTimeFormatter.ISO_INSTANT
-  };
+  );
 
   private final SearchFieldProvider searchFieldProvider;
   private final Map<String, TermQueryBuilder> termQueryBuilders;
@@ -163,7 +163,9 @@ public class CqlTermQueryConverter {
       try {
         dateFormat.parse(value);
         isValidDate = true;
-      } catch (Exception ignored) { }
+      } catch (Exception ignored) {
+        // do nothing
+      }
     }
     return isValidDate;
   }

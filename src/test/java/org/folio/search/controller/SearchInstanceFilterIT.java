@@ -316,8 +316,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("holdings.metadata.createdDate", "2022-15-01"),
       arguments("holdings.metadata.updatedDate", "2022-06-40"),
 
-      arguments("item.metadata.updatedDate", "invalidDate"),
-      arguments("item.metadata.createdDate", "2022-06-15T15:00:00.000")
+      arguments("item.metadata.updatedDate", "invalidDate")
     );
   }
 

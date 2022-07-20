@@ -158,16 +158,15 @@ public class CqlTermQueryConverter {
   }
 
   private boolean isValidDate(String value) {
-    boolean isValidDate = false;
     for (DateTimeFormatter dateFormat : SUPPORTED_DATE_FORMATS) {
       try {
         dateFormat.parse(value);
-        isValidDate = true;
+        return true;
       } catch (Exception ignored) {
         // do nothing
       }
     }
-    return isValidDate;
+    return false;
   }
 
   private static boolean isMatchAllQuery(String cqlQuery) {

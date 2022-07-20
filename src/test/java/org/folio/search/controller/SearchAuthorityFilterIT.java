@@ -138,6 +138,9 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(subjectHeadings==\"n\")", List.of(IDS[11], IDS[12])),
 
       arguments("(metadata.createdDate >= 2021-03-01) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000Z) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000+00:00) ", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate > 2021-03-01) ", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(metadata.createdDate >= 2021-03-01 and metadata.createdDate < 2021-03-10) ",
         List.of(IDS[0], IDS[2])),
@@ -158,8 +161,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("metadata.createdDate", "2022-06-1"),
       arguments("metadata.createdDate", "2022-06-40"),
       arguments("metadata.updatedDate", "2022-15-01"),
-      arguments("metadata.updatedDate", "invalidDate"),
-      arguments("metadata.updatedDate", "2022-11-15T15:00:00.000")
+      arguments("metadata.updatedDate", "invalidDate")
     );
   }
 

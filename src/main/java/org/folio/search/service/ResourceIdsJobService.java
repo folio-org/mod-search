@@ -26,7 +26,6 @@ public class ResourceIdsJobService {
     return resourceIdsJobMapper.convert(jobRepository.getById(id));
   }
 
-  @Transactional
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
     var tableName = RandomStringUtils
       .random(32, 0, 0, true, false, null, new SecureRandom())
@@ -37,7 +36,7 @@ public class ResourceIdsJobService {
     entity.setTemporaryTableName(tableName);
 
     var savedJob = jobRepository.save(entity);
-    resourceIdService.startAsyncStreamingIdsJob(entity, tenantId);
+    resourceIdService.startAsyncStreamingIdsJob(savedJob, tenantId);
     return resourceIdsJobMapper.convert(savedJob);
   }
 }

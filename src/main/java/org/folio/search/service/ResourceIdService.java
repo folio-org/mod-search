@@ -84,12 +84,11 @@ public class ResourceIdService {
   }
 
   /**
-   * Starts async job to prepare a list of ids by cql in new DB's table.
+   * Starts job to prepare a list of ids by cql in new DB's table.
    *
    * @param job      Async job as {@link ResourceIdsJobEntity} object
    * @param tenantId tenant id as {@link String} object
    */
-  @Async
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
     var tableName = job.getTemporaryTableName();
@@ -112,12 +111,12 @@ public class ResourceIdService {
   }
 
   /**
-   * Starts async streaming job in scope of tenant.
+   * Starts async streaming ids job in scope of current tenant.
    *
    * @param job      Job as {@link ResourceIdsJobEntity} object
    * @param tenantId tenant id as {@link String} object
    */
-  @Transactional
+  @Async
   public void startAsyncStreamingIdsJob(ResourceIdsJobEntity job, String tenantId) {
     tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
       streamResourceIdsForJob(job, tenantId);

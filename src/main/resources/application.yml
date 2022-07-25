@@ -9,7 +9,7 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: ${ELASTICSEARCH_URL:http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}}
+    uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:

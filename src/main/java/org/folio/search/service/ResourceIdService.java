@@ -38,8 +38,9 @@ public class ResourceIdService {
   private final ObjectMapper objectMapper;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter queryConverter;
-  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
   private final ResourceIdsJobRepository jobRepository;
+  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
+  private final TenantScopedExecutionService tenantScopedExecutionService;
 
   /**
    * Returns resource ids for passed cql query in text type.
@@ -91,23 +92,37 @@ public class ResourceIdService {
   @Async
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
-    var tableName = job.getTemporaryTableName();
-    try {
-      var entityType = job.getEntityType();
-      String resource = entityType.getResource();
-      String sourceIdPath = entityType.getSourceIdPath();
-      var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
+      var tableName = job.getTemporaryTableName();
+      try {
+        var entityType = job.getEntityType();
+        String resource = entityType.getResource();
+        String sourceIdPath = entityType.getSourceIdPath();
+        var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
 
-      idsTemporaryRepository.createTableForIds(tableName);
-      streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
-      job.setStatus(StreamJobStatus.COMPLETED);
-    } catch (Exception e) {
-      log.warn("Failed to process resource ids job with id = {}", job.getId());
-      idsTemporaryRepository.dropTableForIds(tableName);
-      job.setStatus(StreamJobStatus.ERROR);
-    } finally {
-      jobRepository.save(job);
-    }
+        idsTemporaryRepository.createTableForIds(tableName);
+        streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
+        job.setStatus(StreamJobStatus.COMPLETED);
+      } catch (Exception e) {
+        log.warn("Failed to process resource ids job with id = {}", job.getId());
+        idsTemporaryRepository.dropTableForIds(tableName);
+        job.setStatus(StreamJobStatus.ERROR);
+      } finally {
+        jobRepository.save(job);
+      }
+  }
+
+  /**
+   * Starts async streaming job in scope of tenant
+   *
+   * @param job      Async job as {@link ResourceIdsJobEntity} object
+   * @param tenantId tenant id as {@link String} object
+   */
+  @Transactional
+  public void startAsyncStreamingIdsJob(ResourceIdsJobEntity job, String tenantId) {
+    tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
+      streamResourceIdsForJob(job, tenantId);
+      return job;
+    });
   }
 
   /**

@@ -35,8 +35,9 @@ public class ResourceIdsJobService {
     entity.setCreatedDate(new Date());
     entity.setStatus(StreamJobStatus.IN_PROGRESS);
     entity.setTemporaryTableName(tableName);
-    var result = jobRepository.save(entity);
-    resourceIdService.streamResourceIdsForJob(entity, tenantId);
-    return resourceIdsJobMapper.convert(result);
+
+    var savedJob = jobRepository.save(entity);
+    resourceIdService.startAsyncStreamingIdsJob(savedJob, tenantId);
+    return resourceIdsJobMapper.convert(savedJob);
   }
 }

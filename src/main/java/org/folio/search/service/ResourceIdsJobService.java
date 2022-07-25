@@ -37,7 +37,7 @@ public class ResourceIdsJobService {
     entity.setTemporaryTableName(tableName);
 
     var savedJob = jobRepository.save(entity);
-    resourceIdService.startAsyncStreamingIdsJob(savedJob, tenantId);
+    resourceIdService.startAsyncStreamingIdsJob(entity, tenantId);
     return resourceIdsJobMapper.convert(savedJob);
   }
 }

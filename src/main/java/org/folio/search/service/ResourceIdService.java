@@ -119,7 +119,7 @@ public class ResourceIdService {
   @Async
   public void startAsyncStreamingIdsJob(ResourceIdsJobEntity job, String tenantId) {
     tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      streamResourceIdsForJob(job, tenantId);
+      streamResourceIdsForJob(job, tenantId); //NOSONAR
       return job;
     });
   }

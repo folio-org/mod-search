@@ -51,10 +51,10 @@ public class ResourceIdsStreamHelper {
    */
   public ResponseEntity<Void> streamResourceIdsFromDb(String jobId) {
     try {
-      resourceIdService.streamIdsFromDatabaseAsJson(jobId, prepareHttpResponse().getOutputStream());
-      return ResponseEntity.ok()
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .build();
+      var httpServletResponse = prepareHttpResponse();
+      httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
+      resourceIdService.streamIdsFromDatabaseAsJson(jobId, httpServletResponse.getOutputStream());
+      return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);
     }

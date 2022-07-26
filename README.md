@@ -608,14 +608,14 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ##### Item facets
 
-| Option                      |  Type   | Description                                  |
-|:----------------------------|:-------:|:---------------------------------------------|
-| `items.effectiveLocationId` |  term   | Requests an item effective location id facet |
-| `items.status.name`         |  term   | Requests an item status facet                |
-| `items.materialTypeId`      |  term   | Requests an item material type id facet      |
-| `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
-| `items.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
-| `itemTags`                  |  term   | Requests an item tag facet                   |
+| Option                     |  Type   | Description                                  |
+|:---------------------------|:-------:|:---------------------------------------------|
+| `item.effectiveLocationId` |  term   | Requests an item effective location id facet |
+| `item.status.name`         |  term   | Requests an item status facet                |
+| `item.materialTypeId`      |  term   | Requests an item material type id facet      |
+| `item.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
+| `item.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
+| `itemTags`                 |  term   | Requests an item tag facet                   |
 
 ##### Authority facets
 

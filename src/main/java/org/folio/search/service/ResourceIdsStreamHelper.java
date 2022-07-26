@@ -52,7 +52,9 @@ public class ResourceIdsStreamHelper {
   public ResponseEntity<Void> streamResourceIdsFromDb(String jobId) {
     try {
       resourceIdService.streamIdsFromDatabaseAsJson(jobId, prepareHttpResponse().getOutputStream());
-      return ResponseEntity.ok().build();
+      return ResponseEntity.ok()
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .build();
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);
     }

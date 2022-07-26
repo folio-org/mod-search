@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +32,22 @@ public class TenantScopedExecutionService {
     try {
       beginFolioExecutionContext(folioExecutionContext(tenantId));
       return job.call();
+    } finally {
+      endFolioExecutionContext();
+    }
+  }
+
+  /**
+   * Executes given job in scope of tenant asynchronously.
+   *
+   * @param tenantId - The tenant name.
+   * @param job      - Job to be executed in tenant scope.
+   */
+  @Async
+  public void executeAsyncTenantScoped(String tenantId, Runnable job) {
+    try {
+      beginFolioExecutionContext(folioExecutionContext(tenantId));
+      job.run();
     } finally {
       endFolioExecutionContext();
     }

@@ -7,10 +7,8 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
-import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ResourceIdsJobService {
 
+  private final TenantScopedExecutionService tenantExecutionService;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
@@ -28,20 +27,17 @@ public class ResourceIdsJobService {
     return resourceIdsJobMapper.convert(jobRepository.getById(id));
   }
 
-  @Async
-  public void startAsyncStreamingIdsJob(ResourceIdsJobEntity job, String tenantId) {
-    resourceIdService.streamResourceIdsForJob(job, tenantId);
-  }
-
   @Transactional
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
     var entity = resourceIdsJobMapper.convert(job);
     entity.setCreatedDate(new Date());
     entity.setStatus(StreamJobStatus.IN_PROGRESS);
     entity.setTemporaryTableName(generateTemporaryTableName());
-
     var savedJob = jobRepository.save(entity);
-    startAsyncStreamingIdsJob(savedJob, tenantId);
+
+    Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
+    tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
+
     return resourceIdsJobMapper.convert(savedJob);
   }
 

@@ -39,7 +39,6 @@ public class ResourceIdService {
   private final CqlSearchQueryConverter queryConverter;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsTemporaryRepository idsTemporaryRepository;
-  private final TenantScopedExecutionService tenantScopedExecutionService;
 
   /**
    * Returns resource ids for passed cql query in text type.

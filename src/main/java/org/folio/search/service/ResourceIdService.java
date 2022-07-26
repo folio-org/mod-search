@@ -25,7 +25,6 @@ import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,20 +107,6 @@ public class ResourceIdService {
     } finally {
       jobRepository.save(job);
     }
-  }
-
-  /**
-   * Starts async streaming ids job in scope of current tenant.
-   *
-   * @param job      Job as {@link ResourceIdsJobEntity} object
-   * @param tenantId tenant id as {@link String} object
-   */
-  @Async
-  public void startAsyncStreamingIdsJob(ResourceIdsJobEntity job, String tenantId) {
-    tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      streamResourceIdsForJob(job, tenantId); //NOSONAR
-      return job;
-    });
   }
 
   /**

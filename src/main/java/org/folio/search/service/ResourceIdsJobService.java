@@ -10,7 +10,6 @@ import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
@@ -22,12 +21,10 @@ public class ResourceIdsJobService {
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
 
-  @Transactional(readOnly = true)
   public ResourceIdsJob getJobById(String id) {
     return resourceIdsJobMapper.convert(jobRepository.getById(id));
   }
 
-  @Transactional
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
     var entity = resourceIdsJobMapper.convert(job);
     entity.setCreatedDate(new Date());

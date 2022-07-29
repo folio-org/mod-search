@@ -258,7 +258,7 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(List<TestData> testDataList, String tenant) {
-    enableTenant(TENANT_ID);
+    enableTenant(tenant);
     for (TestData testData : testDataList) {
       var type = testData.getType();
       var testRecords = testData.getTestRecords();

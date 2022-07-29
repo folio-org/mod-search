@@ -9,7 +9,7 @@ import static org.folio.search.support.base.ApiEndpoints.resourcesIdsJob;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.anything;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,6 +21,7 @@ import org.awaitility.Durations;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceIdsJob;
+import org.folio.search.domain.dto.ResourceIdsJob.EntityTypeEnum;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -52,15 +53,18 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
   public static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments(ResourceIdsJob.EntityTypeEnum.HOLDINGS, 3),
-      arguments(ResourceIdsJob.EntityTypeEnum.AUTHORITY, 1)
+      arguments(EntityTypeEnum.INSTANCE, List.of("5bf370e0-8cca-4d9c-82e4-5170ab2a0a39")),
+      arguments(EntityTypeEnum.AUTHORITY, List.of("55294032-fcf6-45cc-b6da-4420a61ef72c")),
+      arguments(EntityTypeEnum.HOLDINGS, List.of("a663dea9-6547-4b2d-9daa-76cadd662272",
+        "9550c935-401a-4a85-875e-4d1fe7678870",
+        "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"))
     );
   }
 
   @MethodSource("testDataProvider")
   @ParameterizedTest
   @DisplayName("init resource IDs job and stream all resources IDs")
-  void createIdsJobAndStreamIds(ResourceIdsJob.EntityTypeEnum entityType, int expectedIdsAmount) throws Exception {
+  void createIdsJobAndStreamIds(EntityTypeEnum entityType, List<String> expectedIds) throws Exception {
     var query = "cql.allRecords=1";
     var resourceIdsJob = new ResourceIdsJob().query(query).entityType(entityType);
     var postResponse = parseResponse(doPost(resourcesIdsJob(), resourceIdsJob)
@@ -74,8 +78,8 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
     });
 
     doGet(resourcesIds(postResponse.getId()))
-      .andExpect(jsonPath("ids", hasSize(expectedIdsAmount)))
-      .andExpect(jsonPath("totalRecords", is(expectedIdsAmount)));
+      .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
+      .andExpect(jsonPath("ids[*].id", containsInAnyOrder(expectedIds.toArray())));
   }
 
   @Test
@@ -83,7 +87,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
     var query = "cql.allRecords=1";
     var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
       .query(query)
-      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
+      .entityType(EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
@@ -99,6 +103,32 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
   @Test
   void cantStreamNotCompletedJob() throws Exception {
+    var query = "cql.allRecords=1";
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(EntityTypeEnum.HOLDINGS))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    attemptGet(resourcesIds(postResponse.getId()))
+      .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void cantStreamWithInvalidQuery() throws Exception {
+    var query = "bad query";
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
+      .query(query)
+      .entityType(EntityTypeEnum.INSTANCE))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
+    });
+  }
+
+  @Test
+  void cantGetJobWithInvalidId() throws Exception {
     attemptGet(resourcesIds("randomUUID"))
       .andExpect(status().is4xxClientError());
   }

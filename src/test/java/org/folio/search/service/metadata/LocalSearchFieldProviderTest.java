@@ -90,7 +90,7 @@ class LocalSearchFieldProviderTest {
   @Test
   void getSourceFields_positive() {
     var actual = getSearchFieldProvider().getSourceFields(RESOURCE_NAME, SEARCH);
-    assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1",
+    assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1", "contributors.plain_name",
       "title2.sub3.plain_sub5", "source");
   }
 
@@ -231,6 +231,7 @@ class LocalSearchFieldProviderTest {
         "allInstance", multilangField("cql.all", "cql.allInstance"),
         "allItems", multilangField("cql.all", "cql.allItems"),
         "allHoldings", multilangField("cql.all", "cql.allHoldings"),
+        "contributors", objectField(mapOf("name", plainField("standard", List.of(SEARCH)))),
         "title1", plainField("multilang", List.of(SEARCH), TITLE_SEARCH_TYPE),
         "title2", objectField(mapOf(
           "sub1", plainField("keyword", List.of(SEARCH), TITLE_SEARCH_TYPE),

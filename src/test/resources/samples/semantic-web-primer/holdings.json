@@ -101,6 +101,9 @@
       "updatedDate": "2021-03-04T12:36:57.751+00:00",
       "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
     },
+    "tags": {
+      "tagList": [ "holdings-tag" ]
+    },
     "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264"
   }
 ]

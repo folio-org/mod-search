@@ -632,7 +632,7 @@
   },
   "mappingsSource": {
     "excludes": [
-      "allInstance", "plain_allInstance",
+      "allInstances", "plain_allInstances",
       "allItems", "plain_allItems",
       "allHoldings", "plain_allHoldings",
 

@@ -219,7 +219,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     Entry<String, PlainFieldDescription> entry) {
     var name = entry.getKey();
     var fieldDesc = entry.getValue();
-    var sourceFieldName = fieldDesc.isMultilang() ? getPathToFulltextPlainValue(name) : name;
+    var sourceFieldName = fieldDesc.hasFulltextIndex() ? getPathToFulltextPlainValue(name) : name;
     return fieldDesc.getShowInResponse().stream().map(groupType -> Pair.of(groupType, sourceFieldName));
   }
 

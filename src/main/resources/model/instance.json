@@ -632,11 +632,13 @@
   },
   "mappingsSource": {
     "excludes": [
-      "allInstance.*", "plain_allInstance",
+      "allInstances.*", "plain_allInstances",
       "allItems.*", "plain_allItems",
       "allHoldings.*", "plain_allHoldings",
       "sort_title", "sort_contributors",
-      "callNumber", "itemEffectiveShelvingOrder"
+      "callNumber", "itemEffectiveShelvingOrder",
+      "plain_contributorTypeId", "plain_contributorNameTypeId",
+      "holdingsTypeId", "identifiers.plain_value"
     ]
   },
   "indexMappings": { }

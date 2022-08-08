@@ -650,6 +650,7 @@
       "publication.publisher",
       "publicNotes",
       "subjects",
+      "series",
       "tags.tagList",
       "title",
       "uniformTitle",

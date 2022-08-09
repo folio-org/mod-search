@@ -85,11 +85,11 @@
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorNameTypeId": {
-          "index": "standard",
+          "index": "keyword",
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorTypeId": {
-          "index": "standard",
+          "index": "keyword",
           "showInResponse": [ "search", "call-number-browse" ]
         }
       }
@@ -632,11 +632,42 @@
   },
   "mappingsSource": {
     "excludes": [
-      "allInstance.*", "plain_allInstance",
-      "allItems.*", "plain_allItems",
-      "allHoldings.*", "plain_allHoldings",
+      "allInstances", "plain_allInstances",
+      "allItems", "plain_allItems",
+      "allHoldings", "plain_allHoldings",
+
       "sort_title", "sort_contributors",
-      "callNumber", "itemEffectiveShelvingOrder"
+      "callNumber",
+      "itemEffectiveShelvingOrder",
+
+      "alternativeTitles.alternativeTitle",
+      "contributors.name",
+      "electronicAccess.linkText",
+      "electronicAccess.publicNote",
+      "identifiers.value",
+      "indexTitle",
+      "notes.note",
+      "publication.publisher",
+      "publicNotes",
+      "subjects",
+      "series",
+      "tags.tagList",
+      "title",
+      "uniformTitle",
+
+      "holdings.electronicAccess.linkText",
+      "holdings.electronicAccess.publicNote",
+      "holdings.notes.note",
+      "holdings.tags.tagList",
+      "holdingsPublicNotes",
+      "holdingsPublicNotes",
+
+      "itemPublicNotes",
+      "items.circulationNotes.note",
+      "items.electronicAccess.linkText",
+      "items.electronicAccess.publicNote",
+      "items.notes.note",
+      "items.tags.tagList"
     ]
   },
   "indexMappings": { }

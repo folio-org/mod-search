@@ -363,7 +363,20 @@
       "processor": "lccnProcessor"
     }
   },
-  "mappingsSource": { },
+  "mappingsSource": {
+    "excludes": [
+      "personalName", "sftPersonalName", "saftPersonalName",
+      "personalNameTitle", "sftPersonalNameTitle", "saftPersonalNameTitle",
+      "corporateName", "sftCorporateName", "saftCorporateName",
+      "corporateNameTitle", "sftCorporateNameTitle", "saftCorporateNameTitle",
+      "meetingName", "sftMeetingName", "saftMeetingName",
+      "meetingNameTitle", "sftMeetingNameTitle", "saftMeetingNameTitle",
+      "geographicName", "sftGeographicName", "saftGeographicName",
+      "uniformTitle", "sftUniformTitle", "saftUniformTitle",
+      "topicalTerm", "sftTopicalTerm", "saftTopicalTerm",
+      "genreTerm", "sftGenreTerm", "saftGenreTerm"
+    ]
+  },
   "indexMappings": {
     "sort_headingRef": {
       "type": "keyword",

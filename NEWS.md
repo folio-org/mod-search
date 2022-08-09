@@ -1,3 +1,6 @@
+## 1.7.2 2022-08-09
+* MSEARCH-405 mod-search: investigate options to optimize reindex time
+
 ## 1.7.1 2022-07-25
 * MSEARCH-393 Fix date query validation to support ISO date/time formats
 

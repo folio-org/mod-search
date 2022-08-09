@@ -251,6 +251,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.notes.note == {value}", "Librarian private note for item"),
       arguments("items.notes.note == {value}", "testCirculationNote"),
       arguments("items.notes.note == {value}", "private circulation note"),
+      arguments("items.tags.tagList all {value}", "item-tag"),
 
       arguments("items.circulationNotes.note == {value}", "testCirculationNote"),
       arguments("items.circulationNotes.note all {value}", "public circulation note"),
@@ -267,6 +268,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsPublicNotes all {value}", "bibliographical references"),
       arguments("holdings.notes.note == {value}", "Librarian public note for holding"),
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),
+      arguments("holdings.tags.tagList == {value}", "holdings-tag"),
 
       arguments("holdings.electronicAccess==\"{value}\"", "electronicAccess"),
       arguments("holdings.electronicAccess.uri==\"{value}\"", "https://testlibrary.sample.com/holdings?hrid=ho0000006"),

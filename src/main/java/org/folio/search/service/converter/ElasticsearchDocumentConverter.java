@@ -89,12 +89,13 @@ public class ElasticsearchDocumentConverter {
   private static Map<String, Object> processMap(Map<String, Object> map) {
     var resultMap = new LinkedHashMap<String, Object>();
     for (var entry : map.entrySet()) {
-      String key = entry.getKey();
+      var key = entry.getKey();
+      var value = entry.getValue();
       if (key.startsWith(PLAIN_FULLTEXT_PREFIX)) {
-        resultMap.put(key.substring(PLAIN_FULLTEXT_PREFIX.length()), processField(entry.getValue()));
+        resultMap.put(key.substring(PLAIN_FULLTEXT_PREFIX.length()), processField(value));
         continue;
       }
-      resultMap.putIfAbsent(key, processField(entry.getValue()));
+      resultMap.computeIfAbsent(key, k -> processField(value));
     }
     return resultMap;
   }

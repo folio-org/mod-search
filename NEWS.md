@@ -1,3 +1,7 @@
+## 1.8.0 IN-PROGRESS
+
+* MSEARCH-396 Supports users interface versions 15.3 16.0
+
 ## 1.7.0 2022-07-08
 * MSEARCH-197 Add /authorities/ids API for Authority Records search
 * MSEARCH-268 Increment the minor version of spring-kafka

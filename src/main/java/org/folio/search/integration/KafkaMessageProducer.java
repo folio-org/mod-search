@@ -16,6 +16,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAM
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +42,7 @@ public class KafkaMessageProducer {
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
     if (resourceEvents != null && !resourceEvents.isEmpty()) {
       resourceEvents.stream()
+        .filter(Objects::nonNull)
         .map(this::getContributorEvents)
         .flatMap(List::stream)
         .forEach(kafkaTemplate::send);

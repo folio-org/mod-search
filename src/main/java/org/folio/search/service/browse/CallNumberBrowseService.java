@@ -64,7 +64,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
   @Override
   protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
-    return browseItem.getShelfKey();
+    return browseItem.getFullCallNumber();
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<CallNumberBrowseItem> result) {

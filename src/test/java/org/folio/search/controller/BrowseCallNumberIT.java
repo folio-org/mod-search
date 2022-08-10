@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -339,11 +340,11 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var items = ((List<String>) data.get(1)).stream()
-      .map(shelfKey -> new Item()
+      .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey))
-        .effectiveShelvingOrder(shelfKey))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .collect(toList());
 
     return new Instance()

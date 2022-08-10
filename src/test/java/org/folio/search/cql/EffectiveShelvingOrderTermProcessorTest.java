@@ -3,7 +3,6 @@ package org.folio.search.cql;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.folio.search.utils.types.UnitTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -49,13 +48,13 @@ class EffectiveShelvingOrderTermProcessorTest {
   }
 
   @ParameterizedTest
-  @Disabled("Need to clarify what this pattern about")
   @ValueSource(strings = {
     "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
     "3591.52 263 220", "3641.5943 M68 L", "4123", "4782"})
   void getSearchTerm_parameterized_validDeweyDecimalShelfKey(String given) {
+    var expected = new DeweyCallNumber(given).getShelfKey();
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(given);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @ParameterizedTest

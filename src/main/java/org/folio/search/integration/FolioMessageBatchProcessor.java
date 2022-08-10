@@ -51,7 +51,7 @@ public class FolioMessageBatchProcessor {
       if (batch.size() == 1) {
         failedValueConsumer.accept(batch.iterator().next(), e);
       } else {
-        log.warn("Failed to process batch, attempting to process resources one by one", e);
+        log.warn("Failed to process batch, attempting to process resources one by one [batch: {}]", batch, e);
         processMessagesOneByOne(batch, retryTemplate, batchConsumer, failedValueConsumer);
       }
     }

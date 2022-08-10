@@ -1,3 +1,9 @@
+## 1.7.3 2022-08-10
+* MSEARCH-405 Fix NullPointer while reindexing contributors
+
+## 1.7.2 2022-08-09
+* MSEARCH-405 Decrease index size by removing duplicates from _source
+
 ## 1.7.1 2022-07-25
 * MSEARCH-393 Fix date query validation to support ISO date/time formats
 

@@ -5,6 +5,7 @@
 * MSEARCH-385 Update module documentation
 * MSEARCH-390 Stream ids job freeze IN_PROGRESS if query is invalid
 * MSEARCH-392 Stream ids job, relation doesn't exist while using multi tenant
+* MSEARCH-396 Supports users interface versions 15.3 16.0
 
 ## 1.7.3 2022-08-10
 * MSEARCH-405 Fix NullPointer while reindexing contributors

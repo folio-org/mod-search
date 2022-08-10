@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,19 @@ class FolioMessageBatchProcessorTest {
     assertThat(consumedMessages).containsExactly(1, 2, 3);
     assertThat(failedMessages).isEmpty();
     verify(customRetryTemplate).execute(any());
+    verify(retryTemplate, never()).execute(any());
+  }
+
+  @Test
+  void consumeBatchWithFallback_positive_batchIsNull() {
+    var consumedMessages = new ArrayList<Integer>();
+    var failedMessages = new ArrayList<Pair<Integer, Exception>>();
+    folioMessageBatchProcessor.consumeBatchWithFallback((List<Integer>) null, "custom",
+      consumedMessages::addAll, (value, err) -> failedMessages.add(Pair.of(value, err)));
+
+    assertThat(consumedMessages).isEmpty();
+    assertThat(failedMessages).isEmpty();
+    verifyNoInteractions(customRetryTemplate);
     verify(retryTemplate, never()).execute(any());
   }
 

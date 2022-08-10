@@ -42,6 +42,7 @@ public class FolioMessageBatchProcessor {
     var retryTemplate = retryTemplateBeans.getOrDefault(retryBeanName, defaultRetryTemplate);
     if (CollectionUtils.isEmpty(batch)) {
       log.info("Resources batch is empty, skipping it.");
+      return;
     }
 
     try {

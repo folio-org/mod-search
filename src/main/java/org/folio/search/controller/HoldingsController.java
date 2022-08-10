@@ -1,6 +1,6 @@
 package org.folio.search.controller;
 
-import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDING_ID_PATH;
+import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDINGS_ID_PATH;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class HoldingsController implements HoldingsApi {
 
   @Override
   public ResponseEntity<Void> getHoldingIds(String query, String tenantId, String contentType) {
-    var bulkRequest = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, HOLDING_ID_PATH);
+    var bulkRequest = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, HOLDINGS_ID_PATH);
     return resourceIdsStreamHelper.streamResourceIds(bulkRequest, contentType);
   }
 }

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class CallNumberBrowseOtherIT extends BaseIntegrationTest {
+class BrowseCallNumberOtherIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
@@ -95,7 +95,7 @@ class CallNumberBrowseOtherIT extends BaseIntegrationTest {
 
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
-      .map(CallNumberBrowseOtherIT::instance)
+      .map(BrowseCallNumberOtherIT::instance)
       .toArray(Instance[]::new);
   }
 

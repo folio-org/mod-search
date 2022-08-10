@@ -2,8 +2,6 @@ package org.folio.search.service;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.folio.search.model.service.CqlResourceIdsRequest.AUTHORITY_ID_PATH;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,7 +25,6 @@ import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +37,8 @@ public class ResourceIdService {
   private final ObjectMapper objectMapper;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter queryConverter;
-  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
   private final ResourceIdsJobRepository jobRepository;
+  private final ResourceIdsTemporaryRepository idsTemporaryRepository;
 
   /**
    * Returns resource ids for passed cql query in text type.
@@ -85,22 +82,22 @@ public class ResourceIdService {
   }
 
   /**
-   * Starts async job to prepare a list of ids by cql in new DB's table.
+   * Starts job to prepare a list of ids by cql in new DB's table.
    *
    * @param job      Async job as {@link ResourceIdsJobEntity} object
    * @param tenantId tenant id as {@link String} object
    */
-  @Async
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
     var tableName = job.getTemporaryTableName();
     try {
-      var request = CqlResourceIdsRequest
-        .of(AUTHORITY_RESOURCE, tenantId, job.getQuery(), AUTHORITY_ID_PATH);
+      var entityType = job.getEntityType();
+      String resource = entityType.getResource();
+      String sourceIdPath = entityType.getSourceIdPath();
+      var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
 
       idsTemporaryRepository.createTableForIds(tableName);
-      streamResourceIds(request, idsList -> idsTemporaryRepository.insertId(idsList, tableName));
-
+      streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}", job.getId());

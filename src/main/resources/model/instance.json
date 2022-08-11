@@ -181,6 +181,9 @@
         }
       }
     },
+    "administrativeNotes": {
+      "index": "multilang"
+    },
     "notes": {
       "type": "object",
       "properties": {
@@ -325,6 +328,9 @@
             }
           }
         },
+        "administrativeNotes": {
+          "index": "multilang"
+        },
         "notes": {
           "type": "object",
           "properties": {
@@ -434,6 +440,9 @@
               "index": "multilang"
             }
           }
+        },
+        "administrativeNotes": {
+          "index": "multilang"
         },
         "notes": {
           "type": "object",

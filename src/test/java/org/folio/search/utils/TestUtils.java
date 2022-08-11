@@ -166,10 +166,6 @@ public class TestUtils {
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String callNumber) {
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
-  }
-
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);

@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.z3950.zing.cql.CQLTermNode;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +70,8 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around() {
     var request = request("callNumber >= B or callNumber < B", true);
-    when(cqlSearchQueryConverter.getQueryTerm(anyString(), anyString())).thenReturn("B");
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(4, browseItems("A1", "A2", "A3", "A4")),
@@ -89,6 +91,8 @@ class CallNumberBrowseServiceTest {
   void browse_positive_aroundWithFoundAnchor() {
     var request = request("callNumber >= B or callNumber < B", true);
 
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(1, browseItems("A 11")),
@@ -105,7 +109,8 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
-    when(cqlSearchQueryConverter.getQueryTerm(anyString(), anyString())).thenReturn("B");
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11")), BrowseResult.empty());
 

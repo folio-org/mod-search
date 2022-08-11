@@ -7,10 +7,13 @@ import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
+import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -55,6 +58,8 @@ class CallNumberBrowseServiceTest {
   private SearchSourceBuilder precedingQuery;
   @Mock
   private SearchSourceBuilder succeedingQuery;
+  @Mock
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
 
   @BeforeEach
   void setUp() {
@@ -64,6 +69,7 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around() {
     var request = request("callNumber >= B or callNumber < B", true);
+    when(cqlSearchQueryConverter.getQueryTerm(anyString(), anyString())).thenReturn("B");
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(4, browseItems("A1", "A2", "A3", "A4")),
@@ -99,6 +105,7 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
+    when(cqlSearchQueryConverter.getQueryTerm(anyString(), anyString())).thenReturn("B");
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11")), BrowseResult.empty());
 
@@ -269,11 +276,11 @@ class CallNumberBrowseServiceTest {
     return new MultiSearchResponse(msearchItems, 0);
   }
 
-  private static Instance instance(String... shelfKeys) {
-    var items = stream(shelfKeys)
-      .map(shelfKey -> new Item()
-        .effectiveShelvingOrder(shelfKey)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey)))
+  private static Instance instance(String... callNumbers) {
+    var items = stream(callNumbers)
+      .map(callNumber -> new Item()
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
       .collect(toList());
     return new Instance().items(items);
   }
@@ -299,11 +306,11 @@ class CallNumberBrowseServiceTest {
       .build();
   }
 
-  private static CallNumberBrowseItem browseItem(String shelfKey) {
+  private static CallNumberBrowseItem browseItem(String callNumber) {
     return new CallNumberBrowseItem()
-      .fullCallNumber(shelfKey)
-      .shelfKey(shelfKey)
-      .instance(instance(shelfKey))
+      .fullCallNumber(callNumber)
+      .shelfKey(getShelfKeyFromCallNumber(callNumber))
+      .instance(instance(callNumber))
       .totalRecords(1);
   }
 

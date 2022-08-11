@@ -231,7 +231,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(forwardQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(26).prev("DA 3890 A1 I72 41885").next("DA 3900 C89 V1").items(List.of(
+        .totalRecords(24).prev("DA 3890 A1 I72 41885").next("DA 3900 C89 V1").items(List.of(
           cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
           cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -281,7 +281,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(backwardQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev("DA 3880 O6 L75").next("DA 3880 O6 M96").items(List.of(
+        .totalRecords(26).prev("DA 3880 O6 L75").next("DA 3880 O6 M96").items(List.of(
           cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
           cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
           cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),

@@ -9,6 +9,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTE
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -56,7 +57,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
       cnBrowseItem(instance("instance #11"), "F-1,452"),
       cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
-      cnBrowseItem(0, "G", true),
+      cnBrowseItem(0, "g", true),
       cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
       cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
@@ -81,7 +82,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
       cnBrowseItem(instance("instance #11"), "F-1,452"),
       cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
-      cnBrowseItem(0, "G", true),
+      cnBrowseItem(0, "g", true),
       cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
       cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
@@ -102,11 +103,11 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var items = ((List<String>) data.get(1)).stream()
-      .map(shelfKey -> new Item()
+      .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey))
-        .effectiveShelvingOrder(shelfKey))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .collect(toList());
 
     return new Instance()

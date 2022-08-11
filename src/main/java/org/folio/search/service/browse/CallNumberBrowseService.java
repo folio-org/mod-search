@@ -51,7 +51,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
 
     if (TRUE.equals(request.getHighlightMatch())) {
-      var callNumber = cqlSearchQueryConverter.getQueryTerm(request.getQuery(), request.getResource());
+      var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 

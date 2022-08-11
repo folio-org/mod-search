@@ -57,9 +57,25 @@ public class CqlSearchQueryConverter {
     return queryBuilder.query(enhancedQuery);
   }
 
-  public String getQueryTerm(String query, String resource) {
+  /**
+   * Converts given CQL search query value to the {@link CQLTermNode} object.
+   * If query contains boolean operator then return the left term node
+   *
+   * @param query    cql query to parse
+   * @param resource resource name
+   * @return term node as {@link CQLTermNode} object with term value
+   */
+  public CQLTermNode convertToTermNode(String query, String resource) {
     var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
-    return convertToTermNode(cqlNode).getTerm();
+    return convertToTermNode(cqlNode);
+  }
+
+  private CQLTermNode convertToTermNode(CQLNode cqlNode) {
+    if (cqlNode instanceof CQLBooleanNode) {
+      var leftNode = ((CQLBooleanNode) cqlNode).getLeftOperand();
+      return convertToTermNode(leftNode);
+    }
+    return (CQLTermNode) cqlNode;
   }
 
   private QueryBuilder convertToQuery(CQLNode node, String resource) {
@@ -142,14 +158,6 @@ public class CqlSearchQueryConverter {
     mustConditions.clear();
     mustConditions.addAll(mustQueryConditions);
     return query;
-  }
-
-  private CQLTermNode convertToTermNode(CQLNode cqlNode) {
-    if (cqlNode instanceof CQLBooleanNode) {
-      var leftNode = ((CQLBooleanNode) cqlNode).getLeftOperand();
-      return convertToTermNode(leftNode);
-    }
-    return (CQLTermNode) cqlNode;
   }
 
   private boolean isFilterInnerQuery(QueryBuilder query, Predicate<String> filterFieldPredicate) {

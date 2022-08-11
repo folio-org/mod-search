@@ -182,7 +182,7 @@ public class TestUtils {
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber).trim();
+    return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber);
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

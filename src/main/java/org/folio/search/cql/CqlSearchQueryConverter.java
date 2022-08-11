@@ -57,6 +57,11 @@ public class CqlSearchQueryConverter {
     return queryBuilder.query(enhancedQuery);
   }
 
+  public String getQueryTerm(String query, String resource) {
+    var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
+    return convertToTermNode(cqlNode).getTerm();
+  }
+
   private QueryBuilder convertToQuery(CQLNode node, String resource) {
     var cqlNode = node;
     if (node instanceof CQLSortNode) {
@@ -137,6 +142,14 @@ public class CqlSearchQueryConverter {
     mustConditions.clear();
     mustConditions.addAll(mustQueryConditions);
     return query;
+  }
+
+  private CQLTermNode convertToTermNode(CQLNode cqlNode) {
+    if (cqlNode instanceof CQLBooleanNode) {
+      var leftNode = ((CQLBooleanNode) cqlNode).getLeftOperand();
+      return convertToTermNode(leftNode);
+    }
+    return (CQLTermNode) cqlNode;
   }
 
   private boolean isFilterInnerQuery(QueryBuilder query, Predicate<String> filterFieldPredicate) {

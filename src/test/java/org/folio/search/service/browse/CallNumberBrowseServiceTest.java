@@ -74,7 +74,7 @@ class CallNumberBrowseServiceTest {
     assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
       cnBrowseItem(instance("A3"), "A3"),
       cnBrowseItem(instance("A4"), "A4"),
-      cnBrowseItem(0, "B", null, true),
+      cnBrowseItem(0, "B", true),
       cnBrowseItem(instance("C1"), "C1"),
       cnBrowseItem(instance("C2"), "C2"))));
   }
@@ -92,7 +92,7 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("B"), "B", "B", true),
+      cnBrowseItem(instance("B"), "B", true),
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
 
@@ -106,7 +106,7 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(0, "B", null, true))));
+      cnBrowseItem(0, "B", true))));
   }
 
   @Test

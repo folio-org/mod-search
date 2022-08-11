@@ -264,6 +264,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("electronicAccess.publicNote all {value}", "online"),
       arguments("instanceFormatIds == {value}", "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"),
 
+      arguments("administrativeNotes == {value}", "original + pcc"),
+      arguments("administrativeNotes any {value}", "original pcc"),
+
       arguments("publicNotes all {value}", "development"),
       arguments("notes.note == {value}", "Librarian private note"),
       arguments("notes.note == {value}", "The development of the Semantic Web,"),
@@ -303,6 +306,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("itemIdentifiers all {value}", "item_accession_number"),
       arguments("itemIdentifiers all {value}", "7212ba6a-8dcf-45a1-be9a-ffaa847c4423"),
       arguments("itemIdentifiers all {value}", "itemIdentifierFieldValue"),
+
+      arguments("item.administrativeNotes == {value}", "need attention"),
+      arguments("item.administrativeNotes all {value}", "v1.1"),
 
       arguments("item.notes.note == {value}", "Librarian public note for item"),
       arguments("item.notes.note == {value}", "Librarian private note for item"),
@@ -345,6 +351,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.electronicAccess.publicNote all {value}", "table of contents"),
 
       // search by holding fields
+      arguments("holdings.administrativeNotes == {value}", "for deletion"),
+      arguments("holdings.administrativeNotes all {value}", "v2.0"),
       arguments("holdingsPublicNotes all {value}", "bibliographical references"),
       arguments("holdings.notes.note == {value}", "Librarian public note for holding"),
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),

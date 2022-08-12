@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class KafkaMessageListener {
+
   private final ResourceService resourceService;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
 
@@ -130,8 +131,13 @@ public class KafkaMessageListener {
   }
 
   private static void logFailedEvent(ResourceEvent event, Exception e) {
-    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
-      event.getType().getValue(), event.getType(), event.getTenant(), event.getId(), e);
-  }
+    if (event == null) {
+      log.warn("Failed to index resource event [event: null]", e);
+      return;
+    }
 
+    var eventType = event.getType() != null ? event.getType().getValue() : "unknown";
+    log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
+      eventType, event.getType(), event.getTenant(), event.getId(), e);
+  }
 }

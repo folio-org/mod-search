@@ -15,13 +15,16 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.setOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.folio.search.utils.types.UnitTest;
@@ -183,6 +186,13 @@ class CollectionUtilsTest {
     assertThat(actual).isEqualTo(Optional.ofNullable(expected));
   }
 
+  @ParameterizedTest
+  @MethodSource("subtractSortedDataProvider")
+  void subtractSorted_parameterized(Collection<String> c1, Collection<String> c2, Set<String> expected) {
+    var actual = CollectionUtils.subtractSorted(c1, c2);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Stream<Arguments> getValueByPathTestDataProvider() {
     var map = unstructuredMap();
     return Stream.of(
@@ -246,6 +256,14 @@ class CollectionUtilsTest {
       arguments(List.of(1), 1),
       arguments(List.of("string"), "string"),
       arguments(asList(null, null, null), null)
+    );
+  }
+
+  private static Stream<Arguments> subtractSortedDataProvider() {
+    return Stream.of(
+      arguments(emptySet(), emptySet(), emptySet()),
+      arguments(asList("4", "2", "3", "1"), asList("2", "1", "10"), setOf("3", "4")),
+      arguments(asList("4", "2", null, "1"), asList(null, "1", "10"), setOf("2", "4"))
     );
   }
 }

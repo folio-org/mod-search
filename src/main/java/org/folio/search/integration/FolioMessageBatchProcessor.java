@@ -9,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
@@ -39,13 +40,18 @@ public class FolioMessageBatchProcessor {
                                            Consumer<List<T>> batchConsumer,
                                            BiConsumer<T, Exception> failedValueConsumer) {
     var retryTemplate = retryTemplateBeans.getOrDefault(retryBeanName, defaultRetryTemplate);
+    if (CollectionUtils.isEmpty(batch)) {
+      log.info("Resources batch is empty, skipping it.");
+      return;
+    }
+
     try {
       executeWithRetryTemplate(retryTemplate, batch, batchConsumer);
     } catch (Exception e) {
       if (batch.size() == 1) {
         failedValueConsumer.accept(batch.iterator().next(), e);
       } else {
-        log.warn("Failed to process batch of values, attempting to process them one by one", e);
+        log.warn("Failed to process batch, attempting to process resources one by one", e);
         processMessagesOneByOne(batch, retryTemplate, batchConsumer, failedValueConsumer);
       }
     }

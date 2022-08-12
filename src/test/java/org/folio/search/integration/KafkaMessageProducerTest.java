@@ -1,6 +1,7 @@
 package org.folio.search.integration;
 
 import static java.util.Collections.singletonList;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -82,6 +83,25 @@ class KafkaMessageProducerTest {
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
+  void prepareAndSendContributorEvents_positive_instancesWithoutContributors() {
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, mapOf("id", instanceId), null);
+    producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
+  void prepareAndSendContributorEvents_positive_contributorWithoutTypeNameId() {
+    var instanceId = randomId();
+    var instanceObject = instanceObject(instanceId, mapOf("name", "John Smith"));
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, instanceObject, null);
+    producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
   }
 
   @NotNull

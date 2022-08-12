@@ -1,6 +1,20 @@
 ## 1.8.0 IN-PROGRESS
-
+* MSEARCH-349 Change Instance ids stream API to use jobs
+* MSEARCH-350 Change Holdings ids stream API to use jobs
+* MSEARCH-382 500 Error When searching by incorrect date
+* MSEARCH-385 Update module documentation
+* MSEARCH-390 Stream ids job freeze IN_PROGRESS if query is invalid
+* MSEARCH-392 Stream ids job, relation doesn't exist while using multi tenant
 * MSEARCH-396 Supports users interface versions 15.3 16.0
+
+## 1.7.3 2022-08-10
+* MSEARCH-405 Fix NullPointer while reindexing contributors
+
+## 1.7.2 2022-08-09
+* MSEARCH-405 Decrease index size by removing duplicates from _source
+
+## 1.7.1 2022-07-25
+* MSEARCH-393 Fix date query validation to support ISO date/time formats
 
 ## 1.7.0 2022-07-08
 * MSEARCH-197 Add /authorities/ids API for Authority Records search

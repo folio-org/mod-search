@@ -24,6 +24,7 @@ import org.folio.search.configuration.properties.SearchQueryConfigurationPropert
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +49,7 @@ class CallNumberBrowseQueryProviderTest {
   @Mock
   private SearchFieldProvider searchFieldProvider;
   @Mock
-  private CallNumberTermConverter callNumberTermConverter;
+  private ItemCallNumberProcessor callNumberProcessor;
   @Mock
   private CallNumberBrowseRangeService browseRangeService;
   @Spy
@@ -56,7 +57,7 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_forward() {
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
 
@@ -68,7 +69,7 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_forwardQueryWithFilters() {
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var filterQuery = termQuery("effectiveLocationId", "location#1");
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5)
@@ -84,7 +85,7 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_forwardWithExpandAll() {
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(20).build();
 
     var actual = queryProvider.get(request(true), context, true);
@@ -97,7 +98,7 @@ class CallNumberBrowseQueryProviderTest {
   void get_positive_forwardWithEnabledOptimization() {
     var size = 25;
     when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, true)).thenReturn(Optional.of(100L));
 
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
@@ -110,7 +111,7 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_backward() {
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
 
@@ -122,7 +123,7 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_backwardWithExpandAll() {
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(20).build();
 
     var actual = queryProvider.get(request(true), context, false);
@@ -135,7 +136,7 @@ class CallNumberBrowseQueryProviderTest {
   void get_positive_backwardWithEnabledOptimization() {
     var size = 25;
     when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
-    when(callNumberTermConverter.convert(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
+    when(callNumberProcessor.getCallNumberAsLong(ANCHOR)).thenReturn(ANCHOR_AS_NUMBER);
     when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, false)).thenReturn(Optional.of(100L));
 
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();

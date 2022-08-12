@@ -46,6 +46,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
@@ -97,6 +98,8 @@ public class TestUtils {
 
   public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
+  private static final EffectiveShelvingOrderTermProcessor SHELVING_ORDER_TERM_PROCESSOR =
+    new EffectiveShelvingOrderTermProcessor();
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -149,25 +152,33 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
-    return cnBrowseItem(instance, callNumber, callNumber);
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    return cnBrowseItem(instance, shelfKey, callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String cn, boolean isAnchor) {
-    return new CallNumberBrowseItem().fullCallNumber(cn).shelfKey(shelfKey)
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey) {
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(shelfKey);
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String shelfKey, String cn, boolean isAnchor) {
+  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
     return new CallNumberBrowseItem().totalRecords(totalRecords)
-      .shelfKey(shelfKey).fullCallNumber(cn).isAnchor(isAnchor);
+      .shelfKey(shelfKey).fullCallNumber(callNumber).isAnchor(isAnchor);
+  }
+
+  public static String getShelfKeyFromCallNumber(String callNumber) {
+    return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber);
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

@@ -85,6 +85,13 @@
         "$ref": "electronicAccess.json"
       }
     },
+    "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "items": {
+        "type": "string"
+      }
+    },
     "notes": {
       "type": "array",
       "description": "Notes about action, copy, binding etc.",

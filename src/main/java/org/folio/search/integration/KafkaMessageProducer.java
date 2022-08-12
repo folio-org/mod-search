@@ -2,6 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
@@ -16,6 +17,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAM
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,8 +41,9 @@ public class KafkaMessageProducer {
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
-    if (resourceEvents != null && !resourceEvents.isEmpty()) {
+    if (isNotEmpty(resourceEvents)) {
       resourceEvents.stream()
+        .filter(Objects::nonNull)
         .map(this::getContributorEvents)
         .flatMap(List::stream)
         .forEach(kafkaTemplate::send);

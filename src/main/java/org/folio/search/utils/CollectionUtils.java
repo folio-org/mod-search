@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -333,6 +334,7 @@ public final class CollectionUtils {
 
   public static <T> Set<T> subtractSorted(Collection<T> source, Collection<T> target) {
     return subtract(source, target).stream()
+      .filter(Objects::nonNull)
       .sorted()
       .collect(toCollection(LinkedHashSet::new));
   }

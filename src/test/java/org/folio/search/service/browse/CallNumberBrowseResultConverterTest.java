@@ -8,6 +8,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTE
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,7 +116,8 @@ class CallNumberBrowseResultConverterTest {
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
-      cnBrowseItem(instance("B1", "B2", "C2"), "B1"), cnBrowseItem(instance("C1", "C2"), "C1"))));
+      cnBrowseItem(instance("B1", "B2", "C2"), "B1"),
+      cnBrowseItem(instance("C1", "C2"), "C1"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -133,7 +135,8 @@ class CallNumberBrowseResultConverterTest {
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
-      cnBrowseItem(instance("B1", "B2"), "B2"), cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
+      cnBrowseItem(instance("B1", "B2"), "B2"),
+      cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -228,9 +231,9 @@ class CallNumberBrowseResultConverterTest {
     return searchHit(sortShelfKey, instance(sortShelfKey));
   }
 
-  private static SearchHit searchHit(String sortShelfKey, Instance instance) {
+  private static SearchHit searchHit(String sortCallnumber, Instance instance) {
     var searchHit = mock(SearchHit.class);
-    when(searchHit.getSortValues()).thenReturn(new Object[] {sortShelfKey});
+    when(searchHit.getSortValues()).thenReturn(new Object[] {getShelfKeyFromCallNumber(sortCallnumber)});
     when(searchHit.getSourceAsMap()).thenReturn(toMap(instance));
     return searchHit;
   }
@@ -243,11 +246,11 @@ class CallNumberBrowseResultConverterTest {
     return stream(shelfKeys).map(CallNumberBrowseResultConverterTest::browseItem).collect(toList());
   }
 
-  private static Instance instance(String... shelfKeys) {
-    var items = stream(shelfKeys)
-      .map(shelfKey -> new Item()
-        .effectiveShelvingOrder(shelfKey)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey)))
+  private static Instance instance(String... callNumbers) {
+    var items = stream(callNumbers)
+      .map(callNumber -> new Item()
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
       .collect(toList());
     return new Instance().items(items);
   }

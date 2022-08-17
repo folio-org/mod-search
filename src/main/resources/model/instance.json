@@ -68,7 +68,7 @@
           "index": "whitespace"
         },
         "identifierTypeId": {
-          "index": "source"
+          "index": "keyword"
         }
       }
     },

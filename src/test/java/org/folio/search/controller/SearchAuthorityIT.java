@@ -1,30 +1,22 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
-import static org.folio.search.support.base.ApiEndpoints.resourcesIds;
-import static org.folio.search.support.base.ApiEndpoints.resourcesIdsJob;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.awaitility.Durations;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
-import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.types.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -54,69 +46,6 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.authorities[0].id", is(getAuthoritySampleId())));
-  }
-
-  @Test
-  void streamAuthorityIds() throws Exception {
-    var query = "cql.allRecords=1";
-    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
-      .query(query)
-      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
-      .andExpect(jsonPath("$.query", is(query)))
-      .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
-      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
-
-    await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJob(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
-    });
-
-    doGet(resourcesIds(postResponse.getId()))
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("ids[0].id", is(getAuthoritySampleId())));
-  }
-
-  @Test
-  void cantStreamDeprecatedJob() throws Exception {
-    var query = "cql.allRecords=1";
-    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
-      .query(query)
-      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
-      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
-
-    await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJob(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
-    });
-
-    doGet(resourcesIds(postResponse.getId()));
-
-    attemptGet(resourcesIds(postResponse.getId()))
-      .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void cantStreamInvalidQuery() throws Exception {
-    var query = "invalid query";
-    var postResponse = parseResponse(doPost(resourcesIdsJob(), new ResourceIdsJob()
-      .query(query)
-      .entityType(ResourceIdsJob.EntityTypeEnum.AUTHORITY))
-      .andExpect(jsonPath("$.query", is(query)))
-      .andExpect(jsonPath("$.entityType", is("AUTHORITY")))
-      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
-
-    await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJob(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
-    });
-
-    doGet(resourcesIdsJob(postResponse.getId()))
-      .andExpect(jsonPath("status", is("ERROR")));
-  }
-
-  @Test
-  void cantStreamNotCompletedJob() throws Exception {
-    attemptGet(resourcesIds("randomUUID")).andExpect(status().is4xxClientError());
   }
 
   @CsvSource({

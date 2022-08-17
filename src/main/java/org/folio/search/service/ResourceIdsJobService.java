@@ -10,33 +10,37 @@ import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class ResourceIdsJobService {
 
+  private final TenantScopedExecutionService tenantExecutionService;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
 
-  @Transactional(readOnly = true)
   public ResourceIdsJob getJobById(String id) {
     return resourceIdsJobMapper.convert(jobRepository.getById(id));
   }
 
-  @Transactional
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
-    var tableName = RandomStringUtils
-      .random(32, 0, 0, true, false, null, new SecureRandom())
-      .toLowerCase();
     var entity = resourceIdsJobMapper.convert(job);
     entity.setCreatedDate(new Date());
     entity.setStatus(StreamJobStatus.IN_PROGRESS);
-    entity.setTemporaryTableName(tableName);
-    var result = jobRepository.save(entity);
-    resourceIdService.streamResourceIdsForJob(entity, tenantId);
-    return resourceIdsJobMapper.convert(result);
+    entity.setTemporaryTableName(generateTemporaryTableName());
+    var savedJob = jobRepository.save(entity);
+
+    Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
+    tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
+
+    return resourceIdsJobMapper.convert(savedJob);
+  }
+
+  private String generateTemporaryTableName() {
+    return RandomStringUtils
+      .random(32, 0, 0, true, false, null, new SecureRandom())
+      .toLowerCase();
   }
 }

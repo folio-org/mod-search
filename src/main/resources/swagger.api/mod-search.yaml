@@ -179,7 +179,7 @@ paths:
           description: 'Resources ids as a json stream'
           content:
             application/json:
-              example: examples/AuthorityIdsResult.sample
+              example: examples/resourceIdsResult.sample
         '400':
           $ref: '#/components/responses/badRequestResponse'
         '500':

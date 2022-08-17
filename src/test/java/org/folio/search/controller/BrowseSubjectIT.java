@@ -37,7 +37,7 @@ import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
-class SubjectBrowseIT extends BaseIntegrationTest {
+class BrowseSubjectIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
 
@@ -312,7 +312,7 @@ class SubjectBrowseIT extends BaseIntegrationTest {
 
   private static Instance[] instances() {
     return subjectBrowseInstanceData().stream()
-      .map(SubjectBrowseIT::instance)
+      .map(BrowseSubjectIT::instance)
       .toArray(Instance[]::new);
   }
 

@@ -7,24 +7,57 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Table of contents
 
-* [Introduction](#introduction)
-* [Compiling](#compiling)
-* [Running it](#running-it)
-* [Docker](#docker)
-* [Multi-language search support](#multi-language-search-support)
-* [Deploying the module](#deploying-the-module)
-* [Environment variables](#environment-variables)
-* [Data indexing](#data-indexing)
-* [Supported search types](#supported-search-types)
-  * [Instance search options](#instance-search-options)
-  * [Item search options](#item-search-options)
-  * [Holdings record search options](#holdings-records-search-options)
-  * [Authority search options](#authority-search-options)
-* [Records browsing](#records-browsing)
-* [Search facets](#search-facets)
-* [Sorting results](#sorting-results)
-* [Search Options](#search-options)
-* [Additional information](#additional-information)
+- [Introduction](#introduction)
+- [Compiling](#compiling)
+- [Running it](#running-it)
+- [Docker](#docker)
+- [Multi-language search support](#multi-language-search-support)
+  * [Adding new languages via REST](#adding-new-languages-via-rest)
+  * [Defining initial languages via ENV variable](#defining-initial-languages-via-env-variable)
+- [Deploying the module](#deploying-the-module)
+  * [Configuring Elasticsearch](#configuring-elasticsearch)
+    + [Configuring on-premise Elasticsearch instance](#configuring-on-premise-elasticsearch-instance)
+    + [Recommended production set-up](#recommended-production-set-up)
+  * [Environment variables](#environment-variables)
+  * [Configuring spring-boot using JAVA_OPTIONS](#configuring-spring-boot)
+  * [Configuring connection to elasticsearch](#configuring-connection-to-elasticsearch)
+  * [Tenant attributes](#tenant-attributes)
+- [Data Indexing](#data-indexing)
+  * [Recreating Elasticsearch index](#recreating-elasticsearch-index)
+  * [Monitoring reindex process](#monitoring-reindex-process)
+- [API](#api)
+  * [CQL support](#cql-support)
+    + [CQL query operators](#cql-query-operators)
+    + [CQL query modifiers](#cql-query-modifiers)
+  * [Search API](#search-api)
+    + [Searching and filtering](#searching-and-filtering)
+      - [Matching all records](#matching-all-records)
+      - [Matching undefined or empty values](#matching-undefined-or-empty-values)
+      - [Search by all field values](#search-by-all-field-values)
+      - [Instance search options](#instance-search-options)
+      - [Holdings search options](#holdings-search-options)
+      - [Item search options](#item-search-options)
+      - [Authority search options](#authority-search-options)
+      - [Contributors search options](#contributors-search-options)
+    + [Search Facets](#search-facets)
+      - [Instance facets](#instance-facets)
+      - [Holdings facets](#holdings-facets)
+      - [Item facets](#item-facets)
+      - [Authority facets](#authority-facets)
+      - [Contributors facets](#contributors-facets)
+    + [Sorting results](#sorting-results)
+      - [Instance sort options](#instance-sort-options)
+      - [Authority sort options](#authority-sort-options)
+  * [Browse API](#browse-api)
+  * [Resource IDs streaming API](#resource-ids-streaming-api)
+    + [Create Job](#create-job)
+    + [Retrieve ids](#retrieve-ids)
+- [Additional Information](#additional-information)
+  * [Issue tracker](#issue-tracker)
+  * [API Documentation](#api-documentation)
+  * [Code analysis](#code-analysis)
+  * [Download and configuration](#download-and-configuration)
+  * [Development tips](#development-tips)
 
 ## Introduction
 
@@ -107,9 +140,9 @@ These languages will be added on tenant init and applied to index. Example usage
 
 ## Deploying the module
 
-## Configuring Elasticsearch
+### Configuring Elasticsearch
 
-### Configuring on-premise Elasticsearch instance
+#### Configuring on-premise Elasticsearch instance
 
 It is required to install some required plugins for your ES instance, here is the list:
 * analysis-icu
@@ -138,7 +171,7 @@ must have at least following permissions:
 * Create/delete/update index and mappings for it.
 * Create/update/delete documents in index.
 
-### Recommended production set-up
+#### Recommended production set-up
 
 The data nodes Elasticsearch configuration completely depends on the data.
 If there are 7 mln of instances the configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well.
@@ -149,7 +182,7 @@ with different type of nodes, and see what configuration is sufficient for what 
 Also, for fault tolerance Elasticsearch requires dedicated master nodes (not to have quorum problem which is called split brain)
 with less powerful configuration (see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)).
 
-## Environment variables:
+### Environment variables
 
 | Name                                        | Default value             | Description                                                                                                                                                                           |
 |:--------------------------------------------|:--------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -158,8 +191,6 @@ with less powerful configuration (see [High availability](https://www.elastic.co
 | DB_USERNAME                                 | folio_admin               | Postgres username                                                                                                                                                                     |
 | DB_PASSWORD                                 | -                         | Postgres username password                                                                                                                                                            |
 | DB_DATABASE                                 | okapi_modules             | Postgres database name                                                                                                                                                                |
-| ~~ELASTICSEARCH_HOST~~                      | elasticsearch             | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch hostname                                                                                                                            |
-| ~~ELASTICSEARCH_PORT~~                      | 9200                      | (DEPRECATED, use ELASTICSEARCH_URL) Elasticsearch port                                                                                                                                |
 | ELASTICSEARCH_URL                           | http://elasticsearch:9200 | Elasticsearch URL                                                                                                                                                                     |
 | ELASTICSEARCH_USERNAME                      | -                         | Elasticsearch username (not required for dev envs)                                                                                                                                    |
 | ELASTICSEARCH_PASSWORD                      | -                         | Elasticsearch password (not required for dev envs)                                                                                                                                    |
@@ -193,7 +224,7 @@ The module uses system user to communicate with other modules from Kafka consume
 For production deployments you MUST specify the password for this system user via env variable:
 `SYSTEM_USER_PASSWORD=<password>`.
 
-### Configuring spring-boot using JAVA_OPTIONS
+### Configuring spring-boot
 
 Spring boot properties can be overridden using the specified environment variables, if it is not it can be done using
 one of the following approaches (see also the
@@ -238,7 +269,7 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default
+* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
 will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
 equal to `true` in query will erase all the tenant data in mod-search.
@@ -259,35 +290,7 @@ see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/curr
 
 ## API
 
-Module exposes next API for searching:
-
-| METHOD | URL                           | DESCRIPTION                                                        |
-|:-------|:------------------------------|:-------------------------------------------------------------------|
-| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records |
-| GET    | `/search/authorities`         | Search by authority records                                        |
-| GET    | `/search/{recordType}/facets` | Get facets for the record with `${recordType}`                     |
-| GET    | `/search/instances/ids`       | Stream instance ids as JSON or plain text                          |
-| GET    | `/search/holdings/ids`        | Stream holding record ids as JSON or plain text                    |
-
-## Supported search types
-
-### Searching and filtering
-
-The main endpoint that provides search capabilities is `GET /search/instances`. It consumes following
-request parameters:
-
-| Name      | Required              | Default value | Description                                                                        |
-|:----------|:----------------------|:--------------|:-----------------------------------------------------------------------------------|
-| query     | Yes                   | -             | A CQL query to execute                                                             |
-| limit     | No (default to 100)   | 100           | Maximum number of records to fetch                                                 |
-| offset    | No (default to 0)     | 0             | Instructs to skip first N records that matches the query                           |
-| expandAll | No (default to false) | false         | If false than only _*basic_ instance properties returned, otherwise all properties |
-
-> *_Basic fields are following:_
-> * _id_
-> * _title_
-> * _contributors_
-> * _publication_
+### CQL support
 
 We use CQL query for search queries, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
 for more details.
@@ -296,7 +299,7 @@ In mod-search there are two main types of searchable fields:
 1. _Full text_ capable fields (aka. multi-lang fields) - analyzed and preprocessed fields;
 2. _Term_ fields (keywords, bool, date fields, etc.) - non-analyzed fields.
 
-### CQL query operators
+#### CQL query operators
 
 Depending on field type, CQL operators will be handled in different ways or not supported at all.
 Here is table of supported operators.
@@ -312,7 +315,7 @@ Here is table of supported operators.
 | `<=`, `>=` | N/A                            | `createdDate <= "2020-12-12"`  | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
 | `*`        | `title="mode* europe*"`        | `hrid = "hr10*"`               | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
 
-### CQL query modifiers
+#### CQL query modifiers
 
 CQL operators could have modifiers that change search behaviour
 
@@ -320,18 +323,50 @@ CQL operators could have modifiers that change search behaviour
 |:---------|:---------|:---------------------------------|:---------------------------------|
 | `==`     | `string` | `title ==\string "semantic web"` | Exact match for full text fields |
 
-## Search Options
+### Search API
 
-### Matching all records
+| METHOD | URL                           | DESCRIPTION                                                                   |
+|:-------|:------------------------------|:------------------------------------------------------------------------------|
+| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records            |
+| GET    | `/search/authorities`         | Search by authority records                                                   |
+| GET    | `/search/{recordType}/facets` | Get facets where recordType could be: instances, authorities, or contributors |
+| GET    | ~~`/search/instances/ids`~~   | (DEPRECATED) Stream instance ids as JSON or plain text                        |
+| GET    | ~~`/search/holdings/ids`~~    | (DEPRECATED) Stream holding record ids as JSON or plain text                  |
+
+#### Searching and filtering
+
+The main endpoint that provides search capabilities is `GET /search/instances`. It consumes following
+request parameters:
+
+| Name      | Required              | Default value | Description                                                                        |
+|:----------|:----------------------|:--------------|:-----------------------------------------------------------------------------------|
+| query     | Yes                   | -             | A CQL query to execute                                                             |
+| limit     | No (default to 100)   | 100           | Maximum number of records to fetch                                                 |
+| offset    | No (default to 0)     | 0             | Instructs to skip first N records that matches the query                           |
+| expandAll | No (default to false) | false         | If false than only _*basic_ instance properties returned, otherwise all properties |
+
+> *_Basic fields for instances search are following:_
+> * _id_
+> * _title_
+> * _contributors_
+> * _publication_
+
+> *_Basic fields for authorities search are following:_
+> * _id_
+> * _headingType_
+> * _authRefType_
+> * _headingRef_
+
+##### Matching all records
 
 A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest option)
-or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query,
-for example `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending`
+or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query.
+Examples:
 
-- `cql.allRecords=1 NOT contributors=Smith` matches all records where contributors name does not contain `Smith`
-as a word.
+- `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does not contain `Smith` as a word.
+- `id=* NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does not contain `Smith` as a word.
 
-### Matching undefined or empty values
+##### Matching undefined or empty values
 
 A relation does not match if the value on the left-hand side is undefined.
 A negation (using NOT) of a relation matches if the value on the left-hand side is not defined or
@@ -344,7 +379,36 @@ if it is defined but doesn't match.
 - `name="" NOT name==""` matches all records where name is defined and not empty.
 - `languages == "[]"` for matching records where lang is defined and an empty array
 
-### Instance search options
+##### Search by all field values
+
+Search by all feature is optional and disabled by default. However, it can be enabled for tenant using
+following HTTP request:
+
+`POST /search/config/features`
+```json
+{
+  "feature": "search.all.fields",
+  "enabled": true
+}
+```
+Also, search by all fields can be enabled globally by passing to mod-search service following ENV variable:
+
+```
+SEARCH_BY_ALL_FIELDS_ENABLED=true
+```
+
+By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and
+does not produce any values, so the following search options will return an empty result.
+
+| Option             |       Type        | Example                          | Description                                                                       |
+|:-------------------|:-----------------:|:---------------------------------|:----------------------------------------------------------------------------------|
+| `cql.all`          | full-text or term | `cql.all all "web semantic"`     | Matches instances that have given text in instance, item and holding field values |
+| `cql.allItems`     | full-text or term | `cql.allItems all "book"`        | Matches instances that have given text in item field values                       |
+| `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values                    |
+| `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values                   |
+
+
+##### Instance search options
 
 | Option                                 |   Type    | Example                                                           | Description                                                                                                          |
 |:---------------------------------------|:---------:|:------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
@@ -360,6 +424,9 @@ if it is defined but doesn't match.
 | `identifiers.value`                    |   term    | `identifiers.value = "1023*"`                                     | Matches instances with the given identifier value                                                                    |
 | `identifiers.identifierTypeId`         |   term    | `identifiers.identifierTypeId=="123" identifiers.value = "1023*"` | Matches instances that have an identifier if type `123` with value `1023*`                                           |
 | `contributors`                         | full-text | `contributors all "John"`                                         | Matches instances that have a `John` contributor                                                                     |
+| `contributors.name`                    |   term    | `contributors.name all "John"`                                    | Matches instances that have a primary `John` contributor                                                             |
+| `contributors.contributorTypeId`       |   term    | `contributors.contributorTypeId all "1234567"`                    | Matches instances that have a contributor type Id `1234567`                                                          |
+| `contributors.contributorNameTypeId`   |   term    | `contributors.contributorNameTypeId all "1234567"`                | Matches instances that have a contributor name type Id `1234567`                                                     |
 | `contributors.primary`                 |   term    | `contributors all "John" and contributors.primary==true`          | Matches instances that have a primary `John` contributor                                                             |
 | `subjects`                             | full-text | `subjects all "Chemistry"`                                        | Matches instances that have a `Chemistry` subject                                                                    |
 | `instanceTypeId`                       |   term    | `instanceTypeId == "123"`                                         | Matches instances with the `123` type                                                                                |
@@ -380,18 +447,21 @@ if it is defined but doesn't match.
 | `staffSuppress`                        |   term    | `staffSuppress==true`                                             | Matches instances that are staff suppressed                                                                          |
 | `discoverySuppress`                    |   term    | `discoverySuppress==true`                                         | Matches instances that are suppressed from discovery                                                                 |
 | `publicNotes`                          | full-text | `publicNotes all "public note"`                                   | Matches instances that have a public note (i.e. `note.staffOnly` is `false`)                                         |
+| `administrativeNotes`                  | full-text | `administrativeNotes all "librarian note"`                        | Search by administrative notes                                                                                       |
 | `notes.note`                           | full-text | `notes.note all "librarian note"`                                 | Search by instance notes (include staffOnly)                                                                         |
 | `isbn`                                 |   term    | `isbn="1234*"`                                                    | Matches instances that have an ISBN identifier with the given value                                                  |
 | `issn`                                 |   term    | `issn="1234*"`                                                    | Matches instances that have an ISSN identifier with the given value                                                  |
 | `oclc`                                 |   term    | `oclc="1234*"`                                                    | Matches instances that have an OCLC identifier with the given value                                                  |
 
-
-### Holdings-records search options
+##### Holdings search options
 
 | Option                                 |   Type    | Example                                              | Description                                                                                            |
 |:---------------------------------------|:---------:|:-----------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
 | `holdings.id`                          |   term    | `holdings.id=="1234567"`                             | Matches instances that have a holding with the id                                                      |
-| `holdings.permanentLocationId`         |   term    | `holdings.permanentLocationId=="123765"`             | Matches instances that have holdings with given permanentLocationId                                    |
+| `holdings.sourceId`                    |   term    | `holdings.sourceId=="FOLIO"`                         | Matches instances that have a holding with the source `FOLIO`                                          |
+| `holdings.holdingsTypeId`              |   term    | `holdings.holdingsTypeId=="1234567"`                 | Matches instances that have a holding with the holdings type id `1234567`                              |
+| `holdings.permanentLocationId`         |   term    | `holdings.permanentLocationId=="123765"`             | Matches instances that have holdings with given statisticalCodeId                                      |
+| `holdings.statisticalCodeIds`          |   term    | `holdings.statisticalCodeIds=="123765"`              | Matches instances that have holdings with given permanentLocationId                                    |
 | `holdings.discoverySuppress`           |   term    | `holdings.discoverySuppress==true`                   | Matches instances that have holdings suppressed/not suppressed from discovery                          |
 | `holdings.hrid`                        |   term    | `holdings.hrid=="hr10*3"`                            | Matches instances that have a holding with given HRID                                                  |
 | `holdingsTags`                         |   term    | `holdingsTags=="important"`                          | Matches instances that have holdings with given tags                                                   |
@@ -401,6 +471,7 @@ if it is defined but doesn't match.
 | `holdings.electronicAccess.uri`        |   term    | `holdings.electronicAccess.uri="http://folio.org*"`  | Search by electronic access URI                                                                        |
 | `holdings.electronicAccess.linkText`   | full-text | `holdings.electronicAccess.linkText="Folio website"` | Search by electronic access link text                                                                  |
 | `holdings.electronicAccess.publicNote` | full-text | `holdings.electronicAccess.publicNote="a rare book"` | Search by electronic access public note                                                                |
+| `holdings.administrativeNotes`         | full-text | `holdings.administrativeNotes all "librarian note"`  | Search by holdings administrative notes                                                                |
 | `holdings.notes.note`                  | full-text | `holdings.notes.note all "librarian note"`           | Search by holdings notes                                                                               |
 | `holdingsTypeId`                       |   term    | `holdingsTypeId=="123"`                              | Search by holdings type id                                                                             |
 | `holdingsPublicNotes`                  | full-text | `holdingsPublicNotes all "public note"`              | Search by holdings public notes                                                                        |
@@ -408,7 +479,7 @@ if it is defined but doesn't match.
 | `holdings.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                | Matches instances with holdings that were created after  `2020-12-12`                                  |
 | `holdings.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                | Matches instances with holdings that were updated after  `2020-12-12`                                  |
 
-### Item search options
+##### Item search options
 
 | Option                             |   Type    | Example                                                      | Description                                                                                                         |
 |:-----------------------------------|:---------:|:-------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------|
@@ -416,6 +487,7 @@ if it is defined but doesn't match.
 | `item.hrid`                        |   term    | `item.hrid=="it001"`                                         | Matches instances that have an item with the HRID                                                                   |
 | `item.barcode`                     |   term    | `item.barcode=="10011"`                                      | Matches instances that have an item with the barcode                                                                |
 | `item.effectiveLocationId`         |   term    | `item.effectiveLocationId=="1212"`                           | Matches instances that have item with the effective location                                                        |
+| `item.statisticalCodeIds`          |   term    | `item.statisticalCodeIds=="1212"`                            | Matches instances that have item with the statistical code Id                                                       |
 | `item.status.name`                 |   term    | `item.status.name=="Available"`                              | Matches instances that have item with given status                                                                  |
 | `item.materialTypeId`              |   term    | `item.materialTypeId="23434"`                                | Matches instances that have item with given material type                                                           |
 | `item.discoverySuppress`           |   term    | `item.discoverySuppress=true`                                | Matches instances that have item suppressed/not suppressed from discovery                                           |
@@ -428,37 +500,15 @@ if it is defined but doesn't match.
 | `item.electronicAccess.uri`        |   term    | `item.electronicAccess.uri="http://folio.org*"`              | Search by electronic access URI                                                                                     |
 | `item.electronicAccess.linkText`   | full-text | `item.electronicAccess.linkText="Folio website"`             | Search by electronic access link text                                                                               |
 | `item.electronicAccess.publicNote` | full-text | `item.electronicAccess.publicNote="a rare book"`             | Search by electronic access public note                                                                             |
+| `item.administrativeNotes`         | full-text | `item.administrativeNotes all "librarian note"`              | Search by item administrative notes                                                                                 |
 | `item.notes.note`                  | full-text | `item.notes.note all "librarian note"`                       | Search by item notes and circulation notes                                                                          |
 | `item.circulationNotes.note`       | full-text | `item.circulationNotes.note all "circulation note"`          | Search by item circulation notes                                                                                    |
 | `itemPublicNotes`                  | full-text | `itemPublicNotes all "public note"`                          | Search by item public notes and circulation notes                                                                   |
 | `itemIdentifiers`                  |   term    | `itemIdentifiers all "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item Identifiers: `item.id`, `item.hrid`, `item.formerIds`, `item.accessionNumber`, `item.itemIdentifier` |
-| `item.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with item that were created after  `2020-12-12`                                                   |
-| `item.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with item that were updated after  `2020-12-12`                                                   |
+| `item.metadata.createdDate`        |   term    | `item.metadata.createdDate > "2020-12-12"`                   | Matches instances with item that were created after  `2020-12-12`                                                   |
+| `item.metadata.updatedDate`        |   term    | `item.metadata.updatedDate > "2020-12-12"`                   | Matches instances with item that were updated after  `2020-12-12`                                                   |
 
-### Items search options (Backward compatibility)
-
-| Option                              |   Type    | Example                                                      | Description                                                                                                                   |
-|:------------------------------------|:---------:|:-------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------|
-| `items.id`                          |   term    | `items.id=="1234567"`                                        | Matches instances that have an item with the id                                                                               |
-| `items.hrid`                        |   term    | `items.hrid=="it001"`                                        | Matches instances that have an item with the HRID                                                                             |
-| `items.barcode`                     |   term    | `items.barcode=="10011"`                                     | Matches instances that have an item with the barcode                                                                          |
-| `items.effectiveLocationId`         |   term    | `items.effectiveLocationId=="1212"`                          | Matches instances that have items with the effective location                                                                 |
-| `items.status.name`                 |   term    | `items.status.name=="Available"`                             | Matches instances that have items with given status                                                                           |
-| `items.materialTypeId`              |   term    | `items.materialTypeId="23434"`                               | Matches instances that have items with given material type                                                                    |
-| `items.discoverySuppress`           |   term    | `items.discoverySuppress=true`                               | Matches instances that have items suppressed/not suppressed from discovery                                                    |
-| `items.fullCallNumber`              |   term    | `itemFullCallNumbers="cn*434"`                               | Matches instances that have items with given call number string (prefix + call number + suffix)                               |
-| `items.normalizedCallNumbers`       |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have items with given call number and might not be formatted correctly                                 |
-| `items.electronicAccess`            | full-text | `items.electronicAccess any "resource"`                      | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                        |
-| `items.effectiveShelvingOrder`      |   term    | `items.effectiveShelvingOrder="A 12"`                        | Matches instances that have items with given `effectiveShelvingOrder` value                                                   |
-| `items.electronicAccess.uri`        |   term    | `items.electronicAccess.uri="http://folio.org*"`             | Search by electronic access URI                                                                                               |
-| `items.electronicAccess.linkText`   | full-text | `items.electronicAccess.linkText="Folio website"`            | Search by electronic access link text                                                                                         |
-| `items.electronicAccess.publicNote` | full-text | `items.electronicAccess.publicNote="a rare book"`            | Search by electronic access public note                                                                                       |
-| `items.notes.note`                  | full-text | `items.notes.note all "librarian note"`                      | Search by item notes and circulation notes                                                                                    |
-| `items.circulationNotes.note`       | full-text | `items.circulationNotes.note all "circulation note"`         | Search by item circulation notes                                                                                              |
-| `items.metadata.createdDate`        |   term    | `metadata.createdDate > "2020-12-12"`                        | Matches instances with items that were created after  `2020-12-12`                                                            |
-| `items.metadata.updatedDate`        |   term    | `metadata.updatedDate > "2020-12-12"`                        | Matches instances with items that were updated after  `2020-12-12`                                                            |
-
-### Authority search options
+##### Authority search options
 
 | Option                     |   Type    | Example                                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 |:---------------------------|:---------:|:----------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -503,73 +553,23 @@ if it is defined but doesn't match.
 | `sftGenreTerm`             | full-text | `sftGenreTerm any "novel"`                    | Matches authorities with `novel` sft genre term                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `saftGenreTerm`            | full-text | `saftGenreTerm any "novel"`                   | Matches authorities with `novel` saft genre term                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-### Contributors search options
+##### Contributors search options
 
 | Option                  | Type | Example                             | Description                                     |
 |:------------------------|:----:|:------------------------------------|:------------------------------------------------|
 | `contributorNameTypeId` | term | `contributorNameTypeId == "123456"` | Matches contributors with `123456` name type id |
 
-
-### Search by all field values
-
-Search by all feature is optional and disabled by default. However, it can be enabled for tenant using
-following HTTP request:
-
-`POST /search/config/features`
-```json
-{
-  "feature": "search.all.fields",
-  "enabled": true
-}
-```
-Also, search by all fields can be enabled globally by passing to mod-search service following ENV variable:
-
-```
-SEARCH_BY_ALL_FIELDS_ENABLED=true
-```
-
-By default, indexing processors for fields `cql.allInstance`, `cql.allItems`, `cql.allHoldings` are disabled and
-does not produce any values, so the following search options will return an empty result.
-
-| Option             |       Type        | Example                          | Description                                                                       |
-|:-------------------|:-----------------:|:---------------------------------|:----------------------------------------------------------------------------------|
-| `cql.all`          | full-text or term | `cql.all all "web semantic"`     | Matches instances that have given text in instance, item and holding field values |
-| `cql.allItems`     | full-text or term | `cql.allItems all "book"`        | Matches instances that have given text in item field values                       |
-| `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values                    |
-| `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values                   |
-
-## Records browsing
-
-Supported browsing values
-
-* subject (`${okapi}/browse/subjects/instances`)
-* contributor (`${okapi}/browse/contributors/instances`)
-* callNumber (`${okapi}/browse/call-numbers/instances`, approach: [call number browsing](doc/browsing.md#call-number-browsing))
-
-**Query parameters**
-
-| Parameter             | Type    | Default value | Description                                                                                         |
-|:----------------------|:--------|:--------------|:----------------------------------------------------------------------------------------------------|
-| query                 | string  | -             | A Cql query for call-number browsing (check the query syntax [here](doc/browsing.md#query-syntax)   |
-| limit                 | integer | 100           | Number of records in response                                                                       |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource by call number (or add empty object containing anchor) or not |
-| precedingRecordsCount | integer | ${limit} / 2  | Amount of preceding records for browsing around                                                     |
-
-The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
-only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
-to `true`.
-
-## Search Facets
+#### Search Facets
 
 Facets can be retrieved by using following API `GET /{recordType}/facets`. It consumes following request parameters:
 
-| Name       | Required | Description                                                                                                                                                                                |
-|:-----------|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| recordType |   Yes    | An Enum contains variables: authorities, instances                                                                                                                                         |
-| query      |   Yes    | A CQL query to execute                                                                                                                                                                     |
-| facet      |   Yes    | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
+| Parameter    | Required | Description                                                                                                                                                                                |
+|:-------------|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `recordType` |   Yes    | Type of record: authorities, instances, or contributors                                                                                                                                    |
+| `query`      |   Yes    | A CQL query to search by                                                                                                                                                                   |
+| `facet`      |   Yes    | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
 
-Spring Boot supports 2 forms of query parameters for the `facet` parameter:
+The module supports 2 forms of query parameters for the `facet` parameter:
 
 ```text
 GET /instances/facets?query=title all book&facet=source:5&facet=discoverySuppress:2
@@ -581,7 +581,7 @@ or
 GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 ```
 
-### Instance facets
+##### Instance facets
 
 | Option                   |  Type   | Description                                                          |
 |:-------------------------|:-------:|:---------------------------------------------------------------------|
@@ -598,7 +598,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `statisticalCodeIds`     |  term   | Requests a statistical code ids facet                                |
 | `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, item facet  |
 
-### Holding facets
+##### Holdings facets
 
 | Option                         | Type | Description                                     |
 |:-------------------------------|:----:|:------------------------------------------------|
@@ -609,41 +609,31 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `holdingsTypeId`               | term | Requests a holdings typeId facet                |
 | `holdingsTags`                 | term | Requests a holdings tag facet                   |
 
-### Item facets
+##### Item facets
 
-| Option                      |  Type   | Description                                  |
-|:----------------------------|:-------:|:---------------------------------------------|
-| `item.effectiveLocationId`  |  term   | Requests an item effective location id facet |
-| `item.status.name`          |  term   | Requests an item status facet                |
-| `item.materialTypeId`       |  term   | Requests an item material type id facet      |
-| `item.discoverySuppress`    | boolean | Requests an item discovery suppress facet    |
-| `item.statisticalCodeIds`   | boolean | Requests an item statistical code ids facet  |
-| `itemTags`                  |  term   | Requests an item tag facet                   |
+| Option                     |  Type   | Description                                  |
+|:---------------------------|:-------:|:---------------------------------------------|
+| `item.effectiveLocationId` |  term   | Requests an item effective location id facet |
+| `item.status.name`         |  term   | Requests an item status facet                |
+| `item.materialTypeId`      |  term   | Requests an item material type id facet      |
+| `item.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
+| `item.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
+| `itemTags`                 |  term   | Requests an item tag facet                   |
 
-### Items facets (backward-compatibility)
-
-| Option                      |  Type   | Description                                  |
-|:----------------------------|:-------:|:---------------------------------------------|
-| `items.effectiveLocationId` |  term   | Requests an item effective location id facet |
-| `items.status.name`         |  term   | Requests an item status facet                |
-| `items.materialTypeId`      |  term   | Requests an item material type id facet      |
-| `items.discoverySuppress`   | boolean | Requests an item discovery suppress facet    |
-| `items.statisticalCodeIds`  | boolean | Requests an item statistical code ids facet  |
-
-### Authority facets
+##### Authority facets
 
 | Option            | Type | Description                       |
 |:------------------|:----:|:----------------------------------|
 | `headingType`     | term | Requests a heading type facet     |
 | `subjectHeadings` | term | Requests a subject headings facet |
 
-### Contributors facets
+##### Contributors facets
 
 | Option                  | Type | Description                            |
 |:------------------------|:----:|:---------------------------------------|
 | `contributorNameTypeId` | term | Requests a contributor name type facet |
 
-## Sorting results
+#### Sorting results
 
 The default sorting is by relevancy. The `sortBy` clause is used to define sorting, for example:
 ```
@@ -651,7 +641,7 @@ title all "semantic web" sortBy title/sort.descending - sort by title in descend
 ```
 In case where options are similar, secondary sort is used
 
-### Instance sort options
+##### Instance sort options
 
 | Option              |   Type    | Secondary sort | Description                    |
 |:--------------------|:---------:|:---------------|:-------------------------------|
@@ -660,7 +650,7 @@ In case where options are similar, secondary sort is used
 | `items.status.name` |   term    | `title`        | Sort instances by status       |
 | `item.status.name`  |   term    | `title`        | Sort instances by status       |
 
-### Authority sort options
+##### Authority sort options
 
 | Option        | Type | Secondary sort | Description                             |
 |:--------------|:----:|:---------------|:----------------------------------------|
@@ -668,8 +658,35 @@ In case where options are similar, secondary sort is used
 | `headingType` | term | `headingRef`   | Sort authorities by Type of heading     |
 | `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
 
-## Stream IDs by CQL query
-### Authorities
+### Browse API
+
+| METHOD | URL                              | DESCRIPTION                                                                                     |
+|:-------|:---------------------------------|:------------------------------------------------------------------------------------------------|
+| GET    | `/browse/subjects/instances`     | Browse by instance's subjects                                                                   |
+| GET    | `/browse/contributors/instances` | Browse by instance's contributors                                                               |
+| GET    | `/browse/call-numbers/instances` | Browse by instance's call-numbers. [call number browsing](doc/browsing.md#call-number-browsing) |
+| GET    | `/browse/authorities`            | Browse by authority's headings                                                                  |
+
+**Query parameters**
+
+| Parameter             | Type    | Default value | Description                                                                          |
+|:----------------------|:--------|:--------------|:-------------------------------------------------------------------------------------|
+| query                 | string  | -             | A CQL query for browsing                                                             |
+| limit                 | integer | 100           | Number of records in response                                                        |
+| highlightMatch        | boolean | true          | Whether to highlight matched resource (or add empty object containing anchor) or not |
+| precedingRecordsCount | integer | limit / 2     | Amount of preceding records for browsing around                                      |
+
+The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
+only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
+For call-number browsing check the query syntax [here](doc/browsing.md#query-syntax)
+
+### Resource IDs streaming API
+
+| METHOD | URL                                  | DESCRIPTION                                                |
+|:-------|:-------------------------------------|:-----------------------------------------------------------|
+| POST   | `/search/resources/jobs`             | Create a job for Resource IDs streaming based on CQL-query |
+| GET    | `/search/resources/jobs/{jobId}`     | Retrieve a job status                                      |
+| GET    | `/search/resources/jobs/{jobId}/ids` | Retrieve result of the job, that contains resource IDs     |
 
 The process of retrieving ids has two steps:
 - Create a job with a CQL query

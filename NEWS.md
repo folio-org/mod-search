@@ -1,3 +1,12 @@
+## 1.8.0 IN-PROGRESS
+* MSEARCH-349 Change Instance ids stream API to use jobs
+* MSEARCH-350 Change Holdings ids stream API to use jobs
+* MSEARCH-382 500 Error When searching by incorrect date
+* MSEARCH-385 Update module documentation
+* MSEARCH-390 Stream ids job freeze IN_PROGRESS if query is invalid
+* MSEARCH-392 Stream ids job, relation doesn't exist while using multi tenant
+* MSEARCH-396 Supports users interface versions 15.3 16.0
+
 ## 1.7.4 2022-08-17
 * MSEARCH-401 Avoid using shelving order in call-number browsing
 

@@ -24,7 +24,7 @@ public class ResourceIdsTemporaryRepository {
     jdbcTemplate.execute(format("DROP TABLE IF EXISTS %s;", tableName));
   }
 
-  public void insertId(List<String> ids, String tableName) {
+  public void insertIds(List<String> ids, String tableName) {
     jdbcTemplate.batchUpdate(format("INSERT INTO %s (id) VALUES (?) ON CONFLICT (id) DO NOTHING;", tableName),
       ids, ids.size(), (ps, argument) -> ps.setString(1, argument));
   }

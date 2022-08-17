@@ -220,8 +220,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("identifiers.value all ({value})", "047144250X or 2003065165 or 0000-0000"),
       arguments("identifiers.value all ({value})", "047144250X and 2003065165 and 0317-8471"),
       arguments("identifiers.identifierTypeId == {value}", "c858e4f2-2b6b-4385-842b-60732ee14abb"),
-      arguments("identifiers.identifierTypeId == 8261054f-be78-422d-bd51-4ed9f33c3422 " +
-        "and identifiers.value == {value}", "0262012103"),
+      arguments("identifiers.identifierTypeId == 8261054f-be78-422d-bd51-4ed9f33c3422 "
+        + "and identifiers.value == {value}", "0262012103"),
 
       arguments("publisher all {value}", "MIT"),
       arguments("publisher all {value}", "mit"),

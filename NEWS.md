@@ -1,3 +1,6 @@
+## 1.7.4 2022-08-17
+* MSEARCH-401 Avoid using shelving order in call-number browsing
+
 ## 1.7.3 2022-08-10
 * MSEARCH-405 Fix NullPointer while reindexing contributors
 

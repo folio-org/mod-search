@@ -271,7 +271,7 @@
           "index": "keyword"
         },
         "identifierTypeId": {
-          "index": "source"
+          "index": "keyword"
         }
       }
     },

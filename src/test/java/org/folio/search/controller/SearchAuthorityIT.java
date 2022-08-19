@@ -220,6 +220,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
         "authority-identifier or 3114176276 or 0000-0000"),
       arguments(specifyCommonField("identifiers.value all ({value})"),
         "authority-identifier and 3114176276 and 3745-1086"),
+      arguments(specifyCommonField("identifiers.identifierTypeId == {value}"), "d6f3c637-3969-4dc6-9146-6371063f049e"),
+      arguments(specifyCommonField("identifiers.identifierTypeId == caaf835f-2037-46c5-9c62-71abaaaa78c5 "
+        + "and identifiers.value == {value}"), "authority-identifier"),
 
       arguments(specifyCommonField("subjectHeadings all {value}"), "\"a subject heading\""),
       arguments(specifyCommonField("subjectHeadings == {value}"), "\"a sub*\"")

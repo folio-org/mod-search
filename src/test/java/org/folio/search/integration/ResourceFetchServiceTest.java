@@ -61,10 +61,14 @@ class ResourceFetchServiceTest {
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
-      resourceEvent(instanceId1, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null)),
+      resourceEvent(instanceId1, INSTANCE_RESOURCE,
+        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
+            "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of())),
       resourceEvent(instanceId2, INSTANCE_RESOURCE, UPDATE,
         mapOf("id", instanceId2, "title", "inst2",
-          "holdings", List.of(mapOf("id", "holdingId")), "items", List.of(mapOf("id", "itemId")), "isBoundWith", true),
+          "holdings", List.of(mapOf("id", "holdingId", "electronicAccess", List.of(), "notes", List.of())),
+          "items", List.of(mapOf("id", "itemId", "notes", List.of())),
+          "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
         mapOf("id", instanceId2, "title", "old"))
     ));
   }
@@ -81,9 +85,9 @@ class ResourceFetchServiceTest {
       .thenReturn(asSinglePage(List.of(instanceView)));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
-    assertThat(actual).isEqualTo(List.of(
-      resourceEvent(instanceId1, INSTANCE_RESOURCE, mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null))
-    ));
+    assertThat(actual).isEqualTo(List.of(resourceEvent(instanceId1, INSTANCE_RESOURCE,
+        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
+            "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))));
   }
 
   @Test
@@ -100,7 +104,9 @@ class ResourceFetchServiceTest {
 
     var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
     assertThat(actual).isEqualTo(List.of(
-      resourceEvent(invalidId, INSTANCE_RESOURCE, mapOf("id", invalidId, "title", "inst1", "isBoundWith", null))
+      resourceEvent(invalidId, INSTANCE_RESOURCE,
+          mapOf("id", invalidId, "title", "inst1", "isBoundWith", null,
+              "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))
     ));
   }
 

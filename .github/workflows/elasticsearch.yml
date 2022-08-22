@@ -1,0 +1,17 @@
+name: elasticsearch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'maven'
+    - run: export SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch/Dockerfile"; mvn clean install
+

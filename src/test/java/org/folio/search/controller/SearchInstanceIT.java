@@ -105,7 +105,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
       .andExpect(jsonPath("totalRecords", is(1)))
       // make sure that no unexpected properties are present
-      .andExpect(jsonPath("instances[0].length()", is(8)));
+      .andExpect(jsonPath("instances[0].length()", is(11)));
 
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
     assertThat(actual.getId(), is(expected.getId()));
@@ -123,6 +123,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
         .effectiveCallNumberComponents(callNumber("prefix-90000", "suffix-90000"))
         .effectiveShelvingOrder("TK 45105.88815 A58 42004 FT MEADE")
     )));
+    assertThat(actual.getHoldings(), is(List.of()));
+    assertThat(actual.getElectronicAccess(), is(List.of()));
+    assertThat(actual.getNotes(), is(List.of()));
   }
 
   @Test

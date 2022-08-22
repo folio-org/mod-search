@@ -154,7 +154,7 @@ These languages will be added on tenant init and applied to index. Example usage
 
 ### Configuring Elasticsearch
 
-#### Configuring on-premise OpenSearch instance
+#### Configuring on-premise Elasticsearch instance
 
 It is required to install some required plugins for your search engine instance, here is the list:
 * analysis-icu

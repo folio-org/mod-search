@@ -194,7 +194,7 @@
   "requires": [
     {
       "id": "instance-storage",
-      "version": "7.5 8.0"
+      "version": "7.5 8.0 9.0"
     },
     {
       "id": "login",

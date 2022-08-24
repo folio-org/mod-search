@@ -1,4 +1,4 @@
-FROM elasticsearch:8.0.1
+FROM elasticsearch:7.17.5
 
 # Switch from /dev/random to /dev/urandom, otherwise the plugin installer needs many minutes to get
 # random numbers to verify the signature of the downloaded plugins.

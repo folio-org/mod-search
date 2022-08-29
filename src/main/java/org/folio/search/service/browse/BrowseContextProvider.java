@@ -8,6 +8,7 @@ import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpt
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -115,8 +116,12 @@ public class BrowseContextProvider {
 
   static boolean isValidRangeQuery(String targetField, String subField, QueryBuilder q) {
     if (q instanceof RangeQueryBuilder) {
-      var query = (RangeQueryBuilder) q;
-      return targetField.equals(query.fieldName()) || subField.equals(query.fieldName());
+      var fieldName = ((RangeQueryBuilder) q).fieldName();
+      var isTargetValid = targetField.equals(fieldName);
+      if (!isTargetValid && subField != null) {
+        return subField.equals(fieldName);
+      }
+      return isTargetValid;
     }
     return false;
   }

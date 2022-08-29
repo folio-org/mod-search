@@ -78,6 +78,7 @@ public class KafkaMessageProducer {
       .name(contributor.getName())
       .nameTypeId(contributor.getContributorNameTypeId())
       .typeId(contributor.getContributorTypeId())
+      .authorityId(contributor.getAuthorityId())
       .build();
   }
 
@@ -103,7 +104,9 @@ public class KafkaMessageProducer {
   }
 
   private String getContributorId(String tenantId, Contributor contributor) {
-    return sha1Hex(tenantId + "|" + //NOSONAR
-      contributor.getContributorNameTypeId() + "|" + toRootLowerCase(contributor.getName()));
+    return sha1Hex(tenantId
+      + "|" + contributor.getContributorNameTypeId()
+      + "|" + toRootLowerCase(contributor.getName())
+      + "|" + contributor.getAuthorityId());
   }
 }

@@ -12,4 +12,5 @@ public class ContributorEvent {
   String name;
   String nameTypeId;
   String typeId;
+  String authorityId;
 }

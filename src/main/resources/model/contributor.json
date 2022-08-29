@@ -21,6 +21,10 @@
     },
     "instances": {
       "index": "source"
+    },
+    "authorityId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
     }
   }
 }

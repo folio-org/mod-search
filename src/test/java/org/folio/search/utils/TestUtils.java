@@ -198,8 +198,9 @@ public class TestUtils {
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
-                                                                    String nameTypeId, String... typeIds) {
-    return contributorBrowseItem(totalRecords, false, name, nameTypeId, typeIds);
+                                                                    String nameTypeId, String authorityId,
+                                                                    String... typeIds) {
+    return contributorBrowseItem(totalRecords, false, name, nameTypeId, authorityId, typeIds);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
@@ -207,11 +208,13 @@ public class TestUtils {
     return new InstanceContributorBrowseItem().name(name).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
-  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name,
-                                                                    String nameTypeId, String... typeIds) {
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
+                                                                    String name, String nameTypeId,
+                                                                    String authorityId, String... typeIds) {
     return new InstanceContributorBrowseItem()
       .name(name)
       .contributorNameTypeId(nameTypeId)
+      .authorityId(authorityId)
       .contributorTypeId(typeIds != null ? Arrays.asList(typeIds) : null)
       .totalRecords(totalRecords)
       .isAnchor(isAnchor);

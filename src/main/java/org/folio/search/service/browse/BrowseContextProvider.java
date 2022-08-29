@@ -42,7 +42,7 @@ public class BrowseContextProvider {
 
     var query = searchSource.query();
     if (!isBoolQuery(query)) {
-      if (!isValidRangeQuery(request.getTargetField(), query)) {
+      if (!isValidRangeQuery(request.getTargetField(), request.getSubField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
@@ -52,7 +52,7 @@ public class BrowseContextProvider {
     var filters = boolQuery.filter();
     var shouldClauses = boolQuery.should();
 
-    if (isValidAroundQuery(request.getTargetField(), shouldClauses)) {
+    if (isValidAroundQuery(request.getTargetField(), request.getSubField(), shouldClauses)) {
       return createContextForBrowsingAround(request, filters, shouldClauses);
     }
 
@@ -65,7 +65,7 @@ public class BrowseContextProvider {
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
-        if (isValidAroundQuery(request.getTargetField(), subShouldClauses)) {
+        if (isValidAroundQuery(request.getTargetField(), request.getSubField(), subShouldClauses)) {
           return createContextForBrowsingAround(request, filters, subShouldClauses);
         }
       }
@@ -113,12 +113,16 @@ public class BrowseContextProvider {
     return predicate.test(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
   }
 
-  static boolean isValidRangeQuery(String targetField, QueryBuilder q) {
-    return q instanceof RangeQueryBuilder && targetField.equals(((RangeQueryBuilder) q).fieldName());
+  static boolean isValidRangeQuery(String targetField, String subField, QueryBuilder q) {
+    if (q instanceof RangeQueryBuilder) {
+      var query = (RangeQueryBuilder) q;
+      return targetField.equals(query.fieldName()) || subField.equals(query.fieldName());
+    }
+    return false;
   }
 
-  private static boolean isValidAroundQuery(String targetField, List<QueryBuilder> queries) {
-    if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, query))) {
+  private static boolean isValidAroundQuery(String targetField, String subField, List<QueryBuilder> queries) {
+    if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, subField, query))) {
       var firstClause = (RangeQueryBuilder) queries.get(0);
       var secondClause = (RangeQueryBuilder) queries.get(1);
       return firstClause.from() != null && secondClause.from() == null

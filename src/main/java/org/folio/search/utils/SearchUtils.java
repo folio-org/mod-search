@@ -49,6 +49,7 @@ public class SearchUtils {
   public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
+  public static final String SHELVING_ORDER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
   public static final String SUBJECT_BROWSING_FIELD = "subject";
   public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";

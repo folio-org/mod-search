@@ -8,7 +8,6 @@ import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpt
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-
 import lombok.RequiredArgsConstructor;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;

@@ -50,7 +50,7 @@ application:
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
-      browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:false}
+      browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
     indexing:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}

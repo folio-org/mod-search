@@ -50,8 +50,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       var documents = entry.getValue();
       var instanceIdsToCreate = new HashSet<String>();
       var instanceIdsToDelete = new HashSet<String>();
-      var nameIdsToCreate = new HashSet<String>();
-      var nameIdsToDelete = new HashSet<String>();
+      var typeIdsToCreate = new HashSet<String>();
+      var typeIdsToDelete = new HashSet<String>();
       for (var document : documents) {
         var eventPayload = getPayload(document);
         var action = document.getAction();
@@ -60,10 +60,10 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         var pair = instanceId + "|" + typeId;
         if (action == IndexActionType.INDEX) {
           instanceIdsToCreate.add(pair);
-          nameIdsToCreate.add(typeId);
+          typeIdsToCreate.add(typeId);
         } else {
           instanceIdsToDelete.add(pair);
-          nameIdsToDelete.add(typeId);
+          typeIdsToDelete.add(typeId);
         }
       }
 
@@ -75,7 +75,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         .script(new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT_1,
           Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete)))
         .upsert(getContributorJsonBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),
-          subtractSorted(nameIdsToCreate, nameIdsToDelete)), JSON);
+          subtractSorted(typeIdsToCreate, typeIdsToDelete)), JSON);
 
       bulkRequest.add(upsertRequest);
     }
@@ -87,13 +87,14 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
            : getSuccessIndexOperationResponse();
   }
 
-  private String getContributorJsonBody(ContributorEvent payload, Set<String> instanceIds, Set<String> nameTypeIds) {
+  private String getContributorJsonBody(ContributorEvent payload, Set<String> instanceIds, Set<String> typeIds) {
     var resource = new ContributorResource();
     resource.setId(payload.getId());
     resource.setName(payload.getName());
-    resource.setContributorTypeId(nameTypeIds);
+    resource.setContributorTypeId(typeIds);
     resource.setContributorNameTypeId(payload.getNameTypeId());
     resource.setInstances(instanceIds);
+    resource.setAuthorityId(payload.getAuthorityId());
     return jsonConverter.toJson(resource);
   }
 

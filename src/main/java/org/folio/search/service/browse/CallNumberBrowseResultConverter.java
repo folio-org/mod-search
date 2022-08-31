@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
+import static org.folio.search.utils.CollectionUtils.distinctByKey;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
@@ -18,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -105,12 +107,12 @@ public class CallNumberBrowseResultConverter {
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));
 
     return toStreamSafe(browseItem.getInstance().getItems())
-      .map(Item::getEffectiveShelvingOrder)
+      .map(Item::getEffectiveShelvingOrder).distinct()
       .filter(StringUtils::isNotBlank)
-      .distinct()
       .map(StringUtils::toRootUpperCase)
       .filter(shelfKey -> shelfKey.compareTo(lower) >= 0 && shelfKey.compareTo(upper) <= 0)
       .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))))
+      .filter(distinctByKey(CallNumberBrowseItem::getFullCallNumber))
       .collect(toList());
   }
 

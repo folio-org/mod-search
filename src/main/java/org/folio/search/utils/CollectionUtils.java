@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -274,6 +275,11 @@ public final class CollectionUtils {
       }
     }
     return true;
+  }
+
+  public static <T> Predicate<T> distinctByKey(Function<? super T, ?> function) {
+    Set<Object> seen = ConcurrentHashMap.newKeySet();
+    return t -> seen.add(function.apply(t));
   }
 
   /**

@@ -170,36 +170,40 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
         ))),
 
-      //TODO: fix this test
       // checks order of closely placed call-numbers
-      //      arguments(aroundIncludingQuery, secondAnchorCallNumber, 25, new CallNumberBrowseResult()
-      //        .totalRecords(50).prev("DA 3870 H47 41975").next("E 211 N52 VOL 14").items(List.of(
-      //          cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
-      //          cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
-      //          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
-      //          cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5"),
-      //          cnBrowseItem(instance("instance #01"), "DA 3880 O6 J72"),
-      //          cnBrowseItem(instance("instance #03"), "DA 3880 O6 L5 41955"),
-      //          cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V3"),
-      //          cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
-      //          cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
-      //          cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
-      //          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-      //          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-      //          cnBrowseItem(0, "DA 3890 A1", true),
-      //          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-      //          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
-      //          cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
-      //          cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-      //          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1"),
-      //          cnBrowseItem(instance("instance #28"), "DB 11 A31 BD 3124"),
-      //          cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
-      //          cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
-      //          cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
-      //          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
-      //          cnBrowseItem(instance("instance #27"), "E 211 A506"),
-      //          cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14")
-      //        ))),
+      arguments(aroundIncludingQuery, secondAnchorCallNumber, 30, new CallNumberBrowseResult()
+        .totalRecords(50).prev("DA 3870 H47 41975").next("E 211 N52 VOL 14").items(List.of(
+          cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
+          cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
+          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V1"),
+          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V2"),
+          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
+          cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5"),
+          cnBrowseItem(instance("instance #01"), "DA 3880 O6 J72"),
+          cnBrowseItem(instance("instance #03"), "DA 3880 O6 L5 41955"),
+          cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V1"),
+          cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V2"),
+          cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
+          cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
+          cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
+          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
+          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
+          cnBrowseItem(0, "DA 3890 A1", true),
+          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
+          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
+          cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
+          cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
+          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1"),
+          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V2"),
+          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V3"),
+          cnBrowseItem(instance("instance #28"), "DB 11 A31 BD 3124"),
+          cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
+          cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
+          cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
+          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
+          cnBrowseItem(instance("instance #27"), "E 211 A506"),
+          cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14")
+        ))),
 
       // checks if collapsing by the same result works correctly
       arguments(aroundIncludingQuery, "FC", 5, new CallNumberBrowseResult()
@@ -369,7 +373,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       List.of("instance #03", List.of("DA 3880 O6 L5 41955")),
       List.of("instance #04", List.of("CE 16 D86 X 41998")),
       List.of("instance #05", List.of("DA 3880 O6 M15")),
-      List.of("instance #06", List.of("DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2", "DA 3880 O6 L6 V3")),
+      List.of("instance #06", List.of("DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2", "DA 3880 O6 L6 V2")),
       List.of("instance #07", List.of("DA 3870 H47 41975")),
       List.of("instance #08", List.of("AC 11 A67 X 42000")),
       List.of("instance #09", List.of("DA 3700 C95 NO 18")),

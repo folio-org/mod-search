@@ -277,9 +277,16 @@ public final class CollectionUtils {
     return true;
   }
 
-  public static <T> Predicate<T> distinctByKey(Function<? super T, ?> function) {
+  /**
+   * Return {@link Predicate} to distinct objects by single key.
+   *
+   * @param keyExtractor - function to extract value
+   * @param <T>      generic type of object to distinct
+   * @return {@link Predicate} that maintains a state about what it has seen before
+   */
+  public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
-    return t -> seen.add(function.apply(t));
+    return t -> seen.add(keyExtractor.apply(t));
   }
 
   /**

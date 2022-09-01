@@ -19,6 +19,10 @@
       "type": "string",
       "description": "Contributor type terms defined by the MARC code list for relators"
     },
+    "authorityId": {
+      "type": "string",
+      "description": "ID of authority record that controls the contributor"
+    },
     "primary": {
       "type": "boolean",
       "description": "Whether this is the primary contributor"

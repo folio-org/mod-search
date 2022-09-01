@@ -247,7 +247,7 @@ paths:
           description: 'Search result for browsing by contributor'
           content:
             application/json:
-              example: examples/searchResult.sample
+              example: examples/browseContributorsResult.sample
               schema:
                 $ref: '#/components/schemas/contributorBrowseResult'
         '400':

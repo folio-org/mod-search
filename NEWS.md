@@ -1,3 +1,6 @@
+## 1.7.5 2022-09-02
+* MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing
+
 ## 1.7.4 2022-08-17
 * MSEARCH-401 Avoid using shelving order in call-number browsing
 

@@ -36,6 +36,11 @@ public class BrowseRequest implements ResourceRequest {
   private final String targetField;
 
   /**
+   * Sub-field for browsing.
+   */
+  private final String subField;
+
+  /**
    * Whether to return only basic properties or entire instance.
    */
   private final Boolean expandAll;

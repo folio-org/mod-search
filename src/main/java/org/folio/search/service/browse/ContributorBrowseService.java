@@ -60,6 +60,7 @@ public class ContributorBrowseService extends
         .name(item.getName())
         .contributorTypeId(toListSafe(item.getContributorTypeId()))
         .contributorNameTypeId(item.getContributorNameTypeId())
+        .authorityId(item.getAuthorityId())
         .isAnchor(isAnchor)
         .totalRecords(calculateTotalRecords(item)));
   }

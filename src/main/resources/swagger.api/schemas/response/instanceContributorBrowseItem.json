@@ -19,6 +19,10 @@
       "type": "string",
       "description": "Contributor type terms defined by the MARC code list for relators"
     },
+    "authorityId": {
+      "type": "string",
+      "description": "ID of authority record that controls the contributor"
+    },
     "isAnchor": {
       "type": "boolean",
       "description": "Marks if current value is anchor or not"

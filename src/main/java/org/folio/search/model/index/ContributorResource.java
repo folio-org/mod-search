@@ -14,5 +14,7 @@ public class ContributorResource {
 
   private String contributorNameTypeId;
 
+  private String authorityId;
+
   private Set<String> instances;
 }

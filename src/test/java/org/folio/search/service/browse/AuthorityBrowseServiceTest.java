@@ -73,7 +73,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_forward() {
     var query = "headingRef > s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 5);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
@@ -91,14 +91,14 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_forward_expandAllIsFalse() {
     var query = "headingRef > s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, false, false, 5);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, false, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
-    var expectedSearchSource = searchSource("s0", 6, ASC).fetchSource(new String[] {"id", "headingRef"}, null);
+    var expectedSearchSource = searchSource("s0", 6, ASC).fetchSource(new String[]{"id", "headingRef"}, null);
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[] {"id", "headingRef"});
+    when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[]{"id", "headingRef"});
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
 
@@ -111,7 +111,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_backward() {
     var query = "headingRef < s4";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, true, false, 3);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, null, true, false, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lt("s4");
     var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
 
@@ -130,7 +130,8 @@ class AuthorityBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_forwardIncluding(boolean highlightMatch) {
     var query = "headingRef >= s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, highlightMatch, 5);
+    var request =
+      BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
@@ -149,7 +150,8 @@ class AuthorityBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_forwardIncluding_searchResultLowerThanLimit(boolean highlightMatch) {
     var query = "headingRef >= s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 10, TARGET_FIELD, true, highlightMatch, 5);
+    var request =
+      BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 10, TARGET_FIELD, null, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(10).anchor("s0").build();
 
@@ -168,7 +170,8 @@ class AuthorityBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_forwardIncludingAnchorNotFound(boolean highlightMatch) {
     var query = "headingRef >= s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, highlightMatch, 5);
+    var request =
+      BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
 
@@ -187,7 +190,8 @@ class AuthorityBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_backwardIncluding(boolean highlightMatch) {
     var query = "headingRef <= s4";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, true, highlightMatch, 3);
+    var request =
+      BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 3, TARGET_FIELD, null, true, highlightMatch, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lte("s4");
     var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
 
@@ -205,7 +209,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_around() {
     var query = "headingRef > s0 or headingRef < s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request,
@@ -220,7 +224,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_aroundWithoutHighlighting() {
     var query = "headingRef > s0 or headingRef < s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request,
@@ -235,7 +239,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_aroundIncluding() {
     var query = "headingRef < s0 or headingRef >= s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -253,7 +257,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingWithoutHighlighting() {
     var query = "headingRef < s0 or headingRef >= s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -271,7 +275,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingMissingAnchor() {
     var query = "headingRef <= s0 or headingRef > s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, true, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -289,7 +293,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingMissingAnchorWithoutHighlighting() {
     var query = "headingRef <= s0 or headingRef > s0";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, true, false, 2);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 5, TARGET_FIELD, null, true, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -307,7 +311,7 @@ class AuthorityBrowseServiceTest {
   private static SearchSourceBuilder searchSource(String heading, int size, SortOrder sortOrder) {
     return SearchSourceBuilder.searchSource()
       .query(boolQuery().filter(termsQuery("authRefType", "Authorized", "Reference")))
-      .searchAfter(new String[] {heading}).from(0).size(size)
+      .searchAfter(new String[]{heading}).from(0).size(size)
       .sort(fieldSort(TARGET_FIELD).order(sortOrder))
       .fetchSource((String[]) null, null);
   }

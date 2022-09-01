@@ -79,7 +79,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(11, "A 13", "C 12", List.of(
       cnBrowseItem(instance("A3"), "A3"),
       cnBrowseItem(instance("A4"), "A4"),
       cnBrowseItem(0, "B", true),
@@ -159,7 +159,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, "C1", null, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, "C 11", null, List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -189,7 +189,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "C1", "C2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "C 11", "C 12", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -223,7 +223,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A 12", List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
   }
 
@@ -241,7 +241,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", "A5", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "A 14", "A 15", List.of(
       cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
   }
 

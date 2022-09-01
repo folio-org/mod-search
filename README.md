@@ -335,7 +335,7 @@ CQL operators could have modifiers that change search behaviour
 
 | Operator | Modifier | Usage                            | Description                      |
 |:---------|:---------|:---------------------------------|:---------------------------------|
-| `==`     | `string` | `title ==\string "semantic web"` | Exact match for full text fields |
+| `==`     | `string` | `title ==/string "semantic web"` | Exact match for full text fields |
 
 ### Search API
 
@@ -509,7 +509,6 @@ does not produce any values, so the following search options will return an empt
 | `itemNormalizedCallNumbers`        |   term    | `itemNormalizedCallNumbers="cn434"`                          | Matches instances that have item with given call number and might not be formatted correctly                        |
 | `itemTags`                         |   term    | `itemTags="important"`                                       | Matches instances that have item with given tag                                                                     |
 | `item.electronicAccess`            | full-text | `item.electronicAccess any "resource"`                       | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`              |
-| `callNumber`                       |   term    | `callNumber="A 12"`                                          | An alias for search by `item.effectiveShelvingOrder` field                                                          |
 | `item.effectiveShelvingOrder`      |   term    | `item.effectiveShelvingOrder="A 12"`                         | Matches instances that have item with given `effectiveShelvingOrder` value                                          |
 | `item.electronicAccess.uri`        |   term    | `item.electronicAccess.uri="http://folio.org*"`              | Search by electronic access URI                                                                                     |
 | `item.electronicAccess.linkText`   | full-text | `item.electronicAccess.linkText="Folio website"`             | Search by electronic access link text                                                                               |

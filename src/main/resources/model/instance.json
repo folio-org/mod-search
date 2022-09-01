@@ -610,8 +610,7 @@
     "itemEffectiveShelvingOrder": {
       "type": "search",
       "index": "keyword",
-      "searchAliases": [ "callNumber", "items.effectiveShelvingOrder" ],
-      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+      "searchAliases": [ "items.effectiveShelvingOrder" ],
       "processor": "itemEffectiveShelvingOrderProcessor"
     },
     "allInstances": {

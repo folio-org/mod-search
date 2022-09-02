@@ -5,8 +5,10 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
+import static org.folio.search.utils.CollectionUtils.distinctByKey;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
@@ -56,10 +58,12 @@ public class CallNumberBrowseResultConverter {
       return browseResult;
     }
 
+    boolean includeIntermediateItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES);
+    boolean removeIntermediateDuplicates = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES);
     var items = isBrowsingForward ? browseItems : reverse(browseItems);
-    var populatedItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)
-                         ? populateItemsWithIntermediateResults(items, ctx, isBrowsingForward)
-                         : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
+    var populatedItems = includeIntermediateItems
+      ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates, isBrowsingForward)
+      : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
     return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
@@ -70,11 +74,11 @@ public class CallNumberBrowseResultConverter {
   }
 
   private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(
-    List<CallNumberBrowseItem> browseItems, BrowseContext ctx, boolean isBrowsingForward) {
+    List<CallNumberBrowseItem> browseItems, BrowseContext ctx, boolean removeDuplicates, boolean isBrowsingForward) {
     var lower = browseItems.get(0).getShelfKey();
     var upper = browseItems.get(browseItems.size() - 1).getShelfKey();
     return browseItems.stream()
-      .map(item -> getCallNumberBrowseItemsBetween(item, lower, upper))
+      .map(item -> getCallNumberBrowseItemsBetween(item, lower, upper, removeDuplicates))
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
       .sorted(comparing(CallNumberBrowseItem::getShelfKey))
@@ -99,19 +103,23 @@ public class CallNumberBrowseResultConverter {
   }
 
   private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
-                                                                            String lower, String upper) {
+                                                                            String lower, String upper,
+                                                                            boolean removeDuplicates) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));
 
-    return toStreamSafe(browseItem.getInstance().getItems())
-      .map(Item::getEffectiveShelvingOrder)
+    var callNumbersStream = toStreamSafe(browseItem.getInstance().getItems())
+      .map(Item::getEffectiveShelvingOrder).distinct()
       .filter(StringUtils::isNotBlank)
-      .distinct()
       .map(StringUtils::toRootUpperCase)
       .filter(shelfKey -> shelfKey.compareTo(lower) >= 0 && shelfKey.compareTo(upper) <= 0)
-      .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))))
-      .collect(toList());
+      .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))));
+
+    if (removeDuplicates) {
+      callNumbersStream = callNumbersStream.filter(distinctByKey(CallNumberBrowseItem::getFullCallNumber));
+    }
+    return callNumbersStream.collect(toList());
   }
 
   private static CallNumberBrowseItem mapToCallNumberBrowseItem(

@@ -9,7 +9,11 @@
 * MSEARCH-396 Supports users interface versions 15.3 16.0
 * MSEARCH-402 Add personal data disclosure form
 * MSEARCH-410 Indexed the identifiers.identifierTypeId fields
+* MSEARCH-416 Enable BROWSE_CN_INTERMEDIATE_VALUES and BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES environment variables
 * MSEARCH-418 Supports also instance-storage interface version 9.0
+
+## 1.7.5 2022-09-02
+* MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing
 
 ## 1.7.4 2022-08-17
 * MSEARCH-401 Avoid using shelving order in call-number browsing

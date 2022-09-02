@@ -4,6 +4,7 @@
   "description": "The feature name.",
   "enum": [
     "search.all.fields",
-    "browse.cn.intermediate.values"
+    "browse.cn.intermediate.values",
+    "browse.cn.intermediate.remove.duplicates"
   ]
 }

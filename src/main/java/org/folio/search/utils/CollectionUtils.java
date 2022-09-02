@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -274,6 +275,18 @@ public final class CollectionUtils {
       }
     }
     return true;
+  }
+
+  /**
+   * Return {@link Predicate} to distinct objects by single key.
+   *
+   * @param keyExtractor - function to extract value
+   * @param <T>      generic type of object to distinct
+   * @return {@link Predicate} that maintains a state about what it has seen before
+   */
+  public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    Set<Object> seen = ConcurrentHashMap.newKeySet();
+    return t -> seen.add(keyExtractor.apply(t));
   }
 
   /**

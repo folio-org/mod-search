@@ -37,7 +37,8 @@ application:
     initial-languages: eng,fre,ita,spa,ger
     search-features:
       search-all-fields: false
-      browse-cn-intermediate-values: false
+      browse-cn-intermediate-values: true
+      browse-cn-intermediate-remove-duplicates: true
     indexing:
       instance-subjects:
         retry-attempts: 3

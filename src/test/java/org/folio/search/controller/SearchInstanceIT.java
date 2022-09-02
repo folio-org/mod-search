@@ -30,7 +30,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
@@ -56,25 +55,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @ParameterizedTest(name = "[{index}] {0}")
-  @CsvSource({
-    "title == {value}, web semantic",
-    "title <> {value}, A semantic web primer",
-    "title all {value}, semantic web word",
-    "indexTitle <> {value}, Semantic web primer",
-    "uniformTitle all {value}, deja vu",
-    "uniformTitle all {value}, déjà vu",
-    "contributors.name all {value}, franks",
-    "electronicAccess.materialsSpecification all {value}, material",
-    "items.electronicAccess.materialsSpecification all {value}, table",
-    "item.electronicAccess.materialsSpecification all {value}, table",
-    "holdings.electronicAccess.materialsSpecification all {value}, specification",
-    "publicNotes == {value}, librarian",
-    "itemPublicNotes == {value}, private note for item",
-    "itemPublicNotes == {value}, private circulation note",
-    "holdingsPublicNotes == {value}, librarian private note",
-    "issn = {value}, 03178471",
-    "oclc = {value}, 0262012103"
-  })
+  @MethodSource("failTestDataProvider")
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
     doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
@@ -241,6 +222,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name = {value}", "Van Harmelen, Frank"),
       arguments("contributors.name == {value}", "Van Harmelen"),
       arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
+      arguments("contributors.name ==/string {value} and "
+        + "contributors.contributorNameTypeId==2b94c631-fca9-4892-a730-03ee529ffe2a", "Antoniou, Grigoris"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
       arguments("contributors.name = {value}", "Anton*"),
       arguments("contributors.name = {value}", "*rmelen, Frank"),
@@ -373,6 +356,31 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
       arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
       arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
+    );
+  }
+
+
+  private static Stream<Arguments> failTestDataProvider() {
+    return Stream.of(
+      arguments("title == {value}", "web semantic"),
+      arguments("title <> {value}", "A semantic web primer"),
+      arguments("title all {value}", "semantic web word"),
+      arguments("indexTitle <> {value}", "Semantic web primer"),
+      arguments("uniformTitle all {value}", "deja vu"),
+      arguments("uniformTitle all {value}", "déjà vu"),
+      arguments("contributors.name all {value}", "franks"),
+      arguments("contributors.name ==/string {value} and "
+        + "contributors.contributorNameTypeId==9fb7f83e-260e-479f-9539-dfd9a628b858", "Antoniou, Grigoris"),
+      arguments("electronicAccess.materialsSpecification all {value}", "material"),
+      arguments("items.electronicAccess.materialsSpecification all {value}", "table"),
+      arguments("item.electronicAccess.materialsSpecification all {value}", "table"),
+      arguments("holdings.electronicAccess.materialsSpecification all {value}", "specification"),
+      arguments("publicNotes == {value}", "librarian"),
+      arguments("itemPublicNotes == {value}", "private note for item"),
+      arguments("itemPublicNotes == {value}", "private circulation note"),
+      arguments("holdingsPublicNotes == {value}", "librarian private note"),
+      arguments("issn = {value}", "03178471"),
+      arguments("oclc = {value}", "0262012103")
     );
   }
 }

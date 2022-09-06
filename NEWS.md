@@ -11,6 +11,7 @@
 * MSEARCH-410 Indexed the identifiers.identifierTypeId fields
 * MSEARCH-416 Enable BROWSE_CN_INTERMEDIATE_VALUES and BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES environment variables
 * MSEARCH-418 Supports also instance-storage interface version 9.0
+* MSEARCH-421 Add sourceFileId and naturalId to authority search/browse response
 
 ## 1.7.5 2022-09-02
 * MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing

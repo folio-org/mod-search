@@ -310,6 +310,14 @@
           "index": "source"
         }
       }
+    },
+    "sourceFileId": {
+      "index": "keyword",
+      "showInResponse": [ "search", "browse" ]
+    },
+    "naturalId": {
+      "index": "keyword",
+      "showInResponse": [ "search", "browse" ]
     }
   },
   "searchFields": {

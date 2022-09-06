@@ -343,11 +343,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
   }
 
   private static Authority authority(int index) {
-    return new Authority().id("id-" + index).subjectHeadings(String.format("Authority #%02d", index));
+    return new Authority().id("id-" + index).subjectHeadings(String.format("Authority #%02d", index))
+      .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435");
   }
 
   private static Authority authority(int index, String headingRef, String headingType, String authRefType) {
-    return new Authority().id("id-" + index).headingRef(headingRef).authRefType(authRefType).headingType(headingType);
+    return new Authority().id("id-" + index).headingRef(headingRef).authRefType(authRefType).headingType(headingType)
+      .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435");
   }
 
   private static AuthorityBrowseItem authorityBrowseItem(String heading, int index, String type, String headingType) {

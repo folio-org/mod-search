@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
   private final SearchRepository searchRepository;
+  private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
 
@@ -49,7 +51,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
 
     if (TRUE.equals(request.getHighlightMatch())) {
-      highlightMatchingCallNumber(context, succeedingResult);
+      var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
+      highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
     return new BrowseResult<CallNumberBrowseItem>()
@@ -67,19 +70,21 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return browseItem.getShelfKey();
   }
 
-  private static void highlightMatchingCallNumber(BrowseContext ctx, BrowseResult<CallNumberBrowseItem> result) {
+  private static void highlightMatchingCallNumber(BrowseContext ctx,
+                                                  String callNumber,
+                                                  BrowseResult<CallNumberBrowseItem> result) {
     var items = result.getRecords();
     var anchor = ctx.getAnchor();
 
     if (isEmpty(items)) {
-      result.setRecords(singletonList(getEmptyCallNumberBrowseItem(anchor)));
+      result.setRecords(singletonList(getEmptyCallNumberBrowseItem(callNumber, anchor)));
       return;
     }
 
     var firstBrowseItem = items.get(0);
     if (!StringUtils.equals(firstBrowseItem.getShelfKey(), anchor)) {
       var browseItemsWithEmptyValue = new ArrayList<CallNumberBrowseItem>();
-      browseItemsWithEmptyValue.add(getEmptyCallNumberBrowseItem(anchor));
+      browseItemsWithEmptyValue.add(getEmptyCallNumberBrowseItem(callNumber, anchor));
       browseItemsWithEmptyValue.addAll(items);
       result.setRecords(browseItemsWithEmptyValue);
       return;
@@ -88,7 +93,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     firstBrowseItem.setIsAnchor(true);
   }
 
-  private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String anchorCallNumber) {
-    return new CallNumberBrowseItem().shelfKey(anchorCallNumber).totalRecords(0).isAnchor(true);
+  private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String callNumber, String shelfKey) {
+    return new CallNumberBrowseItem()
+      .fullCallNumber(callNumber)
+      .shelfKey(shelfKey)
+      .totalRecords(0)
+      .isAnchor(true);
   }
 }

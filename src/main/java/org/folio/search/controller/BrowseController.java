@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,8 @@ public class BrowseController implements BrowseApi {
                                                                             Boolean highlightMatch,
                                                                             Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_RESOURCE).targetField(CALL_NUMBER_BROWSING_FIELD).build();
+      .resource(INSTANCE_RESOURCE).targetField(SHELVING_ORDER_BROWSING_FIELD).subField(CALL_NUMBER_BROWSING_FIELD)
+      .build();
 
     var instanceByCallNumber = callNumberBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new CallNumberBrowseResult()

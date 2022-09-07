@@ -7,10 +7,13 @@ import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
+import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -29,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.z3950.zing.cql.CQLTermNode;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +59,8 @@ class CallNumberBrowseServiceTest {
   private SearchSourceBuilder precedingQuery;
   @Mock
   private SearchSourceBuilder succeedingQuery;
+  @Mock
+  private CqlSearchQueryConverter cqlSearchQueryConverter;
 
   @BeforeEach
   void setUp() {
@@ -64,6 +70,8 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around() {
     var request = request("callNumber >= B or callNumber < B", true);
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(4, browseItems("A1", "A2", "A3", "A4")),
@@ -71,10 +79,10 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(11, "A 13", "C 12", List.of(
       cnBrowseItem(instance("A3"), "A3"),
       cnBrowseItem(instance("A4"), "A4"),
-      cnBrowseItem(0, "B", null, true),
+      cnBrowseItem(0, "B", true),
       cnBrowseItem(instance("C1"), "C1"),
       cnBrowseItem(instance("C2"), "C2"))));
   }
@@ -83,6 +91,8 @@ class CallNumberBrowseServiceTest {
   void browse_positive_aroundWithFoundAnchor() {
     var request = request("callNumber >= B or callNumber < B", true);
 
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(1, browseItems("A 11")),
@@ -92,13 +102,15 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("B"), "B", "B", true),
+      cnBrowseItem(instance("B"), "B", true),
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
 
   @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11")), BrowseResult.empty());
 
@@ -106,7 +118,7 @@ class CallNumberBrowseServiceTest {
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(0, "B", null, true))));
+      cnBrowseItem(0, "B", true))));
   }
 
   @Test
@@ -147,7 +159,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, "C1", null, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, "C 11", null, List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -177,7 +189,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "C1", "C2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "C 11", "C 12", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -211,7 +223,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A2", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A 12", List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
   }
 
@@ -229,7 +241,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", "A5", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "A 14", "A 15", List.of(
       cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
   }
 
@@ -269,11 +281,11 @@ class CallNumberBrowseServiceTest {
     return new MultiSearchResponse(msearchItems, 0);
   }
 
-  private static Instance instance(String... shelfKeys) {
-    var items = stream(shelfKeys)
-      .map(shelfKey -> new Item()
-        .effectiveShelvingOrder(shelfKey)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(shelfKey)))
+  private static Instance instance(String... callNumbers) {
+    var items = stream(callNumbers)
+      .map(callNumber -> new Item()
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
       .collect(toList());
     return new Instance().items(items);
   }
@@ -299,11 +311,11 @@ class CallNumberBrowseServiceTest {
       .build();
   }
 
-  private static CallNumberBrowseItem browseItem(String shelfKey) {
+  private static CallNumberBrowseItem browseItem(String callNumber) {
     return new CallNumberBrowseItem()
-      .fullCallNumber(shelfKey)
-      .shelfKey(shelfKey)
-      .instance(instance(shelfKey))
+      .fullCallNumber(callNumber)
+      .shelfKey(getShelfKeyFromCallNumber(callNumber))
+      .instance(instance(callNumber))
       .totalRecords(1);
   }
 

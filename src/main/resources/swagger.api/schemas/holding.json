@@ -82,5 +82,6 @@
     "metadata": {
       "$ref": "metadata.json"
     }
-  }
+  },
+  "required": ["electronicAccess", "notes"]
 }

@@ -1,8 +1,10 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.folio.search.sample.SampleAuthorities.getAuthorityNaturalId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
+import static org.folio.search.sample.SampleAuthorities.getAuthoritySourceFileId;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -236,6 +238,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   private static Authority authority(String headingType, String authRefType, String headingRef) {
     return new Authority()
       .id(getAuthoritySampleId())
+      .sourceFileId(getAuthoritySourceFileId())
+      .naturalId(getAuthorityNaturalId())
       .headingType(headingType)
       .authRefType(authRefType)
       .headingRef(headingRef);

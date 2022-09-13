@@ -244,6 +244,14 @@
     "headingRef": {
       "type": "string",
       "description": "Generated field by mod-search, used to easily identity the heading/reference of the record that provides authority information"
+    },
+    "sourceFileId": {
+      "type": "string",
+      "description": "Authority source file id; UUID"
+    },
+    "naturalId": {
+      "type": "string",
+      "description": "Authority Natural ID"
     }
   }
 }

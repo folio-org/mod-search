@@ -371,6 +371,8 @@ request parameters:
 > * _headingType_
 > * _authRefType_
 > * _headingRef_
+> * _sourceFileId_
+> * _naturalId_
 
 ##### Matching all records
 

@@ -58,57 +58,6 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
     removeTenant();
   }
 
-  @MethodSource("filteredSearchQueriesProvider")
-  @DisplayName("searchByAuthorities_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}")
-  void searchByAuthorities_parameterized(String query, List<String> expectedIds) throws Exception {
-    doSearchByAuthorities(query)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
-      .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));
-  }
-
-  @MethodSource("facetQueriesProvider")
-  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
-  @DisplayName("getFacetsForAuthorities_parameterized")
-  void getFacetsForAuthorities_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacets(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
-
-    expected.forEach((facetName, expectedFacet) -> {
-      var actualFacet = actual.getFacets().get(facetName);
-
-      assertThat(actualFacet).isNotNull();
-      assertThat(actualFacet.getValues())
-        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
-    });
-  }
-
-  @MethodSource("invalidDateSearchQueriesProvider")
-  @DisplayName("searchByInvalidDates_parameterized")
-  @ParameterizedTest(name = "[{index}] value={1}")
-  void searchByAuthorities_negative_invalidDateFormat(String name, String value) throws Exception {
-    attemptSearchByAuthorities("(" + name + "==" + value + ")")
-      .andExpect(status().isUnprocessableEntity())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
-      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
-  }
-
-  @Test
-  void searchByAuthorities_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacets(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("facet")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
-  }
-
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=* and headingType==\"Conference Name\")", List.of(IDS[4])),
@@ -192,7 +141,6 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("id=*", array("headingType:2"), mapOf("headingType", facet(
         facetItem("Personal Name", 5), facetItem("Uniform Title", 3)))),
 
-
       arguments("headingType==\"Genre\"", array("headingType:1"),
         mapOf("headingType", facet(facetItem("Genre", 2)))),
 
@@ -223,12 +171,12 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("sourceFileId==\"NULL\"", array("sourceFileId:1"),
         mapOf("sourceFileId", facet(facetItem("NULL", 2)))),
 
-      arguments("sourceFileId==(\""+IDS[3]+"\" or \""+IDS[4]+"\")", array("sourceFileId:2"),
+      arguments("sourceFileId==(\"" + IDS[3] + "\" or \"" + IDS[4] + "\")", array("sourceFileId:2"),
         mapOf("sourceFileId", facet(facetItem(IDS[3], 2), facetItem(IDS[4], 1)))),
 
-      arguments("sourceFileId==(\""+IDS[5]+"\" or \""+IDS[6]+"\")", array("sourceFileId:2"),
+      arguments("sourceFileId==(\"" + IDS[5] + "\" or \"" + IDS[6] + "\")", array("sourceFileId:2"),
         mapOf("sourceFileId", facet(facetItem(IDS[5], 2))))
-      );
+    );
   }
 
   private static Authority[] authorities() {
@@ -320,5 +268,56 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static Metadata metadata(String createdDate, String updatedDate) {
     return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
+  }
+
+  @MethodSource("filteredSearchQueriesProvider")
+  @DisplayName("searchByAuthorities_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0}")
+  void searchByAuthorities_parameterized(String query, List<String> expectedIds) throws Exception {
+    doSearchByAuthorities(query)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
+      .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForAuthorities_parameterized")
+  void getFacetsForAuthorities_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacets(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
+  }
+
+  @MethodSource("invalidDateSearchQueriesProvider")
+  @DisplayName("searchByInvalidDates_parameterized")
+  @ParameterizedTest(name = "[{index}] value={1}")
+  void searchByAuthorities_negative_invalidDateFormat(String name, String value) throws Exception {
+    attemptSearchByAuthorities("(" + name + "==" + value + ")")
+      .andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
+  }
+
+  @Test
+  void searchByAuthorities_negative_invalidFacetName() throws Exception {
+    attemptGet(recordFacets(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("facet")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
   }
 }

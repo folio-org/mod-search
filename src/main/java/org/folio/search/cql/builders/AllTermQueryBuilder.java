@@ -20,17 +20,17 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
       var stringTerm = (String) term;
       var terms = stringTerm.split("\\s+");
       if (terms.length == 1) {
-        return multiMatchQuery(terms[0], fields);
+        return getMultiMatchQuery(terms[0], fields);
       }
 
       var boolQuery = boolQuery();
       for (var singleTerm : terms) {
-        boolQuery.must(multiMatchQuery(singleTerm, fields));
+        boolQuery.must(getMultiMatchQuery(singleTerm, fields));
       }
       return boolQuery;
     }
 
-    return multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS);
+    return getMultiMatchQuery(term, fields);
   }
 
   @Override
@@ -46,5 +46,9 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
   @Override
   public Set<String> getSupportedComparators() {
     return Set.of("all", "adj");
+  }
+
+  private QueryBuilder getMultiMatchQuery(Object term, String... fieldNames) {
+    return multiMatchQuery(term, fieldNames).operator(AND).type(CROSS_FIELDS);
   }
 }

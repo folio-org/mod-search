@@ -73,7 +73,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "itemPublicNotes == {value}, private circulation note",
     "holdingsPublicNotes == {value}, librarian private note",
     "issn = {value}, 03178471",
-    "oclc = {value}, 0262012103"
+    "oclc = {value}, 0262012103",
+    "(keyword all {value}), 0747-0088"
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
@@ -372,7 +373,10 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers all {value}", "hold000000000009"),
       arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
       arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
-      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
+      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
+
+      //search by multiple different parameters
+      arguments("(keyword all {value})", "wolves matthew 9781609383657")
     );
   }
 }

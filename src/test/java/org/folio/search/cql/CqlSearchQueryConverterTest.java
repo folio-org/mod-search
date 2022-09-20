@@ -98,7 +98,7 @@ class CqlSearchQueryConverterTest {
   void convert_positive_searchByGroupOfOneField() {
     when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
     var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field")));
+    assertThat(actual).isEqualTo(searchSource().query(getMultiMatchQuery("value", "field")));
   }
 
   @Test
@@ -140,7 +140,7 @@ class CqlSearchQueryConverterTest {
 
     var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
 
-    assertThat(actual).isEqualTo(searchSource().query(multiMatchQuery("value", "field.*")));
+    assertThat(actual).isEqualTo(searchSource().query(getMultiMatchQuery("value", "field.*")));
   }
 
   @Test
@@ -399,31 +399,31 @@ class CqlSearchQueryConverterTest {
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
+        searchSource().query(getMultiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title any \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title adj \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
+        searchSource().query(getMultiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title == \"test-query\"",
         searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS).type(PHRASE))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS))
+          .must(getMultiMatchQuery("test-query", TITLE_FIELDS))
           .must(boolQuery()
             .should(matchQuery("languages", "eng").operator(AND))
             .should(matchQuery("languages", "ger").operator(AND))))),
 
       arguments("title all \"test-query\" not contributors = \"test-contributor\"",
         searchSource().query(boolQuery()
-          .must(multiMatchQuery("test-query", TITLE_FIELDS))
+          .must(getMultiMatchQuery("test-query", TITLE_FIELDS))
           .mustNot(matchQuery("contributors", "test-contributor").operator(AND)))),
 
       arguments("title all \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS))),
+        searchSource().query(getMultiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title = \"*test-query\"",
         searchSource().query(boolQuery()
@@ -433,7 +433,7 @@ class CqlSearchQueryConverterTest {
 
       arguments("title = \"test-query\"",
         searchSource().query(
-          multiMatchQuery("test-query", "title.*", "source.*", "source").operator(AND).type(CROSS_FIELDS)))
+          getMultiMatchQuery("test-query", "title.*", "source.*", "source")))
     );
   }
 
@@ -449,6 +449,10 @@ class CqlSearchQueryConverterTest {
     var fieldDescription = keywordField();
     fieldDescription.setSearchTermProcessor(processorName);
     return fieldDescription;
+  }
+
+  private static QueryBuilder getMultiMatchQuery(Object term, String... fieldNames) {
+    return multiMatchQuery(term, fieldNames).operator(AND).type(CROSS_FIELDS);
   }
 
   @TestConfiguration

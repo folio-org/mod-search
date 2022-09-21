@@ -313,7 +313,9 @@
     },
     "sourceFileId": {
       "index": "keyword",
-      "showInResponse": [ "search", "browse" ]
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search", "browse" ],
+      "default": "NULL"
     },
     "naturalId": {
       "index": "keyword",

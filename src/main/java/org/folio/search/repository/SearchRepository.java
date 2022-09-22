@@ -62,6 +62,20 @@ public class SearchRepository {
   }
 
   /**
+   * Executes request to elasticsearch and returns search result with related documents.
+   *
+   * @param resourceRequest resource request as {@link ResourceRequest} object.
+   * @param searchSource    elasticsearch search source as {@link SearchSourceBuilder} object.
+   * @param preference      elasticsearch preference string to route same requests to the same shard
+   * @return search result as {@link SearchResponse} object.
+   */
+  public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
+    var index = getIndexName(resourceRequest);
+    var searchRequest = buildSearchRequest(resourceRequest, index, searchSource, preference);
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, "searchApi");
+  }
+
+  /**
    * Executes multi-search request to elasticsearch and returns search result with related documents.
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
@@ -120,6 +134,11 @@ public class SearchRepository {
 
   private static SearchRequest buildSearchRequest(ResourceRequest request, String index, SearchSourceBuilder source) {
     return new SearchRequest().routing(request.getTenantId()).source(source).indices(index);
+  }
+
+  private static SearchRequest buildSearchRequest(ResourceRequest request, String index, SearchSourceBuilder source,
+                                                  String preference) {
+    return buildSearchRequest(request, index, source).preference(preference);
   }
 
   private void clearScrollAfterStreaming(String index, String scrollId) {

@@ -40,6 +40,7 @@ spring:
       - system-user-cache
       - tenant-languages
       - tenant-features
+      - search-preference
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
 

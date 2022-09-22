@@ -10,6 +10,8 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
@@ -54,6 +56,8 @@ class SearchServiceTest {
   private SearchQueryConfigurationProperties searchQueryConfig;
   @Mock
   private SearchResponse searchResponse;
+  @Mock
+  private SearchPreferenceService searchPreferenceService;
 
   @Test
   void search_positive() {
@@ -65,9 +69,10 @@ class SearchServiceTest {
 
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, SEARCH)).thenReturn(new String[] {"field1", "field2"});
     when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
-    when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
+    when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class)).thenReturn(expectedSearchResult);
     when(searchQueryConfig.getRequestTimeout()).thenReturn(Duration.ofSeconds(25));
+    when(searchPreferenceService.getPreferenceForString(anyString())).thenReturn("test");
 
     var actual = searchService.search(searchRequest);
     assertThat(actual).isEqualTo(expectedSearchResult);
@@ -90,9 +95,10 @@ class SearchServiceTest {
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
     when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
-    when(searchRepository.search(searchRequest, expectedSourceBuilder)).thenReturn(searchResponse);
+    when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class)).thenReturn(expectedSearchResult);
     when(searchQueryConfig.getRequestTimeout()).thenReturn(Duration.ofSeconds(1));
+    when(searchPreferenceService.getPreferenceForString(anyString())).thenReturn("test");
 
     var actual = searchService.search(searchRequest);
     assertThat(actual).isEqualTo(expectedSearchResult);

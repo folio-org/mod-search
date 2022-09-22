@@ -5,7 +5,7 @@ services:
     container_name: mod-search
     image: dev.folio/mod-search
     build:
-      context: ..\
+      context: ../
       dockerfile: Dockerfile
     networks:
       - mod-search-local
@@ -34,13 +34,13 @@ services:
     ports:
       - "9130:8080"
     volumes:
-      - ./src/test/resources/mappings:/home/wiremock/mappings
+      - ../src/test/resources/mappings:/home/wiremock/mappings
 
   opensearch:
     container_name: opensearch
     image: dev.folio/opensearch:1.3.2
     build:
-      context: elasticsearch
+      context: opensearch
       dockerfile: Dockerfile
     networks:
       - mod-search-local

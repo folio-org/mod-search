@@ -44,6 +44,7 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
+  private static final String OPERATION_TYPE = "searchApi";
   private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
@@ -58,7 +59,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(resourceRequest, index, searchSource);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, "searchApi");
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
 
   /**
@@ -72,7 +73,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(resourceRequest, index, searchSource, preference);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, "searchApi");
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
 
   /**
@@ -116,7 +117,7 @@ public class SearchRepository {
       .indices(index);
 
     var searchResponse = performExceptionalOperation(
-      () -> client.search(searchRequest, DEFAULT), index, "searchApi");
+      () -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
     var scrollId = searchResponse.getScrollId();
     var searchHits = searchResponse.getHits().getHits();
 

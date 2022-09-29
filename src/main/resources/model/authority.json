@@ -310,6 +310,16 @@
           "index": "source"
         }
       }
+    },
+    "sourceFileId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search", "browse" ],
+      "default": "NULL"
+    },
+    "naturalId": {
+      "index": "keyword",
+      "showInResponse": [ "search", "browse" ]
     }
   },
   "searchFields": {

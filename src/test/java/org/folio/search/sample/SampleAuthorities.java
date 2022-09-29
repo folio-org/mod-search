@@ -19,6 +19,8 @@ public class SampleAuthorities {
     OBJECT_MAPPER.convertValue(AUTHORITY_RECORD_AS_MAP, Authority.class);
 
   private static final String AUTHORITY_RECORD_ID = AUTHORITY_RECORD.getId();
+  private static final String AUTHORITY_SOURCE_FILE_ID = AUTHORITY_RECORD.getSourceFileId();
+  private static final String AUTHORITY_NATURAL_ID = AUTHORITY_RECORD.getNaturalId();
 
   public static Authority getAuthoritySample() {
     return AUTHORITY_RECORD;
@@ -30,5 +32,13 @@ public class SampleAuthorities {
 
   public static String getAuthoritySampleId() {
     return AUTHORITY_RECORD_ID;
+  }
+
+  public static String getAuthoritySourceFileId() {
+    return AUTHORITY_SOURCE_FILE_ID;
+  }
+
+  public static String getAuthorityNaturalId() {
+    return AUTHORITY_NATURAL_ID;
   }
 }

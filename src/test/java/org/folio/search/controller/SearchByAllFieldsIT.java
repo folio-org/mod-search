@@ -35,7 +35,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "Cooperative information systems",
     "0262012103",
     "2003065165",
-    "Antoniou, Grigoris",
+    "Antoniou, Grigoris matthew",
     "TK5105.88815 .A58 2004",
     "Cambridge, Mass.",
 
@@ -70,7 +70,7 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "Cooperative information systems",
     "0262012103",
     "2003065165",
-    "Antoniou, Grigoris",
+    "Antoniou, Grigoris matthew",
     "TK5105.88815 .A58 2004",
     "Cambridge, Mass.",
     "2020-12-08T15:47:13.625+00:00",

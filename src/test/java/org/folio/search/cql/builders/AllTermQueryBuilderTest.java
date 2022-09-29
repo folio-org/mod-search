@@ -6,6 +6,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.opensearch.index.query.Operator.AND;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opensearch.index.query.MultiMatchQueryBuilder.Type;
+import org.opensearch.index.query.QueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -34,29 +35,29 @@ class AllTermQueryBuilderTest {
   void getQuery_positive() {
     var actual = queryBuilder.getQuery("value1 value2", RESOURCE_NAME, "f1.*", "f2");
     assertThat(actual).isEqualTo(boolQuery()
-      .must(multiMatchQuery("value1", "f1.*", "f2"))
-      .must(multiMatchQuery("value2", "f1.*", "f2")));
+      .must(getMultiMatchQuery("value1", "f1.*", "f2"))
+      .must(getMultiMatchQuery("value2", "f1.*", "f2")));
   }
 
   @Test
   void getFulltextQuery_positive_multilangField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
     var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
-    assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*"));
+    assertThat(actual).isEqualTo(getMultiMatchQuery("val", "field.*"));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
     var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
-    assertThat(actual).isEqualTo(multiMatchQuery("val", "field"));
+    assertThat(actual).isEqualTo(getMultiMatchQuery("val", "field"));
   }
 
   @Test
   void getFulltextQuery_positive_standardFieldWithObject() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
     var actual = queryBuilder.getFulltextQuery(1234, "field", RESOURCE_NAME, emptyList());
-    assertThat(actual).isEqualTo(multiMatchQuery(1234, "field").type(Type.CROSS_FIELDS).operator(AND));
+    assertThat(actual).isEqualTo(getMultiMatchQuery(1234, "field"));
   }
 
   @Test
@@ -69,5 +70,9 @@ class AllTermQueryBuilderTest {
   void getSupportedComparators_positive() {
     var actual = queryBuilder.getSupportedComparators();
     assertThat(actual).containsExactlyInAnyOrder("all", "adj");
+  }
+
+  private QueryBuilder getMultiMatchQuery(Object term, String... fieldNames) {
+    return multiMatchQuery(term, fieldNames).operator(AND).type(CROSS_FIELDS);
   }
 }

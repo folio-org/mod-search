@@ -28,6 +28,7 @@ public class SearchService {
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final ElasticsearchDocumentConverter documentConverter;
   private final SearchQueryConfigurationProperties searchQueryConfiguration;
+  private final SearchPreferenceService searchPreferenceService;
 
   /**
    * Prepares search query and executes search request to the search engine.
@@ -47,13 +48,19 @@ public class SearchService {
       .size(request.getLimit())
       .trackTotalHits(true)
       .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
+    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource, request.getQuery());
+    var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
       queryBuilder.fetchSource(includes, null);
     }
 
-    var searchResponse = searchRepository.search(request, queryBuilder);
+    var searchResponse = searchRepository.search(request, queryBuilder, preference);
     return documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+  }
+
+  private String buildPreferenceKey(String tenantId, String resource, String query) {
+    return tenantId + "-" + resource + "-" + query;
   }
 }

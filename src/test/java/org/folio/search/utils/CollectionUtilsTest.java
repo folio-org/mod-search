@@ -16,6 +16,7 @@ import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.setOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
@@ -193,6 +194,21 @@ class CollectionUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @ParameterizedTest
+  @MethodSource("partitionDataProvider")
+  void partition_parameterized(List<String> list, int batchSize, List<List<String>> expected) {
+    var actual = CollectionUtils.partition(list, batchSize);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void partition_negative() {
+    var inputList = List.of("1", "2", "3");
+    var thrown = assertThrows(IllegalArgumentException.class,
+      () -> CollectionUtils.partition(inputList, -2));
+    assertThat(thrown.getMessage()).isEqualTo("Batch size value must be positive, batchSize=-2");
+  }
+
   private static Stream<Arguments> getValueByPathTestDataProvider() {
     var map = unstructuredMap();
     return Stream.of(
@@ -264,6 +280,15 @@ class CollectionUtilsTest {
       arguments(emptySet(), emptySet(), emptySet()),
       arguments(asList("4", "2", "3", "1"), asList("2", "1", "10"), setOf("3", "4")),
       arguments(asList("4", "2", null, "1"), asList(null, "1", "10"), setOf("2", "4"))
+    );
+  }
+
+  private static Stream<Arguments> partitionDataProvider() {
+    return Stream.of(
+      arguments(List.of("1"), 1, List.of(List.of("1"))),
+      arguments(asList("1", "2", "3", "4"), 2, List.of(List.of("1", "2"), List.of("3", "4"))),
+      arguments(asList("1", "2", "3", "4"), 3, List.of(List.of("1", "2", "3"), List.of("4"))),
+      arguments(asList("1", "2", "3", "4"), 4, List.of(List.of("1", "2", "3", "4")))
     );
   }
 }

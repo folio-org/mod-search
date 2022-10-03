@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.CollectionUtils.findLast;
+import static org.folio.search.utils.CollectionUtils.partition;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -21,6 +22,7 @@ import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.service.ResultList;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResourceFetchService {
 
+  private static final int BATCH_SIZE = 50;
   private final InventoryViewClient inventoryClient;
   private final TenantScopedExecutionService tenantScopedExecutionService;
 
@@ -57,11 +60,13 @@ public class ResourceFetchService {
     var eventsById = entry.getValue().stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
     var tenantId = entry.getKey();
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
-      var instanceIds = eventsById.keySet();
-      var instanceResultList = inventoryClient.getInstances(exactMatchAny(ID_FIELD, instanceIds), instanceIds.size());
-      return instanceResultList.getResult().stream()
-        .map(InstanceView::toInstance)
-        .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById))
+      var instanceIdList = List.copyOf(eventsById.keySet());
+      return partition(instanceIdList, BATCH_SIZE).stream()
+        .map(batchIds -> inventoryClient.getInstances(exactMatchAny(ID_FIELD, batchIds), batchIds.size()))
+        .map(ResultList::getResult)
+        .flatMap(instanceViews -> instanceViews.stream()
+          .map(InstanceView::toInstance)
+          .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
         .collect(toList());
     });
   }

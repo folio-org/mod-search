@@ -79,6 +79,8 @@ class ResourceFetchServiceTest {
             "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
         mapOf("id", instanceId2, "title", "old"))
     ));
+    verify(inventoryClient, times(1)).getInstances(any(), anyInt());
+    verify(executionService, times(1)).executeTenantScoped(any(), any());
   }
 
   @Test

@@ -23,7 +23,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -351,26 +350,6 @@ public final class CollectionUtils {
       .filter(Objects::nonNull)
       .sorted()
       .collect(toCollection(LinkedHashSet::new));
-  }
-
-  /**
-   * Utility method to break a list into batches of given size.
-   *
-   * @param list the list to return consecutive sublists of
-   * @param batchSize the desired size of each sublist (the last may be smaller)
-   * @param <T>         generic type for collection value
-   * @return a list of consecutive sublists
-   * @throws IllegalArgumentException if {@code batchSize} is nonpositive
-   */
-  public static <T> List<List<T>> partition(List<T> list, int batchSize) {
-    if (batchSize <= 0) {
-      throw new IllegalArgumentException("Batch size value must be positive, batchSize=" + batchSize);
-    }
-    var size = list.size();
-    var fullChunks = (size - 1) / batchSize;
-    return IntStream.range(0, fullChunks + 1)
-      .mapToObj(i -> list.subList(i * batchSize, i == fullChunks ? size : (i + 1) * batchSize))
-      .collect(Collectors.toList());
   }
 
   private static List<?> getValueForList(Iterable<?> iterable, String pathValue) {

@@ -1,11 +1,11 @@
 package org.folio.search.integration;
 
+import static com.google.common.collect.Lists.partition;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.CollectionUtils.findLast;
-import static org.folio.search.utils.CollectionUtils.partition;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;

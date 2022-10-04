@@ -245,6 +245,10 @@
       "type": "string",
       "description": "Generated field by mod-search, used to easily identity the heading/reference of the record that provides authority information"
     },
+    "numberOfTitles": {
+      "type": "integer",
+      "description": "Generated field by mod-search, used to count the total number of bib records linked to this authority record"
+    },
     "sourceFileId": {
       "type": "string",
       "description": "Authority source file id; UUID"

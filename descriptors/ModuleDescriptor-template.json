@@ -215,6 +215,10 @@
     {
       "id": "instance-reindex",
       "version": "0.1"
+    },
+    {
+      "id": "instance-authority-links",
+      "version": "1.0"
     }
   ],
   "permissionSets": [

@@ -1,0 +1,17 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/links/authorities/bulk/count"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"links\":[\n  {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"1\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  },\n    {\n    \"id\":\"55294032-fcf6-45cc-b6da-4420a61ef72c\",\n    \"totalLinks\" : \"0\"\n  }\n  ]\n}"
+      }
+    }
+  ]
+}

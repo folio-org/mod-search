@@ -371,11 +371,6 @@
       "type": "search",
       "index": "keyword",
       "processor": "lccnProcessor"
-    },
-    "numberOfTitles": {
-      "type": "search",
-      "index": "keyword",
-      "processor": "numberOfTitlesProcessor"
     }
   },
   "mappingsSource": {

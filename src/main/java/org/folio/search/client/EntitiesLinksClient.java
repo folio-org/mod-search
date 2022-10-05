@@ -11,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient("instance-authority-links")
+@FeignClient("links")
 public interface EntitiesLinksClient {
 
-  @PostMapping(value = "/links/authorities/bulk/count", consumes = APPLICATION_JSON_VALUE)
+  @PostMapping(value = "authorities/bulk/count", consumes = APPLICATION_JSON_VALUE)
   ResponseEntity<LinksCountCollection> getLinksCount(@RequestBody UuidCollection authorityIdCollection);
 
   @Data

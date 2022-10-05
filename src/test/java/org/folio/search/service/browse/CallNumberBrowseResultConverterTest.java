@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
@@ -52,7 +53,8 @@ class CallNumberBrowseResultConverterTest {
   @InjectMocks
   private CallNumberBrowseResultConverter resultConverter;
   @Spy
-  private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER);
+  private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER,
+    Collections.emptyList());
 
   @Mock
   private SearchHits searchHits;

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.7</version>
+    <version>2.7.4</version>
     <relativePath />
   </parent>
 
@@ -32,12 +32,12 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>4.1.0</folio-spring-base.version>
+    <folio-spring-base.version>5.0.0</folio-spring-base.version>
     <folio-isbn-utils.version>1.4.0</folio-isbn-utils.version>
-    <folio-cql2pgjson.version>34.0.0</folio-cql2pgjson.version>
-    <opensearch.version>2.0.0</opensearch.version>
-    <mapstruct.version>1.5.1.Final</mapstruct.version>
-    <spring-kafka.version>2.8.6</spring-kafka.version>
+    <folio-cql2pgjson.version>35.0.0</folio-cql2pgjson.version>
+    <opensearch.version>2.3.0</opensearch.version>
+    <mapstruct.version>1.5.2.Final</mapstruct.version>
+    <spring-kafka.version>2.9.1</spring-kafka.version>
     <log4j2.version>2.17.2</log4j2.version>
     <apache-commons-io.version>2.11.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
@@ -47,16 +47,16 @@
     <streamex.version>0.8.1</streamex.version>
 
     <!-- Test dependencies versions -->
-    <testcontainer.version>1.17.3</testcontainer.version>
+    <testcontainer.version>1.17.5</testcontainer.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugins versions -->
-    <openapi-generator.version>5.4.0</openapi-generator.version>
+    <maven-openapi-generator-plugin.version>6.2.0</maven-openapi-generator-plugin.version>
+    <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
+    <maven-build-helper-plugin.version>3.3.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-    <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
-    <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
@@ -331,7 +331,7 @@
       <plugin>
         <groupId>com.coderplus.maven.plugins</groupId>
         <artifactId>copy-rename-maven-plugin</artifactId>
-        <version>${copy-rename-maven-plugin.version}</version>
+        <version>${maven-copy-rename-plugin.version}</version>
         <executions>
           <execution>
             <id>rename-descriptor-outputs</id>
@@ -362,7 +362,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build-helper-maven-plugin.version}</version>
+        <version>${maven-build-helper-plugin.version}</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -416,7 +416,7 @@
       <plugin>
         <groupId>org.openapitools</groupId>
         <artifactId>openapi-generator-maven-plugin</artifactId>
-        <version>${openapi-generator.version}</version>
+        <version>${maven-openapi-generator-plugin.version}</version>
         <executions>
           <execution>
             <id>mod-search-openapi</id>

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceAlternativeTitles;
+import org.folio.search.domain.dto.InstanceAlternativeTitlesInner;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +41,26 @@ class UniformTitleProcessorTest {
   @Mock
   private ReferenceDataService referenceDataService;
 
+  private static Stream<Arguments> testDataProvider() {
+    var alternativeTitle = "title";
+    return Stream.of(
+      arguments("all empty fields", new Instance(), emptyList()),
+      arguments("alternative title without id", instance(alternativeTitle(null, alternativeTitle)), emptyList()),
+      arguments("non uniform alternative title ",
+        instance(alternativeTitle(SIMPLE_TITLE_TYPE_ID, alternativeTitle)), emptyList()),
+      arguments("uniform alternative title ",
+        instance(alternativeTitle(UNIFORM_TITLE_TYPE_ID, alternativeTitle)), List.of(alternativeTitle))
+    );
+  }
+
+  private static InstanceAlternativeTitlesInner alternativeTitle(String id, String value) {
+    return new InstanceAlternativeTitlesInner().alternativeTitleTypeId(id).alternativeTitle(value);
+  }
+
+  private static Instance instance(InstanceAlternativeTitlesInner... alternativeTitles) {
+    return new Instance().alternativeTitles(alternativeTitles != null ? asList(alternativeTitles) : null);
+  }
+
   @MethodSource("testDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
@@ -57,25 +77,5 @@ class UniformTitleProcessorTest {
     var actual = uniformTitleProcessor.getFieldValue(new Instance().id(RESOURCE_ID)
       .alternativeTitles(List.of(alternativeTitle(UNIFORM_TITLE_TYPE_ID, "value"))));
     assertThat(actual).isEmpty();
-  }
-
-  private static Stream<Arguments> testDataProvider() {
-    var alternativeTitle = "title";
-    return Stream.of(
-      arguments("all empty fields", new Instance(), emptyList()),
-      arguments("alternative title without id", instance(alternativeTitle(null, alternativeTitle)), emptyList()),
-      arguments("non uniform alternative title ",
-        instance(alternativeTitle(SIMPLE_TITLE_TYPE_ID, alternativeTitle)), emptyList()),
-      arguments("uniform alternative title ",
-        instance(alternativeTitle(UNIFORM_TITLE_TYPE_ID, alternativeTitle)), List.of(alternativeTitle))
-    );
-  }
-
-  private static InstanceAlternativeTitles alternativeTitle(String id, String value) {
-    return new InstanceAlternativeTitles().alternativeTitleTypeId(id).alternativeTitle(value);
-  }
-
-  private static Instance instance(InstanceAlternativeTitles... alternativeTitles) {
-    return new Instance().alternativeTitles(alternativeTitles != null ? asList(alternativeTitles) : null);
   }
 }

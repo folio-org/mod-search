@@ -1,7 +1,5 @@
 package org.folio.search.service.systemuser;
 
-import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
-import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.nio.charset.StandardCharsets;
@@ -22,6 +20,7 @@ import org.folio.search.model.SystemUser;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,12 @@ public class PrepareSystemUserService {
   private final AuthnClient authnClient;
   private final FolioExecutionContextBuilder contextBuilder;
   private final FolioSystemUserProperties folioSystemUserConf;
+
+  @SneakyThrows
+  private static List<String> getResourceLines(String permissionsFilePath) {
+    var resource = new ClassPathResource(permissionsFilePath);
+    return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
+  }
 
   public void setupSystemUser() {
     var folioUser = getFolioUser(folioSystemUserConf.getUsername());
@@ -128,17 +133,8 @@ public class PrepareSystemUserService {
   }
 
   private <T> T executeTenantScoped(FolioExecutionContext context, Supplier<T> job) {
-    try {
-      beginFolioExecutionContext(context);
+    try (var fex = new FolioExecutionContextSetter(context)) {
       return job.get();
-    } finally {
-      endFolioExecutionContext();
     }
-  }
-
-  @SneakyThrows
-  private static List<String> getResourceLines(String permissionsFilePath) {
-    var resource = new ClassPathResource(permissionsFilePath);
-    return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
   }
 }

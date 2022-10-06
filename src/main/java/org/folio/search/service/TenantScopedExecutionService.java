@@ -1,14 +1,12 @@
 package org.folio.search.service;
 
-import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext;
-import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.endFolioExecutionContext;
-
 import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
 import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +27,8 @@ public class TenantScopedExecutionService {
    */
   @SneakyThrows
   public <T> T executeTenantScoped(String tenantId, Callable<T> job) {
-    try {
-      beginFolioExecutionContext(folioExecutionContext(tenantId));
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId))) {
       return job.call();
-    } finally {
-      endFolioExecutionContext();
     }
   }
 
@@ -45,11 +40,8 @@ public class TenantScopedExecutionService {
    */
   @Async
   public void executeAsyncTenantScoped(String tenantId, Runnable job) {
-    try {
-      beginFolioExecutionContext(folioExecutionContext(tenantId));
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId))) {
       job.run();
-    } finally {
-      endFolioExecutionContext();
     }
   }
 

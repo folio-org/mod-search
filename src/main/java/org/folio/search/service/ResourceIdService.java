@@ -60,7 +60,7 @@ public class ResourceIdService {
    */
   @Transactional
   public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
-    var job = jobRepository.getById(jobId);
+    var job = jobRepository.getReferenceById(jobId);
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
         format("Completed async job with query=[%s] was not found.", job.getQuery()));

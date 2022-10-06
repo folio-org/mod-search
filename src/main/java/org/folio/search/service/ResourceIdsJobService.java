@@ -22,7 +22,7 @@ public class ResourceIdsJobService {
   private final ResourceIdService resourceIdService;
 
   public ResourceIdsJob getJobById(String id) {
-    return resourceIdsJobMapper.convert(jobRepository.getById(id));
+    return resourceIdsJobMapper.convert(jobRepository.getReferenceById(id));
   }
 
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {

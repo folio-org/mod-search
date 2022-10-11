@@ -7,16 +7,20 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,6 +47,7 @@ import org.springframework.stereotype.Service;
 public class ResourceService {
 
   private static final String PRIMARY_INDEXING_REPOSITORY_NAME = "primary";
+  private static final String INSTANCE_ID_FIELD = "instanceId";
 
   private final KafkaMessageProducer messageProducer;
   private final IndexRepository indexRepository;
@@ -87,7 +92,9 @@ public class ResourceService {
     var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(groupedByOperation.get(INDEX));
+    var indexEvents = groupedByOperation.get(INDEX);
+    indexEvents = extractEventsForDataMove(indexEvents);
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
@@ -140,6 +147,36 @@ public class ResourceService {
     }
 
     return eventsToIndex;
+  }
+
+  /**
+   * There may be a case when some data is moved between instances
+   * In such case old and new fields of the event will have different instanceId
+   * This method will create 2 events out of 1 and erase 'old' field in an original event
+   * */
+  private List<ResourceEvent> extractEventsForDataMove(List<ResourceEvent> resourceEvents) {
+    if (resourceEvents == null) {
+      return Collections.emptyList();
+    }
+
+    return resourceEvents.stream()
+      .flatMap(resourceEvent -> {
+        var oldMap = getOldAsMap(resourceEvent);
+        var newMap = getNewAsMap(resourceEvent);
+        var oldInstanceId = oldMap.get(INSTANCE_ID_FIELD);
+
+        if (oldInstanceId != null && !oldInstanceId.equals(newMap.get(INSTANCE_ID_FIELD))) {
+          var oldEvent = new ResourceEvent().id(String.valueOf(oldInstanceId))
+            .resourceName(resourceEvent.getResourceName())
+            .type(resourceEvent.getType())
+            .tenant(resourceEvent.getTenant())
+            ._new(resourceEvent.getOld());
+          var newEvent = resourceEvent.old(null);
+          return Stream.of(oldEvent, newEvent);
+        }
+
+        return Stream.of(resourceEvent);})
+      .collect(toList());
   }
 
   private static <K, V> Map<K, List<V>> mergeMaps(Map<K, List<V>> map1, Map<K, List<V>> map2) {

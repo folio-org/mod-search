@@ -176,14 +176,14 @@ class ResourceServiceTest {
     var oldData = mapOf("instanceId", RESOURCE_ID_SECOND, "title", "old title");
     var newData = mapOf("instanceId", RESOURCE_ID, "title", "new title");
     var resourceEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, oldData);
-    var oldResourceEvent = resourceEvent(RESOURCE_ID_SECOND, RESOURCE_NAME, UPDATE, oldData, null);
-    var newResourceEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, null);
+    var oldEvent = resourceEvent(RESOURCE_ID_SECOND, RESOURCE_NAME, UPDATE, oldData, null);
+    var newEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, null);
     var fetchedEvents = List.of(resourceEvent(RESOURCE_ID_SECOND, RESOURCE_NAME, CREATE, oldData, null),
       resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, newData, null));
     var expectedResponse = getSuccessIndexOperationResponse();
     var searchBodies = List.of(searchDocumentBody(asJsonString(oldData)), searchDocumentBody(asJsonString(newData)));
 
-    when(resourceFetchService.fetchInstancesByIds(List.of(oldResourceEvent, newResourceEvent))).thenReturn(fetchedEvents);
+    when(resourceFetchService.fetchInstancesByIds(List.of(oldEvent, newEvent))).thenReturn(fetchedEvents);
     when(searchDocumentConverter.convert(fetchedEvents)).thenReturn(mapOf(RESOURCE_NAME, searchBodies));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);

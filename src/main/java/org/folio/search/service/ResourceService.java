@@ -150,9 +150,9 @@ public class ResourceService {
   }
 
   /**
-   * There may be a case when some data is moved between instances
-   * In such case old and new fields of the event will have different instanceId
-   * This method will create 2 events out of 1 and erase 'old' field in an original event
+   * There may be a case when some data is moved between instances.
+   * In such case old and new fields of the event will have different instanceId.
+   * This method will create 2 events out of 1 and erase 'old' field in an original event.
    * */
   private List<ResourceEvent> extractEventsForDataMove(List<ResourceEvent> resourceEvents) {
     if (resourceEvents == null) {
@@ -175,7 +175,7 @@ public class ResourceService {
           return Stream.of(oldEvent, newEvent);
         }
 
-        return Stream.of(resourceEvent);})
+        return Stream.of(resourceEvent); })
       .collect(toList());
   }
 

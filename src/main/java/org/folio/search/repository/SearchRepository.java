@@ -58,7 +58,7 @@ public class SearchRepository {
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = getIndexName(resourceRequest);
-    var searchRequest = buildSearchRequest(resourceRequest, index, searchSource);
+    var searchRequest = buildSearchRequest(index, searchSource);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
 
@@ -72,7 +72,7 @@ public class SearchRepository {
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
     var index = getIndexName(resourceRequest);
-    var searchRequest = buildSearchRequest(resourceRequest, index, searchSource, preference);
+    var searchRequest = buildSearchRequest(index, searchSource, preference);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
 
@@ -86,7 +86,7 @@ public class SearchRepository {
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
     var index = getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
-    searchSources.forEach(source -> request.add(buildSearchRequest(resourceRequest, index, source)));
+    searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
     var response = performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi");
 
     if (isFailedMultiSearchRequest(response.getResponses(), searchSources.size())) {
@@ -112,7 +112,6 @@ public class SearchRepository {
     var index = getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
-      .routing(req.getTenantId())
       .source(src)
       .indices(index);
 
@@ -133,13 +132,12 @@ public class SearchRepository {
     clearScrollAfterStreaming(index, scrollId);
   }
 
-  private static SearchRequest buildSearchRequest(ResourceRequest request, String index, SearchSourceBuilder source) {
-    return new SearchRequest().routing(request.getTenantId()).source(source).indices(index);
+  private static SearchRequest buildSearchRequest(String index, SearchSourceBuilder source) {
+    return new SearchRequest().source(source).indices(index);
   }
 
-  private static SearchRequest buildSearchRequest(ResourceRequest request, String index, SearchSourceBuilder source,
-                                                  String preference) {
-    return buildSearchRequest(request, index, source).preference(preference);
+  private static SearchRequest buildSearchRequest(String index, SearchSourceBuilder source, String preference) {
+    return buildSearchRequest(index, source).preference(preference);
   }
 
   private void clearScrollAfterStreaming(String index, String scrollId) {

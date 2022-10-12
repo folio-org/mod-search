@@ -74,8 +74,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID))
-        .routing(TENANT_ID);
+        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
     });
@@ -96,7 +95,8 @@ class BrowseContributorIT extends BaseIntegrationTest {
 
     return Stream.of(arguments(aroundQuery, "John", 5,
         new InstanceContributorBrowseResult().totalRecords(12).prev("Bon Jovi").next("John Lennon").items(List.of(
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
+          contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+            TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
           contributorBrowseItem(0, true, "John"),
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),

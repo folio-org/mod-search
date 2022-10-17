@@ -10,5 +10,5 @@ public enum IndexingDataFormat {
   JSON(XContentType.JSON),
   SMILE(XContentType.SMILE);
 
-  private final XContentType xContentType;
+  private final XContentType xcontentType;
 }

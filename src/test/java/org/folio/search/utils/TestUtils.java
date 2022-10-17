@@ -244,13 +244,14 @@ public class TestUtils {
 
   @SneakyThrows
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(EMPTY_OBJECT)), IndexingDataFormat.SMILE,
-      resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(EMPTY_OBJECT)),
+      IndexingDataFormat.SMILE, resourceEvent(), INDEX);
   }
 
   @SneakyThrows
   public static SearchDocumentBody searchDocumentBody(String rawJson) {
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(rawJson)), IndexingDataFormat.SMILE, resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(rawJson)),
+      IndexingDataFormat.SMILE, resourceEvent(), INDEX);
   }
 
   public static SearchDocumentBody searchDocumentBodyToDelete() {

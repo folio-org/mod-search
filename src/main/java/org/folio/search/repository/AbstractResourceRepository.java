@@ -65,7 +65,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     return new IndexRequest(doc.getIndex())
       .id(doc.getId())
       .routing(doc.getRouting())
-      .source(doc.getDocumentBody(), doc.getDataFormat().getXContentType());
+      .source(doc.getDocumentBody(), doc.getDataFormat().getXcontentType());
   }
 
   /**

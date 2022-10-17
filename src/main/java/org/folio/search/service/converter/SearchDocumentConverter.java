@@ -78,7 +78,8 @@ public class SearchDocumentConverter {
     var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
-    return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument), indexingDataFormat, resourceEvent, INDEX);
+    return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument),
+      indexingDataFormat, resourceEvent, INDEX);
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {

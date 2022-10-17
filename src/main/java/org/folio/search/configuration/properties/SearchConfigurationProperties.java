@@ -56,7 +56,7 @@ public class SearchConfigurationProperties {
     private InstanceSubjectsIndexingSettings instanceSubjects;
 
     /**
-     * Data format to use for passing data to elasticsearch
+     * Data format to use for passing data to elasticsearch.
      */
     private IndexingDataFormat dataFormat;
   }

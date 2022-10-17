@@ -296,14 +296,17 @@ class InstanceSubjectRepositoryTest {
     var subject = "test";
     var body = mapOf("subject", subject);
     var event = resourceEvent(sha256Hex(subject), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.CREATE, body, null);
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), IndexingDataFormat.SMILE, event, INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)),
+      IndexingDataFormat.SMILE, event, INDEX);
   }
 
   @SneakyThrows
   private static SearchDocumentBody searchDocumentBodyToDelete(String subject) {
     var body = mapOf("subject", subject);
-    var event = resourceEvent(sha256Hex(subject), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.DELETE, null, body);
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), IndexingDataFormat.SMILE, event, DELETE);
+    var event = resourceEvent(sha256Hex(subject), INSTANCE_SUBJECT_RESOURCE,
+      ResourceEventType.DELETE, null, body);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)),
+      IndexingDataFormat.SMILE, event, DELETE);
   }
 
   private static MultiGetResponse multiGetResponse(Map<String, Pair<Long, Long>> seqNumbers) {

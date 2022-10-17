@@ -10,6 +10,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
+import org.opensearch.common.bytes.BytesArray;
 import org.springframework.stereotype.Component;
 
 /**
@@ -187,6 +188,19 @@ public class JsonConverter {
       throw new SerializationException(String.format(
         SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
     }
+  }
+
+  /**
+   * Converts passed {@link Object} value to json bytes.
+   *
+   * @param value value to convert
+   * @return json value as {@link BytesArray}.
+   */
+  public BytesArray toJsonBytes(Object value) {
+    if (value == null) {
+      return null;
+    }
+    return new BytesArray(toJson(value));
   }
 
   /**

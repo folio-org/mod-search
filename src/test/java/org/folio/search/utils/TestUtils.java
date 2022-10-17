@@ -22,6 +22,8 @@ import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.mockito.AdditionalAnswers.delegatesTo;
+import static org.mockito.Mockito.mock;
 import static org.opensearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 
@@ -31,6 +33,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -74,9 +77,11 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.SearchType;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.common.ParseField;
+import org.opensearch.common.bytes.BytesArray;
 import org.opensearch.common.xcontent.ContextParser;
 import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.search.aggregations.Aggregation;
@@ -95,6 +100,7 @@ public class TestUtils {
     .setSerializationInclusion(Include.NON_NULL)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+  public static final SmileMapper SMILE_MAPPER = new SmileMapper();
 
   public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
@@ -236,16 +242,19 @@ public class TestUtils {
     return UUID.randomUUID().toString();
   }
 
+  @SneakyThrows
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.of(EMPTY_OBJECT, resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(EMPTY_OBJECT)), IndexingDataFormat.SMILE,
+      resourceEvent(), INDEX);
   }
 
+  @SneakyThrows
   public static SearchDocumentBody searchDocumentBody(String rawJson) {
-    return SearchDocumentBody.of(rawJson, resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(rawJson)), IndexingDataFormat.SMILE, resourceEvent(), INDEX);
   }
 
   public static SearchDocumentBody searchDocumentBodyToDelete() {
-    return SearchDocumentBody.of(null, resourceEvent(), DELETE);
+    return SearchDocumentBody.of(null, null, resourceEvent(), DELETE);
   }
 
   @SuppressWarnings("unchecked")
@@ -504,6 +513,11 @@ public class TestUtils {
     return map.entrySet().stream()
       .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue()))
       .collect(toList());
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T, P extends T> P spyLambda(Class<T> lambdaType, P lambda) {
+    return (P) mock(lambdaType, delegatesTo(lambda));
   }
 
   @Data

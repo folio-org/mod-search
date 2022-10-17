@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.model.types.IndexingDataFormat;
+import org.opensearch.common.bytes.BytesReference;
 
 /**
  * Contains all required field to perform elasticsearch index operation in mod-search service.
@@ -17,7 +19,12 @@ public class SearchDocumentBody {
   /**
    * Document body for elasticsearch index operation.
    */
-  private String rawJson;
+  private BytesReference documentBody;
+
+  /**
+   * Document body format for elasticsearch index operation.
+   */
+  private IndexingDataFormat dataFormat;
 
   /**
    * Corresponding resource event value, used for delete operations.

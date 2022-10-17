@@ -43,6 +43,7 @@ application:
     indexing:
       instance-subjects:
         retry-attempts: 3
+      data-format: ${INDEXING_DATA_FORMAT:smile}
   query:
     properties:
       request-timeout: 25s

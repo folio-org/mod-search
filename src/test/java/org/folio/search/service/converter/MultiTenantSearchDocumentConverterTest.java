@@ -9,7 +9,7 @@ import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import lombok.SneakyThrows;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.common.bytes.BytesArray;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -127,8 +130,10 @@ class MultiTenantSearchDocumentConverterTest {
     assertThat(actual).isEqualTo(emptyMap());
   }
 
+  @SneakyThrows
   private static SearchDocumentBody searchDocument(ResourceEvent event, IndexActionType type) {
-    return SearchDocumentBody.of(type == INDEX ? asJsonString(event.getNew()) : null, event, type);
+    return SearchDocumentBody.of(type == INDEX ? new BytesArray(SMILE_MAPPER.writeValueAsBytes(event.getNew())) : null,
+      IndexingDataFormat.SMILE, event, type);
   }
 
   private static ResourceDescription resourceDescriptionWithPreProcessor() {

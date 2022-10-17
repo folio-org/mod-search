@@ -13,8 +13,8 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.NAMED_XCONTENT_REGISTRY;
+import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.aggregationsFromJson;
-import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,6 +39,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.utils.SearchQueryUtils;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +62,7 @@ import org.opensearch.action.get.MultiGetResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.common.bytes.BytesArray;
 import org.opensearch.search.fetch.subphase.FetchSourceContext;
 
 @UnitTest
@@ -289,17 +291,19 @@ class InstanceSubjectRepositoryTest {
       aggregationsFromJson(jsonObject("sterms#subjects", jsonObject("buckets", aggregationBuckets))));
   }
 
+  @SneakyThrows
   private static SearchDocumentBody subjectDocumentBody() {
     var subject = "test";
     var body = mapOf("subject", subject);
     var event = resourceEvent(sha256Hex(subject), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.CREATE, body, null);
-    return SearchDocumentBody.of(asJsonString(body), event, INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), IndexingDataFormat.SMILE, event, INDEX);
   }
 
+  @SneakyThrows
   private static SearchDocumentBody searchDocumentBodyToDelete(String subject) {
     var body = mapOf("subject", subject);
     var event = resourceEvent(sha256Hex(subject), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.DELETE, null, body);
-    return SearchDocumentBody.of(asJsonString(body), event, DELETE);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), IndexingDataFormat.SMILE, event, DELETE);
   }
 
   private static MultiGetResponse multiGetResponse(Map<String, Pair<Long, Long>> seqNumbers) {

@@ -16,22 +16,23 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.SerializationException;
+import org.folio.search.utils.TestUtils.NonSerializableByJacksonClass;
+import org.folio.search.utils.TestUtils.TestClass;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.common.bytes.BytesArray;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class JsonConverterTest {
 
   private static final String JSON_BODY = "{\"field\":\"value\"}";
+  private static final BytesArray JSON_BYTES_BODY = new BytesArray(JSON_BODY);
   private static final String WRONG_JSON_BODY = "{\"field\":value}";
   private static final String FIELD_VALUE = "value";
 
@@ -60,6 +61,20 @@ class JsonConverterTest {
     assertThatThrownBy(() -> jsonConverter.toJson(value))
       .isInstanceOf(SerializationException.class)
       .hasMessageContaining("Failed to serialize value");
+  }
+
+  @Test
+  void toJsonBytes_positive() throws JsonProcessingException {
+    var actual = jsonConverter.toJsonBytes(TestClass.of(FIELD_VALUE));
+    assertThat(actual).isEqualTo(JSON_BYTES_BODY);
+
+    verify(objectMapper).writeValueAsString(TestClass.of(FIELD_VALUE));
+  }
+
+  @Test
+  void toJsonBytes_positive_nullValue() {
+    var actual = jsonConverter.toJsonBytes(null);
+    assertThat(actual).isNull();
   }
 
   @Test
@@ -238,21 +253,5 @@ class JsonConverterTest {
   void convert_positive_typeReferenceNullValue() {
     var actual = jsonConverter.convert(null, new TypeReference<TestClass>() { });
     assertThat(actual).isNull();
-  }
-
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor(staticName = "of")
-  private static class TestClass {
-    private String field;
-  }
-
-  private static class NonSerializableByJacksonClass {
-    private final NonSerializableByJacksonClass self = this;
-
-    @SuppressWarnings("unused")
-    public NonSerializableByJacksonClass getSelf() {
-      return self;
-    }
   }
 }

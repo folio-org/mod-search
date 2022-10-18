@@ -533,4 +533,20 @@ public class TestUtils {
       return this;
     }
   }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor(staticName = "of")
+  public static class TestClass {
+    private String field;
+  }
+
+  public static class NonSerializableByJacksonClass {
+    private final NonSerializableByJacksonClass self = this;
+
+    @SuppressWarnings("unused")
+    public NonSerializableByJacksonClass getSelf() {
+      return self;
+    }
+  }
 }

@@ -11,6 +11,7 @@ import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperation
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID_SECOND;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -171,11 +172,34 @@ class ResourceServiceTest {
   }
 
   @Test
+  void indexResourcesById_positive_moveDataBetweenInstances() {
+    var oldData = mapOf("instanceId", RESOURCE_ID_SECOND, "title", "old title");
+    var newData = mapOf("instanceId", RESOURCE_ID, "title", "new title");
+    var resourceEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, oldData);
+    var oldEvent = resourceEvent(RESOURCE_ID_SECOND, RESOURCE_NAME, UPDATE, oldData, null);
+    var newEvent = resourceEvent(RESOURCE_ID, RESOURCE_NAME, UPDATE, newData, null);
+    var fetchedEvents = List.of(resourceEvent(RESOURCE_ID_SECOND, RESOURCE_NAME, CREATE, oldData, null),
+      resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, newData, null));
+    var expectedResponse = getSuccessIndexOperationResponse();
+    var searchBodies = List.of(searchDocumentBody(asJsonString(oldData)), searchDocumentBody(asJsonString(newData)));
+
+    when(resourceFetchService.fetchInstancesByIds(List.of(oldEvent, newEvent))).thenReturn(fetchedEvents);
+    when(searchDocumentConverter.convert(fetchedEvents)).thenReturn(mapOf(RESOURCE_NAME, searchBodies));
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+    when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);
+    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
+    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
+
+    var response = indexService.indexResourcesById(List.of(resourceEvent));
+    assertThat(response).isEqualTo(expectedResponse);
+  }
+
+  @Test
   void indexResourcesById_positive_deleteEvent() {
     var expectedDocuments = List.of(searchDocumentBodyToDelete());
     var resourceEvents = List.of(resourceEvent(RESOURCE_ID, RESOURCE_NAME, DELETE));
 
-    when(resourceFetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
+    when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(RESOURCE_NAME, expectedDocuments));
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
@@ -223,7 +247,7 @@ class ResourceServiceTest {
     var eventIds = List.of(resourceEvent(randomId(), RESOURCE_NAME, CREATE));
 
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
-    when(resourceFetchService.fetchInstancesByIds(null)).thenReturn(emptyList());
+    when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
     when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());

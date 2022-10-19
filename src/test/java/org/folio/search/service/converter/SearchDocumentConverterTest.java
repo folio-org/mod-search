@@ -11,6 +11,7 @@ import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
+import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.keywordFieldWithDefaultValue;
@@ -20,8 +21,8 @@ import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.plainField;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.verify;
+import static org.folio.search.utils.TestUtils.spyLambda;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -29,14 +30,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import lombok.SneakyThrows;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.SmileConverter;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +51,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.common.bytes.BytesArray;
+import org.opensearch.common.bytes.BytesReference;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +68,20 @@ class SearchDocumentConverterTest {
   private ResourceDescriptionService descriptionService;
   @Spy
   private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @Spy
+  private final SmileConverter smileConverter = new SmileConverter();
+  @Spy
+  private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
+  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
+    spyLambda(Function.class, smileConverter::toSmile);
+
+  private SearchConfigurationProperties getSearchConfigurationProperties() {
+    var indexSettings = new IndexingSettings();
+    indexSettings.setDataFormat(IndexingDataFormat.SMILE);
+    var searchConfigurationProperties = new SearchConfigurationProperties();
+    searchConfigurationProperties.setIndexing(indexSettings);
+    return searchConfigurationProperties;
+  }
 
   @Test
   void convert_positive() {
@@ -70,14 +93,34 @@ class SearchDocumentConverterTest {
     var actual = documentMapper.convert(resourceEvent);
 
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedSearchDocumentBody()));
-    verify(jsonConverter).toJson(anyMap());
+  }
+
+  @Test
+  @SneakyThrows
+  void convert_positive_json() {
+    var searchConfig = getSearchConfigurationProperties();
+    searchConfig.getIndexing().setDataFormat(IndexingDataFormat.JSON);
+    searchConfigurationProperties = spy(searchConfig);
+    documentMapper = new SearchDocumentConverter(searchFieldsProcessor,
+      languageConfigService, descriptionService, searchConfig, jsonConverter::toJsonBytes);
+
+    when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
+    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+      resourceDescription(resourceDescriptionFields(), List.of("$.language")));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, testResourceBody());
+
+    var expected = Optional.of(SearchDocumentBody.of(new BytesArray(asJsonString(expectedSearchDocumentBody())),
+      IndexingDataFormat.JSON, resourceEvent, INDEX));
+    var actual = documentMapper.convert(resourceEvent);
+
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   void convert_deleteEvent() {
     var event = resourceEvent(RESOURCE_ID, RESOURCE_NAME, ResourceEventType.DELETE, null, emptyMap());
     var actual = documentMapper.convert(event);
-    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(null, event, DELETE));
+    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(null, null, event, DELETE));
   }
 
   @Test
@@ -283,7 +326,9 @@ class SearchDocumentConverterTest {
         "createdAt", "12-01-01T12:03:12Z"));
   }
 
+  @SneakyThrows
   private static Optional<SearchDocumentBody> expectedSearchDocument(ResourceEvent event, ObjectNode expectedJson) {
-    return Optional.of(SearchDocumentBody.of(asJsonString(expectedJson), event, INDEX));
+    return Optional.of(SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(expectedJson)),
+      IndexingDataFormat.SMILE, event, INDEX));
   }
 }

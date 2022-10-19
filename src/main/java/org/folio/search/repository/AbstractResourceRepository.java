@@ -6,7 +6,6 @@ import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperation
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
@@ -65,7 +64,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   protected static IndexRequest prepareIndexRequest(SearchDocumentBody doc) {
     return new IndexRequest(doc.getIndex())
       .id(doc.getId())
-      .source(doc.getRawJson(), JSON);
+      .source(doc.getDocumentBody(), doc.getDataFormat().getXcontentType());
   }
 
   /**

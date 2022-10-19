@@ -13,6 +13,7 @@
 * MSEARCH-418 Supports also instance-storage interface version 9.0
 * MSEARCH-421 Add sourceFileId and naturalId to authority search/browse response
 * MSEARCH-442 Upgrade to folio-spring-base v5.0.0
+* MSEARCH-440 Enable GZIP and SMILE for client communication
 
 ## 1.7.5 2022-09-02
 * MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing

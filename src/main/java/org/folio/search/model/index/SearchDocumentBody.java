@@ -39,11 +39,11 @@ public class SearchDocumentBody {
   }
 
   /**
-   * Returns search document body routing.
+   * Returns event tenant.
    *
-   * @return search document routing as {@link String} object.
+   * @return tenant from resource event as {@link String} object.
    */
-  public String getRouting() {
+  public String getTenant() {
     return resourceEvent.getTenant();
   }
 

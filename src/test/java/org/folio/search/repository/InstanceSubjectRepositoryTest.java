@@ -252,7 +252,7 @@ class InstanceSubjectRepositoryTest {
 
   private static DeleteRequest deleteRequest(String subject, Long seqNo, Long primaryTerm) {
     return new DeleteRequest(getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID))
-      .id(sha256Hex(subject)).setIfSeqNo(seqNo).setIfPrimaryTerm(primaryTerm).routing(TENANT_ID);
+      .id(sha256Hex(subject)).setIfSeqNo(seqNo).setIfPrimaryTerm(primaryTerm);
   }
 
   private static BulkResponse bulkResponse(Map<String, String> subjectErrors) {
@@ -413,7 +413,7 @@ class InstanceSubjectRepositoryTest {
     var fetchSource = new FetchSourceContext(false);
     for (var subject : subjects) {
       var item = new Item(getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID), sha256Hex(subject))
-        .routing(TENANT_ID).fetchSourceContext(fetchSource);
+        .fetchSourceContext(fetchSource);
       multiGetRequest.add(item);
     }
     return multiGetRequest;

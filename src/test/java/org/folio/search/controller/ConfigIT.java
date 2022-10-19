@@ -219,7 +219,6 @@ class ConfigIT extends BaseIntegrationTest {
   @SneakyThrows
   private Map<String, Object> getIndexedInstanceById(String id) {
     final var searchRequest = new SearchRequest()
-      .routing(TENANT_ID)
       .source(new SearchSourceBuilder().query(matchQuery("id", id)))
       .indices(getIndexName(INSTANCE_RESOURCE, TENANT_ID));
 

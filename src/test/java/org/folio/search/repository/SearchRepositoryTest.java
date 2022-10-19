@@ -74,7 +74,7 @@ class SearchRepositoryTest {
   @Test
   void search_positive() throws IOException {
     var searchSource = searchSource();
-    var esSearchRequest = new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource);
+    var esSearchRequest = new SearchRequest().indices(INDEX_NAME).source(searchSource);
 
     when(esClient.search(esSearchRequest, DEFAULT)).thenReturn(searchResponse);
 
@@ -125,8 +125,8 @@ class SearchRepositoryTest {
     var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
     var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
     var multiSearchRequest = new MultiSearchRequest();
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource2));
 
     var multiSearchResponse = mock(MultiSearchResponse.class);
     when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
@@ -142,8 +142,8 @@ class SearchRepositoryTest {
     var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
     var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
     var multiSearchRequest = new MultiSearchRequest();
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource2));
 
     var multiSearchResponse = mock(MultiSearchResponse.class);
     var responseItem = mock(Item.class);
@@ -165,8 +165,8 @@ class SearchRepositoryTest {
     var searchSource1 = searchSource().query(matchAllQuery()).from(0).size(10);
     var searchSource2 = searchSource().query(matchAllQuery()).from(10).size(10);
     var multiSearchRequest = new MultiSearchRequest();
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource1));
-    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID).source(searchSource2));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource1));
+    multiSearchRequest.add(new SearchRequest().indices(INDEX_NAME).source(searchSource2));
 
     var multiSearchResponse = mock(MultiSearchResponse.class);
     when(esClient.msearch(multiSearchRequest, DEFAULT)).thenReturn(multiSearchResponse);
@@ -185,7 +185,7 @@ class SearchRepositoryTest {
   }
 
   private static SearchRequest searchRequest() {
-    return new SearchRequest().indices(INDEX_NAME).routing(TENANT_ID)
+    return new SearchRequest().indices(INDEX_NAME)
       .source(searchSource()).scroll(KEEP_ALIVE_INTERVAL);
   }
 

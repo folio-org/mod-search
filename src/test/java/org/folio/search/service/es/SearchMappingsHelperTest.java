@@ -82,7 +82,6 @@ class SearchMappingsHelperTest {
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
-      "_routing", jsonObject("required", true),
       "properties", jsonObject(
         "id", keywordType.getMapping(),
         "title", multilangType.getMapping(),
@@ -117,7 +116,6 @@ class SearchMappingsHelperTest {
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
-      "_routing", jsonObject("required", true),
       "properties", jsonObject(
         "id", jsonObject("type", KEYWORD_FIELD_INDEX, "copy_to", jsonArray("id_copy")),
         "id_copy", idCopyMappings
@@ -147,7 +145,6 @@ class SearchMappingsHelperTest {
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
-      "_routing", jsonObject("required", true),
       "properties", jsonObject(
         "id", keywordType.getMapping(),
         "alternativeTitle", multilangType.getMapping(),
@@ -175,7 +172,6 @@ class SearchMappingsHelperTest {
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
-      "_routing", jsonObject("required", true),
       "properties", jsonObject(
         "title", jsonObject(
           "properties", jsonObject(
@@ -200,7 +196,6 @@ class SearchMappingsHelperTest {
     assertThat(actual).isEqualTo(asJsonString(jsonObject(
       "date_detection", false,
       "numeric_detection", false,
-      "_routing", jsonObject("required", true),
       "properties", jsonObject(
         "title", jsonObject(
           "properties", jsonObject(

@@ -250,7 +250,7 @@ class IndexingIT extends BaseIntegrationTest {
 
   private boolean isInstanceSubjectExistsById(String subjectId) throws IOException {
     var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
-    var request = new GetRequest(indexName, subjectId).routing(TENANT_ID);
+    var request = new GetRequest(indexName, subjectId);
     var documentById = restHighLevelClient.get(request, RequestOptions.DEFAULT);
     return documentById.isExists() && !documentById.isSourceEmpty();
   }

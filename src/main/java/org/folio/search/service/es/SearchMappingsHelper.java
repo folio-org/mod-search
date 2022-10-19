@@ -70,7 +70,6 @@ public class SearchMappingsHelper {
     var indexMappings = new LinkedHashMap<String, Object>();
     indexMappings.put("date_detection", false);
     indexMappings.put("numeric_detection", false);
-    indexMappings.put("_routing", Map.of("required", true));
     return indexMappings;
   }
 

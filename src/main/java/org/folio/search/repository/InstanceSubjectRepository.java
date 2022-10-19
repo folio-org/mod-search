@@ -68,7 +68,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private FolioIndexOperationResponse deleteUnusedSubjects(List<SearchDocumentBody> documentToDelete) {
-    var subjectByTenant = documentToDelete.stream().collect(groupingBy(SearchDocumentBody::getRouting));
+    var subjectByTenant = documentToDelete.stream().collect(groupingBy(SearchDocumentBody::getTenant));
     subjectByTenant.forEach(this::deleteUnusedSubjectsPerTenant);
     return getSuccessIndexOperationResponse();
   }
@@ -143,7 +143,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     documents.stream()
       .map(SearchDocumentBody::getId)
       .distinct()
-      .map(documentId -> new Item(index, documentId).routing(tenant).fetchSourceContext(fetchSourceContext))
+      .map(documentId -> new Item(index, documentId).fetchSourceContext(fetchSourceContext))
       .forEach(multiGetRequest::add);
     return multiGetRequest;
   }
@@ -177,7 +177,6 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   private static DeleteRequest prepareDeleteRequest(SearchDocumentBody doc, GetResponse esDocument) {
     return new DeleteRequest(doc.getIndex())
       .id(doc.getId())
-      .routing(doc.getRouting())
       .setIfSeqNo(esDocument.getSeqNo())
       .setIfPrimaryTerm(esDocument.getPrimaryTerm());
   }

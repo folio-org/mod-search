@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -61,7 +60,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    assertThat(actual.getAuthorities()).isEqualTo(List.of(
+    assertThat(actual.getAuthorities()).asList().containsOnly(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal name"),
@@ -101,7 +100,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       authority("Genre", AUTHORIZED_TYPE, "a genre term"),
       authority("Genre", REFERENCE_TYPE, "a sft genre term"),
       authority("Genre", AUTH_REF_TYPE, "a saft genre term")
-    ));
+    );
   }
 
   private static Stream<Arguments> testDataProvider() {

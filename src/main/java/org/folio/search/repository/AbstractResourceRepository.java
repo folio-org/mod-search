@@ -64,7 +64,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   protected static IndexRequest prepareIndexRequest(SearchDocumentBody doc) {
     return new IndexRequest(doc.getIndex())
       .id(doc.getId())
-      .routing(doc.getRouting())
       .source(doc.getDocumentBody(), doc.getDataFormat().getXcontentType());
   }
 
@@ -76,7 +75,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
    */
   protected static DeleteRequest prepareDeleteRequest(SearchDocumentBody document) {
     return new DeleteRequest(document.getIndex())
-      .id(document.getId())
-      .routing(document.getRouting());
+      .id(document.getId());
   }
 }

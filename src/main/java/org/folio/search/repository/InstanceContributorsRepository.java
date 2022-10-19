@@ -70,8 +70,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       var searchDocument = documents.iterator().next();
       var upsertRequest = new UpdateRequest()
         .id(searchDocument.getId())
-        .routing(searchDocument.getRouting())
-        .index(SearchUtils.getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, searchDocument.getRouting()))
+        .index(SearchUtils.getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, searchDocument.getTenant()))
         .script(new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT_1,
           Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete)))
         .upsert(getContributorJsonBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),

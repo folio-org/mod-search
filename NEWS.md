@@ -1,4 +1,4 @@
-## 1.8.0 IN-PROGRESS
+## 1.8.0 2022-10-27
 * MSEARCH-349 Change Instance ids stream API to use jobs
 * MSEARCH-350 Change Holdings ids stream API to use jobs
 * MSEARCH-373 Add administrativeNotes search
@@ -11,9 +11,17 @@
 * MSEARCH-410 Indexed the identifiers.identifierTypeId fields
 * MSEARCH-416 Enable BROWSE_CN_INTERMEDIATE_VALUES and BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES environment variables
 * MSEARCH-418 Supports also instance-storage interface version 9.0
+* MSEARCH-419 Different order when searching by keyword, holdingsPermanentLocation and sort by title desc
 * MSEARCH-421 Add sourceFileId and naturalId to authority search/browse response
+* MSEARCH-424 Create an Authority source facet
+* MSEARCH-427 Add integration test option for Elasticsearch 8
+* MSEARCH-430 Inventory Elastic-Search (Morning Glory). Keyword search throw unexpected results when the search only contains numbers and dashes.
+* MSEARCH-435 Increase Kafka fetch size
 * MSEARCH-442 Upgrade to folio-spring-base v5.0.0
+* MSEARCH-439 Transferring items from one instance to another results in multiple matches when searching on barcode in Inventory
 * MSEARCH-440 Enable GZIP and SMILE for client communication
+* MSEARCH-441 Use default routing for indexing and searching
+* MSEARCH-449 folio-spring-base v5.0.1 update
 
 ## 1.7.5 2022-09-02
 * MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing

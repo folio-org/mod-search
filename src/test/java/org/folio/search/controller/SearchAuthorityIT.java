@@ -61,7 +61,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).asList().containsOnly(
-      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 1),
+      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 0),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name", null),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal name", null),
 

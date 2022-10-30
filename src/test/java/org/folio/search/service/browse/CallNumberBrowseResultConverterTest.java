@@ -54,7 +54,7 @@ class CallNumberBrowseResultConverterTest {
   private CallNumberBrowseResultConverter resultConverter;
   @Spy
   private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER,
-    Collections.emptyList());
+    Collections.emptyMap());
 
   @Mock
   private SearchHits searchHits;

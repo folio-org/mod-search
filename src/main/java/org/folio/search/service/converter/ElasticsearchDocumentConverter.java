@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.SearchResult;
-import org.folio.search.service.setter.PostProcessor;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
@@ -27,8 +27,7 @@ import org.springframework.stereotype.Component;
 public class ElasticsearchDocumentConverter {
 
   private final ObjectMapper objectMapper;
-
-  private final List<PostProcessor> postProcessors;
+  private final Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
    * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
@@ -88,7 +87,10 @@ public class ElasticsearchDocumentConverter {
       .map(searchHit -> searchHitMapper.apply(searchHit, convert(searchHit.getSourceAsMap(), type)))
       .collect(toList());
 
-    postProcessors.forEach(p -> p.process((List<Object>) objects));
+    var postProcessor = searchResponsePostProcessors.get(type);
+    if (postProcessor != null) {
+      postProcessor.process((List) objects);
+    }
 
     return objects;
   }

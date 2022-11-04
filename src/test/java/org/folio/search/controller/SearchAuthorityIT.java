@@ -61,45 +61,45 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).asList().containsOnly(
-      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
-      authority("Personal Name", REFERENCE_TYPE, "a sft personal name"),
-      authority("Personal Name", AUTH_REF_TYPE, "a saft personal name"),
+      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 0),
+      authority("Personal Name", REFERENCE_TYPE, "a sft personal name", null),
+      authority("Personal Name", AUTH_REF_TYPE, "a saft personal name", null),
 
-      authority("Personal Name", AUTHORIZED_TYPE, "a personal title"),
-      authority("Personal Name", REFERENCE_TYPE, "a sft personal title"),
-      authority("Personal Name", AUTH_REF_TYPE, "a saft personal title"),
+      authority("Personal Name", AUTHORIZED_TYPE, "a personal title", 0),
+      authority("Personal Name", REFERENCE_TYPE, "a sft personal title", null),
+      authority("Personal Name", AUTH_REF_TYPE, "a saft personal title", null),
 
-      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name"),
-      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name"),
-      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate name"),
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name", 0),
+      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name", null),
+      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate name", null),
 
-      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title"),
-      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title"),
-      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate title"),
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title", 0),
+      authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title", null),
+      authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate title", null),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a conference name"),
-      authority("Conference Name", REFERENCE_TYPE, "a sft conference name"),
-      authority("Conference Name", AUTH_REF_TYPE, "a saft conference name"),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference name", 0),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference name", null),
+      authority("Conference Name", AUTH_REF_TYPE, "a saft conference name", null),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a conference title"),
-      authority("Conference Name", REFERENCE_TYPE, "a sft conference title"),
-      authority("Conference Name", AUTH_REF_TYPE, "a saft conference title"),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference title", 0),
+      authority("Conference Name", REFERENCE_TYPE, "a sft conference title", null),
+      authority("Conference Name", AUTH_REF_TYPE, "a saft conference title", null),
 
-      authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name"),
-      authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name"),
-      authority("Geographic Name", AUTH_REF_TYPE, "a saft geographic name"),
+      authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name", 0),
+      authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name", null),
+      authority("Geographic Name", AUTH_REF_TYPE, "a saft geographic name", null),
 
-      authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title"),
-      authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title"),
-      authority("Uniform Title", AUTH_REF_TYPE, "a saft uniform title"),
+      authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title", 0),
+      authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title", null),
+      authority("Uniform Title", AUTH_REF_TYPE, "a saft uniform title", null),
 
-      authority("Topical", AUTHORIZED_TYPE, "a topical term"),
-      authority("Topical", REFERENCE_TYPE, "a sft topical term"),
-      authority("Topical", AUTH_REF_TYPE, "a saft topical term"),
+      authority("Topical", AUTHORIZED_TYPE, "a topical term", 0),
+      authority("Topical", REFERENCE_TYPE, "a sft topical term", null),
+      authority("Topical", AUTH_REF_TYPE, "a saft topical term", null),
 
-      authority("Genre", AUTHORIZED_TYPE, "a genre term"),
-      authority("Genre", REFERENCE_TYPE, "a sft genre term"),
-      authority("Genre", AUTH_REF_TYPE, "a saft genre term")
+      authority("Genre", AUTHORIZED_TYPE, "a genre term", 0),
+      authority("Genre", REFERENCE_TYPE, "a sft genre term", null),
+      authority("Genre", AUTH_REF_TYPE, "a saft genre term", null)
     );
   }
 
@@ -234,13 +234,15 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     return query + " and sftPersonalName==\"*personal name\"";
   }
 
-  private static Authority authority(String headingType, String authRefType, String headingRef) {
+  private static Authority authority(String headingType, String authRefType, String headingRef,
+                                     Integer numberOfTitles) {
     return new Authority()
       .id(getAuthoritySampleId())
       .sourceFileId(getAuthoritySourceFileId())
       .naturalId(getAuthorityNaturalId())
       .headingType(headingType)
       .authRefType(authRefType)
-      .headingRef(headingRef);
+      .headingRef(headingRef)
+      .numberOfTitles(numberOfTitles);
   }
 }

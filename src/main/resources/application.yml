@@ -97,6 +97,12 @@ application:
         group-id: ${application.environment}-mod-search-contributors-group
 
 server.port: 8081
-management.endpoints.web:
-  base-path: /admin
-  exposure.include: info,health,liquibase,threaddump,heapdump
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health,liquibase,threaddump,heapdump,loggers
+      base-path: /admin
+  endpoint:
+    loggers:
+      enabled: true

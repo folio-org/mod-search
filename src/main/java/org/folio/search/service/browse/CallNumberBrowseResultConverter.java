@@ -75,10 +75,8 @@ public class CallNumberBrowseResultConverter {
 
   private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(
     List<CallNumberBrowseItem> browseItems, BrowseContext ctx, boolean removeDuplicates, boolean isBrowsingForward) {
-    var lower = browseItems.get(0).getShelfKey();
-    var upper = browseItems.get(browseItems.size() - 1).getShelfKey();
     return browseItems.stream()
-      .map(item -> getCallNumberBrowseItemsBetween(item, lower, upper, removeDuplicates))
+      .map(item -> getCallNumberBrowseItemsBetween(item, removeDuplicates))
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
       .sorted(comparing(CallNumberBrowseItem::getShelfKey))
@@ -102,9 +100,7 @@ public class CallNumberBrowseResultConverter {
     return isBrowsingForward ? comparisonResult > 0 : comparisonResult < 0;
   }
 
-  private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
-                                                                            String lower, String upper,
-                                                                            boolean removeDuplicates) {
+  private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem, boolean removeDuplicates) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));
@@ -113,7 +109,6 @@ public class CallNumberBrowseResultConverter {
       .map(Item::getEffectiveShelvingOrder).distinct()
       .filter(StringUtils::isNotBlank)
       .map(StringUtils::toRootUpperCase)
-      .filter(shelfKey -> shelfKey.compareTo(lower) >= 0 && shelfKey.compareTo(upper) <= 0)
       .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))));
 
     if (removeDuplicates) {

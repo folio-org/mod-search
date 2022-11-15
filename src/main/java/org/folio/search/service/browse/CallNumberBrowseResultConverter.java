@@ -100,7 +100,8 @@ public class CallNumberBrowseResultConverter {
     return isBrowsingForward ? comparisonResult > 0 : comparisonResult < 0;
   }
 
-  private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem, boolean removeDuplicates) {
+  private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
+                                                                            boolean removeDuplicates) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));

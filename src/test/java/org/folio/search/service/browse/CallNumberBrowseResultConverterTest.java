@@ -161,7 +161,8 @@ class CallNumberBrowseResultConverterTest {
         forwardContext(), true, List.of(
           cnBrowseItem(instance("B1", "B2", "C2"), "B1"),
           cnBrowseItem(instance("B1", "B2", "C2"), "B2"),
-          cnBrowseItem(instance("C1", "C2"), "C1"))),
+          cnBrowseItem(instance("C1", "C2"), "C1"),
+          cnBrowseItem(2, "C2"))),
 
       arguments("forward: n resources, results collapsed",
         searchHits("A1", "A1", "A2", "A2", "A2", "A3", "A4", "A4", "A5", "A6", "A6"),
@@ -190,6 +191,7 @@ class CallNumberBrowseResultConverterTest {
       arguments("backward: 2 resources (intermediate call numbers are populated)",
         List.of(searchHit("C4", instance("C1", "C2", "C4")), searchHit("B2", instance("B1", "B2"))),
         backwardContext(), false, List.of(
+          cnBrowseItem(instance("B1", "B2"), "B1"),
           cnBrowseItem(instance("B1", "B2"), "B2"),
           cnBrowseItem(instance("C1", "C2", "C4"), "C1"),
           cnBrowseItem(instance("C1", "C2", "C4"), "C2"),

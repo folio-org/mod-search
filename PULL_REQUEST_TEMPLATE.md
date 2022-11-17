@@ -10,6 +10,7 @@ _How does this change fulfill the purpose?_
 - [ ] Interface versions changes
 - [ ] Interface dependencies added, or removed
 - [ ] Permissions changed, added, or removed
+- [ ] Check logging.
 
 ### TODOS and Open Questions
 - [ ] Use GitHub checklists. When solved, check the box and explain the answer.

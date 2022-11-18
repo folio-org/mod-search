@@ -91,6 +91,11 @@
         "contributorTypeId": {
           "index": "keyword",
           "showInResponse": [ "search", "call-number-browse" ]
+        },
+        "authorityId": {
+          "index": "keyword",
+          "searchAliases": [ "authorityId" ],
+          "showInResponse": [ "search", "call-number-browse" ]
         }
       }
     },

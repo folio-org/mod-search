@@ -65,6 +65,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "uniformTitle all {value}, déjà vu",
     "contributors.name all {value}, franks",
     "contributors.authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",
+    "authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",
     "electronicAccess.materialsSpecification all {value}, material",
     "items.electronicAccess.materialsSpecification all {value}, table",
     "item.electronicAccess.materialsSpecification all {value}, table",
@@ -251,6 +252,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name = {value}", "*rmelen, Frank"),
 
       arguments("contributors.authorityId == {value}", "55294032-fcf6-45cc-b6da-4420a61ef72c"),
+      arguments("authorityId == {value}", "55294032-fcf6-45cc-b6da-4420a61ef72c"),
 
       arguments("hrid == {value}", "inst000000000022"),
       arguments("hrid == {value}", "inst00*"),

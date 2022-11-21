@@ -1,3 +1,6 @@
+## 1.7.6 2022-11-21
+* MSEARCH-457 Fix reindex job fails after 99.9%, (contributors index 'keyword')
+
 ## 1.7.5 2022-09-02
 * MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing
 

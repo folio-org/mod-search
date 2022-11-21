@@ -12,7 +12,7 @@
   <name>mod-search</name>
   <groupId>org.folio</groupId>
   <artifactId>mod-search</artifactId>
-  <version>1.7.6</version>
+  <version>1.7.7-SNAPSHOT</version>
   <description>FOLIO search service</description>
   <packaging>jar</packaging>
 

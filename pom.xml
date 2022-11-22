@@ -12,7 +12,7 @@
   <name>mod-search</name>
   <groupId>org.folio</groupId>
   <artifactId>mod-search</artifactId>
-  <version>1.7.6-SNAPSHOT</version>
+  <version>1.7.7-SNAPSHOT</version>
   <description>FOLIO search service</description>
   <packaging>jar</packaging>
 
@@ -47,7 +47,7 @@
     <streamex.version>0.8.1</streamex.version>
 
     <!-- Test dependencies versions -->
-    <testcontainer.version>1.17.2</testcontainer.version>
+    <testcontainer.version>1.17.3</testcontainer.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
@@ -564,7 +564,7 @@
     <url>https://github.com/folio-org/${project.artifactId}</url>
     <connection>scm:git:git://github.com/folio-org/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/${project.artifactId}.git</developerConnection>
-    <tag>v1.7.5</tag>
+    <tag>v1.7.6</tag>
   </scm>
 
 </project>

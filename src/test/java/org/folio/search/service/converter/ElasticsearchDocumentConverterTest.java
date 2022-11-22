@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceAlternativeTitles;
@@ -130,6 +131,10 @@ class ElasticsearchDocumentConverterTest {
       arguments(
         mapOf("metadata", mapOf("updatedByUserId", "userId", "createdByUsername", "username")),
         instance(instance -> instance.setMetadata(metadata()))),
+
+      arguments(
+        mapOf("contributors", List.of(mapOf("plain_name", "John"))),
+        instance(instance -> instance.addContributorsItem(new Contributor().name("John")))),
 
       arguments(
         mapOf("alternativeTitles", asList(

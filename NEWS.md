@@ -1,3 +1,6 @@
+## 1.7.7 2022-12-02
+* MSEARCH-465 Specific string type in resource identifier field does not work in keyword search
+
 ## 1.7.6 2022-11-21
 * MSEARCH-457 Fix reindex job fails after 99.9%, (contributors index 'keyword')
 

@@ -14,20 +14,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
+  private static final String WHITE_SPACE = "\\s+";
+
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
     if (term instanceof String) {
       var stringTerm = (String) term;
-      var terms = stringTerm.split("\\s+");
+      var terms = stringTerm.split(WHITE_SPACE);
+
       if (terms.length == 1) {
         return getMultiMatchQuery(terms[0], fields);
+      } else {
+        return getBoolQuery(terms, fields);
       }
-
-      var boolQuery = boolQuery();
-      for (var singleTerm : terms) {
-        boolQuery.must(getMultiMatchQuery(singleTerm, fields));
-      }
-      return boolQuery;
     }
 
     return getMultiMatchQuery(term, fields);
@@ -50,5 +49,15 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
   private QueryBuilder getMultiMatchQuery(Object term, String... fieldNames) {
     return multiMatchQuery(term, fieldNames).operator(AND).type(CROSS_FIELDS);
+  }
+
+  private QueryBuilder getBoolQuery(String[] terms, String... fieldNames) {
+    var boolQuery = boolQuery();
+    for (var singleTerm : terms) {
+      if (singleTerm.length() > 1) {
+        boolQuery.must(getMultiMatchQuery(singleTerm, fieldNames));
+      }
+    }
+    return boolQuery;
   }
 }

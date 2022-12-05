@@ -41,7 +41,6 @@
         "type": "mapping",
         "mappings": [
           "& => and",
-          "| => or",
           ": => \\s+"
         ]
       }

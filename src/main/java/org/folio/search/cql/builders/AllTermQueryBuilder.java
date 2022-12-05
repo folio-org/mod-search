@@ -54,9 +54,6 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
   private QueryBuilder getBoolQuery(String[] terms, String... fieldNames) {
     var boolQuery = boolQuery();
     for (var singleTerm : terms) {
-      if (singleTerm.length() == 1 && !Character.isLetterOrDigit(singleTerm.charAt(0))) {
-        continue;
-      }
       boolQuery.must(getMultiMatchQuery(singleTerm, fieldNames));
     }
     return boolQuery;

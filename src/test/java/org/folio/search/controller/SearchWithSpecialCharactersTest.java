@@ -69,8 +69,7 @@ public class SearchWithSpecialCharactersTest extends BaseIntegrationTest {
       "'Harry Potter and the cursed child' / Part two : {a new play by Jack Thorne}",
       ".Harry Potter and the cursed child - Part three [a new play] by Jack Thorne !",
       "Harry Potter | and the cursed child-Part four ; a new play by Jack Thorne",
-      "@ Harry Potter and the cursed child Part five a new play by Jack Thorne",
-      "1960 hydrologic data ~ Mekong ` River ! Basin @ in Thailand # a by ^ Harza Engineering ( Company ) prepared - for _ Committee + for = Coordination { of Investigation } of the Lower Mekong [ River Basin ] and the U S Agency | for \\ International / Development : Données ; hydrologiques pour \" l'année 1960, basin \" [sic] du ' Mékong < en > Thaïlande : rapport / preparé par Harza Engineering Company ; pour le Comité des de coordination , des études sur le bassin du Mékong inférieur et l'Agence des Etats-Unis . pour le développment international ?"
+      "@ Harry Potter and the cursed child Part five a new play by Jack Thorne"
     );
   }
 }

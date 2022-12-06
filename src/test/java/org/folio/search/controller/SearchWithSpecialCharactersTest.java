@@ -1,18 +1,16 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import java.util.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.List;
-
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 
 public class SearchWithSpecialCharactersTest extends BaseIntegrationTest {
   private static final Instance[] INSTANCES = instances();

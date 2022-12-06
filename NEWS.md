@@ -1,3 +1,6 @@
+## 1.7.8 2022-12-06
+* MSEARCH-466 Add char filter for instance\authority
+
 ## 1.7.7 2022-12-02
 * MSEARCH-465 Specific string type in resource identifier field does not work in keyword search
 

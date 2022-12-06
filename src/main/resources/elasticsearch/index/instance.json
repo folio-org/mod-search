@@ -39,7 +39,7 @@
     "char_filter": {
       "empty_char_replacement": {
         "type": "pattern_replace",
-        "pattern": "[$+,:;=?@#|'<>.^*()%!-/]",
+        "pattern": "[~`!@#%^()-_+={}\\[\\]|\\/:;\"'<>,.?]",
         "replacement": "\\s+"
       },
       "and_char_replacement": {

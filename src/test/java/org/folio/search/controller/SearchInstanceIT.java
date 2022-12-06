@@ -381,12 +381,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers all {value}", "hold000000000009"),
       arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),
       arguments("holdingsIdentifiers all {value}", "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"),
-      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
-
-      //search by multiple different parameters
-      arguments("(keyword all {value})", "wolves matthew 9781609383657"),
-      arguments("(keyword all {value})", "A semantic web primer & wolves"),
-      arguments("(title all {value})", "A semantic web primer : 0747-0850")
+      arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19")
     );
   }
 }

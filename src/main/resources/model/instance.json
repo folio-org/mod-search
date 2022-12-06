@@ -36,7 +36,7 @@
     },
     "title": {
       "searchTypes": "sort",
-      "searchAliases": [ "title", "keyword" ],
+      "searchAliases": [ "title"],
       "index": "multilang",
       "showInResponse": [ "search", "call-number-browse" ]
     },
@@ -47,24 +47,23 @@
           "index": "source"
         },
         "alternativeTitle": {
-          "searchAliases": [ "title", "keyword" ],
+          "searchAliases": [ "title" ],
           "index": "multilang"
         }
       }
     },
     "indexTitle": {
-      "searchAliases": [ "title", "keyword" ],
+      "searchAliases": [ "title" ],
       "index": "multilang"
     },
     "series": {
-      "searchAliases": [ "title", "keyword" ],
+      "searchAliases": [ "title" ],
       "index": "multilang"
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "searchAliases": [ "keyword" ],
           "index": "whitespace"
         },
         "identifierTypeId": {
@@ -76,7 +75,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "searchAliases": [ "contributors", "keyword" ],
+          "searchAliases": [ "contributors" ],
           "index": "standard",
           "showInResponse": [ "search", "call-number-browse" ]
         },
@@ -641,6 +640,11 @@
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
       "searchAliases": [ "cql.all", "cql.allHoldings" ]
+    },
+    "keyword": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "keywordValuesProcessor"
     }
   },
   "mappingsSource": {

@@ -8,7 +8,6 @@ import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
 import static org.opensearch.index.query.Operator.AND;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 
@@ -34,9 +33,7 @@ class AllTermQueryBuilderTest {
   @Test
   void getQuery_positive() {
     var actual = queryBuilder.getQuery("value1 value2", RESOURCE_NAME, "f1.*", "f2");
-    assertThat(actual).isEqualTo(boolQuery()
-      .must(getMultiMatchQuery("value1", "f1.*", "f2"))
-      .must(getMultiMatchQuery("value2", "f1.*", "f2")));
+    assertThat(actual).isEqualTo(getMultiMatchQuery("value1 value2", "f1.*", "f2"));
   }
 
   @Test

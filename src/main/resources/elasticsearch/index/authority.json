@@ -23,9 +23,19 @@
       "source_analyzer": {
         "tokenizer": "icu_tokenizer",
         "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
+        "char_filter": [ "authority_char_filter" ],
         "type": "custom"
       }
     },
-    "tokenizers": { }
+    "tokenizers": { },
+    "char_filter": {
+      "authority_char_filter": {
+        "type": "mapping",
+        "mappings": [
+          "& => and",
+          ": => \\s+"
+        ]
+      }
+    }
   }
 }

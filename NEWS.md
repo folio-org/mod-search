@@ -1,3 +1,6 @@
+## 1.8.1 2022-12-06
+* MSEARCH-466 Add char filter for instance\authority
+
 ## 1.8.0 2022-10-27
 * MSEARCH-349 Change Instance ids stream API to use jobs
 * MSEARCH-350 Change Holdings ids stream API to use jobs
@@ -22,6 +25,15 @@
 * MSEARCH-440 Enable GZIP and SMILE for client communication
 * MSEARCH-441 Use default routing for indexing and searching
 * MSEARCH-449 folio-spring-base v5.0.1 update
+
+## 1.7.8 2022-12-06
+* MSEARCH-466 Add char filter for instance\authority
+
+## 1.7.7 2022-12-02
+* MSEARCH-465 Specific string type in resource identifier field does not work in keyword search
+
+## 1.7.6 2022-11-21
+* MSEARCH-457 Fix reindex job fails after 99.9%, (contributors index 'keyword')
 
 ## 1.7.5 2022-09-02
 * MSEARCH-414 Browse by call-numbers and shelvingOrder, add subfield for browsing

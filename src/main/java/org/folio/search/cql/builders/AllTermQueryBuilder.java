@@ -6,24 +6,35 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
-  private static final String WHITE_SPACE = "\\s+";
+  private static final Pattern SPLITERATOR = Pattern.compile("([^\\s:\\/&]+)");
 
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
     if (term instanceof String) {
       var stringTerm = (String) term;
-      var terms = stringTerm.split(WHITE_SPACE);
 
-      if (terms.length == 1) {
-        return getMultiMatchQuery(terms[0], fields);
+      List<String> terms = new ArrayList<>();
+      Matcher regexMatcher = SPLITERATOR.matcher(stringTerm);
+      while (regexMatcher.find()) {
+        if (StringUtils.isNotBlank(regexMatcher.group(1))) {
+          terms.add(regexMatcher.group(1));
+        }
+      }
+
+      if (terms.size() == 1) {
+        return getMultiMatchQuery(terms.get(0), fields);
       } else {
         return getBoolQuery(terms, fields);
       }
@@ -51,7 +62,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
     return multiMatchQuery(term, fieldNames).operator(AND).type(CROSS_FIELDS);
   }
 
-  private QueryBuilder getBoolQuery(String[] terms, String... fieldNames) {
+  private QueryBuilder getBoolQuery(List<String> terms, String... fieldNames) {
     var boolQuery = boolQuery();
     for (var singleTerm : terms) {
       boolQuery.must(getMultiMatchQuery(singleTerm, fieldNames));

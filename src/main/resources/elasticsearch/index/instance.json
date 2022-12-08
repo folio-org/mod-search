@@ -31,18 +31,16 @@
       "source_analyzer": {
         "tokenizer": "icu_tokenizer",
         "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
-        "char_filter": [ "instance_char_filter" ],
+        "char_filter": [ "and_char_replacement" ],
         "type": "custom"
       }
     },
     "tokenizers": { },
     "char_filter": {
-      "instance_char_filter": {
-        "type": "mapping",
-        "mappings": [
-          "& => and",
-          ": => \\s+"
-        ]
+      "and_char_replacement": {
+        "type": "pattern_replace",
+        "pattern": " & ",
+        "replacement": " and "
       }
     }
   }

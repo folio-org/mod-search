@@ -1,3 +1,6 @@
+## 1.8.2 2022-12-09
+* MSEARCH-466 Change logic on keyword search
+
 ## 1.8.1 2022-12-06
 * MSEARCH-466 Add char filter for instance\authority
 

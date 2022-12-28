@@ -20,6 +20,7 @@ import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.Note;
+import org.folio.search.domain.dto.Subject;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.types.UnitTest;
@@ -61,8 +62,10 @@ class InstanceAllFieldValuesProcessorTest {
 
   @Test
   void getFieldValue_positive_multilangSubjects() {
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "subjects")).thenReturn(true);
-    var actual = processor.getFieldValue(toMap(new Instance().subjects(List.of("subject1", "subject2"))));
+    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "subjects.value")).thenReturn(true);
+    var actual =
+      processor.getFieldValue(
+        toMap(new Instance().subjects(List.of(new Subject().value("subject1"), new Subject().value("subject2")))));
     assertThat(actual).isEqualTo(MultilangValue.of(emptySet(), newLinkedHashSet("subject1", "subject2")));
   }
 

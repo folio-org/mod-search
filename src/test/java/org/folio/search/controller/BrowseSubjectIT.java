@@ -18,8 +18,10 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.SearchUtils;
@@ -320,7 +322,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     return new Instance()
       .id(randomId())
       .title((String) data.get(0))
-      .subjects((List<String>) data.get(1))
+      .subjects(((List<String>) data.get(1)).stream().map(val -> new Subject().value(val)).collect(Collectors.toList()))
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());

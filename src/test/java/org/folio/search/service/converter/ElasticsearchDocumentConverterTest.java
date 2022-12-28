@@ -26,8 +26,9 @@ import org.apache.lucene.search.TotalHits.Relation;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceAlternativeTitlesInner;
+import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Metadata;
+import org.folio.search.domain.dto.SeriesItem;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.TestUtils.TestResource;
@@ -148,12 +149,8 @@ class ElasticsearchDocumentConverterTest {
           alternativeTitle("value1"), alternativeTitle("value2"))))),
 
       arguments(
-        mapOf("plain_series", asList("series1", null)),
-        instance(instance -> instance.setSeries(List.of("series1")))),
-
-      arguments(
-        mapOf("series", List.of(mapOf("src", "series1"), mapOf("src", null)), "plain_series", asList("series1", null)),
-        instance(instance -> instance.setSeries(List.of("series1"))))
+        mapOf("series", List.of(mapOf("plain_value", "series1"))),
+        instance(instance -> instance.addSeriesItem(seriesItem("series1"))))
     );
   }
 
@@ -169,10 +166,16 @@ class ElasticsearchDocumentConverterTest {
     return identifier;
   }
 
-  private static InstanceAlternativeTitlesInner alternativeTitle(String value) {
-    var title = new InstanceAlternativeTitlesInner();
+  private static AlternativeTitle alternativeTitle(String value) {
+    var title = new AlternativeTitle();
     title.setAlternativeTitle(value);
     return title;
+  }
+
+  private static SeriesItem seriesItem(String value) {
+    var seriesItem = new SeriesItem();
+    seriesItem.setValue(value);
+    return seriesItem;
   }
 
   private static Metadata metadata() {

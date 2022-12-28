@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceAlternativeTitlesInner;
+import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -53,11 +53,11 @@ class UniformTitleProcessorTest {
     );
   }
 
-  private static InstanceAlternativeTitlesInner alternativeTitle(String id, String value) {
-    return new InstanceAlternativeTitlesInner().alternativeTitleTypeId(id).alternativeTitle(value);
+  private static AlternativeTitle alternativeTitle(String id, String value) {
+    return new AlternativeTitle().alternativeTitleTypeId(id).alternativeTitle(value);
   }
 
-  private static Instance instance(InstanceAlternativeTitlesInner... alternativeTitles) {
+  private static Instance instance(AlternativeTitle... alternativeTitles) {
     return new Instance().alternativeTitles(alternativeTitles != null ? asList(alternativeTitles) : null);
   }
 

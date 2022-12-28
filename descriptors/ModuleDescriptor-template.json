@@ -39,7 +39,7 @@
     },
     {
       "id": "search",
-      "version": "0.9",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [ "GET" ],

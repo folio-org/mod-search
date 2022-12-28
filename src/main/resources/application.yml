@@ -10,6 +10,7 @@ spring:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
     uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
+    compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
@@ -57,6 +58,7 @@ application:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
       data-format: ${INDEXING_DATA_FORMAT:smile}
+
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

@@ -64,7 +64,7 @@ public class OpensearchRestClientConfiguration {
     if (properties.getPathPrefix() != null) {
       builder.setPathPrefix(properties.getPathPrefix());
     }
-    builder.setCompressionEnabled(true);
+    builder.setCompressionEnabled(properties.isCompressionEnabled());
     return builder;
   }
 

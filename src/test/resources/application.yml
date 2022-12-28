@@ -11,6 +11,7 @@ spring:
   opensearch:
     username: elastic
     password: s3cret
+    compression-enabled: false
   datasource:
     username: folio_admin
     password: password
@@ -43,7 +44,7 @@ application:
     indexing:
       instance-subjects:
         retry-attempts: 3
-      data-format: ${INDEXING_DATA_FORMAT:smile}
+      data-format: ${INDEXING_DATA_FORMAT:json}
   query:
     properties:
       request-timeout: 25s

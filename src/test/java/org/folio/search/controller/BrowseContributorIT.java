@@ -17,18 +17,18 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Facet;
@@ -51,7 +51,6 @@ import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 @IntegrationTest
 class BrowseContributorIT extends BaseIntegrationTest {
@@ -305,18 +304,20 @@ class BrowseContributorIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
     actual.getItems().sort(Comparator.comparing(InstanceContributorBrowseItem::getName, StringUtils::compareIgnoreCase)
       .thenComparing((o1, o2) -> StringUtils.compare(o1.getContributorNameTypeId(), o2.getContributorNameTypeId()))
-      .thenComparingInt(InstanceContributorBrowseItem::getTotalRecords)
-      .thenComparing((o1, o2) -> StringUtils.compare(o1.getAuthorityId(), o2.getAuthorityId())));
-    if (!CollectionUtils.isEmpty(expected.getItems())) {
-      assertEquals(expected.getItems().get(0), actual.getItems().get(0));
-      actual.getItems().remove(0);
-      List<InstanceContributorBrowseItem> actualItems = actual.getItems();
-      List<InstanceContributorBrowseItem> expectedItems = new ArrayList<>(expected.getItems());
-      expectedItems.remove(0);
-      assertTrue(expectedItems.containsAll(actualItems));
-    } else {
-      assertEquals(expected.getItems(), actual.getItems());
-    }
+    );
+
+    List<String> actualNames = actual.getItems().stream().map(InstanceContributorBrowseItem::getName).collect(Collectors.toList());
+    List<String> expectedNames = expected.getItems().stream().map(InstanceContributorBrowseItem::getName).collect(Collectors.toList());
+
+    List<String> actualNameTypeIds = actual.getItems().stream().map(InstanceContributorBrowseItem::getContributorNameTypeId).collect(Collectors.toList());
+    List<String> expectedNameTypeIds = expected.getItems().stream().map(InstanceContributorBrowseItem::getContributorNameTypeId).collect(Collectors.toList());
+
+    List<Boolean> actualIsAnchors = actual.getItems().stream().map(InstanceContributorBrowseItem::getIsAnchor).collect(Collectors.toList());
+    List<Boolean> expectedIsAnchors = expected.getItems().stream().map(InstanceContributorBrowseItem::getIsAnchor).collect(Collectors.toList());
+
+    assertEquals(expectedNames, actualNames);
+    assertEquals(expectedNameTypeIds, actualNameTypeIds);
+    assertEquals(expectedIsAnchors, actualIsAnchors);
 
     assertEquals(expected.getNext(), actual.getNext());
     assertEquals(expected.getPrev(), actual.getPrev());

@@ -91,7 +91,9 @@ class InstanceEventPreProcessorTest {
     return mapOf("value", value, "authorityId", authorityId);
   }
 
-  private Map<String, String> subject(String value) { return subject(value, null); }
+  private Map<String, String> subject(String value) {
+    return subject(value, null);
+  }
 
   private ResourceEvent getSubjectCreateEvent(String value, String authId) {
     var id = sha256Hex(value + authId);

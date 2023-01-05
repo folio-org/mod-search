@@ -90,11 +90,11 @@ class IndexingIT extends BaseIntegrationTest {
   }
 
   private static List<String> getRandomIds(int count) {
-    return IntStream.range(0, count).mapToObj(index -> randomId()).collect(toList());
+    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
   }
 
   private static String getSubjectId(String instanceId) {
-    return sha256Hex("subject-" + sha1Hex(instanceId)+"null");
+    return sha256Hex("subject-" + sha1Hex(instanceId) + "null");
   }
 
   @Test

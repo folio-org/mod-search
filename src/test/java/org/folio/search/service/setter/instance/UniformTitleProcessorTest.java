@@ -14,8 +14,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.AlternativeTitle;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.utils.types.UnitTest;
 import org.junit.jupiter.api.DisplayName;

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacets;
 import static org.folio.search.utils.SearchUtils.getIndexName;

@@ -86,11 +86,11 @@ public class KafkaMessageProducer {
     return jsonConverter.convert(contributorsObject, TYPE_REFERENCE);
   }
 
-  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(Set<ContributorResourceEvent> contributors,
+  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(Set<ContributorResourceEvent> events,
                                                                                ResourceEventType type,
                                                                                String tenantId) {
     var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
-    return contributors.stream()
+    return events.stream()
       .map(contributor -> prepareResourceEvent(contributor, type, tenantId))
       .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
       .toList();

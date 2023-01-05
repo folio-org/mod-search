@@ -165,8 +165,8 @@ public class SearchUtils {
   public static String getPathToFulltextPlainValue(String path) {
     var dotIndex = path.lastIndexOf('.');
     return dotIndex < 0
-      ? PLAIN_FULLTEXT_PREFIX + path
-      : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
+           ? PLAIN_FULLTEXT_PREFIX + path
+           : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
   }
 
   /**
@@ -295,7 +295,7 @@ public class SearchUtils {
    * @return true - if value is empty, false - otherwise
    */
   public static boolean isEmptyString(Object value) {
-    return value instanceof String string && string.isEmpty();
+    return value instanceof String && ((String) value).isEmpty();
   }
 
   /**
@@ -334,7 +334,7 @@ public class SearchUtils {
   }
 
   private static Object getMultilangValueObject(Object value) {
-    return value instanceof MultilangValue multilangValue ? multilangValue.getMultilangValues() : value;
+    return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
   }
 
   private static Object getPlainValueObject(Object value) {

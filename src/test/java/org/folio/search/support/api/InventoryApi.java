@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -116,12 +115,12 @@ public class InventoryApi {
     var hrs = HOLDING_STORE.getOrDefault(tenant, emptyMap()).values().stream()
       .filter(hr -> hr.getInstanceId().equals(id))
       .map(HoldingEvent::getHolding)
-      .collect(Collectors.toList());
+      .toList();
 
     var items = ITEM_STORE.getOrDefault(tenant, emptyMap()).values().stream()
       .filter(item -> item.getInstanceId().equals(id))
       .map(ItemEvent::getItem)
-      .collect(Collectors.toList());
+      .toList();
 
     return Optional.ofNullable(instance)
       .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))

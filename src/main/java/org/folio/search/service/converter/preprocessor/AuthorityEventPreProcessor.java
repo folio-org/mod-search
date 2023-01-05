@@ -16,7 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -42,9 +41,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
     for (var entry : fields.getFields().entrySet()) {
-      if (entry.getValue() instanceof AuthorityFieldDescription) {
+      if (entry.getValue() instanceof AuthorityFieldDescription fieldDesc) {
         var fieldName = entry.getKey();
-        var fieldDesc = (AuthorityFieldDescription) entry.getValue();
         fieldPerDistinctiveType.computeIfAbsent(fieldDesc.getDistinctType(), v -> new ArrayList<>()).add(fieldName);
         continue;
       }
@@ -105,7 +103,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     if (value instanceof Iterable<?>) {
       return stream(((Iterable<?>) value).spliterator(), false)
         .map(v -> createResourceEvent(type, event, name, singletonList(v), eventType, counter.getAndIncrement(), body))
-        .collect(Collectors.toList());
+        .toList();
     }
 
     return emptyList();

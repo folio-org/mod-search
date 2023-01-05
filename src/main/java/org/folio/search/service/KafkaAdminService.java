@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.KafkaUtils.getTenantTopicName;
 
 import java.util.List;
@@ -67,7 +66,7 @@ public class KafkaAdminService {
                                                String tenantId) {
     return localConfigTopics.stream()
       .map(topic -> toKafkaTopic(topic, tenantId))
-      .collect(toList());
+      .toList();
   }
 
   private NewTopic toKafkaTopic(FolioKafkaProperties.KafkaTopic topic, String tenantId) {

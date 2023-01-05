@@ -43,7 +43,7 @@ public interface SearchFieldProvider {
    *
    * @param resource  resource type as {@link String}
    * @param groupType - response group type as {@link ResponseGroupType} object
-   * @return list of fields.
+   * @return array of fields.
    */
   String[] getSourceFields(String resource, ResponseGroupType groupType);
 

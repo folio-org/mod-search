@@ -4,7 +4,6 @@ import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CA
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -53,7 +52,7 @@ public class FeatureConfigService {
   public FeatureConfigs getAll() {
     final List<FeatureConfig> tenantFeatures = featureConfigRepository.findAll().stream()
       .map(featureConfigMapper::convert)
-      .collect(Collectors.toList());
+      .toList();
 
     return new FeatureConfigs().features(tenantFeatures).totalRecords(tenantFeatures.size());
   }

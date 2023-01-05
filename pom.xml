@@ -24,7 +24,7 @@
   </licenses>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <mod-search.yaml.file>${project.basedir}/src/main/resources/swagger.api/mod-search.yaml</mod-search.yaml.file>
     <sonar.exclusions>
       src/main/java/org/folio/search/SearchApplication.java,

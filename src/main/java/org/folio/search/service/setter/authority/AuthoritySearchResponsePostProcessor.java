@@ -1,6 +1,5 @@
 package org.folio.search.service.setter.authority;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
@@ -30,12 +29,12 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
 
     var authorizedAuthorities = res.stream()
       .filter(a -> a.getAuthRefType().equals("Authorized"))
-      .collect(toList());
+      .toList();
 
     var authorityIds = authorizedAuthorities.stream()
       .map(Authority::getId)
       .map(UUID::fromString)
-      .collect(toList());
+      .toList();
 
     var response = entitiesLinksClient.getLinksCount(
         EntitiesLinksClient.UuidCollection.of(authorityIds)).getBody();

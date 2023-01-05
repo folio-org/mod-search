@@ -1,7 +1,5 @@
 package org.folio.search.service.metadata;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.List;
@@ -57,7 +55,7 @@ public class LocalResourceProvider implements MetadataResourceProvider {
         .filter(Resource::isReadable)
         .map(this::loadResourceDescription)
         .filter(Objects::nonNull)
-        .collect(toUnmodifiableList());
+        .toList();
     } catch (IOException e) {
       log.error("Failed to read models [pattern: {}]", RESOURCE_DESCRIPTIONS_LOCATION_PATTERN);
       throw new ResourceDescriptionException(String.format(

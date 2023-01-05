@@ -1,7 +1,6 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
@@ -89,7 +88,7 @@ public class SearchDocumentConverter {
       .flatMap(SearchConverterUtils::getStringStreamFromValue)
       .distinct()
       .filter(supportedLanguages::contains)
-      .collect(toList());
+      .toList();
   }
 
   private static boolean canConvertEvent(ResourceEvent resourceEvent) {
@@ -152,7 +151,7 @@ public class SearchDocumentConverter {
       return ((List<Object>) value).stream()
         .map(listValue -> getObjectFieldValue(listValue, subfields, ctx))
         .filter(Objects::nonNull)
-        .collect(toList());
+        .toList();
     }
 
     return null;

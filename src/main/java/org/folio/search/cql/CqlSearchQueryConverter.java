@@ -48,8 +48,8 @@ public class CqlSearchQueryConverter {
     var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
     var queryBuilder = new SearchSourceBuilder();
 
-    if (cqlNode instanceof CQLSortNode) {
-      cqlSortProvider.getSort((CQLSortNode) cqlNode, resource).forEach(queryBuilder::sort);
+    if (cqlNode instanceof CQLSortNode cqlSortNode) {
+      cqlSortProvider.getSort(cqlSortNode, resource).forEach(queryBuilder::sort);
     }
 
     var boolQuery = convertToQuery(cqlNode, resource);
@@ -71,8 +71,8 @@ public class CqlSearchQueryConverter {
   }
 
   private CQLTermNode convertToTermNode(CQLNode cqlNode) {
-    if (cqlNode instanceof CQLBooleanNode) {
-      var leftNode = ((CQLBooleanNode) cqlNode).getLeftOperand();
+    if (cqlNode instanceof CQLBooleanNode cqlBooleanNode) {
+      var leftNode = cqlBooleanNode.getLeftOperand();
       return convertToTermNode(leftNode);
     }
     return (CQLTermNode) cqlNode;
@@ -80,14 +80,14 @@ public class CqlSearchQueryConverter {
 
   private QueryBuilder convertToQuery(CQLNode node, String resource) {
     var cqlNode = node;
-    if (node instanceof CQLSortNode) {
-      cqlNode = ((CQLSortNode) node).getSubtree();
+    if (node instanceof CQLSortNode cqlSortNode) {
+      cqlNode = cqlSortNode.getSubtree();
     }
-    if (cqlNode instanceof CQLTermNode) {
-      return cqlTermQueryConverter.getQuery((CQLTermNode) cqlNode, resource);
+    if (cqlNode instanceof CQLTermNode cqlTermNode) {
+      return cqlTermQueryConverter.getQuery(cqlTermNode, resource);
     }
-    if (cqlNode instanceof CQLBooleanNode) {
-      return convertToBoolQuery((CQLBooleanNode) cqlNode, resource);
+    if (cqlNode instanceof CQLBooleanNode cqlBooleanNode) {
+      return convertToBoolQuery(cqlBooleanNode, resource);
     }
     throw new UnsupportedOperationException(String.format(
       "Failed to parse CQL query. Node with type '%s' is not supported.", node.getClass().getSimpleName()));
@@ -95,19 +95,15 @@ public class CqlSearchQueryConverter {
 
   private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
     var operator = node.getOperator();
-    switch (operator) {
-      case OR:
-        return flattenBoolQuery(node, resource, BoolQueryBuilder::should);
-      case AND:
-        return flattenBoolQuery(node, resource, BoolQueryBuilder::must);
-      case NOT:
-        return boolQuery()
-          .must(convertToQuery(node.getLeftOperand(), resource))
-          .mustNot(convertToQuery(node.getRightOperand(), resource));
-      default:
-        throw new UnsupportedOperationException(String.format(
-          "Failed to parse CQL query. Operator '%s' is not supported.", operator.name()));
-    }
+    return switch (operator) {
+      case OR -> flattenBoolQuery(node, resource, BoolQueryBuilder::should);
+      case AND -> flattenBoolQuery(node, resource, BoolQueryBuilder::must);
+      case NOT -> boolQuery()
+        .must(convertToQuery(node.getLeftOperand(), resource))
+        .mustNot(convertToQuery(node.getRightOperand(), resource));
+      default -> throw new UnsupportedOperationException(String.format(
+        "Failed to parse CQL query. Operator '%s' is not supported.", operator.name()));
+    };
   }
 
   private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource,

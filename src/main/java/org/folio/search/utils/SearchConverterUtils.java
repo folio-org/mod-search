@@ -1,7 +1,6 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
@@ -60,14 +59,14 @@ public class SearchConverterUtils {
     if (value instanceof List) {
       var builder = Stream.<String>builder();
       for (Object listValue : (List<Object>) value) {
-        if (listValue instanceof String) {
-          builder.add((String) listValue);
+        if (listValue instanceof String string) {
+          builder.add(string);
         }
       }
       return builder.build();
     }
-    if (value instanceof String) {
-      return Stream.of((String) value);
+    if (value instanceof String string) {
+      return Stream.of(string);
     }
     return Stream.empty();
   }
@@ -149,7 +148,7 @@ public class SearchConverterUtils {
       var result = ((List<Object>) value).stream()
         .map(listValue -> getFieldValueByPath(pathValue, listValue))
         .filter(Objects::nonNull)
-        .collect(toList());
+        .toList();
       return CollectionUtils.isNotEmpty(result) ? result : null;
     }
     return null;

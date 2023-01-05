@@ -2,7 +2,6 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
@@ -352,7 +351,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
         .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
-      .collect(toList());
+      .toList();
 
     return new Instance()
       .id(randomId())

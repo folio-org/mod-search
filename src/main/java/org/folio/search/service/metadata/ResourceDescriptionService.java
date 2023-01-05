@@ -104,7 +104,7 @@ public class ResourceDescriptionService {
     return resourceDescriptions.values().stream()
       .filter(desc -> StringUtils.equals(resource, desc.getParent()))
       .map(ResourceDescription::getName)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {

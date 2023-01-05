@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -60,14 +59,14 @@ public class KafkaMessageProducer {
         prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId),
         prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, tenantId))
       .flatMap(List::stream)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
                                                               String tenantId) {
     return extractContributors(objectMap).stream()
       .map(contributor -> toContributorEvent(contributor, instanceId, tenantId))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private ContributorResourceEvent toContributorEvent(Contributor contributor, String instanceId, String tenantId) {
@@ -94,7 +93,7 @@ public class KafkaMessageProducer {
     return contributors.stream()
       .map(contributor -> prepareResourceEvent(contributor, type, tenantId))
       .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private ResourceEvent prepareResourceEvent(ContributorResourceEvent contributorEvent, ResourceEventType type,

@@ -80,7 +80,7 @@ public class CallNumberBrowseResultConverter {
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
       .sorted(comparing(CallNumberBrowseItem::getShelfKey))
-      .collect(toList());
+      .toList();
   }
 
   private static List<CallNumberBrowseItem> fillItemsWithFullCallNumbers(
@@ -88,7 +88,7 @@ public class CallNumberBrowseResultConverter {
     return items.stream()
       .filter(item -> isValidBrowseItem(item, ctx, isBrowsingForward))
       .map(browseItem -> browseItem.fullCallNumber(getFullCallNumber(browseItem)))
-      .collect(toList());
+      .toList();
   }
 
   private static boolean isValidBrowseItem(CallNumberBrowseItem item, BrowseContext ctx, boolean isBrowsingForward) {
@@ -115,7 +115,7 @@ public class CallNumberBrowseResultConverter {
     if (removeDuplicates) {
       callNumbersStream = callNumbersStream.filter(distinctByKey(CallNumberBrowseItem::getFullCallNumber));
     }
-    return callNumbersStream.collect(toList());
+    return callNumbersStream.toList();
   }
 
   private static CallNumberBrowseItem mapToCallNumberBrowseItem(

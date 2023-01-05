@@ -1,7 +1,6 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.SearchResult;
@@ -85,7 +83,7 @@ public class ElasticsearchDocumentConverter {
 
     var objects = Arrays.stream(searchHits)
       .map(searchHit -> searchHitMapper.apply(searchHit, convert(searchHit.getSourceAsMap(), type)))
-      .collect(toList());
+      .toList();
 
     var postProcessor = searchResponsePostProcessors.get(type);
     if (postProcessor != null) {
@@ -119,7 +117,7 @@ public class ElasticsearchDocumentConverter {
       return listValue.stream()
         .map(ElasticsearchDocumentConverter::processField)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
     }
     return value;
   }

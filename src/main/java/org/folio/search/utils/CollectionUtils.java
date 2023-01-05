@@ -3,7 +3,6 @@ package org.folio.search.utils;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -357,7 +356,7 @@ public final class CollectionUtils {
       .filter(Map.class::isInstance)
       .map(value -> ((Map<?, ?>) value).get(pathValue))
       .flatMap(CollectionUtils::unwrapIfPossible)
-      .collect(toList());
+      .toList();
   }
 
   private static Stream<?> unwrapIfPossible(Object object) {
@@ -372,15 +371,15 @@ public final class CollectionUtils {
   }
 
   private static List<String> getStrings(Object currentField) {
-    if (currentField instanceof String) {
-      return singletonList((String) currentField);
+    if (currentField instanceof String string) {
+      return singletonList(string);
     }
 
     if (currentField instanceof Iterable<?>) {
       return stream(((Iterable<?>) currentField).spliterator(), false)
         .filter(String.class::isInstance)
         .map(String.class::cast)
-        .collect(Collectors.toList());
+        .toList();
     }
 
     return emptyList();

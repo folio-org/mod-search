@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CollectionUtils.addToList;
 import static org.folio.search.utils.CollectionUtils.allMatch;
@@ -106,19 +105,19 @@ class CollectionUtilsTest {
 
   @Test
   void toSafeStream_positive() {
-    var actual = CollectionUtils.toStreamSafe(List.of(1, 2)).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(List.of(1, 2)).toList();
     assertThat(actual).containsExactly(1, 2);
   }
 
   @Test
   void toSafeStream_positive_nullValue() {
-    var actual = CollectionUtils.toStreamSafe(null).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(null).toList();
     assertThat(actual).isEmpty();
   }
 
   @Test
   void toSafeStream_positive_emptyCollection() {
-    var actual = CollectionUtils.toStreamSafe(emptyList()).collect(toList());
+    var actual = CollectionUtils.toStreamSafe(emptyList()).toList();
     assertThat(actual).isEmpty();
   }
 

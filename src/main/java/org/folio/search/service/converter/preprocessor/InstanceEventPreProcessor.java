@@ -1,7 +1,6 @@
 package org.folio.search.service.converter.preprocessor;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
@@ -40,11 +39,10 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     var oldSubjects = extractSubjects(getOldAsMap(event));
     var newSubjects = extractSubjects(getNewAsMap(event));
     var tenantId = event.getTenant();
-    var collect = StreamEx.of(event)
+    return StreamEx.of(event)
       .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))
       .append(getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE))
-      .collect(toList());
-    return collect;
+      .toList();
   }
 
   private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap) {

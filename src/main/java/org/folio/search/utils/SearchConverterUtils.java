@@ -1,7 +1,6 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
@@ -149,7 +148,7 @@ public class SearchConverterUtils {
       var result = ((List<Object>) value).stream()
         .map(listValue -> getFieldValueByPath(pathValue, listValue))
         .filter(Objects::nonNull)
-        .collect(toList());
+        .toList();
       return CollectionUtils.isNotEmpty(result) ? result : null;
     }
     return null;

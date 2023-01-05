@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
@@ -70,7 +69,7 @@ public class KafkaMessageListener {
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .map(authority -> authority.resourceName(AUTHORITY_RESOURCE).id(getResourceEventId(authority)))
-      .collect(toList());
+      .toList();
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       resourceService::indexResources, KafkaMessageListener::logFailedEvent);
@@ -92,7 +91,7 @@ public class KafkaMessageListener {
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .map(contributor -> contributor.resourceName(CONTRIBUTOR_RESOURCE).id(getResourceEventId(contributor)))
-      .collect(toList());
+      .toList();
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       resourceService::indexResources, KafkaMessageListener::logFailedEvent);
@@ -103,7 +102,7 @@ public class KafkaMessageListener {
       .map(KafkaMessageListener::getInstanceResourceEvent)
       .filter(Objects::nonNull)
       .distinct()
-      .collect(toList());
+      .toList();
   }
 
   private static ResourceEvent getInstanceResourceEvent(ConsumerRecord<String, ResourceEvent> consumerRecord) {

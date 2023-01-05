@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static java.lang.String.valueOf;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL_NUMBER_RANGE_FIELD;
@@ -107,7 +106,7 @@ public class CallNumberBrowseRangeService {
     return buckets.stream()
       .map(bucket -> mapBucketToCacheValue(bucket, callNumbersMap))
       .sorted()
-      .collect(toList());
+      .toList();
   }
 
   private static CallNumberBrowseRangeValue mapBucketToCacheValue(Bucket bucket, Map<String, Long> callNumbers) {

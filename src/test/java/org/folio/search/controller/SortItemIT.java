@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
@@ -67,7 +66,7 @@ class SortItemIT extends BaseIntegrationTest {
   }
 
   private static List<String> asIdsList(Integer... indices) {
-    return Arrays.stream(indices).map(index -> IDS[index]).collect(toList());
+    return Arrays.stream(indices).map(index -> IDS[index]).toList();
   }
 
   private static Instance[] instances() {

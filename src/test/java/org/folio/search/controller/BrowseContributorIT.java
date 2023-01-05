@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Contributor;
@@ -308,29 +307,29 @@ class BrowseContributorIT extends BaseIntegrationTest {
     List<String> actualNames = actual.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getName)
-      .collect(Collectors.toList());
+      .toList();
     List<String> expectedNames = expected.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getName)
-      .collect(Collectors.toList());
+      .toList();
 
     List<String> actualNameTypeIds = actual.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getContributorNameTypeId)
-      .collect(Collectors.toList());
+      .toList();
     List<String> expectedNameTypeIds = expected.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getContributorNameTypeId)
-      .collect(Collectors.toList());
+      .toList();
 
     List<Boolean> actualIsAnchors = actual.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getIsAnchor)
-      .collect(Collectors.toList());
+      .toList();
     List<Boolean> expectedIsAnchors = expected.getItems()
       .stream()
       .map(InstanceContributorBrowseItem::getIsAnchor)
-      .collect(Collectors.toList());
+      .toList();
 
     assertEquals(expectedNames, actualNames);
     assertEquals(expectedNameTypeIds, actualNameTypeIds);

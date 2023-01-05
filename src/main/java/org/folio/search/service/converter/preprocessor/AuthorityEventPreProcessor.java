@@ -16,7 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -42,9 +41,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
     for (var entry : fields.getFields().entrySet()) {
-      if (entry.getValue() instanceof AuthorityFieldDescription) {
+      if (entry.getValue() instanceof AuthorityFieldDescription fieldDesc) {
         var fieldName = entry.getKey();
-        var fieldDesc = (AuthorityFieldDescription) entry.getValue();
         fieldPerDistinctiveType.computeIfAbsent(fieldDesc.getDistinctType(), v -> new ArrayList<>()).add(fieldName);
         continue;
       }
@@ -64,8 +62,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
     return event.getType() == ResourceEventType.UPDATE
-           ? getResourceEventsToUpdate(event)
-           : getResourceEvents(event, event.getType());
+      ? getResourceEventsToUpdate(event)
+      : getResourceEvents(event, event.getType());
   }
 
   private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
@@ -83,7 +81,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   }
 
   private List<ResourceEvent> generateResourceEvents(ResourceEvent event, ResourceEventType eventType,
-                                                     Map<String, Object> eventPayload) {
+    Map<String, Object> eventPayload) {
     var result = new ArrayList<ResourceEvent>();
     for (var entry : fieldTypes.entrySet()) {
       for (var field : entry.getValue()) {
@@ -95,8 +93,8 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   }
 
   private List<ResourceEvent> createResourceEvents(ResourceEvent event, String type, String name,
-                                                   AtomicInteger counter, ResourceEventType eventType,
-                                                   Map<String, Object> body) {
+    AtomicInteger counter, ResourceEventType eventType,
+    Map<String, Object> body) {
     var value = body.get(name);
     if (value instanceof String) {
       return singletonList(createResourceEvent(type, event, name, value, eventType, counter.getAndIncrement(), body));
@@ -105,15 +103,15 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     if (value instanceof Iterable<?>) {
       return stream(((Iterable<?>) value).spliterator(), false)
         .map(v -> createResourceEvent(type, event, name, singletonList(v), eventType, counter.getAndIncrement(), body))
-        .collect(Collectors.toList());
+        .toList();
     }
 
     return emptyList();
   }
 
   private ResourceEvent createResourceEvent(String type, ResourceEvent sourceEvent,
-                                            String fieldName, Object fieldValue, ResourceEventType eventType,
-                                            int counter, Map<String, Object> eventPayload) {
+    String fieldName, Object fieldValue, ResourceEventType eventType,
+    int counter, Map<String, Object> eventPayload) {
     return new ResourceEvent()
       .id(type + counter + "_" + sourceEvent.getId())
       .resourceName(sourceEvent.getResourceName())

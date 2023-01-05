@@ -2,7 +2,6 @@ package org.folio.search.cql;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.types.SearchType.SORT;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortMode.MAX;
@@ -48,7 +47,7 @@ public class CqlSortProvider {
     return sortNode.getSortIndexes().stream()
       .map(sortIndex -> buildSortForField(sortIndex, resource))
       .flatMap(Collection::stream)
-      .collect(toList());
+      .toList();
   }
 
   private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, String resource) {

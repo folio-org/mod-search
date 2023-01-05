@@ -2,7 +2,6 @@ package org.folio.search.service.browse;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Locale.ROOT;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -47,7 +46,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     var subjects = items.stream()
       .filter(item -> item.getTotalRecords() == null)
       .map(SubjectBrowseItem::getSubject)
-      .collect(toList());
+      .toList();
 
     var subjectCounts = getSubjectCounts(request, subjects);
     for (var item : items) {

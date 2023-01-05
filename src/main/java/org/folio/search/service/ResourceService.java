@@ -176,7 +176,7 @@ public class ResourceService {
         }
 
         return Stream.of(resourceEvent); })
-      .collect(toList());
+      .toList();
   }
 
   private static <K, V> Map<K, List<V>> mergeMaps(Map<K, List<V>> map1, Map<K, List<V>> map2) {

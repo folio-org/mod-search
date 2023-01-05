@@ -2,7 +2,6 @@ package org.folio.search.repository;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
@@ -158,7 +157,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
   private static List<SearchDocumentBody> getRemainingDocuments(
     List<String> ids, Map<String, SearchDocumentBody> documentsById) {
-    return ids.stream().map(documentsById::get).filter(Objects::nonNull).collect(toList());
+    return ids.stream().map(documentsById::get).filter(Objects::nonNull).toList();
   }
 
   private static String getSubject(SearchDocumentBody document) {
@@ -186,6 +185,6 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .filter(BulkItemResponse::isFailed)
       .map(BulkItemResponse::getFailure)
       .map(Failure::getId)
-      .collect(toList());
+      .toList();
   }
 }

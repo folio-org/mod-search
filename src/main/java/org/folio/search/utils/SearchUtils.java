@@ -165,8 +165,8 @@ public class SearchUtils {
   public static String getPathToFulltextPlainValue(String path) {
     var dotIndex = path.lastIndexOf('.');
     return dotIndex < 0
-           ? PLAIN_FULLTEXT_PREFIX + path
-           : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
+      ? PLAIN_FULLTEXT_PREFIX + path
+      : path.substring(0, dotIndex) + DOT + PLAIN_FULLTEXT_PREFIX + path.substring(dotIndex + 1);
   }
 
   /**
@@ -338,8 +338,7 @@ public class SearchUtils {
   }
 
   private static Object getPlainValueObject(Object value) {
-    if (value instanceof MultilangValue) {
-      var multilangValue = (MultilangValue) value;
+    if (value instanceof MultilangValue multilangValue) {
       return mergeSafelyToSet(multilangValue.getMultilangValues(), multilangValue.getPlainValues());
     }
     return value;

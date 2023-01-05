@@ -95,19 +95,15 @@ public class CqlSearchQueryConverter {
 
   private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
     var operator = node.getOperator();
-    switch (operator) {
-      case OR:
-        return flattenBoolQuery(node, resource, BoolQueryBuilder::should);
-      case AND:
-        return flattenBoolQuery(node, resource, BoolQueryBuilder::must);
-      case NOT:
-        return boolQuery()
-          .must(convertToQuery(node.getLeftOperand(), resource))
-          .mustNot(convertToQuery(node.getRightOperand(), resource));
-      default:
-        throw new UnsupportedOperationException(String.format(
-          "Failed to parse CQL query. Operator '%s' is not supported.", operator.name()));
-    }
+    return switch (operator) {
+      case OR -> flattenBoolQuery(node, resource, BoolQueryBuilder::should);
+      case AND -> flattenBoolQuery(node, resource, BoolQueryBuilder::must);
+      case NOT -> boolQuery()
+        .must(convertToQuery(node.getLeftOperand(), resource))
+        .mustNot(convertToQuery(node.getRightOperand(), resource));
+      default -> throw new UnsupportedOperationException(String.format(
+        "Failed to parse CQL query. Operator '%s' is not supported.", operator.name()));
+    };
   }
 
   private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource,

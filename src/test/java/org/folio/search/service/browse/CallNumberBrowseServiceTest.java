@@ -1,7 +1,6 @@
 package org.folio.search.service.browse;
 
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
@@ -286,7 +285,7 @@ class CallNumberBrowseServiceTest {
       .map(callNumber -> new Item()
         .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
-      .collect(toList());
+      .toList();
     return new Instance().items(items);
   }
 
@@ -322,6 +321,6 @@ class CallNumberBrowseServiceTest {
   private static List<CallNumberBrowseItem> browseItems(String... shelfKeys) {
     return stream(shelfKeys)
       .map(CallNumberBrowseServiceTest::browseItem)
-      .collect(toList());
+      .toList();
   }
 }

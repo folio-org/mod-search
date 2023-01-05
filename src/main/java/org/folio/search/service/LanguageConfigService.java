@@ -104,7 +104,7 @@ public class LanguageConfigService {
   public LanguageConfigs getAll() {
     final List<LanguageConfig> languageConfigs = configRepository.findAll().stream()
       .map(LanguageConfigConverter::toLanguageConfig)
-      .collect(Collectors.toList());
+      .toList();
 
     return new LanguageConfigs()
       .languageConfigs(languageConfigs)

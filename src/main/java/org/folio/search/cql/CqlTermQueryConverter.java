@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.cql.builders.TermQueryBuilder;
@@ -101,7 +100,7 @@ public class CqlTermQueryConverter {
 
     var modifiers = termNode.getRelation().getModifiers().stream()
       .map(Modifier::getType)
-      .collect(Collectors.toList());
+      .toList();
 
     return plainFieldByPath.hasFulltextIndex()
            ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)

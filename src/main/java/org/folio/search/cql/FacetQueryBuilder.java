@@ -5,7 +5,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.folio.search.utils.CollectionUtils.findFirst;
@@ -62,7 +61,7 @@ public class FacetQueryBuilder {
       .map(facet -> getFacetFieldAndLimitAsPair(request.getResource(), facet))
       .map(facet -> getFacetAggregation(request, query, facet))
       .flatMap(Collection::stream)
-      .collect(toList());
+      .toList();
   }
 
   private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,

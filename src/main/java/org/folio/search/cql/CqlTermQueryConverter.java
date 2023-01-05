@@ -116,7 +116,7 @@ public class CqlTermQueryConverter {
   }
 
   private static boolean isWildcardQuery(Object query) {
-    return query instanceof String && ((String) query).contains(ASTERISKS_SIGN);
+    return query instanceof String string && string.contains(ASTERISKS_SIGN);
   }
 
   private static Map<String, TermQueryBuilder> getTermQueryProvidersAsMap(List<TermQueryBuilder> termQueryBuilders) {

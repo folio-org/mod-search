@@ -59,14 +59,14 @@ public class SearchConverterUtils {
     if (value instanceof List) {
       var builder = Stream.<String>builder();
       for (Object listValue : (List<Object>) value) {
-        if (listValue instanceof String) {
-          builder.add((String) listValue);
+        if (listValue instanceof String string) {
+          builder.add(string);
         }
       }
       return builder.build();
     }
-    if (value instanceof String) {
-      return Stream.of((String) value);
+    if (value instanceof String string) {
+      return Stream.of(string);
     }
     return Stream.empty();
   }

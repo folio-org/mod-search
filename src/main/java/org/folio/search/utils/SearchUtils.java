@@ -295,7 +295,7 @@ public class SearchUtils {
    * @return true - if value is empty, false - otherwise
    */
   public static boolean isEmptyString(Object value) {
-    return value instanceof String && ((String) value).isEmpty();
+    return value instanceof String string && string.isEmpty();
   }
 
   /**
@@ -334,7 +334,7 @@ public class SearchUtils {
   }
 
   private static Object getMultilangValueObject(Object value) {
-    return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
+    return value instanceof MultilangValue multilangValue ? multilangValue.getMultilangValues() : value;
   }
 
   private static Object getPlainValueObject(Object value) {

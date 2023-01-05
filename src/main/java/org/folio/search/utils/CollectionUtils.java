@@ -371,8 +371,8 @@ public final class CollectionUtils {
   }
 
   private static List<String> getStrings(Object currentField) {
-    if (currentField instanceof String) {
-      return singletonList((String) currentField);
+    if (currentField instanceof String string) {
+      return singletonList(string);
     }
 
     if (currentField instanceof Iterable<?>) {

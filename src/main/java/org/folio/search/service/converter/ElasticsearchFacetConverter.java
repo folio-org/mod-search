@@ -47,11 +47,11 @@ public class ElasticsearchFacetConverter {
   }
 
   private static List<FacetItem> getFacetItems(Aggregation aggregation) {
-    if (aggregation instanceof ParsedSingleBucketAggregation) {
-      return getFacetItemsFromSingleBucketAggregation((ParsedSingleBucketAggregation) aggregation);
+    if (aggregation instanceof ParsedSingleBucketAggregation parsedSingleBucketAggregation) {
+      return getFacetItemsFromSingleBucketAggregation(parsedSingleBucketAggregation);
     }
-    if (aggregation instanceof ParsedTerms) {
-      return getFacetItemsFromParsedTerms((ParsedTerms) aggregation);
+    if (aggregation instanceof ParsedTerms parsedTerms) {
+      return getFacetItemsFromParsedTerms(parsedTerms);
     }
     return emptyList();
   }

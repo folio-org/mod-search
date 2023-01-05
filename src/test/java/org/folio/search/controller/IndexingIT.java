@@ -95,7 +95,7 @@ class IndexingIT extends BaseIntegrationTest {
   }
 
   private static String getSubjectId(String instanceId) {
-    return sha256Hex("subject-" + sha1Hex(instanceId));
+    return sha256Hex("subject-" + sha1Hex(instanceId)+"null");
   }
 
   @Test
@@ -115,20 +115,20 @@ class IndexingIT extends BaseIntegrationTest {
 
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);
-    assertSubjectExistenceById(sha256Hex("s1"), true);
-    assertSubjectExistenceById(sha256Hex("s2"), true);
+    assertSubjectExistenceById(sha256Hex("s1null"), true);
+    assertSubjectExistenceById(sha256Hex("s2null"), true);
 
     var instanceToUpdate = new Instance().id(instanceId).title("test-resource").subjects(
       List.of(new Subject().value("s2"), new Subject().value("s3")));
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s2 and s3)", 1);
-    assertSubjectExistenceById(sha256Hex("s1"), false);
-    assertSubjectExistenceById(sha256Hex("s3"), true);
+    assertSubjectExistenceById(sha256Hex("s1null"), false);
+    assertSubjectExistenceById(sha256Hex("s3null"), true);
 
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     assertCountByQuery(instanceSearchPath(), "id=={value}", instanceId, 0);
-    assertSubjectExistenceById(sha256Hex("s2"), false);
-    assertSubjectExistenceById(sha256Hex("s3"), false);
+    assertSubjectExistenceById(sha256Hex("s2null"), false);
+    assertSubjectExistenceById(sha256Hex("s3null"), false);
   }
 
   @Test

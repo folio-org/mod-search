@@ -53,7 +53,12 @@ public class SearchConfigurationProperties {
     /**
      * Instance subjects indexing settings.
      */
-    private InstanceSubjectsIndexingSettings instanceSubjects;
+    private DocumentIndexingSettings instanceSubjects;
+
+    /**
+     * Instance contributors indexing settings.
+     */
+    private DocumentIndexingSettings instanceContributors;
 
     /**
      * Data format to use for passing data to elasticsearch.
@@ -63,12 +68,12 @@ public class SearchConfigurationProperties {
 
   @Data
   @Validated
-  public static class InstanceSubjectsIndexingSettings {
+  public static class DocumentIndexingSettings {
 
     /**
      * Retry attempts for delete bulk requests.
      */
     @Min(0)
-    private int retryAttempts;
+    private int retryAttempts = 3;
   }
 }

@@ -44,6 +44,8 @@ application:
     indexing:
       instance-subjects:
         retry-attempts: 3
+      instance-contributors:
+        retry-attempts: 3
       data-format: ${INDEXING_DATA_FORMAT:json}
   query:
     properties:

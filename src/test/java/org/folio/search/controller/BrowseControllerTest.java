@@ -94,8 +94,8 @@ class BrowseControllerTest {
 
   @Test
   void browseInstancesBySubject_positive() throws Exception {
-    var query = "subject > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "subject", null, null, true, 12);
+    var query = "value > water";
+    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "value", null, null, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -107,12 +107,12 @@ class BrowseControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.items[0].subject", is("water treatment")))
+      .andExpect(jsonPath("$.items[0].value", is("water treatment")))
       .andExpect(jsonPath("$.items[0].totalRecords", is(10)));
   }
 
   @Test
-  void browseAuthoritiesBySubject_positive() throws Exception {
+  void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
     var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 25, "headingRef", null, false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");

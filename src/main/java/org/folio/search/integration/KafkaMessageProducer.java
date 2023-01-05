@@ -26,7 +26,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.event.ContributorEvent;
+import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -63,16 +63,16 @@ public class KafkaMessageProducer {
       .collect(Collectors.toList());
   }
 
-  private List<ContributorEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
-                                                      String tenantId) {
+  private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
+                                                              String tenantId) {
     return extractContributors(objectMap).stream()
       .map(contributor -> toContributorEvent(contributor, instanceId, tenantId))
       .collect(Collectors.toList());
   }
 
-  private ContributorEvent toContributorEvent(Contributor contributor, String instanceId, String tenantId) {
+  private ContributorResourceEvent toContributorEvent(Contributor contributor, String instanceId, String tenantId) {
     var id = getContributorId(tenantId, contributor);
-    return ContributorEvent.builder()
+    return ContributorResourceEvent.builder()
       .id(id)
       .instanceId(instanceId)
       .name(contributor.getName())
@@ -87,7 +87,7 @@ public class KafkaMessageProducer {
     return jsonConverter.convert(contributorsObject, TYPE_REFERENCE);
   }
 
-  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(Set<ContributorEvent> contributors,
+  private List<ProducerRecord<String, ResourceEvent>> prepareContributorEvents(Set<ContributorResourceEvent> contributors,
                                                                                ResourceEventType type,
                                                                                String tenantId) {
     var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
@@ -97,7 +97,7 @@ public class KafkaMessageProducer {
       .collect(Collectors.toList());
   }
 
-  private ResourceEvent prepareResourceEvent(ContributorEvent contributorEvent, ResourceEventType type,
+  private ResourceEvent prepareResourceEvent(ContributorResourceEvent contributorEvent, ResourceEventType type,
                                              String tenantId) {
     var eventBody = new ResourceEvent().id(contributorEvent.getId()).type(type).tenant(tenantId);
     return type == CREATE ? eventBody._new(contributorEvent) : eventBody.old(contributorEvent);

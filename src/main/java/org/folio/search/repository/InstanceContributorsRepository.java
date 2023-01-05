@@ -6,7 +6,6 @@ import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.opensearch.common.xcontent.XContentType.JSON;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
 import static org.opensearch.script.ScriptType.INLINE;
 
@@ -14,9 +13,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.event.ContributorEvent;
+import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
@@ -24,6 +25,7 @@ import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
+import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +33,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
 
-  public static final String SCRIPT_1 = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
+  public static final String SCRIPT = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
     + "instanceIds.addAll(params.ins);"
     + "params.del.forEach(instanceIds::remove);"
     + "if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}"
@@ -41,6 +43,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     + "ctx._source.contributorTypeId=typeIds";
 
   private final JsonConverter jsonConverter;
+  private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
+  private final SearchConfigurationProperties properties;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
@@ -70,11 +74,12 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       var searchDocument = documents.iterator().next();
       var upsertRequest = new UpdateRequest()
         .id(searchDocument.getId())
+        .scriptedUpsert(true)
+        .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
         .index(SearchUtils.getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, searchDocument.getTenant()))
-        .script(new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT_1,
-          Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete)))
-        .upsert(getContributorJsonBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),
-          subtractSorted(typeIdsToCreate, typeIdsToDelete)), JSON);
+        .script(prepareScript(instanceIdsToCreate, instanceIdsToDelete))
+        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),
+          subtractSorted(typeIdsToCreate, typeIdsToDelete)), searchDocument.getDataFormat().getXcontentType());
 
       bulkRequest.add(upsertRequest);
     }
@@ -86,7 +91,12 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
            : getSuccessIndexOperationResponse();
   }
 
-  private String getContributorJsonBody(ContributorEvent payload, Set<String> instanceIds, Set<String> typeIds) {
+  private Script prepareScript(HashSet<String> instanceIdsToCreate, HashSet<String> instanceIdsToDelete) {
+    return new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT,
+      Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete));
+  }
+
+  private byte[] prepareDocumentBody(ContributorResourceEvent payload, Set<String> instanceIds, Set<String> typeIds) {
     var resource = new ContributorResource();
     resource.setId(payload.getId());
     resource.setName(payload.getName());
@@ -94,11 +104,11 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     resource.setContributorNameTypeId(payload.getNameTypeId());
     resource.setInstances(instanceIds);
     resource.setAuthorityId(payload.getAuthorityId());
-    return jsonConverter.toJson(resource);
+    return BytesReference.toBytes(searchDocumentBodyConverter.apply(jsonConverter.convert(resource, Map.class)));
   }
 
-  private ContributorEvent getPayload(SearchDocumentBody doc) {
+  private ContributorResourceEvent getPayload(SearchDocumentBody doc) {
     return jsonConverter.fromJson(jsonConverter.toJson(getEventPayload(doc.getResourceEvent())),
-      ContributorEvent.class);
+      ContributorResourceEvent.class);
   }
 }

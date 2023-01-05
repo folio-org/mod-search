@@ -64,7 +64,7 @@ public class SearchDocumentConverter {
    */
   public Optional<SearchDocumentBody> convert(ResourceEvent resourceEvent) {
     if (resourceEvent.getType() == ResourceEventType.DELETE) {
-      return Optional.of(SearchDocumentBody.of(null, null, resourceEvent, DELETE));
+      return Optional.of(SearchDocumentBody.of(null, indexingDataFormat, resourceEvent, DELETE));
     }
 
     return canConvertEvent(resourceEvent)

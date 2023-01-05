@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
@@ -17,6 +18,7 @@ import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +38,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.common.document.DocumentField;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
@@ -46,7 +49,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
     setUpTenant(INSTANCES);
-    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
         .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID));
@@ -74,7 +77,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   @Test
   void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"water\""))
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"water\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
@@ -93,7 +96,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   @Test
   void browseBySubject_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"fantasy\""))
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"fantasy\""))
       .param("limit", "5")
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
@@ -109,12 +112,12 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   }
 
   private static Stream<Arguments> subjectBrowsingDataProvider() {
-    var aroundQuery = "subject > {value} or subject < {value}";
-    var aroundIncludingQuery = "subject >= {value} or subject < {value}";
-    var forwardQuery = "subject > {value}";
-    var forwardIncludingQuery = "subject >= {value}";
-    var backwardQuery = "subject < {value}";
-    var backwardIncludingQuery = "subject <= {value}";
+    var aroundQuery = "value > {value} or value < {value}";
+    var aroundIncludingQuery = "value >= {value} or value < {value}";
+    var forwardQuery = "value > {value}";
+    var forwardIncludingQuery = "value >= {value}";
+    var backwardQuery = "value < {value}";
+    var backwardIncludingQuery = "value <= {value}";
 
     return Stream.of(
       arguments(aroundQuery, "water", 5, new SubjectBrowseResult()

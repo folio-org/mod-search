@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacets;
@@ -71,9 +72,9 @@ class BrowseContributorIT extends BaseIntegrationTest {
     instanceToUpdate.setContributors(Collections.emptyList());
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
 
-    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
-        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
+        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
         .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);

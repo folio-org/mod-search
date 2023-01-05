@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ContributorEvent {
+public class ContributorResourceEvent {
 
   String id;
   String instanceId;

@@ -69,8 +69,8 @@ class SearchQueryUtilsTest {
   void getSubjectCountsQuery_positive() {
     var actual = SearchQueryUtils.getSubjectCountsQuery(List.of("s1", "s2"));
     assertThat(actual).isEqualTo(searchSource().from(0).size(0)
-      .query(boolQuery().filter(termsQuery("plain_subjects", "s1", "s2")))
-      .aggregation(terms("subjects").size(2).field("plain_subjects")
+      .query(boolQuery().filter(termsQuery("subjects.plain_value", "s1", "s2")))
+      .aggregation(terms("subjects.value").size(2).field("subjects.plain_value")
         .includeExclude(new IncludeExclude(new String[] {"s1", "s2"}, null)))
     );
   }

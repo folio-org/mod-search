@@ -50,7 +50,7 @@ public class ElasticsearchDocumentConverter {
    * @return created {@link SearchResult} object.
    */
   public <T, R> SearchResult<R> convertToSearchResult(SearchResponse response, Class<T> responseClass,
-    BiFunction<SearchHit, T, R> hitMapper) {
+                                                      BiFunction<SearchHit, T, R> hitMapper) {
     return Optional.ofNullable(response)
       .map(SearchResponse::getHits)
       .map(hits -> SearchResult.of(getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass, hitMapper)))

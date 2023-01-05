@@ -1,7 +1,6 @@
 package org.folio.search.repository;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
@@ -181,7 +180,7 @@ class SearchRepositoryTest {
   }
 
   private static List<String> randomIds() {
-    return IntStream.range(0, 10).mapToObj(i -> randomId()).collect(toList());
+    return IntStream.range(0, 10).mapToObj(i -> randomId()).toList();
   }
 
   private static SearchRequest searchRequest() {

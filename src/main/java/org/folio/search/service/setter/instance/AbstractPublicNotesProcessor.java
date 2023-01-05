@@ -1,7 +1,5 @@
 package org.folio.search.service.setter.instance;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -42,7 +40,7 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
   protected abstract Stream<Note> getNotes(Instance instance);
 
   private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
-    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(toList());
+    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).toList();
   }
 
   private static String getNote(Boolean staffOnly, String value) {

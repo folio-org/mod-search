@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
@@ -164,7 +163,7 @@ class KafkaMessageListenerIT {
     sendMessagesWithStoppedListenerContainer(ids, EVENT_LISTENER_ID,
       inventoryInstanceTopic(), KafkaMessageListenerIT::instanceEvent);
 
-    var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).collect(toList());
+    var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       verify(resourceService).indexResourcesById(List.of(expectedEvents.get(0)));
       verify(resourceService).indexResourcesById(List.of(expectedEvents.get(1)));
@@ -189,7 +188,7 @@ class KafkaMessageListenerIT {
     sendMessagesWithStoppedListenerContainer(authorityIds, AUTHORITY_LISTENER_ID, inventoryAuthorityTopic(),
       KafkaMessageListenerIT::authorityEvent);
 
-    var expectedEvents = authorityIds.stream().map(KafkaMessageListenerIT::authorityEvent).collect(toList());
+    var expectedEvents = authorityIds.stream().map(KafkaMessageListenerIT::authorityEvent).toList();
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       verify(resourceService).indexResources(List.of(expectedEvents.get(0)));
       verify(resourceService, times(3)).indexResources(List.of(expectedEvents.get(1)));

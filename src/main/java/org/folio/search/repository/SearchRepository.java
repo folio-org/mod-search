@@ -1,7 +1,6 @@
 package org.folio.search.repository;
 
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
@@ -93,7 +92,7 @@ public class SearchRepository {
       var failureMessages = stream(response.getResponses())
         .map(Item::getFailureMessage)
         .filter(Objects::nonNull)
-        .collect(toList());
+        .toList();
 
       throw new SearchServiceException(String.format(
         "Failed to perform multi-search operation [errors: %s]", failureMessages));
@@ -155,7 +154,7 @@ public class SearchRepository {
       .map(SearchHit::getSourceAsMap)
       .map(sourceMap -> getValuesByPath(sourceMap, sourceFieldPath))
       .flatMap(Collection::stream)
-      .collect(toList());
+      .toList();
   }
 
   private static boolean isFailedMultiSearchRequest(Item[] responses, int expectedCount) {

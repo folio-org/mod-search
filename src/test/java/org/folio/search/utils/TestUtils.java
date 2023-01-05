@@ -7,7 +7,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
@@ -513,7 +512,7 @@ public class TestUtils {
     map.put("string_stats", (p, c) -> ParsedStringStats.PARSER.parse(p, (String) c));
     return map.entrySet().stream()
       .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue()))
-      .collect(toList());
+      .toList();
   }
 
   @SuppressWarnings("unchecked")

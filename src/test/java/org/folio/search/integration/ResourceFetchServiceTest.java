@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
@@ -132,7 +131,7 @@ class ResourceFetchServiceTest {
     var firstPartInstances = events.stream()
       .limit(50)
       .map(resourceEvent -> instanceView(new Instance().id(resourceEvent.getId()).title("test"), null))
-      .collect(Collectors.toList());
+      .toList();
     var secondPartInstances = List.of(instanceView(new Instance()
       .id(events.get(50).getId()).title("inst2").holdings(List.of(new Holding().id("holdingId")))
       .items(List.of(new Item().id("itemId"))), true));
@@ -178,6 +177,6 @@ class ResourceFetchServiceTest {
   private static List<ResourceEvent> generateResourceEvents(int number) {
     return Stream.generate(() -> resourceEvent(randomId(), INSTANCE_RESOURCE, CREATE))
       .limit(number)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

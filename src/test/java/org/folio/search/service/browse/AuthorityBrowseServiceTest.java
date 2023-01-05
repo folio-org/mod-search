@@ -18,7 +18,6 @@ import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -328,7 +327,7 @@ class AuthorityBrowseServiceTest {
   }
 
   private void mockMultiSearchRequest(ResourceRequest request,
-                                      List<SearchSourceBuilder> queries, List<SearchResult<Authority>> results) {
+    List<SearchSourceBuilder> queries, List<SearchResult<Authority>> results) {
     var multiSearchResponse = mock(MultiSearchResponse.class);
     var items = new MultiSearchResponse.Item[results.size()];
     for (int i = 0; i < results.size(); i++) {
@@ -343,7 +342,7 @@ class AuthorityBrowseServiceTest {
   }
 
   private static List<Authority> authorities(String... values) {
-    return Arrays.stream(values).map(AuthorityBrowseServiceTest::authority).collect(Collectors.toList());
+    return Arrays.stream(values).map(AuthorityBrowseServiceTest::authority).toList();
   }
 
   private static Authority authority(String heading) {

@@ -53,7 +53,7 @@ public class ResourceFetchService {
     return instanceEvents.entrySet().stream()
       .map(this::fetchInstances)
       .flatMap(Collection::stream)
-      .collect(toList());
+      .toList();
   }
 
   private List<ResourceEvent> fetchInstances(Entry<String, List<ResourceEvent>> entry) {
@@ -67,7 +67,7 @@ public class ResourceFetchService {
         .flatMap(instanceViews -> instanceViews.stream()
           .map(InstanceView::toInstance)
           .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
-        .collect(toList());
+        .toList();
     });
   }
 

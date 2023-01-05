@@ -338,8 +338,7 @@ public class SearchUtils {
   }
 
   private static Object getPlainValueObject(Object value) {
-    if (value instanceof MultilangValue) {
-      var multilangValue = (MultilangValue) value;
+    if (value instanceof MultilangValue multilangValue) {
       return mergeSafelyToSet(multilangValue.getMultilangValues(), multilangValue.getPlainValues());
     }
     return value;

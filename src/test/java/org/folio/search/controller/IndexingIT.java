@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -203,7 +202,7 @@ class IndexingIT extends BaseIntegrationTest {
   private void createInstances() {
     var instances = INSTANCE_IDS.stream()
       .map(id -> new Instance().id(id).subjects(List.of("subject-" + sha1Hex(id))))
-      .collect(toList());
+      .toList();
 
     instances.get(0)
       .holdings(List.of(holdingsRecord(0), holdingsRecord(1)))
@@ -237,7 +236,7 @@ class IndexingIT extends BaseIntegrationTest {
   }
 
   private static List<String> getRandomIds(int count) {
-    return IntStream.range(0, count).mapToObj(index -> randomId()).collect(toList());
+    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
   }
 
   private static String getSubjectId(String instanceId) {

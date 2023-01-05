@@ -2,7 +2,6 @@ package org.folio.search.service.browse;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
@@ -228,7 +227,7 @@ class CallNumberBrowseResultConverterTest {
   }
 
   private static List<SearchHit> searchHits(String... sortShelfKey) {
-    return stream(sortShelfKey).map(CallNumberBrowseResultConverterTest::searchHit).collect(toList());
+    return stream(sortShelfKey).map(CallNumberBrowseResultConverterTest::searchHit).toList();
   }
 
   private static SearchHit searchHit(String sortShelfKey) {
@@ -247,7 +246,7 @@ class CallNumberBrowseResultConverterTest {
   }
 
   private static List<CallNumberBrowseItem> browseItems(String... shelfKeys) {
-    return stream(shelfKeys).map(CallNumberBrowseResultConverterTest::browseItem).collect(toList());
+    return stream(shelfKeys).map(CallNumberBrowseResultConverterTest::browseItem).toList();
   }
 
   private static Instance instance(String... callNumbers) {
@@ -255,7 +254,7 @@ class CallNumberBrowseResultConverterTest {
       .map(callNumber -> new Item()
         .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
-      .collect(toList());
+      .toList();
     return new Instance().items(items);
   }
 }

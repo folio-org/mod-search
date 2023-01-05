@@ -2,7 +2,6 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.CollectionUtils.addToList;
 import static org.folio.search.utils.SearchUtils.SELECTED_AGG_PREFIX;
 
@@ -48,11 +47,11 @@ public class ElasticsearchFacetConverter {
   }
 
   private static List<FacetItem> getFacetItems(Aggregation aggregation) {
-    if (aggregation instanceof ParsedSingleBucketAggregation) {
-      return getFacetItemsFromSingleBucketAggregation((ParsedSingleBucketAggregation) aggregation);
+    if (aggregation instanceof ParsedSingleBucketAggregation parsedSingleBucketAggregation) {
+      return getFacetItemsFromSingleBucketAggregation(parsedSingleBucketAggregation);
     }
-    if (aggregation instanceof ParsedTerms) {
-      return getFacetItemsFromParsedTerms((ParsedTerms) aggregation);
+    if (aggregation instanceof ParsedTerms parsedTerms) {
+      return getFacetItemsFromParsedTerms(parsedTerms);
     }
     return emptyList();
   }
@@ -67,7 +66,7 @@ public class ElasticsearchFacetConverter {
   private static List<FacetItem> getFacetItemsFromParsedTerms(ParsedTerms parsedTerms) {
     var buckets = parsedTerms.getBuckets();
     return CollectionUtils.isNotEmpty(buckets)
-           ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).collect(toList())
+           ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).toList()
            : emptyList();
   }
 

@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,7 +67,7 @@ class SortInstanceByTitleIT extends BaseIntegrationTest {
   void canSortInstancesByContributors_asc() throws Exception {
     var expectedTitleOrder = TITLES.stream()
       .sorted(String::compareToIgnoreCase)
-      .collect(toList());
+      .toList();
 
     doSearchByInstances("cql.allRecords=1 sortBy title")
       .andExpect(jsonPath("totalRecords", is(13)))

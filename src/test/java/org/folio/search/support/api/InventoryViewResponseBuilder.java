@@ -13,7 +13,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -35,7 +34,7 @@ public class InventoryViewResponseBuilder extends ResponseTransformer {
         "items", MapUtils.getObject(instance, "items"),
         "isBoundWith", MapUtils.getBoolean(instance, "isBoundWith")))
       .limit(Integer.parseInt(request.queryParameter("limit").firstValue()))
-      .collect(Collectors.toList());
+      .toList();
 
     return like(response).body(OBJECT_MAPPER.writeValueAsString(Map.of("instances", instanceViews))).build();
   }

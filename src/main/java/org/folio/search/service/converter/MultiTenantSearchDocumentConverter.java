@@ -2,7 +2,6 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class MultiTenantSearchDocumentConverter {
         .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
         .map(searchDocumentConverter::convert)
         .flatMap(Optional::stream)
-        .collect(toList()));
+        .toList());
   }
 
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {

@@ -22,8 +22,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
-    if (term instanceof String) {
-      var stringTerm = (String) term;
+    if (term instanceof String stringTerm) {
 
       List<String> terms = new ArrayList<>();
       Matcher regexMatcher = SPLITERATOR.matcher(stringTerm);

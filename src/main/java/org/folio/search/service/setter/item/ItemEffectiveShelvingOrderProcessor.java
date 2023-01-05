@@ -2,7 +2,6 @@ package org.folio.search.service.setter.item;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
-import static java.util.stream.Collectors.toList;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
@@ -95,6 +94,6 @@ public class ItemEffectiveShelvingOrderProcessor implements FieldProcessor<Insta
       .mapToObj(character -> (char) character)
       .distinct()
       .sorted()
-      .collect(toList());
+      .toList();
   }
 }

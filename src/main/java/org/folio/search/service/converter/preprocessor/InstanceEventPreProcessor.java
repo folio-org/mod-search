@@ -1,7 +1,6 @@
 package org.folio.search.service.converter.preprocessor;
 
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
@@ -35,7 +34,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     return StreamEx.of(event)
       .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))
       .append(getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE))
-      .collect(toList());
+      .toList();
   }
 
   private static Stream<ResourceEvent> getSubjectsAsStreamSubtracting(

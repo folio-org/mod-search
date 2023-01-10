@@ -33,7 +33,7 @@ import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.model.types.ResponseGroupType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.utils.TestUtils;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

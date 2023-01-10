@@ -7,11 +7,11 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
-import org.folio.search.model.SystemUser;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
+import org.folio.spring.tools.model.SystemUser;
+import org.folio.spring.tools.systemuser.SystemUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +32,7 @@ class TenantScopedExecutionServiceTest {
   @Test
   void executeTenantScoped_positive() {
     var systemUser = SystemUser.builder().build();
-    when(systemUserService.getSystemUser(TENANT_ID)).thenReturn(systemUser);
+    when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
     when(contextBuilder.forSystemUser(systemUser)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     var actual = tenantScopedExecutionService.executeTenantScoped(TENANT_ID, () -> "result");
@@ -43,7 +43,7 @@ class TenantScopedExecutionServiceTest {
   @Test
   void executeTenantScoped_negative_throwsException() {
     var systemUser = SystemUser.builder().build();
-    when(systemUserService.getSystemUser(TENANT_ID)).thenReturn(systemUser);
+    when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
     when(contextBuilder.forSystemUser(systemUser)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     Callable<Object> callable = () -> {

@@ -4,9 +4,9 @@ import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.scope.FolioExecutionContextSetter;
+import org.folio.spring.tools.systemuser.SystemUserService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +46,6 @@ public class TenantScopedExecutionService {
   }
 
   private FolioExecutionContext folioExecutionContext(String tenant) {
-    return contextBuilder.forSystemUser(systemUserService.getSystemUser(tenant));
+    return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenant));
   }
 }

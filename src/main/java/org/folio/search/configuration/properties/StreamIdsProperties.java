@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @Configuration
-@ConfigurationProperties("application.stream-ids")
+@ConfigurationProperties("folio.stream-ids")
 public class StreamIdsProperties {
 
   /**

@@ -3,9 +3,9 @@ package org.folio.search.model.context;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import org.folio.search.model.SystemUser;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.tools.model.SystemUser;
 import org.junit.jupiter.api.Test;
 
 @UnitTest

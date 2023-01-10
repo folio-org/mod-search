@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Configuration;
 public class SearchDocumentBodyConverterConfig {
 
   @Bean
-  @ConditionalOnProperty(prefix = "application.search-config.indexing", name = "data-format", havingValue = "json")
+  @ConditionalOnProperty(prefix = "folio.search-config.indexing", name = "data-format", havingValue = "json")
   public Function<Map<String, Object>, BytesReference> jsonSearchDocumentBodyConverter(JsonConverter jsonConverter) {
     return jsonConverter::toJsonBytes;
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "application.search-config.indexing", name = "data-format", havingValue = "smile")
+  @ConditionalOnProperty(prefix = "folio.search-config.indexing", name = "data-format", havingValue = "smile")
   public Function<Map<String, Object>, BytesReference> smileSearchDocumentBodyConverter(SmileConverter smileConverter) {
     return smileConverter::toSmile;
   }

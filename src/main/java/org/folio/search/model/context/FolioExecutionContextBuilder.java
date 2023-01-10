@@ -7,9 +7,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.With;
-import org.folio.search.model.SystemUser;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.tools.model.SystemUser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,9 +23,9 @@ public class FolioExecutionContextBuilder {
 
   public FolioExecutionContext forSystemUser(SystemUser systemUser) {
     return builder()
-      .withTenantId(systemUser.getTenantId())
-      .withOkapiUrl(systemUser.getOkapiUrl())
-      .withToken(systemUser.getToken())
+      .withTenantId(systemUser.tenantId())
+      .withOkapiUrl(systemUser.okapiUrl())
+      .withToken(systemUser.token())
       .build();
   }
 

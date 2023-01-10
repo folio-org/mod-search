@@ -1,8 +1,8 @@
 package org.folio.search.utils;
 
-import static org.folio.search.configuration.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

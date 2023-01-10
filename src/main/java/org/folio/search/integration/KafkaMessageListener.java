@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.utils.KafkaConstants;
 import org.folio.search.service.ResourceService;
+import org.folio.search.utils.KafkaConstants;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 

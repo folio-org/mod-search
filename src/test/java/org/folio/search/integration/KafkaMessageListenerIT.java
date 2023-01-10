@@ -5,8 +5,8 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.service.KafkaAdminService.AUTHORITY_LISTENER_ID;
-import static org.folio.search.service.KafkaAdminService.EVENT_LISTENER_ID;
+import static org.folio.search.service.KafkaConstants.AUTHORITY_LISTENER_ID;
+import static org.folio.search.service.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -30,12 +30,10 @@ import java.util.Map;
 import java.util.function.Function;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
-import org.folio.search.configuration.properties.FolioKafkaProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
-import org.folio.search.service.KafkaAdminService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.support.extension.EnableKafka;
@@ -43,6 +41,8 @@ import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.types.IntegrationTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.tools.kafka.FolioKafkaProperties;
+import org.folio.spring.tools.kafka.KafkaAdminService;
 import org.hibernate.exception.SQLGrammarException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -66,17 +66,17 @@ import org.springframework.retry.annotation.EnableRetry;
   properties = {
     "ENV=kafka-listener-it",
     "KAFKA_EVENTS_CONSUMER_PATTERN="
-      + "(${application.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
-    "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)inventory\\.authority",
-    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${application.environment}\\.)(.*\\.)search\\.instance-contributors",
-    "application.environment=${ENV:folio}",
-    "application.kafka.retry-interval-ms=10",
-    "application.kafka.retry-delivery-attempts=3",
-    "application.kafka.listener.events.concurrency=1",
-    "application.kafka.listener.contributors.concurrency=1",
-    "application.kafka.listener.events.group-id=${application.environment}-test-group",
-    "application.kafka.listener.authorities.group-id=${application.environment}-authority-test-group",
-    "application.kafka.listener.contributors.group-id=${application.environment}-contributor-test-group",
+      + "(${folio.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
+    "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)inventory\\.authority",
+    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-contributors",
+    "folio.environment=${ENV:folio}",
+    "folio.kafka.retry-interval-ms=10",
+    "folio.kafka.retry-delivery-attempts=3",
+    "folio.kafka.listener.events.concurrency=1",
+    "folio.kafka.listener.contributors.concurrency=1",
+    "folio.kafka.listener.events.group-id=${folio.environment}-test-group",
+    "folio.kafka.listener.authorities.group-id=${folio.environment}-authority-test-group",
+    "folio.kafka.listener.contributors.group-id=${folio.environment}-contributor-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {
@@ -98,7 +98,7 @@ class KafkaMessageListenerIT {
   @BeforeAll
   static void beforeAll(@Autowired KafkaAdminService kafkaAdminService) {
     setEnvProperty(KAFKA_LISTENER_IT_ENV);
-    kafkaAdminService.createKafkaTopics();
+    kafkaAdminService.createTopics(TENANT_ID);
     kafkaAdminService.restartEventListeners();
   }
 

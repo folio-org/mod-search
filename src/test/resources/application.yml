@@ -3,6 +3,7 @@ spring:
     name: mod-search
   main:
      banner-mode: off
+     allow-bean-definition-overriding: true
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -32,7 +33,7 @@ spring:
 
 server.port: 8081
 
-application:
+folio:
   environment: folio-test
   search-config:
     initial-languages: eng,fre,ita,spa,ger
@@ -85,16 +86,22 @@ application:
     listener:
       events:
         concurrency: 2
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
-        group-id: ${application.environment}-mod-search-events-group
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
+        group-id: ${folio.environment}-mod-search-events-group
       authorities:
         concurrency: 1
-        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority}
-        group-id: ${application.environment}-mod-search-authorities-group
+        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.authority}
+        group-id: ${folio.environment}-mod-search-authorities-group
       contributors:
         concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)search\.instance-contributor}
-        group-id: ${application.environment}-mod-search-contributors-group
+        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
+        group-id: ${folio.environment}-mod-search-contributors-group
+  okapiUrl: ${okapi.url}
+  logging:
+    request:
+      enabled: true
+    feign:
+      enabled: true
 
 logging:
   level:

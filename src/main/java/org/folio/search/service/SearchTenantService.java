@@ -10,10 +10,11 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
 import org.folio.spring.service.TenantService;
+import org.folio.spring.tools.kafka.KafkaAdminService;
+import org.folio.spring.tools.systemuser.PrepareSystemUserService;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +29,7 @@ public class SearchTenantService extends TenantService {
 
   private final IndexService indexService;
   private final KafkaAdminService kafkaAdminService;
-  private final SystemUserService systemUserService;
+  private final PrepareSystemUserService prepareSystemUserService;
   private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final CallNumberBrowseRangeService callNumberBrowseRangeService;
@@ -36,7 +37,7 @@ public class SearchTenantService extends TenantService {
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService, SystemUserService systemUserService,
+                             IndexService indexService, PrepareSystemUserService prepareSystemUserService,
                              LanguageConfigService languageConfigService,
                              CallNumberBrowseRangeService callNumberBrowseRangeService,
                              ResourceDescriptionService resourceDescriptionService,
@@ -44,7 +45,7 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
-    this.systemUserService = systemUserService;
+    this.prepareSystemUserService = prepareSystemUserService;
     this.languageConfigService = languageConfigService;
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;
     this.resourceDescriptionService = resourceDescriptionService;
@@ -67,9 +68,9 @@ public class SearchTenantService extends TenantService {
    */
   @Override
   protected void afterTenantUpdate(TenantAttributes tenantAttributes) {
-    kafkaAdminService.createKafkaTopics();
+    kafkaAdminService.createTopics(context.getTenantId());
     kafkaAdminService.restartEventListeners();
-    systemUserService.prepareSystemUser();
+    prepareSystemUserService.setupSystemUser();
     createLanguages();
     createIndexesAndReindex(tenantAttributes);
     log.info("Tenant init has been completed");

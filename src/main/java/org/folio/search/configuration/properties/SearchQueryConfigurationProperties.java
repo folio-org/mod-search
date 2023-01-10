@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
-@ConfigurationProperties(prefix = "application.query.properties")
+@ConfigurationProperties(prefix = "folio.query.properties")
 public class SearchQueryConfigurationProperties {
 
   /**

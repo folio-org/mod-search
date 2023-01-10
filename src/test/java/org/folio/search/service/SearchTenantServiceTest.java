@@ -17,9 +17,10 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.systemuser.SystemUserService;
 import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.tools.kafka.KafkaAdminService;
+import org.folio.spring.tools.systemuser.PrepareSystemUserService;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class SearchTenantServiceTest {
   @Mock
   private FolioExecutionContext context;
   @Mock
-  private SystemUserService systemUserService;
+  private PrepareSystemUserService prepareSystemUserService;
   @Mock
   private LanguageConfigService languageConfigService;
   @Mock
@@ -56,8 +57,8 @@ class SearchTenantServiceTest {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
-    doNothing().when(systemUserService).prepareSystemUser();
-    doNothing().when(kafkaAdminService).createKafkaTopics();
+    doNothing().when(prepareSystemUserService).setupSystemUser();
+    doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 
     searchTenantService.afterTenantUpdate(tenantAttributes());
@@ -65,7 +66,7 @@ class SearchTenantServiceTest {
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
     verify(indexService, never()).reindexInventory(TENANT_ID, null);
-    verify(kafkaAdminService).createKafkaTopics();
+    verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
 
@@ -75,8 +76,7 @@ class SearchTenantServiceTest {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng", "fre"));
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
-    doNothing().when(systemUserService).prepareSystemUser();
-    doNothing().when(kafkaAdminService).createKafkaTopics();
+    doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 
     searchTenantService.afterTenantUpdate(tenantAttributes());
@@ -84,7 +84,7 @@ class SearchTenantServiceTest {
     verify(languageConfigService, never()).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
     verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
-    verify(kafkaAdminService).createKafkaTopics();
+    verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
 

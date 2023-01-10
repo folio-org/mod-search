@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.service.KafkaAdminService;
+import org.folio.search.service.KafkaConstants;
 import org.folio.search.service.ResourceService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class KafkaMessageListener {
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */
   @KafkaListener(
-    id = KafkaAdminService.EVENT_LISTENER_ID,
+    id = KafkaConstants.EVENT_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
@@ -59,7 +59,7 @@ public class KafkaMessageListener {
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */
   @KafkaListener(
-    id = KafkaAdminService.AUTHORITY_LISTENER_ID,
+    id = KafkaConstants.AUTHORITY_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['authorities'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['authorities'].concurrency}",
@@ -81,7 +81,7 @@ public class KafkaMessageListener {
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */
   @KafkaListener(
-    id = KafkaAdminService.CONTRIBUTOR_LISTENER_ID,
+    id = KafkaConstants.CONTRIBUTOR_LISTENER_ID,
     containerFactory = "kafkaListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['contributors'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['contributors'].concurrency}",

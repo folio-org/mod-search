@@ -19,7 +19,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @Configuration
-@ConfigurationProperties(prefix = "application.search-config")
+@ConfigurationProperties(prefix = "folio.search-config")
 public class SearchConfigurationProperties {
 
   /**

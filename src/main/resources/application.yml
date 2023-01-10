@@ -43,8 +43,10 @@ spring:
       - search-preference
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
+  main:
+    allow-bean-definition-overriding: true
 
-application:
+folio:
   environment: ${ENV:folio}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
@@ -85,16 +87,21 @@ application:
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
-        group-id: ${application.environment}-mod-search-events-group
+        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
+        group-id: ${folio.environment}-mod-search-events-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)inventory\.authority}
-        group-id: ${application.environment}-mod-search-authorities-group
+        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.authority}
+        group-id: ${folio.environment}-mod-search-authorities-group
       contributors:
         concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${application.environment}\.)(.*\.)search\.instance-contributor}
-        group-id: ${application.environment}-mod-search-contributors-group
+        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
+        group-id: ${folio.environment}-mod-search-contributors-group
+  logging:
+    request:
+      enabled: true
+    feign:
+      enabled: true
 
 server.port: 8081
 management:

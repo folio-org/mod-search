@@ -41,7 +41,7 @@ import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.utils.SearchQueryUtils;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -5,7 +5,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

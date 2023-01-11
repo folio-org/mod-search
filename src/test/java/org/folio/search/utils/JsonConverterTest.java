@@ -19,7 +19,7 @@ import java.util.Map;
 import org.apache.commons.lang3.SerializationException;
 import org.folio.search.utils.TestUtils.NonSerializableByJacksonClass;
 import org.folio.search.utils.TestUtils.TestClass;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

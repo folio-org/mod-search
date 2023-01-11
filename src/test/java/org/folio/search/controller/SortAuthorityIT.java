@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.stream.IntStream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.types.IntegrationTest;
+import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

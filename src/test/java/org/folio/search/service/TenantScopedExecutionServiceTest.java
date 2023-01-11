@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import org.folio.search.model.context.FolioExecutionContextBuilder;
-import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
+import org.folio.spring.test.type.UnitTest;
 import org.folio.spring.tools.model.SystemUser;
 import org.folio.spring.tools.systemuser.SystemUserService;
 import org.junit.jupiter.api.Test;

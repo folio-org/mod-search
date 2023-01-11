@@ -40,7 +40,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

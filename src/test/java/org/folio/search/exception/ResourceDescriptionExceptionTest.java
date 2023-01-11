@@ -2,7 +2,7 @@ package org.folio.search.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest

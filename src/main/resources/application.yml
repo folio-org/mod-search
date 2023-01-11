@@ -97,6 +97,7 @@ folio:
         concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
         topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
         group-id: ${folio.environment}-mod-search-contributors-group
+  okapiUrl: ${okapi.url}
   logging:
     request:
       enabled: true

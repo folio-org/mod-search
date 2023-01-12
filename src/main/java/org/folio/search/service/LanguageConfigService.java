@@ -4,11 +4,11 @@ import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
 import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;

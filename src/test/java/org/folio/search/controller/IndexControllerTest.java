@@ -16,11 +16,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
@@ -198,7 +198,7 @@ class IndexControllerTest {
         .param("recreateIndex", "true"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Content type '' not supported")))
+      .andExpect(jsonPath("$.errors[0].message", is("Content-Type is not supported")))
       .andExpect(jsonPath("$.errors[0].type", is("HttpMediaTypeNotSupportedException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }

@@ -2,9 +2,9 @@ package org.folio.search.service;
 
 import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CACHE;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;

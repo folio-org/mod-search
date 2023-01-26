@@ -23,7 +23,7 @@ import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SortDescription;
 import org.folio.search.model.types.SortFieldType;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "application.cache")
+@ConfigurationProperties(prefix = "folio.cache")
 public class SearchCacheConfigurationProperties {
 
   /**

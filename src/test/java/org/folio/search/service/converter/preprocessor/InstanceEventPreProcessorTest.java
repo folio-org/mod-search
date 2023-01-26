@@ -19,7 +19,7 @@ import java.util.UUID;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.SubjectResourceEvent;
 import org.folio.search.utils.JsonConverter;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

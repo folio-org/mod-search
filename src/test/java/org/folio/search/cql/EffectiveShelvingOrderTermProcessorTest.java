@@ -2,7 +2,7 @@ package org.folio.search.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;

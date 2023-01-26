@@ -33,6 +33,7 @@
     </sonar.exclusions>
 
     <folio-spring-base.version>5.0.1</folio-spring-base.version>
+    <folio-service-tools.version>2.0.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.4.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.0</folio-cql2pgjson.version>
     <opensearch.version>2.3.0</opensearch.version>
@@ -271,6 +272,18 @@
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
       <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-service-tools-spring-dev</artifactId>
+      <version>${folio-service-tools.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-service-tools-spring-test</artifactId>
+      <version>${folio-service-tools.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

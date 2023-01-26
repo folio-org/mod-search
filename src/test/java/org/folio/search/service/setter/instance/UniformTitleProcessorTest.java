@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
-import org.folio.search.utils.types.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

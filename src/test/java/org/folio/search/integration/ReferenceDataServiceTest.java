@@ -30,9 +30,9 @@ import org.folio.search.integration.ReferenceDataServiceTest.TestContextConfigur
 import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.utils.types.UnitTest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

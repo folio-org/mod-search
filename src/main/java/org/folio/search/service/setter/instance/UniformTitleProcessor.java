@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceAlternativeTitlesInner;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
@@ -33,7 +33,7 @@ public class UniformTitleProcessor implements FieldProcessor<Instance, Set<Strin
 
     return toStreamSafe(instance.getAlternativeTitles())
       .filter(title -> uniformTitleIds.contains(title.getAlternativeTitleTypeId()))
-      .map(InstanceAlternativeTitlesInner::getAlternativeTitle)
+      .map(AlternativeTitle::getAlternativeTitle)
       .collect(toLinkedHashSet());
   }
 }

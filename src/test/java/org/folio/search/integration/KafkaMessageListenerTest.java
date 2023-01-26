@@ -37,7 +37,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.event.ContributorEvent;
+import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.test.type.UnitTest;
@@ -184,7 +184,7 @@ class KafkaMessageListenerTest {
 
   @Test
   void handleContributorEvent_positive() {
-    var contributorEventBuilder = ContributorEvent.builder()
+    var contributorEventBuilder = ContributorResourceEvent.builder()
       .id(RESOURCE_ID).name(randomId()).nameTypeId(randomId()).instanceId(randomId()).build();
     var payload = toMap(contributorEventBuilder);
     var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, CONTRIBUTOR_RESOURCE, CREATE, payload, null));
@@ -198,7 +198,7 @@ class KafkaMessageListenerTest {
 
   @Test
   void handleContributorEvent_negative_logFailedEvent() {
-    var contributorEventBuilder = ContributorEvent.builder()
+    var contributorEventBuilder = ContributorResourceEvent.builder()
       .id(RESOURCE_ID).name(randomId()).nameTypeId(randomId()).instanceId(randomId()).build();
     var payload = toMap(contributorEventBuilder);
     var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, CONTRIBUTOR_RESOURCE, CREATE, payload, null));

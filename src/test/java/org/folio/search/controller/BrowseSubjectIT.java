@@ -4,7 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -18,8 +18,10 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.SearchUtils;
@@ -44,7 +46,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
     setUpTenant(INSTANCES);
-    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
         .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID));
@@ -58,61 +60,13 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     removeTenant();
   }
 
-  @MethodSource("subjectBrowsingDataProvider")
-  @DisplayName("browseBySubject_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
-  void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"water\""))
-      .param("limit", "7")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(22).prev("Textbooks")
-      .items(List.of(
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "Water", true),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology"),
-        subjectBrowseItem(1, "Water--Purification"),
-        subjectBrowseItem(1, "Water-supply"))));
-  }
-
-  @Test
-  void browseBySubject_browsingAroundWithoutHighlightMatch() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("subject < {value} or subject >= {value}", "\"fantasy\""))
-      .param("limit", "5")
-      .param("highlightMatch", "false");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(22).prev("Database management").next("Music")
-      .items(List.of(
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "History"),
-        subjectBrowseItem(3, "Music"))));
-  }
-
   private static Stream<Arguments> subjectBrowsingDataProvider() {
-    var aroundQuery = "subject > {value} or subject < {value}";
-    var aroundIncludingQuery = "subject >= {value} or subject < {value}";
-    var forwardQuery = "subject > {value}";
-    var forwardIncludingQuery = "subject >= {value}";
-    var backwardQuery = "subject < {value}";
-    var backwardIncludingQuery = "subject <= {value}";
+    var aroundQuery = "value > {value} or value < {value}";
+    var aroundIncludingQuery = "value >= {value} or value < {value}";
+    var forwardQuery = "value > {value}";
+    var forwardIncludingQuery = "value >= {value}";
+    var backwardQuery = "value < {value}";
+    var backwardIncludingQuery = "value <= {value}";
 
     return Stream.of(
       arguments(aroundQuery, "water", 5, new SubjectBrowseResult()
@@ -320,7 +274,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     return new Instance()
       .id(randomId())
       .title((String) data.get(0))
-      .subjects((List<String>) data.get(1))
+      .subjects(((List<String>) data.get(1)).stream().map(val -> new Subject().value(val)).collect(Collectors.toList()))
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());
@@ -339,5 +293,53 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       List.of("instance #09", List.of("Water--Analysis", "Water--Purification", "Water--Microbiology")),
       List.of("instance #10", List.of("Database design", "Database management", "Textbooks"))
     );
+  }
+
+  @MethodSource("subjectBrowsingDataProvider")
+  @DisplayName("browseBySubject_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
+  void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery(query, '"' + anchor + '"'))
+      .param("limit", String.valueOf(limit));
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"water\""))
+      .param("limit", "7")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(22).prev("Textbooks")
+      .items(List.of(
+        subjectBrowseItem(1, "Textbooks"),
+        subjectBrowseItem(1, "United States"),
+        subjectBrowseItem(1, "Water", true),
+        subjectBrowseItem(1, "Water--Analysis"),
+        subjectBrowseItem(1, "Water--Microbiology"),
+        subjectBrowseItem(1, "Water--Purification"),
+        subjectBrowseItem(1, "Water-supply"))));
+  }
+
+  @Test
+  void browseBySubject_browsingAroundWithoutHighlightMatch() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"fantasy\""))
+      .param("limit", "5")
+      .param("highlightMatch", "false");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(22).prev("Database management").next("Music")
+      .items(List.of(
+        subjectBrowseItem(1, "Database management"),
+        subjectBrowseItem(1, "Europe"),
+        subjectBrowseItem(1, "Fantasy"),
+        subjectBrowseItem(3, "History"),
+        subjectBrowseItem(3, "Music"))));
   }
 }

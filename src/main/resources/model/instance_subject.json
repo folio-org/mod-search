@@ -5,9 +5,16 @@
     "resourceRepository": "instanceSubjectRepository"
   },
   "fields": {
-    "subject": {
+    "value": {
       "index": "keyword_lowercase",
       "showInResponse": [ "browse" ]
+    },
+    "authorityId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
+    "instances": {
+      "index": "source"
     }
   }
 }

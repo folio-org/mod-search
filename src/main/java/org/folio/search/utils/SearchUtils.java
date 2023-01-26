@@ -50,10 +50,10 @@ public class SearchUtils {
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String SHELVING_ORDER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
-  public static final String SUBJECT_BROWSING_FIELD = "subject";
+  public static final String SUBJECT_BROWSING_FIELD = "value";
   public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
-  public static final String SUBJECT_AGGREGATION_NAME = "subjects";
+  public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";

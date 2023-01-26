@@ -44,7 +44,7 @@ class SearchByEmptyValuesIT extends BaseIntegrationTest {
     "indexTitle=\"\" NOT indexTitle==\"\", title1",
     "cql.allRecords=1 NOT indexTitle=\"\",",
     "cql.allRecords=1 NOT indexTitle==\"\", title1",
-    "subjects==[], title1;title2",
+    "subjects.value==[], title1;title2",
   })
   @ParameterizedTest
   void search_parameterized(String query, String titles) throws Exception {

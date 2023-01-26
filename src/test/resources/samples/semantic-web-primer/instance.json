@@ -19,12 +19,16 @@
       "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
     },
     {
-      "alternativeTitle": "Pang'ok bangk'asyurangsŭ"
+      "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+      "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
     }
   ],
   "editions": [],
   "series": [
-    "Cooperative information systems"
+    {
+      "value": "Cooperative information systems",
+      "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+    }
   ],
   "identifiers": [
     {
@@ -81,7 +85,10 @@
     }
   ],
   "subjects": [
-    "Semantic Web"
+    {
+      "value": "Semantic Web",
+      "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+    }
   ],
   "classifications": [
     {

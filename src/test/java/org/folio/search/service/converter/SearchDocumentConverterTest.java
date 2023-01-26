@@ -58,6 +58,12 @@ import org.opensearch.common.bytes.BytesReference;
 @ExtendWith(MockitoExtension.class)
 class SearchDocumentConverterTest {
 
+  @Spy
+  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @Spy
+  private final SmileConverter smileConverter = new SmileConverter();
+  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
+    spyLambda(Function.class, smileConverter::toSmile);
   @InjectMocks
   private SearchDocumentConverter documentMapper;
   @Mock
@@ -67,20 +73,54 @@ class SearchDocumentConverterTest {
   @Mock
   private ResourceDescriptionService descriptionService;
   @Spy
-  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
-  @Spy
-  private final SmileConverter smileConverter = new SmileConverter();
-  @Spy
   private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
-  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
-    spyLambda(Function.class, smileConverter::toSmile);
 
-  private SearchConfigurationProperties getSearchConfigurationProperties() {
-    var indexSettings = new IndexingSettings();
-    indexSettings.setDataFormat(IndexingDataFormat.SMILE);
-    var searchConfigurationProperties = new SearchConfigurationProperties();
-    searchConfigurationProperties.setIndexing(indexSettings);
-    return searchConfigurationProperties;
+  private static Map<String, FieldDescription> resourceDescriptionFields() {
+    return mapOf(
+      "id", keywordField(),
+      "title", keywordField(),
+      "language", keywordField(),
+      "multilang_value", multilangField(),
+      "bool", plainField("boolean"),
+      "number", plainField("numeric"),
+      "numbers", plainField("numeric"),
+      "ignored_field", plainField("none"),
+      "metadata", objectField(mapOf(
+        "createdAt", plainField("keyword"))));
+  }
+
+  private static Map<String, Object> testResourceBody() {
+    return mapOf(
+      "id", RESOURCE_ID,
+      "title", List.of("instance title"),
+      "language", "eng",
+      "multilang_value", "some value",
+      "bool", true,
+      "number", 123,
+      "numbers", List.of(1, 2, 3, 4),
+      "ignored_field", "ignored value",
+      "metadata", mapOf(
+        "createdAt", "12-01-01T12:03:12Z"));
+  }
+
+  private static ObjectNode expectedSearchDocumentBody() {
+    return jsonObject(
+      "id", RESOURCE_ID,
+      "title", jsonArray("instance title"),
+      "language", "eng",
+      "multilang_value", jsonObject("eng", "some value", "src", "some value"),
+      "plain_multilang_value", "some value",
+      "bool", true,
+      "number", 123,
+      "numbers", jsonArray(1, 2, 3, 4),
+      "metadata", jsonObject(
+        "createdAt", "12-01-01T12:03:12Z"));
+  }
+
+  @SneakyThrows
+  private static Optional<SearchDocumentBody> expectedSearchDocument(ResourceEvent event, ObjectNode expectedJson) {
+    return Optional.of(SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(expectedJson)),
+      IndexingDataFormat.SMILE, event, INDEX));
   }
 
   @Test
@@ -120,7 +160,9 @@ class SearchDocumentConverterTest {
   void convert_deleteEvent() {
     var event = resourceEvent(RESOURCE_ID, RESOURCE_NAME, ResourceEventType.DELETE, null, emptyMap());
     var actual = documentMapper.convert(event);
-    assertThat(actual).isPresent().get().isEqualTo(SearchDocumentBody.of(null, null, event, DELETE));
+    assertThat(actual).isPresent()
+      .get()
+      .isEqualTo(SearchDocumentBody.of(null, IndexingDataFormat.SMILE, event, DELETE));
   }
 
   @Test
@@ -284,51 +326,11 @@ class SearchDocumentConverterTest {
         jsonObject("id", "item#4")))));
   }
 
-  private static Map<String, FieldDescription> resourceDescriptionFields() {
-    return mapOf(
-      "id", keywordField(),
-      "title", keywordField(),
-      "language", keywordField(),
-      "multilang_value", multilangField(),
-      "bool", plainField("boolean"),
-      "number", plainField("numeric"),
-      "numbers", plainField("numeric"),
-      "ignored_field", plainField("none"),
-      "metadata", objectField(mapOf(
-        "createdAt", plainField("keyword"))));
-  }
-
-  private static Map<String, Object> testResourceBody() {
-    return mapOf(
-      "id", RESOURCE_ID,
-      "title", List.of("instance title"),
-      "language", "eng",
-      "multilang_value", "some value",
-      "bool", true,
-      "number", 123,
-      "numbers", List.of(1, 2, 3, 4),
-      "ignored_field", "ignored value",
-      "metadata", mapOf(
-        "createdAt", "12-01-01T12:03:12Z"));
-  }
-
-  private static ObjectNode expectedSearchDocumentBody() {
-    return jsonObject(
-      "id", RESOURCE_ID,
-      "title", jsonArray("instance title"),
-      "language", "eng",
-      "multilang_value", jsonObject("eng", "some value", "src", "some value"),
-      "plain_multilang_value", "some value",
-      "bool", true,
-      "number", 123,
-      "numbers", jsonArray(1, 2, 3, 4),
-      "metadata", jsonObject(
-        "createdAt", "12-01-01T12:03:12Z"));
-  }
-
-  @SneakyThrows
-  private static Optional<SearchDocumentBody> expectedSearchDocument(ResourceEvent event, ObjectNode expectedJson) {
-    return Optional.of(SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(expectedJson)),
-      IndexingDataFormat.SMILE, event, INDEX));
+  private SearchConfigurationProperties getSearchConfigurationProperties() {
+    var indexSettings = new IndexingSettings();
+    indexSettings.setDataFormat(IndexingDataFormat.SMILE);
+    var searchConfigurationProperties = new SearchConfigurationProperties();
+    searchConfigurationProperties.setIndexing(indexSettings);
+    return searchConfigurationProperties;
   }
 }

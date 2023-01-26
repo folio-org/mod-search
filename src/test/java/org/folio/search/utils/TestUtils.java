@@ -191,15 +191,15 @@ public class TestUtils {
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject) {
-    return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords);
+    return new SubjectBrowseItem().value(subject).totalRecords(totalRecords);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, boolean isAnchor) {
-    return new SubjectBrowseItem().subject(subject).totalRecords(totalRecords).isAnchor(isAnchor);
+    return new SubjectBrowseItem().value(subject).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
-    return new SubjectBrowseItem().subject(subject);
+    return new SubjectBrowseItem().value(subject);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,

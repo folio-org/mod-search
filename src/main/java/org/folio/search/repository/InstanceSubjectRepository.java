@@ -1,52 +1,36 @@
 package org.folio.search.repository;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.apache.commons.collections4.MapUtils.getString;
-import static org.apache.commons.lang3.StringUtils.toRootLowerCase;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchQueryUtils.getSubjectCountsQuery;
+import static org.folio.search.utils.CollectionUtils.subtract;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.folio.search.utils.SearchUtils.getSubjectCounts;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
 
-import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.IndexingSettings;
-import org.folio.search.configuration.properties.SearchConfigurationProperties.InstanceSubjectsIndexingSettings;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.Pair;
-import org.folio.search.model.SimpleResourceRequest;
+import org.folio.search.model.event.SubjectResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.opensearch.action.DocWriteRequest;
-import org.opensearch.action.bulk.BulkItemResponse;
-import org.opensearch.action.bulk.BulkItemResponse.Failure;
+import org.folio.search.model.index.SubjectResource;
+import org.folio.search.model.types.IndexActionType;
+import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
-import org.opensearch.action.bulk.BulkResponse;
-import org.opensearch.action.delete.DeleteRequest;
-import org.opensearch.action.get.GetResponse;
-import org.opensearch.action.get.MultiGetItemResponse;
-import org.opensearch.action.get.MultiGetRequest;
-import org.opensearch.action.get.MultiGetRequest.Item;
-import org.opensearch.action.get.MultiGetResponse;
-import org.opensearch.search.fetch.subphase.FetchSourceContext;
+import org.opensearch.action.update.UpdateRequest;
+import org.opensearch.common.bytes.BytesReference;
+import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
 @Log4j2
@@ -54,137 +38,77 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
 
-  private final IndexRepository indexRepository;
-  private final SearchRepository searchRepository;
-  private final SearchConfigurationProperties searchConfigurationProperties;
+  public static final String SCRIPT = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
+    + "instanceIds.addAll(params.ins);"
+    + "params.del.forEach(instanceIds::remove);"
+    + "if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}"
+    + "ctx._source.instances=instanceIds;";
+
+  private final SearchConfigurationProperties properties;
+  private final JsonConverter jsonConverter;
+  private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
 
   @Override
-  public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documents) {
-    var documentByAction = documents.stream().collect(groupingBy(SearchDocumentBody::getAction));
-    var bulkIndexResponse = super.indexResources(documentByAction.get(INDEX));
-    var documentToDelete = documentByAction.get(DELETE);
-    return CollectionUtils.isEmpty(documentToDelete) ? bulkIndexResponse : deleteUnusedSubjects(documentToDelete);
-  }
+  public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
+    var bulkRequest = new BulkRequest();
 
-  private FolioIndexOperationResponse deleteUnusedSubjects(List<SearchDocumentBody> documentToDelete) {
-    var subjectByTenant = documentToDelete.stream().collect(groupingBy(SearchDocumentBody::getTenant));
-    subjectByTenant.forEach(this::deleteUnusedSubjectsPerTenant);
-    return getSuccessIndexOperationResponse();
-  }
-
-  private void deleteUnusedSubjectsPerTenant(String tenant, List<SearchDocumentBody> documents) {
-    var retryAttempts = getRetryAttempts();
-    var retryCounter = new AtomicInteger(0);
-    List<String> remainingIds;
-    var remainingDocuments = documents;
-    var documentsById = toLinkedHashMap(remainingDocuments, SearchDocumentBody::getId);
-
-    do {
-      remainingIds = deleteSubjects(tenant, remainingDocuments);
-      remainingDocuments = getRemainingDocuments(remainingIds, documentsById);
-    } while (isNotEmpty(remainingIds) && retryCounter.incrementAndGet() < retryAttempts);
-
-    if (isNotEmpty(remainingIds)) {
-      log.warn("Failed to delete subject by ids [subjectIds: {}]", remainingIds);
-    }
-  }
-
-  private List<String> deleteSubjects(String tenant, List<SearchDocumentBody> docs) {
-    var documentsBySubject = toLinkedHashMap(docs, InstanceSubjectRepository::getSubject);
-    var subjects = documentsBySubject.keySet();
-
-    log.debug("Removing subjects from instance_subject index [tenantId: {}, subjects: {}]", tenant, subjects);
-    indexRepository.refreshIndices(getIndexName(INSTANCE_RESOURCE, tenant));
-
-    var esDocumentsById = getSearchHitsBySubjectIds(tenant, docs);
-    var resourceRequest = SimpleResourceRequest.of(INSTANCE_RESOURCE, tenant);
-    var subjectCountsResponse = searchRepository.search(resourceRequest, getSubjectCountsQuery(subjects));
-    return deleteSubjects(getSubjectCounts(subjectCountsResponse), documentsBySubject, esDocumentsById);
-  }
-
-  private List<String> deleteSubjects(Map<String, Long> subjectCounts,
-                                      Map<String, SearchDocumentBody> documentsBySubject,
-                                      Map<String, GetResponse> esDocumentsById) {
-    Map<String, DocWriteRequest<?>> deleteRequestsBySubject = documentsBySubject.keySet().stream()
-      .filter(subject -> subjectCounts.getOrDefault(subject, 0L) == 0L)
-      .map(subject -> Pair.of(subject, prepareDeleteRequest(subject, documentsBySubject, esDocumentsById)))
-      .filter(pair -> pair.getSecond() != null)
-      .collect(toLinkedHashMap(Pair::getFirst, Pair::getSecond));
-
-    if (deleteRequestsBySubject.isEmpty()) {
-      return emptyList();
+    var docsById = documentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
+    for (var entry : docsById.entrySet()) {
+      var documents = entry.getValue();
+      var upsertRequest = prepareUpsertRequest(documents.iterator().next(), prepareInstanceIds(documents));
+      bulkRequest.add(upsertRequest);
     }
 
-    log.debug("Deleting subjects [subjects: {}]", deleteRequestsBySubject.keySet());
-    var bulkRequest = new BulkRequest().add(deleteRequestsBySubject.values());
-    return getFailedDocumentIds(executeBulkRequest(bulkRequest));
+    var bulkApiResponse = executeBulkRequest(bulkRequest);
+
+    return bulkApiResponse.hasFailures()
+           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+           : getSuccessIndexOperationResponse();
   }
 
-  private Map<String, GetResponse> getSearchHitsBySubjectIds(String tenant, List<SearchDocumentBody> documents) {
-    var documentByIds = performExceptionalOperation(
-      () -> elasticsearchClient.mget(prepareMultiGetRequest(tenant, documents), DEFAULT),
-      getIndexName(INSTANCE_SUBJECT_RESOURCE, tenant), "searchApi");
-
-    return Optional.ofNullable(documentByIds)
-      .map(MultiGetResponse::getResponses)
-      .stream()
-      .flatMap(Arrays::stream)
-      .filter(multiGetResponse -> !multiGetResponse.isFailed())
-      .map(MultiGetItemResponse::getResponse)
-      .filter(GetResponse::isExists)
-      .collect(toLinkedHashMap(GetResponse::getId));
+  private EnumMap<IndexActionType, Set<String>> prepareInstanceIds(List<SearchDocumentBody> documents) {
+    var instanceIds = prepareInstanceIdMap();
+    for (var document : documents) {
+      var eventPayload = getPayload(document);
+      var instanceId = eventPayload.getInstanceId();
+      instanceIds.getOrDefault(document.getAction(), instanceIds.get(DELETE)).add(instanceId);
+    }
+    return instanceIds;
   }
 
-  private static MultiGetRequest prepareMultiGetRequest(String tenant, List<SearchDocumentBody> documents) {
-    var multiGetRequest = new MultiGetRequest();
-    var index = getIndexName(INSTANCE_SUBJECT_RESOURCE, tenant);
-    var fetchSourceContext = new FetchSourceContext(false);
-    documents.stream()
-      .map(SearchDocumentBody::getId)
-      .distinct()
-      .map(documentId -> new Item(index, documentId).fetchSourceContext(fetchSourceContext))
-      .forEach(multiGetRequest::add);
-    return multiGetRequest;
+  private EnumMap<IndexActionType, Set<String>> prepareInstanceIdMap() {
+    var instanceIds = new EnumMap<IndexActionType, Set<String>>(IndexActionType.class);
+    instanceIds.put(INDEX, new HashSet<>());
+    instanceIds.put(DELETE, new HashSet<>());
+    return instanceIds;
   }
 
-  private int getRetryAttempts() {
-    return Optional.ofNullable(searchConfigurationProperties)
-      .map(SearchConfigurationProperties::getIndexing)
-      .map(IndexingSettings::getInstanceSubjects)
-      .map(InstanceSubjectsIndexingSettings::getRetryAttempts)
-      .orElse(3);
-  }
-
-  private static List<SearchDocumentBody> getRemainingDocuments(
-    List<String> ids, Map<String, SearchDocumentBody> documentsById) {
-    return ids.stream().map(documentsById::get).filter(Objects::nonNull).toList();
-  }
-
-  private static String getSubject(SearchDocumentBody document) {
-    var resourcePayload = getOldAsMap(document.getResourceEvent());
-    return toRootLowerCase(getString(resourcePayload, SUBJECT_BROWSING_FIELD));
-  }
-
-  private static DocWriteRequest<?> prepareDeleteRequest(String subject,
-                                                         Map<String, SearchDocumentBody> searchDocumentBySubject,
-                                                         Map<String, GetResponse> esDocumentsById) {
-    var doc = searchDocumentBySubject.get(subject);
-    var esDocument = esDocumentsById.get(doc.getId());
-    return esDocument != null ? prepareDeleteRequest(doc, esDocument) : null;
-  }
-
-  private static DeleteRequest prepareDeleteRequest(SearchDocumentBody doc, GetResponse esDocument) {
-    return new DeleteRequest(doc.getIndex())
+  private UpdateRequest prepareUpsertRequest(SearchDocumentBody doc,
+                                             EnumMap<IndexActionType, Set<String>> instanceIds) {
+    return new UpdateRequest()
       .id(doc.getId())
-      .setIfSeqNo(esDocument.getSeqNo())
-      .setIfPrimaryTerm(esDocument.getPrimaryTerm());
+      .scriptedUpsert(true)
+      .retryOnConflict(properties.getIndexing().getInstanceSubjects().getRetryAttempts())
+      .index(SearchUtils.getIndexName(INSTANCE_SUBJECT_RESOURCE, doc.getTenant()))
+      .script(new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT, prepareScriptParams(instanceIds)))
+      .upsert(prepareDocumentBody(getPayload(doc), instanceIds), doc.getDataFormat().getXcontentType());
   }
 
-  private static List<String> getFailedDocumentIds(BulkResponse bulkResponse) {
-    return Arrays.stream(bulkResponse.getItems())
-      .filter(BulkItemResponse::isFailed)
-      .map(BulkItemResponse::getFailure)
-      .map(Failure::getId)
-      .toList();
+  private Map<String, Object> prepareScriptParams(EnumMap<IndexActionType, Set<String>> instanceIds) {
+    return Map.of("ins", instanceIds.get(INDEX), "del", instanceIds.get(DELETE));
+  }
+
+  private byte[] prepareDocumentBody(SubjectResourceEvent payload, Map<IndexActionType, Set<String>> instanceIds) {
+    var resource = new SubjectResource();
+    resource.setId(payload.getId());
+    resource.setValue(payload.getValue());
+    resource.setInstances(subtract(instanceIds.get(INDEX), instanceIds.get(DELETE)));
+    resource.setAuthorityId(payload.getAuthorityId());
+    return BytesReference.toBytes(searchDocumentBodyConverter.apply(jsonConverter.convert(resource, Map.class)));
+  }
+
+  private SubjectResourceEvent getPayload(SearchDocumentBody doc) {
+    return jsonConverter.fromJson(jsonConverter.toJson(getEventPayload(doc.getResourceEvent())),
+      SubjectResourceEvent.class);
   }
 }

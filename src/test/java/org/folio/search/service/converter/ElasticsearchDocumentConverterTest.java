@@ -23,11 +23,12 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
+import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceAlternativeTitlesInner;
 import org.folio.search.domain.dto.Metadata;
+import org.folio.search.domain.dto.SeriesItem;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.TestUtils.TestResource;
@@ -50,18 +51,82 @@ import org.opensearch.search.SearchHits;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchDocumentConverterTest {
 
+  @Spy
+  private final ObjectMapper objectMapper = OBJECT_MAPPER;
   @InjectMocks
   private ElasticsearchDocumentConverter elasticsearchDocumentConverter;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
-  @Spy
-  private final ObjectMapper objectMapper = OBJECT_MAPPER;
   @Mock
   private SearchResponse searchResponse;
   @Mock
   private SearchHits searchHits;
   @Mock
   private SearchHit searchHit;
+
+  private static Stream<Arguments> positiveConvertDataProvider() {
+    return Stream.of(
+      arguments(emptyMap(), new Instance()),
+
+      arguments(
+        mapOf("plain_title", "title value", "title", mapOf("eng", "title value", "rus", "title value")),
+        instance(instance -> instance.setTitle("title value"))),
+
+      arguments(
+        mapOf("identifiers", List.of(mapOf("value", "isbn1"), mapOf("value", "isbn2"))),
+        instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
+
+      arguments(
+        mapOf("metadata", mapOf("updatedByUserId", "userId", "createdByUsername", "username")),
+        instance(instance -> instance.setMetadata(metadata()))),
+
+      arguments(
+        mapOf("contributors", List.of(mapOf("plain_name", "John"))),
+        instance(instance -> instance.addContributorsItem(new Contributor().name("John")))),
+
+      arguments(
+        mapOf("alternativeTitles", asList(
+          mapOf("plain_alternativeTitle", "value1"),
+          mapOf("plain_alternativeTitle", "value2"))),
+        instance(instance -> instance.setAlternativeTitles(List.of(
+          alternativeTitle("value1"), alternativeTitle("value2"))))),
+
+      arguments(
+        mapOf("series", List.of(mapOf("plain_value", "series1"))),
+        instance(instance -> instance.addSeriesItem(seriesItem("series1"))))
+    );
+  }
+
+  private static Instance instance(Consumer<Instance> setters) {
+    var instance = new Instance();
+    setters.accept(instance);
+    return instance;
+  }
+
+  private static Identifiers identifier(String value) {
+    var identifier = new Identifiers();
+    identifier.setValue(value);
+    return identifier;
+  }
+
+  private static AlternativeTitle alternativeTitle(String value) {
+    var title = new AlternativeTitle();
+    title.setAlternativeTitle(value);
+    return title;
+  }
+
+  private static SeriesItem seriesItem(String value) {
+    var seriesItem = new SeriesItem();
+    seriesItem.setValue(value);
+    return seriesItem;
+  }
+
+  private static Metadata metadata() {
+    var metadata = new Metadata();
+    metadata.setUpdatedByUserId("userId");
+    metadata.setCreatedByUsername("username");
+    return metadata;
+  }
 
   @ParameterizedTest
   @MethodSource("positiveConvertDataProvider")
@@ -118,67 +183,5 @@ class ElasticsearchDocumentConverterTest {
   void convertToSearchResult_negative_responseIsNull() {
     var actual = elasticsearchDocumentConverter.convertToSearchResult(null, TestResource.class);
     assertThat(actual).isEqualTo(SearchResult.empty());
-  }
-
-  private static Stream<Arguments> positiveConvertDataProvider() {
-    return Stream.of(
-      arguments(emptyMap(), new Instance()),
-
-      arguments(
-        mapOf("plain_title", "title value", "title", mapOf("eng", "title value", "rus", "title value")),
-        instance(instance -> instance.setTitle("title value"))),
-
-      arguments(
-        mapOf("identifiers", List.of(mapOf("value", "isbn1"), mapOf("value", "isbn2"))),
-        instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
-
-      arguments(
-        mapOf("metadata", mapOf("updatedByUserId", "userId", "createdByUsername", "username")),
-        instance(instance -> instance.setMetadata(metadata()))),
-
-      arguments(
-        mapOf("contributors", List.of(mapOf("plain_name", "John"))),
-        instance(instance -> instance.addContributorsItem(new Contributor().name("John")))),
-
-      arguments(
-        mapOf("alternativeTitles", asList(
-          mapOf("plain_alternativeTitle", "value1"),
-          mapOf("plain_alternativeTitle", "value2"))),
-        instance(instance -> instance.setAlternativeTitles(List.of(
-          alternativeTitle("value1"), alternativeTitle("value2"))))),
-
-      arguments(
-        mapOf("plain_series", asList("series1", null)),
-        instance(instance -> instance.setSeries(List.of("series1")))),
-
-      arguments(
-        mapOf("series", List.of(mapOf("src", "series1"), mapOf("src", null)), "plain_series", asList("series1", null)),
-        instance(instance -> instance.setSeries(List.of("series1"))))
-    );
-  }
-
-  private static Instance instance(Consumer<Instance> setters) {
-    var instance = new Instance();
-    setters.accept(instance);
-    return instance;
-  }
-
-  private static Identifiers identifier(String value) {
-    var identifier = new Identifiers();
-    identifier.setValue(value);
-    return identifier;
-  }
-
-  private static InstanceAlternativeTitlesInner alternativeTitle(String value) {
-    var title = new InstanceAlternativeTitlesInner();
-    title.setAlternativeTitle(value);
-    return title;
-  }
-
-  private static Metadata metadata() {
-    var metadata = new Metadata();
-    metadata.setUpdatedByUserId("userId");
-    metadata.setCreatedByUsername("username");
-    return metadata;
   }
 }

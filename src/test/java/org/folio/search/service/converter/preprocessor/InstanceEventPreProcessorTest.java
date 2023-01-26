@@ -9,32 +9,56 @@ import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.SubjectResourceEvent;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class InstanceEventPreProcessorTest {
 
+  @Spy
+  private JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
   @InjectMocks
   private InstanceEventPreProcessor preProcessor;
 
   @Test
   void process_positive() {
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, mapOf("id", RESOURCE_ID, "subjects", List.of("sub1", "sub2")));
+    var resourceEvent = resourceEvent(INSTANCE_RESOURCE,
+      mapOf("id", RESOURCE_ID, "subjects", List.of(subject("sub1"), subject("sub2"))));
     var actual = preProcessor.process(resourceEvent);
     assertThat(actual).isEqualTo(List.of(
       resourceEvent,
-      resourceEvent(sha256Hex("sub1"), INSTANCE_SUBJECT_RESOURCE, mapOf("subject", "sub1")),
-      resourceEvent(sha256Hex("sub2"), INSTANCE_SUBJECT_RESOURCE, mapOf("subject", "sub2"))));
+      getSubjectCreateEvent("sub1", null),
+      getSubjectCreateEvent("sub2", null)
+    ));
+  }
+
+  @Test
+  void process_positive_updateEvent() {
+    var authorityId = UUID.randomUUID().toString();
+    var oldData = mapOf("id", RESOURCE_ID, "subjects", List.of(subject("s1", authorityId), subject("s2")));
+    var newData = mapOf("id", RESOURCE_ID, "subjects", List.of(subject("s2"), subject("s3", authorityId)));
+    var resourceEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    var actual = preProcessor.process(resourceEvent);
+    assertThat(actual).isEqualTo(List.of(
+      resourceEvent,
+      getSubjectCreateEvent("s3", authorityId),
+      getSubjectDeleteEvent("s1", authorityId)
+    ));
   }
 
   @Test
@@ -46,33 +70,40 @@ class InstanceEventPreProcessorTest {
 
   @Test
   void process_positive_collectionWithEmptySubject() {
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, mapOf("id", RESOURCE_ID, "subjects", List.of("  ")));
+    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, mapOf("id", RESOURCE_ID, "subjects", List.of(subject("  "))));
     var actual = preProcessor.process(resourceEvent);
     assertThat(actual).isEqualTo(List.of(resourceEvent));
   }
 
   @Test
   void process_positive_deleteEvent() {
-    var old = mapOf("id", TENANT_ID, "subjects", List.of("s1", "s2"));
+    var old = mapOf("id", RESOURCE_ID, "subjects", List.of(subject("s1"), subject("s2")));
     var resourceEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, DELETE, null, old);
     var actual = preProcessor.process(resourceEvent);
     assertThat(actual).isEqualTo(List.of(
       resourceEvent,
-      resourceEvent(sha256Hex("s1"), INSTANCE_SUBJECT_RESOURCE, DELETE, null, mapOf("subject", "s1")),
-      resourceEvent(sha256Hex("s2"), INSTANCE_SUBJECT_RESOURCE, DELETE, null, mapOf("subject", "s2"))
+      getSubjectDeleteEvent("s1", null),
+      getSubjectDeleteEvent("s2", null)
     ));
   }
 
-  @Test
-  void process_positive_updateEvent() {
-    var oldData = mapOf("id", RESOURCE_ID, "subjects", List.of("s1", "s2"));
-    var newData = mapOf("id", RESOURCE_ID, "subjects", List.of("s2", "s3"));
-    var resourceEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, UPDATE, newData, oldData);
-    var actual = preProcessor.process(resourceEvent);
-    assertThat(actual).isEqualTo(List.of(
-      resourceEvent,
-      resourceEvent(sha256Hex("s3"), INSTANCE_SUBJECT_RESOURCE, CREATE, mapOf("subject", "s3"), null),
-      resourceEvent(sha256Hex("s1"), INSTANCE_SUBJECT_RESOURCE, DELETE, null, mapOf("subject", "s1"))
-    ));
+  private Map<String, String> subject(String value, String authorityId) {
+    return mapOf("value", value, "authorityId", authorityId);
+  }
+
+  private Map<String, String> subject(String value) {
+    return subject(value, null);
+  }
+
+  private ResourceEvent getSubjectCreateEvent(String value, String authId) {
+    var id = sha256Hex(value + authId);
+    return resourceEvent(id, INSTANCE_SUBJECT_RESOURCE, CREATE,
+      jsonConverter.convert(new SubjectResourceEvent(id, value, authId, RESOURCE_ID), Map.class), null);
+  }
+
+  private ResourceEvent getSubjectDeleteEvent(String value, String authId) {
+    var id = sha256Hex(value + authId);
+    return resourceEvent(id, INSTANCE_SUBJECT_RESOURCE, DELETE, null,
+      jsonConverter.convert(new SubjectResourceEvent(id, value, authId, RESOURCE_ID), Map.class));
   }
 }

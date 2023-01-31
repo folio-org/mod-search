@@ -6,6 +6,10 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}

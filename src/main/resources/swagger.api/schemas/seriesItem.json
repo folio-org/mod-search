@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "A series item description",
+  "properties": {
+    "value": {
+      "type": "string",
+      "description": "Series title value"
+    },
+    "authorityId": {
+      "type": "string",
+      "description": "UUID of authority record that controls an series title"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "An alternative title description",
+  "properties": {
+    "alternativeTitleTypeId": {
+      "type": "string",
+      "description": "UUID for an alternative title qualifier"
+    },
+    "alternativeTitle": {
+      "type": "string",
+      "description": "An alternative title for the resource"
+    },
+    "authorityId": {
+      "type": "string",
+      "description": "UUID of authority record that controls an alternative title"
+    }
+  }
+}

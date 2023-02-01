@@ -39,7 +39,7 @@
     },
     {
       "id": "search",
-      "version": "0.9",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -94,7 +94,7 @@
     },
     {
       "id": "browse",
-      "version": "0.6",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -201,7 +201,7 @@
   "requires": [
     {
       "id": "instance-storage",
-      "version": "7.5 8.0 9.0"
+      "version": "10.0"
     },
     {
       "id": "login",
@@ -217,7 +217,7 @@
     },
     {
       "id": "inventory-view",
-      "version": "1.0"
+      "version": "2.0"
     },
     {
       "id": "instance-reindex",

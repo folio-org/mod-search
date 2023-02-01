@@ -3,6 +3,7 @@ package org.folio.search.service.browse;
 import static java.util.Locale.ROOT;
 import static org.folio.search.utils.CollectionUtils.toListSafe;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
@@ -15,16 +16,14 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
-
-  private int calculateTotalRecords(ContributorResource item) {
-    return ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue();
-  }
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
@@ -38,9 +37,14 @@ public class ContributorBrowseService extends
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
-    var boolQuery = boolQuery();
-    ctx.getFilters().forEach(boolQuery::filter);
-    return searchSource().query(boolQuery)
+    QueryBuilder query;
+    if (ctx.getFilters().isEmpty()) {
+      query = matchAllQuery();
+    } else {
+      query = boolQuery();
+      ctx.getFilters().forEach(filter -> ((BoolQueryBuilder) query).filter(filter));
+    }
+    return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
@@ -68,5 +72,9 @@ public class ContributorBrowseService extends
   @Override
   protected String getValueForBrowsing(InstanceContributorBrowseItem browseItem) {
     return browseItem.getName();
+  }
+
+  private int calculateTotalRecords(ContributorResource item) {
+    return ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue();
   }
 }

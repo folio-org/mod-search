@@ -34,6 +34,7 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.Subject;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -67,6 +68,35 @@ class IndexingIT extends BaseIntegrationTest {
     removeTenant();
   }
 
+  private static Item item(int i) {
+    return new Item().id(ITEM_IDS.get(i));
+  }
+
+  private static Holding holdingsRecord(int i) {
+    return new Holding().id(HOLDING_IDS.get(i));
+  }
+
+  private static void assertCountByQuery(String path, String field, List<String> ids, int expected) {
+    var query = exactMatchAny(field, ids).toString();
+    await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  private static void assertCountByQuery(String path, String template, String value, int expected) {
+    await(() -> doSearch(path, prepareQuery(template, value)).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  private static void await(ThrowingRunnable runnable) {
+    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
+  }
+
+  private static List<String> getRandomIds(int count) {
+    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
+  }
+
+  private static String getSubjectId(String instanceId) {
+    return sha256Hex("subject-" + sha1Hex(instanceId) + "null");
+  }
+
   @Test
   void shouldRemoveItem() {
     createInstances();
@@ -79,23 +109,25 @@ class IndexingIT extends BaseIntegrationTest {
   @Test
   void shouldUpdateAndDeleteInstance() {
     var instanceId = randomId();
-    var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of("s1", "s2"));
+    var instance = new Instance().id(instanceId).title("test-resource").subjects(List.of(new Subject().value("s1"),
+      new Subject().value("s2")));
 
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);
-    assertSubjectExistenceById(sha256Hex("s1"), true);
-    assertSubjectExistenceById(sha256Hex("s2"), true);
+    assertSubjectExistenceById(sha256Hex("s1null"), true);
+    assertSubjectExistenceById(sha256Hex("s2null"), true);
 
-    var instanceToUpdate = new Instance().id(instanceId).title("test-resource").subjects(List.of("s2", "s3"));
+    var instanceToUpdate = new Instance().id(instanceId).title("test-resource").subjects(
+      List.of(new Subject().value("s2"), new Subject().value("s3")));
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s2 and s3)", 1);
-    assertSubjectExistenceById(sha256Hex("s1"), false);
-    assertSubjectExistenceById(sha256Hex("s3"), true);
+    assertSubjectExistenceById(sha256Hex("s1null"), false);
+    assertSubjectExistenceById(sha256Hex("s3null"), true);
 
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     assertCountByQuery(instanceSearchPath(), "id=={value}", instanceId, 0);
-    assertSubjectExistenceById(sha256Hex("s2"), false);
-    assertSubjectExistenceById(sha256Hex("s3"), false);
+    assertSubjectExistenceById(sha256Hex("s2null"), false);
+    assertSubjectExistenceById(sha256Hex("s3null"), false);
   }
 
   @Test
@@ -201,7 +233,7 @@ class IndexingIT extends BaseIntegrationTest {
 
   private void createInstances() {
     var instances = INSTANCE_IDS.stream()
-      .map(id -> new Instance().id(id).subjects(List.of("subject-" + sha1Hex(id))))
+      .map(id -> new Instance().id(id).subjects(List.of(new Subject().value("subject-" + sha1Hex(id)))))
       .toList();
 
     instances.get(0)
@@ -212,35 +244,6 @@ class IndexingIT extends BaseIntegrationTest {
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
     assertCountByQuery(instanceSearchPath(), "id", INSTANCE_IDS, 3);
-  }
-
-  private static Item item(int i) {
-    return new Item().id(ITEM_IDS.get(i));
-  }
-
-  private static Holding holdingsRecord(int i) {
-    return new Holding().id(HOLDING_IDS.get(i));
-  }
-
-  private static void assertCountByQuery(String path, String field, List<String> ids, int expected) {
-    var query = exactMatchAny(field, ids).toString();
-    await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  private static void assertCountByQuery(String path, String template, String value, int expected) {
-    await(() -> doSearch(path, prepareQuery(template, value)).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  private static void await(ThrowingRunnable runnable) {
-    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
-  }
-
-  private static List<String> getRandomIds(int count) {
-    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
-  }
-
-  private static String getSubjectId(String instanceId) {
-    return sha256Hex("subject-" + sha1Hex(instanceId));
   }
 
   private void assertSubjectExistenceById(String subjectId, boolean isExists) {

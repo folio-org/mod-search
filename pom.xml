@@ -299,13 +299,6 @@
       <version>${folio-service-tools.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-postgres</artifactId>
-      <version>${embedded-postgres.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

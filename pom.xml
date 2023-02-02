@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.4</version>
+    <version>3.0.2</version>
     <relativePath />
   </parent>
 
@@ -25,6 +25,8 @@
 
   <properties>
     <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <mod-search.yaml.file>${project.basedir}/src/main/resources/swagger.api/mod-search.yaml</mod-search.yaml.file>
     <sonar.exclusions>
       src/main/java/org/folio/search/SearchApplication.java,
@@ -32,37 +34,38 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>5.0.1</folio-spring-base.version>
-    <folio-service-tools.version>2.0.0-SNAPSHOT</folio-service-tools.version>
+    <folio-spring-base.version>6.0.0-SNAPSHOT</folio-spring-base.version>
+    <folio-service-tools.version>3.0.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.4.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.0</folio-cql2pgjson.version>
-    <opensearch.version>2.3.0</opensearch.version>
-    <mapstruct.version>1.5.2.Final</mapstruct.version>
-    <spring-kafka.version>2.9.1</spring-kafka.version>
-    <log4j2.version>2.17.2</log4j2.version>
+    <opensearch.version>2.4.1</opensearch.version>
+    <mapstruct.version>1.5.3.Final</mapstruct.version>
+    <spring-kafka.version>3.0.1</spring-kafka.version>
+
     <apache-commons-io.version>2.11.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.2</marc4j.version>
-    <lombok.version>1.18.22</lombok.version>
+    <lombok.version>1.18.24</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
     <streamex.version>0.8.1</streamex.version>
 
     <!-- Test dependencies versions -->
-    <testcontainer.version>1.17.5</testcontainer.version>
+    <testcontainer.version>1.17.6</testcontainer.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
+    <embedded-postgres.version>2.0.2</embedded-postgres.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>6.2.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>6.2.1</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.3.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
-    <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-    <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+    <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
+    <maven-checkstyle-plugin.version>3.2.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
-    <maven-release-plugin.version>3.0.0-M5</maven-release-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
+    <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
   </properties>
 
   <dependencies>
@@ -139,6 +142,16 @@
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch</artifactId>
       <version>${opensearch.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-jul</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -458,6 +471,8 @@
                 <java8>true</java8>
                 <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
+                <useSpringBoot3>true</useSpringBoot3>
+                <requestMappingMode>api_interface</requestMappingMode>
               </configOptions>
             </configuration>
           </execution>

@@ -1,6 +1,6 @@
 package org.folio.search.configuration.properties;
 
-import javax.validation.constraints.Max;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

@@ -14,9 +14,9 @@ import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityNotFoundException;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.converter.FeatureConfigMapperImpl;
 import org.folio.search.domain.dto.FeatureConfig;

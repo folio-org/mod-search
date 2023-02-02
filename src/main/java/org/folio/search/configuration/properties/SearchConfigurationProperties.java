@@ -3,12 +3,12 @@ package org.folio.search.configuration.properties;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import lombok.Data;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.types.IndexingDataFormat;

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -35,6 +36,7 @@ import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class CallNumberBrowseResultConverter {
@@ -55,6 +57,7 @@ public class CallNumberBrowseResultConverter {
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
     if (CollectionUtils.isEmpty(browseItems)) {
+      log.warn("convert:: empty records");
       return browseResult;
     }
 

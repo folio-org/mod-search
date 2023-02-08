@@ -1,18 +1,7 @@
 package org.folio.search.service;
 
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
@@ -27,6 +16,19 @@ import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 @Log4j2
 @Service
@@ -47,6 +49,8 @@ public class ResourceIdService {
    * @param outputStream output stream where text will be written in.
    */
   public void streamResourceIdsAsText(CqlResourceIdsRequest request, OutputStream outputStream) {
+    log.debug("streamResourceIdsAsText:: by [request: {}]", request);
+
     var writer = createOutputStreamWriter(outputStream);
     streamResourceIds(request, ids -> writeRecordIdsToOutputStream(ids, writer));
   }
@@ -60,6 +64,8 @@ public class ResourceIdService {
    */
   @Transactional
   public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
+    log.debug("streamIdsFromDatabaseAsJson:: by [jobId: {}]", jobId);
+
     var job = jobRepository.getReferenceById(jobId);
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
@@ -78,6 +84,7 @@ public class ResourceIdService {
         }
       }));
     job.setStatus(StreamJobStatus.DEPRECATED);
+    log.info("streamIdsFromDatabaseAsJson:: Attempting to save [job: {}]", job);
     jobRepository.save(job);
   }
 
@@ -89,6 +96,7 @@ public class ResourceIdService {
    */
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
+    log.debug("streamResourceIdsForJob:: by [job: {}, tenantId: {}]", job, tenantId);
     var tableName = job.getTemporaryTableName();
     try {
       var entityType = job.getEntityType();
@@ -96,14 +104,18 @@ public class ResourceIdService {
       String sourceIdPath = entityType.getSourceIdPath();
       var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
 
+      log.info("streamResourceIdsForJob:: Attempting to create table for ids [tableName: {}]", tableName);
       idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
+
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}", job.getId());
       idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
+
     } finally {
+      log.info("streamResourceIdsForJob:: Attempting to save [job: {}]", job);
       jobRepository.save(job);
     }
   }
@@ -115,6 +127,8 @@ public class ResourceIdService {
    * @param outputStream output stream where json will be written in.
    */
   public void streamResourceIdsAsJson(CqlResourceIdsRequest request, OutputStream outputStream) {
+    log.debug("streamResourceIdsAsJson:: by [request: {}]", request);
+
     processStreamToJson(outputStream, (json, counter) ->
       streamResourceIds(request, ids -> {
         counter.addAndGet(ids.size());
@@ -127,10 +141,12 @@ public class ResourceIdService {
   }
 
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
+    log.debug("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+
     var resource = request.getResource();
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())
-      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
+      .fetchSource(new String[]{request.getSourceFieldPath()}, null)
       .sort(fieldSort("_doc"));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);
@@ -158,17 +174,23 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, JsonGenerator json) {
+    String logParamMsg = listToLogParamMsg(recordIds);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", logParamMsg);
+
     if (CollectionUtils.isEmpty(recordIds)) {
+      log.info("writeRecordIdsToOutputStream:: empty recordIds");
       return;
     }
 
     try {
+      log.info("writeRecordIdsToOutputStream:: Attempting to write [recordIds: {}]", logParamMsg);
       for (var recordId : recordIds) {
         json.writeStartObject();
         json.writeStringField("id", recordId);
         json.writeEndObject();
       }
       json.flush();
+
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write to id value into json stream [reason: %s]", e.getMessage()), e);
@@ -176,15 +198,21 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, OutputStreamWriter outputStreamWriter) {
+    String logParamMsg = listToLogParamMsg(recordIds);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", logParamMsg);
+
     if (CollectionUtils.isEmpty(recordIds)) {
+      log.warn("writeRecordIdsToOutputStream:: recordIds is empty!");
       return;
     }
 
     try {
+      log.info("writeRecordIdsToOutputStream:: Attempting to write [recordIds: {}]", logParamMsg);
       for (var recordId : recordIds) {
         outputStreamWriter.write(recordId + '\n');
       }
       outputStreamWriter.flush();
+
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write id value into output stream [reason: %s]", e.getMessage()), e);

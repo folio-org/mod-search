@@ -1,20 +1,7 @@
 package org.folio.search.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.CollectionUtils.subtractSorted;
-import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.event.ContributorResourceEvent;
@@ -29,6 +16,23 @@ import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.folio.search.utils.CollectionUtils.subtract;
+import static org.folio.search.utils.CollectionUtils.subtractSorted;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
+
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
@@ -48,6 +52,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
+    log.debug("indexResources:: by [esDocumentBodies: {}]", listToLogParamMsg(esDocumentBodies));
+
     var byId = esDocumentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
     var bulkRequest = new BulkRequest();
     for (var entry : byId.entrySet()) {
@@ -63,9 +69,11 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         var typeId = eventPayload.getTypeId();
         var pair = instanceId + "|" + typeId;
         if (action == IndexActionType.INDEX) {
+          log.info("indexResources:: action == INDEX by [pair: {}]", pair);
           instanceIdsToCreate.add(pair);
           typeIdsToCreate.add(typeId);
         } else {
+          log.info("indexResources:: action == DELETE by [pair: {}]", pair);
           instanceIdsToDelete.add(pair);
           typeIdsToDelete.add(typeId);
         }
@@ -86,9 +94,11 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
 
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
-    return bulkApiResponse.hasFailures()
-           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-           : getSuccessIndexOperationResponse();
+    if (bulkApiResponse.hasFailures()) {
+      log.warn("BulkResponse has failure: {}", bulkApiResponse.buildFailureMessage());
+      return getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage());
+    }
+    return getSuccessIndexOperationResponse();
   }
 
   private Script prepareScript(HashSet<String> instanceIdsToCreate, HashSet<String> instanceIdsToDelete) {

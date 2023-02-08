@@ -1,10 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CACHE;
-
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -19,6 +15,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+
+import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CACHE;
 
 @Log4j2
 @Service
@@ -38,6 +39,7 @@ public class FeatureConfigService {
   @Transactional(readOnly = true)
   @Cacheable(cacheNames = TENANT_FEATURES_CACHE, key = "@folioExecutionContext.tenantId + ':' + #feature.value")
   public boolean isEnabled(TenantConfiguredFeature feature) {
+    log.debug("isEnabled:: by [feature.value: {}]", feature.getValue());
     return featureConfigRepository.findById(feature.getValue())
       .map(FeatureConfigEntity::isEnabled)
       .orElseGet(() -> searchConfigurationProperties.getSearchFeatures().getOrDefault(feature, false));
@@ -65,7 +67,7 @@ public class FeatureConfigService {
    */
   @Transactional
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE,
-              key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
+    key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
   public FeatureConfig create(FeatureConfig featureConfig) {
     log.info("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
     var entity = featureConfigMapper.convert(featureConfig);
@@ -101,6 +103,7 @@ public class FeatureConfigService {
       .orElseThrow(() -> new EntityNotFoundException("Feature configuration not found for id: " + featureId));
 
     if (existingEntity.equals(entity)) {
+      log.info("No need to update, the same entity [featureConfig: {}]", featureConfig);
       return featureConfig;
     }
 

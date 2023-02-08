@@ -1,13 +1,5 @@
 package org.folio.search.service;
 
-import static java.lang.Boolean.TRUE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -25,12 +17,23 @@ import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Boolean.TRUE;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class IndexService {
 
   private static final String RESOURCE_NAME_PARAMETER = "resourceName";
+  private static final String RESOURCE_STORAGE_REINDEX_URI = "http://{resource}-storage/reindex";
 
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
@@ -47,6 +50,9 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
+    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]",
+      resourceName, tenantId);
+
     validateResourceName(resourceName,
       "Index cannot be created for the resource because resource description is not found.");
 
@@ -98,7 +104,8 @@ public class IndexService {
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
-      log.info("Recreating indices during reindex operation [tenant: {}, resources: {}]", tenantId, resources);
+      log.info("Recreating indices during reindex operation [tenant: {}, resources: {}]",
+        tenantId, listToLogParamMsg(resources));
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId);
@@ -106,7 +113,9 @@ public class IndexService {
     }
 
     var resource = normalizeResourceName(resources.get(0));
-    var reindexUri = fromUriString("http://{resource}-storage/reindex").buildAndExpand(resource).toUri();
+    var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
+    log.info("reindexInventory:: result: reindex job has been created [reindexUri: {}]", reindexUri);
+
     return resourceReindexClient.submitReindex(reindexUri);
   }
 
@@ -117,6 +126,8 @@ public class IndexService {
    * @param tenant   - tenant id as {@link String} object
    */
   public void dropIndex(String resource, String tenant) {
+    log.debug("dropIndex:: by [resource: {}, tenant: {}]", resource, tenant);
+
     var index = getIndexName(resource, tenant);
     if (indexRepository.indexExists(index)) {
       indexRepository.dropIndex(index);
@@ -124,6 +135,8 @@ public class IndexService {
   }
 
   private List<String> getResourceNamesToReindex(ReindexRequest reindexRequest) {
+    log.debug("getResourceNamesToReindex:: by [reindexRequest: {}]", reindexRequest);
+
     var resourceName = getReindexRequestResourceName(reindexRequest);
     var resourceDescription = resourceDescriptionService.get(resourceName);
     if (resourceDescription == null
@@ -136,6 +149,8 @@ public class IndexService {
     var resourceNames = new ArrayList<String>();
     resourceNames.add(resourceName);
     resourceNames.addAll(resourceDescriptionService.getSecondaryResourceNames(resourceName));
+    log.info("getResourceNamesToReindex: result: {}", listToLogParamMsg(resourceNames));
+
     return resourceNames;
   }
 

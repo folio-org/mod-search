@@ -1,15 +1,5 @@
 package org.folio.search.repository;
 
-import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
-import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.XContentType.JSON;
-
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
@@ -24,6 +14,15 @@ import org.opensearch.client.indices.PutMappingRequest;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.folio.search.utils.SearchResponseHelper.*;
+import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.XContentType.JSON;
 
 /**
  * Search resource repository with set of operation to create/modify/update index settings and mappings.
@@ -45,6 +44,8 @@ public class IndexRepository {
    */
   @CacheEvict(cacheNames = ES_INDICES_CACHE, key = "#index")
   public FolioCreateIndexResponse createIndex(String index, String settings, String mappings) {
+    log.debug("createIndex:: by [index: {}, settings: {}, mappings: {}]", index, settings, mappings);
+
     var createIndexRequest = new CreateIndexRequest(index)
       .settings(settings, JSON)
       .mapping(mappings, JSON);
@@ -52,10 +53,13 @@ public class IndexRepository {
     var createIndexResponse = performExceptionalOperation(
       () -> elasticsearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT),
       index, "createIndexApi");
+    log.info("createIndex:: result: [createIndexResponse: {}]", createIndexResponse);
 
-    return createIndexResponse.isAcknowledged()
-           ? getSuccessFolioCreateIndexResponse(List.of(index))
-           : getErrorFolioCreateIndexResponse(List.of(index));
+    if (createIndexResponse.isAcknowledged())
+      return getSuccessFolioCreateIndexResponse(List.of(index));
+
+    log.warn("Failed to create indices in elasticsearch by [index: {}, mappings: {}]", index, mappings);
+    return getErrorFolioCreateIndexResponse(List.of(index));
   }
 
   /**
@@ -66,14 +70,18 @@ public class IndexRepository {
    * @return {@link FolioCreateIndexResponse} object
    */
   public FolioIndexOperationResponse updateMappings(String index, String mappings) {
+    log.debug("updateMappings:: by [index: {}, mappings: {}]", index, mappings);
+
     var putMappingRequest = new PutMappingRequest(index).source(mappings, JSON);
     var putMappingsResponse = performExceptionalOperation(
       () -> elasticsearchClient.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT),
       index, "putMappingsApi");
 
-    return putMappingsResponse.isAcknowledged()
-           ? getSuccessIndexOperationResponse()
-           : getErrorIndexOperationResponse("Failed to put mappings");
+    if (putMappingsResponse.isAcknowledged())
+      return getSuccessIndexOperationResponse();
+
+    log.warn("Failed to update mappings by [index: {}, mappings: {}]", index, mappings);
+    return getErrorIndexOperationResponse("Failed to put mappings");
   }
 
   /**
@@ -84,7 +92,7 @@ public class IndexRepository {
    */
   @Cacheable(value = ES_INDICES_CACHE, key = "#index", unless = "#result == false")
   public boolean indexExists(String index) {
-    log.info("Checking that index exists [index: {}]", index);
+    log.debug("indexExists:: by [index: {}]", index);
     var request = new GetIndexRequest(index);
     return performExceptionalOperation(
       () -> elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),
@@ -97,6 +105,7 @@ public class IndexRepository {
    * @param indices - Elasticsearch index names as array of {@link String} objects.
    */
   public void refreshIndices(String... indices) {
+    log.debug("refreshIndices:: by [indices: {}]", listToLogParamMsg(List.of(indices)));
     performExceptionalOperation(
       () -> elasticsearchClient.indices().refresh(new RefreshRequest(indices), DEFAULT),
       String.join(",", indices), "refreshApi");
@@ -109,6 +118,7 @@ public class IndexRepository {
    */
   @CacheEvict(cacheNames = ES_INDICES_CACHE, key = "#index")
   public void dropIndex(String index) {
+    log.debug("dropIndex:: by [index: {}]", index);
     var request = new DeleteIndexRequest(index);
 
     performExceptionalOperation(() -> elasticsearchClient.indices()

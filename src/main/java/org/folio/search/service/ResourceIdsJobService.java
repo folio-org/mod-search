@@ -1,7 +1,5 @@
 package org.folio.search.service;
 
-import java.security.SecureRandom;
-import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -10,6 +8,9 @@ import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+import java.util.Date;
 
 @Log4j2
 @Service
@@ -22,20 +23,26 @@ public class ResourceIdsJobService {
   private final ResourceIdService resourceIdService;
 
   public ResourceIdsJob getJobById(String id) {
+    log.debug("getJobById:: param id: {}", id);
     return resourceIdsJobMapper.convert(jobRepository.getReferenceById(id));
   }
 
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
+    log.debug("createStreamJob:: by [job: {}, tenantId: {}]", job, tenantId);
     var entity = resourceIdsJobMapper.convert(job);
     entity.setCreatedDate(new Date());
     entity.setStatus(StreamJobStatus.IN_PROGRESS);
     entity.setTemporaryTableName(generateTemporaryTableName());
+
+    log.info("createStreamJob:: Attempting to save [resourceIdsJob: {}]", entity);
     var savedJob = jobRepository.save(entity);
 
     Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
     tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
 
-    return resourceIdsJobMapper.convert(savedJob);
+    ResourceIdsJob resourceIdsJob = resourceIdsJobMapper.convert(savedJob);
+    log.info("createStreamJob:: result:: id: {}", resourceIdsJob.getId());
+    return resourceIdsJob;
   }
 
   private String generateTemporaryTableName() {

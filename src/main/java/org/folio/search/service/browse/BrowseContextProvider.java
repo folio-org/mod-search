@@ -1,14 +1,7 @@
 package org.folio.search.service.browse;
 
-import static java.util.Collections.emptyList;
-import static org.folio.search.utils.CollectionUtils.allMatch;
-import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
-import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpty;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.BrowseContext;
@@ -18,6 +11,16 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.RangeQueryBuilder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+
+import static java.util.Collections.emptyList;
+import static org.folio.search.utils.CollectionUtils.allMatch;
+import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
+import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpty;
+
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class BrowseContextProvider {
@@ -33,6 +36,8 @@ public class BrowseContextProvider {
    * @throws RequestValidationException if given {@link QueryBuilder} does not satisfy required conditions
    */
   public BrowseContext get(BrowseRequest request) {
+    log.debug("get:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+
     var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
     var cqlQuery = request.getQuery();
     if (isNotEmpty(searchSource.sorts())) {
@@ -45,6 +50,7 @@ public class BrowseContextProvider {
       if (!isValidRangeQuery(request.getTargetField(), request.getSubField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
+      log.info("Attempting to create browsing context [tenant: {}, query: {}]", request.getTenantId(), query);
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
 

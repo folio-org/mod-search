@@ -1,22 +1,5 @@
 package org.folio.search.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
-
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -32,6 +15,21 @@ import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CollectionUtils.subtract;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
 
 @Log4j2
 @Repository
@@ -50,6 +48,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
+    log.debug("indexResources:: by [documentBodies: {}]", listToLogParamMsg(documentBodies, true));
     var bulkRequest = new BulkRequest();
 
     var docsById = documentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
@@ -61,9 +60,11 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
-    return bulkApiResponse.hasFailures()
-           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-           : getSuccessIndexOperationResponse();
+    if (bulkApiResponse.hasFailures()) {
+      log.warn("BulkResponse has failure: {}", bulkApiResponse.buildFailureMessage());
+      return getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage());
+    }
+    return getSuccessIndexOperationResponse();
   }
 
   private EnumMap<IndexActionType, Set<String>> prepareInstanceIds(List<SearchDocumentBody> documents) {

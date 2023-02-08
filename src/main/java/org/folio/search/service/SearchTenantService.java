@@ -1,9 +1,5 @@
 package org.folio.search.service;
 
-import static java.lang.Boolean.parseBoolean;
-
-import java.util.Collection;
-import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -19,6 +15,11 @@ import org.folio.tenant.domain.dto.TenantAttributes;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import static java.lang.Boolean.parseBoolean;
 
 @Log4j2
 @Primary

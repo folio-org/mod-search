@@ -1,11 +1,8 @@
 package org.folio.search.service;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
-
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +11,12 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class ResourceIdsStreamHelper {
@@ -28,12 +31,20 @@ public class ResourceIdsStreamHelper {
    * @return response with found resource ids using http streaming approach.
    */
   public ResponseEntity<Void> streamResourceIds(CqlResourceIdsRequest request, String contentType) {
+    log.debug("streamResourceIds:: by [request: {}, contentType: {}]", request, contentType);
+
     try {
       var httpServletResponse = prepareHttpResponse();
       if (contentType != null && contentType.contains(TEXT_PLAIN_VALUE)) {
+        log.info("streamResourceIds:: contentType not null && has TEXT_PLAIN_VALUE  [contentType: {}]",
+          contentType);
+
         httpServletResponse.setContentType(TEXT_PLAIN_VALUE);
         resourceIdService.streamResourceIdsAsText(request, httpServletResponse.getOutputStream());
+
       } else {
+        log.info("streamResourceIds:: contentType is null || does not have TEXT_PLAIN_VALUE [contentType: {}]",
+          contentType);
         httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
         resourceIdService.streamResourceIdsAsJson(request, httpServletResponse.getOutputStream());
       }
@@ -50,6 +61,8 @@ public class ResourceIdsStreamHelper {
    * @return response with found resource ids using http streaming approach.
    */
   public ResponseEntity<Void> streamResourceIdsFromDb(String jobId) {
+    log.debug("streamResourceIdsFromDb:: by [jobId: {}]", jobId);
+
     try {
       var httpServletResponse = prepareHttpResponse();
       httpServletResponse.setContentType(APPLICATION_JSON_VALUE);

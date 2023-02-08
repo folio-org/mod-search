@@ -1,14 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_CACHE;
-import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
-import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
-
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -22,6 +14,15 @@ import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_CACHE;
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
 
 @Log4j2
 @Service
@@ -41,17 +42,17 @@ public class LanguageConfigService {
    */
   @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public LanguageConfig create(LanguageConfig languageConfig) {
+    log.debug("create:: by [languageConfig: {}]", languageConfig);
+
     var entity = toLanguageConfigEntity(languageConfig);
     var languageCode = languageConfig.getCode();
 
     if (!searchFieldProvider.isSupportedLanguage(languageCode)) {
-      log.warn("There is no language analyzer configured for language {}", languageCode);
       throw new ValidationException("Language has no analyzer available", "code", languageCode);
     }
 
     var maxSupportedLanguages = searchConfiguration.getMaxSupportedLanguages();
     if (configRepository.count() >= maxSupportedLanguages) {
-      log.warn("Tenant is allowed to have only {} languages configured", maxSupportedLanguages);
       throw new ValidationException(String.format(
         "Tenant is allowed to have only %s languages configured", maxSupportedLanguages),
         "code", languageCode);
@@ -69,6 +70,7 @@ public class LanguageConfigService {
    */
   @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public LanguageConfig update(String code, LanguageConfig languageConfig) {
+    log.debug("update:: by [code: {}, languageConfig: {}]", code, languageConfig);
     var entity = toLanguageConfigEntity(languageConfig);
 
     if (!Objects.equals(languageConfig.getCode(), code)) {
@@ -80,6 +82,7 @@ public class LanguageConfigService {
       .orElseThrow(() -> new EntityNotFoundException("Language config not found for code: " + code));
 
     if (existingEntity.equals(entity)) {
+      log.info("No need to update, the same entity [code: {}, languageConfig: {}]", code, languageConfig);
       return languageConfig;
     }
 
@@ -93,6 +96,8 @@ public class LanguageConfigService {
    */
   @CacheEvict(cacheNames = RESOURCE_LANGUAGE_CACHE, key = "@folioExecutionContext.tenantId")
   public void delete(String code) {
+    log.debug("delete by [code: {}]", code);
+
     configRepository.deleteById(code);
   }
 
@@ -130,6 +135,8 @@ public class LanguageConfigService {
    * @return {@link Set} with language configuration codes.
    */
   public Set<String> getAllLanguagesForTenant(String tenant) {
+    log.debug("getAllLanguagesForTenant:: by [tenant: {}]", tenant);
+
     return executionService.executeTenantScoped(tenant,
       () -> configRepository.findAll().stream()
         .map(LanguageConfigEntity::getCode)

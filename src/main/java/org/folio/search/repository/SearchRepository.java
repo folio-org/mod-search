@@ -1,30 +1,12 @@
 package org.folio.search.repository;
 
-import static java.util.Arrays.stream;
-import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
-import static org.folio.search.utils.CollectionUtils.anyMatch;
-import static org.folio.search.utils.CollectionUtils.getValuesByPath;
-import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.opensearch.action.search.ClearScrollRequest;
-import org.opensearch.action.search.MultiSearchRequest;
-import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.*;
 import org.opensearch.action.search.MultiSearchResponse.Item;
-import org.opensearch.action.search.SearchRequest;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.action.search.SearchScrollRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.search.Scroll;
@@ -34,10 +16,24 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+import static java.util.Arrays.stream;
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
+import static org.folio.search.utils.CollectionUtils.anyMatch;
+import static org.folio.search.utils.CollectionUtils.getValuesByPath;
+import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+
 /**
  * Search resource repository with set of operation to perform search operations.
  */
-@Slf4j
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class SearchRepository {
@@ -56,6 +52,9 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
+    log.debug("search:: by [tenantId: {}, resource: {}]",
+      resourceRequest.getTenantId(), resourceRequest.getResource());
+
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
@@ -70,6 +69,9 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
+    log.debug("search:: by [tenantId: {}, resource: {}, preference: {}]",
+      resourceRequest.getTenantId(), resourceRequest.getResource(), preference);
+
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
@@ -83,6 +85,9 @@ public class SearchRepository {
    * @return search result as {@link MultiSearchResponse} object.
    */
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
+    log.debug("search:: by [tenantId: {}, resource: {}]",
+      resourceRequest.getTenantId(), resourceRequest.getResource());
+
     var index = getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
@@ -108,6 +113,8 @@ public class SearchRepository {
    * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
+    log.debug("streamResourceIds:: by [tenantId: {}, resource: {}]", req.getTenantId(), req.getResource());
+
     var index = getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
@@ -140,6 +147,8 @@ public class SearchRepository {
   }
 
   private void clearScrollAfterStreaming(String index, String scrollId) {
+    log.debug("clearScrollAfterStreaming:: by [index: {}, scrollId: {}]", index, scrollId);
+
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
     var clearScrollResponse = performExceptionalOperation(

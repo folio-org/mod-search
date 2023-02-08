@@ -10,6 +10,7 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
@@ -21,6 +22,7 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<SubjectBrowseItem, SubjectResource> {
@@ -32,6 +34,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
+    log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
     QueryBuilder query;
     if (ctx.getFilters().isEmpty()) {
       query = matchAllQuery();

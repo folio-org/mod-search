@@ -2,6 +2,7 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
 import java.util.Collection;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -21,6 +23,7 @@ import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class MultiTenantSearchDocumentConverter {
@@ -37,6 +40,8 @@ public class MultiTenantSearchDocumentConverter {
    * @return map where key is the resource name and value is the {@link List} with {@link SearchDocumentBody} objects
    */
   public Map<String, List<SearchDocumentBody>> convert(Collection<ResourceEvent> resourceEvents) {
+    log.debug("convert:: by [resourceEvents: {}]", collectionToLogMsg(resourceEvents));
+
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return emptyMap();
     }

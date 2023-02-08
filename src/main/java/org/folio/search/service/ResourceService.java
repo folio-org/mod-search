@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
@@ -64,18 +65,15 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
+    log.debug("indexResources: by [resources: {}]", collectionToLogMsg(resources));
+
     if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
     }
 
     var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-
-    var response = indexSearchDocuments(elasticsearchDocuments);
-    log.info("Records added/updated [size: {}{}]",
-      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(response));
-
-    return response;
+    return indexSearchDocuments(elasticsearchDocuments);
   }
 
   /**
@@ -85,6 +83,8 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
+    log.debug("indexResourcesById: by [resourceIdEvents: {}]", collectionToLogMsg(resourceIdEvents));
+
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();
     }
@@ -153,7 +153,7 @@ public class ResourceService {
    * There may be a case when some data is moved between instances.
    * In such case old and new fields of the event will have different instanceId.
    * This method will create 2 events out of 1 and erase 'old' field in an original event.
-   * */
+   */
   private List<ResourceEvent> extractEventsForDataMove(List<ResourceEvent> resourceEvents) {
     if (resourceEvents == null) {
       return Collections.emptyList();
@@ -175,7 +175,8 @@ public class ResourceService {
           return Stream.of(oldEvent, newEvent);
         }
 
-        return Stream.of(resourceEvent); })
+        return Stream.of(resourceEvent);
+      })
       .toList();
   }
 

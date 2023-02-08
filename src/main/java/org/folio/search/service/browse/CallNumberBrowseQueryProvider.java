@@ -14,6 +14,7 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -24,6 +25,7 @@ import org.opensearch.script.Script;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class CallNumberBrowseQueryProvider {
@@ -47,6 +49,9 @@ public class CallNumberBrowseQueryProvider {
    * @return created Elasticsearch query as {@link SearchSourceBuilder} object
    */
   public SearchSourceBuilder get(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
+    log.debug("get:: by [tenant: {}, query: {}, isBrowsingForward: {}]",
+      request.getTenantId(), request.getQuery(), isBrowsingForward);
+
     var scriptCode = isBrowsingForward ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, singletonMap("cn", ctx.getAnchor()));
 
@@ -65,6 +70,8 @@ public class CallNumberBrowseQueryProvider {
   }
 
   private QueryBuilder getQuery(BrowseContext ctx, String tenantId, int size, boolean isBrowsingForward) {
+    log.debug("getQuery:: by [tenant: {}, size: {}, isBrowsingForward: {}]", tenantId, size, isBrowsingForward);
+
     var anchor = ctx.getAnchor();
     var callNumberAsLong = callNumberProcessor.getCallNumberAsLong(anchor);
     var rangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD);

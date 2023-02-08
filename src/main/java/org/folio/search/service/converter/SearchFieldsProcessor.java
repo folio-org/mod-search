@@ -1,11 +1,5 @@
 package org.folio.search.service.converter;
 
-import static java.util.Collections.emptyMap;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.MapUtils;
@@ -17,6 +11,14 @@ import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
 @Log4j2
 @Component
@@ -34,9 +36,13 @@ public class SearchFieldsProcessor {
    * @return map with retrieved search fields
    */
   public Map<String, Object> getSearchFields(ConversionContext ctx) {
+    log.debug("getSearchFields:: by [resourceEvent: {}, languages: {}]",
+      ctx.getResourceEvent(), listToLogParamMsg(ctx.getLanguages()));
+
     var resourceDescription = ctx.getResourceDescription();
     var searchFields = resourceDescription.getSearchFields();
     if (MapUtils.isEmpty(searchFields)) {
+      log.info("getSearchFields:: empty search fields");
       return emptyMap();
     }
     var data = getNewAsMap(ctx.getResourceEvent());
@@ -49,7 +55,7 @@ public class SearchFieldsProcessor {
       if (isSearchProcessorEnabled(fieldDescriptor)) {
         resultMap.putAll(getSearchFieldValue(value, ctx.getLanguages(), name, fieldDescriptor));
       } else {
-        log.debug("Search processor has been ignored [processor: {}]", fieldDescriptor.getProcessor());
+        log.info("Search processor has been ignored [processor: {}]", fieldDescriptor.getProcessor());
       }
     });
     return resultMap;

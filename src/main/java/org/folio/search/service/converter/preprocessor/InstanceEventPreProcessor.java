@@ -1,20 +1,8 @@
 package org.folio.search.service.converter.preprocessor;
 
-import static java.util.Collections.emptyList;
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.collections4.MapUtils.getObject;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.domain.dto.ResourceEventType.DELETE;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -24,21 +12,40 @@ import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.utils.SearchConverterUtils.*;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class InstanceEventPreProcessor implements EventPreProcessor {
 
   public static final String SUBJECTS_FIELD = "subjects";
 
-  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE = new TypeReference<>() { };
+  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE = new TypeReference<>() {
+  };
 
   private final JsonConverter jsonConverter;
 
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
+    log.debug("process:: by [event: {}]", event);
+
     var oldSubjects = extractSubjects(getOldAsMap(event));
     var newSubjects = extractSubjects(getNewAsMap(event));
     var tenantId = event.getTenant();
+
+    log.info("process:: Attempting create list of resource event by [newSubjects: {}, oldSubjects: {}, tenant: {}]",
+      newSubjects, oldSubjects, tenantId);
     return StreamEx.of(event)
       .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))
       .append(getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE))

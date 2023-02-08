@@ -1,20 +1,5 @@
 package org.folio.search.service.converter;
 
-import static java.util.Collections.emptyMap;
-import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CollectionUtils.mergeSafely;
-import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -32,6 +17,18 @@ import org.folio.search.utils.SearchConverterUtils;
 import org.folio.search.utils.SearchUtils;
 import org.opensearch.common.bytes.BytesReference;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+
+import static java.util.Collections.emptyMap;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CollectionUtils.mergeSafely;
+import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
+import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
 @Log4j2
 @Component
@@ -62,13 +59,18 @@ public class SearchDocumentConverter {
    * @return list with elasticsearch documents.
    */
   public Optional<SearchDocumentBody> convert(ResourceEvent resourceEvent) {
+    log.debug("convert:: by [resourceEvent: {}]", resourceEvent);
+
     if (resourceEvent.getType() == ResourceEventType.DELETE) {
+      log.info("convert:: Resource event type DELETE by [resourceEvent: {}]", resourceEvent);
       return Optional.of(SearchDocumentBody.of(null, indexingDataFormat, resourceEvent, DELETE));
     }
 
-    return canConvertEvent(resourceEvent)
-           ? Optional.of(convert(buildConversionContext(resourceEvent)))
-           : Optional.empty();
+    if (canConvertEvent(resourceEvent)) {
+      return Optional.of(convert(buildConversionContext(resourceEvent)));
+    }
+    log.warn("Failure with resource event, cannot be converted");
+    return Optional.empty();
   }
 
   private SearchDocumentBody convert(ConversionContext context) {

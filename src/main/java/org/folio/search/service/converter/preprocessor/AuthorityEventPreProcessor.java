@@ -1,29 +1,26 @@
 package org.folio.search.service.converter.preprocessor;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.function.Function.identity;
-import static java.util.stream.StreamSupport.stream;
-import static org.folio.search.utils.CollectionUtils.toMap;
-import static org.folio.search.utils.SearchConverterUtils.copyEntityFields;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
+import static java.util.stream.StreamSupport.stream;
+import static org.folio.search.utils.CollectionUtils.toMap;
+import static org.folio.search.utils.SearchConverterUtils.*;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class AuthorityEventPreProcessor implements EventPreProcessor {
@@ -37,6 +34,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
    */
   @PostConstruct
   public void init() {
+    log.debug("init:: PostConstruct stated");
     var fields = resourceDescriptionService.get(AUTHORITY_RESOURCE);
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
@@ -61,15 +59,26 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
    */
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
-    return event.getType() == ResourceEventType.UPDATE
-           ? getResourceEventsToUpdate(event)
-           : getResourceEvents(event, event.getType());
+    log.debug("process:: by [event: {}]", event);
+
+    if (event.getType() == ResourceEventType.UPDATE) {
+      log.info("process:: eventType == UPDATE by getResourceEventsToUpdate [event: {}]", event);
+      return getResourceEventsToUpdate(event);
+    }
+    log.info("process:: eventType != UPDATE by getResourceEvents [event: {}]", event);
+    return getResourceEvents(event, event.getType());
   }
 
   private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
+    log.debug("getResourceEvents:: by [event: {}, type: {}]", event, eventType);
+
     var isCreateOperation = isCreateOperation(eventType);
     var events = generateResourceEvents(event, eventType, isCreateOperation ? getNewAsMap(event) : getOldAsMap(event));
-    return events.isEmpty() ? singletonList(event.id("other" + 0 + "_" + event.getId())) : events;
+    if (events.isEmpty()) {
+      log.info("getResourceEvents:: empty events");
+      return singletonList(event.id("other" + 0 + "_" + event.getId()));
+    }
+    return events;
   }
 
   private List<ResourceEvent> getResourceEventsToUpdate(ResourceEvent event) {

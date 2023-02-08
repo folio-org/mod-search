@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
@@ -32,6 +33,7 @@ import org.opensearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.opensearch.search.aggregations.bucket.range.RangeAggregator.Range;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class CallNumberBrowseRangeService {
@@ -51,10 +53,13 @@ public class CallNumberBrowseRangeService {
    * @return {@link Optional} of {@link Long} value as range boundary
    */
   public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, int size, boolean isBrowsingForward) {
+    log.debug("getRangeBoundaryForBrowsing:: by [tenant: {}, anchor: {}, size: {}, isBrowsingForward: {}]",
+      tenant, anchor, size, isBrowsingForward);
+
     var ranges = getBrowseRanges(tenant);
     return isNotEmpty(ranges) && isRangeBoundaryCanBeProvided(anchor, isBrowsingForward, ranges)
-           ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
-           : Optional.empty();
+      ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
+      : Optional.empty();
   }
 
   /**
@@ -84,6 +89,8 @@ public class CallNumberBrowseRangeService {
   }
 
   private List<CallNumberBrowseRangeValue> getCallNumberRanges(String tenantId) {
+    log.debug("getCallNumberRanges:: by [tenant: {}]", tenantId);
+
     var callNumbersMap = concat(getCallNumbersRange('0', '9'), getCallNumbersRange('A', 'Z'))
       .collect(toLinkedHashMap(identity(), callNumberProcessor::getCallNumberAsLong));
     var searchSource = searchSource().from(0).size(0)
@@ -99,6 +106,7 @@ public class CallNumberBrowseRangeService {
       .map(ParsedRange::getBuckets)
       .map(buckets -> mapBucketsToCacheValuesList(buckets, callNumbersMap))
       .orElse(emptyList());
+
   }
 
   private static List<CallNumberBrowseRangeValue> mapBucketsToCacheValuesList(
@@ -140,8 +148,8 @@ public class CallNumberBrowseRangeService {
                                                       String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
     return isBrowsingForward
-           ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
-           : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
+      ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
+      : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
   }
 
   private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {

@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.ResolvableType.forClass;
 
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ public class ResourceDescriptionService {
    */
   @PostConstruct
   public void init() {
+    log.debug("init::  Attempting to start loading required resources from local");
+
     var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
     var loadedResourceDescriptions = localResourceProvider.getResourceDescriptions();
 
@@ -59,6 +62,8 @@ public class ResourceDescriptionService {
    * @throws ResourceDescriptionException if resource description is not found for the given name.
    */
   public ResourceDescription get(String resourceName) {
+    log.debug("get:: by [resourceName: {}]", resourceName);
+
     var resourceDescription = resourceDescriptions.get(resourceName);
     if (resourceDescription == null) {
       throw new ResourceDescriptionException(format(
@@ -101,6 +106,8 @@ public class ResourceDescriptionService {
    * @return {@link Collection} with secondary resource names.
    */
   public Collection<String> getSecondaryResourceNames(String resource) {
+    log.debug("getSecondaryResourceNames:: by [resource: {}]", resource);
+
     return resourceDescriptions.values().stream()
       .filter(desc -> StringUtils.equals(resource, desc.getParent()))
       .map(ResourceDescription::getName)
@@ -108,6 +115,8 @@ public class ResourceDescriptionService {
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
+    log.debug("validateResourceDescriptions:: by [descriptors:: {}]", collectionToLogMsg(descriptors, true));
+
     var validationErrors = new LinkedHashMap<String, List<String>>();
     descriptors.forEach(descriptor -> validationErrors
       .computeIfAbsent(descriptor.getName(), v -> new ArrayList<>())

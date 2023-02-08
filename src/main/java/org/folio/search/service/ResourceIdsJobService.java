@@ -26,15 +26,17 @@ public class ResourceIdsJobService {
   }
 
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
+    log.debug("createStreamJob:: by [job: {}, tenantId: {}]", job, tenantId);
     var entity = resourceIdsJobMapper.convert(job);
     entity.setCreatedDate(new Date());
     entity.setStatus(StreamJobStatus.IN_PROGRESS);
     entity.setTemporaryTableName(generateTemporaryTableName());
+
+    log.info("Attempts to create streamJob by [resourceIdsJob: {}]", entity);
     var savedJob = jobRepository.save(entity);
 
     Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
     tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
-
     return resourceIdsJobMapper.convert(savedJob);
   }
 

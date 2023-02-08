@@ -62,13 +62,16 @@ public class SearchDocumentConverter {
    * @return list with elasticsearch documents.
    */
   public Optional<SearchDocumentBody> convert(ResourceEvent resourceEvent) {
+    log.debug("convert:: by [resourceEvent: {}]", resourceEvent);
+
     if (resourceEvent.getType() == ResourceEventType.DELETE) {
+      log.debug("convert:: resourceEvent.Type == DELETE");
       return Optional.of(SearchDocumentBody.of(null, indexingDataFormat, resourceEvent, DELETE));
     }
 
     return canConvertEvent(resourceEvent)
-           ? Optional.of(convert(buildConversionContext(resourceEvent)))
-           : Optional.empty();
+      ? Optional.of(convert(buildConversionContext(resourceEvent)))
+      : Optional.empty();
   }
 
   private SearchDocumentBody convert(ConversionContext context) {

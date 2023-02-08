@@ -45,6 +45,8 @@ public class SearchMappingsHelper {
    * @return elasticsearch mappings as {@link String} object with JSON object inside
    */
   public String getMappings(String resource) {
+    log.debug("getMappings:: by [resource: {}]", resource);
+
     var description = resourceDescriptionService.get(resource);
 
     var indexMappings = createIndexMappingsObject();
@@ -63,6 +65,7 @@ public class SearchMappingsHelper {
       mappingProperties.putAll(customIndexMappings);
     }
 
+    log.debug("getMappings:: Attempting to convert into json [indexMappings: {}]", indexMappings);
     return jsonConverter.toJson(indexMappings);
   }
 

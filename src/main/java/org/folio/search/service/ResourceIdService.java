@@ -2,6 +2,7 @@ package org.folio.search.service;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -60,6 +61,8 @@ public class ResourceIdService {
    */
   @Transactional
   public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
+    log.debug("streamIdsFromDatabaseAsJson:: by [jobId: {}]", jobId);
+
     var job = jobRepository.getReferenceById(jobId);
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
@@ -78,6 +81,7 @@ public class ResourceIdService {
         }
       }));
     job.setStatus(StreamJobStatus.DEPRECATED);
+    log.info("streamIdsFromDatabaseAsJson:: Attempting to save [job: {}]", job);
     jobRepository.save(job);
   }
 
@@ -89,6 +93,7 @@ public class ResourceIdService {
    */
   @Transactional
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
+    log.debug("streamResourceIdsForJob:: by [job: {}, tenantId: {}]", job, tenantId);
     var tableName = job.getTemporaryTableName();
     try {
       var entityType = job.getEntityType();
@@ -96,14 +101,18 @@ public class ResourceIdService {
       String sourceIdPath = entityType.getSourceIdPath();
       var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
 
+      log.info("streamResourceIdsForJob:: Attempting to create table for ids [tableName: {}]", tableName);
       idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
+
     } catch (Exception e) {
-      log.warn("Failed to process resource ids job with id = {}", job.getId());
+      log.warn("Failed to process resource ids job with id = {}, msg: {}", job.getId(), e.getMessage());
       idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
+
     } finally {
+      log.info("streamResourceIdsForJob:: Attempts to save [job: {}]", job);
       jobRepository.save(job);
     }
   }
@@ -127,6 +136,8 @@ public class ResourceIdService {
   }
 
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
+    log.debug("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+
     var resource = request.getResource();
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())
@@ -158,6 +169,9 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, JsonGenerator json) {
+    String logParamMsg = collectionToLogMsg(recordIds);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", logParamMsg);
+
     if (CollectionUtils.isEmpty(recordIds)) {
       return;
     }
@@ -169,6 +183,7 @@ public class ResourceIdService {
         json.writeEndObject();
       }
       json.flush();
+
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write to id value into json stream [reason: %s]", e.getMessage()), e);
@@ -176,6 +191,9 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, OutputStreamWriter outputStreamWriter) {
+    String logParamMsg = collectionToLogMsg(recordIds);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", logParamMsg);
+
     if (CollectionUtils.isEmpty(recordIds)) {
       return;
     }
@@ -185,6 +203,7 @@ public class ResourceIdService {
         outputStreamWriter.write(recordId + '\n');
       }
       outputStreamWriter.flush();
+
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write id value into output stream [reason: %s]", e.getMessage()), e);

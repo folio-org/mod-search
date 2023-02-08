@@ -10,6 +10,7 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
@@ -21,12 +22,15 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
+    log.debug("getAnchorSearchQuery:: by [request: {}]", request);
+
     var boolQuery = boolQuery()
       .must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
@@ -37,6 +41,8 @@ public class ContributorBrowseService extends
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
+    log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
+
     QueryBuilder query;
     if (ctx.getFilters().isEmpty()) {
       query = matchAllQuery();

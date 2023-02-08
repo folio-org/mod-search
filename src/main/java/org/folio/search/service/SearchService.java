@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 /**
  * Search service with set of operation to perform search operations.
  */
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class SearchService {
@@ -37,6 +39,8 @@ public class SearchService {
    * @return search result.
    */
   public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
+    log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+
     if (request.getOffset() + request.getLimit() > 10_000L) {
       throw new RequestValidationException("The sum of limit and offset should not exceed 10000.",
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));

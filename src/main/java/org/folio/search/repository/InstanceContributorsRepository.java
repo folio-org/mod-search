@@ -1,5 +1,20 @@
 package org.folio.search.repository;
 
+import static java.util.stream.Collectors.groupingBy;
+import static org.folio.search.utils.CollectionUtils.subtract;
+import static org.folio.search.utils.CollectionUtils.subtractSorted;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
+import static org.opensearch.script.ScriptType.INLINE;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -15,22 +30,6 @@ import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.groupingBy;
-import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.CollectionUtils.subtractSorted;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
 
 @Log4j2
 @Repository
@@ -52,7 +51,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
-    log.debug("indexResources:: by [esDocumentBodies: {}]", listToLogParamMsg(esDocumentBodies));
+    log.debug("indexResources:: by [esDocumentBodies: {}]", listToLogMsg(esDocumentBodies));
 
     var byId = esDocumentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
     var bulkRequest = new BulkRequest();

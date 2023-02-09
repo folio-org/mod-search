@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>6.0.0-SNAPSHOT</folio-spring-base.version>
+    <folio-spring-base.version>6.0.0</folio-spring-base.version>
     <folio-service-tools.version>3.0.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.4.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.0</folio-cql2pgjson.version>
@@ -434,7 +434,6 @@
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
           </sourceDirectories>
           <failsOnError>true</failsOnError>
-          <encoding>UTF-8</encoding>
           <violationSeverity>warning</violationSeverity>
           <failOnViolation>true</failOnViolation>
           <logViolationsToConsole>true</logViolationsToConsole>

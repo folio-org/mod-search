@@ -1,18 +1,17 @@
 package org.folio.search.service.browse;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
 
 @Log4j2
 public abstract class AbstractBrowseService<T> {
@@ -80,7 +79,7 @@ public abstract class AbstractBrowseService<T> {
 
   protected String getPrevBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getPrevBrowsingValue:: by [records: {}, isBrowsingForward: {}]",
-      listToLogParamMsg(records), isBrowsingForward);
+      listToLogMsg(records), isBrowsingForward);
 
     if (isBrowsingForward) {
       log.info("getPrevBrowsingValue:: Browse is forwarding");
@@ -92,7 +91,7 @@ public abstract class AbstractBrowseService<T> {
 
   protected String getNextBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getNextBrowsingValue:: by [records: {}, isBrowsingForward: {}]",
-      listToLogParamMsg(records), isBrowsingForward);
+      listToLogMsg(records), isBrowsingForward);
 
     if (isBrowsingForward) {
       log.info("getNextBrowsingValue:: Browse is forwarding");

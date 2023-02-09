@@ -1,5 +1,18 @@
 package org.folio.search.service.browse;
 
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.types.ResponseGroupType.BROWSE;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
@@ -13,18 +26,6 @@ import org.opensearch.index.query.TermsQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import static java.util.Locale.ROOT;
-import static org.apache.commons.lang3.BooleanUtils.isFalse;
-import static org.folio.search.model.types.ResponseGroupType.BROWSE;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.opensearch.index.query.QueryBuilders.*;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
     log.debug("mapToBrowseResult:: by [records: {}, isAnchor: {}]",
-      listToLogParamMsg(result.getRecords()), isAnchor);
+      listToLogMsg(result.getRecords()), isAnchor);
 
     return BrowseResult.of(result).map(authority -> new AuthorityBrowseItem()
       .authority(authority)
@@ -53,12 +54,12 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}, isBrowsingForward: {}]",
-     request.getTargetField(), listToLogParamMsg(ctx.getFilters()), isBrowsingForward);
+      request.getTargetField(), listToLogMsg(ctx.getFilters()), isBrowsingForward);
 
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
-      .searchAfter(new Object[]{ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .fetchSource(getIncludedSourceFields(request), null)
@@ -68,7 +69,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}]",
-      request.getTargetField(), listToLogParamMsg(context.getFilters()));
+      request.getTargetField(), listToLogMsg(context.getFilters()));
 
     var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);

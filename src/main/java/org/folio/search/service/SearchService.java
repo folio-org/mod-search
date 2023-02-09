@@ -1,5 +1,9 @@
 package org.folio.search.service;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.types.ResponseGroupType.SEARCH;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
@@ -12,10 +16,6 @@ import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.common.unit.TimeValue;
 import org.springframework.stereotype.Service;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.apache.commons.lang3.BooleanUtils.isFalse;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
 /**
  * Search service with set of operation to perform search operations.

@@ -1,5 +1,14 @@
 package org.folio.search.repository;
 
+import static java.util.stream.Collectors.joining;
+import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -12,16 +21,6 @@ import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-import static java.util.stream.Collectors.joining;
-import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-
 @Log4j2
 public abstract class AbstractResourceRepository implements ResourceRepository {
 
@@ -29,7 +28,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documents) {
-    log.debug("indexResources:: by [documents: {}]", listToLogParamMsg(documents, true));
+    log.debug("indexResources:: by [documents: {}]", listToLogMsg(documents, true));
 
     if (CollectionUtils.isEmpty(documents)) {
       log.info("indexResources:: empty documents");

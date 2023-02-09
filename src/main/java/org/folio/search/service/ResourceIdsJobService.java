@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import java.security.SecureRandom;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -8,9 +10,6 @@ import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.springframework.stereotype.Service;
-
-import java.security.SecureRandom;
-import java.util.Date;
 
 @Log4j2
 @Service

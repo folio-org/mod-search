@@ -203,8 +203,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private static List<String> getFieldsForSearchAlias(String searchAlias, String path) {
     return searchAlias.startsWith(CQL_META_FIELD_PREFIX)
-           ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
-           : singletonList(path);
+      ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
+      : singletonList(path);
   }
 
   private static Map<String, Map<ResponseGroupType, String[]>> collectSourceFields(

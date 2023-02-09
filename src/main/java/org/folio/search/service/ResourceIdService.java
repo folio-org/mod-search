@@ -1,7 +1,19 @@
 package org.folio.search.service;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
@@ -16,19 +28,6 @@ import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 @Log4j2
 @Service
@@ -146,7 +145,7 @@ public class ResourceIdService {
     var resource = request.getResource();
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())
-      .fetchSource(new String[]{request.getSourceFieldPath()}, null)
+      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
       .sort(fieldSort("_doc"));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);
@@ -174,7 +173,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, JsonGenerator json) {
-    String logParamMsg = listToLogParamMsg(recordIds);
+    String logParamMsg = listToLogMsg(recordIds);
     log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", logParamMsg);
 
     if (CollectionUtils.isEmpty(recordIds)) {
@@ -198,7 +197,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, OutputStreamWriter outputStreamWriter) {
-    String logParamMsg = listToLogParamMsg(recordIds);
+    String logParamMsg = listToLogMsg(recordIds);
     log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", logParamMsg);
 
     if (CollectionUtils.isEmpty(recordIds)) {

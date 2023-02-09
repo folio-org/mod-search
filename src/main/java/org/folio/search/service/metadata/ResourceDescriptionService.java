@@ -1,5 +1,20 @@
 package org.folio.search.service.metadata;
 
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableMap;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.springframework.core.ResolvableType.forClass;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
@@ -9,15 +24,6 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static java.util.Collections.*;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.springframework.core.ResolvableType.forClass;
 
 /**
  * Spring component which responsible for holding fields and resource descriptions which are used for mapping resource
@@ -107,7 +113,7 @@ public class ResourceDescriptionService {
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
-    log.debug("validateResourceDescriptions:: by [descriptors:: {}]", listToLogParamMsg(descriptors, true));
+    log.debug("validateResourceDescriptions:: by [descriptors:: {}]", listToLogMsg(descriptors, true));
 
     var validationErrors = new LinkedHashMap<String, List<String>>();
     descriptors.forEach(descriptor -> validationErrors

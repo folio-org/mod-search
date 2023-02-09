@@ -1,5 +1,15 @@
 package org.folio.search.service.browse;
 
+import static java.util.Locale.ROOT;
+import static org.folio.search.utils.CollectionUtils.toListSafe;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
+import static org.opensearch.search.sort.SortBuilders.fieldSort;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
+
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -11,14 +21,6 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
-
-import static java.util.Locale.ROOT;
-import static org.folio.search.utils.CollectionUtils.toListSafe;
-import static org.opensearch.index.query.QueryBuilders.*;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.opensearch.search.sort.SortBuilders.fieldSort;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
 
 @Log4j2
 @Service
@@ -50,7 +52,7 @@ public class ContributorBrowseService extends
       ctx.getFilters().forEach(filter -> ((BoolQueryBuilder) query).filter(filter));
     }
     return searchSource().query(query)
-      .searchAfter(new Object[]{ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);

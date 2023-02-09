@@ -1,17 +1,5 @@
 package org.folio.search.service.browse;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
-import org.folio.search.model.service.BrowseContext;
-import org.folio.search.model.service.BrowseRequest;
-import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.service.setter.item.ItemCallNumberProcessor;
-import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.script.Script;
-import org.opensearch.search.builder.SearchSourceBuilder;
-import org.springframework.stereotype.Component;
-
 import static java.util.Collections.singletonMap;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
@@ -24,6 +12,18 @@ import static org.opensearch.search.sort.ScriptSortBuilder.ScriptSortType.STRING
 import static org.opensearch.search.sort.SortBuilders.scriptSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
+import org.folio.search.model.service.BrowseContext;
+import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.setter.item.ItemCallNumberProcessor;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.script.Script;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component

@@ -1,6 +1,14 @@
 package org.folio.search.service;
 
+import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_CACHE;
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
+import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
+
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -14,15 +22,6 @@ import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.folio.search.configuration.SearchCacheNames.RESOURCE_LANGUAGE_CACHE;
-import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfig;
-import static org.folio.search.converter.LanguageConfigConverter.toLanguageConfigEntity;
 
 @Log4j2
 @Service

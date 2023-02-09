@@ -1,5 +1,27 @@
 package org.folio.search.service;
 
+import static java.util.stream.Collectors.flatMapping;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.folio.search.model.types.IndexActionType.DELETE;
+import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -19,20 +41,6 @@ import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.*;
-import static org.folio.search.model.types.IndexActionType.DELETE;
-import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
-import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 @Log4j2
 @Service
@@ -57,7 +65,7 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
-    log.debug("indexResources: by [resources: {}]", listToLogParamMsg(resources));
+    log.debug("indexResources: by [resources: {}]", listToLogMsg(resources));
 
     if (CollectionUtils.isEmpty(resources)) {
       log.info("indexResources:: empty resources");
@@ -81,7 +89,7 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexResourcesById: by [resourceIdEvents: {}]", listToLogParamMsg(resourceIdEvents));
+    log.debug("indexResourcesById: by [resourceIdEvents: {}]", listToLogMsg(resourceIdEvents));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       log.info("indexResources: empty resourceIdEvents");
@@ -122,7 +130,7 @@ public class ResourceService {
       .filter(Objects::nonNull)
       .collect(joining(", "));
 
-    if (errorMessage.isEmpty()){
+    if (errorMessage.isEmpty()) {
       return getSuccessIndexOperationResponse();
     }
     log.warn("Failure on searching document: {}", errorMessage);

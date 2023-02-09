@@ -1,5 +1,12 @@
 package org.folio.search.service.browse;
 
+import static java.lang.Boolean.TRUE;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -10,14 +17,6 @@ import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Boolean.TRUE;
-import static java.util.Collections.singletonList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 @Log4j2
 @Service

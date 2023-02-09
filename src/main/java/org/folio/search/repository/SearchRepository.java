@@ -1,26 +1,5 @@
 package org.folio.search.repository;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.folio.search.exception.SearchServiceException;
-import org.folio.search.model.ResourceRequest;
-import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.opensearch.action.search.*;
-import org.opensearch.action.search.MultiSearchResponse.Item;
-import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.common.unit.TimeValue;
-import org.opensearch.search.Scroll;
-import org.opensearch.search.SearchHit;
-import org.opensearch.search.builder.SearchSourceBuilder;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.retry.support.RetryTemplate;
-import org.springframework.stereotype.Repository;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
-
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
@@ -29,6 +8,31 @@ import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.client.RequestOptions.DEFAULT;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.opensearch.action.search.ClearScrollRequest;
+import org.opensearch.action.search.MultiSearchRequest;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.MultiSearchResponse.Item;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchScrollRequest;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.Scroll;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Repository;
 
 /**
  * Search resource repository with set of operation to perform search operations.

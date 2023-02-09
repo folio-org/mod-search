@@ -1,12 +1,13 @@
 package org.folio.search.utils;
 
+import java.util.Collection;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CommonUtils {
+  private static final String SIZE_OF_LIST = "size of list ";
 
   /**
    * Returns "0" if given list is empty or null.
@@ -14,25 +15,46 @@ public final class CommonUtils {
    * @param input list of object
    * @return string of list size when items more than 3 - otherwise all items.
    */
-  public static String listToLogParamMsg(List<?> input) {
-    if (input == null || input.size() == 0) return "0";
+  public static String listToLogMsg(List<?> input) {
+    if (input == null || input.size() == 0) {
+      return SIZE_OF_LIST + 0;
+    }
 
-    return input.size() < 3 ? input.toString() :
-      "size of list " + input.size();
+    return input.size() < 3
+      ? input.toString()
+      : SIZE_OF_LIST + input.size();
   }
 
   /**
    * Method is the same with a method above. Main difference is hiding big object by editing bool param.
    *
-   * @param input list of object
+   * @param input      list of object
    * @param hideObject boolean for hiding details of list
    * @return string of list size when items more than 3 - otherwise all items.
    */
-  public static String listToLogParamMsg(List<?> input, boolean hideObject) {
+  public static String listToLogMsg(List<?> input, boolean hideObject) {
 
-    if (input == null || input.size() == 0) return "0";
+    if (input == null || input.size() == 0) {
+      return SIZE_OF_LIST + 0;
+    }
 
-    return hideObject ?
-      "size of list " + input.size() : input.toString();
+    return hideObject
+      ? SIZE_OF_LIST + input.size()
+      : input.toString();
+  }
+
+  /**
+   * Returns "0" if given collection is empty or null.
+   *
+   * @param input Collection of object
+   * @return string of list size when items more than 3 - otherwise all items.
+   */
+  public static String collectionToLogMsg(Collection<?> input) {
+    if (input == null || input.size() == 0) {
+      return SIZE_OF_LIST + 0;
+    }
+    return input.size() < 3
+      ? input.toString()
+      : SIZE_OF_LIST + input.size();
   }
 }

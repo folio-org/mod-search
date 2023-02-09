@@ -41,7 +41,8 @@ public class LocalResourceProvider implements MetadataResourceProvider {
 
   @Override
   public Map<String, SearchFieldType> getSearchFieldTypes() {
-    var typeReference = new TypeReference<Map<String, SearchFieldType>>() { };
+    var typeReference = new TypeReference<Map<String, SearchFieldType>>() {
+    };
     var fieldTypes = localFileProvider.readAsObject(INDEX_FIELD_TYPES_LOCATION, typeReference);
     if (fieldTypes == null) {
       throw new ResourceDescriptionException(String.format(

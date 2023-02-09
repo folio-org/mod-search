@@ -1,5 +1,16 @@
 package org.folio.search.repository;
 
+import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.common.xcontent.XContentType.JSON;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
@@ -14,15 +25,6 @@ import org.opensearch.client.indices.PutMappingRequest;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.folio.search.utils.SearchResponseHelper.*;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.client.RequestOptions.DEFAULT;
-import static org.opensearch.common.xcontent.XContentType.JSON;
 
 /**
  * Search resource repository with set of operation to create/modify/update index settings and mappings.
@@ -55,8 +57,9 @@ public class IndexRepository {
       index, "createIndexApi");
     log.info("createIndex:: result: [createIndexResponse: {}]", createIndexResponse);
 
-    if (createIndexResponse.isAcknowledged())
+    if (createIndexResponse.isAcknowledged()) {
       return getSuccessFolioCreateIndexResponse(List.of(index));
+    }
 
     log.warn("Failed to create indices in elasticsearch by [index: {}, mappings: {}]", index, mappings);
     return getErrorFolioCreateIndexResponse(List.of(index));
@@ -77,8 +80,9 @@ public class IndexRepository {
       () -> elasticsearchClient.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT),
       index, "putMappingsApi");
 
-    if (putMappingsResponse.isAcknowledged())
+    if (putMappingsResponse.isAcknowledged()) {
       return getSuccessIndexOperationResponse();
+    }
 
     log.warn("Failed to update mappings by [index: {}, mappings: {}]", index, mappings);
     return getErrorIndexOperationResponse("Failed to put mappings");
@@ -105,7 +109,7 @@ public class IndexRepository {
    * @param indices - Elasticsearch index names as array of {@link String} objects.
    */
   public void refreshIndices(String... indices) {
-    log.debug("refreshIndices:: by [indices: {}]", listToLogParamMsg(List.of(indices)));
+    log.debug("refreshIndices:: by [indices: {}]", listToLogMsg(List.of(indices)));
     performExceptionalOperation(
       () -> elasticsearchClient.indices().refresh(new RefreshRequest(indices), DEFAULT),
       String.join(",", indices), "refreshApi");

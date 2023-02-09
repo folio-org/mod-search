@@ -1,5 +1,14 @@
 package org.folio.search.service;
 
+import static java.lang.Boolean.TRUE;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -16,16 +25,6 @@ import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Boolean.TRUE;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @Log4j2
 @Service
@@ -105,7 +104,7 @@ public class IndexService {
     var resources = getResourceNamesToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
       log.info("Recreating indices during reindex operation [tenant: {}, resources: {}]",
-        tenantId, listToLogParamMsg(resources));
+        tenantId, listToLogMsg(resources));
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId);
@@ -149,7 +148,7 @@ public class IndexService {
     var resourceNames = new ArrayList<String>();
     resourceNames.add(resourceName);
     resourceNames.addAll(resourceDescriptionService.getSecondaryResourceNames(resourceName));
-    log.info("getResourceNamesToReindex: result: {}", listToLogParamMsg(resourceNames));
+    log.info("getResourceNamesToReindex: result: {}", listToLogMsg(resourceNames));
 
     return resourceNames;
   }

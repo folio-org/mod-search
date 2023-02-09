@@ -1,5 +1,13 @@
 package org.folio.search.service.browse;
 
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
+import static org.folio.search.utils.CollectionUtils.reverse;
+import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
+
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
@@ -11,15 +19,6 @@ import org.opensearch.action.search.MultiSearchResponse.Item;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-
-import java.util.List;
-
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.BooleanUtils.isTrue;
-import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
-import static org.folio.search.utils.CollectionUtils.reverse;
-import static org.folio.search.utils.CommonUtils.listToLogParamMsg;
-import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 @Log4j2
 public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractBrowseService<T> {
@@ -70,7 +69,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
       : List.of(precedingQuery, succeedingQuery);
 
     log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource: {}]",
-      request.getTenantId(), listToLogParamMsg(searchSources));
+      request.getTenantId(), listToLogMsg(searchSources));
     var responses = searchRepository.msearch(request, searchSources).getResponses();
     return createBrowseResult(responses, request, context);
   }

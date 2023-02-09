@@ -1,6 +1,19 @@
 package org.folio.search.service.converter.preprocessor;
 
+import static java.util.Collections.emptyList;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import one.util.streamex.StreamEx;
@@ -11,18 +24,6 @@ import org.folio.search.model.event.SubjectResourceEvent;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static java.util.Collections.emptyList;
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.collections4.MapUtils.getObject;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.domain.dto.ResourceEventType.DELETE;
-import static org.folio.search.utils.SearchConverterUtils.*;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 @Log4j2
 @Service

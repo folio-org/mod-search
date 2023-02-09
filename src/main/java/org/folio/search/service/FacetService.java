@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12,8 +14,6 @@ import org.folio.search.service.converter.ElasticsearchFacetConverter;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
-
-import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 
 @Log4j2
 @Service
@@ -46,9 +46,11 @@ public class FacetService {
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource) {
     var query = searchSource.query();
     if (isBoolQuery(query)) {
+      log.info("cleanUpFacetSearchSource:: Attempting to clear filters");
       ((BoolQueryBuilder) query).filter().clear();
     }
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {
+      log.info("cleanUpFacetSearchSource:: Attempting to clear sorts");
       searchSource.sorts().clear();
     }
   }

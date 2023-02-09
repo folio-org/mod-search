@@ -32,6 +32,7 @@ public class LocalResourceProvider implements MetadataResourceProvider {
   @Override
   public List<ResourceDescription> getResourceDescriptions() {
     if (this.resourceDescriptions == null) {
+      log.info("getResourceDescriptions:: empty resource descriptions");
       loadResourceDescriptions();
     }
 
@@ -51,6 +52,7 @@ public class LocalResourceProvider implements MetadataResourceProvider {
 
   private void loadResourceDescriptions() {
     try {
+      log.info("loadResourceDescriptions:: Attempting to load descriptions");
       this.resourceDescriptions = Stream.of(patternResolver.getResources(RESOURCE_DESCRIPTIONS_LOCATION_PATTERN))
         .filter(Resource::isReadable)
         .map(this::loadResourceDescription)

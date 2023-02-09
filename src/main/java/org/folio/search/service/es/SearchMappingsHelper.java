@@ -1,17 +1,7 @@
 package org.folio.search.service.es;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toMap;
-import static org.folio.search.model.metadata.PlainFieldDescription.FULLTEXT_FIELD_TYPES;
-import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
-import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -25,6 +15,17 @@ import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toMap;
+import static org.folio.search.model.metadata.PlainFieldDescription.FULLTEXT_FIELD_TYPES;
+import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
+import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
 @Log4j2
 @Service
@@ -45,6 +46,8 @@ public class SearchMappingsHelper {
    * @return elasticsearch mappings as {@link String} object with JSON object inside
    */
   public String getMappings(String resource) {
+    log.debug("getMappings:: by [resource: {}]", resource);
+
     var description = resourceDescriptionService.get(resource);
 
     var indexMappings = createIndexMappingsObject();
@@ -63,6 +66,7 @@ public class SearchMappingsHelper {
       mappingProperties.putAll(customIndexMappings);
     }
 
+    log.info("getMappings:: Attempting to convert into json [indexMappings: {}]", indexMappings);
     return jsonConverter.toJson(indexMappings);
   }
 

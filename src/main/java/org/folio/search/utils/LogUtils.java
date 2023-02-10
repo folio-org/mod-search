@@ -17,7 +17,7 @@ public final class LogUtils {
    */
   public static String collectionToLogMsg(Collection<?> input, boolean hideObject) {
 
-    if (input == null || input.size() == 0) {
+    if (input == null || input.isEmpty()) {
       return SIZE_OF_LIST + 0;
     }
 
@@ -33,7 +33,7 @@ public final class LogUtils {
    * @return string of list size when items more than 3 - otherwise all items.
    */
   public static String collectionToLogMsg(Collection<?> input) {
-    if (input == null || input.size() == 0) {
+    if (input == null || input.isEmpty()) {
       return SIZE_OF_LIST + 0;
     }
     return input.size() < 3

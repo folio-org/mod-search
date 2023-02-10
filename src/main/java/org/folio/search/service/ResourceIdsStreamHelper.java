@@ -35,15 +35,9 @@ public class ResourceIdsStreamHelper {
     try {
       var httpServletResponse = prepareHttpResponse();
       if (contentType != null && contentType.contains(TEXT_PLAIN_VALUE)) {
-        log.info("streamResourceIds:: contentType not null && has TEXT_PLAIN_VALUE  [contentType: {}]",
-          contentType);
-
         httpServletResponse.setContentType(TEXT_PLAIN_VALUE);
         resourceIdService.streamResourceIdsAsText(request, httpServletResponse.getOutputStream());
-
       } else {
-        log.info("streamResourceIds:: contentType is null || does not have TEXT_PLAIN_VALUE [contentType: {}]",
-          contentType);
         httpServletResponse.setContentType(APPLICATION_JSON_VALUE);
         resourceIdService.streamResourceIdsAsJson(request, httpServletResponse.getOutputStream());
       }

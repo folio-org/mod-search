@@ -434,6 +434,7 @@
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
           </sourceDirectories>
           <failsOnError>true</failsOnError>
+          <encoding>UTF-8</encoding>
           <violationSeverity>warning</violationSeverity>
           <failOnViolation>true</failOnViolation>
           <logViolationsToConsole>true</logViolationsToConsole>

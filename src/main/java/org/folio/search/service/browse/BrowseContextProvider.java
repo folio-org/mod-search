@@ -2,7 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.utils.CollectionUtils.allMatch;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpty;
 
@@ -50,7 +50,7 @@ public class BrowseContextProvider {
       if (!isValidRangeQuery(request.getTargetField(), request.getSubField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
-      log.info("Attempting to create browsing context [tenant: {}, query: {}]", request.getTenantId(), query);
+      log.debug("Attempting to create browsing context [tenant: {}, query: {}]", request.getTenantId(), query);
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
 
@@ -59,8 +59,8 @@ public class BrowseContextProvider {
     var shouldClauses = boolQuery.should();
 
     if (isValidAroundQuery(request.getTargetField(), request.getSubField(), shouldClauses)) {
-      log.info("Attempting to create browsing around context [tenant: {}, query: {}, filter: {}]",
-        request.getTenantId(), query, listToLogMsg(filters));
+      log.debug("Attempting to create browsing around context [tenant: {}, query: {}, filter: {}]",
+        request.getTenantId(), query, collectionToLogMsg(filters));
       return createContextForBrowsingAround(request, filters, shouldClauses);
     }
 
@@ -85,7 +85,7 @@ public class BrowseContextProvider {
   private static BrowseContext createBrowsingContext(BrowseRequest request, List<QueryBuilder> filters,
                                                      RangeQueryBuilder rangeQuery) {
     log.debug("createBrowsingContext:: by [tenant: {}, query: {}, filters: {}]",
-      request.getTenantId(), request.getQuery(), listToLogMsg(filters));
+      request.getTenantId(), request.getQuery(), collectionToLogMsg(filters));
 
     var precedingQuery = getRangeQuery(rangeQuery, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(rangeQuery, query -> query.from() != null);
@@ -103,7 +103,7 @@ public class BrowseContextProvider {
   private static BrowseContext createContextForBrowsingAround(
     BrowseRequest request, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses) {
     log.debug("createContextForBrowsingAround:: by [tenant: {}, query: {}, filters: {}, shouldClauses: {}]",
-      request.getTenantId(), request.getQuery(), listToLogMsg(filters), listToLogMsg(shouldClauses));
+      request.getTenantId(), request.getQuery(), collectionToLogMsg(filters), collectionToLogMsg(shouldClauses));
 
     var precedingQuery = getRangeQuery(shouldClauses, query -> query.to() != null);
     var succeedingQuery = getRangeQuery(shouldClauses, query -> query.from() != null);
@@ -141,14 +141,14 @@ public class BrowseContextProvider {
 
   private static boolean isValidAroundQuery(String targetField, String subField, List<QueryBuilder> queries) {
     if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, subField, query))) {
-      log.info("isValidAroundQuery:: valid query && size");
+      log.debug("isValidAroundQuery:: valid query && size");
       var firstClause = (RangeQueryBuilder) queries.get(0);
       var secondClause = (RangeQueryBuilder) queries.get(1);
       return firstClause.from() != null && secondClause.from() == null
         || firstClause.from() == null && secondClause.from() != null;
     }
 
-    log.warn("isValidAroundQuery:: result is not valid query");
+    log.warn("isValidAroundQuery:: result: not valid query");
     return false;
   }
 

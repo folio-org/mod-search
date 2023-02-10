@@ -38,10 +38,7 @@ public class ResourceIdsJobService {
 
     Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
     tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
-
-    ResourceIdsJob resourceIdsJob = resourceIdsJobMapper.convert(savedJob);
-    log.info("createStreamJob:: result:: id: {}", resourceIdsJob.getId());
-    return resourceIdsJob;
+    return resourceIdsJobMapper.convert(savedJob);
   }
 
   private String generateTemporaryTableName() {

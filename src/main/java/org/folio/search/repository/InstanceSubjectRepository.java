@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.event.SubjectResourceEvent;
@@ -35,7 +33,6 @@ import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
-@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
@@ -52,7 +49,6 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
-    log.debug("indexResources:: by [documentBodies: {}]", listToLogMsg(documentBodies, true));
     var bulkRequest = new BulkRequest();
 
     var docsById = documentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
@@ -64,11 +60,9 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
-    if (bulkApiResponse.hasFailures()) {
-      log.warn("BulkResponse has failure: {}", bulkApiResponse.buildFailureMessage());
-      return getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage());
-    }
-    return getSuccessIndexOperationResponse();
+    return bulkApiResponse.hasFailures()
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
   }
 
   private EnumMap<IndexActionType, Set<String>> prepareInstanceIds(List<SearchDocumentBody> documents) {

@@ -34,11 +34,9 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
-    //duplication of method. Need to be optimized
     log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
     QueryBuilder query;
     if (ctx.getFilters().isEmpty()) {
-      log.info("isBrowsingForward:: empty ctx.filters");
       query = matchAllQuery();
     } else {
       query = boolQuery();

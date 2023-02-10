@@ -83,7 +83,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var anchor = ctx.getAnchor();
 
     if (isEmpty(items)) {
-      log.info("highlightMatchingCallNumber:: empty items");
+      log.debug("highlightMatchingCallNumber:: empty items");
       result.setRecords(singletonList(getEmptyCallNumberBrowseItem(callNumber, anchor)));
       return;
     }

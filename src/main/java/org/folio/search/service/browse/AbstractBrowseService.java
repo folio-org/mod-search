@@ -4,7 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
@@ -29,7 +29,6 @@ public abstract class AbstractBrowseService<T> {
 
     var context = browseContextProvider.get(request);
     if (isEmpty(context.getAnchor())) {
-      log.warn("browse:: Browse empty request");
       return BrowseResult.empty();
     }
     return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
@@ -79,7 +78,7 @@ public abstract class AbstractBrowseService<T> {
 
   protected String getPrevBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getPrevBrowsingValue:: by [records: {}, isBrowsingForward: {}]",
-      listToLogMsg(records), isBrowsingForward);
+      collectionToLogMsg(records), isBrowsingForward);
 
     if (isBrowsingForward) {
       log.info("getPrevBrowsingValue:: Browse is forwarding");
@@ -91,7 +90,7 @@ public abstract class AbstractBrowseService<T> {
 
   protected String getNextBrowsingValue(List<T> records, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getNextBrowsingValue:: by [records: {}, isBrowsingForward: {}]",
-      listToLogMsg(records), isBrowsingForward);
+      collectionToLogMsg(records), isBrowsingForward);
 
     if (isBrowsingForward) {
       log.info("getNextBrowsingValue:: Browse is forwarding");

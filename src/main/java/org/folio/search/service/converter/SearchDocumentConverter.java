@@ -65,7 +65,7 @@ public class SearchDocumentConverter {
     log.debug("convert:: by [resourceEvent: {}]", resourceEvent);
 
     if (resourceEvent.getType() == ResourceEventType.DELETE) {
-      log.info("convert:: Resource event type DELETE by [resourceEvent: {}]", resourceEvent);
+      log.debug("convert:: Resource event type DELETE by [resourceEvent: {}]", resourceEvent);
       return Optional.of(SearchDocumentBody.of(null, indexingDataFormat, resourceEvent, DELETE));
     }
 

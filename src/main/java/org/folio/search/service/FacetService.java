@@ -46,11 +46,9 @@ public class FacetService {
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource) {
     var query = searchSource.query();
     if (isBoolQuery(query)) {
-      log.info("cleanUpFacetSearchSource:: Attempting to clear filters");
       ((BoolQueryBuilder) query).filter().clear();
     }
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {
-      log.info("cleanUpFacetSearchSource:: Attempting to clear sorts");
       searchSource.sorts().clear();
     }
   }

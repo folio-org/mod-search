@@ -68,7 +68,8 @@ public class FeatureConfigService {
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE,
     key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
   public FeatureConfig create(FeatureConfig featureConfig) {
-    log.info("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
+    log.debug("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
+
     var entity = featureConfigMapper.convert(featureConfig);
     var featureId = entity.getFeatureId();
     if (featureConfigRepository.existsById(featureId)) {
@@ -89,7 +90,8 @@ public class FeatureConfigService {
   @Transactional
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE, key = "@folioExecutionContext.tenantId + ':' + #feature.value")
   public FeatureConfig update(TenantConfiguredFeature feature, FeatureConfig featureConfig) {
-    log.info("Attempting to update feature configuration [feature: {}]", feature.getValue());
+    log.debug("Attempting to update feature configuration [feature: {}]", feature.getValue());
+
     var featureId = feature.getValue();
     var entity = featureConfigMapper.convert(featureConfig);
 
@@ -118,7 +120,8 @@ public class FeatureConfigService {
   @Transactional
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE, key = "@folioExecutionContext.tenantId + ':' + #feature.value")
   public void delete(TenantConfiguredFeature feature) {
-    log.info("Attempting to delete feature configuration [feature: {}]", feature.getValue());
+    log.debug("Attempting to delete feature configuration [feature: {}]", feature.getValue());
+
     if (!featureConfigRepository.existsById(feature.getValue())) {
       throw new EntityNotFoundException("Feature configuration not found for id: " + feature.getValue());
     }

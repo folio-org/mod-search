@@ -4,7 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
       : List.of(precedingQuery, succeedingQuery);
 
     log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource: {}]",
-      request.getTenantId(), listToLogMsg(searchSources));
+      request.getTenantId(), collectionToLogMsg(searchSources));
     var responses = searchRepository.msearch(request, searchSources).getResponses();
     return createBrowseResult(responses, request, context);
   }

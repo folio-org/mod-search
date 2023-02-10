@@ -2,7 +2,7 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
-import static org.folio.search.utils.CommonUtils.collectionToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
 import java.util.Collection;
@@ -43,7 +43,6 @@ public class MultiTenantSearchDocumentConverter {
     log.debug("convert:: by [resourceEvents: {}]", collectionToLogMsg(resourceEvents));
 
     if (CollectionUtils.isEmpty(resourceEvents)) {
-      log.warn("convert:: empty resourceEvents");
       return emptyMap();
     }
 

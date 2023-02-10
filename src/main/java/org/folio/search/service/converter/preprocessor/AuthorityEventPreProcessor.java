@@ -67,10 +67,10 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     log.debug("process:: by [event: {}]", event);
 
     if (event.getType() == ResourceEventType.UPDATE) {
-      log.info("process:: eventType == UPDATE by getResourceEventsToUpdate [event: {}]", event);
+      log.debug("process:: eventType == UPDATE");
       return getResourceEventsToUpdate(event);
     }
-    log.info("process:: eventType != UPDATE by getResourceEvents [event: {}]", event);
+    log.debug("process:: eventType != UPDATE");
     return getResourceEvents(event, event.getType());
   }
 
@@ -80,7 +80,6 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     var isCreateOperation = isCreateOperation(eventType);
     var events = generateResourceEvents(event, eventType, isCreateOperation ? getNewAsMap(event) : getOldAsMap(event));
     if (events.isEmpty()) {
-      log.info("getResourceEvents:: empty events");
       return singletonList(event.id("other" + 0 + "_" + event.getId()));
     }
     return events;

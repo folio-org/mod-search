@@ -45,7 +45,6 @@ public class ContributorBrowseService extends
 
     QueryBuilder query;
     if (ctx.getFilters().isEmpty()) {
-      log.info("isBrowsingForward:: empty ctx.filters");
       query = matchAllQuery();
     } else {
       query = boolQuery();

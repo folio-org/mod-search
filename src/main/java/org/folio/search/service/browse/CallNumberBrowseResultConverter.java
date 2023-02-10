@@ -57,7 +57,6 @@ public class CallNumberBrowseResultConverter {
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
     if (CollectionUtils.isEmpty(browseItems)) {
-      log.warn("convert:: empty records");
       return browseResult;
     }
 

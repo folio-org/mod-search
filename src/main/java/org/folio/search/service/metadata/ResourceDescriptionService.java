@@ -4,7 +4,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableMap;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.ResolvableType.forClass;
 
 import java.util.ArrayList;
@@ -106,6 +106,8 @@ public class ResourceDescriptionService {
    * @return {@link Collection} with secondary resource names.
    */
   public Collection<String> getSecondaryResourceNames(String resource) {
+    log.debug("getSecondaryResourceNames:: by [resource: {}]", resource);
+
     return resourceDescriptions.values().stream()
       .filter(desc -> StringUtils.equals(resource, desc.getParent()))
       .map(ResourceDescription::getName)
@@ -113,7 +115,7 @@ public class ResourceDescriptionService {
   }
 
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
-    log.debug("validateResourceDescriptions:: by [descriptors:: {}]", listToLogMsg(descriptors, true));
+    log.debug("validateResourceDescriptions:: by [descriptors:: {}]", collectionToLogMsg(descriptors, true));
 
     var validationErrors = new LinkedHashMap<String, List<String>>();
     descriptors.forEach(descriptor -> validationErrors

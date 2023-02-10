@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Search resource repository with set of operation to perform search operations.
  */
-@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class SearchRepository {
@@ -56,9 +54,6 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
-    log.debug("search:: by [tenantId: {}, resource: {}]",
-      resourceRequest.getTenantId(), resourceRequest.getResource());
-
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
@@ -73,9 +68,6 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
-    log.debug("search:: by [tenantId: {}, resource: {}, preference: {}]",
-      resourceRequest.getTenantId(), resourceRequest.getResource(), preference);
-
     var index = getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
@@ -89,9 +81,6 @@ public class SearchRepository {
    * @return search result as {@link MultiSearchResponse} object.
    */
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
-    log.debug("search:: by [tenantId: {}, resource: {}]",
-      resourceRequest.getTenantId(), resourceRequest.getResource());
-
     var index = getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
@@ -117,8 +106,6 @@ public class SearchRepository {
    * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
-    log.debug("streamResourceIds:: by [tenantId: {}, resource: {}]", req.getTenantId(), req.getResource());
-
     var index = getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
@@ -151,15 +138,11 @@ public class SearchRepository {
   }
 
   private void clearScrollAfterStreaming(String index, String scrollId) {
-    log.debug("clearScrollAfterStreaming:: by [index: {}, scrollId: {}]", index, scrollId);
-
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
-    var clearScrollResponse = performExceptionalOperation(
-      () -> client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi");
-    if (!clearScrollResponse.isSucceeded()) {
-      log.warn("Failed to clear scroll [index: {}, scrollId: '{}']", index, scrollId);
-    }
+    performExceptionalOperation(() ->
+      client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi"
+    );
   }
 
   private static List<String> getResourceIds(SearchHit[] searchHits, String sourceFieldPath) {

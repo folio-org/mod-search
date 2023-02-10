@@ -65,7 +65,7 @@ public class SearchMappingsHelper {
       mappingProperties.putAll(customIndexMappings);
     }
 
-    log.info("getMappings:: Attempting to convert into json [indexMappings: {}]", indexMappings);
+    log.debug("getMappings:: Attempting to convert into json [indexMappings: {}]", indexMappings);
     return jsonConverter.toJson(indexMappings);
   }
 

@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -109,12 +109,11 @@ public class ResourceIdService {
       job.setStatus(StreamJobStatus.COMPLETED);
 
     } catch (Exception e) {
-      log.warn("Failed to process resource ids job with id = {}", job.getId());
+      log.warn("Failed to process resource ids job with id = {}, msg: {}", job.getId(), e.getMessage());
       idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
 
     } finally {
-      log.info("streamResourceIdsForJob:: Attempting to save [job: {}]", job);
       jobRepository.save(job);
     }
   }
@@ -173,7 +172,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, JsonGenerator json) {
-    String logParamMsg = listToLogMsg(recordIds);
+    String logParamMsg = collectionToLogMsg(recordIds);
     log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", logParamMsg);
 
     if (CollectionUtils.isEmpty(recordIds)) {
@@ -197,7 +196,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, OutputStreamWriter outputStreamWriter) {
-    String logParamMsg = listToLogMsg(recordIds);
+    String logParamMsg = collectionToLogMsg(recordIds);
     log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", logParamMsg);
 
     if (CollectionUtils.isEmpty(recordIds)) {
@@ -206,7 +205,7 @@ public class ResourceIdService {
     }
 
     try {
-      log.info("writeRecordIdsToOutputStream:: Attempting to write [recordIds: {}]", logParamMsg);
+      log.info("writeRecordIdsToOutputStream:: Attempting to write records [recordIds: {}]", logParamMsg);
       for (var recordId : recordIds) {
         outputStreamWriter.write(recordId + '\n');
       }

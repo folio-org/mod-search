@@ -27,11 +27,10 @@ public class SearchSettingsHelper {
 
     var resourceSettings = localFileProvider.read(getIndexSettingsPath(resource));
     try {
-      log.info("getSettings:: Attempting to convert as JsonTree [resourceSettings: {}]", resourceSettings);
       return jsonConverter.asJsonTree(resourceSettings).toString();
     } catch (SerializationException e) {
       throw new ResourceDescriptionException(String.format(
-        "Failed to load resource index settings [resourceName: %s]", resource));
+        "Failed to load resource index settings [resourceName: %s], msg: %s", resource, e.getMessage()));
     }
   }
 

@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.authority;
 
 import static java.util.stream.Collectors.toMap;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +26,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
 
   @Override
   public void process(List<Authority> res) {
-    log.debug("process:: by [res: {}]", listToLogMsg(res, true));
+    log.debug("process:: by [res: {}]", collectionToLogMsg(res, true));
 
     if (res == null || res.isEmpty()) {
       return;
@@ -41,15 +41,13 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
       .map(UUID::fromString)
       .toList();
 
-    log.info("process:: Attempting to get links count by authority Ids");
     var response = entitiesLinksClient.getLinksCount(
         EntitiesLinksClient.UuidCollection.of(authorityIds)).getBody();
 
     if (response == null || response.getLinks() == null) {
-      log.warn("process:: empty entity links client counter [response: {}]", response);
+      log.debug("process:: empty links client");
       return;
     }
-
     var numbersOfTitles = response.getLinks().stream()
       .collect(toMap(EntitiesLinksClient.LinksCount::getId, EntitiesLinksClient.LinksCount::getTotalLinks,
         (id1, id2) -> id1));

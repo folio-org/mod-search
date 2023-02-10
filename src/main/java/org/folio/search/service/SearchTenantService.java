@@ -107,9 +107,8 @@ public class SearchTenantService extends TenantService {
 
   private void createLanguages() {
     var existingLanguages = languageConfigService.getAllLanguageCodes();
-
     var initialLanguages = searchConfigurationProperties.getInitialLanguages();
-    log.info("Initializing tenant [initialLanguages={}, existingLanguages={}]", initialLanguages, existingLanguages);
+    log.debug("createLanguages:: by [initialLanguages={}, existingLanguages={}]", initialLanguages, existingLanguages);
 
     initialLanguages.stream()
       .filter(code -> !existingLanguages.contains(code))

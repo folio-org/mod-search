@@ -140,7 +140,6 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     for (var entry : fields.entrySet()) {
       var fieldDescription = entry.getValue();
       if (CollectionUtils.isEmpty(fieldDescription.getSearchAliases())) {
-        log.info("collectFieldsBySearchAlias:: empty PlainFieldDescription");
         continue;
       }
 

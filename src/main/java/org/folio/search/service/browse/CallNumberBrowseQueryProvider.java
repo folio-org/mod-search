@@ -86,7 +86,6 @@ public class CallNumberBrowseQueryProvider {
 
     var filters = ctx.getFilters();
     if (filters.isEmpty()) {
-      log.info("getQuery:: empty filters");
       return rangeQuery;
     }
 

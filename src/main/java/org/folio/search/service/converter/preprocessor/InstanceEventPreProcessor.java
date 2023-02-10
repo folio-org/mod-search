@@ -45,7 +45,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     var newSubjects = extractSubjects(getNewAsMap(event));
     var tenantId = event.getTenant();
 
-    log.info("process:: Attempting create list of resource event by [newSubjects: {}, oldSubjects: {}, tenant: {}]",
+    log.debug("process:: Attempting create list of resource event by [newSubjects: {}, oldSubjects: {}, tenant: {}]",
       newSubjects, oldSubjects, tenantId);
     return StreamEx.of(event)
       .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))

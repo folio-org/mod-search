@@ -38,7 +38,6 @@ public abstract class AbstractAuthorityProcessor implements FieldProcessor<Map<S
     log.debug("getAuthorityFieldForEntry:: by [value: {}]", entry.getValue());
 
     if (ObjectUtils.isEmpty(entry.getValue())) {
-      log.warn("getAuthorityFieldForEntry:: empty authority fields");
       return Optional.empty();
     }
 

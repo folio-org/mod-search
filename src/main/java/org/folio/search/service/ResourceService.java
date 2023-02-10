@@ -7,7 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
@@ -65,21 +65,16 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
-    log.debug("indexResources: by [resources: {}]", listToLogMsg(resources));
+    log.debug("indexResources: by [resources: {}]", collectionToLogMsg(resources));
 
     if (CollectionUtils.isEmpty(resources)) {
-      log.info("indexResources:: empty resources");
+      log.debug("indexResources:: empty resources");
       return getSuccessIndexOperationResponse();
     }
 
     var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-
-    var response = indexSearchDocuments(elasticsearchDocuments);
-    log.info("Records added/updated [size: {}{}]",
-      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(response));
-
-    return response;
+    return indexSearchDocuments(elasticsearchDocuments);
   }
 
   /**
@@ -89,10 +84,10 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexResourcesById: by [resourceIdEvents: {}]", listToLogMsg(resourceIdEvents));
+    log.debug("indexResourcesById: by [resourceIdEvents: {}]", collectionToLogMsg(resourceIdEvents));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
-      log.info("indexResources: empty resourceIdEvents");
+      log.debug("indexResources: empty resourceIdEvents");
       return getSuccessIndexOperationResponse();
     }
 

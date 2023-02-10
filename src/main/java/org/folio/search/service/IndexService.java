@@ -1,7 +1,7 @@
 package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
@@ -59,7 +59,7 @@ public class IndexService {
     var settings = settingsHelper.getSettings(resourceName);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Creating index for resource [resource: {}, tenant: {}, mappings: {}, settings: {}]",
+    log.info("createIndex:: Attempts to create index by [resourceName: {}, tenant: {}, mappings: {}, settings: {}]",
       resourceName, tenantId, mappings, settings);
     return indexRepository.createIndex(index, settings, mappings);
   }
@@ -76,7 +76,7 @@ public class IndexService {
     var index = getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Updating mappings for resource [resource: {}, tenant: {}, mappings: {}]",
+    log.info("updateMappings:: Attempts to update mappings by [resourceName: {}, tenant: {}, mappings: {}]",
       resourceName, tenantId, mappings);
     return indexRepository.updateMappings(index, mappings);
   }
@@ -103,18 +103,15 @@ public class IndexService {
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
-      log.info("Recreating indices during reindex operation [tenant: {}, resources: {}]",
-        tenantId, listToLogMsg(resources));
+      log.info("resourceName:: Attempts to recreate index inventory by [tenant: {}, resources: {}]",
+        tenantId, collectionToLogMsg(resources));
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId);
       });
     }
-
     var resource = normalizeResourceName(resources.get(0));
     var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
-    log.info("reindexInventory:: result: reindex job has been created [reindexUri: {}]", reindexUri);
-
     return resourceReindexClient.submitReindex(reindexUri);
   }
 
@@ -148,8 +145,6 @@ public class IndexService {
     var resourceNames = new ArrayList<String>();
     resourceNames.add(resourceName);
     resourceNames.addAll(resourceDescriptionService.getSecondaryResourceNames(resourceName));
-    log.info("getResourceNamesToReindex: result: {}", listToLogMsg(resourceNames));
-
     return resourceNames;
   }
 

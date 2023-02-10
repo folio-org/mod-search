@@ -3,7 +3,7 @@ package org.folio.search.service.browse;
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
@@ -38,7 +38,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
     log.debug("mapToBrowseResult:: by [records: {}, isAnchor: {}]",
-      listToLogMsg(result.getRecords()), isAnchor);
+      collectionToLogMsg(result.getRecords()), isAnchor);
 
     return BrowseResult.of(result).map(authority -> new AuthorityBrowseItem()
       .authority(authority)
@@ -54,7 +54,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}, isBrowsingForward: {}]",
-      request.getTargetField(), listToLogMsg(ctx.getFilters()), isBrowsingForward);
+      request.getTargetField(), collectionToLogMsg(ctx.getFilters()), isBrowsingForward);
 
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
@@ -69,7 +69,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}]",
-      request.getTargetField(), listToLogMsg(context.getFilters()));
+      request.getTargetField(), collectionToLogMsg(context.getFilters()));
 
     var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);

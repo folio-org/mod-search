@@ -7,7 +7,7 @@ import static java.util.stream.Stream.concat;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL_NUMBER_RANGE_FIELD;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
-import static org.folio.search.utils.CommonUtils.listToLogMsg;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.search.aggregations.AggregationBuilders.range;
@@ -159,7 +159,7 @@ public class CallNumberBrowseRangeService {
 
   private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {
     log.debug("getTopBoundaryForSucceedingQuery:: by [range: {}, size: {}, pos: {}]",
-      listToLogMsg(ranges), size, pos);
+      collectionToLogMsg(ranges), size, pos);
 
     var element = ranges.get(pos);
     var sum = element.getCount();
@@ -167,7 +167,6 @@ public class CallNumberBrowseRangeService {
     for (int i = pos + 1; i < ranges.size(); i++) {
       var current = ranges.get(i);
       if (sum >= size) {
-        log.info("getTopBoundaryForSucceedingQuery:: result: {}", current.getKeyAsLong());
         return current.getKeyAsLong();
       }
       sum += current.getCount();
@@ -178,7 +177,7 @@ public class CallNumberBrowseRangeService {
 
   private static Long getBottomBoundaryForPrecedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {
     log.debug("getBottomBoundaryForPrecedingQuery:: by [range: {}, size: {}, pos: {}]",
-      listToLogMsg(ranges), size, pos);
+      collectionToLogMsg(ranges), size, pos);
 
     var sum = 0L;
 
@@ -186,7 +185,6 @@ public class CallNumberBrowseRangeService {
       var current = ranges.get(i);
       sum += current.getCount();
       if (sum >= size) {
-        log.info("getBottomBoundaryForPrecedingQuery:: result: {}", current.getKeyAsLong());
         return current.getKeyAsLong();
       }
     }

@@ -1,3 +1,41 @@
+## v2.0.0 2023-02-16
+### Breaking changes
+* Migration to Java 17 ([MSEARCH-468](https://issues.folio.org/browse/MSEARCH-468))
+* Migration to Spring Boot v3.0.2 ([MSEARCH-469](https://issues.folio.org/browse/MSEARCH-469))
+* Align with subjects, series inventory-storage API changes ([MSEARCH-484](https://issues.folio.org/browse/MSEARCH-484))
+
+### New APIs versions
+* Provides `search v1.0`
+* Provides `browse v1.0`
+* Requires `instance-storage v10.0`
+* Requires `inventory-view v2.0`
+
+### Features
+* Authority search/browse: add a field 'numberOfTitles' (number of linked instances) ([MSEARCH-433](https://issues.folio.org/browse/MSEARCH-433))
+* Instance search: Add query search option that search instances by linked authority id ([MSEARCH-452](https://issues.folio.org/browse/MSEARCH-452))
+
+### Bug fixes
+* Fix call-number with same instance as anchor disappears ([MSEARCH-456](https://issues.folio.org/browse/MSEARCH-456))
+* Fix instance keyword query search option when keyword contains special characters ([MSEARCH-466](https://issues.folio.org/browse/MSEARCH-466))
+
+### Tech Dept
+* Align logging configuration with common Folio solution ([MSEARCH-451](https://issues.folio.org/browse/MSEARCH-451))
+* Stabilize contributors browse integration tests ([MSEARCH-479](https://issues.folio.org/browse/MSEARCH-479))
+* Delegate system-user creation and Kafka topics creation to folio-service-tools library ([MSEARCH-487](https://issues.folio.org/browse/MSEARCH-487))
+
+### Dependencies
+* Bump `java` from `11` to `17`
+* Bump `folio-spring-base` from `5.0.1` to `6.0.1`
+* Bump `folio-isbn-utils` from `1.4.0` to `1.5.0`
+* Bump `folio-cql2pgjson` from `35.0.0` to `35.0.6`
+* Bump `spring-boot-starter-parent` from `2.7.4` to `3.0.2`
+* Bump `spring-kafka` from `2.9.1` to `3.0.2`
+* Bump `opensearch` from `2.3.0` to `2.5.0`
+* Bump `mapstruct` from `1.5.2.Final` to `1.5.3.Final`
+* Bump `lombok` from `1.18.22` to `1.18.26`
+* Bump `testcontainers` from `1.17.5` to `1.17.6`
+* Add `folio-service-tools` `3.0.0`
+
 ## 1.8.0 2022-10-27
 * MSEARCH-349 Change Instance ids stream API to use jobs
 * MSEARCH-350 Change Holdings ids stream API to use jobs

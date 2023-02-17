@@ -4,9 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.domain.dto.ResourceEventType.DELETE;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
@@ -15,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
@@ -36,13 +32,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
-    var oldSubjects = extractSubjects(getOldAsMap(event));
-    var newSubjects = extractSubjects(getNewAsMap(event));
-    var tenantId = event.getTenant();
-    return StreamEx.of(event)
-      .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))
-      .append(getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE))
-      .toList();
+    return List.of(event);
   }
 
   private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap) {

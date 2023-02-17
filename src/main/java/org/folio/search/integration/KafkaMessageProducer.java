@@ -73,9 +73,10 @@ public class KafkaMessageProducer {
     var tenantId = event.getTenant();
     var subjectsCreate = getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE);
     var subjectsDelete = getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE);
+    var topicName = getTenantTopicName(INSTANCE_SUBJECTS_TOPIC_NAME, tenantId);
     return StreamEx.of(subjectsCreate)
       .append(subjectsDelete)
-      .map(resourceEvent -> new ProducerRecord<>(INSTANCE_SUBJECTS_TOPIC_NAME, resourceEvent.getId(), resourceEvent))
+      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
       .toList();
   }
 

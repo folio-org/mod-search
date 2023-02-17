@@ -12,6 +12,7 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +92,23 @@ public class KafkaMessageListener {
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .map(contributor -> contributor.resourceName(CONTRIBUTOR_RESOURCE).id(getResourceEventId(contributor)))
+      .toList();
+
+    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      resourceService::indexResources, KafkaMessageListener::logFailedEvent);
+  }
+
+  @KafkaListener(
+    id = KafkaConstants.SUBJECT_LISTENER_ID,
+    containerFactory = "kafkaListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['subjects'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['subjects'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['subjects'].topicPattern}")
+  public void handleSubjectEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing subjects events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .map(contributor -> contributor.resourceName(INSTANCE_SUBJECT_RESOURCE).id(getResourceEventId(contributor)))
       .toList();
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,

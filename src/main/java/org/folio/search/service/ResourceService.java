@@ -96,6 +96,7 @@ public class ResourceService {
     indexEvents = extractEventsForDataMove(indexEvents);
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
+    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
     messageProducer.prepareAndSendContributorEvents(groupedByOperation.get(DELETE));

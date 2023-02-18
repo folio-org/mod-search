@@ -6,8 +6,8 @@ import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID;
+import static org.opensearch.script.ScriptType.STORED;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +17,6 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.event.ContributorResourceEvent;
-import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.utils.JsonConverter;
@@ -32,15 +30,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
-
-  public static final String SCRIPT = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
-    + "instanceIds.addAll(params.ins);"
-    + "params.del.forEach(instanceIds::remove);"
-    + "if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}"
-    + "ctx._source.instances=instanceIds;"
-    + "def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1])"
-    + ".sorted().collect(Collectors.toCollection(LinkedHashSet::new));"
-    + "ctx._source.contributorTypeId=typeIds";
 
   private final JsonConverter jsonConverter;
   private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
@@ -59,8 +48,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       for (var document : documents) {
         var eventPayload = getPayload(document);
         var action = document.getAction();
-        var instanceId = eventPayload.getInstanceId();
-        var typeId = eventPayload.getTypeId();
+        var instanceId = eventPayload.get("instanceId").toString();
+        var typeId = eventPayload.get("typeId").toString();
         var pair = instanceId + "|" + typeId;
         if (action == IndexActionType.INDEX) {
           instanceIdsToCreate.add(pair);
@@ -92,23 +81,19 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
   }
 
   private Script prepareScript(HashSet<String> instanceIdsToCreate, HashSet<String> instanceIdsToDelete) {
-    return new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT,
+    return new Script(STORED, null, INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID,
       Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete));
   }
 
-  private byte[] prepareDocumentBody(ContributorResourceEvent payload, Set<String> instanceIds, Set<String> typeIds) {
-    var resource = new ContributorResource();
-    resource.setId(payload.getId());
-    resource.setName(payload.getName());
-    resource.setContributorTypeId(typeIds);
-    resource.setContributorNameTypeId(payload.getNameTypeId());
-    resource.setInstances(instanceIds);
-    resource.setAuthorityId(payload.getAuthorityId());
-    return BytesReference.toBytes(searchDocumentBodyConverter.apply(jsonConverter.convert(resource, Map.class)));
+  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<String> instanceIds,
+                                                  Set<String> typeIds) {
+    payload.put("contributorNameTypeId", payload.remove("nameTypeId"));
+    payload.put("contributorTypeId", typeIds);
+    payload.put("instances", instanceIds);
+    return payload;
   }
 
-  private ContributorResourceEvent getPayload(SearchDocumentBody doc) {
-    return jsonConverter.fromJson(jsonConverter.toJson(getEventPayload(doc.getResourceEvent())),
-      ContributorResourceEvent.class);
+  private Map<String, Object> getPayload(SearchDocumentBody doc) {
+    return getEventPayload(doc.getResourceEvent());
   }
 }

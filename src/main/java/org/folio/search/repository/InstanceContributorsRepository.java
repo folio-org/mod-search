@@ -48,15 +48,15 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       for (var document : documents) {
         var eventPayload = getPayload(document);
         var action = document.getAction();
-        var instanceId = eventPayload.get("instanceId").toString();
-        var typeId = eventPayload.get("typeId").toString();
+        var instanceId = eventPayload.get("instanceId");
+        var typeId = eventPayload.get("typeId");
         var pair = instanceId + "|" + typeId;
         if (action == IndexActionType.INDEX) {
           instanceIdsToCreate.add(pair);
-          typeIdsToCreate.add(typeId);
+          typeIdsToCreate.add(String.valueOf(typeId));
         } else {
           instanceIdsToDelete.add(pair);
-          typeIdsToDelete.add(typeId);
+          typeIdsToDelete.add(String.valueOf(typeId));
         }
       }
 

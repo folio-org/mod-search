@@ -77,7 +77,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
         .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(11);
+      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
     });
   }
 

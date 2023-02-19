@@ -57,7 +57,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     var instanceIds = prepareInstanceIdMap();
     for (var document : documents) {
       var eventPayload = getPayload(document);
-      var instanceId = eventPayload.get("instanceId").toString();
+      var instanceId = String.valueOf(eventPayload.get("instanceId"));
       instanceIds.getOrDefault(document.getAction(), instanceIds.get(DELETE)).add(instanceId);
     }
     return instanceIds;

@@ -40,7 +40,7 @@ public class MultiTenantSearchDocumentConverter {
    * @return map where key is the resource name and value is the {@link List} with {@link SearchDocumentBody} objects
    */
   public Map<String, List<SearchDocumentBody>> convert(Collection<ResourceEvent> resourceEvents) {
-    log.debug("convert:: by [resourceEvents: {}]", collectionToLogMsg(resourceEvents));
+    log.debug("convert:: by [resourceEvents.size: {}]", collectionToLogMsg(resourceEvents, true));
 
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return emptyMap();

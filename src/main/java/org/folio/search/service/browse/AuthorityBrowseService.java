@@ -37,8 +37,8 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   @Override
   protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
-    log.debug("mapToBrowseResult:: by [records: {}, isAnchor: {}]",
-      collectionToLogMsg(result.getRecords()), isAnchor);
+    log.debug("mapToBrowseResult:: by [records.size: {}, isAnchor: {}]",
+      result.getTotalRecords(), isAnchor);
 
     return BrowseResult.of(result).map(authority -> new AuthorityBrowseItem()
       .authority(authority)
@@ -53,8 +53,8 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
-    log.debug("getSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}, isBrowsingForward: {}]",
-      request.getTargetField(), collectionToLogMsg(ctx.getFilters()), isBrowsingForward);
+    log.debug("getSearchQuery:: by [browseRequest.field: {}, filters.size: {}, isBrowsingForward: {}]",
+      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true), isBrowsingForward);
 
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
@@ -68,8 +68,8 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
-    log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, ctx.filters: {}]",
-      request.getTargetField(), collectionToLogMsg(context.getFilters()));
+    log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, filters.size: {}]",
+      request.getTargetField(), collectionToLogMsg(context.getFilters(), true));
 
     var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);

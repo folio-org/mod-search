@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.utils.CollectionUtils.allMatch;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpty;
 
@@ -49,30 +50,37 @@ public class BrowseContextProvider {
       if (!isValidRangeQuery(request.getTargetField(), request.getSubField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
-      log.debug("get:: !isBoolQuery");
+      log.trace(
+        "Failure on passing BoolQueryBuilder. Attempts to create browsingContext without filters [request: {}]",
+        request);
       return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
     }
 
     var boolQuery = (BoolQueryBuilder) query;
     var filters = boolQuery.filter();
     var shouldClauses = boolQuery.should();
+    String logMsg = collectionToLogMsg(filters, true);
 
     if (isValidAroundQuery(request.getTargetField(), request.getSubField(), shouldClauses)) {
-      log.debug("get:: isValidAroundQuery");
+      log.trace("Attempts to create context browsingAround [request: {}, filters.size: {}]",
+        request, logMsg);
       return createContextForBrowsingAround(request, filters, shouldClauses);
     }
 
     if (isBoolQueryWithFilters(boolQuery)) {
-      log.debug("get:: isBoolQueryWithFilters");
       var mustClauses = boolQuery.must();
       var firstMustClause = mustClauses.get(0);
       if (firstMustClause instanceof RangeQueryBuilder) {
+        log.trace("Attempts to create browsingContext with filters [request: {}, filters.size: {}]",
+          request, logMsg);
         return createBrowsingContext(request, filters, (RangeQueryBuilder) firstMustClause);
       }
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
         if (isValidAroundQuery(request.getTargetField(), request.getSubField(), subShouldClauses)) {
+          log.trace("Attempts to create context browsingAround with filters [request: {}, filters: {}]",
+            request, logMsg);
           return createContextForBrowsingAround(request, filters, subShouldClauses);
         }
       }

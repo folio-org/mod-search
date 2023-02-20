@@ -36,8 +36,6 @@ public final class LogUtils {
     if (input == null || input.isEmpty()) {
       return SIZE_OF_LIST + 0;
     }
-    return input.size() < 3
-      ? input.toString()
-      : SIZE_OF_LIST + input.size();
+    return input.toString();
   }
 }

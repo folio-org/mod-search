@@ -68,8 +68,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
       ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
       : List.of(precedingQuery, succeedingQuery);
 
-    log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource: {}]",
-      request.getTenantId(), collectionToLogMsg(searchSources));
+    log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
+      request.getTenantId(), collectionToLogMsg(searchSources, true));
     var responses = searchRepository.msearch(request, searchSources).getResponses();
     return createBrowseResult(responses, request, context);
   }

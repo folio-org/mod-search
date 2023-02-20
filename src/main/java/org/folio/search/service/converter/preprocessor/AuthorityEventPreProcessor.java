@@ -64,18 +64,17 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
    */
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
-    log.debug("process:: by [event: {}]", event);
+    log.debug("process:: by [id: {}, tenant: {}, resourceType: {}]",
+      event.getId(), event.getTenant(), event.getType());
 
     if (event.getType() == ResourceEventType.UPDATE) {
-      log.debug("process:: eventType == UPDATE");
       return getResourceEventsToUpdate(event);
     }
-    log.debug("process:: eventType != UPDATE");
     return getResourceEvents(event, event.getType());
   }
 
   private List<ResourceEvent> getResourceEvents(ResourceEvent event, ResourceEventType eventType) {
-    log.debug("getResourceEvents:: by [event: {}, type: {}]", event, eventType);
+    log.debug("getResourceEvents:: by [id: {}, tenant: {}, type: {}]", event.getId(), event.getTenant(), eventType);
 
     var isCreateOperation = isCreateOperation(eventType);
     var events = generateResourceEvents(event, eventType, isCreateOperation ? getNewAsMap(event) : getOldAsMap(event));

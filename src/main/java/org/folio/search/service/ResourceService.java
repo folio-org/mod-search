@@ -65,7 +65,7 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
-    log.debug("indexResources: by [resources: {}]", collectionToLogMsg(resources));
+    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resources, true));
 
     if (CollectionUtils.isEmpty(resources)) {
       return getSuccessIndexOperationResponse();
@@ -83,7 +83,7 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexResourcesById: by [resourceIdEvents: {}]", collectionToLogMsg(resourceIdEvents));
+    log.debug("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();

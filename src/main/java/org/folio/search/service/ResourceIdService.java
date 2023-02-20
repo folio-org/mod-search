@@ -169,8 +169,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, JsonGenerator json) {
-    String logParamMsg = collectionToLogMsg(recordIds);
-    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", logParamMsg);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, json]", collectionToLogMsg(recordIds));
 
     if (CollectionUtils.isEmpty(recordIds)) {
       return;
@@ -191,8 +190,7 @@ public class ResourceIdService {
   }
 
   private static void writeRecordIdsToOutputStream(List<String> recordIds, OutputStreamWriter outputStreamWriter) {
-    String logParamMsg = collectionToLogMsg(recordIds);
-    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", logParamMsg);
+    log.debug("writeRecordIdsToOutputStream:: by [recordIds: {}, outputStreamWriter]", collectionToLogMsg(recordIds));
 
     if (CollectionUtils.isEmpty(recordIds)) {
       return;

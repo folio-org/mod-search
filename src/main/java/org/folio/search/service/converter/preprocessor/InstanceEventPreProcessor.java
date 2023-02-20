@@ -39,7 +39,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
-    log.debug("process:: by [event: {}]", event);
+    log.debug("process:: by [id: {}, tenant: {}]", event.getId(), event.getTenant());
 
     var oldSubjects = extractSubjects(getOldAsMap(event));
     var newSubjects = extractSubjects(getNewAsMap(event));

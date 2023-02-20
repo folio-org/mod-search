@@ -33,8 +33,8 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-           : getSuccessIndexOperationResponse();
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
   }
 
   @Autowired

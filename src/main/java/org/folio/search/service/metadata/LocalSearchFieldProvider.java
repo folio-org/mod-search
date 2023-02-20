@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.cql.SearchFieldModifier;
 import org.folio.search.exception.ResourceDescriptionException;
@@ -45,6 +46,7 @@ import org.springframework.stereotype.Component;
 /**
  * Provides search fields from local JSON files with fields/resource descriptions.
  */
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class LocalSearchFieldProvider implements SearchFieldProvider {
@@ -65,6 +67,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
    */
   @PostConstruct
   public void init() {
+    log.debug("init::  Attempting to start loading defined e.s. fields from local");
+
     var resourceDescriptions = metadataResourceProvider.getResourceDescriptions();
     elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     sourceFields = collectSourceFields(resourceDescriptions);
@@ -75,6 +79,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public SearchFieldType getSearchFieldType(String fieldType) {
+    log.debug("getSearchFieldType:: by [fieldType: {}]", fieldType);
+
     var indexFieldType = elasticsearchFieldTypes.get(fieldType);
     if (indexFieldType == null) {
       throw new ResourceDescriptionException(String.format(
@@ -196,8 +202,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private static List<String> getFieldsForSearchAlias(String searchAlias, String path) {
     return searchAlias.startsWith(CQL_META_FIELD_PREFIX)
-           ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
-           : singletonList(path);
+      ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
+      : singletonList(path);
   }
 
   private static Map<String, Map<ResponseGroupType, String[]>> collectSourceFields(

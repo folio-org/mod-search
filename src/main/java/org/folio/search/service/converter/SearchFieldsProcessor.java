@@ -1,6 +1,7 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
 import java.util.LinkedHashMap;
@@ -34,6 +35,9 @@ public class SearchFieldsProcessor {
    * @return map with retrieved search fields
    */
   public Map<String, Object> getSearchFields(ConversionContext ctx) {
+    log.debug("getSearchFields:: by [resourceEvent: {}, languages: {}]",
+      ctx.getResourceEvent(), collectionToLogMsg(ctx.getLanguages()));
+
     var resourceDescription = ctx.getResourceDescription();
     var searchFields = resourceDescription.getSearchFields();
     if (MapUtils.isEmpty(searchFields)) {

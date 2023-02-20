@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -24,21 +25,26 @@ import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class InstanceEventPreProcessor implements EventPreProcessor {
 
   public static final String SUBJECTS_FIELD = "subjects";
 
-  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE = new TypeReference<>() { };
+  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE = new TypeReference<>() {
+  };
 
   private final JsonConverter jsonConverter;
 
   @Override
   public List<ResourceEvent> process(ResourceEvent event) {
+    log.debug("process:: by [id: {}, tenant: {}]", event.getId(), event.getTenant());
+
     var oldSubjects = extractSubjects(getOldAsMap(event));
     var newSubjects = extractSubjects(getNewAsMap(event));
     var tenantId = event.getTenant();
+
     return StreamEx.of(event)
       .append(getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE))
       .append(getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE))

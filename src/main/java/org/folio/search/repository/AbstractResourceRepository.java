@@ -54,7 +54,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     for (var document : documents) {
       request.add(document.getAction() == INDEX ? prepareIndexRequest(document) : prepareDeleteRequest(document));
     }
-    log.info(request.estimatedSizeInBytes());
     return request;
   }
 

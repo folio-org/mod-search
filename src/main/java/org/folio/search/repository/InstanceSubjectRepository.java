@@ -88,6 +88,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   private Map<String, Object> prepareDocumentBody(Map<String, Object> payload,
                                                   Map<IndexActionType, Set<String>> instanceIds) {
     payload.put("instances", subtract(instanceIds.get(INDEX), instanceIds.get(DELETE)));
+    payload.remove("instanceId");
     return payload;
   }
 

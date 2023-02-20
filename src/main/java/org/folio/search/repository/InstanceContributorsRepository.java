@@ -13,17 +13,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
-import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
@@ -31,8 +28,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
 
-  private final JsonConverter jsonConverter;
-  private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
   private final SearchConfigurationProperties properties;
 
   @Override
@@ -90,6 +85,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     payload.put("contributorNameTypeId", payload.remove("nameTypeId"));
     payload.put("contributorTypeId", typeIds);
     payload.put("instances", instanceIds);
+    payload.remove("instanceId");
     return payload;
   }
 

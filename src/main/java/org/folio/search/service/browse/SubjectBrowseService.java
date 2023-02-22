@@ -29,7 +29,10 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
-    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor())).from(0).size(1);
+    log.debug("getAnchorSearchQuery:: by [request: {}]", request);
+    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor()))
+      .size(context.getLimit(context.isBrowsingForward()))
+      .from(0);
   }
 
   @Override

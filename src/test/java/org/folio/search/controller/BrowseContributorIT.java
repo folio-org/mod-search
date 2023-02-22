@@ -298,7 +298,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
     assertThat(actual).usingRecursiveComparison()
       .ignoringFields("items.authorityId", "items.totalRecords",
-        "items.contributorTypeId", "items.contributorNameTypeId")
+        "items.contributorTypeId", "items.contributorNameTypeId", "items.totalRecords")
       .isEqualTo(expected);
   }
 

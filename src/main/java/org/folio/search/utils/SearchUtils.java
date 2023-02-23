@@ -65,6 +65,7 @@ public class SearchUtils {
   public static final String KEYWORD_FIELD_INDEX = "keyword";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
+  //CHECKSTYLE.ON: LineLength
   public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT_ID = "instance_subject_upsert_script";
   public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT = """
     {
@@ -83,6 +84,7 @@ public class SearchUtils {
       }
     }
     """;
+  //CHECKSTYLE.OFF: LineLength
 
   /**
    * Performs elasticsearch exceptional operation and returns the received result.

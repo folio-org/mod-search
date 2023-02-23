@@ -107,7 +107,7 @@ folio:
         topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
         group-id: ${folio.environment}-mod-search-contributors-group
       subjects:
-        concurrency: ${KAFKA_SUBJECTS_CONCURRENCY:2}
+        concurrency: ${KAFKA_SUBJECTS_CONCURRENCY:1}
         topic-pattern: ${KAFKA_SUBJECTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-subject}
         group-id: ${folio.environment}-mod-search-subjects-group
   okapiUrl: ${okapi.url}

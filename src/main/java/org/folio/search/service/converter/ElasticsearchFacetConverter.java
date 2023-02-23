@@ -66,8 +66,8 @@ public class ElasticsearchFacetConverter {
   private static List<FacetItem> getFacetItemsFromParsedTerms(ParsedTerms parsedTerms) {
     var buckets = parsedTerms.getBuckets();
     return CollectionUtils.isNotEmpty(buckets)
-           ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).toList()
-           : emptyList();
+      ? buckets.stream().map(ElasticsearchFacetConverter::facetItem).toList()
+      : emptyList();
   }
 
   private static Facet facet(List<FacetItem> items) {

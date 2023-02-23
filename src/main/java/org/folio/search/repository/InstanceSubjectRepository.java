@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -28,7 +27,6 @@ import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
-@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
@@ -49,8 +47,8 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-           : getSuccessIndexOperationResponse();
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
   }
 
   private EnumMap<IndexActionType, Set<String>> prepareInstanceIds(List<SearchDocumentBody> documents) {

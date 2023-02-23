@@ -23,12 +23,14 @@ public class SearchSettingsHelper {
    * @return elasticsearch settings as {@link String} object with JSON object inside
    */
   public String getSettings(String resource) {
+    log.debug("getSettings:: by [resource: {}]", resource);
+
     var resourceSettings = localFileProvider.read(getIndexSettingsPath(resource));
     try {
       return jsonConverter.asJsonTree(resourceSettings).toString();
     } catch (SerializationException e) {
       throw new ResourceDescriptionException(String.format(
-        "Failed to load resource index settings [resourceName: %s]", resource));
+        "Failed to load resource index settings [resourceName: %s], msg: %s", resource, e.getMessage()));
     }
   }
 

@@ -11,7 +11,6 @@ import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Search resource repository with set of operation to create/modify/update index settings and mappings.
  */
-@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class IndexRepository {
@@ -54,8 +52,9 @@ public class IndexRepository {
       index, "createIndexApi");
 
     return createIndexResponse.isAcknowledged()
-           ? getSuccessFolioCreateIndexResponse(List.of(index))
-           : getErrorFolioCreateIndexResponse(List.of(index));
+      ? getSuccessFolioCreateIndexResponse(List.of(index))
+      : getErrorFolioCreateIndexResponse(List.of(index));
+
   }
 
   /**
@@ -72,8 +71,8 @@ public class IndexRepository {
       index, "putMappingsApi");
 
     return putMappingsResponse.isAcknowledged()
-           ? getSuccessIndexOperationResponse()
-           : getErrorIndexOperationResponse("Failed to put mappings");
+      ? getSuccessIndexOperationResponse()
+      : getErrorIndexOperationResponse("Failed to put mappings");
   }
 
   /**
@@ -84,7 +83,6 @@ public class IndexRepository {
    */
   @Cacheable(value = ES_INDICES_CACHE, key = "#index", unless = "#result == false")
   public boolean indexExists(String index) {
-    log.info("Checking that index exists [index: {}]", index);
     var request = new GetIndexRequest(index);
     return performExceptionalOperation(
       () -> elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),

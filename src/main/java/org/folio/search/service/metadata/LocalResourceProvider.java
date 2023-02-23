@@ -40,7 +40,8 @@ public class LocalResourceProvider implements MetadataResourceProvider {
 
   @Override
   public Map<String, SearchFieldType> getSearchFieldTypes() {
-    var typeReference = new TypeReference<Map<String, SearchFieldType>>() { };
+    var typeReference = new TypeReference<Map<String, SearchFieldType>>() {
+    };
     var fieldTypes = localFileProvider.readAsObject(INDEX_FIELD_TYPES_LOCATION, typeReference);
     if (fieldTypes == null) {
       throw new ResourceDescriptionException(String.format(
@@ -51,13 +52,13 @@ public class LocalResourceProvider implements MetadataResourceProvider {
 
   private void loadResourceDescriptions() {
     try {
+      log.debug("loadResourceDescriptions:: Attempting to load descriptions");
       this.resourceDescriptions = Stream.of(patternResolver.getResources(RESOURCE_DESCRIPTIONS_LOCATION_PATTERN))
         .filter(Resource::isReadable)
         .map(this::loadResourceDescription)
         .filter(Objects::nonNull)
         .toList();
     } catch (IOException e) {
-      log.error("Failed to read models [pattern: {}]", RESOURCE_DESCRIPTIONS_LOCATION_PATTERN);
       throw new ResourceDescriptionException(String.format(
         "Failed to read local files [pattern: %s]", RESOURCE_DESCRIPTIONS_LOCATION_PATTERN), e);
     }
@@ -68,7 +69,6 @@ public class LocalResourceProvider implements MetadataResourceProvider {
       return jsonConverter.readJson(is, ResourceDescription.class);
     } catch (IOException e) {
       var filename = resource.getFilename();
-      log.error("Failed to read resource [file: {}]", filename, e);
       throw new ResourceDescriptionException(String.format(
         "Failed to read resource [file: %s]", filename), e);
     }

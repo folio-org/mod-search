@@ -51,7 +51,6 @@ import lombok.SneakyThrows;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
-import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -194,8 +193,20 @@ public class TestUtils {
     return new SubjectBrowseItem().value(subject).totalRecords(totalRecords);
   }
 
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId) {
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).totalRecords(totalRecords);
+  }
+
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, boolean isAnchor) {
     return new SubjectBrowseItem().value(subject).totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
+                                                    boolean isAnchor) {
+    return new SubjectBrowseItem().value(subject)
+      .authorityId(authorityId)
+      .totalRecords(totalRecords)
+      .isAnchor(isAnchor);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
@@ -231,10 +242,6 @@ public class TestUtils {
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority, boolean isAnchor) {
     return new AuthorityBrowseItem().headingRef(heading).isAnchor(isAnchor).authority(authority);
-  }
-
-  public static AuthorityBrowseResult authorityBrowseResult(int size, List<AuthorityBrowseItem> items) {
-    return new AuthorityBrowseResult().items(items).totalRecords(size);
   }
 
   public static String randomId() {

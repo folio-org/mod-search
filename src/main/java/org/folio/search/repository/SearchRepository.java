@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Search resource repository with set of operation to perform search operations.
  */
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class SearchRepository {
@@ -142,11 +140,9 @@ public class SearchRepository {
   private void clearScrollAfterStreaming(String index, String scrollId) {
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
-    var clearScrollResponse = performExceptionalOperation(
-      () -> client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi");
-    if (!clearScrollResponse.isSucceeded()) {
-      log.warn("Failed to clear scroll [index: {}, scrollId: '{}']", index, scrollId);
-    }
+    performExceptionalOperation(() ->
+      client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi"
+    );
   }
 
   private static List<String> getResourceIds(SearchHit[] searchHits, String sourceFieldPath) {

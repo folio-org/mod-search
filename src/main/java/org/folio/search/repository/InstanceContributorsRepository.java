@@ -71,8 +71,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-           : getSuccessIndexOperationResponse();
+      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+      : getSuccessIndexOperationResponse();
   }
 
   private Script prepareScript(HashSet<String> instanceIdsToCreate, HashSet<String> instanceIdsToDelete) {

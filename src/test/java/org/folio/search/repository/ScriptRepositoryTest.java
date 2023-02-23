@@ -56,7 +56,7 @@ class ScriptRepositoryTest {
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[type=putScript, message: err]");
+        + "[index=null, type=putScript, message: err]");
   }
 
   @Test

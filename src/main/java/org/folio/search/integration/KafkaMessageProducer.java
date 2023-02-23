@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
@@ -60,12 +59,10 @@ public class KafkaMessageProducer {
 
   public void prepareAndSendSubjectEvents(List<ResourceEvent> resourceEvents) {
     if (isNotEmpty(resourceEvents)) {
-      var list = resourceEvents.stream()
+      resourceEvents.stream()
         .filter(Objects::nonNull)
         .map(this::getSubjectsEvents)
         .flatMap(List::stream)
-        .collect(Collectors.toList());
-      list
         .forEach(kafkaTemplate::send);
     }
   }

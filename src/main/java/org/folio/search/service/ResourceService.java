@@ -100,6 +100,7 @@ public class ResourceService {
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
     var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
     messageProducer.prepareAndSendContributorEvents(groupedByOperation.get(DELETE));
+    messageProducer.prepareAndSendSubjectEvents(groupedByOperation.get(DELETE));
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));

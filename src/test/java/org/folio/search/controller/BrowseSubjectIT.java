@@ -342,17 +342,16 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   void browseBySubject_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceSubjectBrowsePath())
       .param("query", prepareQuery("value < {value} or value >= {value}", "\"fantasy\""))
-      .param("limit", "5")
+      .param("limit", "4")
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(23).prev("Database management").next("Music")
+      .totalRecords(23).prev("Database management").next("History")
       .items(List.of(
         subjectBrowseItem(1, "Database management"),
         subjectBrowseItem(1, "Europe"),
         subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "History"),
-        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_2))));
+        subjectBrowseItem(3, "History"))));
   }
 }

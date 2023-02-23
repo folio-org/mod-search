@@ -100,7 +100,8 @@ public class KafkaMessageProducer {
   }
 
   private ResourceEvent convertToSubjectEvent(SubjectResourceEvent subject, String tenantId, ResourceEventType type) {
-    var id = sha1Hex(StringUtils.toRootLowerCase(subject.getValue() + subject.getAuthorityId()));
+    var stringForId = toRootLowerCase(tenantId + "|" + subject.getValue() + "|" + subject.getAuthorityId());
+    var id = sha1Hex(stringForId); //NOSONAR
     subject.setId(id);
     var resourceEvent = new ResourceEvent().type(type).tenant(tenantId).id(id)
       .resourceName(INSTANCE_SUBJECT_RESOURCE);

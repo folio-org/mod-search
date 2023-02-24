@@ -65,6 +65,27 @@ public class SearchUtils {
   public static final String KEYWORD_FIELD_INDEX = "keyword";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
+  //CHECKSTYLE.ON: LineLength
+  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT_ID = "instance_subject_upsert_script";
+  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT = """
+    {
+      "script": {
+        "lang": "painless",
+        "source": "def instanceIds=new LinkedHashSet(ctx._source.instances);instanceIds.addAll(params.ins);params.del.forEach(instanceIds::remove);if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instanceIds;"
+      }
+    }
+    """;
+  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID = "instance_contributors_upsert_script";
+  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT = """
+    {
+      "script" : {
+        "lang" : "painless",
+        "source" : "def instanceIds=new LinkedHashSet(ctx._source.instances);instanceIds.addAll(params.ins);params.del.forEach(instanceIds::remove);if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instanceIds;def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1]).sorted().collect(Collectors.toCollection(LinkedHashSet::new));ctx._source.contributorTypeId=typeIds"
+      }
+    }
+    """;
+  //CHECKSTYLE.OFF: LineLength
+
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
    *
@@ -295,7 +316,7 @@ public class SearchUtils {
    * @return true - if value is empty, false - otherwise
    */
   public static boolean isEmptyString(Object value) {
-    return value instanceof String && ((String) value).isEmpty();
+    return value instanceof String string && string.isEmpty();
   }
 
   /**
@@ -334,7 +355,7 @@ public class SearchUtils {
   }
 
   private static Object getMultilangValueObject(Object value) {
-    return value instanceof MultilangValue ? ((MultilangValue) value).getMultilangValues() : value;
+    return value instanceof MultilangValue v ? v.getMultilangValues() : value;
   }
 
   private static Object getPlainValueObject(Object value) {

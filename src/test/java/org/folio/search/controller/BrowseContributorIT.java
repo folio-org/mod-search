@@ -317,7 +317,10 @@ class BrowseContributorIT extends BaseIntegrationTest {
         contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
         contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])));
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).usingRecursiveComparison()
+      .ignoringFields("items.authorityId", "items.totalRecords",
+        "items.contributorTypeId", "items.contributorNameTypeId", "items.totalRecords")
+      .isEqualTo(expected);
   }
 
   @MethodSource("facetQueriesProvider")

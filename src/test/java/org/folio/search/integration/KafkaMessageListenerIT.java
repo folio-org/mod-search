@@ -68,7 +68,8 @@ import org.springframework.retry.annotation.EnableRetry;
     "KAFKA_EVENTS_CONSUMER_PATTERN="
       + "(${folio.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
     "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)inventory\\.authority",
-    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-contributors",
+    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-contributor",
+    "KAFKA_SUBJECTS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-subject",
     "folio.environment=${ENV:folio}",
     "folio.kafka.retry-interval-ms=10",
     "folio.kafka.retry-delivery-attempts=3",

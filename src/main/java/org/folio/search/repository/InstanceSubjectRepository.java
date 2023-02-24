@@ -8,27 +8,22 @@ import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
-import static org.opensearch.script.ScriptType.INLINE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_UPSERT_SCRIPT_ID;
+import static org.opensearch.script.ScriptType.STORED;
 
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.model.event.SubjectResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
-import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
@@ -36,15 +31,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
 
-  public static final String SCRIPT = "def instanceIds=new LinkedHashSet(ctx._source.instances);"
-    + "instanceIds.addAll(params.ins);"
-    + "params.del.forEach(instanceIds::remove);"
-    + "if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}"
-    + "ctx._source.instances=instanceIds;";
-
   private final SearchConfigurationProperties properties;
-  private final JsonConverter jsonConverter;
-  private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
@@ -68,7 +55,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     var instanceIds = prepareInstanceIdMap();
     for (var document : documents) {
       var eventPayload = getPayload(document);
-      var instanceId = eventPayload.getInstanceId();
+      var instanceId = String.valueOf(eventPayload.get("instanceId"));
       instanceIds.getOrDefault(document.getAction(), instanceIds.get(DELETE)).add(instanceId);
     }
     return instanceIds;
@@ -88,7 +75,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .scriptedUpsert(true)
       .retryOnConflict(properties.getIndexing().getInstanceSubjects().getRetryAttempts())
       .index(SearchUtils.getIndexName(INSTANCE_SUBJECT_RESOURCE, doc.getTenant()))
-      .script(new Script(INLINE, DEFAULT_SCRIPT_LANG, SCRIPT, prepareScriptParams(instanceIds)))
+      .script(new Script(STORED, null, INSTANCE_SUBJECT_UPSERT_SCRIPT_ID, prepareScriptParams(instanceIds)))
       .upsert(prepareDocumentBody(getPayload(doc), instanceIds), doc.getDataFormat().getXcontentType());
   }
 
@@ -96,17 +83,14 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     return Map.of("ins", instanceIds.get(INDEX), "del", instanceIds.get(DELETE));
   }
 
-  private byte[] prepareDocumentBody(SubjectResourceEvent payload, Map<IndexActionType, Set<String>> instanceIds) {
-    var resource = new SubjectResource();
-    resource.setId(payload.getId());
-    resource.setValue(payload.getValue());
-    resource.setInstances(subtract(instanceIds.get(INDEX), instanceIds.get(DELETE)));
-    resource.setAuthorityId(payload.getAuthorityId());
-    return BytesReference.toBytes(searchDocumentBodyConverter.apply(jsonConverter.convert(resource, Map.class)));
+  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload,
+                                                  Map<IndexActionType, Set<String>> instanceIds) {
+    payload.put("instances", subtract(instanceIds.get(INDEX), instanceIds.get(DELETE)));
+    payload.remove("instanceId");
+    return payload;
   }
 
-  private SubjectResourceEvent getPayload(SearchDocumentBody doc) {
-    return jsonConverter.fromJson(jsonConverter.toJson(getEventPayload(doc.getResourceEvent())),
-      SubjectResourceEvent.class);
+  private Map<String, Object> getPayload(SearchDocumentBody doc) {
+    return getEventPayload(doc.getResourceEvent());
   }
 }

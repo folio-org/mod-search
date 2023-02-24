@@ -38,6 +38,8 @@ class SearchTenantServiceTest {
   @Mock
   private IndexService indexService;
   @Mock
+  private ScriptService scriptService;
+  @Mock
   private FolioExecutionContext context;
   @Mock
   private PrepareSystemUserService prepareSystemUserService;
@@ -65,6 +67,7 @@ class SearchTenantServiceTest {
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
+    verify(scriptService).saveScripts();
     verify(indexService, never()).reindexInventory(TENANT_ID, null);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
@@ -84,6 +87,7 @@ class SearchTenantServiceTest {
     verify(languageConfigService, never()).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
     verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
+    verify(scriptService).saveScripts();
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }

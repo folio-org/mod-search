@@ -40,6 +40,11 @@
     <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
   </module>
 
+  <module name="SuppressWithPlainTextCommentFilter">
+    <property name="offCommentFormat" value='=\s+"""'/>
+    <property name="onCommentFormat" value='^\s+""";'/>
+  </module>
+
   <module name="NewlineAtEndOfFile"/>
 
   <module name="TreeWalker">

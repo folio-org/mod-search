@@ -28,6 +28,7 @@ public class SearchTenantService extends TenantService {
   private static final String REINDEX_PARAM_NAME = "runReindex";
 
   private final IndexService indexService;
+  private final ScriptService scriptService;
   private final KafkaAdminService kafkaAdminService;
   private final PrepareSystemUserService prepareSystemUserService;
   private final LanguageConfigService languageConfigService;
@@ -37,7 +38,8 @@ public class SearchTenantService extends TenantService {
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService, PrepareSystemUserService prepareSystemUserService,
+                             IndexService indexService, ScriptService scriptService,
+                             PrepareSystemUserService prepareSystemUserService,
                              LanguageConfigService languageConfigService,
                              CallNumberBrowseRangeService callNumberBrowseRangeService,
                              ResourceDescriptionService resourceDescriptionService,
@@ -45,6 +47,7 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
+    this.scriptService = scriptService;
     this.prepareSystemUserService = prepareSystemUserService;
     this.languageConfigService = languageConfigService;
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;
@@ -92,6 +95,7 @@ public class SearchTenantService extends TenantService {
   }
 
   private void createIndexesAndReindex(TenantAttributes tenantAttributes) {
+    scriptService.saveScripts();
     var resourceNames = resourceDescriptionService.getResourceNames();
     resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
     Stream.ofNullable(tenantAttributes.getParameters())

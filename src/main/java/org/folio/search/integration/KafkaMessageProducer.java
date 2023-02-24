@@ -13,6 +13,7 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
@@ -21,11 +22,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
+import org.folio.search.model.event.SubjectResourceEvent;
+import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -34,8 +39,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageProducer {
 
+  private static final String SUBJECTS_FIELD = "subjects";
   private static final String INSTANCE_CONTRIBUTOR_TOPIC_NAME = "search.instance-contributor";
+  private static final String INSTANCE_SUBJECTS_TOPIC_NAME = "search.instance-subject";
   private static final TypeReference<List<Contributor>> TYPE_REFERENCE = new TypeReference<>() { };
+  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
@@ -47,6 +55,58 @@ public class KafkaMessageProducer {
         .flatMap(List::stream)
         .forEach(kafkaTemplate::send);
     }
+  }
+
+  public void prepareAndSendSubjectEvents(List<ResourceEvent> resourceEvents) {
+    if (isNotEmpty(resourceEvents)) {
+      resourceEvents.stream()
+        .filter(Objects::nonNull)
+        .map(this::getSubjectsEvents)
+        .flatMap(List::stream)
+        .forEach(kafkaTemplate::send);
+    }
+  }
+
+  private List<ProducerRecord<String, ResourceEvent>> getSubjectsEvents(ResourceEvent event) {
+    var oldSubjects = extractSubjects(getOldAsMap(event));
+    var newSubjects = extractSubjects(getNewAsMap(event));
+    var tenantId = event.getTenant();
+    var subjectsCreate = getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE);
+    var subjectsDelete = getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE);
+    var topicName = getTenantTopicName(INSTANCE_SUBJECTS_TOPIC_NAME, tenantId);
+    return StreamEx.of(subjectsCreate)
+      .append(subjectsDelete)
+      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
+      .toList();
+  }
+
+  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap) {
+    var contributorsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
+    var subjectResourceEvents = jsonConverter.convert(contributorsObject, TYPE_REFERENCE_SUBJECT);
+    subjectResourceEvents.forEach(
+      subjectResourceEvent -> {
+        subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
+        subjectResourceEvent.setValue(StringUtils.trim(subjectResourceEvent.getValue()));
+      });
+    return subjectResourceEvents;
+  }
+
+  private Stream<ResourceEvent> getSubjectsAsStreamSubtracting(List<SubjectResourceEvent> subjects,
+                                                               List<SubjectResourceEvent> subjectsToRemove,
+                                                               String tenantId, ResourceEventType eventType) {
+    return CollectionUtils.subtract(subjects, subjectsToRemove).stream()
+      .filter(subject -> StringUtils.isNotBlank(subject.getValue()))
+      .map(subject -> convertToSubjectEvent(subject, tenantId, eventType));
+  }
+
+  private ResourceEvent convertToSubjectEvent(SubjectResourceEvent subject, String tenantId, ResourceEventType type) {
+    var stringForId = toRootLowerCase(tenantId + "|" + subject.getValue() + "|" + subject.getAuthorityId());
+    var id = sha1Hex(stringForId); //NOSONAR
+    subject.setId(id);
+    var resourceEvent = new ResourceEvent().type(type).tenant(tenantId).id(id)
+      .resourceName(INSTANCE_SUBJECT_RESOURCE);
+    var body = jsonConverter.convert(subject, Map.class);
+    return type == CREATE ? resourceEvent._new(body) : resourceEvent.old(body);
   }
 
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {

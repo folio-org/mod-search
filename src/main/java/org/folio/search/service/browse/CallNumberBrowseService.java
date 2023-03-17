@@ -16,6 +16,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -56,6 +57,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
 
+    if (precedingResult.getTotalRecords() == 0) {
+      log.debug("browseAround:: preceding result are empty: Do additional requests");
+      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
+    }
+
     if (TRUE.equals(request.getHighlightMatch())) {
       var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
@@ -74,6 +80,25 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
     return browseItem.getShelfKey();
+  }
+
+  private BrowseResult<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
+                                                                         BrowseContext context,
+                                                                         SearchSourceBuilder precedingQuery) {
+    BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
+
+    while (precedingResult.getTotalRecords() == 0) {
+      var offset = precedingQuery.from() + precedingQuery.size();
+      log.debug("additionalPrecedingRequests:: request offset {}", offset);
+
+      var searchResponse = searchRepository.search(request, precedingQuery.from(offset));
+      if (searchResponse.getHits().getTotalHits().value == 0) {
+        log.debug("additionalPrecedingRequests:: response have no records");
+        break;
+      }
+      precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+    }
+    return precedingResult;
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

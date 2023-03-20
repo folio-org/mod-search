@@ -87,11 +87,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
                                                                          SearchSourceBuilder precedingQuery) {
     BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
 
-    while (precedingResult.getRecords().isEmpty() || precedingResult.getTotalRecords() == 0) {
+    while (precedingResult.getRecords().isEmpty()) {
       int offset = precedingQuery.from() + precedingQuery.size();
       log.debug("additionalPrecedingRequests:: request offset {}", offset);
+      precedingQuery.from(offset);
 
-      var searchResponse = searchRepository.search(request, precedingQuery.from(offset));
+      var searchResponse = searchRepository.search(request, precedingQuery);
       var totalHits = searchResponse.getHits().getTotalHits();
       if (totalHits == null || totalHits.value == 0) {
         log.debug("additionalPrecedingRequests:: response have no records");

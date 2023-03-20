@@ -106,6 +106,27 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
+  void browse_positive_around_additionalRequest_when_emptyPrecedingResults() {
+    var request = request("callNumber >= A 11 or callNumber < A 11", true);
+    var precedingResult = BrowseResult.of(1, browseItems());
+    var additionalPrecedingResult = BrowseResult.of(1, browseItems("B"));
+    var succeedingResult = BrowseResult.of(1, browseItems("A 11"));
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "A 11"));
+
+    prepareMockForBrowsingAround(request, contextAroundIncluding(), precedingResult, succeedingResult);
+    prepareMockForAdditionalRequest(request, contextAroundIncluding(), additionalPrecedingResult);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
+      cnBrowseItem(instance("B"), "B"),
+      cnBrowseItem(instance("A 11"), "A 11", true)
+    )));
+  }
+
+  @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
@@ -271,6 +292,12 @@ class CallNumberBrowseServiceTest {
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
     when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
     when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
+  }
+
+  private void prepareMockForAdditionalRequest(BrowseRequest request, BrowseContext context,
+                                               BrowseResult<CallNumberBrowseItem> additionalResult) {
+    when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(additionalResult);
   }
 
   private static MultiSearchResponse msearchResponse(SearchResponse... responses) {

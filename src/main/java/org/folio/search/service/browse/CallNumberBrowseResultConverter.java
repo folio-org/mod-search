@@ -67,10 +67,7 @@ public class CallNumberBrowseResultConverter {
       ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates, isBrowsingForward)
       : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
-    var collapsedItems = collapseCallNumberBrowseItems(populatedItems);
-    return browseResult
-      .records(collapsedItems)
-      .totalRecords(collapsedItems.size());
+    return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
 
   private CallNumberBrowseItem mapToBrowseItem(SearchHit searchHit, Instance instance) {

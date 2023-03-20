@@ -70,12 +70,12 @@ class CallNumberBrowseResultConverterTest {
                                       List<CallNumberBrowseItem> expected) {
     when(searchResponse.getHits()).thenReturn(searchHits);
     when(searchHits.getHits()).thenReturn(hits.toArray(SearchHit[]::new));
-    when(searchHits.getTotalHits()).thenReturn(new TotalHits(100, Relation.EQUAL_TO));
+    when(searchHits.getTotalHits()).thenReturn(new TotalHits(hits.size(), Relation.EQUAL_TO));
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(true);
 
     var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
+    assertThat(actual).isEqualTo(BrowseResult.of(expected.size(), expected));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
@@ -116,7 +116,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("B1", "B2", "C2"), "B1"),
       cnBrowseItem(instance("C1", "C2"), "C1"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
@@ -135,7 +135,7 @@ class CallNumberBrowseResultConverterTest {
 
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("B1", "B2"), "B2"),
       cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
     verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());

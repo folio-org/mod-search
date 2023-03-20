@@ -92,7 +92,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       log.debug("additionalPrecedingRequests:: request offset {}", offset);
 
       var searchResponse = searchRepository.search(request, precedingQuery.from(offset));
-      if (searchResponse.getHits().getTotalHits().value == 0) {
+      if (searchResponse == null || searchResponse.getHits().getTotalHits().value == 0) {
         log.debug("additionalPrecedingRequests:: response have no records");
         break;
       }

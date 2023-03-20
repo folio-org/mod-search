@@ -307,7 +307,7 @@ class CallNumberBrowseServiceTest {
     when(precedingQuery.from()).thenReturn(1);
     when(precedingQuery.from(anyInt())).thenReturn(precedingQuery);
     when(additionalResponse.getHits()).thenReturn(mockHits);
-    when(mockHits.getTotalHits()).thenReturn(new TotalHits(1L, EQUAL_TO));
+    when(mockHits.getTotalHits()).thenReturn(new TotalHits(additionalResult.getTotalRecords(), EQUAL_TO));
 
     when(searchRepository.search(request, precedingQuery)).thenReturn(additionalResponse);
     when(browseResultConverter.convert(additionalResponse, context, false)).thenReturn(additionalResult);

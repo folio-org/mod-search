@@ -57,7 +57,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
 
-    if (precedingResult.getRecords().size() == 0 && precedingResult.getTotalRecords() > 0) {
+    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
       log.debug("browseAround:: preceding result are empty: Do additional requests");
       precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
     }
@@ -87,7 +87,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
                                                                          SearchSourceBuilder precedingQuery) {
     BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
 
-    while (precedingResult.getRecords().size() == 0) {
+    while (precedingResult.getRecords().isEmpty() || precedingResult.getTotalRecords() == 0) {
       int offset = precedingQuery.from() + precedingQuery.size();
       log.debug("additionalPrecedingRequests:: request offset {}", offset);
 

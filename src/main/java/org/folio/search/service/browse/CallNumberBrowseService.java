@@ -87,8 +87,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
                                                                          SearchSourceBuilder precedingQuery) {
     BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
 
-    while (precedingResult.getTotalRecords() == 0) {
-      var offset = precedingQuery.from() + precedingQuery.size();
+    while (precedingResult.getRecords().size() == 0) {
+      int offset = precedingQuery.from() + precedingQuery.size();
       log.debug("additionalPrecedingRequests:: request offset {}", offset);
 
       var searchResponse = searchRepository.search(request, precedingQuery.from(offset));

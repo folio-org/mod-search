@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -28,6 +29,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
+  private final SearchConfigurationProperties searchConfigurationProperties;
 
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
@@ -89,8 +91,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     while (precedingResult.getRecords().isEmpty()) {
       int offset = precedingQuery.from() + precedingQuery.size();
-      log.debug("additionalPrecedingRequests:: request offset {}", offset);
-      precedingQuery.from(offset);
+      int size = searchConfigurationProperties.getBrowseCnAdditionalRequestSize() * 2;
+      log.debug("additionalPrecedingRequests:: request offset {}, size {}", offset, size);
+      precedingQuery.from(offset).size(size);
 
       var searchResponse = searchRepository.search(request, precedingQuery);
       var totalHits = searchResponse.getHits().getTotalHits();

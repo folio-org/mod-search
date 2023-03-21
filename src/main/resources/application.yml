@@ -56,6 +56,7 @@ folio:
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
+    browse-cn-additional-request-size: ${BROWSE_CN_ADDITIONAL_REQUEST_SIZE:100}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}

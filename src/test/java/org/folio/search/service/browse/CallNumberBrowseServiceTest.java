@@ -16,7 +16,6 @@ import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
 import org.apache.lucene.search.TotalHits;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
@@ -55,8 +54,6 @@ class CallNumberBrowseServiceTest {
   private CallNumberBrowseQueryProvider browseQueryProvider;
   @Mock
   private CallNumberBrowseResultConverter browseResultConverter;
-  @Mock
-  private SearchConfigurationProperties searchConfigurationProperties;
 
   @Mock
   private SearchResponse additionalResponse;
@@ -313,7 +310,6 @@ class CallNumberBrowseServiceTest {
     when(mockHits.getTotalHits()).thenReturn(new TotalHits(additionalResult.getTotalRecords(), EQUAL_TO));
 
     when(searchRepository.search(request, precedingQuery)).thenReturn(additionalResponse);
-    when(searchConfigurationProperties.getBrowseCnAdditionalRequestSize()).thenReturn(5);
     when(browseResultConverter.convert(additionalResponse, context, false)).thenReturn(additionalResult);
   }
 

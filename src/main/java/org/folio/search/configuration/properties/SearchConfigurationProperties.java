@@ -37,14 +37,6 @@ public class SearchConfigurationProperties {
   private long maxSupportedLanguages = 5L;
 
   /**
-   * Provides an additional request size in case if call-numbers have the same shelving order long value.
-   * The value doubles every request.
-   */
-  @Min(25)
-  @Max(1000)
-  private int browseCnAdditionalRequestSize = 100;
-
-  /**
    * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
   private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();

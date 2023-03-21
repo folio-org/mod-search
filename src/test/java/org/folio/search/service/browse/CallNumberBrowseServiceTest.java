@@ -1,17 +1,21 @@
 package org.folio.search.service.browse;
 
 import static java.util.Arrays.stream;
+import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
+import org.apache.lucene.search.TotalHits;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
@@ -30,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.z3950.zing.cql.CQLTermNode;
 
@@ -50,6 +55,8 @@ class CallNumberBrowseServiceTest {
   @Mock
   private CallNumberBrowseResultConverter browseResultConverter;
 
+  @Mock
+  private SearchResponse additionalResponse;
   @Mock
   private SearchResponse precedingResponse;
   @Mock
@@ -103,6 +110,27 @@ class CallNumberBrowseServiceTest {
       cnBrowseItem(instance("A 11"), "A 11"),
       cnBrowseItem(instance("B"), "B", true),
       cnBrowseItem(instance("C 11"), "C 11"))));
+  }
+
+  @Test
+  void browse_positive_around_additionalRequest_when_emptyPrecedingResults() {
+    var request = request("callNumber >= B or callNumber < B", true);
+    var precedingResult = BrowseResult.of(1, browseItems());
+    var additionalPrecedingResult = BrowseResult.of(1, browseItems("A"));
+    var succeedingResult = BrowseResult.of(1, browseItems("B"));
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
+
+    prepareMockForBrowsingAround(request, contextAroundIncluding(), precedingResult, succeedingResult);
+    prepareMockForAdditionalRequest(request, contextAroundIncluding(), additionalPrecedingResult);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
+      cnBrowseItem(instance("A"), "A"),
+      cnBrowseItem(instance("B"), "B", true)
+    )));
   }
 
   @Test
@@ -271,6 +299,18 @@ class CallNumberBrowseServiceTest {
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
     when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
     when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
+  }
+
+  private void prepareMockForAdditionalRequest(BrowseRequest request, BrowseContext context,
+                                               BrowseResult<CallNumberBrowseItem> additionalResult) {
+    var mockHits = mock(SearchHits.class);
+    when(precedingQuery.from()).thenReturn(1);
+    when(precedingQuery.from(anyInt())).thenReturn(precedingQuery);
+    when(additionalResponse.getHits()).thenReturn(mockHits);
+    when(mockHits.getTotalHits()).thenReturn(new TotalHits(additionalResult.getTotalRecords(), EQUAL_TO));
+
+    when(searchRepository.search(request, precedingQuery)).thenReturn(additionalResponse);
+    when(browseResultConverter.convert(additionalResponse, context, false)).thenReturn(additionalResult);
   }
 
   private static MultiSearchResponse msearchResponse(SearchResponse... responses) {

@@ -19,7 +19,7 @@ class ItemCallNumberProcessorTest {
 
   @Test
   void getFieldValue_multipleValue_positive() {
-    var eventBody = instance(item("HD 11"), item("HD 12"), item("HD 11"));
+    var eventBody = instance(item("PC 43553 A655 E5 41991 C 11"), item("HD 12"), item("HD 11"));
     var actual = callNumberProcessor.getFieldValue(eventBody);
     assertThat(actual).containsExactly(4408940162027048960L, 4408940181797658624L);
   }

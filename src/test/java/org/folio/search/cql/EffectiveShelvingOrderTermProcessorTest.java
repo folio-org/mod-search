@@ -16,7 +16,7 @@ class EffectiveShelvingOrderTermProcessorTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "A 11", "DA 3880", "A 210", "ZA 3123", "DA 3880 O6",
+    "PS3553.A655.E5 1991", "DA 3880", "A 210", "ZA 3123", "DA 3880 O6",
     "DA 3880 O6 J72", "E 211 N52 VOL 14", "F 43733 L370 41992",
     "E 12.11 I12 288 D", "CE 16 B6713 X 41993",
     "K 11 M44 V 270 NO 11 16 41984 JAN JUNE 11"

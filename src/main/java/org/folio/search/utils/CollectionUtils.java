@@ -209,6 +209,19 @@ public final class CollectionUtils {
   }
 
   /**
+   * Returns filtered list if set is not null or empty after filtration, null otherwise.
+   *
+   * @param nullableSet nullable value to check
+   * @param filter      predicate for filtering incoming set
+   * @param <T>         generic type for value
+   * @return list if it is not null or empty, null otherwise.
+   */
+  public static <T> List<T> toListSafe(Set<T> nullableSet, Predicate<T> filter) {
+    var filteredSet = nullableSet.stream().filter(filter).collect(Collectors.toSet());
+    return isEmpty(filteredSet) ? null : new ArrayList<>(filteredSet);
+  }
+
+  /**
    * Return the last element of the given list.
    *
    * @param list - list to process as {@link List} object

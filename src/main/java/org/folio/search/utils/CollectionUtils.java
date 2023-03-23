@@ -10,6 +10,7 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -206,6 +207,20 @@ public final class CollectionUtils {
    */
   public static <T> List<T> toListSafe(Set<T> nullableSet) {
     return isEmpty(nullableSet) ? null : new ArrayList<>(nullableSet);
+  }
+
+  /**
+   * Returns filtered list if set is not null or empty after filtration, null otherwise.
+   *
+   * @param nullableSet nullable value to check
+   * @param filter      predicate for filtering incoming set
+   * @param <T>         generic type for value
+   * @return list if it is not null or empty, null otherwise.
+   */
+  public static <T> List<T> toListSafe(Set<T> nullableSet, Predicate<T> filter) {
+    var filteredSet = Optional.ofNullable(nullableSet).orElse(Collections.emptySet()).stream()
+      .filter(filter).collect(Collectors.toSet());
+    return isEmpty(filteredSet) ? null : new ArrayList<>(filteredSet);
   }
 
   /**

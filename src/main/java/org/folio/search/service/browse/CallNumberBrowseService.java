@@ -8,6 +8,7 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -18,6 +19,7 @@ import org.folio.search.repository.SearchRepository;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {

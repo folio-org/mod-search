@@ -1,3 +1,13 @@
+## v2.0.1 2023-03-28
+### Bug fixes
+* Call number browse: do an additional query for preceding records when none returned ([MSEARCH-503](https://issues.folio.org/browse/MSEARCH-503))
+* Contributor browse: Stabilize response sorting order ([MSEARCH-510](https://issues.folio.org/browse/MSEARCH-510))
+
+### Dependencies
+* Bump `spring-boot-starter-parent` from `3.0.2` to `3.0.5`
+* Bump `spring-kafka` from `3.0.2` to `3.0.5`
+* Bump `folio-spring-base` from `6.0.0` to `6.1.0`
+
 ## v2.0.0 2023-02-16
 ### Breaking changes
 * Migration to Java 17 ([MSEARCH-468](https://issues.folio.org/browse/MSEARCH-468))

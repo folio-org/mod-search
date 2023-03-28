@@ -10,25 +10,34 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import java.util.regex.Pattern;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
-import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortMode;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
+  private static final String MISSING_LAST_PROP = "_last";
+  private static final String AUTHORITY_ID_FIELD = "authorityId";
+  private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
+  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "contributorTypeId";
+  private static final Pattern INSTANCES_FIELD_SPLIT_PATTERN = Pattern.compile("\\|");
+
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
-    var boolQuery = boolQuery()
-      .must(termQuery(request.getTargetField(), context.getAnchor()));
+    log.debug("getAnchorSearchQuery:: by [request: {}]", request);
+    var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
     return searchSource().query(boolQuery)
       .size(context.getLimit(context.isBrowsingForward()))
@@ -37,16 +46,22 @@ public class ContributorBrowseService extends
 
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
+    log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
+
     QueryBuilder query;
     if (ctx.getFilters().isEmpty()) {
       query = matchAllQuery();
     } else {
-      query = boolQuery();
-      ctx.getFilters().forEach(filter -> ((BoolQueryBuilder) query).filter(filter));
+      var boolQuery = boolQuery();
+      ctx.getFilters().forEach(boolQuery::filter);
+      query = boolQuery;
     }
     return searchSource().query(query)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), null, null, null})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }
@@ -62,7 +77,7 @@ public class ContributorBrowseService extends
     return BrowseResult.of(res)
       .map(item -> new InstanceContributorBrowseItem()
         .name(item.getName())
-        .contributorTypeId(toListSafe(item.getContributorTypeId()))
+        .contributorTypeId(toListSafe(item.getContributorTypeId(), s -> !s.equals("null")))
         .contributorNameTypeId(item.getContributorNameTypeId())
         .authorityId(item.getAuthorityId())
         .isAnchor(isAnchor)
@@ -75,6 +90,10 @@ public class ContributorBrowseService extends
   }
 
   private int calculateTotalRecords(ContributorResource item) {
-    return ((Long) item.getInstances().stream().map(id -> id.split("\\|")[0]).distinct().count()).intValue();
+    return ((Long) item.getInstances().stream()
+      .map(id -> INSTANCES_FIELD_SPLIT_PATTERN.split(id)[0])
+      .distinct()
+      .count()
+    ).intValue();
   }
 }

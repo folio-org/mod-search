@@ -8,6 +8,7 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -15,12 +16,15 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
+  private static final int ADDITIONAL_REQUEST_SIZE = 100;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
@@ -50,6 +54,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
 
+    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
+      log.debug("browseAround:: preceding result are empty: Do additional requests");
+      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
+    }
+
     if (TRUE.equals(request.getHighlightMatch())) {
       var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
@@ -68,6 +77,29 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
     return browseItem.getShelfKey();
+  }
+
+  private BrowseResult<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
+                                                                         BrowseContext context,
+                                                                         SearchSourceBuilder precedingQuery) {
+    BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
+    precedingQuery.size(ADDITIONAL_REQUEST_SIZE);
+
+    while (precedingResult.getRecords().isEmpty()) {
+      int offset = precedingQuery.from() + precedingQuery.size();
+      int size = precedingQuery.size() * 2;
+      log.debug("additionalPrecedingRequests:: request offset {}, size {}", offset, size);
+      precedingQuery.from(offset).size(size);
+
+      var searchResponse = searchRepository.search(request, precedingQuery);
+      var totalHits = searchResponse.getHits().getTotalHits();
+      if (totalHits == null || totalHits.value == 0) {
+        log.debug("additionalPrecedingRequests:: response have no records");
+        break;
+      }
+      precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+    }
+    return precedingResult;
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

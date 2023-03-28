@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.5</version>
     <relativePath />
   </parent>
 
@@ -34,13 +34,13 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>6.0.1</folio-spring-base.version>
+    <folio-spring-base.version>6.1.0</folio-spring-base.version>
     <folio-service-tools.version>3.0.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.5.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.6</folio-cql2pgjson.version>
     <opensearch.version>2.5.0</opensearch.version>
     <mapstruct.version>1.5.3.Final</mapstruct.version>
-    <spring-kafka.version>3.0.2</spring-kafka.version>
+    <spring-kafka.version>3.0.5</spring-kafka.version>
     <apache-commons-io.version>2.11.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.2</marc4j.version>

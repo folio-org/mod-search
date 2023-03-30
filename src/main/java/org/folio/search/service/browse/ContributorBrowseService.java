@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
 import static org.folio.search.utils.CollectionUtils.toListSafe;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -29,7 +30,6 @@ public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
   private static final String MISSING_LAST_PROP = "_last";
-  private static final String AUTHORITY_ID_FIELD = "authorityId";
   private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
   private static final String CONTRIBUTOR_TYPE_ID_FIELD = "contributorTypeId";
   private static final Pattern INSTANCES_FIELD_SPLIT_PATTERN = Pattern.compile("\\|");

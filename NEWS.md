@@ -1,3 +1,10 @@
+## v2.1.0 In progress
+### New APIs versions
+* Remove required `instance-authority-links`
+
+### Tech Dept
+* Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))
+
 ## v2.0.0 2023-02-16
 ### Breaking changes
 * Migration to Java 17 ([MSEARCH-468](https://issues.folio.org/browse/MSEARCH-468))

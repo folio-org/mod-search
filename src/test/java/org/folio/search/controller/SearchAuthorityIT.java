@@ -5,14 +5,22 @@ import static org.folio.search.sample.SampleAuthorities.getAuthorityNaturalId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySourceFileId;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import java.util.List;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
+import org.folio.search.domain.dto.Contributor;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.SeriesItem;
+import org.folio.search.domain.dto.Subject;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -33,6 +41,21 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare() {
     setUpTenant(Authority.class, 30, getAuthoritySampleAsMap());
+
+    //set up linked instances
+    var instance1 = new Instance().id(randomId()).title("test-resource")
+      .subjects(List.of(new Subject().value("s1").authorityId(getAuthoritySampleId())));
+    var instance2 = new Instance().id(randomId()).title("test-resource")
+      .contributors(List.of(new Contributor().name("c1").authorityId(getAuthoritySampleId())));
+    var instance3 = new Instance().id(randomId()).title("test-resource")
+      .alternativeTitles(List.of(new AlternativeTitle().alternativeTitle("a1").authorityId(getAuthoritySampleId())));
+    var instance4 = new Instance().id(randomId()).title("test-resource")
+      .series(List.of(new SeriesItem().value("s1").authorityId(getAuthoritySampleId())));
+
+    inventoryApi.createInstance(TENANT_ID, instance1);
+    inventoryApi.createInstance(TENANT_ID, instance2);
+    inventoryApi.createInstance(TENANT_ID, instance3);
+    inventoryApi.createInstance(TENANT_ID, instance4);
   }
 
   @AfterAll
@@ -61,43 +84,43 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).asList().containsOnly(
-      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 0),
+      authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 4),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name", null),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal name", null),
 
-      authority("Personal Name", AUTHORIZED_TYPE, "a personal title", 0),
+      authority("Personal Name", AUTHORIZED_TYPE, "a personal title", 4),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal title", null),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal title", null),
 
-      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name", 0),
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate name", 4),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate name", null),
       authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate name", null),
 
-      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title", 0),
+      authority("Corporate Name", AUTHORIZED_TYPE, "a corporate title", 4),
       authority("Corporate Name", REFERENCE_TYPE, "a sft corporate title", null),
       authority("Corporate Name", AUTH_REF_TYPE, "a saft corporate title", null),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a conference name", 0),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference name", 4),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference name", null),
       authority("Conference Name", AUTH_REF_TYPE, "a saft conference name", null),
 
-      authority("Conference Name", AUTHORIZED_TYPE, "a conference title", 0),
+      authority("Conference Name", AUTHORIZED_TYPE, "a conference title", 4),
       authority("Conference Name", REFERENCE_TYPE, "a sft conference title", null),
       authority("Conference Name", AUTH_REF_TYPE, "a saft conference title", null),
 
-      authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name", 0),
+      authority("Geographic Name", AUTHORIZED_TYPE, "a geographic name", 4),
       authority("Geographic Name", REFERENCE_TYPE, "a sft geographic name", null),
       authority("Geographic Name", AUTH_REF_TYPE, "a saft geographic name", null),
 
-      authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title", 0),
+      authority("Uniform Title", AUTHORIZED_TYPE, "an uniform title", 4),
       authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title", null),
       authority("Uniform Title", AUTH_REF_TYPE, "a saft uniform title", null),
 
-      authority("Topical", AUTHORIZED_TYPE, "a topical term", 0),
+      authority("Topical", AUTHORIZED_TYPE, "a topical term", 4),
       authority("Topical", REFERENCE_TYPE, "a sft topical term", null),
       authority("Topical", AUTH_REF_TYPE, "a saft topical term", null),
 
-      authority("Genre", AUTHORIZED_TYPE, "a genre term", 0),
+      authority("Genre", AUTHORIZED_TYPE, "a genre term", 4),
       authority("Genre", REFERENCE_TYPE, "a sft genre term", null),
       authority("Genre", AUTH_REF_TYPE, "a saft genre term", null)
     );

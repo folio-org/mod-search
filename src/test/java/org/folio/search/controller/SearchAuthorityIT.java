@@ -5,6 +5,7 @@ import static org.folio.search.sample.SampleAuthorities.getAuthorityNaturalId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySourceFileId;
+import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -56,6 +57,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     inventoryApi.createInstance(TENANT_ID, instance2);
     inventoryApi.createInstance(TENANT_ID, instance3);
     inventoryApi.createInstance(TENANT_ID, instance4);
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), 4);
   }
 
   @AfterAll

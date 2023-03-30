@@ -58,13 +58,12 @@ class AuthoritySearchResponsePostProcessorTest {
 
   @Test
   void shouldSetNumberOfTitles_whenProcessAuthorizedAuthoritiesThatHaveInstanceReferences() {
-    var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
-    var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
-
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
     mockSearchResponse(10, 11);
 
+    var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
+    var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
     processor.process(List.of(authority1, authority2));
 
     assertThat(authority1).extracting(Authority::getNumberOfTitles).isEqualTo(10);
@@ -73,13 +72,13 @@ class AuthoritySearchResponsePostProcessorTest {
 
   @Test
   void shouldSetNumberOfTitlesTo0_whenProcessAuthorizedAuthoritiesThatDoNotHaveInstanceReferences() {
-    var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
-    var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
     mockSearchResponse(0, null);
 
+    var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
+    var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
     processor.process(List.of(authority1, authority2));
 
     assertThat(authority1).extracting(Authority::getNumberOfTitles).isEqualTo(0);

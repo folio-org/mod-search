@@ -49,10 +49,7 @@
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/authorities",
-          "permissionsRequired": [ "search.authorities.collection.get" ],
-          "modulePermissions": [
-            "instance-authority-links.authorities.bulk.post"
-          ]
+          "permissionsRequired": [ "search.authorities.collection.get" ]
         },
         {
           "methods": [ "GET" ],
@@ -114,10 +111,7 @@
         {
           "methods": [ "GET" ],
           "pathPattern": "/browse/authorities",
-          "permissionsRequired": [ "browse.authorities.collection.get" ],
-          "modulePermissions": [
-            "instance-authority-links.authorities.bulk.post"
-          ]
+          "permissionsRequired": [ "browse.authorities.collection.get" ]
         }
       ]
     },
@@ -222,10 +216,6 @@
     {
       "id": "instance-reindex",
       "version": "0.1"
-    },
-    {
-      "id": "instance-authority-links",
-      "version": "1.0"
     }
   ],
   "permissionSets": [

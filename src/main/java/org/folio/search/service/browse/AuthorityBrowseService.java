@@ -2,6 +2,8 @@ package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
+import static org.folio.search.model.index.AuthRefType.REFERENCE;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -31,7 +33,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<AuthorityBrowseItem, Authority> {
 
-  private static final TermsQueryBuilder FILTER_QUERY = termsQuery("authRefType", List.of("Authorized", "Reference"));
+  private static final TermsQueryBuilder FILTER_QUERY = termsQuery("authRefType",
+    List.of(AUTHORIZED.getTypeValue(), REFERENCE.getTypeValue()));
 
   private final SearchFieldProvider searchFieldProvider;
 

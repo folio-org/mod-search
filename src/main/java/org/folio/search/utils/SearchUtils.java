@@ -2,18 +2,15 @@ package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 
 import com.google.common.base.CaseFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,9 +27,6 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
-import org.opensearch.search.aggregations.bucket.terms.ParsedTerms;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
@@ -53,6 +47,7 @@ public class SearchUtils {
   public static final String SUBJECT_BROWSING_FIELD = "value";
   public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
+  public static final String AUTHORITY_ID_FIELD = "authorityId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
@@ -317,24 +312,6 @@ public class SearchUtils {
    */
   public static boolean isEmptyString(Object value) {
     return value instanceof String string && string.isEmpty();
-  }
-
-  /**
-   * Get subject count from count search request.
-   *
-   * @param searchResponse - search response as {@link SearchResponse} object.
-   * @return map with key as the subject name, value as the related subject count.
-   */
-  public static Map<String, Long> getSubjectCounts(SearchResponse searchResponse) {
-    return Optional.ofNullable(searchResponse)
-      .map(SearchResponse::getAggregations)
-      .map(aggregations -> aggregations.get(SUBJECT_AGGREGATION_NAME))
-      .filter(ParsedTerms.class::isInstance)
-      .map(ParsedTerms.class::cast)
-      .map(ParsedTerms::getBuckets)
-      .stream()
-      .flatMap(Collection::stream)
-      .collect(toMap(Bucket::getKeyAsString, Bucket::getDocCount));
   }
 
   /**

@@ -78,6 +78,26 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
+  //https://issues.folio.org/browse/MSEARCH-513
+  @Test
+  void browseByCallNumber_browsingVeryFirstCallNumberWithNoException() {
+    var request = get(instanceCallNumberBrowsePath())
+        .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "\"AB 14 C72 NO 220\""))
+        .param("limit", "10")
+        .param("highlightMatch", "true")
+        .param("expandAll", "true")
+        .param("precedingRecordsCount", "5");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+        .totalRecords(32).prev(null).next("CE 216 B6713 X 541993").items(List.of(
+            cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
+            cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
+            cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
+            cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+            cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993")
+        )));
+  }
+
   @Test
   void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceCallNumberBrowsePath())

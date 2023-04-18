@@ -90,7 +90,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
     precedingQuery.size(ADDITIONAL_REQUEST_SIZE);
 
-    while (precedingResult.getRecords().isEmpty() && precedingQuery.from() <= ADDITIONAL_REQEST_SIZE_MAX) {
+    while (precedingResult.getRecords().isEmpty() && precedingQuery.from() <= ADDITIONAL_REQUEST_SIZE_MAX) {
       int offset = precedingQuery.from() + precedingQuery.size();
       int size = precedingQuery.size() * 2;
       log.debug("additionalPrecedingRequests:: request offset {}, size {}", offset, size);

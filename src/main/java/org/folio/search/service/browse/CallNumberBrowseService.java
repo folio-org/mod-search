@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
-  private static final int ADDITIONAL_REQEST_SIZE_MAX = 500;
+  private static final int ADDITIONAL_REQUEST_SIZE_MAX = 500;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;

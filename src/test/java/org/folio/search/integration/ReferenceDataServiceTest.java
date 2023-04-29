@@ -28,6 +28,7 @@ import java.util.Set;
 import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.integration.ReferenceDataServiceTest.TestContextConfiguration;
 import org.folio.search.model.client.CqlQuery;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
 import org.folio.spring.DefaultFolioExecutionContext;
@@ -66,47 +67,47 @@ class ReferenceDataServiceTest {
   @Test
   void shouldCacheIdentifierTypeIds() {
     var isbnIdentifierNames = List.of("ISBN", "Invalid ISBN");
-    var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
-    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+    var query = CqlQuery.exactMatchAny(CqlQueryParam.NAME, isbnIdentifierNames);
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query, 100))
       .thenReturn(identifiersFetchResponse());
 
-    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME, isbnIdentifierNames);
     var expectedIdentifiers = Set.of(ISBN_IDENTIFIER_TYPE_ID, INVALID_ISBN_IDENTIFIER_TYPE_ID);
 
     assertThat(actual).isEqualTo(expectedIdentifiers);
 
-    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types");
+    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types:name");
     assertThat(cachedValue).isPresent().get().isEqualTo(expectedIdentifiers);
   }
 
   @Test
   void getReferenceData_negative_exceptionalResponseFromReferenceDataClient() {
     var isbnIdentifierNames = List.of("ISBN", "Invalid ISBN");
-    var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
+    var query = CqlQuery.exactMatchAny(CqlQueryParam.NAME, isbnIdentifierNames);
     var request = mock(Request.class);
-    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query, 100))
       .thenThrow(new Forbidden("invalid permission", request, null, emptyMap()));
 
-    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME, isbnIdentifierNames);
 
     assertThat(actual).isEmpty();
-    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types");
+    var cachedValue = getCachedValue(TENANT_ID + ":ISBN,Invalid ISBN:identifier_types:name");
     assertThat(cachedValue).isEmpty();
   }
 
   @Test
   void fetchAlternativeTitleIds_positive() {
     var isbnIdentifierNames = List.of("Uniform Title");
-    var query = CqlQuery.exactMatchAny("name", isbnIdentifierNames);
-    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query))
+    var query = CqlQuery.exactMatchAny(CqlQueryParam.NAME, isbnIdentifierNames);
+    when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query, 100))
       .thenReturn(alternativeTitlesTypesFetchResponse());
 
-    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, isbnIdentifierNames);
+    var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME, isbnIdentifierNames);
     var expectedIdentifiers = singleton(UNIFORM_ALTERNATIVE_TITLE_ID);
 
     assertThat(actual).isEqualTo(expectedIdentifiers);
 
-    var cachedValue = getCachedValue(TENANT_ID + ":Uniform Title:identifier_types");
+    var cachedValue = getCachedValue(TENANT_ID + ":Uniform Title:identifier_types:name");
     assertThat(cachedValue).isPresent().get().isEqualTo(expectedIdentifiers);
   }
 

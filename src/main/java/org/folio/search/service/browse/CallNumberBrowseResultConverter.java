@@ -7,12 +7,12 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.toRootUpperCase;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
-import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
+import static org.folio.search.utils.CallNumberUtils.getEffectiveCallNumber;
+import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.folio.search.utils.CollectionUtils.distinctByKey;
 import static org.folio.search.utils.CollectionUtils.findFirst;
 import static org.folio.search.utils.CollectionUtils.reverse;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
-import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,8 +64,9 @@ public class CallNumberBrowseResultConverter {
     boolean removeIntermediateDuplicates = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES);
     var items = isBrowsingForward ? browseItems : reverse(browseItems);
     var populatedItems = includeIntermediateItems
-      ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates, isBrowsingForward)
-      : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
+                         ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates,
+      isBrowsingForward)
+                         : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
     return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
@@ -120,10 +121,10 @@ public class CallNumberBrowseResultConverter {
     return callNumbersStream.toList();
   }
 
-  private static CallNumberBrowseItem mapToCallNumberBrowseItem(
-    CallNumberBrowseItem browseItem, String shelfKey, Optional<Item> optionalOfItem) {
+  private static CallNumberBrowseItem mapToCallNumberBrowseItem(CallNumberBrowseItem browseItem, String shelfKey,
+                                                                Optional<Item> optionalOfItem) {
     return new CallNumberBrowseItem()
-      .shelfKey(normalizeValue(shelfKey))
+      .shelfKey(normalizeEffectiveShelvingOrder(shelfKey))
       .fullCallNumber(getFullCallNumber(optionalOfItem))
       .instance(browseItem.getInstance())
       .totalRecords(1);
@@ -135,7 +136,8 @@ public class CallNumberBrowseResultConverter {
         .map(Instance::getItems)
         .stream()
         .flatMap(Collection::stream)
-        .filter(item -> browseItem.getShelfKey().equals(normalizeValue(item.getEffectiveShelvingOrder())))
+        .filter(
+          item -> browseItem.getShelfKey().equals(normalizeEffectiveShelvingOrder(item.getEffectiveShelvingOrder())))
         .findFirst());
   }
 

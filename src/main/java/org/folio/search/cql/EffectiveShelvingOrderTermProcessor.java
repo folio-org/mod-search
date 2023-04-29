@@ -1,6 +1,6 @@
 package org.folio.search.cql;
 
-import static org.folio.search.service.setter.item.ItemEffectiveShelvingOrderProcessor.normalizeValue;
+import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 
 import java.util.Optional;
 import org.marc4j.callnum.CallNumber;
@@ -15,7 +15,7 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
   public String getSearchTerm(String inputTerm) {
     return getValidShelfKey(new LCCallNumber(inputTerm))
       .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
-      .orElse(normalizeValue(inputTerm))
+      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
       .trim();
   }
 

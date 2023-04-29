@@ -74,6 +74,10 @@
       "type": "string",
       "description": "A system generated normalization of the call number that allows for call number sorting in reports and search results"
     },
+    "itemLevelCallNumberTypeId": {
+      "type": "string",
+      "description": "Call number type id"
+    },
     "tags": {
       "description": "arbitrary tags associated with this item",
       "$ref": "tags.json"

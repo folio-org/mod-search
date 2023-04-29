@@ -18,7 +18,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -46,7 +46,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22OCLC%22%20or%20%22Cancelled%20OCLC%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22OCLC%22%20or%20%22Cancelled%20OCLC%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -70,7 +70,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISBN%22%20or%20%22Invalid%20ISBN%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22ISBN%22%20or%20%22Invalid%20ISBN%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -94,7 +94,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Control%20number%22%20or%20%22Other%20standard%20identifier%22%20or%20%22System%20control%20number%22%29"
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Control%20number%22%20or%20%22Other%20standard%20identifier%22%20or%20%22System%20control%20number%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -114,7 +114,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29"
+        "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -123,6 +123,27 @@
             {
               "id": "9d968396-0cce-4e9f-8867-c4d04c01f535",
               "name": "Uniform Title",
+              "source": "local"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/call-number-types?query=source%3D%3D%28%22local%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "callNumberTypes": [
+            {
+              "id": "5ba6b62e-6858-490a-8102-5b1369873835",
+              "name": "Shelving control number",
               "source": "local"
             }
           ]

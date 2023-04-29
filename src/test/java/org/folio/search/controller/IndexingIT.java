@@ -6,6 +6,8 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
+import static org.folio.search.model.client.CqlQueryParam.HOLDINGS_ID;
+import static org.folio.search.model.client.CqlQueryParam.ID;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
@@ -34,6 +36,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.Subject;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -75,8 +78,8 @@ class IndexingIT extends BaseIntegrationTest {
     return new Holding().id(HOLDING_IDS.get(i));
   }
 
-  private static void assertCountByQuery(String path, String field, List<String> ids, int expected) {
-    var query = exactMatchAny(field, ids).toString();
+  private static void assertCountByQuery(String path, CqlQueryParam param, List<String> ids, int expected) {
+    var query = exactMatchAny(param, ids).toString();
     await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
   }
 
@@ -133,8 +136,8 @@ class IndexingIT extends BaseIntegrationTest {
   void shouldRemoveHolding() {
     createInstances();
     inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
-    assertCountByQuery(instanceSearchPath(), "holdings.id", List.of(HOLDING_IDS.get(0)), 0);
-    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id", List.of(id), 1));
+    assertCountByQuery(instanceSearchPath(), HOLDINGS_ID, List.of(HOLDING_IDS.get(0)), 0);
+    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByQuery(instanceSearchPath(), HOLDINGS_ID, List.of(id), 1));
   }
 
   @Test
@@ -145,8 +148,8 @@ class IndexingIT extends BaseIntegrationTest {
     assertThat(isInstanceSubjectExistsById(getSubjectId(instanceIdToDelete))).isTrue();
 
     inventoryApi.deleteInstance(TENANT_ID, instanceIdToDelete);
-    assertCountByQuery(instanceSearchPath(), "id", List.of(instanceIdToDelete), 0);
-    assertCountByQuery(instanceSearchPath(), "id", INSTANCE_IDS.subList(1, 3), 2);
+    assertCountByQuery(instanceSearchPath(), ID, List.of(instanceIdToDelete), 0);
+    assertCountByQuery(instanceSearchPath(), ID, INSTANCE_IDS.subList(1, 3), 2);
 
     await(() -> assertThat(isInstanceSubjectExistsById(getSubjectId(instanceIdToDelete))).isFalse());
   }
@@ -158,11 +161,11 @@ class IndexingIT extends BaseIntegrationTest {
       .corporateName("corporate name").uniformTitle("uniform title");
     var resourceEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
-    assertCountByQuery(authoritySearchPath(), "id", List.of(authorityId), 3);
+    assertCountByQuery(authoritySearchPath(), ID, List.of(authorityId), 3);
 
     var deleteEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
-    assertCountByQuery(authoritySearchPath(), "id", List.of(authorityId), 0);
+    assertCountByQuery(authoritySearchPath(), ID, List.of(authorityId), 0);
   }
 
   @Test
@@ -242,7 +245,7 @@ class IndexingIT extends BaseIntegrationTest {
     instances.get(1).holdings(List.of(holdingsRecord(2), holdingsRecord(3)));
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    assertCountByQuery(instanceSearchPath(), "id", INSTANCE_IDS, 3);
+    assertCountByQuery(instanceSearchPath(), ID, INSTANCE_IDS, 3);
   }
 
   private void assertSubjectExistenceById(String subjectId, boolean isExists) {

@@ -22,13 +22,14 @@ public interface InventoryReferenceDataClient {
    * @return {@link  ResultList} with {@link  ReferenceRecord} object
    */
   @GetMapping
-  ResultList<ReferenceRecord> getReferenceData(URI uri, @RequestParam CqlQuery query);
+  ResultList<ReferenceRecord> getReferenceData(URI uri, @RequestParam CqlQuery query, @RequestParam int limit);
 
   @Getter
   enum ReferenceDataType {
 
     IDENTIFIER_TYPES("http://identifier-types"),
-    ALTERNATIVE_TITLE_TYPES("http://alternative-title-types");
+    ALTERNATIVE_TITLE_TYPES("http://alternative-title-types"),
+    CALL_NUMBER_TYPES("http://call-number-types");
 
     /**
      * Request URI for feign client.
@@ -49,4 +50,6 @@ public interface InventoryReferenceDataClient {
       return name().toLowerCase(Locale.ROOT);
     }
   }
+
+
 }

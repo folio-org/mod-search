@@ -19,7 +19,7 @@ import org.folio.search.configuration.properties.SearchQueryConfigurationPropert
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.service.setter.item.ItemCallNumberProcessor;
+import org.folio.search.utils.CallNumberUtils;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.script.Script;
 import org.opensearch.search.builder.SearchSourceBuilder;
@@ -36,7 +36,6 @@ public class CallNumberBrowseQueryProvider {
   private static final int MIN_QUERY_SIZE = 25;
 
   private final SearchFieldProvider searchFieldProvider;
-  private final ItemCallNumberProcessor callNumberProcessor;
   private final SearchQueryConfigurationProperties queryConfiguration;
   private final CallNumberBrowseRangeService callNumberBrowseRangeService;
 
@@ -73,7 +72,7 @@ public class CallNumberBrowseQueryProvider {
     log.debug("getQuery:: by [tenant: {}, size: {}, isBrowsingForward: {}]", tenantId, size, isBrowsingForward);
 
     var anchor = ctx.getAnchor();
-    var callNumberAsLong = callNumberProcessor.getCallNumberAsLong(anchor);
+    var callNumberAsLong = CallNumberUtils.getCallNumberAsLong(anchor);
     var rangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD);
     rangeQuery = isBrowsingForward ? rangeQuery.gte(callNumberAsLong) : rangeQuery.lte(callNumberAsLong);
 

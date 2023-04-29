@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.model.client.CqlQueryParam;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -47,7 +48,8 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
    * @return {@link List} of {@link String} identifier ids that matches names.
    */
   private Set<String> fetchIdentifierIdsFromCache() {
-    var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, getIdentifierNames());
+    var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
+      getIdentifierNames());
     if (identifierTypeIds.isEmpty()) {
       log.warn("Failed to provide identifiers for processor: {}]",
         this.getClass().getSimpleName());

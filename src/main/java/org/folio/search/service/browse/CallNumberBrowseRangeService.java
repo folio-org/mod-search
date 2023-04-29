@@ -25,7 +25,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.setter.item.ItemCallNumberProcessor;
+import org.folio.search.utils.CallNumberUtils;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.aggregations.bucket.range.ParsedRange;
 import org.opensearch.search.aggregations.bucket.range.Range.Bucket;
@@ -40,7 +40,6 @@ public class CallNumberBrowseRangeService {
 
   private static final String AGGREGATION_NAME = "cnRanges";
   private final SearchRepository searchRepository;
-  private final ItemCallNumberProcessor callNumberProcessor;
   private final Cache<String, List<CallNumberBrowseRangeValue>> cache;
 
   /**
@@ -92,7 +91,7 @@ public class CallNumberBrowseRangeService {
     log.debug("getCallNumberRanges:: by [tenant: {}]", tenantId);
 
     var callNumbersMap = concat(getCallNumbersRange('0', '9'), getCallNumbersRange('A', 'Z'))
-      .collect(toLinkedHashMap(identity(), callNumberProcessor::getCallNumberAsLong));
+      .collect(toLinkedHashMap(identity(), CallNumberUtils::getCallNumberAsLong));
     var searchSource = searchSource().from(0).size(0)
       .query(existsQuery(CALL_NUMBER_RANGE_FIELD))
       .aggregation(prepareRangeAggregation(callNumbersMap));

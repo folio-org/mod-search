@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.item;
 
+import static org.folio.search.utils.CallNumberUtils.normalizeCallNumberComponents;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
-import static org.folio.search.utils.SearchUtils.getNormalizedCallNumber;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +19,9 @@ public class ItemNormalizedCallNumbersProcessor implements FieldProcessor<Instan
       .filter(items -> items.getEffectiveCallNumberComponents() != null)
       .forEach(item -> {
         var itemCallNumber = item.getEffectiveCallNumberComponents();
-        result.add(getNormalizedCallNumber(itemCallNumber.getPrefix(), itemCallNumber.getCallNumber(),
+        result.add(normalizeCallNumberComponents(itemCallNumber.getPrefix(), itemCallNumber.getCallNumber(),
           itemCallNumber.getSuffix()));
-        result.add(getNormalizedCallNumber(itemCallNumber.getCallNumber(), itemCallNumber.getSuffix()));
+        result.add(normalizeCallNumberComponents(itemCallNumber.getCallNumber(), itemCallNumber.getSuffix()));
       });
     return result;
   }

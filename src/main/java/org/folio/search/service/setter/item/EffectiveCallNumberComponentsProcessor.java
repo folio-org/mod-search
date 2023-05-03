@@ -1,8 +1,8 @@
 package org.folio.search.service.setter.item;
 
 import static java.util.stream.Collectors.toSet;
+import static org.folio.search.utils.CallNumberUtils.getEffectiveCallNumber;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
-import static org.folio.search.utils.SearchUtils.getEffectiveCallNumber;
 
 import java.util.Objects;
 import java.util.Set;

@@ -304,6 +304,9 @@
           "index": "bool",
           "default": false
         },
+        "itemLevelCallNumberTypeId": {
+          "index": "keyword"
+        },
         "effectiveCallNumberComponents": {
           "type": "object",
           "properties": {
@@ -632,6 +635,12 @@
       "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
       "processor": "itemCallNumberProcessor"
     },
+    "typedCallNumber": {
+      "type": "search",
+      "index": "long",
+      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
+      "processor": "itemTypedCallNumberProcessor"
+    },
     "itemEffectiveShelvingOrder": {
       "type": "search",
       "index": "keyword",
@@ -671,6 +680,7 @@
 
       "sort_title", "sort_contributors",
       "callNumber",
+      "typedCallNumber",
       "itemEffectiveShelvingOrder",
 
       "alternativeTitles.alternativeTitle",

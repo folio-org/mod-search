@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ class UniformTitleProcessorTest {
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
-    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, UNIFORM_TITLES))
+    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, CqlQueryParam.NAME, UNIFORM_TITLES))
       .thenReturn(singleton(UNIFORM_TITLE_TYPE_ID));
     var actual = uniformTitleProcessor.getFieldValue(instance);
     assertThat(actual).containsExactlyElementsOf(expected);
@@ -73,7 +74,8 @@ class UniformTitleProcessorTest {
 
   @Test
   void getFieldValue_negative() {
-    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, UNIFORM_TITLES)).thenReturn(emptySet());
+    when(referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, CqlQueryParam.NAME, UNIFORM_TITLES))
+      .thenReturn(emptySet());
     var actual = uniformTitleProcessor.getFieldValue(new Instance().id(RESOURCE_ID)
       .alternativeTitles(List.of(alternativeTitle(UNIFORM_TITLE_TYPE_ID, "value"))));
     assertThat(actual).isEmpty();

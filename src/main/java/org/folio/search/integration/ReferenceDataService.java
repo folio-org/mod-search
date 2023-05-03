@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ReferenceRecord;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -20,16 +21,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReferenceDataService {
 
+  private static final int DEFAULT_LIMIT = 100;
+
   private final InventoryReferenceDataClient inventoryReferenceDataClient;
 
   @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
-             key = "@folioExecutionContext.tenantId + ':' + #names + ':' + #type.toString()")
-  public Set<String> fetchReferenceData(ReferenceDataType type, Collection<String> names) {
-    log.info("Fetching identifiers [identifierNames: {}]", names);
+             key = "@folioExecutionContext.tenantId + ':' + #values + ':' + #type.toString() + ':' + #param.toString()")
+  public Set<String> fetchReferenceData(ReferenceDataType type, CqlQueryParam param, Collection<String> values) {
+    log.info("Fetching reference [type: {}, field: {}, values: {}]", type.toString(), param.toString(), values);
     var uri = type.getUri();
-    var query = exactMatchAny("name", names);
+    var query = exactMatchAny(param, values);
     try {
-      return inventoryReferenceDataClient.getReferenceData(uri, query)
+      return inventoryReferenceDataClient.getReferenceData(uri, query, DEFAULT_LIMIT)
         .getResult().stream().map(ReferenceRecord::getId)
         .collect(toSet());
     } catch (Exception e) {

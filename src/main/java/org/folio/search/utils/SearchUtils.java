@@ -1,7 +1,6 @@
 package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
-import static java.util.stream.Collectors.joining;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 
@@ -12,12 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
@@ -193,34 +189,6 @@ public class SearchUtils {
    */
   public static boolean isMultilangFieldPath(String path) {
     return path != null && path.endsWith(".*");
-  }
-
-  /**
-   * Creates call number for passed prefix, call number and suffix.
-   *
-   * @param prefix     call number prefix
-   * @param callNumber call number value
-   * @param suffix     call number suffix
-   * @return created effective call number as {@link String} value
-   */
-  public static String getEffectiveCallNumber(String prefix, String callNumber, String suffix) {
-    return Stream.of(prefix, callNumber, suffix)
-      .filter(StringUtils::isNotBlank)
-      .map(String::trim)
-      .collect(joining(" "));
-  }
-
-  /**
-   * Creates normalized call number for passed call number parts (prefix, call number and suffix).
-   *
-   * @param callNumberValues array with full call number parts (prefix, call number and suffix)
-   * @return created normalized call number as {@link String} value
-   */
-  public static String getNormalizedCallNumber(String... callNumberValues) {
-    return Stream.of(callNumberValues)
-      .filter(StringUtils::isNotBlank)
-      .map(s -> s.toLowerCase().replaceAll("[^a-z\\d]", ""))
-      .collect(Collectors.joining(""));
   }
 
   /**

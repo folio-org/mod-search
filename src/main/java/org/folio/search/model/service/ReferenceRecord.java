@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ReferenceRecord {
   private String id;
   private String name;
+
 }

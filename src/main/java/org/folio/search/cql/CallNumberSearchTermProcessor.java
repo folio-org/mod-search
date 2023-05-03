@@ -1,7 +1,7 @@
 package org.folio.search.cql;
 
+import static org.folio.search.utils.CallNumberUtils.normalizeCallNumberComponents;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
-import static org.folio.search.utils.SearchUtils.getNormalizedCallNumber;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,6 +12,6 @@ public class CallNumberSearchTermProcessor implements SearchTermProcessor {
 
   @Override
   public String getSearchTerm(String inputTerm) {
-    return getNormalizedCallNumber(inputTerm) + ASTERISKS_SIGN;
+    return normalizeCallNumberComponents(inputTerm) + ASTERISKS_SIGN;
   }
 }

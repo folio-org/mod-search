@@ -7,7 +7,6 @@ import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
-import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.Collection;
@@ -22,6 +21,7 @@ import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.springframework.stereotype.Service;
@@ -62,7 +62,7 @@ public class ResourceFetchService {
     return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
       var instanceIdList = List.copyOf(eventsById.keySet());
       return partition(instanceIdList, BATCH_SIZE).stream()
-        .map(batchIds -> inventoryClient.getInstances(exactMatchAny(ID_FIELD, batchIds), batchIds.size()))
+        .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))
         .map(ResultList::getResult)
         .flatMap(instanceViews -> instanceViews.stream()
           .map(InstanceView::toInstance)

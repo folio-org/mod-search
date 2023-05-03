@@ -29,6 +29,7 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.spring.test.type.UnitTest;
@@ -62,7 +63,7 @@ class ResourceFetchServiceTest {
       .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))), true);
 
     when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
-    when(inventoryClient.getInstances(exactMatchAny("id", List.of(instanceId1, instanceId2)), 2))
+    when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instance1, instance2)));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
@@ -90,7 +91,7 @@ class ResourceFetchServiceTest {
     var instanceView = instanceView(new Instance().id(instanceId1).title("inst1"), null);
 
     when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
-    when(inventoryClient.getInstances(exactMatchAny("id", List.of(instanceId1, instanceId2)), 2))
+    when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
@@ -108,7 +109,7 @@ class ResourceFetchServiceTest {
     var instanceView = instanceView(new Instance().id(invalidId).title("inst1"), null);
 
     when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
-    when(inventoryClient.getInstances(exactMatchAny("id", List.of(id)), 1))
+    when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(id)), 1))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
     var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
@@ -127,7 +128,7 @@ class ResourceFetchServiceTest {
 
   @Test
   void fetchInstancesByIds_positive_withMoreThan50Resources() {
-    var events = generateResourceEvents(51);
+    var events = generateResourceEvents();
     var firstPartInstances = events.stream()
       .limit(50)
       .map(resourceEvent -> instanceView(new Instance().id(resourceEvent.getId()).title("test"), null))
@@ -174,9 +175,9 @@ class ResourceFetchServiceTest {
     return new InstanceView(instanceMap, holdingsMap, itemsMap, isBoundWith);
   }
 
-  private static List<ResourceEvent> generateResourceEvents(int number) {
+  private static List<ResourceEvent> generateResourceEvents() {
     return Stream.generate(() -> resourceEvent(randomId(), INSTANCE_RESOURCE, CREATE))
-      .limit(number)
+      .limit(51)
       .toList();
   }
 }

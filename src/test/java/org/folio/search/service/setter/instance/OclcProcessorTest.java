@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,11 +89,6 @@ class OclcProcessorTest {
     return identifier(CANCELED_OCLC_IDENTIFIER_TYPE_ID, value);
   }
 
-  private void mockFetchReferenceData(Set<String> referenceData) {
-    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, oclcProcessor.getIdentifierNames()))
-      .thenReturn(referenceData);
-  }
-
   @MethodSource("oclcDataProvider")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={2}")
   void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Instance instance, List<String> expected) {
@@ -110,5 +106,11 @@ class OclcProcessorTest {
     mockFetchReferenceData(emptySet());
     var actual = oclcProcessor.getFieldValue(instanceWithIdentifiers(oclc("123456")));
     assertThat(actual).isEmpty();
+  }
+
+  private void mockFetchReferenceData(Set<String> referenceData) {
+    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
+      oclcProcessor.getIdentifierNames()))
+      .thenReturn(referenceData);
   }
 }

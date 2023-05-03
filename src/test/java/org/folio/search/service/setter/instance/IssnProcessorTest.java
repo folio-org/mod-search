@@ -20,6 +20,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,7 +100,8 @@ class IssnProcessorTest {
   }
 
   private void mockFetchReferenceData(Set<String> referenceData) {
-    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, issnProcessor.getIdentifierNames()))
+    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
+      issnProcessor.getIdentifierNames()))
       .thenReturn(referenceData);
   }
 }

@@ -145,6 +145,16 @@
               "id": "5ba6b62e-6858-490a-8102-5b1369873835",
               "name": "Shelving control number",
               "source": "local"
+            },
+            {
+              "id": "6fd29f52-5c9c-44d0-b529-e9c5eb3a0aba",
+              "name": "Mykolaiv local number",
+              "source": "local"
+            },
+            {
+              "id": "654d7565-b277-4dfa-8b7d-fbf306d9d0cd",
+              "name": "Kharkiv local number",
+              "source": "local"
             }
           ]
         },

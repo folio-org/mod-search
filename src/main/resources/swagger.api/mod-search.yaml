@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Search API
-  version: v1
+  version: v2.1.0
   description: Search API
 
 servers:
@@ -82,7 +82,7 @@ paths:
           required: true
           in: path
           schema:
-            "$ref": "#/components/schemas/RecordType"
+            $ref: '#/components/schemas/RecordType'
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/facet-param'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -196,6 +196,12 @@ paths:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/highlight-match'
         - $ref: '#/components/parameters/preceding-records-count'
+        - in: query
+          name: callNumberType
+          description: Type of call number
+          required: false
+          schema:
+            $ref: '#/components/schemas/CallNumberType'
       responses:
         '200':
           description: 'Search result for browsing by call number'
@@ -528,7 +534,10 @@ components:
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
     RecordType:
-      enum: [ "instances", "authorities", "contributors" ]
+      enum: [ instances, authorities, contributors ]
+      type: string
+    CallNumberType:
+      enum: [ lc, dewey, nlm, sudoc, other, local ]
       type: string
 
   responses:

@@ -100,11 +100,6 @@
         },
         {
           "methods": [ "GET" ],
-          "pathPattern": "/browse/call-numbers-{callNumberType}/instances",
-          "permissionsRequired": [ "browse.call-numbers-types.instances.collection.get" ]
-        },
-        {
-          "methods": [ "GET" ],
           "pathPattern": "/browse/subjects/instances",
           "permissionsRequired": [ "browse.subjects.instances.collection.get" ]
         },
@@ -252,11 +247,6 @@
     {
       "permissionName": "browse.call-numbers.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by call number",
-      "description": "Browse instances by given query"
-    },
-    {
-      "permissionName": "browse.call-numbers-types.instances.collection.get",
-      "displayName": "Browse - provides collections of browse items for instance by call number types",
       "description": "Browse instances by given query"
     },
     {

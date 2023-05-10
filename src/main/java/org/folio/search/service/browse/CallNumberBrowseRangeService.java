@@ -5,7 +5,6 @@ import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.folio.search.service.browse.CallNumberBrowseQueryProvider.CALL_NUMBER_RANGE_FIELD;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
@@ -18,10 +17,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
 import org.folio.search.repository.SearchRepository;
@@ -51,25 +52,29 @@ public class CallNumberBrowseRangeService {
    * @param isBrowsingForward - browsing direction
    * @return {@link Optional} of {@link Long} value as range boundary
    */
-  public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, int size, boolean isBrowsingForward) {
+  public Optional<Long> getRangeBoundaryForBrowsing(String tenant, String anchor, String rangeField,
+                                                    Integer callNumberType, int size,
+                                                    boolean isBrowsingForward) {
     log.debug("getRangeBoundaryForBrowsing:: by [tenant: {}, anchor: {}, size: {}, isBrowsingForward: {}]",
       tenant, anchor, size, isBrowsingForward);
 
-    var ranges = getBrowseRanges(tenant);
+    var ranges = getBrowseRanges(tenant, rangeField, callNumberType);
     return isNotEmpty(ranges) && isRangeBoundaryCanBeProvided(anchor, isBrowsingForward, ranges)
-      ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
-      : Optional.empty();
+           ? Optional.ofNullable(getRangeBoundaryFromCachedValue(ranges, anchor, size, isBrowsingForward))
+           : Optional.empty();
   }
 
   /**
    * Provides call-number ranges as {@link Map} object.
    *
-   * @param tenantId - tenant id for call-number ranges retrieval
+   * @param tenantId       - tenant id for call-number ranges retrieval
    * @return {@link Map} with call-number ranges, where key is the lower boundary and the value is the amount of
    *   resources after it
    */
-  public List<CallNumberBrowseRangeValue> getBrowseRanges(String tenantId) {
-    return cache.get(tenantId, this::getCallNumberRanges);
+  public List<CallNumberBrowseRangeValue> getBrowseRanges(String tenantId, String rangeField,
+                                                          Integer callNumberType) {
+    var key = tenantId + ":" + rangeField + ":" + callNumberType;
+    return cache.get(key, this::getCallNumberRanges);
   }
 
   /**
@@ -78,7 +83,12 @@ public class CallNumberBrowseRangeService {
    * @param tenantId - tenant id as {@link String} object
    */
   public void evictRangeCache(String tenantId) {
-    cache.invalidate(tenantId);
+    var keysToEvict = cache.asMap().keySet().stream()
+      .filter(key -> key.startsWith(tenantId))
+      .collect(Collectors.toSet());
+    for (var key : keysToEvict) {
+      cache.invalidate(key);
+    }
   }
 
   private static boolean isRangeBoundaryCanBeProvided(
@@ -87,14 +97,18 @@ public class CallNumberBrowseRangeService {
       || anchor.compareTo(ranges.get(ranges.size() - 1).getKey()) < 0 && isBrowsingForward;
   }
 
-  private List<CallNumberBrowseRangeValue> getCallNumberRanges(String tenantId) {
-    log.debug("getCallNumberRanges:: by [tenant: {}]", tenantId);
+  private List<CallNumberBrowseRangeValue> getCallNumberRanges(String cacheKey) {
+    log.debug("getCallNumberRanges:: by [cacheKey: {}]", cacheKey);
+    var keyParts = StringUtils.split(cacheKey, ":");
+    var tenantId = keyParts[0];
+    var rangeField = keyParts[1];
+    var typeNumber = Integer.parseInt(keyParts[2]);
 
     var callNumbersMap = concat(getCallNumbersRange('0', '9'), getCallNumbersRange('A', 'Z'))
-      .collect(toLinkedHashMap(identity(), CallNumberUtils::getCallNumberAsLong));
+      .collect(toLinkedHashMap(identity(), callNumber -> CallNumberUtils.getCallNumberAsLong(callNumber, typeNumber)));
     var searchSource = searchSource().from(0).size(0)
-      .query(existsQuery(CALL_NUMBER_RANGE_FIELD))
-      .aggregation(prepareRangeAggregation(callNumbersMap));
+      .query(existsQuery(rangeField))
+      .aggregation(prepareRangeAggregation(rangeField, callNumbersMap));
     var searchResponse = searchRepository.search(SimpleResourceRequest.of(INSTANCE_RESOURCE, tenantId), searchSource);
 
     return Optional.ofNullable(searchResponse)
@@ -126,8 +140,8 @@ public class CallNumberBrowseRangeService {
     return IntStream.range(lower, upper + 1).mapToObj(character -> valueOf((char) character));
   }
 
-  private static RangeAggregationBuilder prepareRangeAggregation(Map<String, Long> callNumbersMap) {
-    var rangeAggregation = range(AGGREGATION_NAME).field(CALL_NUMBER_RANGE_FIELD);
+  private static RangeAggregationBuilder prepareRangeAggregation(String rangeField, Map<String, Long> callNumbersMap) {
+    var rangeAggregation = range(AGGREGATION_NAME).field(rangeField);
     var callNumbers = new ArrayList<>(callNumbersMap.keySet());
 
     for (int i = 0; i < callNumbers.size() - 1; i++) {
@@ -147,8 +161,8 @@ public class CallNumberBrowseRangeService {
                                                       String anchor, int expectedPageSize, boolean isBrowsingForward) {
     var foundPosition = getClosestPosition(ranges, CallNumberBrowseRangeValue.of(anchor, 0, 0), isBrowsingForward);
     return isBrowsingForward
-      ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
-      : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
+           ? getTopBoundaryForSucceedingQuery(ranges, expectedPageSize, foundPosition)
+           : getBottomBoundaryForPrecedingQuery(ranges, expectedPageSize, foundPosition);
   }
 
   private static Long getTopBoundaryForSucceedingQuery(List<CallNumberBrowseRangeValue> ranges, int size, int pos) {

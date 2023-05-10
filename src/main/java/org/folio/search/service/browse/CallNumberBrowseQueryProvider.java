@@ -3,6 +3,7 @@ package org.folio.search.service.browse;
 import static java.util.Collections.singletonMap;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
+import static org.folio.search.utils.CallNumberUtils.getCallNumberAsLong;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
@@ -18,8 +19,8 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.utils.CallNumberUtils;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.script.Script;
 import org.opensearch.search.builder.SearchSourceBuilder;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CallNumberBrowseQueryProvider {
 
-  public static final String CALL_NUMBER_RANGE_FIELD = "callNumber";
   private static final String SORT_SCRIPT_FOR_SUCCEEDING_QUERY = getSortingScript(true);
   private static final String SORT_SCRIPT_FOR_PRECEDING_QUERY = getSortingScript(false);
   private static final int MIN_QUERY_SIZE = 25;
@@ -57,7 +57,7 @@ public class CallNumberBrowseQueryProvider {
     var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
     var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isBrowsingForward) * multiplier));
     var searchSource = searchSource().from(0).size(pageSize)
-      .query(getQuery(ctx, request.getTenantId(), pageSize, isBrowsingForward))
+      .query(getQuery(ctx, request, pageSize, isBrowsingForward))
       .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {
@@ -68,18 +68,32 @@ public class CallNumberBrowseQueryProvider {
     return searchSource;
   }
 
-  private QueryBuilder getQuery(BrowseContext ctx, String tenantId, int size, boolean isBrowsingForward) {
-    log.debug("getQuery:: by [tenant: {}, size: {}, isBrowsingForward: {}]", tenantId, size, isBrowsingForward);
-
+  private QueryBuilder getQuery(BrowseContext ctx, BrowseRequest request, int size, boolean isBrowsingForward) {
+    log.debug("getQuery:: by [tenant: {}, size: {}, isBrowsingForward: {}]", request.getTenantId(), size,
+      isBrowsingForward);
     var anchor = ctx.getAnchor();
-    var callNumberAsLong = CallNumberUtils.getCallNumberAsLong(anchor);
-    var rangeQuery = rangeQuery(CALL_NUMBER_RANGE_FIELD);
-    rangeQuery = isBrowsingForward ? rangeQuery.gte(callNumberAsLong) : rangeQuery.lte(callNumberAsLong);
+    var refinedCondition = request.getRefinedCondition();
+    var callNumberType = CallNumberType.fromName(refinedCondition);
+    var cnTypeNumber = callNumberType.map(CallNumberType::getNumber).orElse(-1);
+    var callNumberAsLong = callNumberType
+      .map(cnt -> getCallNumberAsLong(anchor, cnt.getNumber()))
+      .orElse(getCallNumberAsLong(anchor));
+
+    var rangeQuery = rangeQuery(request.getSubField());
+    long defaultBoundary;
+    if (isBrowsingForward) {
+      defaultBoundary = getCallNumberAsLong("", cnTypeNumber + 1);
+      rangeQuery = rangeQuery.gte(callNumberAsLong).lte(defaultBoundary);
+    } else {
+      defaultBoundary = getCallNumberAsLong("", cnTypeNumber);
+      rangeQuery = rangeQuery.lte(callNumberAsLong).gte(defaultBoundary);
+    }
 
     if (queryConfiguration.isCallNumberBrowseOptimizationEnabled()) {
       var boundary = callNumberBrowseRangeService
-        .getRangeBoundaryForBrowsing(tenantId, anchor, size, isBrowsingForward)
-        .orElse(null);
+        .getRangeBoundaryForBrowsing(request.getTenantId(), anchor, request.getSubField(), cnTypeNumber, size,
+          isBrowsingForward)
+        .orElse(defaultBoundary == 0 ? null : defaultBoundary);
       rangeQuery = isBrowsingForward ? rangeQuery.lte(boundary) : rangeQuery.gte(boundary);
     }
 

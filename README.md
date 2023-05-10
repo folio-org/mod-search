@@ -691,21 +691,22 @@ In case where options are similar, secondary sort is used
 
 ### Browse API
 
-| METHOD | URL                              | DESCRIPTION                                                                                     |
-|:-------|:---------------------------------|:------------------------------------------------------------------------------------------------|
-| GET    | `/browse/subjects/instances`     | Browse by instance's subjects                                                                   |
-| GET    | `/browse/contributors/instances` | Browse by instance's contributors                                                               |
-| GET    | `/browse/call-numbers/instances` | Browse by instance's call-numbers. [call number browsing](doc/browsing.md#call-number-browsing) |
-| GET    | `/browse/authorities`            | Browse by authority's headings                                                                  |
+| METHOD | URL                                               | DESCRIPTION                                                                                            |
+|:-------|:--------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| GET    | `/browse/subjects/instances`                      | Browse by instance's subjects                                                                          |
+| GET    | `/browse/contributors/instances`                  | Browse by instance's contributors                                                                      |
+| GET    | `/browse/call-numbers/instances`                  | Browse by instance's call-numbers. [call number browsing](doc/browsing.md#call-number-browsing)        |
+| GET    | `/browse/authorities`                             | Browse by authority's headings                                                                         |
 
 **Query parameters**
 
-| Parameter             | Type    | Default value | Description                                                                          |
-|:----------------------|:--------|:--------------|:-------------------------------------------------------------------------------------|
-| query                 | string  | -             | A CQL query for browsing                                                             |
-| limit                 | integer | 100           | Number of records in response                                                        |
-| highlightMatch        | boolean | true          | Whether to highlight matched resource (or add empty object containing anchor) or not |
-| precedingRecordsCount | integer | limit / 2     | Amount of preceding records for browsing around                                      |
+| Parameter             | Type    | Default value | Possible values                     | Description                                                                          |
+|:----------------------|:--------|:--------------|:------------------------------------|:-------------------------------------------------------------------------------------|
+| query                 | string  | -             |                                     | A CQL query for browsing                                                             |
+| limit                 | integer | 100           |                                     | Number of records in response                                                        |
+| highlightMatch        | boolean | true          |                                     | Whether to highlight matched resource (or add empty object containing anchor) or not |
+| precedingRecordsCount | integer | limit / 2     |                                     | Amount of preceding records for browsing around                                      |
+| callNumberType        | string  | -             | lc, dewey, nlm, sudoc, other, local | Filters the result of call-number browse by it's type                                |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.

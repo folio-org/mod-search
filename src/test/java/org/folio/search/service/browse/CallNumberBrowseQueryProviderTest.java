@@ -95,7 +95,8 @@ class CallNumberBrowseQueryProviderTest {
   void get_positive_forwardWithEnabledOptimization() {
     var size = 25;
     when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
-    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, true)).thenReturn(Optional.of(100L));
+    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, RANGE_FIELD, -1, size, true))
+      .thenReturn(Optional.of(100L));
 
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
     var actual = mockCallNumberConversion(() -> queryProvider.get(request(true), context, true));
@@ -130,7 +131,8 @@ class CallNumberBrowseQueryProviderTest {
   void get_positive_backwardWithEnabledOptimization() {
     var size = 25;
     when(queryConfiguration.isCallNumberBrowseOptimizationEnabled()).thenReturn(true);
-    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, size, false)).thenReturn(Optional.of(100L));
+    when(browseRangeService.getRangeBoundaryForBrowsing(TENANT_ID, ANCHOR, RANGE_FIELD, -1, size, false))
+      .thenReturn(Optional.of(100L));
 
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
     var actual = mockCallNumberConversion(() -> queryProvider.get(request(true), context, false));
@@ -148,7 +150,7 @@ class CallNumberBrowseQueryProviderTest {
   }
 
   private static SearchSourceBuilder expectedSucceedingQuery(int size) {
-    return expectedSucceedingQuery(size, rangeQuery(RANGE_FIELD).gte(ANCHOR_AS_NUMBER));
+    return expectedSucceedingQuery(size, rangeQuery(RANGE_FIELD).gte(ANCHOR_AS_NUMBER).lte(0L));
   }
 
   private static SearchSourceBuilder expectedSucceedingQuery(int size, QueryBuilder queryBuilder) {
@@ -157,7 +159,7 @@ class CallNumberBrowseQueryProviderTest {
   }
 
   private static SearchSourceBuilder expectedPrecedingQuery(int size) {
-    return expectedPrecedingQuery(size, rangeQuery(RANGE_FIELD).lte(ANCHOR_AS_NUMBER));
+    return expectedPrecedingQuery(size, rangeQuery(RANGE_FIELD).gte(0L).lte(ANCHOR_AS_NUMBER));
   }
 
   private static SearchSourceBuilder expectedPrecedingQuery(int size, QueryBuilder queryBuilder) {
@@ -166,7 +168,12 @@ class CallNumberBrowseQueryProviderTest {
   }
 
   private static BrowseRequest request(boolean expandAll) {
-    return BrowseRequest.builder().resource(RESOURCE_NAME).tenantId(TENANT_ID).expandAll(expandAll).build();
+    return BrowseRequest.builder()
+      .resource(RESOURCE_NAME)
+      .tenantId(TENANT_ID)
+      .subField("callNumber")
+      .expandAll(expandAll)
+      .build();
   }
 
   private static String precedingQuerySortScript() {

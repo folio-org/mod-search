@@ -474,6 +474,7 @@
                 <interfaceOnly>true</interfaceOnly>
                 <useSpringBoot3>true</useSpringBoot3>
                 <requestMappingMode>api_interface</requestMappingMode>
+                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
               </configOptions>
             </configuration>
           </execution>

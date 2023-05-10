@@ -2,6 +2,9 @@
 ### New APIs versions
 * Remove required `instance-authority-links`
 
+### Features
+* Extend call-numbers browse endpoint to support filtering by types ([MSEARCH-514](https://issues.folio.org/browse/MSEARCH-514))
+
 ### Tech Dept
 * Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))
 

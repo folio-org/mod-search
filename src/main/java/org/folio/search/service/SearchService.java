@@ -42,8 +42,10 @@ public class SearchService {
     log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
     if (request.getOffset() + request.getLimit() > 10_000L) {
-      throw new RequestValidationException("The sum of limit and offset should not exceed 10000.",
+      var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
+      log.warn(validationException.getMessage());
+      throw validationException;
     }
     var resource = request.getResource();
     var requestTimeout = searchQueryConfiguration.getRequestTimeout();
@@ -57,11 +59,13 @@ public class SearchService {
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
+      log.info("search:: expandAll to include: {}]", includes);
       queryBuilder.fetchSource(includes, null);
     }
 
     var searchResponse = searchRepository.search(request, queryBuilder, preference);
-    return documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+    return documentConverter.convertToSearchResult(searchResponse, request.getResourceClass(),
+      request.getIncludeNumberOfTitles());
   }
 
   private String buildPreferenceKey(String tenantId, String resource, String query) {

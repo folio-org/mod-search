@@ -66,7 +66,7 @@ class SubjectBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, SubjectResource.class)).thenReturn(
+    when(documentConverter.convertToBrowseResult(searchResponse, SubjectResource.class)).thenReturn(
       searchResult(browseItems("s1", "s12", "s123", "s1234", "s12345", "s123456")));
 
     var browseSearchResult = subjectBrowseService.browse(request);
@@ -87,7 +87,7 @@ class SubjectBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, SubjectResource.class))
+    when(documentConverter.convertToBrowseResult(searchResponse, SubjectResource.class))
       .thenReturn(SearchResult.empty());
 
     var browseSearchResult = subjectBrowseService.browse(request);
@@ -105,7 +105,7 @@ class SubjectBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, SubjectResource.class)).thenReturn(searchResult(
+    when(documentConverter.convertToBrowseResult(searchResponse, SubjectResource.class)).thenReturn(searchResult(
       browseItems("s3", "s2", "s1", "r4")));
 
     var browseSearchResult = subjectBrowseService.browse(request);
@@ -376,7 +376,7 @@ class SubjectBrowseServiceTest {
       items[i] = mock(MultiSearchResponse.Item.class);
       var searchResponse = mock(SearchResponse.class);
       when(items[i].getResponse()).thenReturn(searchResponse);
-      when(documentConverter.convertToSearchResult(searchResponse, SubjectResource.class)).thenReturn(results.get(i));
+      when(documentConverter.convertToBrowseResult(searchResponse, SubjectResource.class)).thenReturn(results.get(i));
     }
 
     when(searchRepository.msearch(request, queries)).thenReturn(multiSearchResponse);

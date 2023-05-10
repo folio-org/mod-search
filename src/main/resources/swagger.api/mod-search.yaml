@@ -109,6 +109,7 @@ paths:
         - $ref: '#/components/parameters/limit-param'
         - $ref: '#/components/parameters/offset-param'
         - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/include-number-of-titles'
       responses:
         '200':
           description: 'Authorities search result'
@@ -659,3 +660,10 @@ components:
       required: true
       schema:
         type: string
+    include-number-of-titles:
+      in: query
+      name: includeNumberOfTitles
+      description: Whether to perform a search for a number of linked instances.
+      schema:
+        type: boolean
+        default: true

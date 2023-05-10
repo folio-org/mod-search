@@ -28,32 +28,49 @@ public class ElasticsearchDocumentConverter {
   private final Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
-   * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
+   * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object for browse operation.
    *
    * @param response      - an Elasticsearch search response as {@link SearchResponse} object
    * @param responseClass - type for converting source in the {@link SearchHit} object
    * @param <T>           - generic type of conversion result for search hit source
    * @return created {@link SearchResult} object.
    */
-  public <T> SearchResult<T> convertToSearchResult(SearchResponse response, Class<T> responseClass) {
-    return convertToSearchResult(response, responseClass, (hit, item) -> item);
+  public <T> SearchResult<T> convertToBrowseResult(SearchResponse response, Class<T> responseClass) {
+    return convertToSearchResult(response, responseClass, true);
   }
 
   /**
    * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
    *
-   * @param response      - an Elasticsearch search response as {@link SearchResponse} object
-   * @param responseClass - type for converting source in the {@link SearchHit} object
-   * @param hitMapper     - conversion {@link BiFunction} object, that used to transform hit and source into result type
-   * @param <T>           - generic type of conversion result for search hit source
-   * @param <R>           - generic type of response item in {@link SearchResult} object
+   * @param response              - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass         - type for converting source in the {@link SearchHit} object
+   * @param <T>                   - generic type of conversion result for search hit source
+   * @param includeNumberOfTitles - indicates whether the number of titles should be counted
    * @return created {@link SearchResult} object.
    */
-  public <T, R> SearchResult<R> convertToSearchResult(SearchResponse response, Class<T> responseClass,
-                                                      BiFunction<SearchHit, T, R> hitMapper) {
+  public <T> SearchResult<T> convertToSearchResult(SearchResponse response, Class<T> responseClass,
+                                                   Boolean includeNumberOfTitles) {
+    return convertToSearchResult(includeNumberOfTitles, response, responseClass, (hit, item) -> item);
+  }
+
+  /**
+   * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
+   *
+   * @param response              - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass         - type for converting source in the {@link SearchHit} object
+   * @param hitMapper             - conversion {@link BiFunction} object, that used to transform hit and source into
+   *                                result type
+   * @param <T>                   - generic type of conversion result for search hit source
+   * @param <R>                   - generic type of response item in {@link SearchResult} object
+   * @param includeNumberOfTitles - indicates whether the number of titles should be counted
+   * @return created {@link SearchResult} object.
+   */
+  public <T, R> SearchResult<R> convertToSearchResult(Boolean includeNumberOfTitles, SearchResponse response,
+                                                      Class<T> responseClass,  BiFunction<SearchHit, T, R> hitMapper) {
     return Optional.ofNullable(response)
       .map(SearchResponse::getHits)
-      .map(hits -> SearchResult.of(getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass, hitMapper)))
+      .map(hits -> SearchResult.of(
+        getTotalRecords(hits), convertSearchHits(includeNumberOfTitles, hits.getHits(), responseClass, hitMapper)))
       .orElseGet(SearchResult::empty);
   }
 
@@ -75,7 +92,7 @@ public class ElasticsearchDocumentConverter {
     return objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
   }
 
-  private <T, R> List<R> convertSearchHits(
+  private <T, R> List<R> convertSearchHits(Boolean includeNumberOfTitles,
     SearchHit[] searchHits, Class<T> type, BiFunction<SearchHit, T, R> searchHitMapper) {
     if (searchHits == null) {
       return emptyList();
@@ -86,7 +103,7 @@ public class ElasticsearchDocumentConverter {
       .toList();
 
     var postProcessor = searchResponsePostProcessors.get(type);
-    if (postProcessor != null) {
+    if (postProcessor != null && includeNumberOfTitles) {
       postProcessor.process((List) objects);
     }
 

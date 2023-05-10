@@ -78,7 +78,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, searchSource("s0", 6, ASC))).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
+    when(documentConverter.convertToBrowseResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -98,7 +98,7 @@ class AuthorityBrowseServiceTest {
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
     when(searchFieldProvider.getSourceFields(AUTHORITY_RESOURCE, BROWSE)).thenReturn(new String[]{"id", "headingRef"});
-    when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
+    when(documentConverter.convertToBrowseResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -116,7 +116,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, searchSource("s4", 4, DESC))).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
+    when(documentConverter.convertToBrowseResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s3", "s2", "s1")));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -334,7 +334,7 @@ class AuthorityBrowseServiceTest {
       items[i] = mock(MultiSearchResponse.Item.class);
       var searchResponse = mock(SearchResponse.class);
       when(items[i].getResponse()).thenReturn(searchResponse);
-      when(documentConverter.convertToSearchResult(searchResponse, Authority.class)).thenReturn(results.get(i));
+      when(documentConverter.convertToBrowseResult(searchResponse, Authority.class)).thenReturn(results.get(i));
     }
 
     when(searchRepository.msearch(request, queries)).thenReturn(multiSearchResponse);

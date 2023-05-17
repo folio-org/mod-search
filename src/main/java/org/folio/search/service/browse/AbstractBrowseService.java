@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
+import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
@@ -35,12 +36,7 @@ public abstract class AbstractBrowseService<T> {
     if (isEmpty(context.getAnchor())) {
       return BrowseResult.empty();
     }
-    var browseResult = context.isBrowsingAround() ? browseAround(request, context)
-      : browseInOneDirection(request, context);
-
-    browseResultPostProcessing(request.getResourceClass(), browseResult);
-
-    return browseResult;
+    return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
   }
 
   /**
@@ -118,15 +114,7 @@ public abstract class AbstractBrowseService<T> {
     return getBrowsingValueByIndex(records, records.size() - 1);
   }
 
-  private String getBrowsingValueByIndex(List<T> items, int index) {
-    return isNotEmpty(items) ? getValueForBrowsing(items.get(index)) : null;
-  }
-
-  private String getBrowsingValueByIndex(List<T> items, int limit, int idx) {
-    return items.size() <= limit ? null : getValueForBrowsing(items.get(idx));
-  }
-
-  private void browseResultPostProcessing(Class<?> resourceClass, BrowseResult<T> browseResult) {
+  protected <R> void browseResultPostProcessing(Class<?> resourceClass, SearchResult<R> browseResult) {
     if (Objects.isNull(resourceClass)) {
       return;
     }
@@ -134,5 +122,13 @@ public abstract class AbstractBrowseService<T> {
     if (Objects.nonNull(postProcessor)) {
       postProcessor.process((List) browseResult.getRecords());
     }
+  }
+
+  private String getBrowsingValueByIndex(List<T> items, int index) {
+    return isNotEmpty(items) ? getValueForBrowsing(items.get(index)) : null;
+  }
+
+  private String getBrowsingValueByIndex(List<T> items, int limit, int idx) {
+    return items.size() <= limit ? null : getValueForBrowsing(items.get(idx));
   }
 }

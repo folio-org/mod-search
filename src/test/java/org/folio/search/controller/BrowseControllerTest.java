@@ -79,7 +79,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesByCallNumber_positive_allFields() throws Exception {
     var query = "callNumber > B";
-    var request = BrowseRequest.of(INSTANCE_RESOURCE, null, TENANT_ID,
+    var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID,
       query, 20, SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, true, true, 5);
     when(callNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
 
@@ -101,8 +101,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, null, TENANT_ID,
-      query, 25, "value", null, null, true, 12);
+    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "value", null, null, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -121,8 +120,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, null, TENANT_ID,
-      query, 25, "headingRef", null, false, true, 12);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 25, "headingRef", null, false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -194,7 +192,7 @@ class BrowseControllerTest {
   }
 
   public static BrowseRequest browseRequest(String query, int limit) {
-    return BrowseRequest.of(INSTANCE_RESOURCE, null, TENANT_ID, query, limit,
+    return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit,
       SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, false, true, limit / 2);
   }
 }

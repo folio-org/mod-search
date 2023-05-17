@@ -137,6 +137,9 @@ public class CallNumberUtils {
    * @return numeric representation of given call-number value
    */
   public static Long getCallNumberAsLong(String callNumber, int firstPosition) {
+    if (firstPosition <= 0) {
+      return getCallNumberAsLong(callNumber);
+    }
     long startVal = convertChar(firstPosition, CN_MAX_CHARS);
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
   }
@@ -144,7 +147,7 @@ public class CallNumberUtils {
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {
     var cleanCallNumber = cleanCallNumber(callNumber, maxChars);
     if (StringUtils.isBlank(cleanCallNumber)) {
-      return 0L;
+      return startVal;
     }
     long result = startVal;
     for (int i = 0; i < cleanCallNumber.length(); i++) {

@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.CallNumberType;
-import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;

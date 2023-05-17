@@ -65,10 +65,10 @@ public class BrowseRequest implements ResourceRequest {
    */
   private final Integer precedingRecordsCount;
 
-  public static BrowseRequest of(String resource, String tenantId, String query, Integer limit, String targetField,
-                                 String subField, Boolean expandAll, Boolean highlightMatch,
+  public static BrowseRequest of(String resource, Class<?> resourceClass, String tenantId, String query, Integer limit,
+                                 String targetField, String subField, Boolean expandAll, Boolean highlightMatch,
                                  Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, query, limit, targetField, subField, null, expandAll,
-      highlightMatch, precedingRecordsCount);
+    return new BrowseRequest(resource, resourceClass, tenantId, query, limit, targetField, subField,
+      null, expandAll, highlightMatch, precedingRecordsCount);
   }
 }

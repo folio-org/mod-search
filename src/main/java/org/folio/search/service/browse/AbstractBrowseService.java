@@ -7,16 +7,20 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Log4j2
 public abstract class AbstractBrowseService<T> {
 
   private BrowseContextProvider browseContextProvider;
+  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
    * Finds related instances for call number browsing using given {@link BrowseRequest} object.
@@ -31,7 +35,12 @@ public abstract class AbstractBrowseService<T> {
     if (isEmpty(context.getAnchor())) {
       return BrowseResult.empty();
     }
-    return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
+    var browseResult = context.isBrowsingAround() ? browseAround(request, context)
+      : browseInOneDirection(request, context);
+
+    browseResultPostProcessing(request.getResourceClass(), browseResult);
+
+    return browseResult;
   }
 
   /**
@@ -60,6 +69,17 @@ public abstract class AbstractBrowseService<T> {
   @Autowired
   public void setBrowseContextProvider(BrowseContextProvider browseContextProvider) {
     this.browseContextProvider = browseContextProvider;
+  }
+
+  /**
+   * Injects {@link SearchResponsePostProcessor} bean from spring context.
+   *
+   * @param searchResponsePostProcessors - {@link SearchResponsePostProcessor} bean
+   */
+  @Autowired
+  public void setSearchResponsePostProcessors(Map<Class<?>, SearchResponsePostProcessor<?>>
+                                                  searchResponsePostProcessors) {
+    this.searchResponsePostProcessors = searchResponsePostProcessors;
   }
 
   /**
@@ -104,5 +124,15 @@ public abstract class AbstractBrowseService<T> {
 
   private String getBrowsingValueByIndex(List<T> items, int limit, int idx) {
     return items.size() <= limit ? null : getValueForBrowsing(items.get(idx));
+  }
+
+  private void browseResultPostProcessing(Class<?> resourceClass, BrowseResult<T> browseResult) {
+    if (Objects.isNull(resourceClass)) {
+      return;
+    }
+    var postProcessor = searchResponsePostProcessors.get(resourceClass);
+    if (Objects.nonNull(postProcessor)) {
+      postProcessor.process((List) browseResult.getRecords());
+    }
   }
 }

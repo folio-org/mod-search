@@ -16,6 +16,11 @@ public class BrowseRequest implements ResourceRequest {
   private final String resource;
 
   /**
+   * Resource class for response.
+   */
+  private final Class<?> resourceClass;
+
+  /**
    * Request tenant id.
    */
   private final String tenantId;

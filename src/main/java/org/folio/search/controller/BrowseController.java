@@ -14,6 +14,7 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;
@@ -45,7 +46,7 @@ public class BrowseController implements BrowseApi {
                                                                               Integer limit, Boolean highlightMatch,
                                                                               Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
-      .resource(CONTRIBUTOR_RESOURCE).targetField(CONTRIBUTOR_BROWSING_FIELD).build();
+      .resource(CONTRIBUTOR_RESOURCE).targetField(CONTRIBUTOR_BROWSING_FIELD).resourceClass(Contributor.class).build();
 
     var browseResult = contributorBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new ContributorBrowseResult()

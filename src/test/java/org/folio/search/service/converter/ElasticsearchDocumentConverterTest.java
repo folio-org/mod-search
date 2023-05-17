@@ -10,12 +10,8 @@ import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -150,41 +146,15 @@ class ElasticsearchDocumentConverterTest {
     when(searchHits.getHits()).thenReturn(array(searchHit));
     when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
 
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(searchResponse, TestResource.class);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
 
     assertThat(actual).isEqualTo(searchResult(TestResource.of(RESOURCE_ID)));
   }
 
   @Test
-  void convertToSearchResult_includeNumberOfTitles_positive() {
-    when(searchResponse.getHits()).thenReturn(searchHits);
-    when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
-    when(searchHits.getHits()).thenReturn(array(searchHit));
-    when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
-    doReturn(searchResponsePostProcessor).when(searchResponsePostProcessors).get(any(Class.class));
-
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(searchResponse, TestResource.class);
-
-    verify(searchResponsePostProcessor).process(anyList());
-  }
-
-  @Test
-  void convertToSearchResult_includeNumberOfTitles_negative() {
-    when(searchResponse.getHits()).thenReturn(searchHits);
-    when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
-    when(searchHits.getHits()).thenReturn(array(searchHit));
-    when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
-    doReturn(searchResponsePostProcessor).when(searchResponsePostProcessors).get(any(Class.class));
-
-    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class, false);
-
-    verify(searchResponsePostProcessor, never()).process(anyList());
-  }
-
-  @Test
   void convertToSearchResult_negative_searchHitsIsNull() {
     when(searchResponse.getHits()).thenReturn(null);
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(searchResponse, TestResource.class);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
     assertThat(actual).isEqualTo(SearchResult.empty());
   }
 
@@ -195,7 +165,7 @@ class ElasticsearchDocumentConverterTest {
     when(searchHits.getHits()).thenReturn(array(searchHit));
     when(searchHit.getSourceAsMap()).thenReturn(mapOf("id", RESOURCE_ID));
 
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(searchResponse, TestResource.class);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
 
     assertThat(actual).isEqualTo(SearchResult.of(0, List.of(TestResource.of(RESOURCE_ID))));
   }
@@ -206,14 +176,14 @@ class ElasticsearchDocumentConverterTest {
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
     when(searchHits.getHits()).thenReturn(null);
 
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(searchResponse, TestResource.class);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(searchResponse, TestResource.class);
 
     assertThat(actual).isEqualTo(SearchResult.of(1, emptyList()));
   }
 
   @Test
   void convertToSearchResult_negative_responseIsNull() {
-    var actual = elasticsearchDocumentConverter.convertToBrowseResult(null, TestResource.class);
+    var actual = elasticsearchDocumentConverter.convertToSearchResult(null, TestResource.class);
     assertThat(actual).isEqualTo(SearchResult.empty());
   }
 }

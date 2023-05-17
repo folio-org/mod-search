@@ -121,8 +121,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   protected abstract BrowseResult<T> mapToBrowseResult(SearchResult<R> searchResult, boolean isAnchor);
 
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
-    var precedingResult = documentConverter.convertToBrowseResult(responses[0].getResponse(), browseResponseClass);
-    var succeedingResult = documentConverter.convertToBrowseResult(responses[1].getResponse(), browseResponseClass);
+    var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
+    var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
 
     var anchorRecords = getAnchorSearchResult(request, context, responses).getRecords();
     var precedingRecords = reverse(mapToBrowseResult(precedingResult, false).getRecords());
@@ -143,7 +143,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
         : BrowseResult.empty();
     }
 
-    var anchorResult = documentConverter.convertToBrowseResult(responses[2].getResponse(), browseResponseClass);
+    var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
     return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
       ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
       : mapToBrowseResult(anchorResult, isAnchorHighlighted);
@@ -154,8 +154,8 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var isBrowsingForward = context.isBrowsingForward();
     var searchSource = getSearchQuery(request, context, isBrowsingForward);
     var responses = searchRepository.msearch(request, List.of(searchSource, anchorQuery)).getResponses();
-    var browseResult = documentConverter.convertToBrowseResult(responses[0].getResponse(), browseResponseClass);
-    var anchorResult = documentConverter.convertToBrowseResult(responses[1].getResponse(), browseResponseClass);
+    var browseResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
+    var anchorResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
     var records = mergeSafelyToList(anchorResult.getRecords(), browseResult.getRecords());
     return getBrowseResult(SearchResult.of(browseResult.getTotalRecords(), records), context);
   }
@@ -164,7 +164,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var isBrowsingForward = context.isBrowsingForward();
     var searchSource = getSearchQuery(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
-    var searchResult = documentConverter.convertToBrowseResult(searchResponse, browseResponseClass);
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, browseResponseClass);
     return getBrowseResult(searchResult, context);
   }
 

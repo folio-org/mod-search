@@ -53,7 +53,7 @@ public class CallNumberBrowseResultConverter {
    * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
    */
   public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isBrowsingForward) {
-    var searchResult = documentConverter.convertToSearchResult(true, resp, Instance.class, this::mapToBrowseItem);
+    var searchResult = documentConverter.convertToSearchResult(resp, Instance.class, this::mapToBrowseItem);
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
     if (CollectionUtils.isEmpty(browseItems)) {

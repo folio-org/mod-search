@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -30,7 +29,6 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.SeriesItem;
 import org.folio.search.model.SearchResult;
-import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -56,15 +54,11 @@ class ElasticsearchDocumentConverterTest {
   @InjectMocks
   private ElasticsearchDocumentConverter elasticsearchDocumentConverter;
   @Mock
-  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
-  @Mock
   private SearchResponse searchResponse;
   @Mock
   private SearchHits searchHits;
   @Mock
   private SearchHit searchHit;
-  @Mock
-  private SearchResponsePostProcessor<?> searchResponsePostProcessor;
 
   private static Stream<Arguments> positiveConvertDataProvider() {
     return Stream.of(

@@ -14,7 +14,6 @@ import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.SearchResult;
-import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
@@ -25,14 +24,13 @@ import org.springframework.stereotype.Component;
 public class ElasticsearchDocumentConverter {
 
   private final ObjectMapper objectMapper;
-  private final Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
    * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
    *
-   * @param response      - an Elasticsearch search response as {@link SearchResponse} object
-   * @param responseClass - type for converting source in the {@link SearchHit} object
-   * @param <T>           - generic type of conversion result for search hit source
+   * @param response              - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass         - type for converting source in the {@link SearchHit} object
+   * @param <T>                   - generic type of conversion result for search hit source
    * @return created {@link SearchResult} object.
    */
   public <T> SearchResult<T> convertToSearchResult(SearchResponse response, Class<T> responseClass) {
@@ -42,18 +40,20 @@ public class ElasticsearchDocumentConverter {
   /**
    * Converts an Elasticsearch {@link SearchResponse} object into {@link SearchResult} object.
    *
-   * @param response      - an Elasticsearch search response as {@link SearchResponse} object
-   * @param responseClass - type for converting source in the {@link SearchHit} object
-   * @param hitMapper     - conversion {@link BiFunction} object, that used to transform hit and source into result type
-   * @param <T>           - generic type of conversion result for search hit source
-   * @param <R>           - generic type of response item in {@link SearchResult} object
+   * @param response              - an Elasticsearch search response as {@link SearchResponse} object
+   * @param responseClass         - type for converting source in the {@link SearchHit} object
+   * @param hitMapper             - conversion {@link BiFunction} object, that used to transform hit and source into
+   *                                result type
+   * @param <T>                   - generic type of conversion result for search hit source
+   * @param <R>                   - generic type of response item in {@link SearchResult} object
    * @return created {@link SearchResult} object.
    */
-  public <T, R> SearchResult<R> convertToSearchResult(SearchResponse response, Class<T> responseClass,
-                                                      BiFunction<SearchHit, T, R> hitMapper) {
+  public <T, R> SearchResult<R> convertToSearchResult(SearchResponse response,
+                                                      Class<T> responseClass,  BiFunction<SearchHit, T, R> hitMapper) {
     return Optional.ofNullable(response)
       .map(SearchResponse::getHits)
-      .map(hits -> SearchResult.of(getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass, hitMapper)))
+      .map(hits -> SearchResult.of(
+        getTotalRecords(hits), convertSearchHits(hits.getHits(), responseClass, hitMapper)))
       .orElseGet(SearchResult::empty);
   }
 
@@ -75,22 +75,15 @@ public class ElasticsearchDocumentConverter {
     return objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
   }
 
-  private <T, R> List<R> convertSearchHits(
-    SearchHit[] searchHits, Class<T> type, BiFunction<SearchHit, T, R> searchHitMapper) {
+  private <T, R> List<R> convertSearchHits(SearchHit[] searchHits, Class<T> type,
+                                           BiFunction<SearchHit, T, R> searchHitMapper) {
     if (searchHits == null) {
       return emptyList();
     }
 
-    var objects = Arrays.stream(searchHits)
+    return Arrays.stream(searchHits)
       .map(searchHit -> searchHitMapper.apply(searchHit, convert(searchHit.getSourceAsMap(), type)))
       .toList();
-
-    var postProcessor = searchResponsePostProcessors.get(type);
-    if (postProcessor != null) {
-      postProcessor.process((List) objects);
-    }
-
-    return objects;
   }
 
   private static Map<String, Object> processMap(Map<String, Object> map) {

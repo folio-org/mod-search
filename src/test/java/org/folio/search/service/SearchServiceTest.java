@@ -17,6 +17,8 @@ import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -24,6 +26,7 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.TestUtils.TestResource;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -58,6 +61,8 @@ class SearchServiceTest {
   private SearchResponse searchResponse;
   @Mock
   private SearchPreferenceService searchPreferenceService;
+  @Mock
+  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @Test
   void search_positive() {
@@ -70,7 +75,8 @@ class SearchServiceTest {
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, SEARCH)).thenReturn(new String[] {"field1", "field2"});
     when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, TestResource.class)).thenReturn(expectedSearchResult);
+    when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))
+      .thenReturn(expectedSearchResult);
     when(searchQueryConfig.getRequestTimeout()).thenReturn(Duration.ofSeconds(25));
     when(searchPreferenceService.getPreferenceForString(anyString())).thenReturn("test");
 
@@ -80,7 +86,7 @@ class SearchServiceTest {
 
   @Test
   void search_negative_sumOfOffsetAndLimitExceeds10000() {
-    var searchRequest = CqlSearchRequest.of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false);
+    var searchRequest = CqlSearchRequest.of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false, true);
     assertThatThrownBy(() -> searchService.search(searchRequest))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("The sum of limit and offset should not exceed 10000.");
@@ -96,7 +102,8 @@ class SearchServiceTest {
 
     when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
-    when(documentConverter.convertToSearchResult(searchResponse, TestResource.class)).thenReturn(expectedSearchResult);
+    when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))
+      .thenReturn(expectedSearchResult);
     when(searchQueryConfig.getRequestTimeout()).thenReturn(Duration.ofSeconds(1));
     when(searchPreferenceService.getPreferenceForString(anyString())).thenReturn("test");
 

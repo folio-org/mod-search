@@ -20,7 +20,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
@@ -28,9 +30,11 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -52,6 +56,8 @@ class BrowseControllerTest {
   private CallNumberBrowseService callNumberBrowseService;
   @MockBean
   private ContributorBrowseService contributorBrowseService;
+  @Mock
+  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {

@@ -4,6 +4,7 @@
 
 ### Features
 * Extend call-numbers browse endpoint to support filtering by types ([MSEARCH-514](https://issues.folio.org/browse/MSEARCH-514))
+* Endpoint POST /search/resources/jobs have to be able to use long queries ([MSEARCH-520](https://issues.folio.org/browse/MSEARCH-520))
 
 ### Tech Dept
 * Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))

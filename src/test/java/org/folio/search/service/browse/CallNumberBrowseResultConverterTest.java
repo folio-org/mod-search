@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.lucene.search.TotalHits;
@@ -52,8 +51,7 @@ class CallNumberBrowseResultConverterTest {
   @InjectMocks
   private CallNumberBrowseResultConverter resultConverter;
   @Spy
-  private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER,
-    Collections.emptyMap());
+  private ElasticsearchDocumentConverter documentConverter = new ElasticsearchDocumentConverter(OBJECT_MAPPER);
 
   @Mock
   private SearchHits searchHits;
@@ -76,7 +74,8 @@ class CallNumberBrowseResultConverterTest {
     var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
 
     assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
-    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(documentConverter)
+      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   @Test
@@ -88,7 +87,8 @@ class CallNumberBrowseResultConverterTest {
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
-    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(documentConverter)
+      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   @Test
@@ -100,7 +100,8 @@ class CallNumberBrowseResultConverterTest {
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
-    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(documentConverter)
+      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   @Test
@@ -119,7 +120,8 @@ class CallNumberBrowseResultConverterTest {
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2", "C2"), "B1"),
       cnBrowseItem(instance("C1", "C2"), "C1"))));
-    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(documentConverter)
+      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   @Test
@@ -138,7 +140,8 @@ class CallNumberBrowseResultConverterTest {
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2"), "B2"),
       cnBrowseItem(instance("C1", "C2", "C4"), "C4"))));
-    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(documentConverter)
+      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
   }
 
   private static Stream<Arguments> testDataProvider() {

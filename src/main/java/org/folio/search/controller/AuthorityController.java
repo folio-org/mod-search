@@ -21,8 +21,9 @@ public class AuthorityController implements AuthoritiesApi {
 
   @Override
   public ResponseEntity<AuthoritySearchResult> searchAuthorities(
-    String tenant, String query, Integer limit, Integer offset, Boolean expandAll) {
-    var searchRequest = CqlSearchRequest.of(Authority.class, tenant, query, limit, offset, expandAll);
+    String tenant, String query, Integer limit, Integer offset, Boolean expandAll, Boolean includeNumberOfTitles) {
+    var searchRequest = CqlSearchRequest.of(
+      Authority.class, tenant, query, limit, offset, expandAll, includeNumberOfTitles);
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new AuthoritySearchResult()
       .authorities(result.getRecords())

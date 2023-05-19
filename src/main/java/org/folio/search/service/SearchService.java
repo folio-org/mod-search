@@ -4,6 +4,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
@@ -14,6 +17,7 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.opensearch.common.unit.TimeValue;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,7 @@ public class SearchService {
   private final ElasticsearchDocumentConverter documentConverter;
   private final SearchQueryConfigurationProperties searchQueryConfiguration;
   private final SearchPreferenceService searchPreferenceService;
+  private final Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
    * Prepares search query and executes search request to the search engine.
@@ -42,8 +47,10 @@ public class SearchService {
     log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
     if (request.getOffset() + request.getLimit() > 10_000L) {
-      throw new RequestValidationException("The sum of limit and offset should not exceed 10000.",
+      var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
+      log.warn(validationException.getMessage());
+      throw validationException;
     }
     var resource = request.getResource();
     var requestTimeout = searchQueryConfiguration.getRequestTimeout();
@@ -57,14 +64,30 @@ public class SearchService {
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
+      log.info("search:: expandAll to include: {}]", includes);
       queryBuilder.fetchSource(includes, null);
     }
 
     var searchResponse = searchRepository.search(request, queryBuilder, preference);
-    return documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+
+    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
+
+    return searchResult;
   }
 
   private String buildPreferenceKey(String tenantId, String resource, String query) {
     return tenantId + "-" + resource + "-" + query;
+  }
+
+  private <T> void searchResultPostProcessing(Class<?> resourceClass, boolean includeNumberOfTitles,
+                                              SearchResult<T> searchResult) {
+    if (Objects.isNull(resourceClass)) {
+      return;
+    }
+    var postProcessor = searchResponsePostProcessors.get(resourceClass);
+    if (Objects.nonNull(postProcessor) && includeNumberOfTitles) {
+      postProcessor.process((List) searchResult.getRecords());
+    }
   }
 }

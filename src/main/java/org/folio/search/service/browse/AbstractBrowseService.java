@@ -7,16 +7,21 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
+import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Log4j2
 public abstract class AbstractBrowseService<T> {
 
   private BrowseContextProvider browseContextProvider;
+  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
    * Finds related instances for call number browsing using given {@link BrowseRequest} object.
@@ -63,6 +68,17 @@ public abstract class AbstractBrowseService<T> {
   }
 
   /**
+   * Injects {@link SearchResponsePostProcessor} bean from spring context.
+   *
+   * @param searchResponsePostProcessors - {@link SearchResponsePostProcessor} bean
+   */
+  @Autowired
+  public void setSearchResponsePostProcessors(Map<Class<?>, SearchResponsePostProcessor<?>>
+                                                  searchResponsePostProcessors) {
+    this.searchResponsePostProcessors = searchResponsePostProcessors;
+  }
+
+  /**
    * Returns the value for browsing as {@link String} from {@link T} item.
    *
    * @param browseItem - browse item to process.
@@ -96,6 +112,16 @@ public abstract class AbstractBrowseService<T> {
       return getBrowsingValueByIndex(records, limit, limit - 1);
     }
     return getBrowsingValueByIndex(records, records.size() - 1);
+  }
+
+  protected <R> void browseResultPostProcessing(Class<?> resourceClass, SearchResult<R> browseResult) {
+    if (Objects.isNull(resourceClass)) {
+      return;
+    }
+    var postProcessor = searchResponsePostProcessors.get(resourceClass);
+    if (Objects.nonNull(postProcessor)) {
+      postProcessor.process((List) browseResult.getRecords());
+    }
   }
 
   private String getBrowsingValueByIndex(List<T> items, int index) {

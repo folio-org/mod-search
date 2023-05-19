@@ -17,7 +17,9 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -28,6 +30,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,12 +64,15 @@ class AuthorityBrowseServiceTest {
   private SearchFieldProvider searchFieldProvider;
   @Mock
   private SearchResponse searchResponse;
+  @Mock
+  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @BeforeEach
   void setUp() {
     authorityBrowseService.setDocumentConverter(documentConverter);
     authorityBrowseService.setSearchRepository(searchRepository);
     authorityBrowseService.setBrowseContextProvider(browseContextProvider);
+    authorityBrowseService.setSearchResponsePostProcessors(searchResponsePostProcessors);
   }
 
   @Test

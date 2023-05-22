@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
@@ -16,6 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.awaitility.Durations;
 import org.folio.search.domain.dto.Authority;
@@ -80,6 +83,24 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
     doGet(resourcesIds(postResponse.getId()))
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
       .andExpect(jsonPath("ids[*].id", containsInAnyOrder(expectedIds.toArray())));
+  }
+
+  @Test
+  void createIdsJobAndStreamIdsForLargeQuery() throws Exception {
+    var query = Stream.generate(UUID::randomUUID)
+      .map(UUID::toString)
+      .limit(7)
+      .collect(Collectors.joining(" or id=", "id=", EMPTY)); //297 query length
+    var resourceIdsJob = new ResourceIdsJob().query(query).entityType(EntityTypeEnum.INSTANCE);
+    var postResponse = parseResponse(doPost(resourcesIdsJob(), resourceIdsJob)
+      .andExpect(jsonPath("$.query", is(query)))
+      .andExpect(jsonPath("$.entityType", is(EntityTypeEnum.INSTANCE.name())))
+      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
+
+    await().atMost(Durations.FIVE_SECONDS).until(() -> {
+      var response = doGet(resourcesIdsJob(postResponse.getId()));
+      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+    });
   }
 
   @Test

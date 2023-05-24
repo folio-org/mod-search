@@ -361,7 +361,7 @@ paths:
           application/json:
             example: examples/reindexRequest.sample
             schema:
-              $ref: schemas/request/reindexRequest.json
+              $ref: '#/components/schemas/reindexRequest'
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:

@@ -1,6 +1,8 @@
 ## v2.1.0 In progress
 ### New APIs versions
 * Remove required `instance-authority-links`
+* Provides `search v1.1`
+* Provides `browse v1.2`
 
 ### Features
 * Extend call-numbers browse endpoint to support filtering by types ([MSEARCH-514](https://issues.folio.org/browse/MSEARCH-514))

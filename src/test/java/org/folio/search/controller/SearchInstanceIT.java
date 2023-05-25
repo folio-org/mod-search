@@ -169,7 +169,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   private static ItemEffectiveCallNumberComponents callNumber(String prefix, String suffix) {
     return new ItemEffectiveCallNumberComponents().prefix(prefix).suffix(suffix)
-      .callNumber("TK5105.88815 . A58 2004 FT MEADE");
+      .callNumber("TK5105.88815 . A58 2004 FT MEADE")
+      .typeId("512173a7-bd09-490e-b773-17d83f2b63fe");
   }
 
   private static Stream<Arguments> testDataProvider() {

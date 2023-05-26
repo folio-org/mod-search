@@ -321,6 +321,10 @@
             "suffix": {
               "index": "source",
               "showInResponse": [ "search", "call-number-browse" ]
+            },
+            "typeId": {
+              "index": "source",
+              "showInResponse": [ "search", "call-number-browse" ]
             }
           }
         },

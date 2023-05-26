@@ -1,6 +1,5 @@
 package org.folio.search.service.setter.item;
 
-import static org.apache.commons.collections4.SetUtils.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.model.client.CqlQueryParam.SOURCE;
@@ -13,6 +12,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.spring.test.type.UnitTest;
@@ -66,8 +66,6 @@ class ItemTypedCallNumberProcessorTest {
 
   @Test
   void getFieldValue_emptyCallNumberIfNotSystemOrNotLocal() {
-    when(referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, LOCAL_CALL_NUMBER_TYPES_SOURCES))
-      .thenReturn(emptySet());
     var eventBody = instance(item("AA 123", UUID.randomUUID().toString()));
     var actual = processor.getFieldValue(eventBody);
     assertThat(actual).isEmpty();
@@ -89,6 +87,8 @@ class ItemTypedCallNumberProcessorTest {
   }
 
   private static Item item(String effectiveShelvingOrder, String callNumberTypeId) {
-    return new Item().effectiveShelvingOrder(effectiveShelvingOrder).itemLevelCallNumberTypeId(callNumberTypeId);
+    return new Item()
+      .effectiveShelvingOrder(effectiveShelvingOrder)
+      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().typeId(callNumberTypeId));
   }
 }

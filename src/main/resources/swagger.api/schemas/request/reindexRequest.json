@@ -12,6 +12,10 @@
       "type": "string",
       "description": "Resource name to run reindex for",
       "default": "instance"
+    },
+    "indexSettings": {
+      "description": "Index settings to apply for index",
+      "$ref": "../indexSettings.json"
     }
   }
 }

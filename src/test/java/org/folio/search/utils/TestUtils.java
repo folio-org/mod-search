@@ -23,8 +23,8 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
-import static org.opensearch.common.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
+import static org.opensearch.core.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -78,10 +78,10 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.SearchType;
 import org.opensearch.action.search.SearchResponse;
-import org.opensearch.common.ParseField;
 import org.opensearch.common.bytes.BytesArray;
-import org.opensearch.common.xcontent.ContextParser;
-import org.opensearch.common.xcontent.NamedXContentRegistry;
+import org.opensearch.core.ParseField;
+import org.opensearch.core.xcontent.ContextParser;
+import org.opensearch.core.xcontent.NamedXContentRegistry;
 import org.opensearch.search.aggregations.Aggregation;
 import org.opensearch.search.aggregations.Aggregations;
 import org.opensearch.search.aggregations.bucket.filter.ParsedFilter;
@@ -502,15 +502,6 @@ public class TestUtils {
     return SearchResponse.fromXContent(parser).getAggregations();
   }
 
-  private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {
-    return jsonObject(
-      "took", 0,
-      "timed_out", false,
-      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
-      "hits", jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
-      "aggregations", aggregationValue);
-  }
-
   public static List<NamedXContentRegistry.Entry> elasticsearchClientNamedContentRegistryEntries() {
     Map<String, ContextParser<Object, ? extends Aggregation>> map = new HashMap<>();
     map.put("sterms", (p, c) -> ParsedStringTerms.fromXContent(p, (String) c));
@@ -525,6 +516,15 @@ public class TestUtils {
   @SuppressWarnings("unchecked")
   public static <T, P extends T> P spyLambda(Class<T> lambdaType, P lambda) {
     return (P) mock(lambdaType, delegatesTo(lambda));
+  }
+
+  private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {
+    return jsonObject(
+      "took", 0,
+      "timed_out", false,
+      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
+      "hits", jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
+      "aggregations", aggregationValue);
   }
 
   @Data

@@ -1,12 +1,14 @@
 ## v2.1.0 In progress
 ### New APIs versions
 * Remove required `instance-authority-links`
+* Provides `indices v0.5`
 * Provides `search v1.1`
 * Provides `browse v1.2`
 
 ### Features
 * Extend call-numbers browse endpoint to support filtering by types ([MSEARCH-514](https://issues.folio.org/browse/MSEARCH-514))
 * Endpoint POST /search/resources/jobs have to be able to use long queries ([MSEARCH-520](https://issues.folio.org/browse/MSEARCH-520))
+* Extend `reindex` endpoint with passing index settings  ([MSEARCH-437](https://issues.folio.org/browse/MSEARCH-437))
 
 ### Tech Dept
 * Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))

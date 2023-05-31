@@ -34,6 +34,11 @@
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post"
           ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/search/index/settings",
+          "permissionsRequired": [ "search.index.settings.item.put" ]
         }
       ]
     },
@@ -233,6 +238,11 @@
       "permissionName": "search.index.records.collection.post",
       "displayName": "Search - saves resource to the search engine",
       "description": "Saves resource to the search engine"
+    },
+    {
+      "permissionName": "search.index.settings.item.put",
+      "displayName": "Search - updates settings for the index",
+      "description": "Updates settings for the index"
     },
     {
       "permissionName": "search.instances.collection.get",

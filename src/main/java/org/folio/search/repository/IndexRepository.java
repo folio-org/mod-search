@@ -15,6 +15,7 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshRequest;
+import org.opensearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
@@ -54,6 +55,27 @@ public class IndexRepository {
     return createIndexResponse.isAcknowledged()
       ? getSuccessFolioCreateIndexResponse(List.of(index))
       : getErrorFolioCreateIndexResponse(List.of(index));
+
+  }
+
+  /**
+   * Update index settings {@link UpdateSettingsRequest}.
+   *
+   * @param index    index name as {@link String} object
+   * @param settings settings JSON {@link String} object
+   * @return {@link FolioCreateIndexResponse} object
+   */
+  public FolioIndexOperationResponse updateIndexSettings(String index, String settings) {
+    var updateSettingsRequest = new UpdateSettingsRequest(index)
+      .settings(settings, JSON);
+
+    var updateIndexSettingsResponse = performExceptionalOperation(
+      () -> elasticsearchClient.indices().putSettings(updateSettingsRequest, RequestOptions.DEFAULT),
+      index, "putIndexSettingsApi");
+
+    return updateIndexSettingsResponse.isAcknowledged()
+      ? getSuccessIndexOperationResponse()
+      : getErrorIndexOperationResponse("Failed to put settings");
 
   }
 

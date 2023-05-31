@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,21 +65,7 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId, IndexSettings indexSettings) {
-    var settings = settingsHelper.getSettingsJson(resourceName);
-
-    if (indexSettings != null) {
-      var indexSettingsJson = (ObjectNode) settings.get("index");
-
-      Optional.ofNullable(indexSettings.getNumberOfShards())
-        .ifPresent(shardsNum -> indexSettingsJson.put("number_of_shards", shardsNum));
-      Optional.ofNullable(indexSettings.getNumberOfReplicas())
-        .ifPresent(replicasNum -> indexSettingsJson.put("number_of_replicas", replicasNum));
-
-      var refreshInt = indexSettings.getRefreshInterval();
-      if (refreshInt != null && refreshInt != 0) {
-        indexSettingsJson.put("refresh_interval", refreshInt == -1 ? "-1" : refreshInt + "s");
-      }
-    }
+    var settings = prepareIndexSettings(resourceName, indexSettings);
 
     return createIndex(resourceName, tenantId, settings.toString());
   }
@@ -96,6 +83,28 @@ public class IndexService {
     log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
       index, mappings, indexSettings);
     return indexRepository.createIndex(index, indexSettings, mappings);
+  }
+
+  /**
+   * Updates elasticsearch index settings for resource.
+   *
+   * @param resourceName  resource name as {@link String} value.
+   * @param tenantId      tenant id as {@link String} value.
+   * @param indexSettings index settings as {@link IndexSettings} value.
+   * @return {@link AcknowledgedResponse} object.
+   */
+  public FolioIndexOperationResponse updateIndexSettings(String resourceName, String tenantId,
+                                                         IndexSettings indexSettings) {
+    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]",
+      resourceName, tenantId);
+
+    validateResourceName(resourceName, "Index Settings cannot be updated, resource name is invalid.");
+
+    var index = getIndexName(resourceName, tenantId);
+    var settings = prepareIndexSettings(resourceName, indexSettings);
+
+    log.info("Attempts to update settings by [indexName: {}, settings: {}]", index, settings);
+    return indexRepository.updateIndexSettings(index, settings.toString());
   }
 
   /**
@@ -177,6 +186,26 @@ public class IndexService {
     resourceNames.add(resourceName);
     resourceNames.addAll(resourceDescriptionService.getSecondaryResourceNames(resourceName));
     return resourceNames;
+  }
+
+  private JsonNode prepareIndexSettings(String resourceName, IndexSettings indexSettings) {
+    var settings = settingsHelper.getSettingsJson(resourceName);
+
+    if (indexSettings != null) {
+      var indexSettingsJson = (ObjectNode) settings.get("index");
+
+      Optional.ofNullable(indexSettings.getNumberOfShards())
+        .ifPresent(shardsNum -> indexSettingsJson.put("number_of_shards", shardsNum));
+      Optional.ofNullable(indexSettings.getNumberOfReplicas())
+        .ifPresent(replicasNum -> indexSettingsJson.put("number_of_replicas", replicasNum));
+
+      var refreshInt = indexSettings.getRefreshInterval();
+      if (refreshInt != null && refreshInt != 0) {
+        indexSettingsJson.put("refresh_interval", refreshInt == -1 ? "-1" : refreshInt + "s");
+      }
+    }
+
+    return settings;
   }
 
   private static String getReindexRequestResourceName(ReindexRequest req) {

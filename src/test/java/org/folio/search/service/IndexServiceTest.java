@@ -110,6 +110,32 @@ class IndexServiceTest {
     assertThat(indexResponse).isEqualTo(expectedResponse);
   }
 
+  @ParameterizedTest
+  @MethodSource("customSettingsTestData")
+  @SneakyThrows
+  void updateIndexSettings_positive_customSettings(Integer shards, Integer replicas, Integer refresh) {
+    var expectedResponse = getSuccessIndexOperationResponse();
+
+    var indexSettingsMock = MAPPER.readTree(getIndexSettingsJsonString(4, 2, "1s"));
+    var indexSettingsRequest = new IndexSettings()
+      .numberOfShards(shards)
+      .numberOfReplicas(replicas)
+      .refreshInterval(refresh);
+
+    var expectedShards = shards == null ? 4 : shards;
+    var expectedReplicas = replicas == null ? 2 : replicas;
+    var expectedRefresh = refresh == null || refresh == 0 ? "1s"
+      : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
+    var expectedIndexSettings = getIndexSettingsJsonString(expectedShards, expectedReplicas, expectedRefresh);
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(settingsHelper.getSettingsJson(RESOURCE_NAME)).thenReturn(indexSettingsMock);
+    when(indexRepository.updateIndexSettings(INDEX_NAME, expectedIndexSettings)).thenReturn(expectedResponse);
+
+    var indexResponse = indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, indexSettingsRequest);
+    assertThat(indexResponse).isEqualTo(expectedResponse);
+  }
+
   private static Stream<Arguments> customSettingsTestData() {
     return Stream.of(
       Arguments.of(1, 1, 2),

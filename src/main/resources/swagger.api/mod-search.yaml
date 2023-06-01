@@ -351,6 +351,26 @@ paths:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+  /index/settings:
+    put:
+      operationId: updateIndexSettings
+      description: Update Index Settings data.
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateIndexSettingsRequest'
+      responses:
+        '200':
+          description: Response with updated index settings and status (error message will be present if operation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
 
   /index/inventory/reindex:
     post:
@@ -534,6 +554,8 @@ components:
       $ref: schemas/errors.json
     reindexRequest:
       $ref: schemas/request/reindexRequest.json
+    updateIndexSettingsRequest:
+      $ref: schemas/request/updateIndexSettingsRequest.json
     RecordType:
       enum: [ instances, authorities, contributors ]
       type: string

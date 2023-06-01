@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,8 +23,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.domain.dto.CreateIndexRequest;
+import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.UpdateIndexSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
@@ -161,6 +164,15 @@ class IndexControllerTest {
   }
 
   @Test
+  void updateIndexSettings_positive() throws Exception {
+    when(indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, createIndexSettings()))
+      .thenReturn(getSuccessIndexOperationResponse());
+    mockMvc.perform(preparePutRequest("/search/index/settings", asJsonString(updateIndexSettingsRequest())))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.status", is("success")));
+  }
+
+  @Test
   void canSubmitReindex() throws Exception {
     var jobId = randomId();
     when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
@@ -242,11 +254,26 @@ class IndexControllerTest {
       .header(XOkapiHeaders.TENANT, TENANT_ID);
   }
 
+  private static MockHttpServletRequestBuilder preparePutRequest(String endpoint, String requestBody) {
+    return put(endpoint)
+      .content(requestBody)
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+  }
+
   private static CreateIndexRequest createIndexRequest() {
     return new CreateIndexRequest().resourceName(RESOURCE_NAME);
   }
 
   private static UpdateMappingsRequest updateMappingsRequest() {
     return new UpdateMappingsRequest().resourceName(RESOURCE_NAME);
+  }
+
+  private static UpdateIndexSettingsRequest updateIndexSettingsRequest() {
+    return new UpdateIndexSettingsRequest().resourceName(RESOURCE_NAME).indexSettings(createIndexSettings());
+  }
+
+  private static IndexSettings createIndexSettings() {
+    return new IndexSettings().numberOfReplicas(2).numberOfShards(1).refreshInterval(1);
   }
 }

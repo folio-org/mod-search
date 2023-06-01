@@ -5,11 +5,11 @@
   "properties": {
     "resourceName": {
       "type": "string",
-      "description": "Resource name to run reindex for"
+      "description": "Resource name to set index Settings"
     },
     "indexSettings": {
       "description": "Index settings to apply for index",
-      "$ref": "../indexSettings.json"
+      "$ref": "../indexDynamicSettings.json"
     }
   },
   "required": ["resourceName"]

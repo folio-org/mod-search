@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
@@ -110,32 +111,6 @@ class IndexServiceTest {
     assertThat(indexResponse).isEqualTo(expectedResponse);
   }
 
-  @ParameterizedTest
-  @MethodSource("customSettingsTestData")
-  @SneakyThrows
-  void updateIndexSettings_positive_customSettings(Integer shards, Integer replicas, Integer refresh) {
-    var expectedResponse = getSuccessIndexOperationResponse();
-
-    var indexSettingsMock = MAPPER.readTree(getIndexSettingsJsonString(4, 2, "1s"));
-    var indexSettingsRequest = new IndexSettings()
-      .numberOfShards(shards)
-      .numberOfReplicas(replicas)
-      .refreshInterval(refresh);
-
-    var expectedShards = shards == null ? 4 : shards;
-    var expectedReplicas = replicas == null ? 2 : replicas;
-    var expectedRefresh = refresh == null || refresh == 0 ? "1s"
-      : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
-    var expectedIndexSettings = getIndexSettingsJsonString(expectedShards, expectedReplicas, expectedRefresh);
-
-    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
-    when(settingsHelper.getSettingsJson(RESOURCE_NAME)).thenReturn(indexSettingsMock);
-    when(indexRepository.updateIndexSettings(INDEX_NAME, expectedIndexSettings)).thenReturn(expectedResponse);
-
-    var indexResponse = indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, indexSettingsRequest);
-    assertThat(indexResponse).isEqualTo(expectedResponse);
-  }
-
   private static Stream<Arguments> customSettingsTestData() {
     return Stream.of(
       Arguments.of(1, 1, 2),
@@ -143,6 +118,40 @@ class IndexServiceTest {
       Arguments.of(null, 1, null),
       Arguments.of(null, null, -1),
       Arguments.of(null, null, 0)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("customDynamicSettingsTestData")
+  @SneakyThrows
+  void updateIndexDynamicSettings_positive_customSettings(Integer replicas, Integer refresh) {
+    var expectedResponse = getSuccessIndexOperationResponse();
+
+    var indexSettingsMock = MAPPER.readTree(getIndexDynamicSettingsJsonString(2, "1s"));
+    var indexSettingsRequest = new IndexDynamicSettings()
+      .numberOfReplicas(replicas)
+      .refreshInterval(refresh);
+
+    var expectedReplicas = replicas == null ? 2 : replicas;
+    var expectedRefresh = refresh == null || refresh == 0 ? "1s"
+      : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
+    var expectedIndexSettings = getIndexDynamicSettingsJsonString(expectedReplicas, expectedRefresh);
+
+    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(settingsHelper.getSettingsJson("dynamicSettings")).thenReturn(indexSettingsMock);
+    when(indexRepository.updateIndexSettings(INDEX_NAME, expectedIndexSettings)).thenReturn(expectedResponse);
+
+    var indexResponse = indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, indexSettingsRequest);
+    assertThat(indexResponse).isEqualTo(expectedResponse);
+  }
+
+  private static Stream<Arguments> customDynamicSettingsTestData() {
+    return Stream.of(
+      Arguments.of(1, 2),
+      Arguments.of(null, null),
+      Arguments.of(1, null),
+      Arguments.of(null, -1),
+      Arguments.of(null, 0)
     );
   }
 
@@ -167,6 +176,13 @@ class IndexServiceTest {
   private String getIndexSettingsJsonString(Integer shards, Integer replicas, String refresh) {
     return MAPPER.writeValueAsString(Map.of("index", Map.of(
       "number_of_shards", shards,
+      "number_of_replicas", replicas,
+      "refresh_interval", refresh)));
+  }
+
+  @SneakyThrows
+  private String getIndexDynamicSettingsJsonString(Integer replicas, String refresh) {
+    return MAPPER.writeValueAsString(Map.of("index", Map.of(
       "number_of_replicas", replicas,
       "refresh_interval", refresh)));
   }

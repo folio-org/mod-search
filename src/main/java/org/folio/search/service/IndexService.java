@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
@@ -94,14 +95,14 @@ public class IndexService {
    * @return {@link AcknowledgedResponse} object.
    */
   public FolioIndexOperationResponse updateIndexSettings(String resourceName, String tenantId,
-                                                         IndexSettings indexSettings) {
+                                                         IndexDynamicSettings indexSettings) {
     log.debug("createIndex:: by [resourceName: {}, tenantId: {}]",
       resourceName, tenantId);
 
     validateResourceName(resourceName, "Index Settings cannot be updated, resource name is invalid.");
 
     var index = getIndexName(resourceName, tenantId);
-    var settings = prepareIndexSettings(resourceName, indexSettings);
+    var settings = prepareIndexDynamicSettings(indexSettings);
 
     log.info("Attempts to update settings by [indexName: {}, settings: {}]", index, settings);
     return indexRepository.updateIndexSettings(index, settings.toString());
@@ -196,16 +197,37 @@ public class IndexService {
 
       Optional.ofNullable(indexSettings.getNumberOfShards())
         .ifPresent(shardsNum -> indexSettingsJson.put("number_of_shards", shardsNum));
-      Optional.ofNullable(indexSettings.getNumberOfReplicas())
-        .ifPresent(replicasNum -> indexSettingsJson.put("number_of_replicas", replicasNum));
 
-      var refreshInt = indexSettings.getRefreshInterval();
-      if (refreshInt != null && refreshInt != 0) {
-        indexSettingsJson.put("refresh_interval", refreshInt == -1 ? "-1" : refreshInt + "s");
-      }
+      updateNumberOfReplicas(indexSettingsJson, indexSettings.getNumberOfReplicas());
+      updateRefreshInterval(indexSettingsJson, indexSettings.getRefreshInterval());
     }
 
     return settings;
+  }
+
+  private JsonNode prepareIndexDynamicSettings(IndexDynamicSettings indexSettings) {
+    var settings = settingsHelper.getSettingsJson("dynamicSettings");
+
+    if (indexSettings != null) {
+      var indexSettingsJson = (ObjectNode) settings.get("index");
+
+      updateNumberOfReplicas(indexSettingsJson, indexSettings.getNumberOfReplicas());
+      updateRefreshInterval(indexSettingsJson, indexSettings.getRefreshInterval());
+    }
+
+    return settings;
+  }
+
+  private void updateNumberOfReplicas(ObjectNode settings, Integer numberOfReplicas) {
+    Optional.ofNullable(numberOfReplicas)
+      .ifPresent(replicasNum -> settings.put("number_of_replicas", replicasNum));
+
+  }
+
+  private void updateRefreshInterval(ObjectNode settings, Integer refreshInt) {
+    if (refreshInt != null && refreshInt != 0) {
+      settings.put("refresh_interval", refreshInt == -1 ? "-1" : refreshInt + "s");
+    }
   }
 
   private static String getReindexRequestResourceName(ReindexRequest req) {

@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.domain.dto.CreateIndexRequest;
-import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
-import org.folio.search.domain.dto.UpdateIndexSettingsRequest;
+import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.service.IndexService;
@@ -165,7 +165,7 @@ class IndexControllerTest {
 
   @Test
   void updateIndexSettings_positive() throws Exception {
-    when(indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, createIndexSettings()))
+    when(indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, createIndexDynamicSettings()))
       .thenReturn(getSuccessIndexOperationResponse());
     mockMvc.perform(preparePutRequest("/search/index/settings", asJsonString(updateIndexSettingsRequest())))
       .andExpect(status().isOk())
@@ -269,11 +269,12 @@ class IndexControllerTest {
     return new UpdateMappingsRequest().resourceName(RESOURCE_NAME);
   }
 
-  private static UpdateIndexSettingsRequest updateIndexSettingsRequest() {
-    return new UpdateIndexSettingsRequest().resourceName(RESOURCE_NAME).indexSettings(createIndexSettings());
+  private static UpdateIndexDynamicSettingsRequest updateIndexSettingsRequest() {
+    return new UpdateIndexDynamicSettingsRequest().resourceName(RESOURCE_NAME)
+        .indexSettings(createIndexDynamicSettings());
   }
 
-  private static IndexSettings createIndexSettings() {
-    return new IndexSettings().numberOfReplicas(2).numberOfShards(1).refreshInterval(1);
+  private static IndexDynamicSettings createIndexDynamicSettings() {
+    return new IndexDynamicSettings().numberOfReplicas(2).refreshInterval(1);
   }
 }

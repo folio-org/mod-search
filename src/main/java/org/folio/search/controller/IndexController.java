@@ -9,7 +9,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.UpdateIndexSettingsRequest;
+import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexApi;
 import org.folio.search.service.IndexService;
@@ -54,8 +54,8 @@ public class IndexController implements IndexApi {
   }
 
   @Override
-  public ResponseEntity<FolioIndexOperationResponse> updateIndexSettings(String tenantId,
-                                                                         UpdateIndexSettingsRequest request) {
+  public ResponseEntity<FolioIndexOperationResponse> updateIndexDynamicSettings(String tenantId,
+                                                                         UpdateIndexDynamicSettingsRequest request) {
     return ResponseEntity.ok(indexService.updateIndexSettings(request.getResourceName(), tenantId,
       request.getIndexSettings()));
   }

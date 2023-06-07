@@ -698,3 +698,4 @@ components:
       schema:
         type: boolean
         default: true
+

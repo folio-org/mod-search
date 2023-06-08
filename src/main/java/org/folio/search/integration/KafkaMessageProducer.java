@@ -16,13 +16,13 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAM
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import one.util.streamex.StreamEx;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.Contributor;
@@ -35,6 +35,7 @@ import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class KafkaMessageProducer {
@@ -71,13 +72,12 @@ public class KafkaMessageProducer {
     var oldSubjects = extractSubjects(getOldAsMap(event));
     var newSubjects = extractSubjects(getNewAsMap(event));
     var tenantId = event.getTenant();
-    var subjectsCreate = getSubjectsAsStreamSubtracting(newSubjects, oldSubjects, tenantId, CREATE);
-    var subjectsDelete = getSubjectsAsStreamSubtracting(oldSubjects, newSubjects, tenantId, DELETE);
-    var topicName = getTenantTopicName(INSTANCE_SUBJECTS_TOPIC_NAME, tenantId);
-    return StreamEx.of(subjectsCreate)
-      .append(subjectsDelete)
-      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
-      .toList();
+    List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
+    producerRecords.addAll(prepareSubjectsEvents(newSubjects, oldSubjects, tenantId, CREATE));
+    producerRecords.addAll(prepareSubjectsEvents(oldSubjects, newSubjects, tenantId, DELETE));
+    log.trace("Prepared subject events: [{}]", producerRecords);
+    log.debug("Prepared subject events: [total: {}]", producerRecords.size());
+    return producerRecords;
   }
 
   private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap) {
@@ -88,15 +88,20 @@ public class KafkaMessageProducer {
         subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
         subjectResourceEvent.setValue(StringUtils.trim(subjectResourceEvent.getValue()));
       });
+    subjectResourceEvents.removeIf(subjectResourceEvent -> StringUtils.isBlank(subjectResourceEvent.getInstanceId()));
     return subjectResourceEvents;
   }
 
-  private Stream<ResourceEvent> getSubjectsAsStreamSubtracting(List<SubjectResourceEvent> subjects,
-                                                               List<SubjectResourceEvent> subjectsToRemove,
-                                                               String tenantId, ResourceEventType eventType) {
+  private List<ProducerRecord<String, ResourceEvent>> prepareSubjectsEvents(List<SubjectResourceEvent> subjects,
+                                                                            List<SubjectResourceEvent> subjectsToRemove,
+                                                                            String tenantId,
+                                                                            ResourceEventType eventType) {
+    var topicName = getTenantTopicName(INSTANCE_SUBJECTS_TOPIC_NAME, tenantId);
     return CollectionUtils.subtract(subjects, subjectsToRemove).stream()
       .filter(subject -> StringUtils.isNotBlank(subject.getValue()))
-      .map(subject -> convertToSubjectEvent(subject, tenantId, eventType));
+      .map(subject -> convertToSubjectEvent(subject, tenantId, eventType))
+      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
+      .toList();
   }
 
   private ResourceEvent convertToSubjectEvent(SubjectResourceEvent subject, String tenantId, ResourceEventType type) {
@@ -115,11 +120,12 @@ public class KafkaMessageProducer {
     var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, tenantId);
     var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
 
-    return Stream.of(
-        prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId),
-        prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, tenantId))
-      .flatMap(List::stream)
-      .toList();
+    List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
+    producerRecords.addAll(prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId));
+    producerRecords.addAll(prepareContributorEvents(subtract(oldContributors, newContributors), DELETE, tenantId));
+    log.trace("Prepared contributors events: [{}]", producerRecords);
+    log.debug("Prepared contributors events: [total: {}]", producerRecords.size());
+    return producerRecords;
   }
 
   private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
@@ -151,6 +157,7 @@ public class KafkaMessageProducer {
                                                                                String tenantId) {
     var topicName = getTenantTopicName(INSTANCE_CONTRIBUTOR_TOPIC_NAME, tenantId);
     return events.stream()
+      .filter(contributorResourceEvent -> StringUtils.isNotBlank(contributorResourceEvent.getInstanceId()))
       .map(contributor -> prepareResourceEvent(contributor, type, tenantId))
       .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
       .toList();

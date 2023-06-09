@@ -6,7 +6,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
-import static org.folio.search.support.base.ApiEndpoints.recordFacets;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
@@ -321,7 +321,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForContributors_parameterized")
   void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var request = doGet(recordFacets(RecordType.CONTRIBUTORS, query, facets));
+    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets));
     var actual = parseResponse(request, FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {

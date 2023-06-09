@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.service.CqlFacetRequest;
-import org.folio.search.rest.resource.RecordTypeApi;
+import org.folio.search.rest.resource.FacetsApi;
 import org.folio.search.service.FacetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/search")
-public class FacetController implements RecordTypeApi {
+@RequestMapping("/")
+public class FacetsController implements FacetsApi {
 
   private static final Map<RecordType, String> RECORD_TYPE_TO_RESOURCE_MAP = Map.of(
     RecordType.INSTANCES, INSTANCE_RESOURCE,

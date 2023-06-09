@@ -3,8 +3,7 @@ package org.folio.search.controller;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
-import static org.folio.search.support.base.ApiEndpoints.featureConfig;
-import static org.folio.search.support.base.ApiEndpoints.languageConfig;
+import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
@@ -60,18 +59,18 @@ class ConfigIT extends BaseIntegrationTest {
 
   @BeforeEach
   void removeConfigs() {
-    parseResponse(doGet(languageConfig()), LanguageConfigs.class)
+    parseResponse(doGet(ApiEndpoints.languageConfigPath()), LanguageConfigs.class)
       .getLanguageConfigs()
-      .forEach(config -> doDelete(languageConfig() + "/{code}", config.getCode()));
+      .forEach(config -> doDelete(ApiEndpoints.languageConfigPath() + "/{code}", config.getCode()));
   }
 
   @Test
   void canCreateLanguageConfig() throws Exception {
     final var languageCode = "eng";
 
-    doPost(languageConfig(), new LanguageConfig().code(languageCode));
+    doPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code(languageCode));
 
-    doGet(languageConfig())
+    doGet(ApiEndpoints.languageConfigPath())
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)));
   }
@@ -81,18 +80,18 @@ class ConfigIT extends BaseIntegrationTest {
     final var languageCode = "kor";
     final var analyzer = "nori";
 
-    doPost(languageConfig(), TestUtils.languageConfig(languageCode, analyzer));
+    doPost(ApiEndpoints.languageConfigPath(), TestUtils.languageConfig(languageCode, analyzer));
 
-    doGet(languageConfig())
+    doGet(ApiEndpoints.languageConfigPath())
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
 
     var newAnalyzer = "seunjeon_analyzer";
-    doPut(languageConfig() + "/kor", TestUtils.languageConfig(languageCode, newAnalyzer))
+    doPut(ApiEndpoints.languageConfigPath() + "/kor", TestUtils.languageConfig(languageCode, newAnalyzer))
       .andExpect(jsonPath("languageAnalyzer", is(newAnalyzer)));
 
-    doGet(languageConfig())
+    doGet(ApiEndpoints.languageConfigPath())
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(newAnalyzer)));
@@ -103,9 +102,9 @@ class ConfigIT extends BaseIntegrationTest {
     final var languageCode = "kor";
     final var analyzer = "nori";
 
-    doPost(languageConfig(), TestUtils.languageConfig(languageCode, analyzer));
+    doPost(ApiEndpoints.languageConfigPath(), TestUtils.languageConfig(languageCode, analyzer));
 
-    doGet(languageConfig())
+    doGet(ApiEndpoints.languageConfigPath())
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
@@ -113,7 +112,7 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void cannotAddLanguageIfNoAnalyzer() throws Exception {
-    attemptPost(languageConfig(), new LanguageConfig().code("ukr"))
+    attemptPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code("ukr"))
       .andExpect(status().is(422))
       .andExpect(jsonPath("total_records", is(1)))
       .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
@@ -126,9 +125,9 @@ class ConfigIT extends BaseIntegrationTest {
   void canRemoveLanguageConfig() throws Exception {
     final var language = new LanguageConfig().code("fre");
 
-    doPost(languageConfig(), language);
+    doPost(ApiEndpoints.languageConfigPath(), language);
 
-    doDelete(languageConfig() + "/fre")
+    doDelete(ApiEndpoints.languageConfigPath() + "/fre")
       .andExpect(status().isNoContent());
   }
 
@@ -138,7 +137,7 @@ class ConfigIT extends BaseIntegrationTest {
   void shouldUseConfiguredLanguagesDuringMapping() {
     final List<String> languageCodes = List.of("eng", "rus");
     for (String languageCode : languageCodes) {
-      doPost(languageConfig(), new LanguageConfig().code(languageCode));
+      doPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code(languageCode));
     }
 
     var newInstance = new Instance()
@@ -160,41 +159,41 @@ class ConfigIT extends BaseIntegrationTest {
   @Test
   void featureConfigurationWorkflow_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    doPost(ApiEndpoints.featureConfig(), feature)
+    doPost(ApiEndpoints.featureConfigPath(), feature)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(true)));
 
     var featureToUpdate = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(false);
-    doPut(ApiEndpoints.featureConfig(SEARCH_ALL_FIELDS), featureToUpdate)
+    doPut(ApiEndpoints.featureConfigPath(SEARCH_ALL_FIELDS), featureToUpdate)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(false)));
 
-    doDelete(featureConfig(SEARCH_ALL_FIELDS))
+    doDelete(featureConfigPath(SEARCH_ALL_FIELDS))
       .andExpect(status().isNoContent());
   }
 
   @Test
   void createFeatureConfig_negative() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    doPost(featureConfig(), feature)
+    doPost(ApiEndpoints.featureConfigPath(), feature)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(true)));
 
-    attemptPost(featureConfig(), feature)
+    attemptPost(ApiEndpoints.featureConfigPath(), feature)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration already exists")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("feature")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("search.all.fields")));
 
-    doDelete(featureConfig(SEARCH_ALL_FIELDS)).andExpect(status().isNoContent());
+    doDelete(featureConfigPath(SEARCH_ALL_FIELDS)).andExpect(status().isNoContent());
   }
 
   @Test
   void createFeatureConfig_negative_bodyWithoutFields() throws Exception {
-    attemptPost(featureConfig(), new FeatureConfig())
+    attemptPost(ApiEndpoints.featureConfigPath(), new FeatureConfig())
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[*].parameters[*].key", containsInAnyOrder("enabled", "feature")));
   }
@@ -202,7 +201,7 @@ class ConfigIT extends BaseIntegrationTest {
   @Test
   void updateFeatureConfig_notExists() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    attemptPut(featureConfig(SEARCH_ALL_FIELDS), feature)
+    attemptPut(featureConfigPath(SEARCH_ALL_FIELDS), feature)
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
@@ -210,7 +209,7 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void deleteUnknownFeature_notExists() throws Exception {
-    attemptDelete(featureConfig(SEARCH_ALL_FIELDS))
+    attemptDelete(featureConfigPath(SEARCH_ALL_FIELDS))
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));

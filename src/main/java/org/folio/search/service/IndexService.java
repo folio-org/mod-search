@@ -53,8 +53,11 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId) {
+    validateResourceName(resourceName,
+      "Index cannot be created for the resource because resource description is not found.");
+
     var settings = settingsHelper.getSettings(resourceName);
-    return createIndex(resourceName, tenantId, settings);
+    return doCreateIndex(resourceName, tenantId, settings);
   }
 
   /**
@@ -66,24 +69,11 @@ public class IndexService {
    * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
    */
   public FolioCreateIndexResponse createIndex(String resourceName, String tenantId, IndexSettings indexSettings) {
-    var settings = prepareIndexSettings(resourceName, indexSettings);
-
-    return createIndex(resourceName, tenantId, settings.toString());
-  }
-
-  private FolioCreateIndexResponse createIndex(String resourceName, String tenantId, String indexSettings) {
-    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]",
-      resourceName, tenantId);
-
     validateResourceName(resourceName,
       "Index cannot be created for the resource because resource description is not found.");
 
-    var index = getIndexName(resourceName, tenantId);
-    var mappings = mappingHelper.getMappings(resourceName);
-
-    log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
-      index, mappings, indexSettings);
-    return indexRepository.createIndex(index, indexSettings, mappings);
+    var settings = prepareIndexSettings(resourceName, indexSettings);
+    return doCreateIndex(resourceName, tenantId, settings.toString());
   }
 
   /**
@@ -96,8 +86,7 @@ public class IndexService {
    */
   public FolioIndexOperationResponse updateIndexSettings(String resourceName, String tenantId,
                                                          IndexDynamicSettings indexSettings) {
-    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]",
-      resourceName, tenantId);
+    log.debug("updateIndexSettings:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
 
     validateResourceName(resourceName, "Index Settings cannot be updated, resource name is invalid.");
 
@@ -171,14 +160,25 @@ public class IndexService {
     }
   }
 
+  private FolioCreateIndexResponse doCreateIndex(String resourceName, String tenantId, String indexSettings) {
+    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
+
+    var index = getIndexName(resourceName, tenantId);
+    var mappings = mappingHelper.getMappings(resourceName);
+
+    log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
+      index, mappings, indexSettings);
+    return indexRepository.createIndex(index, indexSettings, mappings);
+  }
+
   private List<String> getResourceNamesToReindex(ReindexRequest reindexRequest) {
     log.debug("getResourceNamesToReindex:: by [reindexRequest: {}]", reindexRequest);
 
     var resourceName = getReindexRequestResourceName(reindexRequest);
-    var resourceDescription = resourceDescriptionService.get(resourceName);
-    if (resourceDescription == null
-      || resourceDescription.getParent() != null
-      || !resourceDescription.isReindexSupported()) {
+    var resourceDescription = resourceDescriptionService.find(resourceName);
+    if (resourceDescription.isEmpty()
+      || resourceDescription.get().getParent() != null
+      || !resourceDescription.get().isReindexSupported()) {
       throw new RequestValidationException(
         "Reindex request contains invalid resource name", RESOURCE_NAME_PARAMETER, resourceName);
     }
@@ -221,7 +221,6 @@ public class IndexService {
   private void updateNumberOfReplicas(ObjectNode settings, Integer numberOfReplicas) {
     Optional.ofNullable(numberOfReplicas)
       .ifPresent(replicasNum -> settings.put("number_of_replicas", replicasNum));
-
   }
 
   private void updateRefreshInterval(ObjectNode settings, Integer refreshInt) {
@@ -235,9 +234,9 @@ public class IndexService {
   }
 
   private void validateResourceName(String resourceName, String message) {
-    if (resourceDescriptionService.get(resourceName) == null) {
-      throw new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName);
-    }
+    var resourceDescription = resourceDescriptionService.find(resourceName)
+      .orElseThrow(() -> new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName));
+    log.trace("Resource description was found for {}", resourceDescription.getName());
   }
 
   private static String normalizeResourceName(String url) {

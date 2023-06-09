@@ -3,7 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
-import static org.folio.search.support.base.ApiEndpoints.instanceIds;
+import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -85,7 +85,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   @Test
   void streamInstanceIds() throws Exception {
-    doGet(instanceIds("cql.allRecords=1"))
+    doGet(instanceIdsPath("cql.allRecords=1"))
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
   }

@@ -1,6 +1,6 @@
 package org.folio.search.controller;
 
-import static org.folio.search.support.base.ApiEndpoints.createIndicesEndpoint;
+import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -46,9 +46,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @UnitTest
-@WebMvcTest(IndexController.class)
+@WebMvcTest(IndexManagementController.class)
 @Import(ApiExceptionHandler.class)
-class IndexControllerTest {
+class IndexManagementControllerTest {
 
   private static final String RESOURCE_NAME = "test-resource";
   private static final String TENANT_ID = "test-tenant";
@@ -66,7 +66,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME)));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")))
       .andExpect(jsonPath("$.indices", is(List.of(INDEX_NAME))));
@@ -82,7 +82,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException("error", openSearchException));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Index already exists: " + INDEX_NAME)))
@@ -98,7 +98,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException("i/o error", openSearchException));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
@@ -112,7 +112,7 @@ class IndexControllerTest {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
       new SearchOperationException(errorMessage, new IOException(errorMessage)));
 
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is(errorMessage)))
@@ -122,7 +122,7 @@ class IndexControllerTest {
 
   @Test
   void createIndex_negative_resourceNameIsNotPassed() throws Exception {
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(new CreateIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(new CreateIndexRequest())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("must not be null")))
@@ -135,7 +135,7 @@ class IndexControllerTest {
   @Test
   void createIndex_negative_nullPointerException() throws Exception {
     when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(new NullPointerException());
-    mockMvc.perform(preparePostRequest(createIndicesEndpoint(), asJsonString(createIndexRequest())))
+    mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].type", is("NullPointerException")))

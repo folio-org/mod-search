@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -27,6 +30,7 @@ import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class InstanceSubjectRepository extends AbstractResourceRepository {
@@ -40,23 +44,30 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     var docsById = documentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
     for (var entry : docsById.entrySet()) {
       var documents = entry.getValue();
-      var upsertRequest = prepareUpsertRequest(documents.iterator().next(), prepareInstanceIds(documents));
-      bulkRequest.add(upsertRequest);
+      var instanceIds = prepareInstanceIds(documents);
+      if (!IterableUtils.matchesAll(instanceIds.values(), Set::isEmpty)) {
+        var upsertRequest = prepareUpsertRequest(documents.iterator().next(), instanceIds);
+        bulkRequest.add(upsertRequest);
+      }
     }
 
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
+           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+           : getSuccessIndexOperationResponse();
   }
 
   private EnumMap<IndexActionType, Set<String>> prepareInstanceIds(List<SearchDocumentBody> documents) {
     var instanceIds = prepareInstanceIdMap();
     for (var document : documents) {
-      var eventPayload = getPayload(document);
-      var instanceId = String.valueOf(eventPayload.get("instanceId"));
-      instanceIds.getOrDefault(document.getAction(), instanceIds.get(DELETE)).add(instanceId);
+      var payload = getPayload(document);
+      var instanceId = String.valueOf(payload.get("instanceId"));
+      if (StringUtils.isNotBlank(instanceId)) {
+        instanceIds.getOrDefault(document.getAction(), instanceIds.get(DELETE)).add(instanceId);
+      } else {
+        log.warn("InstanceId is blank in subject event. [payload: {}]", payload);
+      }
     }
     return instanceIds;
   }

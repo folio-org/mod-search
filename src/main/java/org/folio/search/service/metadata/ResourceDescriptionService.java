@@ -7,6 +7,7 @@ import static java.util.Collections.unmodifiableMap;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.ResolvableType.forClass;
 
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;

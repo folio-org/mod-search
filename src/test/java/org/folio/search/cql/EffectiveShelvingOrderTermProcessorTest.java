@@ -1,6 +1,8 @@
 package org.folio.search.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,6 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 
 @UnitTest
 class EffectiveShelvingOrderTermProcessorTest {
@@ -35,6 +38,38 @@ class EffectiveShelvingOrderTermProcessorTest {
   void getSearchTerm_parameterized_callNumber(String given) {
     var expected = new LCCallNumber(given).getShelfKey();
     var actual = searchTermProcessor.getSearchTerm(given);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "QS 11 .GA1 E53 2005", "QS 11 .GA1 F875d 1999", "QS 11 .GA1 Q6 2012", "QS 11 .GI8 P235s 2006",
+    "QS 124 B811m 1875", "QT 104 B736 2003", "QT 104 B736 2009", "WA 102.5 B62 2018", "WB 102.5 B62 2018",
+    "WC 250 M56 2011", "WC 250 M6 2011"
+    // uncomment the below sample call numbers once the necessary fix is added into marc4j library
+    //"W 100 B5315 2018", "W 600 B5315 2020",
+  })
+  void getSearchTerm_parameterized_validNlmCallNumber(String given) {
+    var expected = new NlmCallNumber(given).getShelfKey().trim();
+    var actual = searchTermProcessor.getSearchTerm(given);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "QA 11 .GA1 E53 2005", "QB 11 .GA1 F875d 1999", "QC 11 .GA1 Q6 2012", "QD 11 .GI8 P235s 2006",
+    "QE 124 B811m 1875", "QF 104 B736 2003", "QG 104 B736 2009", "AB 102.5 B5315 2018", "KDZ 102.5 B62 2018",
+    "BC 102.5 B62 2018", "CD 250 M56 2011", "RD 250 M6 2011", "ZA 11 .GA1 E53 2005"
+  })
+  void getSearchTerm_parameterized_invalidNlmAndValidLcCallNumber(String given) {
+    var lcCallNumber = new LCCallNumber(given);
+    var nlmCallNumber = new NlmCallNumber(given);
+    var expected = lcCallNumber.getShelfKey().trim();
+
+    var actual = searchTermProcessor.getSearchTerm(given);
+
+    assertFalse(nlmCallNumber.isValid());
+    assertTrue(lcCallNumber.isValid());
     assertThat(actual).isEqualTo(expected);
   }
 

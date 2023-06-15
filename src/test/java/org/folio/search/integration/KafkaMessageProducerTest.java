@@ -20,6 +20,8 @@ import org.folio.search.utils.JsonConverter;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,14 +40,57 @@ class KafkaMessageProducerTest {
   private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
   @Test
+  void shouldSendTwoSubjectEvents_whenSubjectChanged() {
+    var instanceId = randomId();
+    var oldSubjectObject = subjectObject("Medicine");
+    var newSubjectObject = subjectObject("Anthropology");
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+      instanceObjectWithSubjects(instanceId, newSubjectObject),
+      instanceObjectWithSubjects(instanceId, oldSubjectObject)
+    );
+    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate, times(2)).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
+  void shouldSendNoSubjectEvents_whenSubjectNotChanged() {
+    var instanceId = randomId();
+    var name = "Medicine";
+    var oldContributorObject = subjectObject(name);
+    var newContributorObject = subjectObject(name);
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+      instanceObjectWithSubjects(instanceId, newContributorObject),
+      instanceObjectWithSubjects(instanceId, oldContributorObject)
+    );
+    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @NullAndEmptySource
+  @ParameterizedTest
+  void shouldSendNoSubjectEvents_whenInstanceIdIsBlank(String instanceId) {
+    var oldSubjectObject = subjectObject("Medicine");
+    var newSubjectObject = subjectObject("Anthropology");
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+      instanceObjectWithSubjects(instanceId, newSubjectObject),
+      instanceObjectWithSubjects(instanceId, oldSubjectObject)
+    );
+    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
   void shouldSendTwoContributorEvents_whenContributorChanged() {
     var instanceId = randomId();
     var typeId = randomId();
     var oldContributorObject = contributorObject(typeId, "Vader, Dart");
     var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
     var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
-      instanceObject(instanceId, newContributorObject),
-      instanceObject(instanceId, oldContributorObject)
+      instanceObjectWithContributors(instanceId, newContributorObject),
+      instanceObjectWithContributors(instanceId, oldContributorObject)
     );
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
@@ -60,8 +105,8 @@ class KafkaMessageProducerTest {
     var oldContributorObject = contributorObject(typeId, name);
     var newContributorObject = contributorObject(typeId, name);
     var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
-      instanceObject(instanceId, newContributorObject),
-      instanceObject(instanceId, oldContributorObject)
+      instanceObjectWithContributors(instanceId, newContributorObject),
+      instanceObjectWithContributors(instanceId, oldContributorObject)
     );
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
@@ -77,8 +122,8 @@ class KafkaMessageProducerTest {
     var newContributorObject = contributorObject(typeId, name);
     newContributorObject.put("contributorTypeText", "text");
     var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
-      instanceObject(instanceId, newContributorObject),
-      instanceObject(instanceId, oldContributorObject)
+      instanceObjectWithContributors(instanceId, newContributorObject),
+      instanceObjectWithContributors(instanceId, oldContributorObject)
     );
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
@@ -97,7 +142,7 @@ class KafkaMessageProducerTest {
   @Test
   void prepareAndSendContributorEvents_positive_contributorWithoutTypeNameId() {
     var instanceId = randomId();
-    var instanceObject = instanceObject(instanceId, mapOf("name", "John Smith"));
+    var instanceObject = instanceObjectWithContributors(instanceId, mapOf("name", "John Smith"));
     var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, instanceObject, null);
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
@@ -105,12 +150,22 @@ class KafkaMessageProducerTest {
   }
 
   @NotNull
-  private Map<String, String> instanceObject(String id, Map<String, String> contributorObject) {
+  private Map<String, String> instanceObjectWithContributors(String id, Map<String, String> contributorObject) {
     return mapOf("id", id, "contributors", List.of(contributorObject));
+  }
+
+  @NotNull
+  private Map<String, String> instanceObjectWithSubjects(String id, Map<String, String> subjectObject) {
+    return mapOf("id", id, "subjects", List.of(subjectObject));
   }
 
   @NotNull
   private Map<String, String> contributorObject(String typeId, String name) {
     return mapOf("contributorNameTypeId", typeId, "name", name);
+  }
+
+  @NotNull
+  private Map<String, String> subjectObject(String name) {
+    return mapOf("value", name);
   }
 }

@@ -64,7 +64,7 @@ public class SearchService {
 
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
-      log.info("search:: expandAll to include: {}]", includes);
+      log.debug("search:: expandAll to include: {}]", (Object) includes);
       queryBuilder.fetchSource(includes, null);
     }
 

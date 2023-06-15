@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/search/")
+@RequestMapping("/")
 public class ConfigController implements ConfigApi {
 
   private final LanguageConfigService languageConfigService;

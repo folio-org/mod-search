@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.support.base.ApiEndpoints.recordFacets;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -109,7 +109,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForInstances_parameterized")
   void getFacetsForInstances_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacets(RecordType.INSTANCES, query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.INSTANCES, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);
@@ -136,7 +136,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacets(RecordType.INSTANCES, "cql.allRecords=1", "unknownFacet:5"))
+    attemptGet(recordFacetsPath(RecordType.INSTANCES, "cql.allRecords=1", "unknownFacet:5"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))

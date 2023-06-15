@@ -5,13 +5,15 @@ info:
   description: Search API
 
 servers:
-  - url: https://falcon.ci.folio.org/search/
+  - url: https://folio-dev-spitfire-okapi.ci.folio.org/
 
 paths:
-  /instances:
+  /search/instances:
     get:
       operationId: searchInstances
       description: Get a list of instances for CQL query
+      tags:
+        - search
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/cql-query'
@@ -31,10 +33,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /instances/ids:
+  /search/instances/ids:
     get:
       operationId: getInstanceIds
       description: Get a list of instance ids for CQL query
+      tags:
+        - search-resources-ids
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -52,10 +56,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /holdings/ids:
+  /search/holdings/ids:
     get:
       operationId: getHoldingIds
       description: Get a list of holding ids linked to instances found by the CQL query
+      tags:
+        - search-resources-ids
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/x-okapi-tenant-header'
@@ -73,10 +79,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /{recordType}/facets:
+  /search/{recordType}/facets:
     get:
       operationId: getFacets
       description: Provides list of facets for the record type
+      tags:
+        - facets
       parameters:
         - name: recordType
           required: true
@@ -99,10 +107,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /authorities:
+  /search/authorities:
     get:
       operationId: searchAuthorities
       description: Get a list of authorities for CQL query
+      tags:
+        - search
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/cql-query'
@@ -123,10 +133,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /resources/jobs/{jobId}:
+  /search/resources/jobs/{jobId}:
     get:
       operationId: getIdsJob
       description: Get a job for the stream of resource ids.
+      tags:
+        - search-resources-ids
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/job-stream-id'
@@ -143,10 +155,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /resources/jobs:
+  /search/resources/jobs:
     post:
       operationId: submitIdsJob
       description: Creates a job for the stream of resource ids.
+      tags:
+        - search-resources-ids
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
@@ -168,10 +182,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /resources/jobs/{jobId}/ids:
+  /search/resources/jobs/{jobId}/ids:
     get:
       operationId: getResourceIds
       description: Get a list of resource ids by job id
+      tags:
+        - search-resources-ids
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
         - $ref: '#/components/parameters/job-stream-id'
@@ -190,6 +206,8 @@ paths:
     get:
       operationId: browseInstancesByCallNumber
       description: Provides list of instances for browsing by call number
+      tags:
+        - browse
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/browse-limit-param'
@@ -220,6 +238,8 @@ paths:
     get:
       operationId: browseInstancesBySubject
       description: Provides list of instances for browsing by subject
+      tags:
+        - browse
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/limit-param'
@@ -243,6 +263,8 @@ paths:
     get:
       operationId: browseInstancesByContributor
       description: Provides list of instances for browsing by contributor
+      tags:
+        - browse
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/limit-param'
@@ -266,6 +288,8 @@ paths:
     get:
       operationId: browseAuthorities
       description: Provides list of authorities by headingRef
+      tags:
+        - browse
       parameters:
         - $ref: '#/components/parameters/cql-query'
         - $ref: '#/components/parameters/limit-param'
@@ -286,10 +310,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /index/indices:
+  /search/index/indices:
     post:
       operationId: createIndices
       description: Creates indices for passed resource name and tenant id in request header.
+      tags:
+        - index-management
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
@@ -310,10 +336,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /index/mappings:
+  /search/index/mappings:
     post:
       operationId: updateMappings
       description: Creates mappings for passed resource name and tenant id in request header.
+      tags:
+        - index-management
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
@@ -331,10 +359,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /index/records:
+  /search/index/records:
     post:
       operationId: indexRecords
       description: Indexes the records into elasticsearch.
+      tags:
+        - index-management
       requestBody:
         content:
           application/json:
@@ -351,10 +381,13 @@ paths:
                 $ref: '#/components/schemas/folioIndexOperationResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
-  /index/settings:
+
+  /search/index/settings:
     put:
       operationId: updateIndexDynamicSettings
       description: Update Index Dynamic Settings data.
+      tags:
+        - index-management
       parameters:
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
@@ -372,10 +405,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /index/inventory/reindex:
+  /search/index/inventory/reindex:
     post:
       operationId: reindexInventoryRecords
       description: Initiates reindex for the inventory records
+      tags:
+        - index-management
       requestBody:
         content:
           application/json:
@@ -394,10 +429,12 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /config/languages:
+  /search/config/languages:
     post:
       operationId: createLanguageConfig
       description: Save languages that will be used for analyzers
+      tags:
+        - config
       requestBody:
         content:
           application/json:
@@ -415,6 +452,8 @@ paths:
     get:
       operationId: getAllLanguageConfigs
       description: Get all supported languages
+      tags:
+        - config
       responses:
         '200':
           description: All supported languages
@@ -423,10 +462,12 @@ paths:
               schema:
                 $ref: schemas/languageConfigs.json
 
-  /config/languages/{code}:
+  /search/config/languages/{code}:
     put:
       operationId: updateLanguageConfig
       description: Update language config settings
+      tags:
+        - config
       parameters:
         - $ref: '#/components/parameters/language-code'
       requestBody:
@@ -446,6 +487,8 @@ paths:
     delete:
       operationId: deleteLanguageConfig
       description: Delete all supported languages
+      tags:
+        - config
       parameters:
         - $ref: '#/components/parameters/language-code'
       responses:
@@ -454,10 +497,12 @@ paths:
         '404':
           description: No language support is found
 
-  /config/features:
+  /search/config/features:
     post:
       operationId: saveFeatureConfiguration
       description: Save feature configuration (enables or disables pre-defined optional search options)
+      tags:
+        - config
       requestBody:
         content:
           application/json:
@@ -477,6 +522,8 @@ paths:
     get:
       operationId: getAllFeatures
       description: Get all feature configurations per tenant
+      tags:
+        - config
       responses:
         '200':
           description: All feature configurations
@@ -485,10 +532,12 @@ paths:
               schema:
                 $ref: schemas/featureConfigs.json
 
-  /config/features/{featureId}:
+  /search/config/features/{featureId}:
     put:
       operationId: updateFeatureConfiguration
       description: Update feature configuration settings
+      tags:
+        - config
       parameters:
         - $ref: '#/components/parameters/feature-id'
       requestBody:
@@ -510,6 +559,8 @@ paths:
     delete:
       operationId: deleteFeatureConfigurationById
       description: Delete feature configuration by id
+      tags:
+        - config
       parameters:
         - $ref: '#/components/parameters/feature-id'
       responses:

@@ -22,6 +22,7 @@ import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,10 +33,12 @@ import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.Subject;
+import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -51,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 @IntegrationTest
-class IndexingIT extends BaseIntegrationTest {
+class RecordsIndexingIT extends BaseIntegrationTest {
 
   private static final List<String> INSTANCE_IDS = getRandomIds(3);
   private static final List<String> ITEM_IDS = getRandomIds(2);
@@ -68,35 +71,6 @@ class IndexingIT extends BaseIntegrationTest {
   @AfterAll
   static void cleanUp() {
     removeTenant();
-  }
-
-  private static Item item(int i) {
-    return new Item().id(ITEM_IDS.get(i));
-  }
-
-  private static Holding holdingsRecord(int i) {
-    return new Holding().id(HOLDING_IDS.get(i));
-  }
-
-  private static void assertCountByQuery(String path, CqlQueryParam param, List<String> ids, int expected) {
-    var query = exactMatchAny(param, ids).toString();
-    await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  private static void assertCountByQuery(String path, String template, String value, int expected) {
-    await(() -> doSearch(path, prepareQuery(template, value)).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  private static void await(ThrowingRunnable runnable) {
-    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
-  }
-
-  private static List<String> getRandomIds(int count) {
-    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
-  }
-
-  private static String getSubjectId(String instanceId) {
-    return sha1Hex(TENANT_ID + "|subject-" + sha1Hex(instanceId) + "|null");
   }
 
   @Test
@@ -231,6 +205,70 @@ class IndexingIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("contributor")));
+  }
+
+  @Test
+  void updateIndexDynamicSettings_positive() throws Exception {
+    var request = put(ApiEndpoints.updateIndexSettingsPath())
+      .content(asJsonString(new UpdateIndexDynamicSettingsRequest()
+        .resourceName(getResourceName(Authority.class))
+        .indexSettings(new IndexDynamicSettings().numberOfReplicas(1).refreshInterval(1))))
+      .headers(defaultHeaders())
+      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
+      .contentType(MediaType.APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.status", is("success")));
+  }
+
+  @Test
+  void updateIndexDynamicSettings_negative() throws Exception {
+    var request = put(ApiEndpoints.updateIndexSettingsPath())
+      .content(asJsonString(new UpdateIndexDynamicSettingsRequest()
+        .resourceName("invalid-resource")
+        .indexSettings(new IndexDynamicSettings().numberOfReplicas(1).refreshInterval(1))))
+      .headers(defaultHeaders())
+      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
+      .contentType(MediaType.APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Index Settings cannot be updated, resource name is invalid.")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("invalid-resource")));
+  }
+
+  private static Item item(int i) {
+    return new Item().id(ITEM_IDS.get(i));
+  }
+
+  private static Holding holdingsRecord(int i) {
+    return new Holding().id(HOLDING_IDS.get(i));
+  }
+
+  private static void assertCountByQuery(String path, CqlQueryParam param, List<String> ids, int expected) {
+    var query = exactMatchAny(param, ids).toString();
+    await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  private static void assertCountByQuery(String path, String template, String value, int expected) {
+    await(() -> doSearch(path, prepareQuery(template, value)).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  private static void await(ThrowingRunnable runnable) {
+    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
+  }
+
+  private static List<String> getRandomIds(int count) {
+    return IntStream.range(0, count).mapToObj(index -> randomId()).toList();
+  }
+
+  private static String getSubjectId(String instanceId) {
+    return sha1Hex(TENANT_ID + "|subject-" + sha1Hex(instanceId) + "|null");
   }
 
   private void createInstances() {

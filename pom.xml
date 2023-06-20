@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.6</version>
+    <version>3.1.0</version>
     <relativePath />
   </parent>
 
@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>7.0.0</folio-spring-base.version>
+    <folio-spring-base.version>7.1.0</folio-spring-base.version>
     <folio-service-tools.version>3.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.5.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.6</folio-cql2pgjson.version>

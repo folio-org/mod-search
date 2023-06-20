@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.setter.FieldProcessor;
@@ -47,7 +48,9 @@ public class ItemTypedCallNumberProcessor implements FieldProcessor<Instance, Se
 
   private Long toCallNumberLongRepresentation(Item item) {
     var effectiveShelvingOrder = item.getEffectiveShelvingOrder();
-    var callNumberTypeId = item.getItemLevelCallNumberTypeId();
+    var callNumberTypeId = Optional.ofNullable(item.getEffectiveCallNumberComponents())
+      .map(ItemEffectiveCallNumberComponents::getTypeId)
+      .orElse(null);
     if (StringUtils.isAnyBlank(callNumberTypeId, effectiveShelvingOrder)) {
       return null;
     } else {

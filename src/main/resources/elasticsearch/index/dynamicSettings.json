@@ -1,0 +1,7 @@
+{
+  "index": {
+    "number_of_replicas": 2,
+    "refresh_interval": "1s"
+  }
+}
+

@@ -118,6 +118,22 @@ class InstanceSubjectRepositoryTest {
     }
   }
 
+  @Test
+  void indexResources_positive_skipIfInstanceIdIsBlank() throws IOException {
+    var subject = "scala";
+
+    var bulkResponse = mock(BulkResponse.class);
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
+    when(bulkResponse.hasFailures()).thenReturn(false);
+
+    var documents = List.of(subjectDocumentBodyToDelete(subject, ""));
+    var actual = repository.indexResources(documents);
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    var requests = bulkRequestCaptor.getValue().requests();
+    assertThat(requests).isEmpty();
+  }
+
   @SuppressWarnings("unchecked")
   private Set<String> getParam(Script script, String del) {
     return (Set<String>) script.getParams().get(del);
@@ -134,7 +150,12 @@ class InstanceSubjectRepositoryTest {
 
   @SneakyThrows
   private SearchDocumentBody subjectDocumentBodyToDelete(String subject) {
-    var body = mapOf("value", subject, "instanceId", RESOURCE_ID);
+    return subjectDocumentBodyToDelete(subject, RESOURCE_ID);
+  }
+
+  @SneakyThrows
+  private SearchDocumentBody subjectDocumentBodyToDelete(String subject, String instanceId) {
+    var body = mapOf("value", subject, "instanceId", instanceId);
     var event =
       resourceEvent(getDocumentId(subject, null), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.DELETE, null, body);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, DELETE);

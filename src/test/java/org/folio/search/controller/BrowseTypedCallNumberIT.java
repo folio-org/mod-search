@@ -170,9 +170,9 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
-        .itemLevelCallNumberTypeId(data.get(2).toString()))
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
+          .callNumber(callNumber).typeId(data.get(2).toString()))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .toList();
 
     return new Instance()

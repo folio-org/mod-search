@@ -3,8 +3,10 @@ package org.folio.search.controller;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.rest.resource.AuthoritiesApi;
+import org.folio.search.rest.resource.SearchApi;
 import org.folio.search.service.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,10 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/search")
-public class AuthorityController implements AuthoritiesApi {
+@RequestMapping("/")
+public class SearchController implements SearchApi {
 
   private final SearchService searchService;
+
+  @Override
+  public ResponseEntity<InstanceSearchResult> searchInstances(String tenantId, String query, Integer limit,
+                                                              Integer offset, Boolean expandAll) {
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
+    var result = searchService.search(searchRequest);
+    return ResponseEntity.ok(new InstanceSearchResult()
+      .instances(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
 
   @Override
   public ResponseEntity<AuthoritySearchResult> searchAuthorities(

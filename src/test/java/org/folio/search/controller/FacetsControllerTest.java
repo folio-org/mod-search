@@ -35,8 +35,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @Import({ApiExceptionHandler.class})
-@WebMvcTest(FacetController.class)
-class FacetControllerTest {
+@WebMvcTest(FacetsController.class)
+class FacetsControllerTest {
 
   @MockBean
   private FacetService facetService;

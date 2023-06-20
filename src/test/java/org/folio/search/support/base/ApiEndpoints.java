@@ -32,53 +32,57 @@ public class ApiEndpoints {
     return "/browse/authorities";
   }
 
-  public static String recordFacets(RecordType type, String query, String... facets) {
+  public static String recordFacetsPath(RecordType type, String query, String... facets) {
     var joinedFacets = String.join("&facet=", facets);
     return String.format("/search/%s/facets?query=%s&facet=%s", type.getValue(), query, joinedFacets);
   }
 
-  public static String languageConfig() {
+  public static String languageConfigPath() {
     return "/search/config/languages";
   }
 
-  public static String languageConfig(String languageCode) {
+  public static String languageConfigPath(String languageCode) {
     return "/search/config/languages/" + languageCode;
   }
 
-  public static String featureConfig() {
+  public static String featureConfigPath() {
     return "/search/config/features";
   }
 
-  public static String featureConfig(TenantConfiguredFeature feature) {
-    return featureConfig() + "/" + feature.getValue();
+  public static String featureConfigPath(TenantConfiguredFeature feature) {
+    return featureConfigPath() + "/" + feature.getValue();
   }
 
-  public static String createIndicesEndpoint() {
+  public static String createIndicesPath() {
     return "/search/index/indices";
   }
 
-  public static String instanceIds(String query) {
+  public static String instanceIdsPath(String query) {
     return String.format("/search/instances/ids?query=%s", query);
   }
 
-  public static String resourcesIds(String query) {
+  public static String resourcesIdsPath(String query) {
     return String.format("/search/resources/jobs/%s/ids", query);
   }
 
-  public static String resourcesIdsJob() {
+  public static String resourcesIdsJobPath() {
     return "/search/resources/jobs";
   }
 
-  public static String resourcesIdsJob(String id) {
+  public static String resourcesIdsJobPath(String id) {
     return String.format("/search/resources/jobs/%s", id);
   }
 
-  public static String holdingIds(String query) {
+  public static String holdingIdsPath(String query) {
     return String.format("/search/holdings/ids?query=%s", query);
   }
 
   public static String reindexPath() {
     return "/search/index/inventory/reindex";
+  }
+
+  public static String updateIndexSettingsPath() {
+    return "/search/index/settings";
   }
 
   public static String allRecordsSortedBy(String sort, CqlSort order) {

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Update Index Settings request body",
+  "type": "object",
+  "properties": {
+    "resourceName": {
+      "type": "string",
+      "description": "Resource name to set index Settings"
+    },
+    "indexSettings": {
+      "description": "Index settings to apply for index",
+      "$ref": "../indexDynamicSettings.json"
+    }
+  },
+  "required": ["resourceName"]
+}

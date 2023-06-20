@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +14,8 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
 
   @Override
   public String getSearchTerm(String inputTerm) {
-    return getValidShelfKey(new LCCallNumber(inputTerm))
+    return getValidShelfKey(new NlmCallNumber(inputTerm))
+      .or(() -> getValidShelfKey(new LCCallNumber(inputTerm)))
       .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
       .orElse(normalizeEffectiveShelvingOrder(inputTerm))
       .trim();

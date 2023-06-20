@@ -1,5 +1,6 @@
 package org.folio.search.service.es;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
@@ -23,11 +24,21 @@ public class SearchSettingsHelper {
    * @return elasticsearch settings as {@link String} object with JSON object inside
    */
   public String getSettings(String resource) {
+    return getSettingsJson(resource).toString();
+  }
+
+  /**
+   * Provides elasticsearch settings for given resource name.
+   *
+   * @param resource resource name as {@link String} object
+   * @return elasticsearch settings as {@link JsonNode} object
+   */
+  public JsonNode getSettingsJson(String resource) {
     log.debug("getSettings:: by [resource: {}]", resource);
 
     var resourceSettings = localFileProvider.read(getIndexSettingsPath(resource));
     try {
-      return jsonConverter.asJsonTree(resourceSettings).toString();
+      return jsonConverter.asJsonTree(resourceSettings);
     } catch (SerializationException e) {
       throw new ResourceDescriptionException(String.format(
         "Failed to load resource index settings [resourceName: %s], msg: %s", resource, e.getMessage()));

@@ -2,7 +2,7 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.support.base.ApiEndpoints.recordFacets;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -284,7 +284,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForAuthorities_parameterized")
   void getFacetsForAuthorities_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacets(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);
@@ -311,7 +311,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   @Test
   void searchByAuthorities_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacets(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
+    attemptGet(recordFacetsPath(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))

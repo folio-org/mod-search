@@ -333,7 +333,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   @SuppressWarnings("SameParameterValue")
   protected static void enableFeature(String tenantId, TenantConfiguredFeature feature) {
-    mockMvc.perform(post(ApiEndpoints.featureConfig())
+    mockMvc.perform(post(ApiEndpoints.featureConfigPath())
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(true))))
       .andExpect(status().isOk());
@@ -348,7 +348,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   @SuppressWarnings("SameParameterValue")
   protected static void disableFeature(String tenantId, TenantConfiguredFeature feature) {
-    mockMvc.perform(put(ApiEndpoints.featureConfig(feature))
+    mockMvc.perform(put(ApiEndpoints.featureConfigPath(feature))
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(false))))
       .andExpect(status().isOk());

@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "0.4",
+      "version": "0.6",
       "handlers": [
         {
           "methods": [ "POST" ],
@@ -34,12 +34,17 @@
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post"
           ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/search/index/settings",
+          "permissionsRequired": [ "search.index.settings.item.put" ]
         }
       ]
     },
     {
       "id": "search",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -91,7 +96,7 @@
     },
     {
       "id": "browse",
-      "version": "1.1",
+      "version": "1.2",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -233,6 +238,11 @@
       "permissionName": "search.index.records.collection.post",
       "displayName": "Search - saves resource to the search engine",
       "description": "Saves resource to the search engine"
+    },
+    {
+      "permissionName": "search.index.settings.item.put",
+      "displayName": "Search - updates settings for the index",
+      "description": "Updates settings for the index"
     },
     {
       "permissionName": "search.instances.collection.get",

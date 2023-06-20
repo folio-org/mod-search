@@ -4,6 +4,8 @@ import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.utils.TestUtils.TestResource;
@@ -16,6 +18,7 @@ public class TestConstants {
   public static final String RESOURCE_ID = "d148dd82-56b0-4ddb-a638-83ca1ee97e0a";
   public static final String RESOURCE_ID_SECOND = "d148dd82-56b0-4ddb-a638-83ca1ee97e0b";
   public static final String EMPTY_OBJECT = "{}";
+  public static final JsonNode EMPTY_JSON_OBJECT = JsonNodeFactory.instance.objectNode();
   public static final String RESOURCE_NAME = getResourceName(TestResource.class);
   public static final String INDEX_NAME = String.join("_", ENV, RESOURCE_NAME, TENANT_ID);
 

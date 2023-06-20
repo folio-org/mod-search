@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.6</version>
+    <version>3.1.0</version>
     <relativePath />
   </parent>
 
@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>7.0.0</folio-spring-base.version>
+    <folio-spring-base.version>7.1.0</folio-spring-base.version>
     <folio-service-tools.version>3.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.5.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.6</folio-cql2pgjson.version>
@@ -43,8 +43,8 @@
     <spring-kafka.version>3.0.7</spring-kafka.version>
     <apache-commons-io.version>2.12.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
-    <marc4j.version>2.9.2</marc4j.version>
-    <lombok.version>1.18.26</lombok.version>
+    <marc4j.version>2.9.4</marc4j.version>
+    <lombok.version>1.18.28</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
     <streamex.version>0.8.1</streamex.version>
 
@@ -418,7 +418,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
           </dependency>
         </dependencies>
         <executions>
@@ -470,6 +470,7 @@
               <generateModelDocumentation>true</generateModelDocumentation>
               <configOptions>
                 <java8>true</java8>
+                <useTags>true</useTags>
                 <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
                 <useSpringBoot3>true</useSpringBoot3>

@@ -71,7 +71,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
-      .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))
+      .prev(getPrevBrowsingAroundValue(precedingResult.getRecords(), succeedingResult.getRecords(), context))
       .next(getNextBrowsingValue(succeedingResult.getRecords(), context, true))
       .records(mergeSafelyToList(
         trim(precedingResult.getRecords(), context, false),
@@ -105,6 +105,14 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
     }
     return precedingResult;
+  }
+
+  private String getPrevBrowsingAroundValue(List<CallNumberBrowseItem> precedingResult,
+                                            List<CallNumberBrowseItem> succeedingResult, BrowseContext ctx) {
+    if (isEmpty(precedingResult)) {
+      return getPrevBrowsingValue(succeedingResult, ctx, true);
+    }
+    return getPrevBrowsingValue(precedingResult, ctx, false);
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

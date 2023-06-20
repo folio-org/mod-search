@@ -89,13 +89,29 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         .param("precedingRecordsCount", "5");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-        .totalRecords(32).prev(null).next("CE 216 B6713 X 541993").items(List.of(
+        .totalRecords(32).prev("AB 214 C72 NO 3220").next("CE 216 B6713 X 541993").items(List.of(
             cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
             cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
             cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
             cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
             cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993")
         )));
+  }
+
+  @Test
+  void browseByCallNumber_browsingAroundWithPrecedingRecordsCountLessThenExistingPrecedingResult() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
+      .param("limit", "3")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(37).prev("AC 211 A67 X 542000").next("CE 216 B6713 X 541993").items(List.of(
+        cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
+        cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", true)
+      )));
   }
 
   @Test

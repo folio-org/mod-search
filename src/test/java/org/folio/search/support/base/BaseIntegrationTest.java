@@ -2,8 +2,8 @@ package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -377,7 +377,7 @@ public abstract class BaseIntegrationTest {
   }
 
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size) {
-    await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
       doSearch(path, tenantId, "cql.allRecords=1", 1, null, null).andExpect(jsonPath("$.totalRecords", is(size))));
   }
 

@@ -16,6 +16,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -56,13 +57,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
 
     var responses = multiSearchResponse.getResponses();
-    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
+    var precedingResult = getPrecedingResult(request, context, precedingQuery, multiSearchResponse);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
-
-    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
-      log.debug("browseAround:: preceding result are empty: Do additional requests");
-      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
-    }
 
     if (TRUE.equals(request.getHighlightMatch())) {
       var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
@@ -71,7 +67,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
-      .prev(getPrevBrowsingAroundValue(precedingResult.getRecords(), succeedingResult.getRecords(), context))
+      .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))
       .next(getNextBrowsingValue(succeedingResult.getRecords(), context, true))
       .records(mergeSafelyToList(
         trim(precedingResult.getRecords(), context, false),
@@ -82,6 +78,29 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
     return browseItem.getShelfKey();
+  }
+
+  private BrowseResult<CallNumberBrowseItem> getPrecedingResult(BrowseRequest request,
+                                                                BrowseContext context,
+                                                                SearchSourceBuilder precedingQuery,
+                                                                MultiSearchResponse multiSearchResponse) {
+    var responses = multiSearchResponse.getResponses();
+    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
+    var succeedingPrecedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
+
+    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
+      log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
+      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
+    }
+
+    if (!succeedingPrecedingResult.isEmpty()) {
+      log.debug("getPrecedingResult:: succeeding preceding result are not empty: Update preceding result");
+      var a = mergeSafelyToList(succeedingPrecedingResult.getRecords(), precedingResult.getRecords())
+        .stream().distinct().toList();
+
+      precedingResult.setRecords(a);
+    }
+    return precedingResult;
   }
 
   private BrowseResult<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
@@ -105,14 +124,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
     }
     return precedingResult;
-  }
-
-  private String getPrevBrowsingAroundValue(List<CallNumberBrowseItem> precedingResult,
-                                            List<CallNumberBrowseItem> succeedingResult, BrowseContext ctx) {
-    if (isEmpty(precedingResult)) {
-      return getPrevBrowsingValue(succeedingResult, ctx, true);
-    }
-    return getPrevBrowsingValue(precedingResult, ctx, false);
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

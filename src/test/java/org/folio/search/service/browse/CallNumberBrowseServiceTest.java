@@ -298,6 +298,7 @@ class CallNumberBrowseServiceTest {
     var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
     when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, false)).thenReturn(BrowseResult.empty());
     when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
   }
 

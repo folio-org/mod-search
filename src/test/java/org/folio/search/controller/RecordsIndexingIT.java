@@ -260,7 +260,10 @@ class RecordsIndexingIT extends BaseIntegrationTest {
   }
 
   private static void await(ThrowingRunnable runnable) {
-    Awaitility.await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(runnable);
+    Awaitility.await()
+      .atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(runnable);
   }
 
   private static List<String> getRandomIds(int count) {

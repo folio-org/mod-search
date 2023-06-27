@@ -59,11 +59,11 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(23).prev("DA 43880 O6 M15").next("DA 43890 A2 B76 542002").items(List.of(
+      .totalRecords(23).prev("DA 43880 O6 L76").next("DA 43890 A2 B76 542002").items(List.of(
+        cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-        cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002", true)
       )));
   }

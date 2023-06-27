@@ -92,6 +92,8 @@ public class SearchTenantService extends TenantService {
       log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, tenantId);
       indexService.dropIndex(name, tenantId);
     });
+
+    kafkaAdminService.deleteTopics(tenantId);
   }
 
   private void createIndexesAndReindex(TenantAttributes tenantAttributes) {

@@ -7,6 +7,14 @@
       "description": "The unique ID of the instance record; a UUID",
       "type": "string"
     },
+    "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+    },
+    "shared": {
+      "description": "Indicate if it shared record",
+      "type": "boolean"
+    },
     "hrid": {
       "type": "string",
       "description": "The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"

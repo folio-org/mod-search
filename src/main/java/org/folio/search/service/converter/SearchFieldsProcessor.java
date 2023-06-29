@@ -49,9 +49,9 @@ public class SearchFieldsProcessor {
 
     var resultMap = new LinkedHashMap<String, Object>();
     searchFields.forEach((name, fieldDescriptor) -> {
-      var value = fieldDescriptor.isRawProcessing() ? data : resourceObject;
+      var resource = fieldDescriptor.isRawProcessing() ? data : resourceObject;
       if (isSearchProcessorEnabled(fieldDescriptor)) {
-        resultMap.putAll(getSearchFieldValue(value, ctx.getLanguages(), name, fieldDescriptor));
+        resultMap.putAll(getSearchFieldValue(resource, ctx.getLanguages(), name, fieldDescriptor));
       } else {
         log.debug("Search processor has been ignored [processor: {}]", fieldDescriptor.getProcessor());
       }

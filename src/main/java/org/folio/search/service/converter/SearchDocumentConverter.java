@@ -78,6 +78,8 @@ public class SearchDocumentConverter {
     var resourceEvent = context.getResourceEvent();
     var resourceDescriptionFields = context.getResourceDescription().getFields();
     var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
+    // added for testing purposes. tenantId have to be populated only with consortium indexing
+    baseFields.put("tenantId", context.getResourceEvent().getTenant());
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
     return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument),

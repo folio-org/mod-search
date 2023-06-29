@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -54,6 +55,8 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     var request = get(authorityBrowsePath())
       .param("query", prepareQuery("(headingRef>={value} or headingRef<{value}) "
         + "and isTitleHeadingRef==false "
+        + "and tenantId==" + TENANT_ID + " "
+        + "and shared==false "
         + "and headingType==(\"Personal Name\")", "\"James Rollins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
@@ -339,18 +342,20 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authority(20).sftGenreTerm(List.of("Poetry")),
         authority(21).saftGenreTerm(List.of("Prose", "Romance")),
         authority(22).personalName("Brian K. Vaughan"),
-      };
+        };
   }
 
   private static Authority authority(int index) {
     return new Authority().id(getId(index))
       .subjectHeadings(String.format("Authority #%02d", index))
+      .source("MARC")
       .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435");
   }
 
   private static Authority authority(int index, String headingRef, String headingType, String authRefType,
                                      Integer numberOfTitles) {
     return new Authority().id(getId(index)).headingRef(headingRef)
+      .tenantId(TENANT_ID).shared(false)
       .authRefType(authRefType).headingType(headingType)
       .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435").numberOfTitles(numberOfTitles);
   }

@@ -263,6 +263,8 @@ class SearchAuthorityIT extends BaseIntegrationTest {
                                      Integer numberOfTitles) {
     return new Authority()
       .id(getAuthoritySampleId())
+      .tenantId(TENANT_ID)
+      .shared(false)
       .sourceFileId(getAuthoritySourceFileId())
       .naturalId(getAuthorityNaturalId())
       .headingType(headingType)

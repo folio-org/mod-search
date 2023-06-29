@@ -138,6 +138,7 @@ class SearchTenantServiceTest {
     searchTenantService.afterTenantDeletion(tenantAttributes());
 
     verify(indexService).dropIndex(RESOURCE_NAME, TENANT_ID);
+    verify(kafkaAdminService).deleteTopics(TENANT_ID);
     verifyNoMoreInteractions(indexService);
   }
 

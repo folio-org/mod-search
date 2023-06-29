@@ -10,6 +10,7 @@ import static org.folio.search.model.types.CallNumberType.NLM;
 import static org.folio.search.model.types.CallNumberType.OTHER;
 import static org.folio.search.model.types.CallNumberType.SUDOC;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -181,6 +182,8 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
       .items(items)
       .holdings(emptyList());
   }

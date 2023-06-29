@@ -4,6 +4,7 @@ import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -108,7 +109,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
       .andExpect(jsonPath("totalRecords", is(1)))
       // make sure that no unexpected properties are present
-      .andExpect(jsonPath("instances[0].length()", is(11)));
+      .andExpect(jsonPath("instances[0].length()", is(13)));
 
     var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
     assertThat(actual.getId(), is(expected.getId()));
@@ -148,7 +149,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       .map(SearchInstanceIT::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
 
-    assertThat(actual.holdings(null).items(null),
+    assertThat(actual.tenantId(null).shared(null).holdings(null).items(null),
       is(removeUnexpectedProperties(expected)));
   }
 
@@ -164,6 +165,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   private static Instance removeUnexpectedProperties(Instance instance) {
     instance.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
+    instance.setTenantId(null);
+    instance.setShared(null);
     return instance.staffSuppress(false).discoverySuppress(false).items(null).holdings(null);
   }
 
@@ -180,6 +183,10 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("id = {value}", getSemanticWebId()),
       arguments("id = {value}", "5bf370e0*a0a39"),
       arguments("id == {value}", getSemanticWebId()),
+
+      arguments("tenantId = {value}", TENANT_ID),
+
+      arguments("shared == {value}", "false"),
 
       arguments("title <> {value}", "unknown value"),
       arguments("indexTitle <> {value}", "unknown value"),

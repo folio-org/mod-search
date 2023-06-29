@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
@@ -149,8 +150,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=*) sortby title", List.of(IDS)),
-      arguments("(id=* and source==\"MARC\") sortby title", List.of(IDS[0], IDS[1], IDS[3])),
-      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2], IDS[4])),
+      arguments("(id=* and source==\"MARC\") sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2])),
 
       arguments("(id=* and languages==\"eng\") sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(id=* and languages==\"ger\") sortby title", List.of(IDS[1])),
@@ -160,9 +161,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(id=* and languages==\"ukr\") sortby title", List.of(IDS[2])),
       arguments("(languages==\"ukr\") sortby title", List.of(IDS[2])),
 
-      arguments("(id=* and source==\"MARC\" and languages==\"eng\") sortby title", List.of(IDS[0], IDS[1])),
-      arguments("(id=* and source==\"FOLIO\" and languages==\"eng\") sortby title", List.of(IDS[4])),
-      arguments("(source==\"FOLIO\" and languages==\"eng\") sortby title", List.of(IDS[4])),
+      arguments("(id=* and source==\"CONSORTIUM-MARC\" and languages==\"ita\") sortby title", List.of(IDS[3])),
+      arguments("(id=* and source==\"CONSORTIUM-FOLIO\" and languages==\"eng\") sortby title", List.of(IDS[4])),
+      arguments("(source==\"FOLIO\" and languages==\"ukr\") sortby title", List.of(IDS[2])),
 
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[0]), List.of(IDS[1], IDS[2])),
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[1]), List.of(IDS[0], IDS[3], IDS[4])),
@@ -213,8 +214,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[1], IDS[3])),
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[2]),
         List.of(IDS[3], IDS[4])),
-      arguments(format("(holdings.permanentLocationId==%s and source==MARC) sortby title", PERMANENT_LOCATIONS[2]),
-        List.of(IDS[3])),
+      arguments(format("(holdings.permanentLocationId==%s and source==CONSORTIUM-MARC) sortby title",
+        PERMANENT_LOCATIONS[2]), List.of(IDS[3])),
 
       arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1])),
       arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
@@ -323,16 +324,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array("discoverySuppress", "staffSuppress", "languages", "instanceTags", "source",
       "instanceTypeId", "statusId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name",
-      "holdingsTypeId", "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId");
+      "holdingsTypeId", "holdings.permanentLocationId", "holdings.discoverySuppress", "items.materialTypeId",
+      "tenantId", "shared");
     return Stream.of(
       arguments("id=*", allFacets, mapOf(
+        "shared", facet(facetItem("false", 3), facetItem("true", 2)),
+        "tenantId", facet(facetItem(TENANT_ID, 5)),
         "discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2)),
         "staffSuppress", facet(facetItem("true", 3), facetItem("false", 2)),
         "languages", facet(facetItem("eng", 3), facetItem("fra", 2), facetItem("ita", 2),
           facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)),
         "instanceTags", facet(facetItem("cooking", 2), facetItem("future", 2), facetItem("science", 2),
           facetItem("casual", 1), facetItem("text", 1)),
-        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
+        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
+          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
         "instanceTypeId", facet(facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)),
         "statusId", facet(facetItem(STATUSES[1], 3), facetItem(STATUSES[0], 2)),
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
@@ -347,7 +352,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "holdings.discoverySuppress", facet(facetItem("false", 3), facetItem("true", 1))
       )),
 
-      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)))),
+      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
+        facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)))),
 
       arguments("id=*", array("languages"), mapOf("languages", facet(facetItem("eng", 3), facetItem("fra", 2),
         facetItem("ita", 2), facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)))),
@@ -390,14 +396,15 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
 
       arguments("source==MARC", array("instanceFormatIds"), mapOf(
-        "instanceFormatIds", facet(facetItem(FORMATS[1], 3), facetItem(FORMATS[2], 2), facetItem(FORMATS[0], 1)))),
+        "instanceFormatIds", facet(facetItem(FORMATS[1], 2), facetItem(FORMATS[2], 1)))),
 
       arguments("id=*", array("items.effectiveLocationId"), mapOf(
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
 
       arguments("source==MARC", array("source", "items.effectiveLocationId"), mapOf(
-        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
-        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 2), facetItem(LOCATIONS[1], 1)))),
+        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
+          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
+        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 1), facetItem(LOCATIONS[1], 1)))),
 
       arguments("id=*", array("items.status.name"), mapOf(
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
@@ -410,10 +417,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("item.effectiveLocationId"), mapOf(
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
-
-      arguments("source==MARC", array("source", "item.effectiveLocationId"), mapOf(
-        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
-        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 2), facetItem(LOCATIONS[1], 1)))),
 
       arguments("id=*", array("item.status.name"), mapOf(
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
@@ -524,7 +527,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .tags(tags("itag1", "itag2", "itag3"))));
 
     instances[3]
-      .source("MARC")
+      .source("CONSORTIUM-MARC")
       .languages(List.of("ita"))
       .staffSuppress(false)
       .discoverySuppress(false)
@@ -548,7 +551,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 
     instances[4]
-      .source("FOLIO")
+      .source("CONSORTIUM-FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
       .statusId(STATUSES[1])

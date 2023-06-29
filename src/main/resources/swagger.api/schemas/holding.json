@@ -7,6 +7,10 @@
       "type": "string",
       "description": "Unique ID of the holding record"
     },
+    "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+    },
     "permanentLocationId": {
       "type": "string",
       "description": "The permanent shelving location in which an item resides."

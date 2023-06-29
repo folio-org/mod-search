@@ -24,6 +24,11 @@
       "index": "keyword",
       "showInResponse": [ "search", "call-number-browse" ]
     },
+    "tenantId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search" ]
+    },
     "hrid": {
       "index": "keyword"
     },
@@ -258,6 +263,9 @@
         "id": {
           "index": "keyword"
         },
+        "tenantId": {
+          "index": "keyword"
+        },
         "hrid": {
           "index": "keyword"
         },
@@ -418,6 +426,9 @@
       "type": "object",
       "properties": {
         "id": {
+          "index": "keyword"
+        },
+        "tenantId": {
           "index": "keyword"
         },
         "sourceId": {
@@ -650,6 +661,14 @@
       "index": "keyword",
       "searchAliases": [ "items.effectiveShelvingOrder" ],
       "processor": "itemEffectiveShelvingOrderProcessor"
+    },
+    "shared": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "bool",
+      "showInResponse": [ "search" ],
+      "dependsOnFeature": "consortium",
+      "processor": "instanceSharedFieldProcessor"
     },
     "allInstances": {
       "type": "search",

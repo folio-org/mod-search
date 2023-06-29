@@ -7,6 +7,18 @@
       "type": "string",
       "description": "Authority UUID"
     },
+    "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+    },
+    "shared": {
+      "description": "Indicate if it shared record",
+      "type": "boolean"
+    },
+    "source": {
+      "type": "string",
+      "description": "The metadata source and its format of the underlying record to the authority record"
+    },
     "personalName": {
       "type": "string",
       "description": "Heading personal name"

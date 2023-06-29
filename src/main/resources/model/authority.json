@@ -10,6 +10,11 @@
       "index": "keyword",
       "showInResponse": [ "search", "browse" ]
     },
+    "tenantId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search", "browse" ]
+    },
     "personalName": {
       "type": "authority",
       "index": "standard",
@@ -371,6 +376,14 @@
       "type": "search",
       "index": "keyword",
       "processor": "lccnProcessor"
+    },
+    "shared": {
+      "searchTypes": [ "facet", "filter" ],
+      "type": "search",
+      "index": "bool",
+      "showInResponse": [ "search", "browse" ],
+      "processor": "authoritySharedFieldProcessor",
+      "dependsOnFeature": "consortium"
     }
   },
   "mappingsSource": {

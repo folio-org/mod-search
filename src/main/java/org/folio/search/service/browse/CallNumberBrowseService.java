@@ -16,7 +16,6 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
-import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +56,20 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
 
     var responses = multiSearchResponse.getResponses();
-    var precedingResult = getPrecedingResult(request, context, precedingQuery, multiSearchResponse);
+    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
+    var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
+
+    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
+      log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
+      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
+    }
+
+    if (!backwardSucceedingResult.isEmpty()) {
+      log.debug("getPrecedingResult:: backward succeeding result are not empty: Update preceding result");
+      precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
+        .stream().distinct().toList());
+    }
 
     if (TRUE.equals(request.getHighlightMatch())) {
       var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
@@ -78,29 +89,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected String getValueForBrowsing(CallNumberBrowseItem browseItem) {
     return browseItem.getShelfKey();
-  }
-
-  private BrowseResult<CallNumberBrowseItem> getPrecedingResult(BrowseRequest request,
-                                                                BrowseContext context,
-                                                                SearchSourceBuilder precedingQuery,
-                                                                MultiSearchResponse multiSearchResponse) {
-    var responses = multiSearchResponse.getResponses();
-    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
-    var succeedingPrecedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
-
-    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
-      log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
-      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
-    }
-
-    if (!succeedingPrecedingResult.isEmpty()) {
-      log.debug("getPrecedingResult:: succeeding preceding result are not empty: Update preceding result");
-      var a = mergeSafelyToList(succeedingPrecedingResult.getRecords(), precedingResult.getRecords())
-        .stream().distinct().toList();
-
-      precedingResult.setRecords(a);
-    }
-    return precedingResult;
   }
 
   private BrowseResult<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,

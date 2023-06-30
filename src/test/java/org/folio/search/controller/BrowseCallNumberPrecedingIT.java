@@ -5,6 +5,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -92,6 +93,8 @@ class BrowseCallNumberPrecedingIT extends BaseIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
       .items(items)
       .holdings(emptyList());
   }

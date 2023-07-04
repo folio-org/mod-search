@@ -95,10 +95,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
                                                                          BrowseContext context,
                                                                          SearchSourceBuilder precedingQuery) {
     BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
+    int offset = precedingQuery.from() + precedingQuery.size();
     precedingQuery.size(ADDITIONAL_REQUEST_SIZE);
 
     while (precedingResult.getRecords().isEmpty() && precedingQuery.from() <= ADDITIONAL_REQUEST_SIZE_MAX) {
-      int offset = precedingQuery.from() + precedingQuery.size();
       int size = precedingQuery.size() * 2;
       log.debug("additionalPrecedingRequests:: request offset {}, size {}", offset, size);
       precedingQuery.from(offset).size(size);
@@ -110,6 +110,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         break;
       }
       precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+      offset = precedingQuery.from() + precedingQuery.size();
     }
     return precedingResult;
   }

@@ -32,10 +32,10 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,7 +54,7 @@ class MultiTenantSearchDocumentConverterTest {
   @Mock
   private SearchDocumentConverter searchDocumentConverter;
   @Mock
-  private TenantScopedExecutionService executionService;
+  private SystemUserScopedExecutionService executionService;
   @Mock
   private EventPreProcessor customEventPreProcessor;
   @Mock
@@ -64,7 +64,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Test
   void convert_positive() {
-    when(executionService.executeTenantScoped(anyString(), any()))
+    when(executionService.executeSystemUserScoped(anyString(), any()))
       .thenAnswer(invocation -> invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
     var tenant1 = "tenant_one";
     var tenant2 = "tenant_two";
@@ -86,8 +86,8 @@ class MultiTenantSearchDocumentConverterTest {
       searchDocument(events.get(0), INDEX), searchDocument(events.get(1), DELETE),
       searchDocument(events.get(2), INDEX), searchDocument(events.get(3), DELETE))));
 
-    verify(executionService).executeTenantScoped(eq("tenant_one"), any());
-    verify(executionService).executeTenantScoped(eq("tenant_two"), any());
+    verify(executionService).executeSystemUserScoped(eq("tenant_one"), any());
+    verify(executionService).executeSystemUserScoped(eq("tenant_two"), any());
   }
 
   @Test
@@ -95,7 +95,7 @@ class MultiTenantSearchDocumentConverterTest {
     var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
     when(searchDocumentConverter.convert(event)).thenReturn(Optional.empty());
-    when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
+    when(executionService.executeSystemUserScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
 
     var actual = multiTenantConverter.convert(List.of(event));
@@ -111,7 +111,7 @@ class MultiTenantSearchDocumentConverterTest {
     when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
     when(eventPreProcessorBeans.get(CUSTOM_PRE_PROCESSOR)).thenReturn(customEventPreProcessor);
     when(customEventPreProcessor.process(event)).thenReturn(List.of(event));
-    when(executionService.executeTenantScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
+    when(executionService.executeSystemUserScoped(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Callable<List<SearchDocumentBody>>>getArgument(1).call());
 
     var actual = multiTenantConverter.convert(List.of(event));

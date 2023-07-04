@@ -31,8 +31,8 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,7 +48,7 @@ class ResourceFetchServiceTest {
   @InjectMocks
   private ResourceFetchService resourceFetchService;
   @Mock
-  private TenantScopedExecutionService executionService;
+  private SystemUserScopedExecutionService executionService;
   @Mock
   private InventoryViewClient inventoryClient;
 
@@ -62,7 +62,8 @@ class ResourceFetchServiceTest {
     var instance2 = instanceView(new Instance().id(instanceId2).title("inst2")
       .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))), true);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
+    when(executionService.executeSystemUserScoped(any(), any()))
+      .thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instance1, instance2)));
 
@@ -80,7 +81,7 @@ class ResourceFetchServiceTest {
         mapOf("id", instanceId2, "title", "old"))
     ));
     verify(inventoryClient, times(1)).getInstances(any(), anyInt());
-    verify(executionService, times(1)).executeTenantScoped(any(), any());
+    verify(executionService, times(1)).executeSystemUserScoped(any(), any());
   }
 
   @Test
@@ -90,7 +91,8 @@ class ResourceFetchServiceTest {
     var instanceId2 = events.get(1).getId();
     var instanceView = instanceView(new Instance().id(instanceId1).title("inst1"), null);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
+    when(executionService.executeSystemUserScoped(any(), any()))
+      .thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
@@ -108,7 +110,8 @@ class ResourceFetchServiceTest {
     var invalidId = randomId();
     var instanceView = instanceView(new Instance().id(invalidId).title("inst1"), null);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
+    when(executionService.executeSystemUserScoped(any(), any()))
+      .thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(id)), 1))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
@@ -137,7 +140,8 @@ class ResourceFetchServiceTest {
       .id(events.get(50).getId()).title("inst2").holdings(List.of(new Holding().id("holdingId")))
       .items(List.of(new Item().id("itemId"))), true));
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
+    when(executionService.executeSystemUserScoped(any(), any()))
+      .thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(any(), anyInt()))
       .thenAnswer(new Answer<>() {
         private int count = 0;
@@ -155,7 +159,7 @@ class ResourceFetchServiceTest {
 
     assertThat(actual).hasSize(51);
     verify(inventoryClient, times(2)).getInstances(any(), anyInt());
-    verify(executionService, times(1)).executeTenantScoped(any(), any());
+    verify(executionService, times(1)).executeSystemUserScoped(any(), any());
   }
 
   private static List<ResourceEvent> resourceEvents() {

@@ -23,7 +23,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.service.TenantScopedExecutionService;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -33,7 +33,7 @@ public class ResourceFetchService {
 
   private static final int BATCH_SIZE = 50;
   private final InventoryViewClient inventoryClient;
-  private final TenantScopedExecutionService tenantScopedExecutionService;
+  private final SystemUserScopedExecutionService executionService;
 
   /**
    * Fetches instances from inventory-storage module using CQL query.
@@ -59,7 +59,7 @@ public class ResourceFetchService {
   private List<ResourceEvent> fetchInstances(Entry<String, List<ResourceEvent>> entry) {
     var eventsById = entry.getValue().stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
     var tenantId = entry.getKey();
-    return tenantScopedExecutionService.executeTenantScoped(tenantId, () -> {
+    return executionService.executeSystemUserScoped(tenantId, () -> {
       var instanceIdList = List.copyOf(eventsById.keySet());
       return partition(instanceIdList, BATCH_SIZE).stream()
         .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))

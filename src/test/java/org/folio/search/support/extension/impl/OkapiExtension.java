@@ -7,6 +7,7 @@ import static org.springframework.util.ReflectionUtils.makeAccessible;
 import static org.springframework.util.ReflectionUtils.setField;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.PrimitiveIterator;
@@ -22,7 +23,7 @@ public class OkapiExtension implements BeforeAllCallback, AfterAllCallback {
   private static final WireMockServer WIRE_MOCK = new WireMockServer(
     wireMockConfig()
       .port(nextFreePort())
-      .extensions(new InventoryViewResponseBuilder())
+      .extensions(new InventoryViewResponseBuilder(), new ResponseTemplateTransformer(true))
   );
 
   private static int nextFreePort() {

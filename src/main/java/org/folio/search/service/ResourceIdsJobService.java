@@ -9,6 +9,7 @@ import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResourceIdsJobService {
 
-  private final TenantScopedExecutionService tenantExecutionService;
+  private final SystemUserScopedExecutionService tenantExecutionService;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
@@ -36,7 +37,7 @@ public class ResourceIdsJobService {
     var savedJob = jobRepository.save(entity);
 
     Runnable asyncJob = () -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId);
-    tenantExecutionService.executeAsyncTenantScoped(tenantId, asyncJob);
+    tenantExecutionService.executeAsyncSystemUserScoped(tenantId, asyncJob);
     return resourceIdsJobMapper.convert(savedJob);
   }
 

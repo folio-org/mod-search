@@ -18,9 +18,9 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class MultiTenantSearchDocumentConverter {
 
   private final SearchDocumentConverter searchDocumentConverter;
-  private final TenantScopedExecutionService executionService;
+  private final SystemUserScopedExecutionService executionService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final Map<String, EventPreProcessor> eventPreProcessorBeans;
 
@@ -54,7 +54,7 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> entry) {
-    return executionService.executeTenantScoped(entry.getKey(), () ->
+    return executionService.executeSystemUserScoped(entry.getKey(), () ->
       entry.getValue().stream()
         .flatMap(this::populateResourceEvents)
         .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))

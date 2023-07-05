@@ -60,15 +60,15 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
 
-    if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
-      log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
-      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
-    }
-
     if (!backwardSucceedingResult.isEmpty()) {
-      log.debug("getPrecedingResult:: backward succeeding result are not empty: Update preceding result");
+      log.debug("browseAround:: backward succeeding result is not empty: Update preceding result");
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
+    }
+
+    if (precedingResult.isEmpty() && precedingResult.getTotalRecords() > 0) {
+      log.debug("browseAround:: preceding result is empty: Do additional requests");
+      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
     }
 
     if (TRUE.equals(request.getHighlightMatch())) {

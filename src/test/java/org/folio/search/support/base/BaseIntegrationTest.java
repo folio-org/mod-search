@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -37,16 +37,18 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.support.api.InventoryApi;
+import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.search.support.extension.EnableElasticSearch;
-import org.folio.search.support.extension.EnableKafka;
-import org.folio.search.support.extension.EnableOkapi;
-import org.folio.search.support.extension.EnablePostgres;
-import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.test.extension.EnableKafka;
+import org.folio.spring.test.extension.EnablePostgres;
+import org.folio.spring.test.extension.impl.OkapiConfiguration;
+import org.folio.spring.test.extension.impl.OkapiExtension;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +60,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Log4j2
-@EnableOkapi
 @EnableKafka
 @EnablePostgres
 @SpringBootTest
@@ -70,6 +71,10 @@ public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
+
+  @RegisterExtension
+  static OkapiExtension okapiExtension =
+    new OkapiExtension(new InventoryViewResponseBuilder(), new ResponseTemplateTransformer(true));
 
   @BeforeAll
   static void setUpDefaultTenant(
@@ -103,10 +108,6 @@ public abstract class BaseIntegrationTest {
     httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
 
     return httpHeaders;
-  }
-
-  public static WireMockServer getWireMock() {
-    return okapi.getWireMockServer();
   }
 
   @SneakyThrows

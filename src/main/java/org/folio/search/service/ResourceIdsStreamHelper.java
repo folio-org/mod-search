@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.service.consortia.ResourceIdServiceDecorator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -20,7 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class ResourceIdsStreamHelper {
 
-  private final ResourceIdService resourceIdService;
+  private final ResourceIdServiceDecorator resourceIdService;
 
   /**
    * Provides ability to stream resource ids using given request object.

@@ -26,7 +26,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.IndexingDataFormat;
-import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.consortia.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.search.utils.SearchUtils;
@@ -38,13 +38,13 @@ import org.springframework.stereotype.Component;
 public class SearchDocumentConverter {
 
   private final SearchFieldsProcessor searchFieldsProcessor;
-  private final LanguageConfigService languageConfigService;
+  private final LanguageConfigServiceDecorator languageConfigService;
   private final ResourceDescriptionService descriptionService;
   private final IndexingDataFormat indexingDataFormat;
   private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
 
   public SearchDocumentConverter(SearchFieldsProcessor searchFieldsProcessor,
-                                 LanguageConfigService languageConfigService,
+                                 LanguageConfigServiceDecorator languageConfigService,
                                  ResourceDescriptionService descriptionService,
                                  SearchConfigurationProperties searchConfigurationProperties,
                                  Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter) {
@@ -78,8 +78,6 @@ public class SearchDocumentConverter {
     var resourceEvent = context.getResourceEvent();
     var resourceDescriptionFields = context.getResourceDescription().getFields();
     var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
-    // added for testing purposes. tenantId have to be populated only with consortium indexing
-    baseFields.put("tenantId", context.getResourceEvent().getTenant());
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
     return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument),

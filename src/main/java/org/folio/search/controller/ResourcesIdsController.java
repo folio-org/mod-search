@@ -8,8 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.rest.resource.SearchResourcesIdsApi;
-import org.folio.search.service.ResourceIdsJobService;
 import org.folio.search.service.ResourceIdsStreamHelper;
+import org.folio.search.service.consortia.ResourceIdsJobServiceDecorator;
+import org.folio.search.service.consortia.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ResourcesIdsController implements SearchResourcesIdsApi {
 
   private final ResourceIdsStreamHelper resourceIdsStreamHelper;
-  private final ResourceIdsJobService resourceIdsJobService;
+  private final ResourceIdsJobServiceDecorator resourceIdsJobService;
+  private final TenantProvider tenantProvider;
 
   @Override
   public ResponseEntity<Void> getHoldingIds(String query, String tenantId, String contentType) {
+    tenantId = tenantProvider.getTenant(tenantId);
     var bulkRequest = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, HOLDINGS_ID_PATH);
     return resourceIdsStreamHelper.streamResourceIds(bulkRequest, contentType);
   }
@@ -37,6 +40,7 @@ public class ResourcesIdsController implements SearchResourcesIdsApi {
 
   @Override
   public ResponseEntity<Void> getInstanceIds(String query, String tenantId, String contentType) {
+    tenantId = tenantProvider.getTenant(tenantId);
     var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, tenantId, query, INSTANCE_ID_PATH);
     return resourceIdsStreamHelper.streamResourceIds(request, contentType);
   }
@@ -48,6 +52,7 @@ public class ResourcesIdsController implements SearchResourcesIdsApi {
 
   @Override
   public ResponseEntity<ResourceIdsJob> submitIdsJob(String tenantId, ResourceIdsJob resourceIdsJob) {
+    tenantId = tenantProvider.getTenant(tenantId);
     resourceIdsJob.setEntityType(ResourceIdsJob.EntityTypeEnum.valueOf(resourceIdsJob.getEntityType().name()));
     return ResponseEntity.ok(resourceIdsJobService.createStreamJob(resourceIdsJob, tenantId));
   }

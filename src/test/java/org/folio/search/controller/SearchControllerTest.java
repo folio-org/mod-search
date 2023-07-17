@@ -1,9 +1,9 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.controller.IndexManagementControllerTest.INDEX_NAME;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.indexName;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.searchServiceRequest;
@@ -19,6 +19,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.service.SearchService;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@Import({ApiExceptionHandler.class})
+@Import({ApiExceptionHandler.class, TenantConfig.class})
 @WebMvcTest(SearchController.class)
 class SearchControllerTest {
 
@@ -39,11 +40,13 @@ class SearchControllerTest {
   private SearchService searchService;
   @Autowired
   private MockMvc mockMvc;
+  @Autowired
+  private String centralTenant;
 
   @Test
   void search_positive_authorities() throws Exception {
     var cqlQuery = "cql.allRecords=1";
-    var expectedSearchRequest = searchServiceRequest(Authority.class, cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Authority.class, centralTenant, cqlQuery);
 
     when(searchService.search(expectedSearchRequest)).thenReturn(searchResult());
 
@@ -64,7 +67,8 @@ class SearchControllerTest {
 
     var cqlQuery = "title all \"test-query\"";
 
-    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenReturn(searchResult());
+    when(searchService.search(searchServiceRequest(Instance.class, centralTenant, cqlQuery)))
+      .thenReturn(searchResult());
 
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
@@ -83,7 +87,8 @@ class SearchControllerTest {
 
     var cqlQuery = "title all \"test-query\"";
 
-    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenReturn(searchResult());
+    when(searchService.search(searchServiceRequest(Instance.class, centralTenant, cqlQuery)))
+      .thenReturn(searchResult());
 
     var requestBuilder = get("/search/instances")
       .queryParam("query", cqlQuery)
@@ -102,9 +107,9 @@ class SearchControllerTest {
     var openSearchException = new OpenSearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
-    openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
+    openSearchException.setIndex(new Index(indexName(centralTenant), randomId()));
 
-    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenThrow(
+    when(searchService.search(searchServiceRequest(Instance.class, centralTenant, cqlQuery))).thenThrow(
       new SearchOperationException("error", openSearchException));
 
     var requestBuilder = get("/search/instances")
@@ -115,7 +120,7 @@ class SearchControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Index not found: " + INDEX_NAME)))
+      .andExpect(jsonPath("$.errors[0].message", is("Index not found: " + indexName(centralTenant))))
       .andExpect(jsonPath("$.errors[0].type", is("OpenSearchException")))
       .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
@@ -139,7 +144,7 @@ class SearchControllerTest {
   @Test
   void search_negative_invalidCqlQuery() throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, centralTenant, cqlQuery);
     var exceptionMessage = String.format("Failed to parse CQL query [query: '%s']", cqlQuery);
     when(searchService.search(expectedSearchRequest)).thenThrow(new SearchServiceException(exceptionMessage));
 
@@ -159,7 +164,7 @@ class SearchControllerTest {
   @Test
   void search_negative_unsupportedCqlQueryModifier() throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(Instance.class, centralTenant, cqlQuery);
     var exceptionMessage = "Failed to parse CQL query. Comparator 'within' is not supported.";
     when(searchService.search(expectedSearchRequest)).thenThrow(
       new UnsupportedOperationException(exceptionMessage));

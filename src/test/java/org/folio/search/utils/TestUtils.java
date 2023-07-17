@@ -143,12 +143,25 @@ public class TestUtils {
     return searchServiceRequest(resourceClass, query, false);
   }
 
-  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String query, boolean expandAll) {
-    return CqlSearchRequest.of(resourceClass, TENANT_ID, query, 100, 0, expandAll);
+  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query) {
+    return searchServiceRequest(resourceClass, tenantId, query, false);
   }
 
-  public static CqlFacetRequest facetServiceRequest(String resource, String query, String... facets) {
-    return CqlFacetRequest.of(resource, TENANT_ID, query, asList(facets));
+  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String query, boolean expandAll) {
+    return searchServiceRequest(resourceClass, TENANT_ID, query, expandAll);
+  }
+
+  public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query,
+                                                             boolean expandAll) {
+    return CqlSearchRequest.of(resourceClass, tenantId, query, 100, 0, expandAll);
+  }
+
+  public static CqlFacetRequest defaultFacetServiceRequest(String resource, String query, String... facets) {
+    return facetServiceRequest(TENANT_ID, resource, query, facets);
+  }
+
+  public static CqlFacetRequest facetServiceRequest(String tenantId, String resource, String query, String... facets) {
+    return CqlFacetRequest.of(resource, tenantId, query, asList(facets));
   }
 
   public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {

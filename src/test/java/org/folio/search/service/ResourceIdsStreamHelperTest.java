@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.service.consortia.ResourceIdServiceDecorator;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,7 @@ class ResourceIdsStreamHelperTest {
   @InjectMocks
   private ResourceIdsStreamHelper resourceIdsStreamHelper;
   @Mock
-  private ResourceIdService resourceIdService;
+  private ResourceIdServiceDecorator resourceIdService;
 
   @Test
   void streamResourceIds_positive() throws IOException {

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.service.FacetService;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@Import({ApiExceptionHandler.class})
+@Import({ApiExceptionHandler.class, TenantConfig.class})
 @WebMvcTest(FacetsController.class)
 class FacetsControllerTest {
 
@@ -42,6 +43,8 @@ class FacetsControllerTest {
   private FacetService facetService;
   @Autowired
   private MockMvc mockMvc;
+  @Autowired
+  private String centralTenant;
 
   public static Stream<Arguments> facetsTestSource() {
     return Stream.of(
@@ -55,7 +58,7 @@ class FacetsControllerTest {
   @ParameterizedTest
   void getFacets_positive(String recordType, String resource) throws Exception {
     var cqlQuery = "source all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(resource, cqlQuery, "source:5");
+    var expectedFacetRequest = facetServiceRequest(centralTenant, resource, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenReturn(
       facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
 
@@ -78,7 +81,7 @@ class FacetsControllerTest {
   @Test
   void getFacets_negative_unknownFacet() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
+    var expectedFacetRequest = facetServiceRequest(centralTenant, INSTANCE_RESOURCE, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenThrow(
       new RequestValidationException("Invalid facet value", "facet", "source"));
 

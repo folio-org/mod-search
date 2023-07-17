@@ -71,7 +71,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
+        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, centralTenant));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
     });

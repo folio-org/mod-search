@@ -11,9 +11,9 @@ import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.EMPTY_JSON_OBJECT;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.indexName;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
@@ -42,44 +42,51 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = TenantConfig.class)
 class IndexServiceTest {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  @InjectMocks
+  @MockBean
+  private IndexRepository indexRepository;
+  @MockBean
+  private SearchMappingsHelper mappingsHelper;
+  @MockBean
+  private SearchSettingsHelper settingsHelper;
+  @MockBean
+  private ResourceReindexClient resourceReindexClient;
+  @MockBean
+  private ResourceDescriptionService resourceDescriptionService;
+  @SpyBean
   private IndexService indexService;
 
-  @Mock
-  private IndexRepository indexRepository;
-  @Mock
-  private SearchMappingsHelper mappingsHelper;
-  @Mock
-  private SearchSettingsHelper settingsHelper;
-  @Mock
-  private ResourceReindexClient resourceReindexClient;
-  @Mock
-  private ResourceDescriptionService resourceDescriptionService;
+  @Autowired
+  private String centralTenant;
 
   @Test
   void createIndex_positive() {
-    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME));
+    var indexName = indexName(centralTenant);
+    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
 
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
-    when(indexRepository.createIndex(INDEX_NAME, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(expectedResponse);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(expectedResponse);
 
     var indexResponse = indexService.createIndex(RESOURCE_NAME, TENANT_ID);
     assertThat(indexResponse).isEqualTo(expectedResponse);
@@ -89,7 +96,8 @@ class IndexServiceTest {
   @MethodSource("customSettingsTestData")
   @SneakyThrows
   void createIndex_positive_customSettings(Integer shards, Integer replicas, Integer refresh) {
-    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME));
+    var indexName = indexName(centralTenant);
+    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
 
     var indexSettingsMock = MAPPER.readTree(getIndexSettingsJsonString(4, 2, "1s"));
     var indexSettingsRequest = new IndexSettings()
@@ -100,13 +108,13 @@ class IndexServiceTest {
     var expectedShards = shards == null ? 4 : shards;
     var expectedReplicas = replicas == null ? 2 : replicas;
     var expectedRefresh = refresh == null || refresh == 0 ? "1s"
-                                                          : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
+      : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
     var expectedIndexSettings = getIndexSettingsJsonString(expectedShards, expectedReplicas, expectedRefresh);
 
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(RESOURCE_NAME)).thenReturn(indexSettingsMock);
-    when(indexRepository.createIndex(INDEX_NAME, expectedIndexSettings, EMPTY_OBJECT)).thenReturn(expectedResponse);
+    when(indexRepository.createIndex(indexName, expectedIndexSettings, EMPTY_OBJECT)).thenReturn(expectedResponse);
 
     var indexResponse = indexService.createIndex(RESOURCE_NAME, TENANT_ID, indexSettingsRequest);
     assertThat(indexResponse).isEqualTo(expectedResponse);
@@ -125,12 +133,13 @@ class IndexServiceTest {
 
     var expectedReplicas = replicas == null ? 2 : replicas;
     var expectedRefresh = refresh == null || refresh == 0 ? "1s"
-                                                          : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
+      : refresh < 0 ? String.valueOf(refresh) : refresh + "s";
     var expectedIndexSettings = getIndexDynamicSettingsJsonString(expectedReplicas, expectedRefresh);
 
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
     when(settingsHelper.getSettingsJson("dynamicSettings")).thenReturn(indexSettingsMock);
-    when(indexRepository.updateIndexSettings(INDEX_NAME, expectedIndexSettings)).thenReturn(expectedResponse);
+    when(indexRepository.updateIndexSettings(indexName(centralTenant), expectedIndexSettings))
+      .thenReturn(expectedResponse);
 
     var indexResponse = indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, indexSettingsRequest);
     assertThat(indexResponse).isEqualTo(expectedResponse);
@@ -153,7 +162,8 @@ class IndexServiceTest {
   @Test
   @SneakyThrows
   void createIndex_positive_customSettingsNull() {
-    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME));
+    var indexName = indexName(centralTenant);
+    var expectedResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
 
     var expectedIndexSettings = getIndexSettingsJsonString(4, 2, "1s");
     var indexSettingsMock = MAPPER.readTree(expectedIndexSettings);
@@ -161,7 +171,7 @@ class IndexServiceTest {
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(RESOURCE_NAME)).thenReturn(indexSettingsMock);
-    when(indexRepository.createIndex(INDEX_NAME, expectedIndexSettings, EMPTY_OBJECT)).thenReturn(expectedResponse);
+    when(indexRepository.createIndex(indexName, expectedIndexSettings, EMPTY_OBJECT)).thenReturn(expectedResponse);
 
     var indexResponse = indexService.createIndex(RESOURCE_NAME, TENANT_ID, null);
     assertThat(indexResponse).isEqualTo(expectedResponse);
@@ -177,11 +187,12 @@ class IndexServiceTest {
 
   @Test
   void updateMappings() {
+    var indexName = indexName(centralTenant);
     var expectedResponse = getSuccessIndexOperationResponse();
 
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
     when(mappingsHelper.getMappings(RESOURCE_NAME)).thenReturn(EMPTY_OBJECT);
-    when(indexRepository.updateMappings(INDEX_NAME, EMPTY_OBJECT)).thenReturn(expectedResponse);
+    when(indexRepository.updateMappings(indexName, EMPTY_OBJECT)).thenReturn(expectedResponse);
 
     var indexResponse = indexService.updateMappings(RESOURCE_NAME, TENANT_ID);
     assertThat(indexResponse).isEqualTo(expectedResponse);
@@ -198,7 +209,7 @@ class IndexServiceTest {
   @Test
   void createIndexIfNotExist_shouldCreateIndex_indexNotExist() {
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(Optional.of(resourceDescription(RESOURCE_NAME)));
-    var indexName = getIndexName(RESOURCE_NAME, TENANT_ID);
+    var indexName = getIndexName(RESOURCE_NAME, centralTenant);
 
     indexService.createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
 
@@ -207,7 +218,7 @@ class IndexServiceTest {
 
   @Test
   void createIndexIfNotExist_shouldNotCreateIndex_alreadyExist() {
-    var indexName = getIndexName(RESOURCE_NAME, TENANT_ID);
+    var indexName = getIndexName(RESOURCE_NAME, centralTenant);
     when(indexRepository.indexExists(indexName)).thenReturn(true);
 
     indexService.createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
@@ -217,7 +228,7 @@ class IndexServiceTest {
 
   @Test
   void reindexInventory_positive_recreateIndexIsTrue() {
-    var indexName = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    var indexName = getIndexName(INSTANCE_RESOURCE, centralTenant);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
     var expectedResponse = new ReindexJob().id(randomId());
     var expectedUri = URI.create("http://instance-storage/reindex");
@@ -278,8 +289,8 @@ class IndexServiceTest {
     mockCreateIndexOperation(INSTANCE_RESOURCE);
     mockCreateIndexOperation(INSTANCE_SUBJECT_RESOURCE);
 
-    var secondaryIndexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
-    var instanceIndexName = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    var secondaryIndexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, centralTenant);
+    var instanceIndexName = getIndexName(INSTANCE_RESOURCE, centralTenant);
     when(indexRepository.indexExists(instanceIndexName)).thenReturn(true);
     when(indexRepository.indexExists(secondaryIndexName)).thenReturn(true);
 
@@ -361,16 +372,18 @@ class IndexServiceTest {
 
   @Test
   void shouldDropIndexWhenExists() {
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+    var indexName = indexName(centralTenant);
+    when(indexRepository.indexExists(indexName)).thenReturn(true);
     indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
-    verify(indexRepository).dropIndex(INDEX_NAME);
+    verify(indexRepository).dropIndex(indexName);
   }
 
   @Test
   void shouldNotDropIndexWhenNotExist() {
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
+    var indexName = indexName(centralTenant);
+    when(indexRepository.indexExists(indexName)).thenReturn(false);
     indexService.dropIndex(RESOURCE_NAME, TENANT_ID);
-    verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
+    verify(indexRepository, times(0)).dropIndex(indexName);
   }
 
   @SneakyThrows

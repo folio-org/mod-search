@@ -26,6 +26,7 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
+import org.folio.search.service.consortia.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,7 @@ public class BrowseController implements BrowseApi {
   private final AuthorityBrowseService authorityBrowseService;
   private final CallNumberBrowseService callNumberBrowseService;
   private final ContributorBrowseService contributorBrowseService;
+  private final TenantProvider tenantProvider;
 
   @Override
   public ResponseEntity<AuthorityBrowseResult> browseAuthorities(String query, String tenant,
@@ -108,7 +110,7 @@ public class BrowseController implements BrowseApi {
       .next(browseResult.getNext()));
   }
 
-  private static BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
+  private BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
                                                               Boolean expandAll, Boolean highlightMatch,
                                                               Integer precedingRecordsCount) {
     if (precedingRecordsCount != null && precedingRecordsCount >= limit) {
@@ -119,7 +121,7 @@ public class BrowseController implements BrowseApi {
     return BrowseRequest.builder()
       .limit(limit)
       .query(query)
-      .tenantId(tenant)
+      .tenantId(tenantProvider.getTenant(tenant))
       .expandAll(expandAll)
       .highlightMatch(highlightMatch)
       .precedingRecordsCount(defaultIfNull(precedingRecordsCount, limit / 2));

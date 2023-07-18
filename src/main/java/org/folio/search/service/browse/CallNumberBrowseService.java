@@ -1,6 +1,7 @@
 package org.folio.search.service.browse;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
@@ -66,9 +67,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         .stream().distinct().toList());
     }
 
-    if (precedingResult.isEmpty() && precedingResult.getTotalRecords() > 0) {
-      log.debug("browseAround:: preceding result is empty: Do additional requests");
-      precedingResult = additionalPrecedingRequests(request, context, precedingQuery);
+    if (precedingResult.getRecords().size() < request.getPrecedingRecordsCount()
+        && precedingResult.getTotalRecords() > 0) {
+      log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
+      var additionalPrecedingRequestsResult = additionalPrecedingRequests(request, context, precedingQuery);
+      precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
+        .stream().distinct().toList());
     }
 
     if (TRUE.equals(request.getHighlightMatch())) {
@@ -91,14 +95,15 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return browseItem.getShelfKey();
   }
 
-  private BrowseResult<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
+  private List<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
                                                                          BrowseContext context,
                                                                          SearchSourceBuilder precedingQuery) {
-    BrowseResult<CallNumberBrowseItem> precedingResult = BrowseResult.empty();
+    List<CallNumberBrowseItem> additionalPrecedingRecords = emptyList();
     int offset = precedingQuery.from() + precedingQuery.size();
     precedingQuery.size(ADDITIONAL_REQUEST_SIZE);
 
-    while (precedingResult.getRecords().isEmpty() && precedingQuery.from() <= ADDITIONAL_REQUEST_SIZE_MAX) {
+    while (additionalPrecedingRecords.size() < request.getPrecedingRecordsCount()
+           && precedingQuery.from() <= ADDITIONAL_REQUEST_SIZE_MAX) {
       int size = precedingQuery.size() * 2;
       log.debug("additionalPrecedingRequests:: request offset {}, size {}", offset, size);
       precedingQuery.from(offset).size(size);
@@ -109,10 +114,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         log.debug("additionalPrecedingRequests:: response have no records");
         break;
       }
-      precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+      var precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+      additionalPrecedingRecords = mergeSafelyToList(additionalPrecedingRecords, precedingResult.getRecords());
       offset = precedingQuery.from() + precedingQuery.size();
+      log.debug("additionalPrecedingRequests:: response have new {} records", precedingResult.getRecords().size());
     }
-    return precedingResult;
+    return additionalPrecedingRecords;
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

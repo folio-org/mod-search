@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import java.util.Set;
 import lombok.RequiredArgsConstructor;

@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
+import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.junit.jupiter.api.Test;

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import org.folio.search.client.UserTenantsClient;
+import org.folio.search.service.consortium.ConsortiaTenantService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +20,7 @@ class ConsortiaServiceTest {
   @Mock
   private UserTenantsClient userTenantsClient;
   @InjectMocks
-  private ConsortiaService consortiaService;
+  private ConsortiaTenantService consortiaTenantService;
 
   @Test
   void getCentralTenant_positive() {
@@ -28,7 +29,7 @@ class ConsortiaServiceTest {
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = consortiaService.getCentralTenant(TENANT_ID);
+    var actual = consortiaTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isNotEmpty()
@@ -40,7 +41,7 @@ class ConsortiaServiceTest {
   void getCentralTenant_negative_emptyResponse() {
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(null);
 
-    var actual = consortiaService.getCentralTenant(TENANT_ID);
+    var actual = consortiaTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();
@@ -53,7 +54,7 @@ class ConsortiaServiceTest {
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = consortiaService.getCentralTenant(TENANT_ID);
+    var actual = consortiaTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();

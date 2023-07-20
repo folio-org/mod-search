@@ -70,6 +70,16 @@ public class JsonConverter {
   }
 
   /**
+   * Converts {@link String} value to the {@link Map} .
+   *
+   * @param value object value to convert
+   * @return converted value
+   */
+  public Map<String, Object> fromJsonToMap(String value) {
+    return fromJson(value, MAP_TYPE_REFERENCE);
+  }
+
+  /**
    * Converts {@link InputStream} value as {@link T} class value.
    *
    * @param inputStream json value stream as {@link InputStream} object
@@ -232,6 +242,7 @@ public class JsonConverter {
     }
     return objectMapper.convertValue(value, type);
   }
+
 
   private static RuntimeException deserializationException(String value, Throwable e) {
     log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);

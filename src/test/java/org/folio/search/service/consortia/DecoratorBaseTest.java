@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import java.util.function.Supplier;
+import org.folio.search.service.consortium.ConsortiaTenantExecutor;
 
 public abstract class DecoratorBaseTest {
 

@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.service.ResourceIdsJobService;
+import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ResourceIdsJobServiceDecorator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -30,7 +30,7 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;

@@ -9,9 +9,7 @@
         "status": 200,
         "jsonBody": {
           "userTenants": [
-            {
-              "centralTenantId": "consortium"
-            }
+
           ]
         },
         "headers": {

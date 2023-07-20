@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.service.ResourceIdService;
+import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ResourceIdServiceDecorator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

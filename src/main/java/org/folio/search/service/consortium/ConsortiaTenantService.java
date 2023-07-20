@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.folio.search.configuration.SearchCacheNames.USER_TENANTS_CACHE;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ConsortiaService {
+public class ConsortiaTenantService {
 
   private final UserTenantsClient userTenantsClient;
 

@@ -33,7 +33,7 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
-import org.folio.search.service.consortia.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ConsortiaTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.FolioExecutionContext;

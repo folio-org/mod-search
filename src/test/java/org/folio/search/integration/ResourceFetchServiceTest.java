@@ -9,7 +9,7 @@ import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.JsonUtils.LIST_OF_MAPS_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
@@ -31,7 +30,6 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,8 +46,6 @@ class ResourceFetchServiceTest {
   @InjectMocks
   private ResourceFetchService resourceFetchService;
   @Mock
-  private TenantScopedExecutionService executionService;
-  @Mock
   private InventoryViewClient inventoryClient;
 
   @Test
@@ -62,11 +58,10 @@ class ResourceFetchServiceTest {
     var instance2 = instanceView(new Instance().id(instanceId2).title("inst2")
       .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))), true);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instance1, instance2)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(events);
+    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
 
     assertThat(actual).isEqualTo(List.of(
       resourceEvent(instanceId1, INSTANCE_RESOURCE,
@@ -74,13 +69,12 @@ class ResourceFetchServiceTest {
           "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of())),
       resourceEvent(instanceId2, INSTANCE_RESOURCE, UPDATE,
         mapOf("id", instanceId2, "title", "inst2",
-            "holdings", List.of(mapOf("id", "holdingId", "electronicAccess", List.of(), "notes", List.of())),
-            "items", List.of(mapOf("id", "itemId", "notes", List.of())),
-            "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
+          "holdings", List.of(mapOf("id", "holdingId", "electronicAccess", List.of(), "notes", List.of())),
+          "items", List.of(mapOf("id", "itemId", "notes", List.of())),
+          "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
         mapOf("id", instanceId2, "title", "old"))
     ));
     verify(inventoryClient, times(1)).getInstances(any(), anyInt());
-    verify(executionService, times(1)).executeTenantScoped(any(), any());
   }
 
   @Test
@@ -90,14 +84,13 @@ class ResourceFetchServiceTest {
     var instanceId2 = events.get(1).getId();
     var instanceView = instanceView(new Instance().id(instanceId1).title("inst1"), null);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(events);
+    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
     assertThat(actual).isEqualTo(List.of(resourceEvent(instanceId1, INSTANCE_RESOURCE,
-        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
-            "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))));
+      mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
+        "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))));
   }
 
   @Test
@@ -108,21 +101,20 @@ class ResourceFetchServiceTest {
     var invalidId = randomId();
     var instanceView = instanceView(new Instance().id(invalidId).title("inst1"), null);
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(id)), 1))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
+    var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent), TENANT_ID);
     assertThat(actual).isEqualTo(List.of(
       resourceEvent(invalidId, INSTANCE_RESOURCE,
-          mapOf("id", invalidId, "title", "inst1", "isBoundWith", null,
-              "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))
+        mapOf("id", invalidId, "title", "inst1", "isBoundWith", null,
+          "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))
     ));
   }
 
   @Test
   void fetchInstancesByIds_positive_emptyListOfIds() {
-    var actual = resourceFetchService.fetchInstancesByIds(emptyList());
+    var actual = resourceFetchService.fetchInstancesByIds(emptyList(), TENANT_ID);
     assertThat(actual).isEmpty();
   }
 
@@ -137,10 +129,10 @@ class ResourceFetchServiceTest {
       .id(events.get(50).getId()).title("inst2").holdings(List.of(new Holding().id("holdingId")))
       .items(List.of(new Item().id("itemId"))), true));
 
-    when(executionService.executeTenantScoped(any(), any())).thenAnswer(inv -> inv.<Callable<?>>getArgument(1).call());
     when(inventoryClient.getInstances(any(), anyInt()))
       .thenAnswer(new Answer<>() {
         private int count = 0;
+
         public ResultList<InstanceView> answer(InvocationOnMock invocation) {
           if (count++ == 1) {
             // it will be returned the first time the method is called
@@ -151,11 +143,10 @@ class ResourceFetchServiceTest {
         }
       });
 
-    var actual = resourceFetchService.fetchInstancesByIds(events);
+    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
 
     assertThat(actual).hasSize(51);
     verify(inventoryClient, times(2)).getInstances(any(), anyInt());
-    verify(executionService, times(1)).executeTenantScoped(any(), any());
   }
 
   private static List<ResourceEvent> resourceEvents() {
@@ -164,8 +155,7 @@ class ResourceFetchServiceTest {
       resourceEvent(randomId(), INSTANCE_RESOURCE, CREATE),
       resourceEvent(updateEventId, INSTANCE_RESOURCE, UPDATE,
         mapOf("id", updateEventId, "title", "new"),
-        mapOf("id", updateEventId, "title", "old")),
-      resourceEvent(randomId(), RESOURCE_NAME, CREATE));
+        mapOf("id", updateEventId, "title", "old")));
   }
 
   private static InstanceView instanceView(Instance instance, Boolean isBoundWith) {

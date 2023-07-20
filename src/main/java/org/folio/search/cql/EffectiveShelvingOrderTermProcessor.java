@@ -15,9 +15,9 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
   @Override
   public String getSearchTerm(String inputTerm) {
     return getValidShelfKey(new NlmCallNumber(inputTerm))
+      .or(() -> getValidShelfKey(new SuDocCallNumber(inputTerm)))
       .or(() -> getValidShelfKey(new LCCallNumber(inputTerm)))
       .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
-      .or(() -> getValidShelfKey(new SuDocCallNumber(inputTerm)))
       .orElse(normalizeEffectiveShelvingOrder(inputTerm))
       .trim();
   }

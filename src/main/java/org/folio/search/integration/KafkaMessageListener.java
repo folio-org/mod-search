@@ -108,7 +108,7 @@ public class KafkaMessageListener {
     log.info("Processing subjects events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(contributor -> contributor.resourceName(INSTANCE_SUBJECT_RESOURCE).id(getResourceEventId(contributor)))
+      .map(subject -> subject.resourceName(INSTANCE_SUBJECT_RESOURCE).id(getResourceEventId(subject)))
       .toList();
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,

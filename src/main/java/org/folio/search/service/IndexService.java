@@ -24,6 +24,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortia.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -43,6 +44,7 @@ public class IndexService {
   private final SearchSettingsHelper settingsHelper;
   private final ResourceReindexClient resourceReindexClient;
   private final ResourceDescriptionService resourceDescriptionService;
+  private final TenantProvider tenantProvider;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -57,7 +59,7 @@ public class IndexService {
       "Index cannot be created for the resource because resource description is not found.");
 
     var settings = settingsHelper.getSettings(resourceName);
-    return doCreateIndex(resourceName, tenantId, settings);
+    return doCreateIndex(resourceName, tenantProvider.getTenant(tenantId), settings);
   }
 
   /**
@@ -73,7 +75,7 @@ public class IndexService {
       "Index cannot be created for the resource because resource description is not found.");
 
     var settings = prepareIndexSettings(resourceName, indexSettings);
-    return doCreateIndex(resourceName, tenantId, settings.toString());
+    return doCreateIndex(resourceName, tenantProvider.getTenant(tenantId), settings.toString());
   }
 
   /**
@@ -86,6 +88,7 @@ public class IndexService {
    */
   public FolioIndexOperationResponse updateIndexSettings(String resourceName, String tenantId,
                                                          IndexDynamicSettings indexSettings) {
+    tenantId = tenantProvider.getTenant(tenantId);
     log.debug("updateIndexSettings:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
 
     validateResourceName(resourceName, "Index Settings cannot be updated, resource name is invalid.");
@@ -106,7 +109,7 @@ public class IndexService {
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
     validateResourceName(resourceName, "Mappings cannot be updated, resource name is invalid.");
-    var index = getIndexName(resourceName, tenantId);
+    var index = getIndexName(resourceName, tenantProvider.getTenant(tenantId));
     var mappings = mappingHelper.getMappings(resourceName);
 
     log.info("Attempts to update mappings by [indexName: {}, mappings: {}]", index, mappings);
@@ -120,7 +123,7 @@ public class IndexService {
    * @param tenantId     - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(String resourceName, String tenantId) {
-    var index = getIndexName(resourceName, tenantId);
+    var index = getIndexName(resourceName, tenantProvider.getTenant(tenantId));
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceName, tenantId);
     }
@@ -133,11 +136,12 @@ public class IndexService {
    * @param reindexRequest - reindex request as {@link ReindexRequest} object
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
+    var finalTenantId = tenantProvider.getTenant(tenantId);
     var resources = getResourceNamesToReindex(reindexRequest);
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
       resources.forEach(resourceName -> {
-        dropIndex(resourceName, tenantId);
-        createIndex(resourceName, tenantId, reindexRequest.getIndexSettings());
+        dropIndex(resourceName, finalTenantId);
+        createIndex(resourceName, finalTenantId, reindexRequest.getIndexSettings());
       });
     }
     var resource = normalizeResourceName(resources.get(0));
@@ -154,7 +158,7 @@ public class IndexService {
   public void dropIndex(String resource, String tenant) {
     log.debug("dropIndex:: by [resource: {}, tenant: {}]", resource, tenant);
 
-    var index = getIndexName(resource, tenant);
+    var index = getIndexName(resource, tenantProvider.getTenant(tenant));
     if (indexRepository.indexExists(index)) {
       indexRepository.dropIndex(index);
     }

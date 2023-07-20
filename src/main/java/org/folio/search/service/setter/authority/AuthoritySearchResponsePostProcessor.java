@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.consortia.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.SearchUtils;
@@ -29,6 +30,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
   private final SearchRepository searchRepository;
   private final SearchFieldProvider searchFieldProvider;
   private final FolioExecutionContext context;
+  private final TenantProvider tenantProvider;
 
   @Override
   public Class<Authority> getGeneric() {
@@ -56,7 +58,8 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
     var instanceResourceName = SearchUtils.getResourceName(Instance.class);
     var queries = buildQueries(authorities, instanceResourceName);
 
-    var resourceRequest = SimpleResourceRequest.of(instanceResourceName, context.getTenantId());
+    var resourceRequest = SimpleResourceRequest.of(instanceResourceName,
+      tenantProvider.getTenant(context.getTenantId()));
     var responses = searchRepository.msearch(resourceRequest, queries).getResponses();
 
     for (int i = 0; i < responses.length; i++) {

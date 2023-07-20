@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.singletonList;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.toMap;
 
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ public class AuthoritySearchUtils {
     var sourceMap = toMap(source);
     copyExpectedEntityFields(sourceMap, resultMap, List.of(fields));
     copyExpectedEntityFields(sourceMap, resultMap, AUTHORITY_COMMON_FIELDS);
+    resultMap.put("tenantId", TENANT_ID);
     return resultMap;
   }
 

@@ -24,8 +24,8 @@ import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
-import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.consortia.FeatureConfigServiceDecorator;
+import org.folio.search.service.consortia.LanguageConfigServiceDecorator;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
@@ -44,9 +44,9 @@ class ConfigControllerTest {
   @Autowired
   private MockMvc mockMvc;
   @MockBean
-  private LanguageConfigService languageConfigService;
+  private LanguageConfigServiceDecorator languageConfigService;
   @MockBean
-  private FeatureConfigService featureConfigService;
+  private FeatureConfigServiceDecorator featureConfigService;
 
   @Test
   void createLanguageConfig_positive() throws Exception {

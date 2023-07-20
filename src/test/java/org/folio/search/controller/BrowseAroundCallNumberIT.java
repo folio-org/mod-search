@@ -24,6 +24,7 @@ import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseAroundCallNumberIT extends BaseIntegrationTest {
@@ -31,6 +32,9 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
+
+  @Autowired
+  private Boolean inConsortiumMode;
 
   @BeforeAll
   static void prepare() {
@@ -141,8 +145,14 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
-  private static Instance instance(String title) {
-    return INSTANCE_MAP.get(title);
+  private Instance instance(String title) {
+    var instance = INSTANCE_MAP.get(title);
+
+    if (!inConsortiumMode) {
+      instance.setShared(null);
+    }
+
+    return instance;
   }
 
   private static List<List<Object>> callNumberBrowseInstanceData() {

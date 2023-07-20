@@ -464,6 +464,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .toArray(Instance[]::new);
 
     instances[0]
+      .tenantId(TENANT_ID)
       .source("MARC")
       .languages(List.of("eng", "ita"))
       .instanceTypeId(TYPES[1])
@@ -488,6 +489,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
 
     instances[1]
+      .tenantId(TENANT_ID)
       .source("MARC")
       .languages(List.of("eng", "ger", "fra"))
       .instanceTypeId(TYPES[0])
@@ -511,6 +513,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
 
     instances[2]
+      .tenantId(TENANT_ID)
       .source("FOLIO")
       .languages(List.of("rus", "ukr"))
       .instanceTypeId(TYPES[0])
@@ -527,6 +530,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .tags(tags("itag1", "itag2", "itag3"))));
 
     instances[3]
+      .tenantId(TENANT_ID)
       .source("CONSORTIUM-MARC")
       .languages(List.of("ita"))
       .staffSuppress(false)
@@ -551,6 +555,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 
     instances[4]
+      .tenantId(TENANT_ID)
       .source("CONSORTIUM-FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])

@@ -242,6 +242,6 @@ class FacetQueryBuilderTest {
   }
 
   private static CqlFacetRequest facetRequest(String... facets) {
-    return TestUtils.facetServiceRequest(RESOURCE_NAME, TENANT_ID, facets);
+    return TestUtils.defaultFacetServiceRequest(RESOURCE_NAME, TENANT_ID, facets);
   }
 }

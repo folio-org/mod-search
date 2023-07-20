@@ -7,7 +7,6 @@ import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_UPSERT_SCRIPT_ID;
 import static org.opensearch.script.ScriptType.STORED;
 
@@ -24,7 +23,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
@@ -85,7 +83,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .id(doc.getId())
       .scriptedUpsert(true)
       .retryOnConflict(properties.getIndexing().getInstanceSubjects().getRetryAttempts())
-      .index(SearchUtils.getIndexName(INSTANCE_SUBJECT_RESOURCE, doc.getTenant()))
+      .index(indexName(doc))
       .script(new Script(STORED, null, INSTANCE_SUBJECT_UPSERT_SCRIPT_ID, prepareScriptParams(instanceIds)))
       .upsert(prepareDocumentBody(getPayload(doc), instanceIds), doc.getDataFormat().getXcontentType());
   }

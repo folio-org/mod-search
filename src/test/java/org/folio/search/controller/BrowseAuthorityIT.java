@@ -346,7 +346,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
   }
 
   private static Authority authority(int index) {
-    return new Authority().id(getId(index))
+    return new Authority().id(getId(index)).tenantId(TENANT_ID)
       .subjectHeadings(String.format("Authority #%02d", index))
       .source("MARC")
       .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435");

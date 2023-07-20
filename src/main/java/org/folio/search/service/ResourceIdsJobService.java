@@ -9,6 +9,7 @@ import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
+import org.folio.search.service.consortia.ResourceIdServiceDecorator;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -19,7 +20,7 @@ public class ResourceIdsJobService {
   private final TenantScopedExecutionService tenantExecutionService;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
-  private final ResourceIdService resourceIdService;
+  private final ResourceIdServiceDecorator resourceIdService;
 
   public ResourceIdsJob getJobById(String id) {
     return resourceIdsJobMapper.convert(jobRepository.getReferenceById(id));

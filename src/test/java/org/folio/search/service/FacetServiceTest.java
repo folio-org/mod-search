@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestUtils.facetServiceRequest;
+import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
@@ -86,6 +86,6 @@ class FacetServiceTest {
   }
 
   private static CqlFacetRequest facetRequest(String... facetNames) {
-    return facetServiceRequest(RESOURCE_NAME, QUERY, facetNames);
+    return defaultFacetServiceRequest(RESOURCE_NAME, QUERY, facetNames);
   }
 }

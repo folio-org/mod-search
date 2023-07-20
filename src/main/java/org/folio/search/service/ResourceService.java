@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
@@ -57,6 +58,7 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
+  private final SearchConfigurationProperties searchConfig;
 
   /**
    * Saves list of resources to elasticsearch.
@@ -71,7 +73,9 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
+    var eventsToIndex = searchConfig.inConsortiaMode()
+      ? resources
+      : getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     return indexSearchDocuments(elasticsearchDocuments);
   }
@@ -89,7 +93,9 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
+    var eventsToIndex = searchConfig.inConsortiaMode()
+      ? resourceIdEvents
+      : getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var indexEvents = groupedByOperation.get(INDEX);

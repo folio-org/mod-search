@@ -1,0 +1,23 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/user-tenants"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "userTenants": [
+            {
+              "centralTenantId": "consortium"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

@@ -12,8 +12,8 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.rest.resource.ConfigApi;
-import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.consortia.FeatureConfigServiceDecorator;
+import org.folio.search.service.consortia.LanguageConfigServiceDecorator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class ConfigController implements ConfigApi {
 
-  private final LanguageConfigService languageConfigService;
-  private final FeatureConfigService featureConfigService;
+  private final LanguageConfigServiceDecorator languageConfigService;
+  private final FeatureConfigServiceDecorator featureConfigService;
 
   @Override
   public ResponseEntity<LanguageConfig> createLanguageConfig(@Valid LanguageConfig languageConfig) {

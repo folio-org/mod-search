@@ -33,6 +33,7 @@ spring:
       - tenant-languages
       - tenant-features
       - search-preference
+      - user-tenants
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
 

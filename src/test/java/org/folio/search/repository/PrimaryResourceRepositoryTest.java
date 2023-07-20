@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,7 +18,10 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import java.io.IOException;
 import java.util.List;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,15 +33,25 @@ import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.delete.DeleteRequest;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = TenantConfig.class)
 class PrimaryResourceRepositoryTest {
 
   @InjectMocks
   private PrimaryResourceRepository resourceRepository;
   @Mock
   private RestHighLevelClient restHighLevelClient;
+  @Autowired
+  private TenantProvider tenantProvider;
+
+  @BeforeEach
+  void setUp() {
+    resourceRepository.setTenantProvider(tenantProvider);
+  }
 
   @Test
   void indexResources_positive() throws IOException {
@@ -85,6 +99,6 @@ class PrimaryResourceRepositoryTest {
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=folio_test-resource_test_tenant, type=bulkApi, message: err]");
+        + "[index=folio_test-resource_" + tenantProvider.getTenant(TENANT_ID) + ", type=bulkApi, message: err]");
   }
 }

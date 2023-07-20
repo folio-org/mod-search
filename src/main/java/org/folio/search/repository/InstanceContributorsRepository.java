@@ -18,7 +18,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
@@ -60,7 +59,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         .id(searchDocument.getId())
         .scriptedUpsert(true)
         .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
-        .index(SearchUtils.getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, searchDocument.getTenant()))
+        .index(indexName(searchDocument))
         .script(prepareScript(instanceIdsToCreate, instanceIdsToDelete))
         .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),
           subtractSorted(typeIdsToCreate, typeIdsToDelete)), searchDocument.getDataFormat().getXcontentType());

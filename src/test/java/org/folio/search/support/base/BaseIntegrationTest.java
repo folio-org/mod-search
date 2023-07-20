@@ -6,6 +6,7 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -26,11 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
@@ -44,6 +47,7 @@ import org.folio.search.support.extension.EnablePostgres;
 import org.folio.search.support.extension.impl.OkapiConfiguration;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -71,11 +75,17 @@ public abstract class BaseIntegrationTest {
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
 
+  protected static String centralTenant;
+
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate) {
+    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
+    @Autowired SearchConfigurationProperties searchConfig) {
     setEnvProperty("folio-test");
+    BaseIntegrationTest.centralTenant =
+      Optional.ofNullable(searchConfig.getSearchFeatures().get(TenantConfiguredFeature.CONSORTIUM)).orElse(false)
+        ? CONSORTIUM_TENANT_ID : TENANT_ID;
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
@@ -259,6 +269,9 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(List<TestData> testDataList, String tenant) {
     enableTenant(tenant);
+    if (!tenant.equals(centralTenant)) {
+      enableTenant(centralTenant);
+    }
     for (TestData testData : testDataList) {
       var type = testData.getType();
       var testRecords = testData.getTestRecords();
@@ -313,6 +326,9 @@ public abstract class BaseIntegrationTest {
   private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
                                       List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
+    if (!tenant.equals(centralTenant)) {
+      enableTenant(centralTenant);
+    }
     postInitAction.run();
     saveRecords(tenant, validationPath, records, expectedCount, consumer);
   }
@@ -356,8 +372,13 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void enableTenant(String tenant) {
+    var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
+    if (!centralTenant.equals(tenant)) {
+      tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(centralTenant));
+    }
+
     mockMvc.perform(post("/_/tenant", randomId())
-        .content(asJsonString(new TenantAttributes().moduleTo("mod-search")))
+        .content(asJsonString(tenantAttributes))
         .headers(defaultHeaders(tenant))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isNoContent());
@@ -366,6 +387,9 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void removeTenant() {
     removeTenant(TENANT_ID);
+    if (!TENANT_ID.equals(centralTenant)) {
+      removeTenant(centralTenant);
+    }
   }
 
   @SneakyThrows

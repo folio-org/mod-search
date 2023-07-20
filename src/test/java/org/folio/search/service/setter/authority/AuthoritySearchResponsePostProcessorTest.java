@@ -15,26 +15,32 @@ import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.AuthRefType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHits;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = TenantConfig.class)
 class AuthoritySearchResponsePostProcessorTest {
 
-  private @Mock SearchRepository searchRepository;
-  private @Mock SearchFieldProvider searchFieldProvider;
-  private @Mock FolioExecutionContext context;
-  private @Mock MultiSearchResponse multiSearchResponse;
+  private @MockBean SearchRepository searchRepository;
+  private @MockBean SearchFieldProvider searchFieldProvider;
+  private @MockBean FolioExecutionContext context;
+  private @MockBean MultiSearchResponse multiSearchResponse;
+  private @SpyBean AuthoritySearchResponsePostProcessor processor;
 
-  private @InjectMocks AuthoritySearchResponsePostProcessor processor;
+  @Autowired
+  private String centralTenant;
 
   @BeforeEach
   void setUp() {
@@ -87,7 +93,7 @@ class AuthoritySearchResponsePostProcessorTest {
 
   private void mockSearchResponse(Integer... counts) {
     var searchResponse = mock(SearchResponse.class);
-    when(searchRepository.msearch(eq(SimpleResourceRequest.of("instance", TENANT_ID)), any()))
+    when(searchRepository.msearch(eq(SimpleResourceRequest.of("instance", centralTenant)), any()))
       .thenReturn(multiSearchResponse);
     var hitsOngoingStubbing = when(searchResponse.getHits());
     var responses = new MultiSearchResponse.Item[counts.length];

@@ -12,6 +12,7 @@ import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.rest.resource.FacetsApi;
 import org.folio.search.service.FacetService;
+import org.folio.search.service.consortia.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,11 +31,13 @@ public class FacetsController implements FacetsApi {
   );
 
   private final FacetService facetService;
+  private final TenantProvider tenantProvider;
 
   @Override
   public ResponseEntity<FacetResult> getFacets(RecordType recordType, String query,
                                                List<String> facet, String tenantId) {
-    String recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, recordType.getValue());
+    var recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, recordType.getValue());
+    tenantId = tenantProvider.getTenant(tenantId);
     var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }

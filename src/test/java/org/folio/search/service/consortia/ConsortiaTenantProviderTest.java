@@ -1,0 +1,43 @@
+package org.folio.search.service.consortia;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class ConsortiaTenantProviderTest {
+
+  @Mock
+  private ConsortiaService consortiaService;
+  @InjectMocks
+  private ConsortiaTenantProvider consortiaTenantProvider;
+
+  @Test
+  void getTenant_positive() {
+    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+
+    var actual = consortiaTenantProvider.getTenant(TENANT_ID);
+
+    assertThat(actual)
+      .isEqualTo(CONSORTIUM_TENANT_ID);
+  }
+
+  @Test
+  void getTenant_negative_emptyResponse() {
+    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
+
+    var actual = consortiaTenantProvider.getTenant(TENANT_ID);
+
+    assertThat(actual)
+      .isEqualTo(TENANT_ID);
+  }
+
+}

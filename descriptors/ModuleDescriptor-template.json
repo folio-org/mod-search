@@ -9,12 +9,14 @@
         {
           "methods": [ "POST" ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": [ "search.index.indices.item.post" ]
+          "permissionsRequired": [ "search.index.indices.item.post" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "POST" ],
           "pathPattern": "/search/index/mappings",
-          "permissionsRequired": [ "search.index.mappings.item.post" ]
+          "permissionsRequired": [ "search.index.mappings.item.post" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "POST" ],
@@ -23,7 +25,8 @@
           "modulePermissions": [
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
-            "inventory-storage.alternative-title-types.collection.get"
+            "inventory-storage.alternative-title-types.collection.get",
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -32,13 +35,15 @@
           "permissionsRequired": [ "search.index.inventory.reindex.post" ],
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
-            "authority-storage.authority.reindex.post"
+            "authority-storage.authority.reindex.post",
+            "user-tenants.collection.get"
           ]
         },
         {
           "methods": [ "PUT" ],
           "pathPattern": "/search/index/settings",
-          "permissionsRequired": [ "search.index.settings.item.put" ]
+          "permissionsRequired": [ "search.index.settings.item.put" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         }
       ]
     },
@@ -49,27 +54,32 @@
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/instances",
-          "permissionsRequired": [ "search.instances.collection.get" ]
+          "permissionsRequired": [ "search.instances.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/authorities",
-          "permissionsRequired": [ "search.authorities.collection.get" ]
+          "permissionsRequired": [ "search.authorities.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/{recordType}/facets",
-          "permissionsRequired": [ "search.facets.collection.get" ]
+          "permissionsRequired": [ "search.facets.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [ "search.instances.ids.collection.get" ]
+          "permissionsRequired": [ "search.instances.ids.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/holdings/ids",
-          "permissionsRequired": [ "search.holdings.ids.collection.get" ]
+          "permissionsRequired": [ "search.holdings.ids.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         }
       ]
     },
@@ -90,7 +100,8 @@
         {
           "methods": [ "POST" ],
           "pathPattern": "/search/resources/jobs",
-          "permissionsRequired": [ "search.resources.ids.jobs.post" ]
+          "permissionsRequired": [ "search.resources.ids.jobs.post" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         }
       ]
     },
@@ -101,22 +112,26 @@
         {
           "methods": [ "GET" ],
           "pathPattern": "/browse/call-numbers/instances",
-          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ]
+          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/browse/subjects/instances",
-          "permissionsRequired": [ "browse.subjects.instances.collection.get" ]
+          "permissionsRequired": [ "browse.subjects.instances.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/browse/contributors/instances",
-          "permissionsRequired": [ "browse.contributors.instances.collection.get" ]
+          "permissionsRequired": [ "browse.contributors.instances.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/browse/authorities",
-          "permissionsRequired": [ "browse.authorities.collection.get" ]
+          "permissionsRequired": [ "browse.authorities.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         }
       ]
     },
@@ -195,6 +210,12 @@
           "pathPattern": "/_/tenant/{id}"
         }
       ]
+    }
+  ],
+  "optional":[
+    {
+      "id": "user-tenants",
+      "version": "1.0"
     }
   ],
   "requires": [

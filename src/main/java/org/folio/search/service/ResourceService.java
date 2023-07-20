@@ -38,7 +38,6 @@ import org.folio.search.model.types.IndexActionType;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
-import org.folio.search.service.consortia.TenantProvider;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
@@ -59,7 +58,6 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
-  private final TenantProvider tenantProvider;
   private final SearchConfigurationProperties searchConfig;
 
   /**
@@ -78,7 +76,6 @@ public class ResourceService {
     var eventsToIndex = searchConfig.inConsortiaMode()
       ? resources
       : getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
-    setTenants(eventsToIndex);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     return indexSearchDocuments(elasticsearchDocuments);
   }
@@ -104,8 +101,6 @@ public class ResourceService {
     var indexEvents = groupedByOperation.get(INDEX);
     indexEvents = extractEventsForDataMove(indexEvents);
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
-    setTenants(resourceIdEvents);
-    setTenants(fetchedInstances);
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
     var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
@@ -117,10 +112,6 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
-  }
-
-  private void setTenants(List<ResourceEvent> resources) {
-    resources.forEach(resource -> resource.setTenant(tenantProvider.getTenant(resource.getTenant())));
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

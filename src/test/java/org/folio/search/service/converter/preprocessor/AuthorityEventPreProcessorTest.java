@@ -160,6 +160,7 @@ class AuthorityEventPreProcessorTest {
   private static ResourceDescription authorityResourceDescription() {
     return TestUtils.resourceDescription(AUTHORITY_RESOURCE, mapOf(
       "id", keywordField(),
+      "tenantId", keywordField(),
       "subjectHeadings", standardField(),
       "identifiers", objectField(mapOf(
         "identifierTypeId", keywordField(),

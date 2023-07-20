@@ -29,6 +29,8 @@ import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.support.base.TenantConfig;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
 import org.folio.spring.test.type.UnitTest;
@@ -50,11 +52,16 @@ import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.bytes.BytesArray;
 import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = TenantConfig.class)
 class InstanceSubjectRepositoryTest {
 
+  @Autowired
+  private TenantProvider tenantProvider;
   @InjectMocks
   private InstanceSubjectRepository repository;
 
@@ -74,6 +81,7 @@ class InstanceSubjectRepositoryTest {
   @BeforeEach
   void setUp() {
     repository.setElasticsearchClient(elasticsearchClient);
+    repository.setTenantProvider(tenantProvider);
   }
 
   @Test

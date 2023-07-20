@@ -65,6 +65,21 @@ class ConsortiaTenantExecutorTest {
   }
 
   @Test
+  void execute_positive_consortiaModeForTenant() {
+    var operation = Mockito.spy(operation());
+
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
+    doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
+      .when(scopedExecutionService).executeSystemUserScoped(eq(CONSORTIUM_TENANT_ID), any());
+
+    var actual = consortiaTenantExecutor.execute(TENANT_ID, operation);
+
+    assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
+    verify(operation).get();
+    verify(scopedExecutionService).executeSystemUserScoped(eq(CONSORTIUM_TENANT_ID), any());
+  }
+
+  @Test
   void run_positive() {
     var operation = Mockito.spy(operationRunnable());
 

@@ -16,8 +16,12 @@ public class ConsortiaTenantExecutor {
 
   public <T> T execute(Supplier<T> operation) {
     var contextTenantId = folioExecutionContext.getTenantId();
-    var tenantId = tenantProvider.getTenant(contextTenantId);
-    if (contextTenantId.equals(tenantId)) {
+    return execute(contextTenantId, operation);
+  }
+
+  public <T> T execute(String originalTenantId, Supplier<T> operation) {
+    var tenantId = tenantProvider.getTenant(originalTenantId);
+    if (originalTenantId.equals(tenantId)) {
       return operation.get();
     } else {
       return scopedExecutionService.executeSystemUserScoped(tenantId, operation::get);

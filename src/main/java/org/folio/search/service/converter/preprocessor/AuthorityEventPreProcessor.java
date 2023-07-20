@@ -67,6 +67,9 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     log.debug("process:: by [id: {}, tenant: {}, resourceType: {}]",
       event.getId(), event.getTenant(), event.getType());
 
+    if (!isDeleteOperation(event.getType())) {
+      getNewAsMap(event).put("tenantId", event.getTenant());
+    }
     if (event.getType() == ResourceEventType.UPDATE) {
       return getResourceEventsToUpdate(event);
     }
@@ -141,5 +144,9 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
 
   private static boolean isCreateOperation(ResourceEventType typeEnum) {
     return typeEnum == ResourceEventType.CREATE || typeEnum == ResourceEventType.REINDEX;
+  }
+
+  private static boolean isDeleteOperation(ResourceEventType typeEnum) {
+    return typeEnum == ResourceEventType.DELETE || typeEnum == ResourceEventType.DELETE_ALL;
   }
 }

@@ -56,7 +56,7 @@ class FacetServiceTest {
     var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)
       .query(boolQuery().must(matchQuery));
 
-    when(cqlSearchQueryConverter.convert(QUERY, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
+    when(cqlSearchQueryConverter.convertForConsortia(QUERY, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
     when(facetQueryBuilder.getFacetAggregations(request, boolQuery)).thenReturn(List.of(sourceAggregation));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);
@@ -75,7 +75,7 @@ class FacetServiceTest {
     searchSource.sorts().clear();
     var cqlQuerySearchSource = searchSource().query(query).sort("title_sort");
 
-    when(cqlSearchQueryConverter.convert(QUERY, RESOURCE_NAME)).thenReturn(cqlQuerySearchSource);
+    when(cqlSearchQueryConverter.convertForConsortia(QUERY, RESOURCE_NAME)).thenReturn(cqlQuerySearchSource);
     when(facetQueryBuilder.getFacetAggregations(request, query)).thenReturn(List.of(sourceAgg));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);

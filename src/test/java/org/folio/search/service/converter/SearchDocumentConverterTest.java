@@ -41,7 +41,7 @@ import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.types.IndexingDataFormat;
-import org.folio.search.service.consortia.LanguageConfigServiceDecorator;
+import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;

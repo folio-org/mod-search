@@ -12,7 +12,7 @@ import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.rest.resource.FacetsApi;
 import org.folio.search.service.FacetService;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;

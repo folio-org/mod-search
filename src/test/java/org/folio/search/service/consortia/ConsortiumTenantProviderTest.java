@@ -6,6 +6,8 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,18 +15,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ConsortiaTenantProviderTest {
+class ConsortiumTenantProviderTest {
 
   @Mock
-  private ConsortiaService consortiaService;
+  private ConsortiumTenantService consortiumTenantService;
   @InjectMocks
-  private ConsortiaTenantProvider consortiaTenantProvider;
+  private ConsortiumTenantProvider consortiumTenantProvider;
 
   @Test
   void getTenant_positive() {
-    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    var actual = consortiaTenantProvider.getTenant(TENANT_ID);
+    var actual = consortiumTenantProvider.getTenant(TENANT_ID);
 
     assertThat(actual)
       .isEqualTo(CONSORTIUM_TENANT_ID);
@@ -32,9 +34,9 @@ class ConsortiaTenantProviderTest {
 
   @Test
   void getTenant_negative_emptyResponse() {
-    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
-    var actual = consortiaTenantProvider.getTenant(TENANT_ID);
+    var actual = consortiumTenantProvider.getTenant(TENANT_ID);
 
     assertThat(actual)
       .isEqualTo(TENANT_ID);

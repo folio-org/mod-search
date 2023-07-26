@@ -94,7 +94,7 @@ class KafkaMessageListenerTest {
       resourceEvent(instanceId1, INSTANCE_RESOURCE, CREATE, boundWithEvent.getNew(), null)
     );
 
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
@@ -110,19 +110,19 @@ class KafkaMessageListenerTest {
     var expectedEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, eventTypeEnumValue, resourceBody.getNew(), null);
     var expectedEvents = List.of(expectedEvent);
 
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
   void handleEvents_negative_shouldLogFailedEvent() {
     var expectedEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, mapOf("id", RESOURCE_ID));
-    when(resourceService.indexResourcesById(List.of(expectedEvent))).thenThrow(new RuntimeException("failed to save"));
+    when(resourceService.indexInstancesById(List.of(expectedEvent))).thenThrow(new RuntimeException("failed to save"));
 
     var instanceEvent = resourceEvent(null, null, mapOf("id", RESOURCE_ID));
     messageListener.handleEvents(List.of(
       new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0, RESOURCE_ID, instanceEvent)));
-    verify(resourceService, times(3)).indexResourcesById(List.of(expectedEvent));
+    verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvent));
   }
 
   @Test
@@ -133,7 +133,7 @@ class KafkaMessageListenerTest {
 
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, REINDEX));
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
   }
 
   @Test
@@ -150,7 +150,7 @@ class KafkaMessageListenerTest {
     var expectedEvents = List.of(
       resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, CREATE, null, itemPayload),
       resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, CREATE, null, holdingPayload));
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 

@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceIdsJob;
@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResourceIdsJobServiceDecorator {
 
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ResourceIdsJobService resourceIdsJobService;
 
   public ResourceIdsJob getJobById(String id) {
-    return consortiaTenantExecutor.execute(() -> resourceIdsJobService.getJobById(id));
+    return consortiumTenantExecutor.execute(() -> resourceIdsJobService.getJobById(id));
   }
 
   public ResourceIdsJob createStreamJob(ResourceIdsJob job, String tenantId) {
-    return consortiaTenantExecutor.execute(() -> resourceIdsJobService.createStreamJob(job, tenantId));
+    return consortiumTenantExecutor.execute(() -> resourceIdsJobService.createStreamJob(job, tenantId));
   }
 
 }

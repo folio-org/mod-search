@@ -8,7 +8,7 @@ import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.rest.resource.SearchApi;
 import org.folio.search.service.SearchService;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;

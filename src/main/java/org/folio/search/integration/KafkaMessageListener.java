@@ -51,7 +51,7 @@ public class KafkaMessageListener {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
     var batch = getInstanceResourceEvents(consumerRecords);
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-      resourceService::indexResourcesById, KafkaMessageListener::logFailedEvent);
+      resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
   }
 
   /**

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.service.ResourceIdsJobService;
-import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ResourceIdsJobServiceDecorator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ResourceIdsJobServiceDecoratorTest extends DecoratorBaseTest {
 
   @Mock
-  private ConsortiaTenantExecutor consortiaTenantExecutor;
+  private ConsortiumTenantExecutor consortiumTenantExecutor;
   @Mock
   private ResourceIdsJobService service;
   @InjectMocks
@@ -28,7 +28,7 @@ class ResourceIdsJobServiceDecoratorTest extends DecoratorBaseTest {
 
   @BeforeEach
   void setUp() {
-    mockExecutor(consortiaTenantExecutor);
+    mockExecutor(consortiumTenantExecutor);
   }
 
   @Test
@@ -41,7 +41,7 @@ class ResourceIdsJobServiceDecoratorTest extends DecoratorBaseTest {
 
     assertThat(actual).isEqualTo(expected);
     verify(service).getJobById(id);
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
   @Test
@@ -54,7 +54,7 @@ class ResourceIdsJobServiceDecoratorTest extends DecoratorBaseTest {
 
     assertThat(actual).isEqualTo(expected);
     verify(service).createStreamJob(expected, tenantId);
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
 }

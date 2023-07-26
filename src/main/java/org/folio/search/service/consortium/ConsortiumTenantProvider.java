@@ -3,13 +3,13 @@ package org.folio.search.service.consortium;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ConsortiaTenantProvider implements TenantProvider {
+public class ConsortiumTenantProvider implements TenantProvider {
 
-  private final ConsortiaTenantService consortiaTenantService;
+  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public String getTenant(String tenantId) {
-    return consortiaTenantService.getCentralTenant(tenantId)
+    return consortiumTenantService.getCentralTenant(tenantId)
       .orElse(tenantId);
   }
 }

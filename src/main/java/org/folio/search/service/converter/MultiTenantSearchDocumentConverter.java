@@ -19,7 +19,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
-import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.FolioExecutionContext;
@@ -33,7 +33,7 @@ public class MultiTenantSearchDocumentConverter {
   private final SearchDocumentConverter searchDocumentConverter;
   private final ResourceDescriptionService resourceDescriptionService;
   private final Map<String, EventPreProcessor> eventPreProcessorBeans;
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final FolioExecutionContext folioExecutionContext;
 
   /**
@@ -68,7 +68,7 @@ public class MultiTenantSearchDocumentConverter {
     if (entry.getKey().equals(folioExecutionContext.getTenantId())) {
       return convert.get();
     } else {
-      return consortiaTenantExecutor.execute(entry.getKey(), convert);
+      return consortiumTenantExecutor.execute(entry.getKey(), convert);
     }
   }
 

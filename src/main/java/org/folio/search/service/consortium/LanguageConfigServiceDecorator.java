@@ -11,27 +11,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LanguageConfigServiceDecorator {
 
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final LanguageConfigService languageConfigService;
 
   public LanguageConfig create(LanguageConfig languageConfig) {
-    return consortiaTenantExecutor.execute(() -> languageConfigService.create(languageConfig));
+    return consortiumTenantExecutor.execute(() -> languageConfigService.create(languageConfig));
   }
 
   public LanguageConfig update(String code, LanguageConfig languageConfig) {
-    return consortiaTenantExecutor.execute(() -> languageConfigService.update(code, languageConfig));
+    return consortiumTenantExecutor.execute(() -> languageConfigService.update(code, languageConfig));
   }
 
   public void delete(String code) {
-    consortiaTenantExecutor.run(() -> languageConfigService.delete(code));
+    consortiumTenantExecutor.run(() -> languageConfigService.delete(code));
   }
 
   public LanguageConfigs getAll() {
-    return consortiaTenantExecutor.execute(languageConfigService::getAll);
+    return consortiumTenantExecutor.execute(languageConfigService::getAll);
   }
 
   public Set<String> getAllLanguageCodes() {
-    return consortiaTenantExecutor.execute(languageConfigService::getAllLanguageCodes);
+    return consortiumTenantExecutor.execute(languageConfigService::getAllLanguageCodes);
   }
 
   public Set<String> getAllLanguagesForTenant(String tenant) {

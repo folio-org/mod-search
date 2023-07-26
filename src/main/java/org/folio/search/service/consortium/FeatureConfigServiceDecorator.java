@@ -11,27 +11,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FeatureConfigServiceDecorator {
 
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final FeatureConfigService featureConfigService;
 
   public boolean isEnabled(TenantConfiguredFeature feature) {
-    return consortiaTenantExecutor.execute(() -> featureConfigService.isEnabled(feature));
+    return consortiumTenantExecutor.execute(() -> featureConfigService.isEnabled(feature));
   }
 
   public FeatureConfigs getAll() {
-    return consortiaTenantExecutor.execute(featureConfigService::getAll);
+    return consortiumTenantExecutor.execute(featureConfigService::getAll);
   }
 
   public FeatureConfig create(FeatureConfig featureConfig) {
-    return consortiaTenantExecutor.execute(() -> featureConfigService.create(featureConfig));
+    return consortiumTenantExecutor.execute(() -> featureConfigService.create(featureConfig));
   }
 
   public FeatureConfig update(TenantConfiguredFeature feature, FeatureConfig featureConfig) {
-    return consortiaTenantExecutor.execute(() -> featureConfigService.update(feature, featureConfig));
+    return consortiumTenantExecutor.execute(() -> featureConfigService.update(feature, featureConfig));
   }
 
   public void delete(TenantConfiguredFeature feature) {
-    consortiaTenantExecutor.run(() -> featureConfigService.delete(feature));
+    consortiumTenantExecutor.run(() -> featureConfigService.delete(feature));
   }
 
 }

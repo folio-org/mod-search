@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ConsortiaTenantExecutor {
+public class ConsortiumTenantExecutor {
 
   private final FolioExecutionContext folioExecutionContext;
   private final TenantProvider tenantProvider;

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResourceIdServiceDecorator {
 
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ResourceIdService resourceIdService;
 
   public void streamResourceIdsAsText(CqlResourceIdsRequest request, OutputStream outputStream) {
@@ -19,11 +19,11 @@ public class ResourceIdServiceDecorator {
   }
 
   public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
-    consortiaTenantExecutor.run(() -> resourceIdService.streamIdsFromDatabaseAsJson(jobId, outputStream));
+    consortiumTenantExecutor.run(() -> resourceIdService.streamIdsFromDatabaseAsJson(jobId, outputStream));
   }
 
   public void streamResourceIdsForJob(ResourceIdsJobEntity job, String tenantId) {
-    consortiaTenantExecutor.run(() -> resourceIdService.streamResourceIdsForJob(job, tenantId));
+    consortiumTenantExecutor.run(() -> resourceIdService.streamResourceIdsForJob(job, tenantId));
   }
 
   public void streamResourceIdsAsJson(CqlResourceIdsRequest request, OutputStream outputStream) {

@@ -30,8 +30,8 @@ public class ConsortiumInstanceService {
 
   private final JsonConverter jsonConverter;
   private final ConsortiumInstanceRepository repository;
-  private final ConsortiaTenantExecutor consortiaTenantExecutor;
-  private final ConsortiaTenantService consortiaTenantService;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
+  private final ConsortiumTenantService consortiumTenantService;
 
   /**
    * Saves instances to database for future indexing into consortium shared index.
@@ -54,7 +54,7 @@ public class ConsortiumInstanceService {
           jsonConverter.toJson(map)))
         .toList();
 
-      consortiaTenantExecutor.run(() -> repository.save(instances));
+      consortiumTenantExecutor.run(() -> repository.save(instances));
     }
     return consortiumTenantEventsMap.get(false);
   }
@@ -76,7 +76,7 @@ public class ConsortiumInstanceService {
         .map(resourceEvent -> new ConsortiumInstanceId(resourceEvent.getTenant(), resourceEvent.getId()))
         .collect(Collectors.toSet());
 
-      consortiaTenantExecutor.run(() -> repository.delete(instanceIds));
+      consortiumTenantExecutor.run(() -> repository.delete(instanceIds));
     }
     return consortiumTenantEventsMap.get(false);
   }
@@ -84,22 +84,27 @@ public class ConsortiumInstanceService {
   public List<ResourceEvent> fetchInstances(List<String> instanceIds) {
     List<ResourceEvent> resourceEvents = new ArrayList<>();
 
-    var instances = consortiaTenantExecutor.execute(() -> repository.fetch(instanceIds));
+    var instances = consortiumTenantExecutor.execute(() -> repository.fetch(instanceIds));
     var instancesById =
       instances.stream().collect(Collectors.groupingBy(instance -> instance.id().instanceId()));
 
     for (var entry : instancesById.entrySet()) {
       Map<String, Object> mergedInstance = new HashMap<>();
-      mergedInstance.put(ID_KEY, entry.getKey());
       List<Map<String, Object>> mergedHoldings = new ArrayList<>();
       List<Map<String, Object>> mergedItems = new ArrayList<>();
-      for (var instance : entry.getValue()) {
-        var instanceMap = jsonConverter.fromJsonToMap(instance.instance());
-        if (isCentralTenant(instance.id().tenantId())) {
-          mergedInstance = instanceMap;
+      if (entry.getValue().size() == 1) {
+        // if only one instance returned then there is nothing to merge (local instance)
+        mergedInstance = jsonConverter.fromJsonToMap(entry.getValue().get(0).instance());
+      } else {
+        // if more than one instance returned then holdings/items merging required
+        for (var instance : entry.getValue()) {
+          var instanceMap = jsonConverter.fromJsonToMap(instance.instance());
+          if (isCentralTenant(instance.id().tenantId())) {
+            mergedInstance = instanceMap;
+          }
+          addListItems(mergedHoldings, instanceMap, HOLDINGS_KEY);
+          addListItems(mergedItems, instanceMap, ITEMS_KEY);
         }
-        addListItems(mergedHoldings, instanceMap, HOLDINGS_KEY);
-        addListItems(mergedItems, instanceMap, ITEMS_KEY);
       }
       var resourceEvent = toResourceEvent(mergedInstance, mergedHoldings, mergedItems);
       resourceEvents.add(resourceEvent);
@@ -120,13 +125,17 @@ public class ConsortiumInstanceService {
 
   private ResourceEvent toResourceEvent(Map<String, Object> mergedInstance, List<Map<String, Object>> mergedHoldings,
                                         List<Map<String, Object>> mergedItems) {
-    mergedInstance.put(HOLDINGS_KEY, new ArrayList<>(mergedHoldings));
-    mergedInstance.put(ITEMS_KEY, new ArrayList<>(mergedItems));
+    if (!mergedHoldings.isEmpty()) {
+      mergedInstance.put(HOLDINGS_KEY, new ArrayList<>(mergedHoldings));
+    }
+    if (!mergedItems.isEmpty()) {
+      mergedInstance.put(ITEMS_KEY, new ArrayList<>(mergedItems));
+    }
     return new ResourceEvent().id(mergedInstance.get(ID_KEY).toString())
       .type(ResourceEventType.UPDATE)
       .resourceName(INSTANCE_RESOURCE)
       ._new(new HashMap<>(mergedInstance))
-      .tenant(getCentralTenant(mergedInstance.get(TENANT_ID_KEY).toString()));
+      .tenant(mergedInstance.get(TENANT_ID_KEY).toString());
   }
 
   private Map<String, Object> prepareInstance(ResourceEvent resourceEvent) {
@@ -148,16 +157,11 @@ public class ConsortiumInstanceService {
   }
 
   private boolean isConsortiumTenant(String tenantId) {
-    return consortiaTenantService.getCentralTenant(tenantId).isPresent();
+    return consortiumTenantService.getCentralTenant(tenantId).isPresent();
   }
 
   private boolean isCentralTenant(String tenantId) {
-    var centralTenant = consortiaTenantService.getCentralTenant(tenantId);
+    var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
-  }
-
-  private String getCentralTenant(String tenantId) {
-    return consortiaTenantService.getCentralTenant(tenantId)
-      .orElseThrow(() -> new UnsupportedOperationException("Central tenant must exist"));
   }
 }

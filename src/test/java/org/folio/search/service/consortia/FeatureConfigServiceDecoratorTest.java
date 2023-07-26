@@ -9,7 +9,7 @@ import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiaTenantExecutor;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
 
   @Mock
-  private ConsortiaTenantExecutor consortiaTenantExecutor;
+  private ConsortiumTenantExecutor consortiumTenantExecutor;
   @Mock
   private FeatureConfigService service;
   @InjectMocks
@@ -31,39 +31,39 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
   void isEnabled() {
     var feature = TenantConfiguredFeature.CONSORTIUM;
     when(service.isEnabled(feature)).thenReturn(true);
-    mockExecutor(consortiaTenantExecutor);
+    mockExecutor(consortiumTenantExecutor);
 
     var actual = decorator.isEnabled(feature);
 
     assertThat(actual).isTrue();
     verify(service).isEnabled(feature);
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
   @Test
   void getAll() {
     var expected = new FeatureConfigs();
     when(service.getAll()).thenReturn(expected);
-    mockExecutor(consortiaTenantExecutor);
+    mockExecutor(consortiumTenantExecutor);
 
     var actual = decorator.getAll();
 
     assertThat(actual).isEqualTo(expected);
     verify(service).getAll();
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
   @Test
   void create() {
     var expected = new FeatureConfig();
     when(service.create(expected)).thenReturn(expected);
-    mockExecutor(consortiaTenantExecutor);
+    mockExecutor(consortiumTenantExecutor);
 
     var actual = decorator.create(expected);
 
     assertThat(actual).isEqualTo(expected);
     verify(service).create(expected);
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
   @Test
@@ -71,24 +71,24 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
     var feature = TenantConfiguredFeature.CONSORTIUM;
     var expected = new FeatureConfig();
     when(service.update(feature, expected)).thenReturn(expected);
-    mockExecutor(consortiaTenantExecutor);
+    mockExecutor(consortiumTenantExecutor);
 
     var actual = decorator.update(feature, expected);
 
     assertThat(actual).isEqualTo(expected);
     verify(service).update(feature, expected);
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
   }
 
   @Test
   void delete() {
     var feature = TenantConfiguredFeature.CONSORTIUM;
-    mockExecutorRun(consortiaTenantExecutor);
+    mockExecutorRun(consortiumTenantExecutor);
 
     decorator.delete(feature);
 
     verify(service).delete(feature);
-    verify(consortiaTenantExecutor).run(any());
+    verify(consortiumTenantExecutor).run(any());
   }
 
 }

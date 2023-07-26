@@ -45,8 +45,8 @@ class ConsortiumInstanceServiceTest {
 
   private @Mock JsonConverter jsonConverter;
   private @Mock ConsortiumInstanceRepository repository;
-  private @Mock ConsortiaTenantExecutor consortiaTenantExecutor;
-  private @Mock ConsortiaTenantService consortiaTenantService;
+  private @Mock ConsortiumTenantExecutor consortiumTenantExecutor;
+  private @Mock ConsortiumTenantService consortiumTenantService;
   private @InjectMocks ConsortiumInstanceService service;
 
   private @Captor ArgumentCaptor<List<ConsortiumInstance>> instancesCaptor;
@@ -64,19 +64,20 @@ class ConsortiumInstanceServiceTest {
       invocationOnMock -> mapper.writeValueAsString(invocationOnMock.getArgument(0)));
 
     for (String normalTenant : NORMAL_TENANTS) {
-      lenient().when(consortiaTenantService.getCentralTenant(normalTenant)).thenReturn(Optional.empty());
+      lenient().when(consortiumTenantService.getCentralTenant(normalTenant)).thenReturn(Optional.empty());
     }
 
     for (String consortiumTenant : CONSORTIUM_TENANTS) {
-      lenient().when(consortiaTenantService.getCentralTenant(consortiumTenant)).thenReturn(Optional.of(CENTRAL_TENANT));
+      lenient().when(consortiumTenantService.getCentralTenant(consortiumTenant))
+        .thenReturn(Optional.of(CENTRAL_TENANT));
     }
 
     lenient().doAnswer(invocation -> {
       ((Runnable) invocation.getArgument(0)).run();
       return null;
-    }).when(consortiaTenantExecutor).run(any());
+    }).when(consortiumTenantExecutor).run(any());
     lenient().doAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get())
-      .when(consortiaTenantExecutor).execute(any());
+      .when(consortiumTenantExecutor).execute(any());
   }
 
   @Test
@@ -149,30 +150,36 @@ class ConsortiumInstanceServiceTest {
     when(repository.fetch(instanceIds)).thenReturn(List.of(
       consortiumInstance(CONSORTIUM_TENANTS[0], instanceIds.get(0), true),
       consortiumInstance(CONSORTIUM_TENANTS[1], instanceIds.get(0), true),
-      consortiumInstance(CONSORTIUM_TENANTS[2], instanceIds.get(0), false),
-      consortiumInstance(CONSORTIUM_TENANTS[2], instanceIds.get(1), false)
+      consortiumInstance(CONSORTIUM_TENANTS[2], instanceIds.get(0), false)
     ));
 
     var actual = service.fetchInstances(instanceIds);
 
-    assertThat(actual).hasSize(2)
+    assertThat(actual).hasSize(1)
       .allMatch(resourceEvent -> instanceIds.contains(resourceEvent.getId()))
       .allMatch(resourceEvent -> resourceEvent.getTenant().equals(CENTRAL_TENANT));
     for (ResourceEvent resourceEvent : actual) {
-      if (resourceEvent.getId().equals(instanceIds.get(0))) {
-        // merged instance with holdings and items from member tenants
-        assertThat(resourceEvent.getNew()).isNotNull();
-        assertThat(getNewAsMap(resourceEvent))
-          .hasEntrySatisfying("holdings", o -> assertThat(castToList(o)).hasSize(2))
-          .hasEntrySatisfying("items", o -> assertThat(castToList(o)).hasSize(4));
-      } else {
-        // merged instance that has no holdings and items in member tenants
-        assertThat(resourceEvent.getNew()).isNotNull();
-        assertThat(getNewAsMap(resourceEvent))
-          .hasEntrySatisfying("holdings", o -> assertThat(castToList(o)).isNullOrEmpty())
-          .hasEntrySatisfying("items", o -> assertThat(castToList(o)).isNullOrEmpty());
-      }
+      assertThat(resourceEvent.getNew()).isNotNull();
+      assertThat(getNewAsMap(resourceEvent))
+        .hasEntrySatisfying("holdings", o -> assertThat(castToList(o)).hasSize(2))
+        .hasEntrySatisfying("items", o -> assertThat(castToList(o)).hasSize(4));
     }
+  }
+
+  @Test
+  void fetchInstances_positive_shouldNotMergeInstanceWhenOnlyOne() {
+    var instanceId = randomId();
+    when(repository.fetch(List.of(instanceId))).thenReturn(List.of(
+      consortiumInstance(CONSORTIUM_TENANTS[0], instanceId, true)
+    ));
+
+    var actual = service.fetchInstances(List.of(instanceId));
+
+    assertThat(actual).hasSize(1);
+    assertThat(actual.get(0))
+      .matches(resourceEvent -> instanceId.contains(resourceEvent.getId()))
+      .matches(resourceEvent -> resourceEvent.getTenant().equals(CONSORTIUM_TENANTS[0]))
+      .satisfies(resourceEvent -> assertThat(resourceEvent.getNew()).isNotNull());
   }
 
   @SuppressWarnings("unchecked")

@@ -10,6 +10,7 @@
 * Endpoint POST /search/resources/jobs have to be able to use long queries ([MSEARCH-520](https://issues.folio.org/browse/MSEARCH-520))
 * Extend `reindex` endpoint with passing index settings ([MSEARCH-437](https://issues.folio.org/browse/MSEARCH-437))
 * Create `PUT /search/index/settings` endpoint to update index settings  ([MSEARCH-436](https://issues.folio.org/browse/MSEARCH-436))
+* Implement Active Affiliation Context for Search in Consortia Mode  ([MSEARCH-533](https://issues.folio.org/browse/MSEARCH-533))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))

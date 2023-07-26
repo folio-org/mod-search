@@ -47,7 +47,6 @@ folio:
       search-all-fields: false
       browse-cn-intermediate-values: true
       browse-cn-intermediate-remove-duplicates: true
-      consortium: true
     indexing:
       instance-subjects:
         retry-attempts: 3

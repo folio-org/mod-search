@@ -382,8 +382,7 @@
       "type": "search",
       "index": "bool",
       "showInResponse": [ "search", "browse" ],
-      "processor": "authoritySharedFieldProcessor",
-      "dependsOnFeature": "consortium"
+      "processor": "authoritySharedFieldProcessor"
     }
   },
   "mappingsSource": {

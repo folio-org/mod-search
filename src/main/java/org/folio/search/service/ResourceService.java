@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
@@ -38,6 +37,7 @@ import org.folio.search.model.types.IndexActionType;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
+import org.folio.search.service.consortia.ConsortiaService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
@@ -58,7 +58,7 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
-  private final SearchConfigurationProperties searchConfig;
+  private final ConsortiaService consortiaService;
 
   /**
    * Saves list of resources to elasticsearch.
@@ -73,9 +73,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = searchConfig.inConsortiaMode()
-      ? resources
-      : getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
+    var eventsToIndex = getEventsToIndex(resources);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     return indexSearchDocuments(elasticsearchDocuments);
   }
@@ -93,9 +91,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = searchConfig.inConsortiaMode()
-      ? resourceIdEvents
-      : getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
+    var eventsToIndex = getEventsToIndex(resourceIdEvents);
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var indexEvents = groupedByOperation.get(INDEX);
@@ -112,6 +108,15 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
+    var inConsortium = events.stream()
+      .map(ResourceEvent::getTenant)
+      .distinct()
+      .anyMatch(tenantId -> consortiaService.getCentralTenant(tenantId).isPresent());
+
+    return inConsortium ? events : getEventsThatCanBeIndexed(events, SearchUtils::getIndexName);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

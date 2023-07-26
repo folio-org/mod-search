@@ -1,7 +1,9 @@
 package org.folio.search.service.consortia;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@Component
 @RequiredArgsConstructor
 public class ConsortiaTenantProvider implements TenantProvider {
 

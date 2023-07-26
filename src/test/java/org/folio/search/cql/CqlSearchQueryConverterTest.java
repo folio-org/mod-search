@@ -346,19 +346,6 @@ class CqlSearchQueryConverterTest {
   }
 
   @Test
-  void convertForConsortia_positive() {
-    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    var cqlQuery = "f1==value";
-    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery().filter(termQuery("f1", "value"))
-        .must(boolQuery().should(matchQuery("tenantId", TENANT_ID))
-          .should(matchQuery("shared", true)))));
-  }
-
-  @Test
   void convertForConsortia_positive_whenConsortiaDisabled() {
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
     var cqlQuery = "f1==value";
@@ -368,17 +355,17 @@ class CqlSearchQueryConverterTest {
   }
 
   @Test
-  void convertForConsortia_positive_whenOriginalQueryNotBoolean() {
-    var field = "contributors.name";
+  void convertForConsortia_positive() {
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "contributors")).thenReturn(List.of(field));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, field)).thenReturn(Optional.of(keywordField()));
-    var actual = cqlSearchQueryConverter.convertForConsortia("contributors any joh*", RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery().must(wildcardQuery(field, "joh*"))
-        .must(boolQuery().should(matchQuery("tenantId", TENANT_ID))
-          .should(matchQuery("shared", true)))));
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .filter(termQuery("f1", "value"))
+      .should(matchQuery("tenantId", TENANT_ID))
+      .should(matchQuery("shared", true))
+      .minimumShouldMatch(1)));
   }
 
   @Test
@@ -390,7 +377,37 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery().filter(termQuery("f1", "value"))
-        .must(boolQuery().should(matchQuery("tenantId", CONSORTIUM_TENANT_ID)))));
+        .should(matchQuery("tenantId", CONSORTIUM_TENANT_ID))
+        .minimumShouldMatch(1)));
+  }
+
+  @Test
+  void convertForConsortia_positive_whenOriginalQueryMatchAll() {
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convertForConsortia("cql.allRecords = 1", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery()
+        .should(matchQuery("tenantId", TENANT_ID))
+        .should(matchQuery("shared", true))
+        .minimumShouldMatch(1)));
+  }
+
+  @Test
+  void convertForConsortia_positive_whenOriginalBooleanWithShould() {
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+    when(consortiaService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convertForConsortia("f1==v1 or f2==v2", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery()
+        .should(termQuery("f1", "v1"))
+        .should(termQuery("f2", "v2"))
+        .must(boolQuery()
+          .should(matchQuery("tenantId", TENANT_ID))
+          .should(matchQuery("shared", true)))
+    ));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

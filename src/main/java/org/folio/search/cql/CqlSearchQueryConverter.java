@@ -7,6 +7,7 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ import org.folio.search.service.consortia.ConsortiaService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.MatchAllQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
@@ -62,7 +64,7 @@ public class CqlSearchQueryConverter {
     return queryBuilder.query(enhancedQuery);
   }
 
-  //todo: may be reworked after implemented for browse/streamIds.
+  //todo(MSEARCH-551): may be reworked after implemented for browse/streamIds.
   // Implemented separately because it crashes 'browse/streamIds' functionality.
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -158,16 +160,27 @@ public class CqlSearchQueryConverter {
       return query;
     }
 
-    var affiliationQuery = boolQuery();
-    affiliationQuery.should(matchQuery("tenantId", contextTenantId));
+    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
+    affiliationShouldClauses.add(matchQuery("tenantId", contextTenantId));
     if (!contextTenantId.equals(centralTenantId.get())) {
-      affiliationQuery.should(matchQuery("shared", true));
+      affiliationShouldClauses.add(matchQuery("shared", true));
     }
 
-    if (query instanceof BoolQueryBuilder boolQuery) {
-      return boolQuery.must(affiliationQuery);
+    var boolQuery = switch (query) {
+      case MatchAllQueryBuilder ignored -> boolQuery();
+      case BoolQueryBuilder bq -> bq;
+      default -> boolQuery().must(query);
+    };
+    if (boolQuery.should().isEmpty()) {
+      affiliationShouldClauses.forEach(boolQuery::should);
+      boolQuery.minimumShouldMatch(1);
+    } else {
+      var innerBoolQuery = boolQuery();
+      affiliationShouldClauses.forEach(innerBoolQuery::should);
+      boolQuery.must(innerBoolQuery);
     }
-    return boolQuery().must(query).must(affiliationQuery);
+
+    return boolQuery;
   }
 
   private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {

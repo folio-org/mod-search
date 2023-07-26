@@ -667,7 +667,6 @@
       "type": "search",
       "index": "bool",
       "showInResponse": [ "search" ],
-      "dependsOnFeature": "consortium",
       "processor": "instanceSharedFieldProcessor"
     },
     "allInstances": {

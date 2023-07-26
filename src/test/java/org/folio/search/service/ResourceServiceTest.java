@@ -20,13 +20,14 @@ import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
+import java.util.Optional;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
@@ -36,6 +37,7 @@ import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
+import org.folio.search.service.consortia.ConsortiaService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.support.base.TenantConfig;
@@ -71,7 +73,7 @@ class ResourceServiceTest {
   @MockBean
   private TestRepository testRepository;
   @MockBean
-  private SearchConfigurationProperties searchConfig;
+  private ConsortiaService consortiaService;
   @SpyBean
   private ResourceService indexService;
 
@@ -79,8 +81,8 @@ class ResourceServiceTest {
   private String centralTenant;
 
   @BeforeEach
-  public void setUp(@Autowired Boolean inConsortiumMode) {
-    when(searchConfig.inConsortiaMode()).thenReturn(inConsortiumMode);
+  public void setUp(@Autowired String centralTenant) {
+    when(consortiaService.getCentralTenant(any())).thenReturn(Optional.of(centralTenant));
   }
 
   @Test

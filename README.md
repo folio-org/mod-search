@@ -241,7 +241,6 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | STREAM_ID_RETRY_INTERVAL_MS                 | 1000                      | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                    | 3                         | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
 | CN_BROWSE_OPTIMIZATION_ENABLED              | true                      | Defines if call-number browse optimization is enabled or not                                                                                                                          |
-| CONSORTIUM_ENABLED                          | false                     | Defines if module have to work in consortium mode                                                                                                                                     |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -349,10 +348,7 @@ CQL operators could have modifiers that change search behaviour
 | `==`     | `string` | `title ==/string "semantic web"` | Exact match for full text fields |
 
 #### Consortium support
-Consortium feature is disabled by default. To enable it pass to mod-search service following ENV variable:
-```
-CONSORTIUM_ENABLED=true
-```
+Consortium feature is defined automatically at runtime by calling /user-tenants endpoint
 
 ### Search API
 

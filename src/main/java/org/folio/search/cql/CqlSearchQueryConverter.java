@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.types.SearchType;
-import org.folio.search.service.consortia.ConsortiaService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.opensearch.index.query.BoolQueryBuilder;
@@ -42,7 +42,7 @@ public class CqlSearchQueryConverter {
   private final SearchFieldProvider searchFieldProvider;
   private final CqlTermQueryConverter cqlTermQueryConverter;
   private final FolioExecutionContext folioExecutionContext;
-  private final ConsortiaService consortiaService;
+  private final ConsortiumTenantService consortiumTenantService;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -155,7 +155,7 @@ public class CqlSearchQueryConverter {
 
   private QueryBuilder filterForActiveAffiliation(QueryBuilder query) {
     var contextTenantId = folioExecutionContext.getTenantId();
-    var centralTenantId = consortiaService.getCentralTenant(contextTenantId);
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return query;
     }

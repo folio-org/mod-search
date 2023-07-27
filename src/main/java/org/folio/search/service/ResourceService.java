@@ -39,7 +39,7 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
-import org.folio.search.service.consortia.ConsortiaService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
@@ -60,7 +60,7 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
-  private final ConsortiaService consortiaService;
+  private final ConsortiumTenantService consortiumTenantService;
   private final TenantScopedExecutionService tenantScopedExecutionService;
   private final ConsortiumInstanceService consortiumInstanceService;
 
@@ -126,7 +126,7 @@ public class ResourceService {
     var inConsortium = events.stream()
       .map(ResourceEvent::getTenant)
       .distinct()
-      .anyMatch(tenantId -> consortiaService.getCentralTenant(tenantId).isPresent());
+      .anyMatch(tenantId -> consortiumTenantService.getCentralTenant(tenantId).isPresent());
 
     return inConsortium ? events : getEventsThatCanBeIndexed(events, SearchUtils::getIndexName);
   }

@@ -3,7 +3,6 @@ package org.folio.search.support.base;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 
 import org.folio.search.service.consortium.TenantProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

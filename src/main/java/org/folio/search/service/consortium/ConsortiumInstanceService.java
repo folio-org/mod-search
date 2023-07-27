@@ -1,18 +1,25 @@
 package org.folio.search.service.consortium;
 
+import static org.apache.commons.collections4.IterableUtils.toList;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
+import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +39,8 @@ public class ConsortiumInstanceService {
   private final ConsortiumInstanceRepository repository;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumTenantService consortiumTenantService;
+  private final FolioMessageProducer<ConsortiumInstanceEvent> producer;
+  private final FolioExecutionContext context;
 
   /**
    * Saves instances to database for future indexing into consortium shared index.
@@ -54,7 +63,10 @@ public class ConsortiumInstanceService {
           jsonConverter.toJson(map)))
         .toList();
 
-      consortiumTenantExecutor.run(() -> repository.save(instances));
+      consortiumTenantExecutor.run(() -> {
+        repository.save(instances);
+        prepareAndSendConsortiumInstanceEvents(instances, instance -> instance.id().instanceId());
+      });
     }
     return consortiumTenantEventsMap.get(false);
   }
@@ -76,17 +88,31 @@ public class ConsortiumInstanceService {
         .map(resourceEvent -> new ConsortiumInstanceId(resourceEvent.getTenant(), resourceEvent.getId()))
         .collect(Collectors.toSet());
 
-      consortiumTenantExecutor.run(() -> repository.delete(instanceIds));
+      consortiumTenantExecutor.run(() -> {
+        repository.delete(instanceIds);
+        Function<ConsortiumInstanceId, String> instanceIdFunction = ConsortiumInstanceId::instanceId;
+        prepareAndSendConsortiumInstanceEvents(instanceIds, instanceIdFunction);
+      });
     }
     return consortiumTenantEventsMap.get(false);
   }
 
-  public List<ResourceEvent> fetchInstances(List<String> instanceIds) {
+  public List<ResourceEvent> fetchInstances(Iterable<String> instanceIds) {
     List<ResourceEvent> resourceEvents = new ArrayList<>();
 
-    var instances = consortiumTenantExecutor.execute(() -> repository.fetch(instanceIds));
+    var instanceIdList = toList(instanceIds).stream().distinct().toList();
+    var instances = consortiumTenantExecutor.execute(() -> repository.fetch(instanceIdList));
     var instancesById =
       instances.stream().collect(Collectors.groupingBy(instance -> instance.id().instanceId()));
+
+    var missedIds = ListUtils.subtract(instanceIdList, new ArrayList<>(instancesById.keySet()));
+    for (var missedId : missedIds) {
+      resourceEvents.add(new ResourceEvent().id(missedId.toString())
+        .type(ResourceEventType.DELETE)
+        .resourceName(INSTANCE_RESOURCE)
+        .old(Map.of(ID_KEY, missedId))
+        .tenant(getCentralId()));
+    }
 
     for (var entry : instancesById.entrySet()) {
       Map<String, Object> mergedInstance = new HashMap<>();
@@ -163,5 +189,18 @@ public class ConsortiumInstanceService {
   private boolean isCentralTenant(String tenantId) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
+  }
+
+  private String getCentralId() {
+    return consortiumTenantService.getCentralTenant(context.getTenantId()).orElse(null);
+  }
+
+  private <T> void prepareAndSendConsortiumInstanceEvents(Collection<T> values,
+                                                          Function<T, String> instanceIdFunction) {
+    var consortiumInstanceEvents = values.stream()
+      .map(instanceIdFunction)
+      .map(ConsortiumInstanceEvent::new)
+      .toList();
+    producer.sendMessages(consortiumInstanceEvents);
   }
 }

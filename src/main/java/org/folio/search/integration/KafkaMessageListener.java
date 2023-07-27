@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.KafkaConstants;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -43,11 +44,11 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.EVENT_LISTENER_ID,
-    containerFactory = "kafkaListenerContainerFactory",
+    containerFactory = "standardListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
-  public void handleEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+  public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance ids from kafka events [number of events: {}]", consumerRecords.size());
     var batch = getInstanceResourceEvents(consumerRecords);
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
@@ -61,7 +62,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.AUTHORITY_LISTENER_ID,
-    containerFactory = "kafkaListenerContainerFactory",
+    containerFactory = "standardListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['authorities'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['authorities'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
@@ -83,7 +84,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.CONTRIBUTOR_LISTENER_ID,
-    containerFactory = "kafkaListenerContainerFactory",
+    containerFactory = "standardListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['contributors'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['contributors'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['contributors'].topicPattern}")
@@ -100,7 +101,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.SUBJECT_LISTENER_ID,
-    containerFactory = "kafkaListenerContainerFactory",
+    containerFactory = "standardListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['subjects'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['subjects'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['subjects'].topicPattern}")
@@ -113,6 +114,27 @@ public class KafkaMessageListener {
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       resourceService::indexResources, KafkaMessageListener::logFailedEvent);
+  }
+
+  /**
+   * Handles authority record events and indexes them using event body.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
+  @KafkaListener(
+    id = KafkaConstants.CONSORTIUM_INSTANCE_LISTENER_ID,
+    containerFactory = "consortiumListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['consortium-instance'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['consortium-instance'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['consortium-instance'].topicPattern}")
+  public void handleConsortiumInstanceEvents(List<ConsumerRecord<String, ConsortiumInstanceEvent>> consumerRecords) {
+    log.info("Processing consortium instance events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .toList();
+
+    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      resourceService::indexConsortiumInstances, KafkaMessageListener::logFailedConsortiumEvent);
   }
 
   private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
@@ -156,5 +178,13 @@ public class KafkaMessageListener {
     var eventType = event.getType() != null ? event.getType().getValue() : "unknown";
     log.warn("Failed to index resource event [eventType: {}, type: {}, tenantId: {}, id: {}]",
       eventType, event.getType(), event.getTenant(), event.getId(), e);
+  }
+
+  private static void logFailedConsortiumEvent(ConsortiumInstanceEvent event, Exception e) {
+    if (event == null) {
+      log.warn("Failed to index resource event [event: null]", e);
+      return;
+    }
+    log.warn("Failed to index consortium instance [tenantId: {}, id: {}]", event.getTenant(), event.getInstanceId());
   }
 }

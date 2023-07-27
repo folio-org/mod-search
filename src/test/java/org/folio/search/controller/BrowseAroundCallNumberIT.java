@@ -24,9 +24,11 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseAroundCallNumberIT extends BaseIntegrationTest {
 

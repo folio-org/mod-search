@@ -154,11 +154,13 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   private static Holding removeUnexpectedProperties(Holding holding) {
+    holding.setTenantId(TENANT_ID);
     holding.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
     return holding.callNumberSuffix(null).callNumber(null).callNumberPrefix(null);
   }
 
   private static Item removeUnexpectedProperties(Item item) {
+    item.setTenantId(TENANT_ID);
     item.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
     return item.discoverySuppress(false);
   }

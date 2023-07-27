@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -31,6 +32,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -120,6 +122,27 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  public FolioIndexOperationResponse indexConsortiumInstances(List<ConsortiumInstanceEvent> consortiumInstances) {
+    if (CollectionUtils.isEmpty(consortiumInstances)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var instanceIdsByTenant = consortiumInstances.stream()
+      .collect(groupingBy(ConsortiumInstanceEvent::getTenant,
+        Collectors.mapping(ConsortiumInstanceEvent::getInstanceId, toSet())));
+
+    Map<String, List<SearchDocumentBody>> allResourceEvents = new HashMap<>(consortiumInstances.size());
+    for (var tenantInstanceIds : instanceIdsByTenant.entrySet()) {
+      tenantScopedExecutionService.executeTenantScoped(tenantInstanceIds.getKey(), () -> {
+        var resourceEvents = consortiumInstanceService.fetchInstances(tenantInstanceIds.getValue());
+        allResourceEvents.putAll(multiTenantSearchDocumentConverter.convert(resourceEvents));
+        return null;
+      });
+    }
+
+    return indexSearchDocuments(allResourceEvents);
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {

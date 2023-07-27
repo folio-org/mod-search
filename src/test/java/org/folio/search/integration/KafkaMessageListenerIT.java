@@ -108,7 +108,7 @@ class KafkaMessageListenerIT {
     var expectedEvent = instanceEvent();
     kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexResourcesById(List.of(expectedEvent)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
   }
 
   @Test
@@ -117,40 +117,40 @@ class KafkaMessageListenerIT {
     var expectedEvent = instanceEvent()._new(boundWithEvent.getNew());
     kafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexResourcesById(List.of(expectedEvent)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
   }
 
   @Test
   void handleEvents_negative_tenantIndexNotInitialized() throws Exception {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexResourcesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
       new SearchOperationException("Failed to upload events"));
 
     kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexResourcesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
   }
 
   @Test
   void handleEvents_negative_tenantSchemaIsNotInitialized() throws Exception {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexResourcesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
       new SQLGrammarException("could not extract ResultSet", new SQLException()));
 
     kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexResourcesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
   }
 
   @Test
   void handleEvents_positive_splittingBatchToTheParts() {
     var ids = List.of(randomId(), randomId(), randomId());
 
-    when(resourceService.indexResourcesById(anyList())).thenAnswer(inv -> {
+    when(resourceService.indexInstancesById(anyList())).thenAnswer(inv -> {
       var resourceIdEvents = inv.<List<ResourceEvent>>getArgument(0);
       if (resourceIdEvents.size() == 3) {
         throw new SearchOperationException("Failed to save bulk");
@@ -166,9 +166,9 @@ class KafkaMessageListenerIT {
 
     var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      verify(resourceService).indexResourcesById(List.of(expectedEvents.get(0)));
-      verify(resourceService).indexResourcesById(List.of(expectedEvents.get(1)));
-      verify(resourceService, times(3)).indexResourcesById(List.of(expectedEvents.get(2)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(0)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(1)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvents.get(2)));
     });
   }
 

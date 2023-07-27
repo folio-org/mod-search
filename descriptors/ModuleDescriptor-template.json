@@ -90,12 +90,14 @@
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/resources/jobs/{jobId}/ids",
-          "permissionsRequired": [ "search.resources.ids.collection.get" ]
+          "permissionsRequired": [ "search.resources.ids.collection.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "GET" ],
           "pathPattern": "/search/resources/jobs/{jobId}",
-          "permissionsRequired": [ "search.resources.ids.jobs.get" ]
+          "permissionsRequired": [ "search.resources.ids.jobs.get" ],
+          "modulePermissions": ["user-tenants.collection.get"]
         },
         {
           "methods": [ "POST" ],
@@ -190,6 +192,7 @@
           "methods": [ "POST" ],
           "pathPattern": "/_/tenant",
           "modulePermissions": [
+            "user-tenants.collection.get",
             "users.collection.get",
             "users.item.post",
             "login.item.post",

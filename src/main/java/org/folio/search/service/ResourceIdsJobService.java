@@ -9,7 +9,7 @@ import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
-import org.folio.search.service.consortia.ResourceIdServiceDecorator;
+import org.folio.search.service.consortium.ResourceIdServiceDecorator;
 import org.springframework.stereotype.Service;
 
 @Log4j2

@@ -12,6 +12,7 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import org.folio.search.model.types.IndexActionType;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
+import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortia.ConsortiaService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -59,6 +61,8 @@ public class ResourceService {
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
   private final ConsortiaService consortiaService;
+  private final TenantScopedExecutionService tenantScopedExecutionService;
+  private final ConsortiumInstanceService consortiumInstanceService;
 
   /**
    * Saves list of resources to elasticsearch.
@@ -84,7 +88,7 @@ public class ResourceService {
    * @param resourceIdEvents list of {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
+  public FolioIndexOperationResponse indexInstancesById(List<ResourceEvent> resourceIdEvents) {
     log.debug("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
@@ -93,16 +97,24 @@ public class ResourceService {
 
     var eventsToIndex = getEventsToIndex(resourceIdEvents);
 
-    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
-    var indexEvents = groupedByOperation.get(INDEX);
-    indexEvents = extractEventsForDataMove(indexEvents);
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
-    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
-    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
-    var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
-    var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
-    messageProducer.prepareAndSendContributorEvents(groupedByOperation.get(DELETE));
-    messageProducer.prepareAndSendSubjectEvents(groupedByOperation.get(DELETE));
+    var eventsByTenant = eventsToIndex.stream()
+      .filter(event -> INSTANCE_RESOURCE.equals(event.getResourceName()))
+      .collect(groupingBy(ResourceEvent::getTenant));
+
+    Map<String, List<SearchDocumentBody>> indexDocuments = new HashMap<>();
+    Map<String, List<SearchDocumentBody>> removeDocuments = new HashMap<>();
+    for (Map.Entry<String, List<ResourceEvent>> entry : eventsByTenant.entrySet()) {
+      var tenant = entry.getKey();
+      var events = entry.getValue();
+
+      tenantScopedExecutionService.executeTenantScoped(tenant, () -> {
+        var groupedByOperation = events.stream().collect(groupingBy(ResourceService::getEventIndexType));
+        indexDocuments.putAll(processIndexInstanceEvents(tenant, groupedByOperation.get(INDEX)));
+        removeDocuments.putAll(processDeleteInstanceEvents(groupedByOperation.get(DELETE)));
+        return null;
+      });
+    }
+
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
@@ -117,6 +129,21 @@ public class ResourceService {
       .anyMatch(tenantId -> consortiaService.getCentralTenant(tenantId).isPresent());
 
     return inConsortium ? events : getEventsThatCanBeIndexed(events, SearchUtils::getIndexName);
+  }
+
+  private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(String tenant,
+                                                                           List<ResourceEvent> resourceEvents) {
+    var indexEvents = extractEventsForDataMove(resourceEvents);
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents, tenant);
+    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
+    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
+    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.saveInstances(fetchedInstances));
+  }
+
+  private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
+    messageProducer.prepareAndSendContributorEvents(deleteEvents);
+    messageProducer.prepareAndSendSubjectEvents(deleteEvents);
+    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.deleteInstances(deleteEvents));
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

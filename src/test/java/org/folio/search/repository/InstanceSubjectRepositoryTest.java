@@ -29,7 +29,7 @@ import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.support.base.TenantConfig;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;

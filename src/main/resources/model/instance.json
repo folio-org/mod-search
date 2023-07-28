@@ -257,6 +257,12 @@
       "default": false,
       "showInResponse": [ "search", "call-number-browse" ]
     },
+    "shared": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": [ "search" ]
+    },
     "items": {
       "type": "object",
       "properties": {
@@ -661,13 +667,6 @@
       "index": "keyword",
       "searchAliases": [ "items.effectiveShelvingOrder" ],
       "processor": "itemEffectiveShelvingOrderProcessor"
-    },
-    "shared": {
-      "searchTypes": [ "facet", "filter" ],
-      "type": "search",
-      "index": "bool",
-      "showInResponse": [ "search" ],
-      "processor": "instanceSharedFieldProcessor"
     },
     "allInstances": {
       "type": "search",

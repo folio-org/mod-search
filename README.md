@@ -348,8 +348,23 @@ CQL operators could have modifiers that change search behaviour
 | `==`     | `string` | `title ==/string "semantic web"` | Exact match for full text fields |
 
 #### Consortium support
-Consortium feature on module enable is defined by 'centralTenantId' tenant parameter.
 Consortium feature is defined automatically at runtime by calling /user-tenants endpoint.
+Consortium feature on module enable is defined by 'centralTenantId' tenant parameter. Example:
+```json
+{
+  "module_to": "mod-sample-1.3.1",
+  "parameters": [
+    {
+      "key": "centralTenantId",
+      "value": "centralTenant"
+    },
+    {
+      "key": "loadReference",
+      "value": true
+    }
+  ]
+}
+```
 
 ### Search API
 

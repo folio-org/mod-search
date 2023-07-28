@@ -4,7 +4,7 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -161,9 +161,9 @@ public class CqlSearchQueryConverter {
     }
 
     var affiliationShouldClauses = new LinkedList<QueryBuilder>();
-    affiliationShouldClauses.add(matchQuery("tenantId", contextTenantId));
+    affiliationShouldClauses.add(termQuery("tenantId", contextTenantId));
     if (!contextTenantId.equals(centralTenantId.get())) {
-      affiliationShouldClauses.add(matchQuery("shared", true));
+      affiliationShouldClauses.add(termQuery("shared", true));
     }
 
     var boolQuery = switch (query) {

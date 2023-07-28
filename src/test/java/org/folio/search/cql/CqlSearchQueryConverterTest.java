@@ -363,8 +363,8 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .filter(termQuery("f1", "value"))
-      .should(matchQuery("tenantId", TENANT_ID))
-      .should(matchQuery("shared", true))
+      .should(termQuery("tenantId", TENANT_ID))
+      .should(termQuery("shared", true))
       .minimumShouldMatch(1)));
   }
 
@@ -377,7 +377,7 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery().filter(termQuery("f1", "value"))
-        .should(matchQuery("tenantId", CONSORTIUM_TENANT_ID))
+        .should(termQuery("tenantId", CONSORTIUM_TENANT_ID))
         .minimumShouldMatch(1)));
   }
 
@@ -389,8 +389,8 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convertForConsortia("cql.allRecords = 1", RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
-        .should(matchQuery("tenantId", TENANT_ID))
-        .should(matchQuery("shared", true))
+        .should(termQuery("tenantId", TENANT_ID))
+        .should(termQuery("shared", true))
         .minimumShouldMatch(1)));
   }
 
@@ -405,8 +405,8 @@ class CqlSearchQueryConverterTest {
         .should(termQuery("f1", "v1"))
         .should(termQuery("f2", "v2"))
         .must(boolQuery()
-          .should(matchQuery("tenantId", TENANT_ID))
-          .should(matchQuery("shared", true)))
+          .should(termQuery("tenantId", TENANT_ID))
+          .should(termQuery("shared", true)))
     ));
   }
 

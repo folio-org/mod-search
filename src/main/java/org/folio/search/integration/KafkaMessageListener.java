@@ -117,7 +117,7 @@ public class KafkaMessageListener {
   }
 
   /**
-   * Handles authority record events and indexes them using event body.
+   * Handles consortium instance events and indexes them using event body.
    *
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */

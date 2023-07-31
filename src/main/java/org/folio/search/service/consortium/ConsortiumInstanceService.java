@@ -23,6 +23,10 @@ import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+/**
+ * Class designed to be executed only in scope of consortium central tenant id.
+ * So, it can be expected to always have central tenant id in {@link FolioExecutionContext}.
+ */
 @Service
 @RequiredArgsConstructor
 public class ConsortiumInstanceService {
@@ -111,7 +115,7 @@ public class ConsortiumInstanceService {
         .type(ResourceEventType.DELETE)
         .resourceName(INSTANCE_RESOURCE)
         .old(Map.of(ID_KEY, missedId))
-        .tenant(getCentralId()));
+        .tenant(context.getTenantId()));
     }
 
     for (var entry : instancesById.entrySet()) {
@@ -189,10 +193,6 @@ public class ConsortiumInstanceService {
   private boolean isCentralTenant(String tenantId) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
-  }
-
-  private String getCentralId() {
-    return consortiumTenantService.getCentralTenant(context.getTenantId()).orElse(null);
   }
 
   private <T> void prepareAndSendConsortiumInstanceEvents(Collection<T> values,

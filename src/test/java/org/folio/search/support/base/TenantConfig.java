@@ -1,10 +1,8 @@
 package org.folio.search.support.base;
 
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 
 import org.folio.search.service.consortium.TenantProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,19 +13,10 @@ import org.springframework.context.annotation.Configuration;
  * */
 @Configuration
 public class TenantConfig {
-
+  // todo(MSEARCH-562): maybe return property for consortium enabled/disabled just for tests (see file change history)
   @Bean
-  public Boolean inConsortiumMode(
-    @Value("${folio.search-config.search-features.consortium}") Boolean inConsortiumMode) {
-    return inConsortiumMode;
-  }
-
-  @Bean
-  public String centralTenant(Boolean inConsortiumMode) {
-    if (inConsortiumMode) {
-      return CONSORTIUM_TENANT_ID;
-    }
-    return TENANT_ID;
+  public String centralTenant() {
+    return CONSORTIUM_TENANT_ID;
   }
 
   @Bean

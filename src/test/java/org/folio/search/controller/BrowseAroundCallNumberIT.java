@@ -5,6 +5,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -33,8 +34,12 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
 
-  @Autowired
   private Boolean inConsortiumMode;
+
+  @Autowired
+  public void setInConsortiumMode(String centralTenant) {
+    this.inConsortiumMode = centralTenant.equals(CONSORTIUM_TENANT_ID);
+  }
 
   @BeforeAll
   static void prepare() {

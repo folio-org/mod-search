@@ -14,6 +14,7 @@
 * Implement consortium index management  ([MSEARCH-531](https://issues.folio.org/browse/MSEARCH-531))
 * Add shared, tenantId flags to mapping for consortium ([MSEARCH-532](https://issues.folio.org/browse/MSEARCH-532))
 * Implement indexing for consortium tenants  ([MSEARCH-554](https://issues.folio.org/browse/MSEARCH-554))
+* Implement Active Affiliation Context for Search in Consortia Mode  ([MSEARCH-533](https://issues.folio.org/browse/MSEARCH-533))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))

@@ -33,7 +33,7 @@ public class FacetService {
    */
   public FacetResult getFacets(CqlFacetRequest request) {
     log.debug("getFacets:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
-    var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
+    var searchSource = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), request.getResource());
     searchSource.size(0).from(0).fetchSource(false);
 
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);

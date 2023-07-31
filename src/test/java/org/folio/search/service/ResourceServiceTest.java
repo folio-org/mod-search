@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
@@ -41,6 +41,7 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.support.base.TenantConfig;
@@ -76,7 +77,7 @@ class ResourceServiceTest {
   @MockBean
   private TestRepository testRepository;
   @MockBean
-  private SearchConfigurationProperties searchConfig;
+  private ConsortiumTenantService consortiumTenantService;
   @MockBean
   private TenantScopedExecutionService tenantScopedExecutionService;
   @MockBean
@@ -88,8 +89,8 @@ class ResourceServiceTest {
   private String centralTenant;
 
   @BeforeEach
-  public void setUp(@Autowired Boolean inConsortiumMode) {
-    when(searchConfig.inConsortiaMode()).thenReturn(inConsortiumMode);
+  public void setUp(@Autowired String centralTenant) {
+    when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.of(centralTenant));
     lenient().when(consortiumInstanceService.saveInstances(anyList()))
       .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumInstanceService.deleteInstances(anyList()))

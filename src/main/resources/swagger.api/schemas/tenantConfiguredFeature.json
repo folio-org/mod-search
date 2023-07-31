@@ -5,7 +5,6 @@
   "enum": [
     "search.all.fields",
     "browse.cn.intermediate.values",
-    "browse.cn.intermediate.remove.duplicates",
-    "consortium"
+    "browse.cn.intermediate.remove.duplicates"
   ]
 }

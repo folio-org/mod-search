@@ -54,7 +54,7 @@ public class SearchService {
     }
     var resource = request.getResource();
     var requestTimeout = searchQueryConfiguration.getRequestTimeout();
-    var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
+    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource)
       .from(request.getOffset())
       .size(request.getLimit())
       .trackTotalHits(true)

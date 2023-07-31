@@ -29,7 +29,7 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
 
   @Test
   void isEnabled() {
-    var feature = TenantConfiguredFeature.CONSORTIUM;
+    var feature = TenantConfiguredFeature.SEARCH_ALL_FIELDS;
     when(service.isEnabled(feature)).thenReturn(true);
     mockExecutor(consortiumTenantExecutor);
 
@@ -68,7 +68,7 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
 
   @Test
   void update() {
-    var feature = TenantConfiguredFeature.CONSORTIUM;
+    var feature = TenantConfiguredFeature.SEARCH_ALL_FIELDS;
     var expected = new FeatureConfig();
     when(service.update(feature, expected)).thenReturn(expected);
     mockExecutor(consortiumTenantExecutor);
@@ -82,7 +82,7 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
 
   @Test
   void delete() {
-    var feature = TenantConfiguredFeature.CONSORTIUM;
+    var feature = TenantConfiguredFeature.SEARCH_ALL_FIELDS;
     mockExecutorRun(consortiumTenantExecutor);
 
     decorator.delete(feature);

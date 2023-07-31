@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
@@ -31,6 +32,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
   private final SearchFieldProvider searchFieldProvider;
   private final FolioExecutionContext context;
   private final TenantProvider tenantProvider;
+  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public Class<Authority> getGeneric() {
@@ -85,10 +87,25 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
     authorityIdFields.stream()
       .map(field -> termQuery(field, authorityId))
       .forEach(boolQueryBuilder::should);
-
-    return new SearchSourceBuilder()
-      .query(boolQuery().filter(boolQueryBuilder))
+    var searchSource = new SearchSourceBuilder()
+      .query(boolQueryBuilder)
       .size(0)
       .trackTotalHits(true);
+
+    var contextTenantId = context.getTenantId();
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
+    if (centralTenantId.isEmpty()) {
+      return searchSource;
+    }
+
+    boolQueryBuilder.minimumShouldMatch(1);
+    var affiliationQuery = boolQuery();
+    affiliationQuery.should(termQuery("tenantId", contextTenantId));
+    if (!contextTenantId.equals(centralTenantId.get())) {
+      affiliationQuery.should(termQuery("shared", true));
+    }
+    boolQueryBuilder.must(affiliationQuery);
+
+    return searchSource;
   }
 }

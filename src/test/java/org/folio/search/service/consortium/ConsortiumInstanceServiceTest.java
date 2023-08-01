@@ -1,11 +1,13 @@
 package org.folio.search.service.consortium;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,8 +24,12 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.utils.JsonConverter;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,10 +53,13 @@ class ConsortiumInstanceServiceTest {
   private @Mock ConsortiumInstanceRepository repository;
   private @Mock ConsortiumTenantExecutor consortiumTenantExecutor;
   private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock FolioMessageProducer<ConsortiumInstanceEvent> producer;
+  private @Mock FolioExecutionContext context;
   private @InjectMocks ConsortiumInstanceService service;
 
   private @Captor ArgumentCaptor<List<ConsortiumInstance>> instancesCaptor;
   private @Captor ArgumentCaptor<Set<ConsortiumInstanceId>> instanceIdsCaptor;
+  private @Captor ArgumentCaptor<List<ConsortiumInstanceEvent>> eventsCaptor;
 
   {
     mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -78,6 +87,8 @@ class ConsortiumInstanceServiceTest {
     }).when(consortiumTenantExecutor).run(any());
     lenient().doAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get())
       .when(consortiumTenantExecutor).execute(any());
+
+    lenient().when(context.getTenantId()).thenReturn(CENTRAL_TENANT);
   }
 
   @Test
@@ -88,6 +99,7 @@ class ConsortiumInstanceServiceTest {
 
     assertThat(actual).isEqualTo(resourceEvents);
     verify(repository, never()).save(any());
+    verify(producer, never()).sendMessages(anyList());
   }
 
   @Test
@@ -116,6 +128,11 @@ class ConsortiumInstanceServiceTest {
           .allMatch(item -> asList(CONSORTIUM_TENANTS).contains(item.getTenantId())),
         "tenant populated to items")
       .anyMatch(instance -> instance.getTenantId().equals(CENTRAL_TENANT) && instance.getShared());
+
+    verify(producer).sendMessages(eventsCaptor.capture());
+    assertThat(eventsCaptor.getValue()).hasSize(resourceEvents.size())
+      .extracting(ConsortiumInstanceEvent::getInstanceId)
+      .containsExactlyInAnyOrder(resourceEvents.stream().map(ResourceEvent::getId).toArray(String[]::new));
   }
 
   @Test
@@ -126,6 +143,7 @@ class ConsortiumInstanceServiceTest {
 
     assertThat(actual).isEqualTo(resourceEvents);
     verify(repository, never()).delete(any());
+    verify(producer, never()).sendMessages(anyList());
   }
 
   @Test
@@ -142,11 +160,16 @@ class ConsortiumInstanceServiceTest {
     assertThat(instanceIdsCaptor.getValue())
       .hasSize(3)
       .containsAll(resourceEvents.stream().map(x -> new ConsortiumInstanceId(x.getTenant(), x.getId())).toList());
+
+    verify(producer).sendMessages(eventsCaptor.capture());
+    assertThat(eventsCaptor.getValue()).hasSize(resourceEvents.size())
+      .extracting(ConsortiumInstanceEvent::getInstanceId)
+      .containsExactlyInAnyOrder(resourceEvents.stream().map(ResourceEvent::getId).toArray(String[]::new));
   }
 
   @Test
   void fetchInstances_positive_shouldMergeInstancesById() {
-    var instanceIds = List.of(randomId(), randomId());
+    var instanceIds = List.of(randomId());
     when(repository.fetch(instanceIds)).thenReturn(List.of(
       consortiumInstance(CONSORTIUM_TENANTS[0], instanceIds.get(0), true),
       consortiumInstance(CONSORTIUM_TENANTS[1], instanceIds.get(0), true),
@@ -155,15 +178,28 @@ class ConsortiumInstanceServiceTest {
 
     var actual = service.fetchInstances(instanceIds);
 
-    assertThat(actual).hasSize(1)
-      .allMatch(resourceEvent -> instanceIds.contains(resourceEvent.getId()))
-      .allMatch(resourceEvent -> resourceEvent.getTenant().equals(CENTRAL_TENANT));
-    for (ResourceEvent resourceEvent : actual) {
-      assertThat(resourceEvent.getNew()).isNotNull();
-      assertThat(getNewAsMap(resourceEvent))
+    assertThat(actual).hasSize(1);
+    assertThat(actual.get(0))
+      .matches(resourceEvent -> instanceIds.contains(resourceEvent.getId()))
+      .matches(resourceEvent -> resourceEvent.getTenant().equals(CENTRAL_TENANT))
+      .satisfies(resourceEvent -> assertThat(resourceEvent.getNew()).isNotNull())
+      .satisfies(resourceEvent -> assertThat(getNewAsMap(resourceEvent))
         .hasEntrySatisfying("holdings", o -> assertThat(castToList(o)).hasSize(2))
-        .hasEntrySatisfying("items", o -> assertThat(castToList(o)).hasSize(4));
-    }
+        .hasEntrySatisfying("items", o -> assertThat(castToList(o)).hasSize(4)));
+  }
+
+  @Test
+  void fetchInstances_positive_shouldReturnDeleteEventsIfNotFound() {
+    var instanceIds = List.of(randomId());
+    when(repository.fetch(instanceIds)).thenReturn(emptyList());
+
+    var actual = service.fetchInstances(instanceIds);
+
+    assertThat(actual).hasSize(1);
+    assertThat(actual.get(0))
+      .matches(resourceEvent -> instanceIds.contains(resourceEvent.getId()))
+      .matches(resourceEvent -> resourceEvent.getTenant().equals(CENTRAL_TENANT))
+      .matches(resourceEvent -> resourceEvent.getType().equals(ResourceEventType.DELETE));
   }
 
   @Test

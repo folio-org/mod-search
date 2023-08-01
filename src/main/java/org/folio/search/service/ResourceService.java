@@ -26,11 +26,13 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -120,6 +122,33 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  public FolioIndexOperationResponse indexConsortiumInstances(List<ConsortiumInstanceEvent> consortiumInstances) {
+    if (CollectionUtils.isEmpty(consortiumInstances)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var validConsortiumInstances = consortiumInstances.stream()
+      .filter(event -> consortiumTenantService.getCentralTenant(event.getTenant()).isPresent())
+      .distinct()
+      .toList();
+
+    if (log.isDebugEnabled()) {
+      var invalidInstances = ListUtils.subtract(consortiumInstances, validConsortiumInstances);
+      log.debug("Skip indexing consortium instances [{}]", invalidInstances);
+    }
+
+    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
+      .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
+
+    var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());
+    var searchDocuments = tenantScopedExecutionService.executeTenantScoped(centralTenant, () -> {
+      var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
+      return multiTenantSearchDocumentConverter.convert(resourceEvents);
+    });
+
+    return indexSearchDocuments(searchDocuments);
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {

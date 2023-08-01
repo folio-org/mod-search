@@ -166,11 +166,15 @@ public class CqlSearchQueryConverter {
       affiliationShouldClauses.add(termQuery("shared", true));
     }
 
-    var boolQuery = switch (query) {
-      case MatchAllQueryBuilder ignored -> boolQuery();
-      case BoolQueryBuilder bq -> bq;
-      default -> boolQuery().must(query);
-    };
+    BoolQueryBuilder boolQuery;
+    if (query instanceof MatchAllQueryBuilder) {
+      boolQuery = boolQuery();
+    } else if (query instanceof BoolQueryBuilder bq) {
+      boolQuery = bq;
+    } else {
+      boolQuery = boolQuery().must(query);
+    }
+
     if (boolQuery.should().isEmpty()) {
       affiliationShouldClauses.forEach(boolQuery::should);
       boolQuery.minimumShouldMatch(1);

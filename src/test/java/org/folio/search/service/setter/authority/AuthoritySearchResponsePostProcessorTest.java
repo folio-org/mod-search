@@ -52,7 +52,7 @@ class AuthoritySearchResponsePostProcessorTest {
   @Autowired
   private String centralTenant;
 
-  private @Captor ArgumentCaptor<List<SearchSourceBuilder>> mSearchCaptor;
+  private @Captor ArgumentCaptor<List<SearchSourceBuilder>> searchSourceCaptor;
 
   @BeforeEach
   void setUp() {
@@ -89,8 +89,8 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(authority2).extracting(Authority::getNumberOfTitles).isEqualTo(11);
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), mSearchCaptor.capture());
-    var searchSources = mSearchCaptor.getValue();
+      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+    var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)
@@ -127,8 +127,8 @@ class AuthoritySearchResponsePostProcessorTest {
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), mSearchCaptor.capture());
-    var searchSources = mSearchCaptor.getValue();
+      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+    var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)
@@ -149,8 +149,8 @@ class AuthoritySearchResponsePostProcessorTest {
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), mSearchCaptor.capture());
-    var searchSources = mSearchCaptor.getValue();
+      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+    var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)

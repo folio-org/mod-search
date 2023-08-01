@@ -139,7 +139,7 @@ public class ResourceService {
       log.debug("Skip indexing consortium instances [{}]", invalidInstances);
     }
 
-    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getInstanceId())
+    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
       .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
 
     var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());

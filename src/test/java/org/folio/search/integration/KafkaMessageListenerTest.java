@@ -27,12 +27,14 @@ import static org.folio.search.utils.TestUtils.toMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
@@ -43,6 +45,8 @@ import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,6 +70,14 @@ class KafkaMessageListenerTest {
   private KafkaMessageListener messageListener;
   @Mock
   private ResourceService resourceService;
+  @Mock
+  private SystemUserScopedExecutionService executionService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+      .when(executionService).executeSystemUserScoped(any(), any());
+  }
 
   @Test
   void handleEvents() {

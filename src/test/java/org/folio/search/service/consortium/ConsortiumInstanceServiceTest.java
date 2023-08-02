@@ -214,7 +214,7 @@ class ConsortiumInstanceServiceTest {
     assertThat(actual).hasSize(1);
     assertThat(actual.get(0))
       .matches(resourceEvent -> instanceId.contains(resourceEvent.getId()))
-      .matches(resourceEvent -> resourceEvent.getTenant().equals(CONSORTIUM_TENANTS[0]))
+      .matches(resourceEvent -> resourceEvent.getTenant().equals(CENTRAL_TENANT))
       .satisfies(resourceEvent -> assertThat(resourceEvent.getNew()).isNotNull());
   }
 

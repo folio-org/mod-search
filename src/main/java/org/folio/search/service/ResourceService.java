@@ -12,7 +12,6 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -63,7 +63,7 @@ public class ResourceService {
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
   private final ConsortiumTenantService consortiumTenantService;
-  private final TenantScopedExecutionService tenantScopedExecutionService;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumInstanceService consortiumInstanceService;
 
   /**
@@ -99,23 +99,9 @@ public class ResourceService {
 
     var eventsToIndex = getEventsToIndex(resourceIdEvents);
 
-    var eventsByTenant = eventsToIndex.stream()
-      .filter(event -> INSTANCE_RESOURCE.equals(event.getResourceName()))
-      .collect(groupingBy(ResourceEvent::getTenant));
-
-    Map<String, List<SearchDocumentBody>> indexDocuments = new HashMap<>();
-    Map<String, List<SearchDocumentBody>> removeDocuments = new HashMap<>();
-    for (Map.Entry<String, List<ResourceEvent>> entry : eventsByTenant.entrySet()) {
-      var tenant = entry.getKey();
-      var events = entry.getValue();
-
-      tenantScopedExecutionService.executeTenantScoped(tenant, () -> {
-        var groupedByOperation = events.stream().collect(groupingBy(ResourceService::getEventIndexType));
-        indexDocuments.putAll(processIndexInstanceEvents(tenant, groupedByOperation.get(INDEX)));
-        removeDocuments.putAll(processDeleteInstanceEvents(groupedByOperation.get(DELETE)));
-        return null;
-      });
-    }
+    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
+    var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
+    var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
 
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
@@ -143,12 +129,11 @@ public class ResourceService {
       .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
 
     var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());
-    var searchDocuments = tenantScopedExecutionService.executeTenantScoped(centralTenant, () -> {
-      var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
-      return multiTenantSearchDocumentConverter.convert(resourceEvents);
-    });
 
-    return indexSearchDocuments(searchDocuments);
+    return consortiumTenantExecutor.execute(centralTenant, () -> {
+      var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
+      return indexSearchDocuments(multiTenantSearchDocumentConverter.convert(resourceEvents));
+    });
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
@@ -160,10 +145,9 @@ public class ResourceService {
     return inConsortium ? events : getEventsThatCanBeIndexed(events, SearchUtils::getIndexName);
   }
 
-  private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(String tenant,
-                                                                           List<ResourceEvent> resourceEvents) {
+  private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
     var indexEvents = extractEventsForDataMove(resourceEvents);
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents, tenant);
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
     return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.saveInstances(fetchedInstances));

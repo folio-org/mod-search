@@ -20,7 +20,9 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
@@ -45,8 +48,10 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.KafkaAdminService;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.hibernate.exception.SQLGrammarException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -91,6 +96,8 @@ class KafkaMessageListenerIT {
   private FolioKafkaProperties kafkaProperties;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private SystemUserScopedExecutionService executionService;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -101,6 +108,12 @@ class KafkaMessageListenerIT {
     setEnvProperty(KAFKA_LISTENER_IT_ENV);
     kafkaAdminService.createTopics(TENANT_ID);
     kafkaAdminService.restartEventListeners();
+  }
+
+  @BeforeEach
+  void setUp() {
+    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+      .when(executionService).executeSystemUserScoped(any(), any());
   }
 
   @Test

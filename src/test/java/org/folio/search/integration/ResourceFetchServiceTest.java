@@ -16,6 +16,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +31,9 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -47,6 +50,13 @@ class ResourceFetchServiceTest {
   private ResourceFetchService resourceFetchService;
   @Mock
   private InventoryViewClient inventoryClient;
+  @Mock
+  private FolioExecutionContext context;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(context.getTenantId()).thenReturn(TENANT_ID);
+  }
 
   @Test
   void fetchInstancesById_positive() {
@@ -61,7 +71,7 @@ class ResourceFetchServiceTest {
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instance1, instance2)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
+    var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).isEqualTo(List.of(
       resourceEvent(instanceId1, INSTANCE_RESOURCE,
@@ -87,7 +97,7 @@ class ResourceFetchServiceTest {
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(instanceId1, instanceId2)), 2))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
+    var actual = resourceFetchService.fetchInstancesByIds(events);
     assertThat(actual).isEqualTo(List.of(resourceEvent(instanceId1, INSTANCE_RESOURCE,
       mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
         "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))));
@@ -104,7 +114,7 @@ class ResourceFetchServiceTest {
     when(inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, List.of(id)), 1))
       .thenReturn(asSinglePage(List.of(instanceView)));
 
-    var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent), TENANT_ID);
+    var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
     assertThat(actual).isEqualTo(List.of(
       resourceEvent(invalidId, INSTANCE_RESOURCE,
         mapOf("id", invalidId, "title", "inst1", "isBoundWith", null,
@@ -114,7 +124,7 @@ class ResourceFetchServiceTest {
 
   @Test
   void fetchInstancesByIds_positive_emptyListOfIds() {
-    var actual = resourceFetchService.fetchInstancesByIds(emptyList(), TENANT_ID);
+    var actual = resourceFetchService.fetchInstancesByIds(emptyList());
     assertThat(actual).isEmpty();
   }
 
@@ -143,7 +153,7 @@ class ResourceFetchServiceTest {
         }
       });
 
-    var actual = resourceFetchService.fetchInstancesByIds(events, TENANT_ID);
+    var actual = resourceFetchService.fetchInstancesByIds(events);
 
     assertThat(actual).hasSize(51);
     verify(inventoryClient, times(2)).getInstances(any(), anyInt());

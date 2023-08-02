@@ -94,8 +94,7 @@ public class ConsortiumInstanceService {
 
       consortiumTenantExecutor.run(() -> {
         repository.delete(instanceIds);
-        Function<ConsortiumInstanceId, String> instanceIdFunction = ConsortiumInstanceId::instanceId;
-        prepareAndSendConsortiumInstanceEvents(instanceIds, instanceIdFunction);
+        prepareAndSendConsortiumInstanceEvents(instanceIds, ConsortiumInstanceId::instanceId);
       });
     }
     return consortiumTenantEventsMap.get(false);
@@ -165,7 +164,7 @@ public class ConsortiumInstanceService {
       .type(ResourceEventType.UPDATE)
       .resourceName(INSTANCE_RESOURCE)
       ._new(new HashMap<>(mergedInstance))
-      .tenant(mergedInstance.get(TENANT_ID_KEY).toString());
+      .tenant(context.getTenantId());
   }
 
   private Map<String, Object> prepareInstance(ResourceEvent resourceEvent) {

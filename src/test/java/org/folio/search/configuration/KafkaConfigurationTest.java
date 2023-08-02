@@ -27,9 +27,16 @@ class KafkaConfigurationTest {
   private FolioKafkaProperties folioKafkaProperties;
 
   @Test
-  void kafkaListenerContainerFactory() {
+  void standardListenerContainerFactory() {
     when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
-    var containerFactory = kafkaConfiguration.kafkaListenerContainerFactory();
+    var containerFactory = kafkaConfiguration.standardListenerContainerFactory();
+    assertThat(containerFactory).isNotNull();
+  }
+
+  @Test
+  void consortiumListenerContainerFactory() {
+    when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
+    var containerFactory = kafkaConfiguration.consortiumListenerContainerFactory();
     assertThat(containerFactory).isNotNull();
   }
 

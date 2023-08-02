@@ -4,7 +4,9 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -35,7 +37,9 @@ import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfigurati
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,6 +72,10 @@ class CqlSearchQueryConverterTest {
   private LocalSearchFieldProvider searchFieldProvider;
   @MockBean
   private CqlSortProvider cqlSortProvider;
+  @MockBean
+  private FolioExecutionContext folioExecutionContext;
+  @MockBean
+  private ConsortiumTenantService consortiumTenantService;
 
   @BeforeEach
   void setUp() {
@@ -335,6 +343,71 @@ class CqlSearchQueryConverterTest {
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert("invalid_field all value", RESOURCE_NAME))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid search field provided in the CQL query");
+  }
+
+  @Test
+  void convertForConsortia_positive_whenConsortiaDisabled() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery().filter(termQuery("f1", "value"))));
+  }
+
+  @Test
+  void convertForConsortia_positive() {
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
+      .filter(termQuery("f1", "value"))
+      .should(termQuery("tenantId", TENANT_ID))
+      .should(termQuery("shared", true))
+      .minimumShouldMatch(1)));
+  }
+
+  @Test
+  void convertForConsortia_positive_whenCentralTenant() {
+    when(folioExecutionContext.getTenantId()).thenReturn(CONSORTIUM_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(CONSORTIUM_TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery().filter(termQuery("f1", "value"))
+        .should(termQuery("tenantId", CONSORTIUM_TENANT_ID))
+        .minimumShouldMatch(1)));
+  }
+
+  @Test
+  void convertForConsortia_positive_whenOriginalQueryMatchAll() {
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convertForConsortia("cql.allRecords = 1", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery()
+        .should(termQuery("tenantId", TENANT_ID))
+        .should(termQuery("shared", true))
+        .minimumShouldMatch(1)));
+  }
+
+  @Test
+  void convertForConsortia_positive_whenOriginalBooleanWithShould() {
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convertForConsortia("f1==v1 or f2==v2", RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery()
+        .should(termQuery("f1", "v1"))
+        .should(termQuery("f2", "v2"))
+        .must(boolQuery()
+          .should(termQuery("tenantId", TENANT_ID))
+          .should(termQuery("shared", true)))
+    ));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

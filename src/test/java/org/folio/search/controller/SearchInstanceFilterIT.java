@@ -328,7 +328,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       "tenantId", "shared");
     return Stream.of(
       arguments("id=*", allFacets, mapOf(
-        "shared", facet(facetItem("false", 3), facetItem("true", 2)),
+        "shared", facet(facetItem("false", 5)),
         "tenantId", facet(facetItem(TENANT_ID, 5)),
         "discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2)),
         "staffSuppress", facet(facetItem("true", 3), facetItem("false", 2)),

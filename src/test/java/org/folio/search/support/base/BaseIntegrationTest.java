@@ -27,13 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
@@ -80,12 +78,9 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
-    @Autowired SearchConfigurationProperties searchConfig) {
+    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate) {
     setEnvProperty("folio-test");
-    BaseIntegrationTest.centralTenant =
-      Optional.ofNullable(searchConfig.getSearchFeatures().get(TenantConfiguredFeature.CONSORTIUM)).orElse(false)
-        ? CONSORTIUM_TENANT_ID : TENANT_ID;
+    BaseIntegrationTest.centralTenant = CONSORTIUM_TENANT_ID;
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);

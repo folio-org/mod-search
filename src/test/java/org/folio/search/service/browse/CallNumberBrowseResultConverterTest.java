@@ -27,7 +27,7 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
-import org.folio.search.service.consortia.FeatureConfigServiceDecorator;
+import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;

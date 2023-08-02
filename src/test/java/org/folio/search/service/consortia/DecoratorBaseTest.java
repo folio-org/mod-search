@@ -4,18 +4,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import java.util.function.Supplier;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 
 public abstract class DecoratorBaseTest {
 
-  protected void mockExecutorRun(ConsortiaTenantExecutor consortiaTenantExecutor) {
+  protected void mockExecutorRun(ConsortiumTenantExecutor consortiumTenantExecutor) {
     doAnswer(invocationOnMock -> {
       ((Runnable) invocationOnMock.getArgument(0)).run();
       return null;
-    }).when(consortiaTenantExecutor).run(any());
+    }).when(consortiumTenantExecutor).run(any());
   }
 
-  protected void mockExecutor(ConsortiaTenantExecutor consortiaTenantExecutor) {
+  @SuppressWarnings("unchecked")
+  protected void mockExecutor(ConsortiumTenantExecutor consortiumTenantExecutor) {
     doAnswer(invocationOnMock -> ((Supplier<String>) invocationOnMock.getArgument(0)).get())
-      .when(consortiaTenantExecutor).execute(any());
+      .when(consortiumTenantExecutor).execute(any());
   }
 }

@@ -46,10 +46,6 @@ public class SearchConfigurationProperties {
    */
   private IndexingSettings indexing;
 
-  public boolean inConsortiaMode() {
-    return searchFeatures.getOrDefault(TenantConfiguredFeature.CONSORTIUM, false);
-  }
-
   @Data
   @Validated
   public static class IndexingSettings {

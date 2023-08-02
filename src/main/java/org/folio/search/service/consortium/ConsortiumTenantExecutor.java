@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ConsortiaTenantExecutor {
+public class ConsortiumTenantExecutor {
 
   private final FolioExecutionContext folioExecutionContext;
   private final TenantProvider tenantProvider;

@@ -12,6 +12,7 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
@@ -230,6 +231,7 @@ class KafkaMessageListenerTest {
   @Test
   void handleConsortiumInstanceEvents_positive() {
     var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
+    consortiumInstanceEvent.setTenant(TENANT_ID);
     messageListener.handleConsortiumInstanceEvents(singletonList(new ConsumerRecord<>(
       consortiumInstanceTopic(), 0, 0, RESOURCE_ID, consortiumInstanceEvent
     )));
@@ -243,7 +245,7 @@ class KafkaMessageListenerTest {
   @Test
   void handleConsortiumInstanceEvents_negative() {
     var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
-
+    consortiumInstanceEvent.setTenant(TENANT_ID);
     doAnswer(inv -> {
       inv.<BiConsumer<ConsortiumInstanceEvent, Exception>>getArgument(3)
         .accept(consortiumInstanceEvent, new Exception("error"));

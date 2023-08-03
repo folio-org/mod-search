@@ -174,10 +174,10 @@ public class CqlSearchQueryConverter {
     } else {
       boolQuery = boolQuery().must(query);
     }
+    boolQuery.minimumShouldMatch(1);
 
     if (boolQuery.should().isEmpty()) {
       affiliationShouldClauses.forEach(boolQuery::should);
-      boolQuery.minimumShouldMatch(1);
     } else {
       var innerBoolQuery = boolQuery();
       affiliationShouldClauses.forEach(innerBoolQuery::should);

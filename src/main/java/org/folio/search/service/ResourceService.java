@@ -132,7 +132,11 @@ public class ResourceService {
 
     return consortiumTenantExecutor.execute(centralTenant, () -> {
       var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
-      return indexSearchDocuments(multiTenantSearchDocumentConverter.convert(resourceEvents));
+      var indexDocuments = multiTenantSearchDocumentConverter.convert(resourceEvents);
+      var bulkIndexResponse = indexSearchDocuments(indexDocuments);
+      log.info("Records indexed to central index [requests: {}{}]",
+        getNumberOfRequests(indexDocuments), getErrorMessage(bulkIndexResponse));
+      return bulkIndexResponse;
     });
   }
 

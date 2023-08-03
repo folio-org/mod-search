@@ -407,6 +407,7 @@ class CqlSearchQueryConverterTest {
         .must(boolQuery()
           .should(termQuery("tenantId", TENANT_ID))
           .should(termQuery("shared", true)))
+        .minimumShouldMatch(1)
     ));
   }
 

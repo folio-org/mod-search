@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <changeSet id="MSEARCH-554@@create-consortium_instance" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="consortium_instance"/>
+      </not>
+    </preConditions>
+
+    <comment>Create consortium_instance table</comment>
+
+    <createTable tableName="consortium_instance">
+      <column name="tenant_id" type="VARCHAR(255)">
+        <constraints primaryKey="true" primaryKeyName="pk_consortium_instance"/>
+      </column>
+      <column name="instance_id" type="VARCHAR(255)">
+        <constraints primaryKey="true" primaryKeyName="pk_consortium_instance"/>
+      </column>
+      <column name="json" type="json"/>
+      <column name="created_date" type="DATETIME"/>
+      <column name="updated_date" type="DATETIME"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-554@@create-idx_consortium_instance_instance_id" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <indexExists indexName="idx_consortium_instance_instance_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create idx_consortium_instance_instance_id index</comment>
+
+    <createIndex tableName="consortium_instance" indexName="idx_consortium_instance_instance_id">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+
+
+</databaseChangeLog>

@@ -139,6 +139,7 @@ public class ResourceIdService {
     log.debug("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
     var resource = request.getResource();
+    // todo(MSEARCH-551): use 'convertForConsortia' or/and check todo item for 'convertForConsortia'(change ticket?)
     var searchSource = queryConverter.convert(request.getQuery(), resource)
       .size(streamIdsProperties.getScrollQuerySize())
       .fetchSource(new String[] {request.getSourceFieldPath()}, null)

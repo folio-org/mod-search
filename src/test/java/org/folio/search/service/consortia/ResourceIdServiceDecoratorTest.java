@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.service.ResourceIdService;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.consortium.ResourceIdServiceDecorator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ResourceIdServiceDecoratorTest extends DecoratorBaseTest {
 
   @Mock
-  private ConsortiaTenantExecutor consortiaTenantExecutor;
+  private ConsortiumTenantExecutor consortiumTenantExecutor;
   @Mock
   private ResourceIdService service;
   @InjectMocks
@@ -32,31 +34,31 @@ class ResourceIdServiceDecoratorTest extends DecoratorBaseTest {
     decorator.streamResourceIdsAsText(request, stream);
 
     verify(service).streamResourceIdsAsText(request, stream);
-    verifyNoInteractions(consortiaTenantExecutor);
+    verifyNoInteractions(consortiumTenantExecutor);
   }
 
   @Test
   void streamIdsFromDatabaseAsJson() {
     var jobId = "test";
     var stream = mockOutputStream();
-    mockExecutorRun(consortiaTenantExecutor);
+    mockExecutorRun(consortiumTenantExecutor);
 
     decorator.streamIdsFromDatabaseAsJson(jobId, stream);
 
     verify(service).streamIdsFromDatabaseAsJson(jobId, stream);
-    verify(consortiaTenantExecutor).run(any());
+    verify(consortiumTenantExecutor).run(any());
   }
 
   @Test
   void streamResourceIdsForJob() {
     var job = new ResourceIdsJobEntity();
     var tenantId = "test";
-    mockExecutorRun(consortiaTenantExecutor);
+    mockExecutorRun(consortiumTenantExecutor);
 
     decorator.streamResourceIdsForJob(job, tenantId);
 
     verify(service).streamResourceIdsForJob(job, tenantId);
-    verify(consortiaTenantExecutor).run(any());
+    verify(consortiumTenantExecutor).run(any());
   }
 
   @Test
@@ -66,7 +68,7 @@ class ResourceIdServiceDecoratorTest extends DecoratorBaseTest {
     decorator.streamResourceIdsAsJson(request, stream);
 
     verify(service).streamResourceIdsAsJson(request, stream);
-    verifyNoInteractions(consortiaTenantExecutor);
+    verifyNoInteractions(consortiumTenantExecutor);
   }
 
   private CqlResourceIdsRequest mockRequest() {

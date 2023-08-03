@@ -12,6 +12,8 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryContributorTopic;
@@ -26,21 +28,26 @@ import static org.folio.search.utils.TestUtils.toMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,17 +61,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageListenerTest {
 
+  @Spy
+  private final FolioMessageBatchProcessor batchProcessor =
+    new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
+  @Spy
+  @SuppressWarnings("unused")
+  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @InjectMocks
   private KafkaMessageListener messageListener;
   @Mock
   private ResourceService resourceService;
-  @Spy
-  private final FolioMessageBatchProcessor batchProcessor =
-    new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
+  @Mock
+  private SystemUserScopedExecutionService executionService;
 
-  @Spy
-  @SuppressWarnings("unused")
-  private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
+  @BeforeEach
+  void setUp() {
+    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+      .when(executionService).executeSystemUserScoped(any(), any());
+  }
 
   @Test
   void handleEvents() {
@@ -78,7 +92,7 @@ class KafkaMessageListenerTest {
     var holdingEvent2 = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", null));
     var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", instanceId1));
 
-    messageListener.handleEvents(List.of(
+    messageListener.handleInstanceEvents(List.of(
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId1, instanceEvent1),
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId2, instanceEvent2),
       new ConsumerRecord<>(inventoryItemTopic(), 0, 0, instanceId2, itemEvent),
@@ -94,7 +108,7 @@ class KafkaMessageListenerTest {
       resourceEvent(instanceId1, INSTANCE_RESOURCE, CREATE, boundWithEvent.getNew(), null)
     );
 
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
@@ -104,36 +118,36 @@ class KafkaMessageListenerTest {
     var eventTypeEnumValue = ResourceEventType.fromValue(eventType);
     var resourceBody = resourceEvent(null, null, mapOf("id", RESOURCE_ID)).type(eventTypeEnumValue);
 
-    messageListener.handleEvents(List.of(
+    messageListener.handleInstanceEvents(List.of(
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, RESOURCE_ID, resourceBody)));
 
     var expectedEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, eventTypeEnumValue, resourceBody.getNew(), null);
     var expectedEvents = List.of(expectedEvent);
 
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
   void handleEvents_negative_shouldLogFailedEvent() {
     var expectedEvent = resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, mapOf("id", RESOURCE_ID));
-    when(resourceService.indexResourcesById(List.of(expectedEvent))).thenThrow(new RuntimeException("failed to save"));
+    when(resourceService.indexInstancesById(List.of(expectedEvent))).thenThrow(new RuntimeException("failed to save"));
 
     var instanceEvent = resourceEvent(null, null, mapOf("id", RESOURCE_ID));
-    messageListener.handleEvents(List.of(
+    messageListener.handleInstanceEvents(List.of(
       new ConsumerRecord<>(INVENTORY_INSTANCE_TOPIC, 0, 0, RESOURCE_ID, instanceEvent)));
-    verify(resourceService, times(3)).indexResourcesById(List.of(expectedEvent));
+    verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvent));
   }
 
   @Test
   void handleEvents_positive_reindexEventWithoutBody() {
 
-    messageListener.handleEvents(List.of(
+    messageListener.handleInstanceEvents(List.of(
       new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, REINDEX))));
 
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, REINDEX));
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
   }
 
   @Test
@@ -143,14 +157,14 @@ class KafkaMessageListenerTest {
     var itemEvent = resourceEvent(null, null, DELETE, null, itemPayload);
     var holdingEvent = resourceEvent(null, null, DELETE, null, holdingPayload);
 
-    messageListener.handleEvents(List.of(
+    messageListener.handleInstanceEvents(List.of(
       new ConsumerRecord<>(inventoryItemTopic(), 0, 0, RESOURCE_ID, itemEvent),
       new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, RESOURCE_ID, holdingEvent)));
 
     var expectedEvents = List.of(
       resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, CREATE, null, itemPayload),
       resourceEvent(RESOURCE_ID, INSTANCE_RESOURCE, CREATE, null, holdingPayload));
-    verify(resourceService).indexResourcesById(expectedEvents);
+    verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
@@ -212,5 +226,40 @@ class KafkaMessageListenerTest {
       inventoryContributorTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, CREATE, payload, null))));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleConsortiumInstanceEvents_positive() {
+    var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
+    consortiumInstanceEvent.setTenant(TENANT_ID);
+    messageListener.handleConsortiumInstanceEvents(singletonList(new ConsumerRecord<>(
+      consortiumInstanceTopic(), 0, 0, RESOURCE_ID, consortiumInstanceEvent
+    )));
+
+    verify(resourceService).indexConsortiumInstances(singletonList(consortiumInstanceEvent));
+    verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
+      eq(KAFKA_RETRY_TEMPLATE_NAME),
+      any(), any());
+  }
+
+  @Test
+  void handleConsortiumInstanceEvents_negative() {
+    var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
+    consortiumInstanceEvent.setTenant(TENANT_ID);
+    doAnswer(inv -> {
+      inv.<BiConsumer<ConsortiumInstanceEvent, Exception>>getArgument(3)
+        .accept(consortiumInstanceEvent, new Exception("error"));
+      return null;
+    }).when(batchProcessor)
+      .consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)), eq(KAFKA_RETRY_TEMPLATE_NAME), any(),
+        any());
+
+    messageListener.handleConsortiumInstanceEvents(singletonList(new ConsumerRecord<>(
+      consortiumInstanceTopic(), 0, 0, RESOURCE_ID, consortiumInstanceEvent
+    )));
+
+    verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
+      eq(KAFKA_RETRY_TEMPLATE_NAME),
+      any(), any());
   }
 }

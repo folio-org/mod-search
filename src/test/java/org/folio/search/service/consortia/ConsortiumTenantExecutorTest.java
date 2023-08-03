@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ConsortiaTenantExecutorTest {
+class ConsortiumTenantExecutorTest {
 
   private static final String OPERATION_RESPONSE_MOCK = "test";
 
@@ -35,14 +37,14 @@ class ConsortiaTenantExecutorTest {
   private SystemUserScopedExecutionService scopedExecutionService;
   @Spy
   @InjectMocks
-  private ConsortiaTenantExecutor consortiaTenantExecutor;
+  private ConsortiumTenantExecutor consortiumTenantExecutor;
 
   @Test
   void execute_positive_noConsortiaMode() {
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
 
-    var actual = consortiaTenantExecutor.execute(() -> OPERATION_RESPONSE_MOCK);
+    var actual = consortiumTenantExecutor.execute(() -> OPERATION_RESPONSE_MOCK);
 
     assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
     verifyNoInteractions(scopedExecutionService);
@@ -57,7 +59,7 @@ class ConsortiaTenantExecutorTest {
     doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
       .when(scopedExecutionService).executeSystemUserScoped(eq(CONSORTIUM_TENANT_ID), any());
 
-    var actual = consortiaTenantExecutor.execute(operation);
+    var actual = consortiumTenantExecutor.execute(operation);
 
     assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
     verify(operation).get();
@@ -72,7 +74,7 @@ class ConsortiaTenantExecutorTest {
     doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
       .when(scopedExecutionService).executeSystemUserScoped(eq(CONSORTIUM_TENANT_ID), any());
 
-    var actual = consortiaTenantExecutor.execute(TENANT_ID, operation);
+    var actual = consortiumTenantExecutor.execute(TENANT_ID, operation);
 
     assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
     verify(operation).get();
@@ -86,9 +88,9 @@ class ConsortiaTenantExecutorTest {
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
 
-    consortiaTenantExecutor.run(operation);
+    consortiumTenantExecutor.run(operation);
 
-    verify(consortiaTenantExecutor).execute(any());
+    verify(consortiumTenantExecutor).execute(any());
     verify(operation).run();
     verifyNoInteractions(scopedExecutionService);
   }

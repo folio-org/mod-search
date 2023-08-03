@@ -134,7 +134,7 @@ public class ResourceService {
       var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
       var indexDocuments = multiTenantSearchDocumentConverter.convert(resourceEvents);
       var bulkIndexResponse = indexSearchDocuments(indexDocuments);
-      log.info("Records indexed to central index [requests: {}, {}]",
+      log.info("Records indexed to central index [requests: {}{}]",
         getNumberOfRequests(indexDocuments), getErrorMessage(bulkIndexResponse));
       return bulkIndexResponse;
     });

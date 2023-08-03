@@ -16,6 +16,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -82,7 +83,7 @@ public class KafkaMessageListener {
       .map(authority -> authority.resourceName(AUTHORITY_RESOURCE).id(getResourceEventId(authority)))
       .toList();
 
-    indexResources(batch);
+    indexResources(batch, resourceService::indexResources);
   }
 
   /**
@@ -103,7 +104,7 @@ public class KafkaMessageListener {
       .map(contributor -> contributor.resourceName(CONTRIBUTOR_RESOURCE).id(getResourceEventId(contributor)))
       .toList();
 
-    indexResources(batch);
+    indexResources(batch, resourceService::indexResources);
   }
 
   @KafkaListener(
@@ -119,7 +120,7 @@ public class KafkaMessageListener {
       .map(subject -> subject.resourceName(INSTANCE_SUBJECT_RESOURCE).id(getResourceEventId(subject)))
       .toList();
 
-    indexResources(batch);
+    indexResources(batch, resourceService::indexResources);
   }
 
   /**
@@ -139,16 +140,21 @@ public class KafkaMessageListener {
       .map(ConsumerRecord::value)
       .toList();
 
-    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-      resourceService::indexConsortiumInstances, KafkaMessageListener::logFailedConsortiumEvent);
+    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ConsortiumInstanceEvent::getTenant));
+
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+        resourceService::indexConsortiumInstances, KafkaMessageListener::logFailedConsortiumEvent);
+      return null;
+    }));
   }
 
-  private void indexResources(List<ResourceEvent> batch) {
+  private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceService::indexResources, KafkaMessageListener::logFailedEvent);
+        indexConsumer, KafkaMessageListener::logFailedEvent);
       return null;
     }));
   }

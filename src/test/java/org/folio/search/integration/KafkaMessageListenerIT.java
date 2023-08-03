@@ -127,6 +127,7 @@ class KafkaMessageListenerIT {
   @Test
   void handleConsortiumInstanceEvents_positive() {
     var expectedEvent = new ConsortiumInstanceEvent(INSTANCE_ID);
+    expectedEvent.setTenant(TENANT_ID);
     consortiumKafkaTemplate.send(consortiumInstanceTopic(), INSTANCE_ID, expectedEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(resourceService).indexConsortiumInstances(anyList()));

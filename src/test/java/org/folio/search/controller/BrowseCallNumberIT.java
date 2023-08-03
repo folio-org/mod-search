@@ -14,11 +14,16 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -43,7 +48,17 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    Instance[] dest = instancesWithHoldings();
+    List<Instance> resultList = new ArrayList<>(INSTANCES.length + dest.length);
+    Collections.addAll(resultList, INSTANCES);
+    Collections.addAll(resultList, dest);
+
+    @SuppressWarnings("unchecked")
+    //the type cast is safe as the array1 has the type T[]
+    Instance[] resultArray = (Instance[]) Array.newInstance(INSTANCES.getClass().getComponentType(), 0);
+    Instance[] array = resultList.toArray(resultArray);
+
+    setUpTenant(array);
   }
 
   @AfterAll
@@ -78,6 +93,21 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
         cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
         cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", true)
+      )));
+  }
+
+  @Test
+  void browseByCallNumber_browsingAroundWhenPrecedingRecordsCountIsSpecified2() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", "typedCallNumber>=\"308 H977\" or typedCallNumber<\"308 H977\"")
+      .param("limit", "100")
+      .param("highlightMatch", "true")
+      .param("callNumberType", "dewey")
+      .param("precedingRecordsCount", "5");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(1).items(List.of(
+        cnBrowseItem(instance("instance #47"), "308 H977", true)
       )));
   }
 
@@ -366,6 +396,12 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .toArray(Instance[]::new);
   }
 
+  private static Instance[] instancesWithHoldings() {
+    return callNumberBrowseHoldingsData().stream()
+      .map(BrowseCallNumberIT::instanceWithHoldings)
+      .toArray(Instance[]::new);
+  }
+
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var items = ((List<String>) data.get(1)).stream()
@@ -388,8 +424,29 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
+  @SuppressWarnings("unchecked")
+  private static Instance instanceWithHoldings(List<Object> data) {
+    var holdings = ((List<String>) data.get(1)).stream()
+      .map(callNumber -> new Holding()
+        .callNumber(callNumber))
+      .toList();
+    return new Instance()
+      .id(randomId())
+      .title((String) data.get(0))
+      .staffSuppress(false)
+      .discoverySuppress(false)
+      .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
+      .holdings(holdings);
+  }
+
   private static Instance instance(String title) {
     return INSTANCE_MAP.get(title);
+  }
+
+  private static List<List<Object>> callNumberBrowseHoldingsData() {
+    return List.of(List.of("instance #47", List.of("308 H977", "Z669.R360 1975")));
   }
 
   private static List<List<Object>> callNumberBrowseInstanceData() {

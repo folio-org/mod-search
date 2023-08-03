@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
@@ -121,16 +122,6 @@ public class KafkaMessageListener {
     indexResources(batch);
   }
 
-  private void indexResources(List<ResourceEvent> batch) {
-    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-
-    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
-      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceService::indexResources, KafkaMessageListener::logFailedEvent);
-      return null;
-    }));
-  }
-
   /**
    * Handles consortium instance events and indexes them using event body.
    *
@@ -150,6 +141,16 @@ public class KafkaMessageListener {
 
     folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
       resourceService::indexConsortiumInstances, KafkaMessageListener::logFailedConsortiumEvent);
+  }
+
+  private void indexResources(List<ResourceEvent> batch) {
+    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+        resourceService::indexResources, KafkaMessageListener::logFailedEvent);
+      return null;
+    }));
   }
 
   private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
@@ -191,8 +192,8 @@ public class KafkaMessageListener {
     }
 
     var eventType = event.getType() != null ? event.getType().getValue() : "unknown";
-    log.warn("Failed to index resource event [eventType: {}, tenantId: {}, id: {}]",
-      eventType, event.getTenant(), event.getId(), e);
+    log.warn(new FormattedMessage("Failed to index resource event [eventType: {}, tenantId: {}, id: {}]",
+      eventType, event.getTenant(), event.getId()), e);
   }
 
   private static void logFailedConsortiumEvent(ConsortiumInstanceEvent event, Exception e) {
@@ -200,6 +201,8 @@ public class KafkaMessageListener {
       log.warn("Failed to index resource event [event: null]", e);
       return;
     }
-    log.warn("Failed to index consortium instance [tenantId: {}, id: {}]", event.getTenant(), event.getInstanceId());
+
+    log.warn(new FormattedMessage("Failed to index consortium instance [tenantId: {}, id: {}]",
+      event.getTenant(), event.getInstanceId()), e);
   }
 }

@@ -38,6 +38,7 @@ public class BrowseContextProvider {
   public BrowseContext get(BrowseRequest request) {
     log.debug("get:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
+    // todo(MSEARCH-551): use 'convertForConsortia' or/and check todo item for 'convertForConsortia'
     var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
     var cqlQuery = request.getQuery();
     if (isNotEmpty(searchSource.sorts())) {
@@ -70,10 +71,10 @@ public class BrowseContextProvider {
     if (isBoolQueryWithFilters(boolQuery)) {
       var mustClauses = boolQuery.must();
       var firstMustClause = mustClauses.get(0);
-      if (firstMustClause instanceof RangeQueryBuilder) {
+      if (firstMustClause instanceof RangeQueryBuilder rangeQuery) {
         log.trace("Attempts to create browsingContext with filters [request: {}, filters.size: {}]",
           request, logMsg);
-        return createBrowsingContext(request, filters, (RangeQueryBuilder) firstMustClause);
+        return createBrowsingContext(request, filters, rangeQuery);
       }
 
       if (isBoolQuery(firstMustClause)) {
@@ -129,8 +130,8 @@ public class BrowseContextProvider {
   }
 
   static boolean isValidRangeQuery(String targetField, String subField, QueryBuilder q) {
-    if (q instanceof RangeQueryBuilder) {
-      var fieldName = ((RangeQueryBuilder) q).fieldName();
+    if (q instanceof RangeQueryBuilder rangeQuery) {
+      var fieldName = rangeQuery.fieldName();
       var isTargetValid = targetField.equals(fieldName);
       if (!isTargetValid && subField != null) {
         return subField.equals(fieldName);

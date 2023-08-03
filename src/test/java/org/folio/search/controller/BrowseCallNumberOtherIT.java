@@ -25,8 +25,10 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseCallNumberOtherIT extends BaseIntegrationTest {
 

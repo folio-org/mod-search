@@ -18,7 +18,7 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import java.io.IOException;
 import java.util.List;
 import org.folio.search.exception.SearchOperationException;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;

@@ -26,7 +26,7 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
-import org.folio.search.service.consortia.TenantProvider;
+import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;

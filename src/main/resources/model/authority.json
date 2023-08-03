@@ -325,6 +325,12 @@
     "naturalId": {
       "index": "keyword",
       "showInResponse": [ "search", "browse" ]
+    },
+    "shared": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": [ "search", "browse" ]
     }
   },
   "searchFields": {
@@ -376,14 +382,6 @@
       "type": "search",
       "index": "keyword",
       "processor": "lccnProcessor"
-    },
-    "shared": {
-      "searchTypes": [ "facet", "filter" ],
-      "type": "search",
-      "index": "bool",
-      "showInResponse": [ "search", "browse" ],
-      "processor": "authoritySharedFieldProcessor",
-      "dependsOnFeature": "consortium"
     }
   },
   "mappingsSource": {

@@ -11,6 +11,7 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -19,7 +20,9 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
@@ -34,6 +38,7 @@ import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.support.extension.EnableKafka;
@@ -43,8 +48,10 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.KafkaAdminService;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.hibernate.exception.SQLGrammarException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -65,11 +72,6 @@ import org.springframework.retry.annotation.EnableRetry;
 @SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
   properties = {
     "ENV=kafka-listener-it",
-    "KAFKA_EVENTS_CONSUMER_PATTERN="
-      + "(${folio.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
-    "KAFKA_AUTHORITIES_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)inventory\\.authority",
-    "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-contributor",
-    "KAFKA_SUBJECTS_CONSUMER_PATTERN=(${folio.environment}\\.)(.*\\.)search\\.instance-subject",
     "folio.environment=${ENV:folio}",
     "folio.kafka.retry-interval-ms=10",
     "folio.kafka.retry-delivery-attempts=3",
@@ -78,6 +80,7 @@ import org.springframework.retry.annotation.EnableRetry;
     "folio.kafka.listener.events.group-id=${folio.environment}-test-group",
     "folio.kafka.listener.authorities.group-id=${folio.environment}-authority-test-group",
     "folio.kafka.listener.contributors.group-id=${folio.environment}-contributor-test-group",
+    "folio.kafka.listener.consortium-instance.group-id=${folio.environment}-consortium-instance-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {
@@ -86,11 +89,15 @@ class KafkaMessageListenerIT {
   private static final String KAFKA_LISTENER_IT_ENV = "kafka-listener-it";
 
   @Autowired
-  private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  private KafkaTemplate<String, ResourceEvent> resourceKafkaTemplate;
+  @Autowired
+  private KafkaTemplate<String, ConsortiumInstanceEvent> consortiumKafkaTemplate;
   @Autowired
   private FolioKafkaProperties kafkaProperties;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private SystemUserScopedExecutionService executionService;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -103,54 +110,69 @@ class KafkaMessageListenerIT {
     kafkaAdminService.restartEventListeners();
   }
 
-  @Test
-  void handleEvents_positive() {
-    var expectedEvent = instanceEvent();
-    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexResourcesById(List.of(expectedEvent)));
+  @BeforeEach
+  void setUp() {
+    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+      .when(executionService).executeSystemUserScoped(any(), any());
   }
 
   @Test
-  void handleEvents_positive_boundWithEvent() {
+  void handleInstanceEvents_positive() {
+    var expectedEvent = instanceEvent();
+    resourceKafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
+  }
+
+  @Test
+  void handleConsortiumInstanceEvents_positive() {
+    var expectedEvent = new ConsortiumInstanceEvent(INSTANCE_ID);
+    expectedEvent.setTenant(TENANT_ID);
+    consortiumKafkaTemplate.send(consortiumInstanceTopic(), INSTANCE_ID, expectedEvent);
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(resourceService).indexConsortiumInstances(anyList()));
+  }
+
+  @Test
+  void handleInstanceEvents_positive_boundWithEvent() {
     var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
     var expectedEvent = instanceEvent()._new(boundWithEvent.getNew());
-    kafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
+    resourceKafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexResourcesById(List.of(expectedEvent)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
   }
 
   @Test
-  void handleEvents_negative_tenantIndexNotInitialized() throws Exception {
+  void handleInstanceEvents_negative_tenantIndexNotInitialized() throws Exception {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexResourcesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
       new SearchOperationException("Failed to upload events"));
 
-    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
+    resourceKafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexResourcesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
   }
 
   @Test
-  void handleEvents_negative_tenantSchemaIsNotInitialized() throws Exception {
+  void handleInstanceEvents_negative_tenantSchemaIsNotInitialized() throws Exception {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexResourcesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
       new SQLGrammarException("could not extract ResultSet", new SQLException()));
 
-    kafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
+    resourceKafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent()).get();
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexResourcesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
   }
 
   @Test
-  void handleEvents_positive_splittingBatchToTheParts() {
+  void handleInstanceEvents_positive_splittingBatchToTheParts() {
     var ids = List.of(randomId(), randomId(), randomId());
 
-    when(resourceService.indexResourcesById(anyList())).thenAnswer(inv -> {
+    when(resourceService.indexInstancesById(anyList())).thenAnswer(inv -> {
       var resourceIdEvents = inv.<List<ResourceEvent>>getArgument(0);
       if (resourceIdEvents.size() == 3) {
         throw new SearchOperationException("Failed to save bulk");
@@ -166,14 +188,14 @@ class KafkaMessageListenerIT {
 
     var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      verify(resourceService).indexResourcesById(List.of(expectedEvents.get(0)));
-      verify(resourceService).indexResourcesById(List.of(expectedEvents.get(1)));
-      verify(resourceService, times(3)).indexResourcesById(List.of(expectedEvents.get(2)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(0)));
+      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(1)));
+      verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvents.get(2)));
     });
   }
 
   @Test
-  void handleEvents_positive_logFailedAuthorityEvent() {
+  void handleInstanceEvents_positive_logFailedAuthorityEvent() {
     var authorityIds = List.of(randomId(), randomId());
     when(resourceService.indexResources(anyList())).thenAnswer(inv -> {
       var eventBodies = inv.<List<ResourceEvent>>getArgument(0);
@@ -206,18 +228,16 @@ class KafkaMessageListenerIT {
 
   @Test
   void shouldUseCustomConsumerPattern() {
-    var container = getKafkaListenerContainer(EVENT_LISTENER_ID);
-    assertThat(container.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV);
     kafkaProperties.getListener().values().forEach(
       listenerProperties -> assertThat(listenerProperties.getTopicPattern())
-        .startsWith(String.format("(%s.)(.*.)", KAFKA_LISTENER_IT_ENV)));
+        .startsWith(String.format("(%s\\.)(.*\\.)", KAFKA_LISTENER_IT_ENV)));
   }
 
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
                                                         Function<String, ResourceEvent> resourceEventFunction) {
     var container = getKafkaListenerContainer(containerId);
     container.stop();
-    ids.forEach(id -> kafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));
+    ids.forEach(id -> resourceKafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));
     container.start();
   }
 

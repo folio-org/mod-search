@@ -73,7 +73,7 @@ class SearchServiceTest {
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, SEARCH)).thenReturn(new String[] {"field1", "field2"});
-    when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
+    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))
       .thenReturn(expectedSearchResult);
@@ -100,7 +100,7 @@ class SearchServiceTest {
       .trackTotalHits(true).timeout(new TimeValue(1000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(cqlSearchQueryConverter.convert(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
+    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, RESOURCE_NAME)).thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))
       .thenReturn(expectedSearchResult);

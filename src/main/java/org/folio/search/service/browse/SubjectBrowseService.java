@@ -17,7 +17,6 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
-import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
@@ -42,8 +41,9 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     if (ctx.getFilters().isEmpty()) {
       query = matchAllQuery();
     } else {
-      query = boolQuery();
-      ctx.getFilters().forEach(filter -> ((BoolQueryBuilder) filter).filter(filter));
+      var boolQuery = boolQuery();
+      ctx.getFilters().forEach(boolQuery::filter);
+      query = boolQuery;
     }
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
@@ -64,7 +64,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
         .value(subjectResource.getValue())
         .authorityId(subjectResource.getAuthorityId())
         .isAnchor(isAnchor ? true : null)
-        .totalRecords(subjectResource.getInstances().size()));
+        .totalRecords(subjectResource.getInstances().size())); //todo: wrong total because of this
   }
 
   @Override

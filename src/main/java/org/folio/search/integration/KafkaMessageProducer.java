@@ -30,6 +30,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.event.SubjectResourceEvent;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -47,6 +48,7 @@ public class KafkaMessageProducer {
   private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  private final TenantProvider tenantProvider;
 
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
     if (isNotEmpty(resourceEvents)) {
@@ -81,8 +83,8 @@ public class KafkaMessageProducer {
   }
 
   private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap) {
-    var contributorsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
-    var subjectResourceEvents = jsonConverter.convert(contributorsObject, TYPE_REFERENCE_SUBJECT);
+    var subjectsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
+    var subjectResourceEvents = jsonConverter.convert(subjectsObject, TYPE_REFERENCE_SUBJECT);
     subjectResourceEvents.forEach(
       subjectResourceEvent -> {
         subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
@@ -105,7 +107,7 @@ public class KafkaMessageProducer {
   }
 
   private ResourceEvent convertToSubjectEvent(SubjectResourceEvent subject, String tenantId, ResourceEventType type) {
-    var stringForId = toRootLowerCase(tenantId + "|" + subject.getValue() + "|" + subject.getAuthorityId());
+    var stringForId = toRootLowerCase(subject.getValue() + "|" + subject.getAuthorityId());
     var id = sha1Hex(stringForId); //NOSONAR
     subject.setId(id);
     var resourceEvent = new ResourceEvent().type(type).tenant(tenantId).id(id)
@@ -117,8 +119,8 @@ public class KafkaMessageProducer {
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {
     var tenantId = event.getTenant();
     var instanceId = getResourceEventId(event);
-    var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, tenantId);
-    var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
+    var oldContributors = getContributorEvents(getOldAsMap(event), instanceId);
+    var newContributors = getContributorEvents(getNewAsMap(event), instanceId);
 
     List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
     producerRecords.addAll(prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId));
@@ -128,15 +130,14 @@ public class KafkaMessageProducer {
     return producerRecords;
   }
 
-  private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
-                                                              String tenantId) {
+  private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId) {
     return extractContributors(objectMap).stream()
-      .map(contributor -> toContributorEvent(contributor, instanceId, tenantId))
+      .map(contributor -> toContributorEvent(contributor, instanceId))
       .toList();
   }
 
-  private ContributorResourceEvent toContributorEvent(Contributor contributor, String instanceId, String tenantId) {
-    var id = getContributorId(tenantId, contributor);
+  private ContributorResourceEvent toContributorEvent(Contributor contributor, String instanceId) {
+    var id = getContributorId(contributor);
     return ContributorResourceEvent.builder()
       .id(id)
       .instanceId(instanceId)
@@ -169,9 +170,8 @@ public class KafkaMessageProducer {
     return type == CREATE ? eventBody._new(contributorEvent) : eventBody.old(contributorEvent);
   }
 
-  private String getContributorId(String tenantId, Contributor contributor) {
-    return sha1Hex(tenantId //NOSONAR
-      + "|" + contributor.getContributorNameTypeId()
+  private String getContributorId(Contributor contributor) {
+    return sha1Hex(contributor.getContributorNameTypeId()
       + "|" + toRootLowerCase(contributor.getName())
       + "|" + contributor.getAuthorityId());
   }

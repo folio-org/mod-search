@@ -89,9 +89,9 @@ public class ContributorBrowseService extends
     return browseItem.getName();
   }
 
-  private int calculateTotalRecords(ContributorResource item) {
+  private int calculateTotalRecords(ContributorResource item) { //todo: may count another tenant in total
     return ((Long) item.getInstances().stream()
-      .map(id -> INSTANCES_FIELD_SPLIT_PATTERN.split(id)[0])
+      .map(instance -> INSTANCES_FIELD_SPLIT_PATTERN.split(instance.getInstanceId())[0])
       .distinct()
       .count()
     ).intValue();

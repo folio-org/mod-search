@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -345,7 +346,9 @@ class SubjectBrowseServiceTest {
     return Arrays.stream(subject).map(sub -> {
       var subjectResource = new SubjectResource();
       subjectResource.setValue(sub);
-      subjectResource.setInstances(sub.chars().mapToObj(String::valueOf).collect(Collectors.toSet()));
+      subjectResource.setInstances(sub.chars().mapToObj(String::valueOf)
+          .map(s -> InstanceSubResource.builder().instanceId(s).build())
+        .collect(Collectors.toSet()));
       return subjectResource;
     }).toArray(SubjectResource[]::new);
   }

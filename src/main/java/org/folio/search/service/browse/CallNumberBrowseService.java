@@ -4,6 +4,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.folio.search.utils.CallNumberUtils.excludeIrrelevantResultItems;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var searchResponse = searchRepository.search(request, searchSource);
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
     var records = browseResult.getRecords();
+    if (request.getRefinedCondition() != null) {
+      browseResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(), browseResult.getRecords()));
+    }
     return new BrowseResult<CallNumberBrowseItem>()
       .records(trim(records, context, isBrowsingForward))
       .totalRecords(browseResult.getTotalRecords())
@@ -80,6 +84,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
+    if (request.getRefinedCondition() != null) {
+      precedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+        precedingResult.getRecords()));
+      succeedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+        succeedingResult.getRecords()));
+    }
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
       .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))

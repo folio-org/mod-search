@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
+import static org.folio.search.utils.CollectionUtils.distinctByKey;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.model.types.CallNumberType;
 import org.springframework.util.Assert;
 
 @UtilityClass
@@ -142,6 +145,21 @@ public class CallNumberUtils {
     }
     long startVal = convertChar(firstPosition, CN_MAX_CHARS);
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
+  }
+
+  public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String refinedCondition,
+                                                                        List<CallNumberBrowseItem> records) {
+    records = records
+      .stream()
+      .filter(distinctByKey(r -> r.getInstance().getId()))
+      .toList();
+    records
+      .forEach(r -> r.getInstance().setItems(r.getInstance().getItems()
+        .stream()
+        .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
+          .equals(CallNumberType.fromName(refinedCondition)))
+        .toList()));
+    return records;
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

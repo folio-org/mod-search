@@ -2,7 +2,6 @@ package org.folio.search.repository;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Repository;
 public class InstanceContributorsRepository extends AbstractResourceRepository {
 
   private static final String INSTANCE_ID = "instanceId";
+  private static final String TYPE_ID = "typeId";
 
   private final SearchConfigurationProperties properties;
   private final ConsortiumTenantService consortiumTenantService;
@@ -42,21 +42,16 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       var documents = entry.getValue();
       var instancesToCreate = new HashSet<Map<String, Object>>();
       var instancesToDelete = new HashSet<Map<String, Object>>();
-      var typeIdsToCreate = new HashSet<String>();
-      var typeIdsToDelete = new HashSet<String>();
       for (var document : documents) {
         var tenantId = document.getTenant();
         var eventPayload = getPayload(document);
         var action = document.getAction();
         var instanceId = eventPayload.get(INSTANCE_ID);
-        var typeId = eventPayload.get("typeId");
-        var pair = instanceId + "|" + typeId;
+        var typeId = eventPayload.get(TYPE_ID);
         if (action == IndexActionType.INDEX) {
-          instancesToCreate.add(prepareInstance(pair, tenantId));
-          typeIdsToCreate.add(String.valueOf(typeId));
+          instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId));
         } else {
-          instancesToDelete.add(prepareInstance(pair, tenantId));
-          typeIdsToDelete.add(String.valueOf(typeId));
+          instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId));
         }
       }
 
@@ -67,8 +62,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
         .index(indexName(searchDocument))
         .script(prepareScript(instancesToCreate, instancesToDelete))
-        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete),
-          subtractSorted(typeIdsToCreate, typeIdsToDelete)), searchDocument.getDataFormat().getXcontentType());
+        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete)),
+          searchDocument.getDataFormat().getXcontentType());
 
       bulkRequest.add(upsertRequest);
     }
@@ -86,9 +81,10 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       Map.of("ins", instancesToCreate, "del", instancesToDelete));
   }
 
-  private Map<String, Object> prepareInstance(String instanceId, String tenantId) {
+  private Map<String, Object> prepareInstance(Object instanceId, String tenantId, Object typeId) {
     var instancePayload = new HashMap<String, Object>();
     instancePayload.put(INSTANCE_ID, instanceId);
+    instancePayload.put(TYPE_ID, typeId);
     instancePayload.put("tenantId", tenantId);
 
     consortiumTenantService.getCentralTenant(tenantId).ifPresent(centralTenant ->
@@ -97,12 +93,11 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     return instancePayload;
   }
 
-  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<Map<String, Object>> instances,
-                                                  Set<String> typeIds) {
+  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<Map<String, Object>> instances) {
     payload.put("contributorNameTypeId", payload.remove("nameTypeId"));
-    payload.put("contributorTypeId", typeIds);
     payload.put("instances", instances);
     payload.remove(INSTANCE_ID);
+    payload.remove(TYPE_ID);
     return payload;
   }
 

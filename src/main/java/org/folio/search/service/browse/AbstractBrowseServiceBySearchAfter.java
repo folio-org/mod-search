@@ -8,20 +8,30 @@ import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.opensearch.action.search.MultiSearchResponse.Item;
+import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 @Log4j2
 public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractBrowseService<T> {
+
+  private static final String TENANT_ID_FILTER_KEY = "instances.tenantId";
+  private static final String SHARED_FILTER_KEY = "instances.shared";
 
   protected SearchRepository searchRepository;
   protected ElasticsearchDocumentConverter documentConverter;
@@ -118,7 +128,37 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    * @param isAnchor     - defines if the given result is anchor or not.
    * @return created {@link BrowseResult} object
    */
-  protected abstract BrowseResult<T> mapToBrowseResult(SearchResult<R> searchResult, boolean isAnchor);
+  protected abstract BrowseResult<T> mapToBrowseResult(BrowseContext context, SearchResult<R> searchResult,
+                                                       boolean isAnchor);
+
+  protected Set<InstanceSubResource> filterSubResourcesForConsortium(
+    BrowseContext context, R resource,
+    Function<R, Set<InstanceSubResource>> subResourceExtractor) {
+
+    var subResources = subResourceExtractor.apply(resource);
+    var tenantIdFilter = getBrowseFilter(context, TENANT_ID_FILTER_KEY);
+    var sharedFilter = getBrowseFilter(context, SHARED_FILTER_KEY);
+    if (tenantIdFilter.isEmpty() && sharedFilter.isEmpty()) {
+      return subResources;
+    }
+
+    return subResources.stream()
+      .filter(subResource ->
+        tenantIdFilter.map(tenantId -> subResource.getTenantId().equals(tenantId))
+          .orElse(true)
+          && sharedFilter.map(shared -> subResource.getShared().equals(Boolean.valueOf(shared)))
+          .orElse(true))
+      .collect(Collectors.toSet());
+  }
+
+  private Optional<String> getBrowseFilter(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .map(filter -> filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
+        ? String.valueOf(termFilter.value())
+        : null)
+      .filter(Objects::nonNull)
+      .findFirst();
+  }
 
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
     var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
@@ -128,8 +168,9 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     browseResultPostProcessing(browseResponseClass, succeedingResult);
 
     var anchorRecords = getAnchorSearchResult(request, context, responses).getRecords();
-    var precedingRecords = reverse(mapToBrowseResult(precedingResult, false).getRecords());
-    var succeedingRecords = mergeSafelyToList(anchorRecords, mapToBrowseResult(succeedingResult, false).getRecords());
+    var precedingRecords = reverse(mapToBrowseResult(context, precedingResult, false).getRecords());
+    var succeedingRecords = mergeSafelyToList(anchorRecords, mapToBrowseResult(context, succeedingResult, false)
+      .getRecords());
 
     return new BrowseResult<T>()
       .totalRecords(precedingResult.getTotalRecords())
@@ -151,7 +192,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
 
     return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
       ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
-      : mapToBrowseResult(anchorResult, isAnchorHighlighted);
+      : mapToBrowseResult(context, anchorResult, isAnchorHighlighted);
   }
 
   private BrowseResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {
@@ -181,7 +222,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
 
   private BrowseResult<T> getBrowseResult(SearchResult<R> result, BrowseContext context) {
     var isBrowsingForward = context.isBrowsingForward();
-    var browseResult = mapToBrowseResult(result, false);
+    var browseResult = mapToBrowseResult(context, result, false);
     var records = isBrowsingForward ? browseResult.getRecords() : reverse(browseResult.getRecords());
     return new BrowseResult<T>()
       .totalRecords(browseResult.getTotalRecords())

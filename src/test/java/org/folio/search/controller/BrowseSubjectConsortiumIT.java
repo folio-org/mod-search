@@ -130,7 +130,7 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
       .totalRecords(10).prev("Music")
       .items(List.of(
-        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_2),
+        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2), //todo: should be one because of filtering
         subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
         subjectBrowseItem(1, "Rules", true),
         subjectBrowseItem(1, "Text"),

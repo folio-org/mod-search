@@ -98,8 +98,8 @@ class InstanceContributorsRepositoryTest {
       assertThat(request).isInstanceOf(UpdateRequest.class);
       var updateRequest = (UpdateRequest) request;
       assertThat(getParam(updateRequest.script(), "ins"))
-        .containsExactly(Map.of("instanceId", RESOURCE_ID + "|" + typeId,
-          "tenantId", TENANT_ID));
+        .containsExactly(Map.of("instanceId", RESOURCE_ID,
+          "tenantId", TENANT_ID, "typeId", typeId));
       assertThat(getParam(updateRequest.script(), "del")).isEmpty();
     });
   }
@@ -122,7 +122,8 @@ class InstanceContributorsRepositoryTest {
       assertThat(request).isInstanceOf(UpdateRequest.class);
       var updateRequest = (UpdateRequest) request;
       assertThat(getParam(updateRequest.script(), "ins"))
-        .containsExactly(Map.of("instanceId", RESOURCE_ID + "|" + typeId,
+        .containsExactly(Map.of("instanceId", RESOURCE_ID,
+          "typeId", typeId,
           "tenantId", TENANT_ID,
           "shared", true));
       assertThat(getParam(updateRequest.script(), "del")).isEmpty();

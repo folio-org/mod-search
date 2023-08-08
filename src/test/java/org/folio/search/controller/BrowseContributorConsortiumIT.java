@@ -159,8 +159,7 @@ class BrowseContributorConsortiumIT extends BaseIntegrationTest {
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
         contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributorBrowseItem(2, true, "Bon Jovi",
-          NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0]),
         contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1])));
 
     assertThat(actual).isEqualTo(expected);

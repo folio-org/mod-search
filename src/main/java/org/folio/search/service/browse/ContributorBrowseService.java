@@ -1,7 +1,7 @@
 package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
-import static org.folio.search.utils.CollectionUtils.toListSafe;
+import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -11,12 +11,13 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
-import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
+import one.util.streamex.StreamEx;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ContributorResource;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.opensearch.index.query.QueryBuilder;
@@ -31,8 +32,7 @@ public class ContributorBrowseService extends
 
   private static final String MISSING_LAST_PROP = "_last";
   private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
-  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "contributorTypeId";
-  private static final Pattern INSTANCES_FIELD_SPLIT_PATTERN = Pattern.compile("\\|");
+  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.contributorTypeId";
 
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
@@ -72,28 +72,35 @@ public class ContributorBrowseService extends
   }
 
   @Override
-  protected BrowseResult<InstanceContributorBrowseItem> mapToBrowseResult(SearchResult<ContributorResource> res,
+  protected BrowseResult<InstanceContributorBrowseItem> mapToBrowseResult(BrowseContext context,
+                                                                          SearchResult<ContributorResource> res,
                                                                           boolean isAnchor) {
     return BrowseResult.of(res)
-      .map(item -> new InstanceContributorBrowseItem()
-        .name(item.getName())
-        .contributorTypeId(toListSafe(item.getContributorTypeId(), s -> !s.equals("null")))
-        .contributorNameTypeId(item.getContributorNameTypeId())
-        .authorityId(item.getAuthorityId())
-        .isAnchor(isAnchor)
-        .totalRecords(calculateTotalRecords(item)));
+      .map(item -> {
+        var filteredInstanceResources = filterSubResourcesForConsortium(context, item,
+          ContributorResource::getInstances);
+        var typeIds = filteredInstanceResources.stream()
+          .map(InstanceSubResource::getTypeId)
+          .filter(typeId -> nonNull(typeId) && !typeId.equals("null"))
+          .distinct()
+          .sorted()
+          .toList();
+        var distinctInstances = StreamEx.of(filteredInstanceResources)
+          .distinct(InstanceSubResource::getInstanceId)
+          .toSet();
+
+        return new InstanceContributorBrowseItem()
+          .name(item.getName())
+          .contributorTypeId(typeIds)
+          .contributorNameTypeId(item.getContributorNameTypeId())
+          .authorityId(item.getAuthorityId())
+          .isAnchor(isAnchor)
+          .totalRecords(distinctInstances.size());
+      });
   }
 
   @Override
   protected String getValueForBrowsing(InstanceContributorBrowseItem browseItem) {
     return browseItem.getName();
-  }
-
-  private int calculateTotalRecords(ContributorResource item) { //todo: may count another tenant in total
-    return ((Long) item.getInstances().stream()
-      .map(instance -> INSTANCES_FIELD_SPLIT_PATTERN.split(instance.getInstanceId())[0])
-      .distinct()
-      .count()
-    ).intValue();
   }
 }

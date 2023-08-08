@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class InstanceSubResource {
   private String instanceId;
+  private String typeId;
   private String tenantId;
   private Boolean shared;
 }

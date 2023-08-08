@@ -72,7 +72,7 @@ public class SearchUtils {
     {
       "script" : {
         "lang" : "painless",
-        "source" : "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;def typeIds=instances.stream().map(instance -> instance.get('instanceId').splitOnToken('|')[1]).sorted().collect(Collectors.toCollection(LinkedHashSet::new));ctx._source.contributorTypeId=typeIds"
+        "source" : "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
       }
     }
     """;

@@ -12,8 +12,6 @@ public class ContributorResource {
 
   private String name;
 
-  private Set<String> contributorTypeId;
-
   private String contributorNameTypeId;
 
   private String authorityId;

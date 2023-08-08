@@ -10,10 +10,6 @@
       "index": "keyword_lowercase",
       "showInResponse": [ "browse" ]
     },
-    "contributorTypeId": {
-      "index": "keyword",
-      "showInResponse": [ "browse" ]
-    },
     "contributorNameTypeId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
@@ -24,6 +20,10 @@
       "properties": {
         "instanceId": {
           "index": "source"
+        },
+        "contributorTypeId": {
+          "index": "keyword",
+          "showInResponse": [ "browse" ]
         },
         "tenantId": {
           "index": "keyword",

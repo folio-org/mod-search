@@ -58,13 +58,14 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   }
 
   @Override
-  protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(SearchResult<SubjectResource> res, boolean isAnchor) {
+  protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(BrowseContext context, SearchResult<SubjectResource> res,
+                                                              boolean isAnchor) {
     return BrowseResult.of(res)
       .map(subjectResource -> new SubjectBrowseItem()
         .value(subjectResource.getValue())
         .authorityId(subjectResource.getAuthorityId())
         .isAnchor(isAnchor ? true : null)
-        .totalRecords(subjectResource.getInstances().size())); //todo: wrong total because of this
+        .totalRecords(filterSubResourcesForConsortium(context, subjectResource, SubjectResource::getInstances).size()));
   }
 
   @Override

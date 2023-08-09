@@ -149,7 +149,7 @@ public class CallNumberUtils {
 
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String refinedCondition,
                                                                         List<CallNumberBrowseItem> records) {
-    if (StringUtils.isBlank(refinedCondition)){
+    if (StringUtils.isBlank(refinedCondition)) {
       return records;
     }
 

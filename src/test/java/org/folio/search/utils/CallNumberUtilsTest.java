@@ -1,12 +1,21 @@
 package org.folio.search.utils;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.compareIgnoreCase;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import one.util.streamex.StreamEx;
+
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +24,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import one.util.streamex.StreamEx;
 
 @UnitTest
 class CallNumberUtilsTest {
@@ -104,6 +115,13 @@ class CallNumberUtilsTest {
     assertThat(actual).isEqualTo("prefix94nf14137923835suffix");
   }
 
+  @ParameterizedTest(name = "[{index}] callNumber={0}, records={1}, expected={2}")
+  @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingData")
+  void excludeIrrelevantResultItems(String callNumberType, CallNumberBrowseItem given, CallNumberBrowseItem expected) {
+    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, List.of(given));
+    assertThat(items).isEqualTo(List.of(expected));
+  }
+
   private static Stream<Arguments> supportedCharactersDataset() {
     return StreamEx.<Arguments>empty()
       .append(letterCharacterDataProvider())
@@ -121,6 +139,61 @@ class CallNumberUtilsTest {
 
   private static Stream<Arguments> otherCharactersDataProvider() {
     return ".,:;=-+~_/\\#$@?".chars().mapToObj(e -> arguments((char) e));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId) {
+    var items = data.stream().map(d -> new Item()
+        .id(d.get(2))
+        .tenantId(TENANT_ID)
+        .discoverySuppress(false)
+        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
+          .callNumber(d.get(1))
+          .typeId(d.get(0)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1))))
+      .toList();
+
+    var instance =  new Instance()
+      .id(instanceId)
+      .title("instance #01")
+      .staffSuppress(false)
+      .discoverySuppress(false)
+      .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
+      .items(items)
+      .holdings(emptyList());
+    return new CallNumberBrowseItem()
+      .instance(instance);
+  }
+
+  private static Stream<Arguments> eliminateIrrelevantItemsOnCallNumberBrowsingData() {
+    var id = randomId();
+    var mixedData = List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197", "00000000-0000-0000-0000-000000000000"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001")
+    );
+    var deweyData = List.of(
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001")
+    );
+
+    var mixedSuDocData = List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197", "00000000-0000-0000-0000-000000000000"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001"),
+      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/982", "00000000-0000-0000-0000-000000000002"),
+      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/2", "00000000-0000-0000-0000-000000000003")
+    );
+
+    var suDocData = List.of(
+      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/982", "00000000-0000-0000-0000-000000000002"),
+      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/2", "00000000-0000-0000-0000-000000000003")
+    );
+
+
+    return Stream.of(
+      arguments("dewey", browseItem(mixedData, id), browseItem(deweyData, id)),
+      arguments("sudoc", browseItem(mixedSuDocData, id), browseItem(suDocData, id))
+    );
   }
 
 }

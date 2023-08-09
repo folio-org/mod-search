@@ -75,7 +75,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instances(List<List<String>> data) {
-    var item = data.stream().map(d -> new Item()
+    var items = data.stream().map(d -> new Item()
         .id(randomId())
         .tenantId(TENANT_ID)
         .discoverySuppress(false)
@@ -93,7 +93,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .isBoundWith(false)
       .shared(false)
       .tenantId(TENANT_ID)
-      .items(item)
+      .items(items)
       .holdings(emptyList());
   }
 

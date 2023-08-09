@@ -147,6 +147,12 @@ public class CallNumberUtils {
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
   }
 
+  /**
+   *
+   * @param refinedCondition
+   * @param records
+   * @return
+   */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String refinedCondition,
                                                                         List<CallNumberBrowseItem> records) {
     records = records

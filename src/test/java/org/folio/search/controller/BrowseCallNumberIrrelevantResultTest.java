@@ -66,6 +66,24 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
     disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
   }
 
+  @Test
+  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndWithoutType() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "308 H977"))
+      .param("limit", "15")
+      .param("highlightMatch", "true")
+      .param("precedingRecordsCount", "5")
+      .param("expandAll", "true");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var expected = cnBrowseResult(3, List.of(
+      cnBrowseItem(instance("instance #01"), "308 H977", true),
+      cnBrowseItem(instance("instance #02"), "Z669.R360 197"),
+      cnBrowseItem(instance("instance #01"), "Z669.R360 1975"),
+      cnBrowseItem(instance("instance #01"), "Z669.R360 1977")
+    ));
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Instance[] instances() {
     return new Instance[] {
       instances(callNumberBrowseInstanceData()),

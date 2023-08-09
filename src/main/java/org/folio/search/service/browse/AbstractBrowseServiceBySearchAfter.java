@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
 @Log4j2
 public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractBrowseService<T> {
 
-  private static final String TENANT_ID_FILTER_KEY = "instances.tenantId";
   private static final String SHARED_FILTER_KEY = "instances.shared";
 
   protected SearchRepository searchRepository;
@@ -136,19 +135,12 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     Function<R, Set<InstanceSubResource>> subResourceExtractor) {
 
     var subResources = subResourceExtractor.apply(resource);
-    var tenantIdFilter = getBrowseFilter(context, TENANT_ID_FILTER_KEY);
     var sharedFilter = getBrowseFilter(context, SHARED_FILTER_KEY);
-    if (tenantIdFilter.isEmpty() && sharedFilter.isEmpty()) {
-      return subResources;
-    }
 
-    return subResources.stream()
-      .filter(subResource ->
-        tenantIdFilter.map(tenantId -> subResource.getTenantId().equals(tenantId))
-          .orElse(true)
-          && sharedFilter.map(shared -> subResource.getShared().equals(Boolean.valueOf(shared)))
-          .orElse(true))
-      .collect(Collectors.toSet());
+    return sharedFilter.map(shared -> subResources.stream()
+        .filter(subResource -> subResource.getShared().equals(Boolean.valueOf(shared)))
+        .collect(Collectors.toSet()))
+      .orElse(subResources);
   }
 
   private Optional<String> getBrowseFilter(BrowseContext context, String filterKey) {

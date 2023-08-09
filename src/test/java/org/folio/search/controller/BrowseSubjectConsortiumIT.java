@@ -38,8 +38,7 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
@@ -117,13 +116,12 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
     );
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"tenantId==consortium", "shared==true"})
-  void browseBySubject_browsingAroundWithConsortiumInstanceFilter(String instanceFilterQuery) {
+  @Test
+  void browseBySubject_browsingAroundWithConsortiumInstanceFilter() {
     var request = get(instanceSubjectBrowsePath())
       .param("query", "("
         + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
-        + "and instances." + instanceFilterQuery)
+        + "and instances.shared==true")
       .param("limit", "5")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);

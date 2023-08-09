@@ -38,8 +38,7 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
@@ -146,12 +145,11 @@ class BrowseContributorConsortiumIT extends BaseIntegrationTest {
       .authorityId(authorityId);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"tenantId==consortium", "shared==true"})
-  void browseByContributor_withNameAndConsortiumInstanceFilter(String instanceFilterQuery) {
+  @Test
+  void browseByContributor_withNameAndConsortiumInstanceFilter() {
     var request = get(instanceContributorBrowsePath()).param("query",
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-        + "and instances." + instanceFilterQuery).param("limit", "5");
+        + "and instances.shared==true").param("limit", "5");
 
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
     var expected = new InstanceContributorBrowseResult().totalRecords(5).prev(null).next(null).items(

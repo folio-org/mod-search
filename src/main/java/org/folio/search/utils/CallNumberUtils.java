@@ -149,6 +149,10 @@ public class CallNumberUtils {
 
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String refinedCondition,
                                                                         List<CallNumberBrowseItem> records) {
+    if (StringUtils.isBlank(refinedCondition)){
+      return records;
+    }
+
     records = records
       .stream()
       .filter(distinctByKey(r -> r.getInstance().getId()))

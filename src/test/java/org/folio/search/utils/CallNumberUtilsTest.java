@@ -118,6 +118,8 @@ class CallNumberUtilsTest {
   void excludeIrrelevantResultItems(String callNumberType, CallNumberBrowseItem given, CallNumberBrowseItem expected) {
     var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, List.of(given));
     assertThat(items).isEqualTo(List.of(expected));
+    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", List.of(given));
+    assertThat(unchangedItems).isEqualTo(List.of(given));
   }
 
   private static Stream<Arguments> supportedCharactersDataset() {

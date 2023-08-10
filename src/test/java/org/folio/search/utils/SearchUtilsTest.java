@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
@@ -70,13 +71,13 @@ class SearchUtilsTest {
 
   @Test
   void getIndexName_resourceNameAndTenantId_positive() {
-    var actual = getIndexName(RESOURCE_NAME, TENANT_ID);
+    var actual = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
   @Test
   void getIndexName_positive_resourceEvent() {
-    var resourceEvent = resourceEvent(RESOURCE_NAME, emptyMap());
+    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, emptyMap());
     var actual = getIndexName(resourceEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }

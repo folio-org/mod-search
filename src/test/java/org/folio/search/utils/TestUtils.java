@@ -135,8 +135,8 @@ public class TestUtils {
       .getContentAsString(), type);
   }
 
-  public static CqlSearchRequest<TestResource> searchServiceRequest(String query) {
-    return searchServiceRequest(TestResource.class, query);
+  public static CqlSearchRequest<Instance> searchServiceRequest(String query) {
+    return searchServiceRequest(Instance.class, query);
   }
 
   public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String query) {

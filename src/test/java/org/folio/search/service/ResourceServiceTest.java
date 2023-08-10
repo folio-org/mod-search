@@ -10,8 +10,10 @@ import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID_SECOND;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.indexName;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -24,18 +26,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
+import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
@@ -44,59 +50,59 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.support.base.TenantConfig;
+import org.folio.search.utils.SearchUtils;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = TenantConfig.class)
 class ResourceServiceTest {
 
   private static final String CUSTOM_REPOSITORY_NAME = "org.folio.search.service.ResourceServiceTest$TestRepository#0";
 
-  @MockBean
+  @Mock
   private IndexRepository indexRepository;
-  @MockBean
+  @Mock
   private ResourceFetchService resourceFetchService;
-  @MockBean
+  @Mock
   private PrimaryResourceRepository primaryResourceRepository;
-  @MockBean
+  @Mock
   private ResourceDescriptionService resourceDescriptionService;
-  @MockBean
+  @Mock
   private MultiTenantSearchDocumentConverter searchDocumentConverter;
-  @MockBean
+  @Mock
   private KafkaMessageProducer kafkaMessageProducer;
-  @MockBean
+  @Mock
   private TestRepository testRepository;
-  @MockBean
+  @Mock
   private ConsortiumTenantService consortiumTenantService;
-  @MockBean
+  @Mock
   private ConsortiumTenantExecutor consortiumTenantExecutor;
-  @MockBean
+  @Mock
   private ConsortiumInstanceService consortiumInstanceService;
-  @SpyBean
+  @Mock
+  private IndexNameProvider indexNameProvider;
+  @Mock
+  private Map<String, ResourceRepository> resourceRepositoryBeans;
+  @InjectMocks
   private ResourceService indexService;
 
-  @Autowired
-  private String centralTenant;
-
   @BeforeEach
-  public void setUp(@Autowired String centralTenant) {
-    when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.of(centralTenant));
+  public void setUp() {
+    lenient().when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.empty());
     lenient().when(consortiumInstanceService.saveInstances(anyList()))
       .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumInstanceService.deleteInstances(anyList()))
       .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumTenantExecutor.execute(any(), any()))
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
+    lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
+      .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
   }
 
   @Test
@@ -107,7 +113,7 @@ class ResourceServiceTest {
 
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(of(resourceDescription(INSTANCE_RESOURCE)));
 
@@ -123,7 +129,7 @@ class ResourceServiceTest {
 
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(of(resourceDescription(INSTANCE_RESOURCE)));
 
@@ -134,14 +140,17 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive_customResourceRepository() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, mapOf("id", randomId())).tenant(centralTenant);
+    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, mapOf("id", randomId()));
     var expectedResponse = getSuccessIndexOperationResponse();
+    var customResourceRepository = mock(ResourceRepository.class);
 
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(of(resourceDescriptionWithCustomRepository()));
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
-    when(testRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
+    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
+    when(resourceRepositoryBeans.containsKey(CUSTOM_REPOSITORY_NAME)).thenReturn(true);
+    when(resourceRepositoryBeans.get(CUSTOM_REPOSITORY_NAME)).thenReturn(customResourceRepository);
+    when(customResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
 
     var response = indexService.indexResources(List.of(resourceEvent));
@@ -151,7 +160,7 @@ class ResourceServiceTest {
   @Test
   void indexResources_negative() {
     var resourceEvents = List.of(resourceEvent(INSTANCE_RESOURCE, mapOf("id", randomId())));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(false);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(false);
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
 
@@ -172,11 +181,10 @@ class ResourceServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, expectedDocuments));
-    when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
@@ -196,7 +204,7 @@ class ResourceServiceTest {
     when(resourceFetchService.fetchInstancesByIds(List.of(resourceEvent))).thenReturn(List.of(fetchedEvent));
     when(searchDocumentConverter.convert(List.of(fetchedEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(of(resourceDescription(INSTANCE_RESOURCE)));
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
@@ -219,7 +227,7 @@ class ResourceServiceTest {
 
     when(resourceFetchService.fetchInstancesByIds(List.of(oldEvent, newEvent))).thenReturn(fetchedEvents);
     when(searchDocumentConverter.convert(fetchedEvents)).thenReturn(mapOf(INSTANCE_RESOURCE, searchBodies));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(of(resourceDescription(INSTANCE_RESOURCE)));
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
@@ -236,7 +244,7 @@ class ResourceServiceTest {
     when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(INSTANCE_RESOURCE, expectedDocuments));
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var expectedResponse = getSuccessIndexOperationResponse();
@@ -253,11 +261,10 @@ class ResourceServiceTest {
     var expectedResponse = getErrorIndexOperationResponse("Bulk failed: errors: ['test-error']");
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(true);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE_RESOURCE, expectedDocuments));
-    when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
@@ -281,9 +288,8 @@ class ResourceServiceTest {
   void indexResourcesById_negative_indexNotExist() {
     var eventIds = List.of(resourceEvent(randomId(), INSTANCE_RESOURCE, CREATE));
 
-    when(indexRepository.indexExists(indexName(centralTenant))).thenReturn(false);
+    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(false);
     when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
-    when(searchDocumentConverter.convert(null)).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
     doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());

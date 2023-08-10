@@ -171,7 +171,7 @@ public class KafkaMessageProducer {
   }
 
   private String getContributorId(Contributor contributor) {
-    return sha1Hex(contributor.getContributorNameTypeId()
+    return sha1Hex(contributor.getContributorNameTypeId() //NOSONAR
       + "|" + toRootLowerCase(contributor.getName())
       + "|" + contributor.getAuthorityId());
   }

@@ -3,7 +3,6 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
-import static org.folio.search.utils.CollectionUtils.distinctByKey;
 
 import java.util.HashMap;
 import java.util.List;
@@ -153,10 +152,6 @@ public class CallNumberUtils {
       return records;
     }
 
-    records = records
-      .stream()
-      .filter(distinctByKey(r -> r.getInstance().getId()))
-      .toList();
     records
       .forEach(r -> r.getInstance().setItems(r.getInstance().getItems()
         .stream()

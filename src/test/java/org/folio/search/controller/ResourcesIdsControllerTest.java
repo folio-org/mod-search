@@ -46,8 +46,6 @@ import org.springframework.test.web.servlet.MockMvc;
 class ResourcesIdsControllerTest {
 
   @Autowired
-  private String centralTenant;
-  @Autowired
   private MockMvc mockMvc;
   @MockBean
   private ResourceIdServiceDecorator resourceIdService;
@@ -58,7 +56,7 @@ class ResourcesIdsControllerTest {
   void getHoldingsIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -83,7 +81,7 @@ class ResourcesIdsControllerTest {
   void getHoldingsIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -106,7 +104,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -131,7 +129,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

@@ -14,7 +14,20 @@
       "showInResponse": [ "browse" ]
     },
     "instances": {
-      "index": "source"
+      "type": "object",
+      "properties": {
+        "instanceId": {
+          "index": "source"
+        },
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "filter" ]
+        }
+      }
     }
   }
 }

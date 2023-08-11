@@ -2,13 +2,13 @@ package org.folio.search.repository;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.folio.search.utils.CollectionUtils.subtract;
-import static org.folio.search.utils.CollectionUtils.subtractSorted;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID;
 import static org.opensearch.script.ScriptType.STORED;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
@@ -27,7 +28,11 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
 
+  private static final String INSTANCE_ID = "instanceId";
+  private static final String TYPE_ID = "typeId";
+
   private final SearchConfigurationProperties properties;
+  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
@@ -35,22 +40,18 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     var bulkRequest = new BulkRequest();
     for (var entry : byId.entrySet()) {
       var documents = entry.getValue();
-      var instanceIdsToCreate = new HashSet<String>();
-      var instanceIdsToDelete = new HashSet<String>();
-      var typeIdsToCreate = new HashSet<String>();
-      var typeIdsToDelete = new HashSet<String>();
+      var instancesToCreate = new HashSet<Map<String, Object>>();
+      var instancesToDelete = new HashSet<Map<String, Object>>();
       for (var document : documents) {
+        var tenantId = document.getTenant();
         var eventPayload = getPayload(document);
         var action = document.getAction();
-        var instanceId = eventPayload.get("instanceId");
-        var typeId = eventPayload.get("typeId");
-        var pair = instanceId + "|" + typeId;
+        var instanceId = eventPayload.get(INSTANCE_ID);
+        var typeId = eventPayload.get(TYPE_ID);
         if (action == IndexActionType.INDEX) {
-          instanceIdsToCreate.add(pair);
-          typeIdsToCreate.add(String.valueOf(typeId));
+          instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId));
         } else {
-          instanceIdsToDelete.add(pair);
-          typeIdsToDelete.add(String.valueOf(typeId));
+          instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId));
         }
       }
 
@@ -60,9 +61,9 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         .scriptedUpsert(true)
         .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
         .index(indexName(searchDocument))
-        .script(prepareScript(instanceIdsToCreate, instanceIdsToDelete))
-        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instanceIdsToCreate, instanceIdsToDelete),
-          subtractSorted(typeIdsToCreate, typeIdsToDelete)), searchDocument.getDataFormat().getXcontentType());
+        .script(prepareScript(instancesToCreate, instancesToDelete))
+        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete)),
+          searchDocument.getDataFormat().getXcontentType());
 
       bulkRequest.add(upsertRequest);
     }
@@ -74,17 +75,29 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       : getSuccessIndexOperationResponse();
   }
 
-  private Script prepareScript(HashSet<String> instanceIdsToCreate, HashSet<String> instanceIdsToDelete) {
+  private Script prepareScript(HashSet<Map<String, Object>> instancesToCreate,
+                               HashSet<Map<String, Object>> instancesToDelete) {
     return new Script(STORED, null, INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID,
-      Map.of("ins", instanceIdsToCreate, "del", instanceIdsToDelete));
+      Map.of("ins", instancesToCreate, "del", instancesToDelete));
   }
 
-  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<String> instanceIds,
-                                                  Set<String> typeIds) {
+  private Map<String, Object> prepareInstance(Object instanceId, String tenantId, Object typeId) {
+    var instancePayload = new HashMap<String, Object>();
+    instancePayload.put(INSTANCE_ID, instanceId);
+    instancePayload.put(TYPE_ID, typeId);
+    instancePayload.put("tenantId", tenantId);
+
+    consortiumTenantService.getCentralTenant(tenantId).ifPresent(centralTenant ->
+      instancePayload.put("shared", centralTenant.equals(tenantId)));
+
+    return instancePayload;
+  }
+
+  private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<Map<String, Object>> instances) {
     payload.put("contributorNameTypeId", payload.remove("nameTypeId"));
-    payload.put("contributorTypeId", typeIds);
-    payload.put("instances", instanceIds);
-    payload.remove("instanceId");
+    payload.put("instances", instances);
+    payload.remove(INSTANCE_ID);
+    payload.remove(TYPE_ID);
     return payload;
   }
 

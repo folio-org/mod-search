@@ -64,7 +64,7 @@ public class CqlSearchQueryConverter {
     return queryBuilder.query(enhancedQuery);
   }
 
-  //todo(MSEARCH-551): may be reworked after implemented for browse/streamIds.
+  //todo(MSEARCH-576): may be reworked after implemented for browse/streamIds.
   // Implemented separately because it crashes 'browse/streamIds' functionality.
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -156,15 +156,13 @@ public class CqlSearchQueryConverter {
   private QueryBuilder filterForActiveAffiliation(QueryBuilder query) {
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty()) {
+    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
       return query;
     }
 
     var affiliationShouldClauses = new LinkedList<QueryBuilder>();
     affiliationShouldClauses.add(termQuery("tenantId", contextTenantId));
-    if (!contextTenantId.equals(centralTenantId.get())) {
-      affiliationShouldClauses.add(termQuery("shared", true));
-    }
+    affiliationShouldClauses.add(termQuery("shared", true));
 
     BoolQueryBuilder boolQuery;
     if (query instanceof MatchAllQueryBuilder) {

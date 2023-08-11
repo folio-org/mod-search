@@ -12,5 +12,5 @@ public class SubjectResource {
 
   private String authorityId;
 
-  private Set<String> instances;
+  private Set<InstanceSubResource> instances;
 }

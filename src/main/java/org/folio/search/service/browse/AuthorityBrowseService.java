@@ -39,7 +39,8 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   private final SearchFieldProvider searchFieldProvider;
 
   @Override
-  protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(SearchResult<Authority> result, boolean isAnchor) {
+  protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(BrowseContext context, SearchResult<Authority> result,
+                                                                boolean isAnchor) {
     log.debug("mapToBrowseResult:: by [records.size: {}, isAnchor: {}]",
       result.getTotalRecords(), isAnchor);
 

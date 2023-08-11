@@ -47,7 +47,6 @@ import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseContributorIT extends BaseIntegrationTest {
 
@@ -319,6 +318,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @Disabled("Will be fixed in MSEARCH-562 (or MSEARCH-534)")
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForContributors_parameterized")

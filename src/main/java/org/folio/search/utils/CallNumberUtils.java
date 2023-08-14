@@ -170,26 +170,6 @@ public class CallNumberUtils {
       .toList();
   }
 
-  public boolean isInGivenType(String callNumberType, String callNumber) {
-    switch (callNumberType) {
-      case "dewey" -> {
-        return new DeweyCallNumber(callNumber).isValid();
-      }
-      case "lc" -> {
-        return new LCCallNumber(callNumber).isValid();
-      }
-      case "nlm" -> {
-        return new NlmCallNumber(callNumber).isValid();
-      }
-      default -> {
-        return false;
-      }
-//      case "sudoc" -> {
-//        return new SuDocCallNumber(callNumber).isValid();
-//      };
-    }
-  }
-
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {
     var cleanCallNumber = cleanCallNumber(callNumber, maxChars);
     if (StringUtils.isBlank(cleanCallNumber)) {

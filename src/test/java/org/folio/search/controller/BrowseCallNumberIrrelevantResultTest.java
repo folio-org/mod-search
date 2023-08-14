@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -29,9 +28,7 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
@@ -92,7 +89,8 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
   private static Instance[] instances() {
     return new Instance[] {
       instance(callNumberBrowseInstanceData()),
-      instanceNew(additionalCallNumberBrowseInstanceData())
+      instanceNew(additionalCallNumberBrowseInstanceData()),
+      instanceWithHoldings(callNumberBrowseInstanceDataForHoldings())
     };
   }
 
@@ -117,6 +115,10 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .tenantId(TENANT_ID)
       .items(items)
       .holdings(emptyList());
+  }
+
+  private static Instance instance(String title) {
+    return INSTANCE_MAP.get(title);
   }
 
   private static Instance instanceWithHoldings(List<List<String>> data) {
@@ -166,8 +168,10 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
-  private static Instance instance(String title) {
-    return INSTANCE_MAP.get(title);
+  private static List<List<String>> additionalCallNumberBrowseInstanceData() {
+    return List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197")
+    );
   }
 
   private static List<List<String>> callNumberBrowseInstanceData() {
@@ -183,12 +187,6 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1970"),
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1971"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H9771")
-    );
-  }
-
-  private static List<List<String>> additionalCallNumberBrowseInstanceData() {
-    return List.of(
-      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197")
     );
   }
 

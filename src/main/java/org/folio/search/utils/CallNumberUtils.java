@@ -3,7 +3,6 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
-import static org.folio.search.utils.CollectionUtils.distinctByKey;
 
 import java.util.HashMap;
 import java.util.List;
@@ -162,7 +161,13 @@ public class CallNumberUtils {
         .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
           .equals(CallNumberType.fromName(refinedCondition)))
         .toList()));
-    return records.stream().filter(r->r.getInstance().getItems().stream().anyMatch(i->i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()))).toList();
+    return records
+      .stream()
+      .filter(r -> r.getInstance().getItems()
+        .stream()
+        .anyMatch(i -> r.getFullCallNumber() == null
+          || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber())))
+      .toList();
   }
 
   public boolean isInGivenType(String callNumberType, String callNumber) {

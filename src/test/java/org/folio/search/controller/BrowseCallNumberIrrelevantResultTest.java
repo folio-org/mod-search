@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -18,14 +19,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.Metadata;
+import org.folio.search.domain.dto.Tags;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
@@ -67,32 +73,30 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
   }
 
   @Test
-  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndWithoutType() {
+  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndWithoutTypeAndLowLimit() {
+    var limit = 2;
     var request = get(instanceCallNumberBrowsePath())
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "308 H977"))
-      .param("limit", "15")
+      .param("limit", String.valueOf(limit))
       .param("highlightMatch", "true")
-      .param("precedingRecordsCount", "5")
+      .param("precedingRecordsCount", "1")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     var expected = cnBrowseResult(3, List.of(
-      cnBrowseItem(instance("instance #01"), "308 H977", true),
-      cnBrowseItem(instance("instance #02"), "Z669.R360 197"),
-      cnBrowseItem(instance("instance #01"), "Z669.R360 1975"),
-      cnBrowseItem(instance("instance #01"), "Z669.R360 1977")
-    ));
+      cnBrowseItem(instance("instance #01"), "308 H977", true)
+    )).next("3308 H977");
     assertThat(actual).isEqualTo(expected);
+    assertThat(actual.getItems()).hasSizeLessThanOrEqualTo(limit);
   }
 
   private static Instance[] instances() {
     return new Instance[] {
-      instances(callNumberBrowseInstanceData()),
+      instance(callNumberBrowseInstanceData()),
       instanceNew(additionalCallNumberBrowseInstanceData())
     };
   }
 
-  @SuppressWarnings("unchecked")
-  private static Instance instances(List<List<String>> data) {
+  private static Instance instance(List<List<String>> data) {
     var items = data.stream().map(d -> new Item()
         .id(randomId())
         .tenantId(TENANT_ID)
@@ -115,7 +119,30 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
-  @SuppressWarnings("unchecked")
+  private static Instance instanceWithHoldings(List<List<String>> data) {
+    var holdings = data.stream().map(d -> new Holding()
+        .id(randomId())
+        .tenantId(TENANT_ID)
+        .discoverySuppress(false)
+        .callNumber(d.get(1))
+        .holdingsTypeId("eb003b9d-86f2-4bdf-9f8e-28851122617d")
+        .permanentLocationId("765b4c3b-485c-4ce4-a117-f99c01ac49fe")
+        .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
+        .tags(new Tags().tagList(List.of("tag1", "tag2"))))
+      .toList();
+
+    return new Instance()
+      .id(randomId())
+      .title("instance #03")
+      .staffSuppress(false)
+      .discoverySuppress(false)
+      .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
+      .items(emptyList())
+      .holdings(holdings);
+  }
+
   private static Instance instanceNew(List<List<String>> data) {
     var item = data.stream().map(d -> new Item()
         .id(randomId())
@@ -151,9 +178,21 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
     );
   }
 
+  private static List<List<String>> callNumberBrowseInstanceDataForHoldings() {
+    return List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1970"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1971"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H9771")
+    );
+  }
+
   private static List<List<String>> additionalCallNumberBrowseInstanceData() {
     return List.of(
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197")
     );
+  }
+
+  private static Metadata metadata(String createdDate, String updatedDate) {
+    return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
 }

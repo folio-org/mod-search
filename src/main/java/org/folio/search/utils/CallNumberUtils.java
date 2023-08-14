@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
+import static org.folio.search.utils.CollectionUtils.distinctByKey;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,9 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.types.CallNumberType;
+import org.marc4j.callnum.DeweyCallNumber;
+import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.springframework.util.Assert;
 
 @UtilityClass
@@ -158,7 +162,27 @@ public class CallNumberUtils {
         .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
           .equals(CallNumberType.fromName(refinedCondition)))
         .toList()));
-    return records;
+    return records.stream().filter(r->r.getInstance().getItems().stream().anyMatch(i->i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()))).toList();
+  }
+
+  public boolean isInGivenType(String callNumberType, String callNumber) {
+    switch (callNumberType) {
+      case "dewey" -> {
+        return new DeweyCallNumber(callNumber).isValid();
+      }
+      case "lc" -> {
+        return new LCCallNumber(callNumber).isValid();
+      }
+      case "nlm" -> {
+        return new NlmCallNumber(callNumber).isValid();
+      }
+      default -> {
+        return false;
+      }
+//      case "sudoc" -> {
+//        return new SuDocCallNumber(callNumber).isValid();
+//      };
+    }
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

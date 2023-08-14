@@ -1,6 +1,7 @@
 package org.folio.search.service.converter.preprocessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
@@ -8,22 +9,26 @@ import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIE
 import static org.folio.search.utils.AuthoritySearchUtils.expectedAuthorityAsMap;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.folio.search.utils.TestUtils.toMap;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.test.type.UnitTest;
@@ -42,10 +47,13 @@ class AuthorityEventPreProcessorTest {
   private AuthorityEventPreProcessor eventPreProcessor;
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
+  @Mock
+  private ConsortiumTenantService consortiumTenantService;
 
   @BeforeEach
   void setUp() {
     when(resourceDescriptionService.get(AUTHORITY_RESOURCE)).thenReturn(authorityResourceDescription());
+    lenient().when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
     eventPreProcessor.init();
   }
 
@@ -125,6 +133,18 @@ class AuthorityEventPreProcessorTest {
       deleteEvent("uniformTitle0")));
   }
 
+  @Test
+  void process_positive_shouldSetSharedFlag() {
+    var newAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal");
+    var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(CREATE);
+
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+
+    var actual = eventPreProcessor.process(event);
+    assertThat(actual).isEqualTo(List.of(
+      event("personalNameTitle0", expectedAuthorityAsMap(newAuthority, true, "personalNameTitle"))));
+  }
+
   private static ResourceEvent event(String prefix, Map<String, Object> body) {
     return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY_RESOURCE, body);
   }
@@ -179,7 +199,8 @@ class AuthorityEventPreProcessorTest {
       "saftCorporateNameTitle", authorityField("saftCorporateNameTitle"),
       "uniformTitle", authorityField("uniformTitle"),
       "sftUniformTitle", authorityField("sftUniformTitle"),
-      "saftUniformTitle", authorityField("saftUniformTitle")
+      "saftUniformTitle", authorityField("saftUniformTitle"),
+      "shared", standardField()
     ));
   }
 

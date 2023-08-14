@@ -15,9 +15,6 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.types.CallNumberType;
-import org.marc4j.callnum.DeweyCallNumber;
-import org.marc4j.callnum.LCCallNumber;
-import org.marc4j.callnum.NlmCallNumber;
 import org.springframework.util.Assert;
 
 @UtilityClass

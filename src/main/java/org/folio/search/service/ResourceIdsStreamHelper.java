@@ -64,7 +64,7 @@ public class ResourceIdsStreamHelper {
 
       var outputStream = httpServletResponse.getOutputStream();
       consortiumTenantExecutor.run(() ->
-      resourceIdService.streamIdsFromDatabaseAsJson(jobId, outputStream));
+        resourceIdService.streamIdsFromDatabaseAsJson(jobId, outputStream));
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new SearchServiceException("Failed to get output stream from response", e);

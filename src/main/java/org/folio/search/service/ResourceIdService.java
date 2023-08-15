@@ -26,7 +26,7 @@ import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +41,7 @@ public class ResourceIdService {
   private final CqlSearchQueryConverter queryConverter;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsTemporaryRepository idsTemporaryRepository;
-  private final ConsortiumTenantExecutor consortiumTenantExecutor;
+  private final SystemUserScopedExecutionService executionService;
 
   /**
    * Returns resource ids for passed cql query in text type.
@@ -65,7 +65,7 @@ public class ResourceIdService {
   public void streamIdsFromDatabaseAsJson(String jobId, OutputStream outputStream) {
     log.debug("streamIdsFromDatabaseAsJson:: by [jobId: {}]", jobId);
 
-    var job = consortiumTenantExecutor.execute(() -> jobRepository.getReferenceById(jobId));
+    var job = jobRepository.getReferenceById(jobId);
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
         format("Completed async job with query=[%s] was not found.", job.getQuery()));
@@ -84,7 +84,7 @@ public class ResourceIdService {
       }));
     job.setStatus(StreamJobStatus.DEPRECATED);
     log.info("streamIdsFromDatabaseAsJson:: Attempting to save [job: {}]", job);
-    consortiumTenantExecutor.execute(() -> jobRepository.save(job));
+    jobRepository.save(job);
   }
 
   /**
@@ -115,7 +115,7 @@ public class ResourceIdService {
 
     } finally {
       log.info("streamResourceIdsForJob:: Attempts to save [job: {}]", job);
-      consortiumTenantExecutor.execute(() -> jobRepository.save(job));
+      jobRepository.save(job);
     }
   }
 
@@ -140,13 +140,13 @@ public class ResourceIdService {
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
     log.info("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    var resource = request.getResource();
-    var searchSource = queryConverter.convertForConsortia(request.getQuery(), resource)
-      .size(streamIdsProperties.getScrollQuerySize())
-      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
-      .sort(fieldSort("_doc"));
+    var searchSource = executionService.executeSystemUserScoped(request.getTenantId(),
+      () -> queryConverter.convertForConsortia(request.getQuery(), request.getResource())
+        .size(streamIdsProperties.getScrollQuerySize())
+        .fetchSource(new String[] {request.getSourceFieldPath()}, null)
+        .sort(fieldSort("_doc")));
 
-    consortiumTenantExecutor.run(() -> searchRepository.streamResourceIds(request, searchSource, idsConsumer));
+    searchRepository.streamResourceIds(request, searchSource, idsConsumer);
   }
 
   private void processStreamToJson(OutputStream outputStream,

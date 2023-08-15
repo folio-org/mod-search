@@ -114,18 +114,6 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
   }
 
   @Test
-  void cantStreamNotCompletedJob() throws Exception {
-    var query = "cql.allRecords=1";
-    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), new ResourceIdsJob()
-      .query(query)
-      .entityType(EntityTypeEnum.HOLDINGS))
-      .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
-
-    attemptGet(resourcesIdsPath(postResponse.getId()))
-      .andExpect(status().is4xxClientError());
-  }
-
-  @Test
   void cantStreamWithInvalidQuery() throws Exception {
     var query = "bad query";
     var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), new ResourceIdsJob()

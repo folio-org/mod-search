@@ -23,10 +23,10 @@ public class ConsortiumTenantExecutor {
 
   public <T> T execute(String originalTenantId, Supplier<T> operation) {
     var tenantId = tenantProvider.getTenant(originalTenantId);
-    log.info("Changing context from {} to {}", originalTenantId, tenantId);
     if (originalTenantId.equals(tenantId)) {
       return operation.get();
     } else {
+      log.info("Changing context from {} to {}", originalTenantId, tenantId);
       return scopedExecutionService.executeSystemUserScoped(tenantId, operation::get);
     }
   }

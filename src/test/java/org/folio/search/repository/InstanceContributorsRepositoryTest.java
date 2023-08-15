@@ -13,8 +13,9 @@ import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.folio.search.utils.TestUtils.spyLambda;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.client.RequestOptions.DEFAULT;
@@ -24,12 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
 import org.folio.spring.test.type.UnitTest;
@@ -48,7 +47,6 @@ import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.bytes.BytesArray;
-import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 
 @UnitTest
@@ -62,14 +60,12 @@ class InstanceContributorsRepositoryTest {
   private JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @Spy
   private SmileConverter smileConverter = new SmileConverter();
-  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
-    spyLambda(Function.class, smileConverter::toSmile);
   @Spy
   private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
   @Mock
   private RestHighLevelClient elasticsearchClient;
   @Mock
-  private TenantProvider tenantProvider;
+  private IndexNameProvider indexNameProvider;
   @Mock
   private ConsortiumTenantService consortiumTenantService;
   @Captor
@@ -78,7 +74,8 @@ class InstanceContributorsRepositoryTest {
   @BeforeEach
   void setUp() {
     repository.setElasticsearchClient(elasticsearchClient);
-    repository.setTenantProvider(tenantProvider);
+    repository.setIndexNameProvider(indexNameProvider);
+    lenient().when(indexNameProvider.getIndexName(any(SearchDocumentBody.class))).thenReturn("index_name");
   }
 
   @Test

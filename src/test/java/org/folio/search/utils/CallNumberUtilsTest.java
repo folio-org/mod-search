@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import one.util.streamex.StreamEx;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -122,6 +123,16 @@ class CallNumberUtilsTest {
     assertThat(unchangedItems).isEqualTo(List.of(given));
   }
 
+  @ParameterizedTest(name = "[{index}] callNumber={0}, records={1}, expected={2}")
+  @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingDataHoldings")
+  void excludeIrrelevantResultHoldings(String callNumberType, CallNumberBrowseItem given,
+                                       CallNumberBrowseItem expected) {
+    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, List.of(given));
+    assertThat(items).isEqualTo(List.of(expected));
+    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", List.of(given));
+    assertThat(unchangedItems).isEqualTo(List.of(given));
+  }
+
   private static Stream<Arguments> supportedCharactersDataset() {
     return StreamEx.<Arguments>empty()
       .append(letterCharacterDataProvider())
@@ -141,7 +152,6 @@ class CallNumberUtilsTest {
     return ".,:;=-+~_/\\#$@?".chars().mapToObj(e -> arguments((char) e));
   }
 
-  @SuppressWarnings("unchecked")
   private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId) {
     var items = data.stream().map(d -> new Item()
         .id(d.get(2))
@@ -167,6 +177,28 @@ class CallNumberUtilsTest {
       .instance(instance);
   }
 
+  private static CallNumberBrowseItem browseItemHoldings(List<List<String>> data, String instanceId) {
+    var holdings = data.stream().map(d -> new Holding()
+        .id(d.get(2))
+        .tenantId(TENANT_ID)
+        .callNumber(d.get(1))
+        .discoverySuppress(false))
+      .toList();
+
+    var instance =  new Instance()
+      .id(instanceId)
+      .title("instance #02")
+      .staffSuppress(false)
+      .discoverySuppress(false)
+      .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
+      .items(emptyList())
+      .holdings(holdings);
+    return new CallNumberBrowseItem()
+      .instance(instance);
+  }
+
   private static Stream<Arguments> eliminateIrrelevantItemsOnCallNumberBrowsingData() {
     var id = randomId();
     var mixedData = List.of(
@@ -177,22 +209,51 @@ class CallNumberUtilsTest {
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001")
     );
 
-    var mixedSuDocData = List.of(
+    var mixedLcData = List.of(
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197", "00000000-0000-0000-0000-000000000000"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001"),
-      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/982", "00000000-0000-0000-0000-000000000002"),
-      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/2", "00000000-0000-0000-0000-000000000003")
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-600", "00000000-0000-0000-0000-000000000002"),
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-700", "00000000-0000-0000-0000-000000000003")
     );
 
-    var suDocData = List.of(
-      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/982", "00000000-0000-0000-0000-000000000002"),
-      List.of("fc388041-6cd0-4806-8a74-ebe3b9ab4c6e", "J29.2:D84/2", "00000000-0000-0000-0000-000000000003")
+    var lcData = List.of(
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-600", "00000000-0000-0000-0000-000000000002"),
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-700", "00000000-0000-0000-0000-000000000003")
     );
 
 
     return Stream.of(
       arguments("dewey", browseItem(mixedData, id), browseItem(deweyData, id)),
-      arguments("sudoc", browseItem(mixedSuDocData, id), browseItem(suDocData, id))
+      arguments("nlm", browseItem(mixedLcData, id), browseItem(lcData, id))
+    );
+  }
+
+  private static Stream<Arguments> eliminateIrrelevantItemsOnCallNumberBrowsingDataHoldings() {
+    var id = randomId();
+    var mixedData = List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197", "00000000-0000-0000-0000-000000000000"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001")
+    );
+    var deweyData = List.of(
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "00000000-0000-0000-0000-000000000001")
+    );
+
+    var mixedLcData = List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1970", "00000000-0000-0000-0000-000000000000"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1980", "00000000-0000-0000-0000-000000000001"),
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-600", "00000000-0000-0000-0000-000000000002"),
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-700", "00000000-0000-0000-0000-000000000003")
+    );
+
+    var lcData = List.of(
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-600", "00000000-0000-0000-0000-000000000002"),
+      List.of("054d460d-d6b9-4469-9e37-7a78a2266655", "WE 200-700", "00000000-0000-0000-0000-000000000003")
+    );
+
+
+    return Stream.of(
+      arguments("dewey", browseItemHoldings(mixedData, id), browseItemHoldings(deweyData, id)),
+      arguments("nlm", browseItemHoldings(mixedLcData, id), browseItemHoldings(lcData, id))
     );
   }
 

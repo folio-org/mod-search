@@ -376,9 +376,7 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "f1==value";
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery().filter(termQuery("f1", "value"))
-        .should(termQuery("tenantId", CONSORTIUM_TENANT_ID))
-        .minimumShouldMatch(1)));
+      boolQuery().filter(termQuery("f1", "value"))));
   }
 
   @Test

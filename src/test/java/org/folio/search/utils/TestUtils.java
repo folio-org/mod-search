@@ -244,7 +244,7 @@ public class TestUtils {
       .name(name)
       .contributorNameTypeId(nameTypeId)
       .authorityId(authorityId)
-      .contributorTypeId(typeIds != null && typeIds.length != 0 ? Arrays.asList(typeIds) : null)
+      .contributorTypeId(Arrays.asList(typeIds))
       .totalRecords(totalRecords)
       .isAnchor(isAnchor);
   }

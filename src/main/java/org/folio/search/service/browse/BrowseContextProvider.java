@@ -38,7 +38,7 @@ public class BrowseContextProvider {
   public BrowseContext get(BrowseRequest request) {
     log.debug("get:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    // todo(MSEARCH-551): use 'convertForConsortia' or/and check todo item for 'convertForConsortia'
+    // todo(MSEARCH-580): use 'convertForConsortia' or/and check todo item for 'convertForConsortia'
     var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
     var cqlQuery = request.getQuery();
     if (isNotEmpty(searchSource.sorts())) {

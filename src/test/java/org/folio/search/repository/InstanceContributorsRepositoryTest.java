@@ -1,13 +1,11 @@
 package org.folio.search.repository;
 
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.model.types.IndexingDataFormat.SMILE;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -15,9 +13,8 @@ import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.mockito.ArgumentMatchers.any;
+import static org.folio.search.utils.TestUtils.spyLambda;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.client.RequestOptions.DEFAULT;
@@ -27,15 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
-import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
 import org.folio.spring.test.type.UnitTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,24 +48,28 @@ import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.bytes.BytesArray;
+import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class InstanceSubjectRepositoryTest {
+class InstanceContributorsRepositoryTest {
 
   @InjectMocks
-  private InstanceSubjectRepository repository;
-  @Mock
-  private IndexNameProvider indexNameProvider;
+  private InstanceContributorsRepository repository;
+
   @Spy
   private JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @Spy
   private SmileConverter smileConverter = new SmileConverter();
+  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
+    spyLambda(Function.class, smileConverter::toSmile);
   @Spy
   private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
   @Mock
   private RestHighLevelClient elasticsearchClient;
+  @Mock
+  private TenantProvider tenantProvider;
   @Mock
   private ConsortiumTenantService consortiumTenantService;
   @Captor
@@ -77,13 +78,13 @@ class InstanceSubjectRepositoryTest {
   @BeforeEach
   void setUp() {
     repository.setElasticsearchClient(elasticsearchClient);
-    repository.setIndexNameProvider(indexNameProvider);
-    lenient().when(indexNameProvider.getIndexName(any(SearchDocumentBody.class))).thenReturn("index_name");
+    repository.setTenantProvider(tenantProvider);
   }
 
   @Test
-  void indexResources_positive_onlyIndexEvents() throws IOException {
-    var document = subjectDocumentBodyToIndex();
+  void indexResources_positive() throws IOException {
+    var typeId = randomId();
+    var document = contributorDocumentBodyToIndex(typeId);
     var bulkResponse = mock(BulkResponse.class);
 
     when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
@@ -97,14 +98,16 @@ class InstanceSubjectRepositoryTest {
       assertThat(request).isInstanceOf(UpdateRequest.class);
       var updateRequest = (UpdateRequest) request;
       assertThat(getParam(updateRequest.script(), "ins"))
-        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID));
+        .containsExactly(Map.of("instanceId", RESOURCE_ID,
+          "tenantId", TENANT_ID, "typeId", typeId));
       assertThat(getParam(updateRequest.script(), "del")).isEmpty();
     });
   }
 
   @Test
   void indexResources_positive_shared() throws IOException {
-    var document = subjectDocumentBodyToIndex();
+    var typeId = randomId();
+    var document = contributorDocumentBodyToIndex(typeId);
     var bulkResponse = mock(BulkResponse.class);
 
     when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
@@ -119,48 +122,12 @@ class InstanceSubjectRepositoryTest {
       assertThat(request).isInstanceOf(UpdateRequest.class);
       var updateRequest = (UpdateRequest) request;
       assertThat(getParam(updateRequest.script(), "ins"))
-        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID, "shared", true));
+        .containsExactly(Map.of("instanceId", RESOURCE_ID,
+          "typeId", typeId,
+          "tenantId", TENANT_ID,
+          "shared", true));
       assertThat(getParam(updateRequest.script(), "del")).isEmpty();
     });
-  }
-
-  @Test
-  void indexResources_positive_deleteSubjects() throws IOException {
-    var subject1 = "java";
-    var subject2 = "scala";
-
-    var bulkResponse = mock(BulkResponse.class);
-    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
-    when(bulkResponse.hasFailures()).thenReturn(false);
-
-    var documents = List.of(subjectDocumentBodyToDelete(subject1), subjectDocumentBodyToDelete(subject2));
-    var actual = repository.indexResources(documents);
-
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-    var requests = bulkRequestCaptor.getValue().requests();
-    assertThat(requests).hasSize(2);
-    for (DocWriteRequest<?> request : requests) {
-      var updateRequest = (UpdateRequest) request;
-      assertThat(getParam(updateRequest.script(), "del"))
-        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID));
-      assertThat(getParam(updateRequest.script(), "ins")).isEmpty();
-    }
-  }
-
-  @Test
-  void indexResources_positive_skipIfInstanceIdIsBlank() throws IOException {
-    var subject = "scala";
-
-    var bulkResponse = mock(BulkResponse.class);
-    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
-    when(bulkResponse.hasFailures()).thenReturn(false);
-
-    var documents = List.of(subjectDocumentBodyToDelete(subject, ""));
-    var actual = repository.indexResources(documents);
-
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-    var requests = bulkRequestCaptor.getValue().requests();
-    assertThat(requests).isEmpty();
   }
 
   @SuppressWarnings("unchecked")
@@ -169,36 +136,19 @@ class InstanceSubjectRepositoryTest {
   }
 
   @SneakyThrows
-  private SearchDocumentBody subjectDocumentBodyToIndex() {
-    var subject = "test";
+  private SearchDocumentBody contributorDocumentBodyToIndex(String typeId) {
+    var id = randomId();
     var authorityId = randomId();
-    var body = mapOf("value", subject, "instanceId", RESOURCE_ID, "authorityId", authorityId);
-    var event = resourceEvent(getDocumentId(subject, authorityId), INSTANCE_SUBJECT_RESOURCE, CREATE, body, null);
+    var body = mapOf("id", id, "instanceId", RESOURCE_ID, "name", "test", "nameTypeId", randomId(),
+      "typeId", typeId, "authorityId", authorityId);
+    var event = resourceEvent(id, CONTRIBUTOR_RESOURCE, CREATE, body, null);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, INDEX);
-  }
-
-  @SneakyThrows
-  private SearchDocumentBody subjectDocumentBodyToDelete(String subject) {
-    return subjectDocumentBodyToDelete(subject, RESOURCE_ID);
-  }
-
-  @SneakyThrows
-  private SearchDocumentBody subjectDocumentBodyToDelete(String subject, String instanceId) {
-    var body = mapOf("value", subject, "instanceId", instanceId);
-    var event =
-      resourceEvent(getDocumentId(subject, null), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.DELETE, null, body);
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, DELETE);
-  }
-
-  @NotNull
-  private String getDocumentId(String subject, String authorityId) {
-    return sha256Hex(subject + authorityId);
   }
 
   private SearchConfigurationProperties getSearchConfigurationProperties() {
     var indexSettings = new SearchConfigurationProperties.IndexingSettings();
     indexSettings.setDataFormat(SMILE);
-    indexSettings.setInstanceSubjects(new SearchConfigurationProperties.DocumentIndexingSettings());
+    indexSettings.setInstanceContributors(new SearchConfigurationProperties.DocumentIndexingSettings());
     var searchConfigurationProperties = new SearchConfigurationProperties();
     searchConfigurationProperties.setIndexing(indexSettings);
     return searchConfigurationProperties;

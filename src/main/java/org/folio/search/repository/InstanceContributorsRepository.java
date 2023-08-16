@@ -60,7 +60,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         .id(searchDocument.getId())
         .scriptedUpsert(true)
         .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
-        .index(indexName(searchDocument))
+        .index(indexNameProvider.getIndexName(searchDocument))
         .script(prepareScript(instancesToCreate, instancesToDelete))
         .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete)),
           searchDocument.getDataFormat().getXcontentType());

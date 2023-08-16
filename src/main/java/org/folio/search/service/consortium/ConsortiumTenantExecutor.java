@@ -2,10 +2,12 @@ package org.folio.search.service.consortium;
 
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class ConsortiumTenantExecutor {
@@ -24,6 +26,7 @@ public class ConsortiumTenantExecutor {
     if (originalTenantId.equals(tenantId)) {
       return operation.get();
     } else {
+      log.info("Changing context from {} to {}", originalTenantId, tenantId);
       return scopedExecutionService.executeSystemUserScoped(tenantId, operation::get);
     }
   }

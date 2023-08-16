@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
@@ -98,7 +99,7 @@ public class TestConstants {
   }
 
   public static String indexName(String tenantId) {
-    return String.join("_", ENV, RESOURCE_NAME, tenantId);
+    return String.join("_", ENV, INSTANCE_RESOURCE, tenantId);
   }
 
   private static String getTopicName(String tenantId, String topic) {

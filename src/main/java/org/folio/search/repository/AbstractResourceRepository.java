@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 
@@ -13,7 +12,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.search.service.consortium.TenantProvider;
 import org.opensearch.action.DocWriteRequest;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
@@ -26,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected RestHighLevelClient elasticsearchClient;
-  protected TenantProvider tenantProvider;
+  protected IndexNameProvider indexNameProvider;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documents) {
@@ -38,8 +36,13 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
+           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+           : getSuccessIndexOperationResponse();
+  }
+
+  @Autowired
+  public void setIndexNameProvider(IndexNameProvider indexNameProvider) {
+    this.indexNameProvider = indexNameProvider;
   }
 
   @Autowired
@@ -47,19 +50,9 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     this.elasticsearchClient = elasticsearchClient;
   }
 
-  @Autowired
-  public void setTenantProvider(TenantProvider tenantProvider) {
-    this.tenantProvider = tenantProvider;
-  }
-
   protected BulkResponse executeBulkRequest(BulkRequest bulkRequest) {
     var indicesString = bulkRequest.requests().stream().map(DocWriteRequest::index).collect(joining(","));
     return performExceptionalOperation(() -> elasticsearchClient.bulk(bulkRequest, DEFAULT), indicesString, "bulkApi");
-  }
-
-  protected String indexName(SearchDocumentBody doc) {
-    var tenantId = tenantProvider.getTenant(doc.getTenant());
-    return getIndexName(doc.getResource(), tenantId);
   }
 
   protected BulkRequest prepareBulkRequest(List<SearchDocumentBody> documents) {
@@ -77,7 +70,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
    * @return prepared {@link IndexRequest} request
    */
   protected IndexRequest prepareIndexRequest(SearchDocumentBody doc) {
-    return new IndexRequest(indexName(doc))
+    return new IndexRequest(indexNameProvider.getIndexName(doc))
       .id(doc.getId())
       .source(doc.getDocumentBody(), doc.getDataFormat().getXcontentType());
   }
@@ -85,11 +78,10 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   /**
    * Prepares {@link DeleteRequest} object from the given {@link SearchDocumentBody} object.
    *
-   * @param document - search document body as {@link SearchDocumentBody} object.
+   * @param doc - search document body as {@link SearchDocumentBody} object.
    * @return prepared {@link DeleteRequest} request
    */
-  protected DeleteRequest prepareDeleteRequest(SearchDocumentBody document) {
-    return new DeleteRequest(indexName(document))
-      .id(document.getId());
+  protected DeleteRequest prepareDeleteRequest(SearchDocumentBody doc) {
+    return new DeleteRequest(indexNameProvider.getIndexName(doc)).id(doc.getId());
   }
 }

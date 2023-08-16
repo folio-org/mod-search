@@ -95,7 +95,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .id(doc.getId())
       .scriptedUpsert(true)
       .retryOnConflict(properties.getIndexing().getInstanceSubjects().getRetryAttempts())
-      .index(indexName(doc))
+      .index(indexNameProvider.getIndexName(doc))
       .script(new Script(STORED, null, INSTANCE_SUBJECT_UPSERT_SCRIPT_ID, prepareScriptParams(instances)))
       .upsert(prepareDocumentBody(getPayload(doc), instances), doc.getDataFormat().getXcontentType());
   }

@@ -21,8 +21,9 @@ public class IndexNameProvider {
   }
 
   public String getIndexName(String resource, String tenantId) {
-    log.debug("Calculating index name for [resource: {}, tenantId: {}]", resource, tenantId);
     var finalTenantId = tenantProvider.getTenant(tenantId);
+    log.debug("Calculating index name for tenant [resource: {}, original: {}, final: {}]",
+      resource, tenantId, finalTenantId);
     return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + finalTenantId;
   }
 

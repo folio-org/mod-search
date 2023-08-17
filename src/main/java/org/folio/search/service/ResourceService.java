@@ -36,6 +36,7 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
@@ -44,7 +45,6 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -65,21 +65,22 @@ public class ResourceService {
   private final ConsortiumTenantService consortiumTenantService;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumInstanceService consortiumInstanceService;
+  private final IndexNameProvider indexNameProvider;
 
   /**
-   * Saves list of resources to elasticsearch.
+   * Saves list of resourceEvents to elasticsearch.
    *
-   * @param resources {@link List} of resources as {@link ResourceEvent} objects.
+   * @param resourceEvents {@link List} of resourceEvents as {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
-    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resources, true));
+  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resourceEvents) {
+    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
 
-    if (CollectionUtils.isEmpty(resources)) {
+    if (CollectionUtils.isEmpty(resourceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsToIndex(resources);
+    var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     return indexSearchDocuments(elasticsearchDocuments);
   }
@@ -141,12 +142,7 @@ public class ResourceService {
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
-    var inConsortium = events.stream()
-      .map(ResourceEvent::getTenant)
-      .distinct()
-      .anyMatch(tenantId -> consortiumTenantService.getCentralTenant(tenantId).isPresent());
-
-    return inConsortium ? events : getEventsThatCanBeIndexed(events, SearchUtils::getIndexName);
+    return getEventsThatCanBeIndexed(events, indexNameProvider::getIndexName);
   }
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {

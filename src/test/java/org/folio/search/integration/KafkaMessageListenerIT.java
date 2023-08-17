@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -66,6 +67,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.retry.annotation.EnableRetry;
 
+@Log4j2
 @EnableKafka
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
@@ -236,9 +238,12 @@ class KafkaMessageListenerIT {
   private void sendMessagesWithStoppedListenerContainer(List<String> ids, String containerId, String topicName,
                                                         Function<String, ResourceEvent> resourceEventFunction) {
     var container = getKafkaListenerContainer(containerId);
+    log.info("Stopping listener container");
     container.stop();
     ids.forEach(id -> resourceKafkaTemplate.send(topicName, id, resourceEventFunction.apply(id)));
+    log.info("Starting listener container");
     container.start();
+    await().atMost(FIVE_SECONDS).until(container::isRunning, Boolean.TRUE::equals);
   }
 
   private MessageListenerContainer getKafkaListenerContainer(String containerId) {

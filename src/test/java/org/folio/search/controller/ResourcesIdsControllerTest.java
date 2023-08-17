@@ -26,9 +26,10 @@ import java.util.List;
 import org.folio.search.domain.dto.ResourceId;
 import org.folio.search.domain.dto.ResourceIds;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.service.ResourceIdService;
+import org.folio.search.service.ResourceIdsJobService;
 import org.folio.search.service.ResourceIdsStreamHelper;
-import org.folio.search.service.consortium.ResourceIdServiceDecorator;
-import org.folio.search.service.consortium.ResourceIdsJobServiceDecorator;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
@@ -41,24 +42,24 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @WebMvcTest(ResourcesIdsController.class)
-@Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class, ResourceIdsJobServiceDecorator.class,
-  ResourceIdServiceDecorator.class, TenantConfig.class})
+@Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class, ResourceIdsJobService.class,
+         ResourceIdService.class, TenantConfig.class})
 class ResourcesIdsControllerTest {
 
   @Autowired
-  private String centralTenant;
-  @Autowired
   private MockMvc mockMvc;
   @MockBean
-  private ResourceIdServiceDecorator resourceIdService;
+  private ResourceIdService resourceIdService;
   @MockBean
-  private ResourceIdsJobServiceDecorator resourceIdsJobService;
+  private ResourceIdsJobService resourceIdsJobService;
+  @MockBean
+  private ConsortiumTenantExecutor consortiumTenantExecutor;
 
   @Test
   void getHoldingsIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -83,7 +84,7 @@ class ResourcesIdsControllerTest {
   void getHoldingsIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -106,7 +107,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -131,7 +132,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, centralTenant, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

@@ -1,7 +1,5 @@
 package org.folio.search.model.index;
 
-import static org.folio.search.utils.SearchUtils.getIndexName;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -63,12 +61,4 @@ public class SearchDocumentBody {
     return resourceEvent.getResourceName();
   }
 
-  /**
-   * Returns search document body index name.
-   *
-   * @return Elasticsearch index name as {@link String} object.
-   */
-  public String getIndex() {
-    return getIndexName(resourceEvent);
-  }
 }

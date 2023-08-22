@@ -4,6 +4,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +12,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import jakarta.validation.Valid;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;

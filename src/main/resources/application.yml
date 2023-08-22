@@ -137,3 +137,7 @@ management:
   endpoint:
     loggers:
       enabled: true
+
+logging:
+  level:
+    org.folio.*: debug

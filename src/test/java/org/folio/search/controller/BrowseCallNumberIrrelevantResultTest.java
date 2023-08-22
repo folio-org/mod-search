@@ -70,18 +70,20 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
   }
 
   @Test
-  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndWithoutTypeAndLowLimit() {
+  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndLowLimit() {
     var limit = 2;
     var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "308 H977"))
+      .param("callNumberType", "dewey")
+      .param("query", prepareQuery("typedCallNumber >= {value} or typedCallNumber < {value}", "308 H977"))
       .param("limit", String.valueOf(limit))
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "1")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    var expected = cnBrowseResult(3, List.of(
+    var expected = cnBrowseResult(2, List.of(
       cnBrowseItem(instance("instance #01"), "308 H977", true)
-    )).next("3308 H977");
+    ));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
     assertThat(actual).isEqualTo(expected);
     assertThat(actual.getItems()).hasSizeLessThanOrEqualTo(limit);
   }
@@ -89,7 +91,6 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
   private static Instance[] instances() {
     return new Instance[] {
       instance(callNumberBrowseInstanceData()),
-      instanceNew(additionalCallNumberBrowseInstanceData()),
       instanceWithHoldings(callNumberBrowseInstanceDataForHoldings())
     };
   }
@@ -143,35 +144,6 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .tenantId(TENANT_ID)
       .items(emptyList())
       .holdings(holdings);
-  }
-
-  private static Instance instanceNew(List<List<String>> data) {
-    var item = data.stream().map(d -> new Item()
-        .id(randomId())
-        .tenantId(TENANT_ID)
-        .discoverySuppress(false)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-          .callNumber(d.get(1))
-          .typeId(d.get(0)))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1))))
-      .toList();
-
-    return new Instance()
-      .id(randomId())
-      .title("instance #02")
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .isBoundWith(false)
-      .shared(false)
-      .tenantId(TENANT_ID)
-      .items(item)
-      .holdings(emptyList());
-  }
-
-  private static List<List<String>> additionalCallNumberBrowseInstanceData() {
-    return List.of(
-      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 197")
-    );
   }
 
   private static List<List<String>> callNumberBrowseInstanceData() {

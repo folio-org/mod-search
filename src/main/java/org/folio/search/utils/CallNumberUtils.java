@@ -11,11 +11,16 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import jakarta.validation.Valid;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.Item;
 import org.folio.search.model.types.CallNumberType;
+import org.jetbrains.annotations.NotNull;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
 import org.marc4j.callnum.NlmCallNumber;
@@ -150,38 +155,75 @@ public class CallNumberUtils {
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
   }
 
-  public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String refinedCondition,
+  /**
+   * Excludes irrelevant items from result.
+   *
+   * <p>
+   * This algorithm takes call number browse result and call number type and removes irrelevant items from result
+   * approach:
+   * <ul>
+   *   <li>Each call number browse item has its own fullCallNumber field, which may vary from its instance's item or
+   *   holding call number. Matching ones filtered </li>
+   *   <li>CallNumberBrowseItem's instance may have items or holdings
+   *   which may have call numbers with different type. They will also be filtered by callNumberType</li>
+   *   <li>all filtered records are added together and returned</li>
+   * </ul>
+   * </p>
+   *
+   * @param callNumberType - call number type to check/compare result items' types
+   * @param records - list of CallNumberBrowseItem objects
+   * @return filtered records
+   */
+  public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String callNumberType,
                                                                         List<CallNumberBrowseItem> records) {
-    if (StringUtils.isBlank(refinedCondition)) {
+    if (StringUtils.isBlank(callNumberType)) {
       return records;
     }
 
-    records
-      .forEach(r -> r.getInstance().setItems(r.getInstance().getItems()
-        .stream()
-        .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
-          .equals(CallNumberType.fromName(refinedCondition)))
-        .toList()));
-    records
-      .forEach(r -> r.getInstance().setHoldings(r.getInstance().getHoldings()
-        .stream()
-        .filter(h -> isInGivenType(refinedCondition, h.getCallNumber()))
-        .toList()));
-    var result = new ArrayList<>(records
-      .stream()
-      .filter(r -> r.getInstance().getItems()
-        .stream()
-        .anyMatch(i -> r.getFullCallNumber() == null
-          || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber())))
-      .toList());
-    var resultHoldings = records
+    records.forEach(r -> r.getInstance().setItems(getItemsFiltered(callNumberType, r)));
+    records.forEach(r -> r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r)));
+    var result = new ArrayList<>(getFilteredItemsList(records));
+    var resultHoldings = getFilteredHoldingsItemsList(records);
+    result.addAll(resultHoldings);
+    return result;
+  }
+
+  @NotNull
+  private static List<CallNumberBrowseItem> getFilteredHoldingsItemsList(List<CallNumberBrowseItem> records) {
+    return records
       .stream()
       .filter(r -> r.getInstance().getHoldings()
         .stream()
         .anyMatch(h -> r.getFullCallNumber() == null || h.getCallNumber().equals(r.getFullCallNumber())))
       .toList();
-    result.addAll(resultHoldings);
-    return result;
+  }
+
+  @NotNull
+  private static List<CallNumberBrowseItem> getFilteredItemsList(List<CallNumberBrowseItem> records) {
+    return records
+      .stream()
+      .filter(r -> r.getInstance().getItems()
+        .stream()
+        .anyMatch(i -> r.getFullCallNumber() == null
+          || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber())))
+      .toList();
+  }
+
+  @NotNull
+  private static List<@Valid Holding> getHoldingsFiltered(String callNumberType, CallNumberBrowseItem r) {
+    return r.getInstance().getHoldings()
+      .stream()
+      .filter(h -> isInGivenType(callNumberType, h.getCallNumber()))
+      .toList();
+  }
+
+  @NotNull
+  private static List<@Valid Item> getItemsFiltered(String callNumberType, CallNumberBrowseItem r) {
+    return r.getInstance().getItems()
+      .stream()
+      .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
+        .equals(CallNumberType.fromName(callNumberType)))
+      .toList();
   }
 
   private boolean isInGivenType(String callNumberType, String callNumber) {

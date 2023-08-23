@@ -75,37 +75,18 @@ public class ResourceService {
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resourceEvents) {
     log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
-    var eventResources = resourceEvents.stream()
-      .map(ResourceEvent::getResourceName)
-      .distinct()
-      .toList();
-    log.info("indexResources: for tenant {} by [resourceEvent.size: {}], for {}",
-      resourceEvents.get(0).getTenant(),
-      collectionToLogMsg(resourceEvents, true),
-      eventResources);
 
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
     var eventsToIndex = getEventsToIndex(resourceEvents);
-    log.info("indexResources: for tenant {}, resources {} eventsToIndex {}",
-      resourceEvents.get(0).getTenant(),
-      eventResources,
-      eventsToIndex.size());
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-    log.info("indexResources: for tenant {}, resources {} esDocuments {}",
-      resourceEvents.get(0).getTenant(),
-      eventResources,
-      elasticsearchDocuments.size());
-    var res = indexSearchDocuments(elasticsearchDocuments);
-    log.info("indexResources: for tenant {}, resources {}, status {}, error: {}",
-      resourceEvents.get(0).getTenant(),
-      eventResources,
-      res.getStatus(),
-      res.getErrorMessage());
+    var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
+    log.info("Records indexed to elasticsearch [indexRequests: {}. {}]",
+      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
 
-    return res;
+    return bulkIndexResponse;
   }
 
   /**

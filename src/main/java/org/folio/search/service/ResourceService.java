@@ -89,12 +89,14 @@ public class ResourceService {
     }
 
     var eventsToIndex = getEventsToIndex(resourceEvents);
-    log.info("indexResources: for tenant {} eventsToIndex {}",
+    log.info("indexResources: for tenant {}, resources {} eventsToIndex {}",
       resourceEvents.get(0).getTenant(),
+      eventResources,
       eventsToIndex.size());
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-    log.info("indexResources: for tenant {} esDocuments {}",
+    log.info("indexResources: for tenant {}, resources {} esDocuments {}",
       resourceEvents.get(0).getTenant(),
+      eventResources,
       elasticsearchDocuments.size());
     return indexSearchDocuments(elasticsearchDocuments);
   }

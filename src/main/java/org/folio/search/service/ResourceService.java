@@ -98,7 +98,14 @@ public class ResourceService {
       resourceEvents.get(0).getTenant(),
       eventResources,
       elasticsearchDocuments.size());
-    return indexSearchDocuments(elasticsearchDocuments);
+    var res = indexSearchDocuments(elasticsearchDocuments);
+    log.info("indexResources: for tenant {}, resources {}, status {}, error: {}",
+      resourceEvents.get(0).getTenant(),
+      eventResources,
+      res.getStatus(),
+      res.getErrorMessage());
+
+    return res;
   }
 
   /**

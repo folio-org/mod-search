@@ -75,13 +75,27 @@ public class ResourceService {
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resourceEvents) {
     log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
+    var eventResources = resourceEvents.stream()
+      .map(ResourceEvent::getResourceName)
+      .distinct()
+      .toList();
+    log.info("indexResources: for tenant {} by [resourceEvent.size: {}], for {}",
+      resourceEvents.get(0).getTenant(),
+      collectionToLogMsg(resourceEvents, true),
+      eventResources);
 
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
     var eventsToIndex = getEventsToIndex(resourceEvents);
+    log.info("indexResources: for tenant {} eventsToIndex {}",
+      resourceEvents.get(0).getTenant(),
+      eventsToIndex.size());
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
+    log.info("indexResources: for tenant {} esDocuments {}",
+      resourceEvents.get(0).getTenant(),
+      elasticsearchDocuments.size());
     return indexSearchDocuments(elasticsearchDocuments);
   }
 

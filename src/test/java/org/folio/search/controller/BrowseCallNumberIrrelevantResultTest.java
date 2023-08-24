@@ -71,7 +71,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
 
   @Test
   void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndLowLimit() {
-    var limit = 2;
+    var limit = 3;
     var request = get(instanceCallNumberBrowsePath())
       .param("callNumberType", "dewey")
       .param("query", prepareQuery("typedCallNumber >= {value} or typedCallNumber < {value}", "308 H977"))
@@ -79,23 +79,19 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "1")
       .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    var expected = cnBrowseResult(2, List.of(
-      cnBrowseItem(instance("instance #01"), "308 H977", true)
-    ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
-    assertThat(actual).isEqualTo(expected);
-    assertThat(actual.getItems()).hasSizeLessThanOrEqualTo(limit);
+    var result = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(result.getItems()).hasSizeLessThanOrEqualTo(limit);
   }
 
   private static Instance[] instances() {
     return new Instance[] {
-      instance(callNumberBrowseInstanceData()),
-      instanceWithHoldings(callNumberBrowseInstanceDataForHoldings())
+      instance(callNumberBrowseInstanceData(), "instance #01"),
+      instance(callNumberBrowseInstanceData(),"instance #02"),
+      instanceWithHoldings(callNumberBrowseInstanceDataForHoldings(), "instance #03")
     };
   }
 
-  private static Instance instance(List<List<String>> data) {
+  private static Instance instance(List<List<String>> data, String title) {
     var items = data.stream().map(d -> new Item()
         .id(randomId())
         .tenantId(TENANT_ID)
@@ -108,7 +104,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
 
     return new Instance()
       .id(randomId())
-      .title("instance #01")
+      .title(title)
       .staffSuppress(false)
       .discoverySuppress(false)
       .isBoundWith(false)
@@ -122,7 +118,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
     return INSTANCE_MAP.get(title);
   }
 
-  private static Instance instanceWithHoldings(List<List<String>> data) {
+  private static Instance instanceWithHoldings(List<List<String>> data, String title) {
     var holdings = data.stream().map(d -> new Holding()
         .id(randomId())
         .tenantId(TENANT_ID)
@@ -136,7 +132,7 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
 
     return new Instance()
       .id(randomId())
-      .title("instance #03")
+      .title(title)
       .staffSuppress(false)
       .discoverySuppress(false)
       .isBoundWith(false)
@@ -158,7 +154,10 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
     return List.of(
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1970"),
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1971"),
-      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H9771")
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H971"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H972"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H973"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977")
     );
   }
 

@@ -181,12 +181,14 @@ public class CallNumberUtils {
     }
 
     records.forEach(r -> {
-      if (r.getInstance() != null)
+      if (r.getInstance() != null) {
         r.getInstance().setItems(getItemsFiltered(callNumberType, r));
+      }
     });
     records.forEach(r -> {
-      if (r.getInstance() != null)
+      if (r.getInstance() != null) {
         r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
+      }
     });
     var result = new ArrayList<>(getFilteredItemsList(records));
     var resultHoldings = getFilteredHoldingsItemsList(records);
@@ -199,10 +201,11 @@ public class CallNumberUtils {
     return records
       .stream()
       .filter(r -> {
-        if (r.getInstance() != null)
+        if (r.getInstance() != null) {
           return r.getInstance().getHoldings()
             .stream()
             .anyMatch(h -> r.getFullCallNumber() == null || h.getCallNumber().contains(r.getFullCallNumber()));
+        }
         return true;
       })
       .toList();
@@ -213,11 +216,12 @@ public class CallNumberUtils {
     return records
       .stream()
       .filter(r -> {
-        if (r.getInstance()!=null)
+        if (r.getInstance() != null) {
           return r.getInstance().getItems()
             .stream()
             .anyMatch(i -> r.getFullCallNumber() == null
               || i.getEffectiveCallNumberComponents().getCallNumber().contains(r.getFullCallNumber()));
+        }
         return true;
       })
       .toList();

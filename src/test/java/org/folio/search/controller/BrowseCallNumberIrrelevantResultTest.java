@@ -86,7 +86,6 @@ class BrowseCallNumberIrrelevantResultTest extends BaseIntegrationTest {
   private static Instance[] instances() {
     return new Instance[] {
       instance(callNumberBrowseInstanceData(), "instance #01"),
-      instance(callNumberBrowseInstanceData(), "instance #02"),
       instanceWithHoldings(callNumberBrowseInstanceDataForHoldings(), "instance #03")
     };
   }

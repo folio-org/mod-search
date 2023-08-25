@@ -176,20 +176,16 @@ public class CallNumberUtils {
    */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String callNumberType,
                                                                         List<CallNumberBrowseItem> records) {
-    if (StringUtils.isBlank(callNumberType)) {
+    if (StringUtils.isBlank(callNumberType) || records == null || records.isEmpty()) {
       return records;
     }
 
-    records.forEach(r -> {
-      if (r.getInstance() != null) {
+    records.stream()
+      .filter(r -> r.getInstance() != null)
+      .forEach(r -> {
         r.getInstance().setItems(getItemsFiltered(callNumberType, r));
-      }
-    });
-    records.forEach(r -> {
-      if (r.getInstance() != null) {
         r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
-      }
-    });
+      });
     var result = new ArrayList<>(getFilteredItemsList(records));
     var resultHoldings = getFilteredHoldingsItemsList(records);
     result.addAll(resultHoldings);
@@ -200,14 +196,9 @@ public class CallNumberUtils {
   private static List<CallNumberBrowseItem> getFilteredHoldingsItemsList(List<CallNumberBrowseItem> records) {
     return records
       .stream()
-      .filter(r -> {
-        if (r.getInstance() != null) {
-          return r.getInstance().getHoldings()
+      .filter(r -> r.getInstance().getHoldings()
             .stream()
-            .anyMatch(h -> r.getFullCallNumber() == null || h.getCallNumber().contains(r.getFullCallNumber()));
-        }
-        return true;
-      })
+            .anyMatch(h -> r.getFullCallNumber() == null || h.getCallNumber().contains(r.getFullCallNumber())))
       .toList();
   }
 
@@ -215,15 +206,10 @@ public class CallNumberUtils {
   private static List<CallNumberBrowseItem> getFilteredItemsList(List<CallNumberBrowseItem> records) {
     return records
       .stream()
-      .filter(r -> {
-        if (r.getInstance() != null) {
-          return r.getInstance().getItems()
+      .filter(r -> r.getInstance().getItems()
             .stream()
             .anyMatch(i -> r.getFullCallNumber() == null
-              || i.getEffectiveCallNumberComponents().getCallNumber().contains(r.getFullCallNumber()));
-        }
-        return true;
-      })
+              || i.getEffectiveCallNumberComponents().getCallNumber().contains(r.getFullCallNumber())))
       .toList();
   }
 

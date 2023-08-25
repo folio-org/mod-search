@@ -182,7 +182,8 @@ public class CallNumberUtils {
     records.forEach(r -> {
         r.getInstance().setItems(getItemsFiltered(callNumberType, r));
         r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
-      });
+      }
+    );
     var result = new ArrayList<>(getFilteredItemsList(records));
     var resultHoldings = getFilteredHoldingsItemsList(records);
     result.addAll(resultHoldings);

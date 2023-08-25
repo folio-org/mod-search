@@ -179,9 +179,7 @@ public class CallNumberUtils {
       return records;
     }
 
-    records.stream()
-      .filter(r -> r.getInstance() != null)
-      .forEach(r -> {
+    records.forEach(r -> {
         r.getInstance().setItems(getItemsFiltered(callNumberType, r));
         r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
       });

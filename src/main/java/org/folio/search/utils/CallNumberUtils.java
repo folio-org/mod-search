@@ -215,9 +215,6 @@ public class CallNumberUtils {
 
   @NotNull
   private static List<@Valid Holding> getHoldingsFiltered(String callNumberType, CallNumberBrowseItem item) {
-    if (item.getInstance() == null) {
-      return emptyList();
-    }
     return item.getInstance().getHoldings()
       .stream()
       .filter(h -> isInGivenType(callNumberType, h.getCallNumber()))
@@ -226,10 +223,6 @@ public class CallNumberUtils {
 
   @NotNull
   private static List<@Valid Item> getItemsFiltered(String callNumberType, CallNumberBrowseItem item) {
-    if (item.getInstance() == null) {
-      return emptyList();
-    }
-
     return item.getInstance().getItems()
       .stream()
       .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())

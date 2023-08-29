@@ -5,7 +5,6 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 
 import jakarta.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,35 +179,10 @@ public class CallNumberUtils {
     }
 
     records.forEach(r -> {
-        r.getInstance().setItems(getItemsFiltered(callNumberType, r));
-        r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
-      }
-    );
-    var result = new ArrayList<>(getFilteredItemsList(records));
-    var resultHoldings = getFilteredHoldingsItemsList(records);
-    result.addAll(resultHoldings);
-    return result;
-  }
-
-  @NotNull
-  private static List<CallNumberBrowseItem> getFilteredHoldingsItemsList(List<CallNumberBrowseItem> records) {
-    return records
-      .stream()
-      .filter(r -> r.getInstance().getHoldings()
-            .stream()
-            .anyMatch(h -> r.getFullCallNumber() == null || h.getCallNumber().contains(r.getFullCallNumber())))
-      .toList();
-  }
-
-  @NotNull
-  private static List<CallNumberBrowseItem> getFilteredItemsList(List<CallNumberBrowseItem> records) {
-    return records
-      .stream()
-      .filter(r -> r.getInstance().getItems()
-            .stream()
-            .anyMatch(i -> r.getFullCallNumber() == null
-              || i.getEffectiveCallNumberComponents().getCallNumber().contains(r.getFullCallNumber())))
-      .toList();
+      r.getInstance().setItems(getItemsFiltered(callNumberType, r));
+      r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
+    });
+    return records;
   }
 
   @NotNull

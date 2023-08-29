@@ -63,6 +63,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
 
+    precedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+      precedingResult.getRecords()));
+    succeedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+      succeedingResult.getRecords()));
     if (!backwardSucceedingResult.isEmpty()) {
       log.debug("browseAround:: backward succeeding result is not empty: Update preceding result");
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
@@ -82,10 +86,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
-    precedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
-        precedingResult.getRecords()));
-    succeedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
-        succeedingResult.getRecords()));
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
       .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))

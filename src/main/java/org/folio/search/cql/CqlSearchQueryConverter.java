@@ -4,20 +4,16 @@ import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
-import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.types.SearchType;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.spring.FolioExecutionContext;
 import org.opensearch.index.query.BoolQueryBuilder;
-import org.opensearch.index.query.MatchAllQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
@@ -41,8 +37,7 @@ public class CqlSearchQueryConverter {
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
   private final CqlTermQueryConverter cqlTermQueryConverter;
-  private final FolioExecutionContext folioExecutionContext;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumSearchHelper consortiumSearchHelper;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -76,7 +71,7 @@ public class CqlSearchQueryConverter {
    */
   public SearchSourceBuilder convertForConsortia(String query, String resource) {
     var sourceBuilder = convert(query, resource);
-    var queryBuilder = filterForActiveAffiliation(sourceBuilder.query());
+    var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query());
 
     return sourceBuilder.query(queryBuilder);
   }
@@ -150,38 +145,6 @@ public class CqlSearchQueryConverter {
     var conditions = conditionProvider.apply(boolQuery);
     conditions.add(leftOperandQuery);
     conditions.add(rightOperandQuery);
-    return boolQuery;
-  }
-
-  private QueryBuilder filterForActiveAffiliation(QueryBuilder query) {
-    var contextTenantId = folioExecutionContext.getTenantId();
-    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
-      return query;
-    }
-
-    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
-    affiliationShouldClauses.add(termQuery("tenantId", contextTenantId));
-    affiliationShouldClauses.add(termQuery("shared", true));
-
-    BoolQueryBuilder boolQuery;
-    if (query instanceof MatchAllQueryBuilder) {
-      boolQuery = boolQuery();
-    } else if (query instanceof BoolQueryBuilder bq) {
-      boolQuery = bq;
-    } else {
-      boolQuery = boolQuery().must(query);
-    }
-    boolQuery.minimumShouldMatch(1);
-
-    if (boolQuery.should().isEmpty()) {
-      affiliationShouldClauses.forEach(boolQuery::should);
-    } else {
-      var innerBoolQuery = boolQuery();
-      affiliationShouldClauses.forEach(innerBoolQuery::should);
-      boolQuery.must(innerBoolQuery);
-    }
-
     return boolQuery;
   }
 

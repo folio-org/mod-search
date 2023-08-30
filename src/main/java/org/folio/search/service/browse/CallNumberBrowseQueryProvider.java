@@ -20,6 +20,7 @@ import org.folio.search.configuration.properties.SearchQueryConfigurationPropert
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.script.Script;
@@ -38,6 +39,7 @@ public class CallNumberBrowseQueryProvider {
   private final SearchFieldProvider searchFieldProvider;
   private final SearchQueryConfigurationProperties queryConfiguration;
   private final CallNumberBrowseRangeService callNumberBrowseRangeService;
+  private final ConsortiumSearchHelper consortiumSearchHelper;
 
   /**
    * Creates query as {@link SearchSourceBuilder} object for call number browsing.
@@ -56,8 +58,10 @@ public class CallNumberBrowseQueryProvider {
 
     var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
     var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isBrowsingForward) * multiplier));
+    var initialQuery = getQuery(ctx, request, pageSize, isBrowsingForward);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(initialQuery);
     var searchSource = searchSource().from(0).size(pageSize)
-      .query(getQuery(ctx, request, pageSize, isBrowsingForward))
+      .query(query)
       .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
 
     if (isFalse(request.getExpandAll())) {

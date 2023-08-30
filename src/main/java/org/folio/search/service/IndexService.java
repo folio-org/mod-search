@@ -24,6 +24,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -44,6 +45,7 @@ public class IndexService {
   private final ResourceReindexClient resourceReindexClient;
   private final ResourceDescriptionService resourceDescriptionService;
   private final IndexNameProvider indexNameProvider;
+  private final TenantProvider tenantProvider;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -135,7 +137,8 @@ public class IndexService {
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
-    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
+    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())
+      && notConsortiumMemberTenant(tenantId)) {
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId, reindexRequest.getIndexSettings());
@@ -238,6 +241,10 @@ public class IndexService {
     var resourceDescription = resourceDescriptionService.find(resourceName)
       .orElseThrow(() -> new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName));
     log.trace("Resource description was found for {}", resourceDescription.getName());
+  }
+
+  private boolean notConsortiumMemberTenant(String tenantId) {
+    return tenantId.equals(tenantProvider.getTenant(tenantId));
   }
 
   private static String normalizeResourceName(String url) {

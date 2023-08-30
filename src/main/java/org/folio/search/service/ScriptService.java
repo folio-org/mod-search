@@ -26,10 +26,8 @@ public class ScriptService {
   public void saveScripts() {
     for (var script : SCRIPTS.entrySet()) {
       var scriptId = script.getKey();
-      if (!scriptRepository.scriptExists(scriptId)) {
-        log.info("Creating stored script [id: {}]", scriptId);
-        scriptRepository.saveScript(scriptId, script.getValue());
-      }
+      log.info("Saving stored script [id: {}]", scriptId);
+      scriptRepository.saveScript(scriptId, script.getValue());
     }
   }
 }

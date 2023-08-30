@@ -82,7 +82,11 @@ public class ResourceService {
 
     var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-    return indexSearchDocuments(elasticsearchDocuments);
+    var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
+    log.info("Records indexed to elasticsearch [indexRequests: {}. {}]",
+      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
+
+    return bulkIndexResponse;
   }
 
   /**

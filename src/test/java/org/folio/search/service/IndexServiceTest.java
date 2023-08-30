@@ -9,6 +9,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.EMPTY_JSON_OBJECT;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -76,8 +79,12 @@ class IndexServiceTest {
   @Mock
   private IndexNameProvider indexNameProvider;
 
+  @Mock
+  private TenantProvider tenantProvider;
+
   @BeforeEach
   void setUp() {
+    lenient().when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
     lenient().when(indexNameProvider.getIndexName(any(), any()))
       .thenAnswer(invocation -> getIndexName(invocation.getArgument(0), invocation.getArgument(1)));
   }
@@ -250,6 +257,22 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verify(indexRepository).dropIndex(indexName);
+  }
+
+  @Test
+  void reindexInventory_positive_recreateIndexIsTrue_memberTenant() {
+    var expectedResponse = new ReindexJob().id(randomId());
+    var expectedUri = URI.create("http://instance-storage/reindex");
+
+    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
+    when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(INSTANCE_RESOURCE)));
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
+
+    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
+
+    assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(indexRepository);
   }
 
   @Test

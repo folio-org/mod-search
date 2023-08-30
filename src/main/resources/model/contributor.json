@@ -31,7 +31,8 @@
         },
         "shared": {
           "index": "bool",
-          "searchTypes": [ "filter" ]
+          "searchTypes": [ "filter" ],
+          "default": false
         }
       }
     },

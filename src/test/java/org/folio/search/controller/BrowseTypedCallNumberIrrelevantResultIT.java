@@ -56,7 +56,11 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "5")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    final CallNumberBrowseResult expected = new CallNumberBrowseResult().totalRecords(18).prev("3308 H976").next("3308 H981").items(List.of(
+    final CallNumberBrowseResult expected = new CallNumberBrowseResult()
+      .totalRecords(18)
+      .prev("3308 H976")
+      .next("3308 H981")
+      .items(List.of(
       cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
       cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H970"),
       cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
@@ -83,7 +87,11 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "7")
       .param("expandAll", "true");
     var result = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    final CallNumberBrowseResult expected = new CallNumberBrowseResult().prev("3308 H971").next("3308 H981").totalRecords(18).items(
+    final CallNumberBrowseResult expected = new CallNumberBrowseResult()
+      .prev("3308 H971")
+      .next("3308 H981")
+      .totalRecords(18)
+      .items(
       List.of(
         cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H971"),
         cnBrowseItem(INSTANCE_MAP.get("instance #18"), "308 H975"),

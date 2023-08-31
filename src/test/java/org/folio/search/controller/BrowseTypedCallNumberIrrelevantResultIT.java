@@ -58,19 +58,19 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     final CallNumberBrowseResult expected = new CallNumberBrowseResult()
       .totalRecords(18)
-      .prev("3308 H976")
+      .prev("3308 H975")
       .next("3308 H981")
       .items(List.of(
-      cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H970"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H973"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H974"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #09"), "308 H977", true),
-      cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H978"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H979"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #02"), "308 H980"),
-      cnBrowseItem(INSTANCE_MAP.get("instance #08"), "308 H981")
+        cnBrowseItem(INSTANCE_MAP.get("instance #18"), "308 H975"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H973"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H974"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #09"), "308 H977", true),
+        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H978"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H979"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #02"), "308 H980"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #08"), "308 H981")
     ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
     assertThat(actual).isEqualTo(expected);
@@ -88,15 +88,14 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .param("expandAll", "true");
     var result = parseResponse(doGet(request), CallNumberBrowseResult.class);
     final CallNumberBrowseResult expected = new CallNumberBrowseResult()
-      .prev("3308 H971")
       .next("3308 H981")
       .totalRecords(18)
       .items(
       List.of(
+        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H970"),
         cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H971"),
         cnBrowseItem(INSTANCE_MAP.get("instance #18"), "308 H975"),
         cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H970"),
         cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
         cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H973"),
         cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H974"),

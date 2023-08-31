@@ -18,6 +18,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.utils.CallNumberUtils;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -63,12 +64,15 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
 
-    precedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+    String callNumberType = request.getRefinedCondition();
+    precedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
       precedingResult.getRecords()));
-    succeedingResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(),
+    succeedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
       succeedingResult.getRecords()));
     if (!backwardSucceedingResult.isEmpty()) {
       log.debug("browseAround:: backward succeeding result is not empty: Update preceding result");
+      backwardSucceedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
+        backwardSucceedingResult.getRecords()));
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
     }
@@ -77,7 +81,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         && precedingResult.getTotalRecords() > 0) {
       log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
       var additionalPrecedingRequestsResult = additionalPrecedingRequests(request, context, precedingQuery);
-      precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
+      var additionalResultProcessed =
+        CallNumberUtils.excludeIrrelevantResultItems(callNumberType, additionalPrecedingRequestsResult);
+      precedingResult.setRecords(mergeSafelyToList(additionalResultProcessed, precedingResult.getRecords())
         .stream().distinct().toList());
     }
 

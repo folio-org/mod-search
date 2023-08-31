@@ -20,6 +20,7 @@
 * Implement Active Affiliation Context for Search in Consortia Mode  ([MSEARCH-533](https://issues.folio.org/browse/MSEARCH-533))
 * Add tenantId/shared fields to contributors/subjects ([MSEARCH-551](https://issues.folio.org/browse/MSEARCH-551))
 * Implement Active Affiliation Context for stream IDs in Consortia Mode ([MSEARCH-576](https://issues.folio.org/browse/MSEARCH-576))
+* Restrict central tenant queries to only shared records ([MSEARCH-588](https://issues.folio.org/browse/MSEARCH-588))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))

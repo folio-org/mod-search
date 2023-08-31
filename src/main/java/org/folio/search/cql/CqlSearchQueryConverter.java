@@ -3,6 +3,8 @@ package org.folio.search.cql;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
+import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
@@ -66,6 +68,7 @@ public class CqlSearchQueryConverter {
 
   //todo(MSEARCH-576): may be reworked after implemented for browse/streamIds.
   // Implemented separately because it crashes 'browse/streamIds' functionality.
+
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
    * Wraps base 'convert' and adds tenantId+shared filter in case of consortia mode
@@ -156,14 +159,17 @@ public class CqlSearchQueryConverter {
   private QueryBuilder filterForActiveAffiliation(QueryBuilder query) {
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
+    if (centralTenantId.isEmpty()) {
       return query;
     }
 
-    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
-    affiliationShouldClauses.add(termQuery("tenantId", contextTenantId));
-    affiliationShouldClauses.add(termQuery("shared", true));
+    var boolQuery = prepareBoolQueryForActiveAffiliation(query);
+    addActiveAffiliationClauses(boolQuery, contextTenantId, centralTenantId.get());
 
+    return boolQuery;
+  }
+
+  private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
     BoolQueryBuilder boolQuery;
     if (query instanceof MatchAllQueryBuilder) {
       boolQuery = boolQuery();
@@ -173,7 +179,11 @@ public class CqlSearchQueryConverter {
       boolQuery = boolQuery().must(query);
     }
     boolQuery.minimumShouldMatch(1);
+    return boolQuery;
+  }
 
+  private void addActiveAffiliationClauses(BoolQueryBuilder boolQuery, String contextTenantId, String centralTenantId) {
+    var affiliationShouldClauses = getAffiliationShouldClauses(contextTenantId, centralTenantId);
     if (boolQuery.should().isEmpty()) {
       affiliationShouldClauses.forEach(boolQuery::should);
     } else {
@@ -181,8 +191,24 @@ public class CqlSearchQueryConverter {
       affiliationShouldClauses.forEach(innerBoolQuery::should);
       boolQuery.must(innerBoolQuery);
     }
+  }
 
-    return boolQuery;
+  private LinkedList<QueryBuilder> getAffiliationShouldClauses(String contextTenantId, String centralTenantId) {
+    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
+    addTenantIdAffiliationShouldClause(contextTenantId, centralTenantId, affiliationShouldClauses);
+    addSharedAffiliationShouldClause(affiliationShouldClauses);
+    return affiliationShouldClauses;
+  }
+
+  private void addTenantIdAffiliationShouldClause(String contextTenantId, String centralTenantId,
+                                                  LinkedList<QueryBuilder> affiliationShouldClauses) {
+    if (!contextTenantId.equals(centralTenantId)) {
+      affiliationShouldClauses.add(termQuery(TENANT_ID_FIELD_NAME, contextTenantId));
+    }
+  }
+
+  private void addSharedAffiliationShouldClause(LinkedList<QueryBuilder> affiliationShouldClauses) {
+    affiliationShouldClauses.add(termQuery(SHARED_FIELD_NAME, true));
   }
 
   private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {

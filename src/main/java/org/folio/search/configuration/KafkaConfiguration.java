@@ -71,7 +71,7 @@ public class KafkaConfiguration {
    */
   @Bean
   public ConsumerFactory<String, ResourceEvent> resourceEventConsumerFactory() {
-    var deserializer = new JsonDeserializer<>(ResourceEvent.class);
+    var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
     Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties());
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);

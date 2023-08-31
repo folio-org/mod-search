@@ -1,6 +1,8 @@
 package org.folio.search.service.consortium;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
@@ -33,26 +35,41 @@ public class ConsortiumSearchHelper {
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query) {
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
+    if (centralTenantId.isEmpty()) {
       return query;
     }
 
-    return filterQueryForActiveAffiliation(query, contextTenantId);
+    return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get());
   }
 
-  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String tenantId) {
-    return filterQueryForActiveAffiliation(EMPTY, query, tenantId);
+  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String tenantId, String centralTenantId) {
+    return filterQueryForActiveAffiliation(EMPTY, query, tenantId, centralTenantId);
   }
 
-  public QueryBuilder filterQueryForActiveAffiliation(String subResourcePrefix, QueryBuilder query, String tenantId) {
+  public QueryBuilder filterQueryForActiveAffiliation(String fieldPrefix, QueryBuilder query, String tenantId,
+                                                      String centralTenantId) {
+    var boolQuery = prepareBoolQueryForActiveAffiliation(query);
+    addActiveAffiliationClauses(fieldPrefix, boolQuery, tenantId, centralTenantId);
 
-    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
-    affiliationShouldClauses.add(termQuery(subResourcePrefix + "tenantId", tenantId));
-    affiliationShouldClauses.add(termQuery(subResourcePrefix + "shared", true));
+    return boolQuery;
+  }
 
-    var boolQuery = getBoolQuery(query);
+  private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
+    BoolQueryBuilder boolQuery;
+    if (query instanceof MatchAllQueryBuilder) {
+      boolQuery = boolQuery();
+    } else if (query instanceof BoolQueryBuilder bq) {
+      boolQuery = bq;
+    } else {
+      boolQuery = boolQuery().must(query);
+    }
     boolQuery.minimumShouldMatch(1);
+    return boolQuery;
+  }
 
+  private void addActiveAffiliationClauses(String fieldPrefix, BoolQueryBuilder boolQuery, String contextTenantId,
+                                           String centralTenantId) {
+    var affiliationShouldClauses = getAffiliationShouldClauses(fieldPrefix, contextTenantId, centralTenantId);
     if (boolQuery.should().isEmpty()) {
       affiliationShouldClauses.forEach(boolQuery::should);
     } else {
@@ -60,8 +77,25 @@ public class ConsortiumSearchHelper {
       affiliationShouldClauses.forEach(innerBoolQuery::should);
       boolQuery.must(innerBoolQuery);
     }
+  }
 
-    return boolQuery;
+  private LinkedList<QueryBuilder> getAffiliationShouldClauses(String fieldPrefix,
+                                                               String contextTenantId, String centralTenantId) {
+    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
+    addTenantIdAffiliationShouldClause(fieldPrefix, contextTenantId, centralTenantId, affiliationShouldClauses);
+    addSharedAffiliationShouldClause(fieldPrefix, affiliationShouldClauses);
+    return affiliationShouldClauses;
+  }
+
+  private void addTenantIdAffiliationShouldClause(String fieldPrefix, String contextTenantId, String centralTenantId,
+                                                  LinkedList<QueryBuilder> affiliationShouldClauses) {
+    if (!contextTenantId.equals(centralTenantId)) {
+      affiliationShouldClauses.add(termQuery(fieldPrefix + TENANT_ID_FIELD_NAME, contextTenantId));
+    }
+  }
+
+  private void addSharedAffiliationShouldClause(String fieldPrefix, LinkedList<QueryBuilder> affiliationShouldClauses) {
+    affiliationShouldClauses.add(termQuery(fieldPrefix + SHARED_FIELD_NAME, true));
   }
 
   /**
@@ -73,7 +107,7 @@ public class ConsortiumSearchHelper {
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     var sharedFilter = getBrowseSharedFilter(browseContext);
-    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
+    if (centralTenantId.isEmpty()) {
       sharedFilter.ifPresent(filter -> browseContext.getFilters().remove(filter));
       return query;
     }
@@ -82,12 +116,12 @@ public class ConsortiumSearchHelper {
 
     var shared = sharedFilter.map(this::sharedFilterValue).orElse(true);
     if (Boolean.TRUE.equals(shared)) {
-      return filterQueryForActiveAffiliation("instances.", query, contextTenantId);
+      return filterQueryForActiveAffiliation("instances.", query, contextTenantId, centralTenantId.get());
     }
 
-    var boolQuery = getBoolQuery(query);
-    if (!boolQuery.should().isEmpty()) {
-      boolQuery.minimumShouldMatch(1);
+    var boolQuery = prepareBoolQueryForActiveAffiliation(query);
+    if (boolQuery.should().isEmpty()) {
+      boolQuery.minimumShouldMatch(null);
     }
     boolQuery.must(termQuery("instances.tenantId", contextTenantId));
 
@@ -98,16 +132,6 @@ public class ConsortiumSearchHelper {
     if (queryBuilder instanceof BoolQueryBuilder bqb) {
       bqb.filter().removeIf(filter -> filter instanceof TermQueryBuilder tqb
         && tqb.fieldName().equals(BROWSE_SHARED_FILTER_KEY));
-    }
-  }
-
-  private BoolQueryBuilder getBoolQuery(QueryBuilder query) {
-    if (query instanceof MatchAllQueryBuilder) {
-      return boolQuery();
-    } else if (query instanceof BoolQueryBuilder bq) {
-      return bq;
-    } else {
-      return boolQuery().must(query);
     }
   }
 

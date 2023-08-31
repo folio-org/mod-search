@@ -170,7 +170,7 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return cnBrowseItem(instance, shelfKey, callNumber);
+    return cnBrowseItem(instance, shelfKey.get(0), callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
@@ -179,22 +179,22 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey.get(0))
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey.get(0)).fullCallNumber(callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    var shelfKey = getShelfKeyFromCallNumber(callNumber).get(0);
     return new CallNumberBrowseItem().totalRecords(totalRecords)
       .shelfKey(shelfKey).fullCallNumber(callNumber).isAnchor(isAnchor);
   }
 
-  public static String getShelfKeyFromCallNumber(String callNumber) {
+  public static List<String> getShelfKeyFromCallNumber(String callNumber) {
     return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber);
   }
 

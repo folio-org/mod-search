@@ -2,6 +2,8 @@ package org.folio.search.cql;
 
 import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
@@ -13,18 +15,28 @@ import org.springframework.stereotype.Component;
 public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor {
 
   @Override
-  public String getSearchTerm(String inputTerm) {
-    return getValidShelfKey(new SuDocCallNumber(inputTerm))
-      .or(() -> getValidShelfKey(new NlmCallNumber(inputTerm)))
-      .or(() -> getValidShelfKey(new LCCallNumber(inputTerm)))
-      .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
-      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
-      .trim();
+  public List<String> getSearchTerm(String inputTerm) {
+
+    var searchTerms = new ArrayList<String>();
+
+    getValidShelfKey(searchTerms, new SuDocCallNumber(inputTerm));
+    getValidShelfKey(searchTerms, new NlmCallNumber(inputTerm));
+    getValidShelfKey(searchTerms, new LCCallNumber(inputTerm));
+    getValidShelfKey(searchTerms, new DeweyCallNumber(inputTerm));
+
+    if (searchTerms.isEmpty()) {
+      searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm).trim());
+    }
+
+    return searchTerms;
   }
 
-  private static Optional<String> getValidShelfKey(CallNumber value) {
-    return Optional.of(value)
+  private static void getValidShelfKey(List<String> searchTerms, CallNumber value) {
+    var term = Optional.of(value)
       .filter(CallNumber::isValid)
-      .map(CallNumber::getShelfKey);
+      .map(CallNumber::getShelfKey)
+      .map(String::trim);
+
+    term.ifPresent(searchTerms::add);
   }
 }

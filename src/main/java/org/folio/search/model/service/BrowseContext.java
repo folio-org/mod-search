@@ -1,5 +1,6 @@
 package org.folio.search.model.service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
@@ -67,5 +68,22 @@ public class BrowseContext {
    */
   public int getLimit(boolean isForward) {
     return isForward ? this.succeedingLimit : this.precedingLimit;
+  }
+
+  /**
+   * Checks if multiple anchors are present.
+   *
+   * @return {@code true} if multiple anchors are present, {@code false} - otherwise
+   */
+  public boolean isMultiAnchor() {
+    return Arrays.stream(anchor.split(",")).count() > 1;
+  }
+  /**
+   * Checks if multiple anchors are present.
+   *
+   * @return {@code true} if multiple anchors are present, {@code false} - otherwise
+   */
+  public List<String> getAnchorsList() {
+    return Arrays.asList(anchor.split(","));
   }
 }

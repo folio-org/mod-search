@@ -4,6 +4,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 
 import java.time.format.DateTimeFormatter;
@@ -21,6 +22,7 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -81,20 +83,13 @@ public class CqlTermQueryConverter {
     var fieldName = fieldsList.size() == 1 ? fieldsList.get(0) : fieldIndex;
     var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
-    var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());
 
-    var termQueryBuilder = termQueryBuilders.get(comparator);
-    if (termQueryBuilder == null) {
-      throw new UnsupportedOperationException(String.format(
-        "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
-    }
-
+    var termQueryBuilder = getTermQueryBuilder(termNode, searchTerm);
     if (CollectionUtils.isNotEmpty(fieldsList)) {
       return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));
     }
 
-    var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
-      "Invalid search field provided in the CQL query", "field", fieldName));
+    var plainFieldByPath = getPlainFieldByPath(optionalPlainFieldByPath, fieldName);
     var index = plainFieldByPath.getIndex();
     validateIndexFormat(index, termNode);
 
@@ -107,12 +102,58 @@ public class CqlTermQueryConverter {
            : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
   }
 
+  /**
+   * Provides Elasticsearch {@link BoolQueryBuilder} object for the given termNode and resource name.
+   *
+   * @param termNode - CQL term node as {@link CQLTermNode} object
+   * @param resource - resource name as {@link String} value
+   * @param fieldName - resource name as {@link String} fieldName value
+   * @return created Elasticsearch {@link BoolQueryBuilder} object
+   */
+  public BoolQueryBuilder getCallNumberQuery(CQLTermNode termNode, String resource, String fieldName) {
+
+    var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
+    List<String> searchTerms = (List<String>) getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
+
+    var plainFieldByPath = getPlainFieldByPath(optionalPlainFieldByPath, fieldName);
+    var index = plainFieldByPath.getIndex();
+    validateIndexFormat(index, termNode);
+
+    var boolQuery = boolQuery();
+    var conditions = boolQuery.should();
+
+    for (String searchTerm : searchTerms) {
+      var termQueryBuilder = getTermQueryBuilder(termNode, searchTerm);
+
+      conditions.add(termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index));
+    }
+    return boolQuery;
+  }
+
+
+  private TermQueryBuilder getTermQueryBuilder(CQLTermNode termNode, Object searchTerm) {
+    var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());
+    var termQueryBuilder = termQueryBuilders.get(comparator);
+
+    if (termQueryBuilder == null) {
+      throw new UnsupportedOperationException(String.format(
+        "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
+    }
+    return termQueryBuilder;
+  }
+
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)
       .map(searchTermProcessors::get)
       .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
       .orElse(term);
+  }
+
+  private PlainFieldDescription getPlainFieldByPath(Optional<PlainFieldDescription> plainFieldDescription,
+                                                    String fieldName) {
+    return plainFieldDescription.orElseThrow(() -> new RequestValidationException(
+      "Invalid search field provided in the CQL query", "field", fieldName));
   }
 
   private static boolean isWildcardQuery(Object query) {

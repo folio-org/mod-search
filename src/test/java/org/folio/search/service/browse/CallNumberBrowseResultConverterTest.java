@@ -255,7 +255,7 @@ class CallNumberBrowseResultConverterTest {
   private static Instance instance(String... callNumbers) {
     var items = stream(callNumbers)
       .map(callNumber -> new Item()
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber).get(0))
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
       .toList();
     return new Instance().items(items);

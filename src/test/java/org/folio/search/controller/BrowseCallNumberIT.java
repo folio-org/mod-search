@@ -102,6 +102,24 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   }
 
   @Test
+  void browseByCallNumber_browsingAroundWhenMultipleAnchors() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"J29.2\""))
+      .param("limit", "5")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "4");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229 12").items(List.of(
+        cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
+        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
+        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V2"),
+        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V3"),
+        cnBrowseItem(instance("instance #47"), "J29.2", true)
+      )));
+  }
+
+  @Test
   void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceCallNumberBrowsePath())
       .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
@@ -373,7 +391,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber).get(0)))
       .toList();
 
     return new Instance()
@@ -439,6 +457,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       List.of("instance #43", List.of("FA 42010 3546 256")),
       List.of("instance #44", List.of("CE 16 B6713 X 41993")),
       List.of("instance #45", List.of("CE 16 B6724 41993")),
+      List.of("instance #47", List.of("J29.2")),
       List.of("instance #46", List.of("F  PR1866.S63 V.1 C.1"))
     );
   }

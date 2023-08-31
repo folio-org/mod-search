@@ -160,7 +160,18 @@ public class BrowseContextProvider {
   }
 
   private static String getAnchor(RangeQueryBuilder rangeQuery) {
-    return rangeQuery.from() != null ? (String) rangeQuery.from() : (String) rangeQuery.to();
+    var anchor = rangeQuery.from() != null ? rangeQuery.from() : rangeQuery.to();
+    if (anchor instanceof List<?>) {
+        return getMultipleAnchors((List) anchor);
+    }
+    return (String) anchor;
+  }
+
+  private static String getMultipleAnchors(List<String> anchors) {
+    if (anchors.size() == 1) {
+      return anchors.get(0);
+    }
+    return String.join(",", anchors);
   }
 
   private static String validateAndGetAnchorForBrowsingAround(BrowseRequest request, List<QueryBuilder> shouldClauses) {

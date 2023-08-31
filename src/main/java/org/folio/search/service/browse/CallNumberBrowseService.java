@@ -4,6 +4,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
+  public static final String CALL_NUMBER_FIELD = "callNumber";
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
   private static final int ADDITIONAL_REQUEST_SIZE_MAX = 500;
   private final SearchRepository searchRepository;
@@ -37,8 +41,21 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     log.debug("browseInOneDirection:: by: [request: {}]", request);
 
     var isBrowsingForward = context.isBrowsingForward();
-    var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
-    var searchResponse = searchRepository.search(request, searchSource);
+    SearchResponse searchResponse = null;
+
+    if (context.isMultiAnchor()) {
+      var anchors = context.getAnchorsList();
+      for (String anchor : anchors){
+        context = buildBrowseContext(context, anchor);
+        var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
+        searchResponse = searchRepository.search(request, searchSource);
+        if (isAnchorPresent(searchResponse, context))
+          break;
+      }
+    } else {
+      var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
+      searchResponse = searchRepository.search(request, searchSource);
+    }
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
     var records = browseResult.getRecords();
     return new BrowseResult<CallNumberBrowseItem>()
@@ -51,12 +68,23 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.debug("browseAround:: by: [request: {}]", request);
+    MultiSearchResponse.Item[] responses = {};
+    var precedingQuery = callNumberBrowseQueryProvider.get(request, context,false);
 
-    var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
-    var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
-    var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
+    if (context.isMultiAnchor()) {
+      var anchors = context.getAnchorsList();
+      for (String anchor : anchors){
+        context = buildBrowseContext(context, anchor);
+        precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
 
-    var responses = multiSearchResponse.getResponses();
+        responses = getBrowseAround(request, context, precedingQuery);
+        if (isAnchorPresent(responses[0].getResponse(), context))
+          break;
+      }
+    } else {
+      responses = getBrowseAround(request, context, precedingQuery);
+    }
+
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
@@ -95,6 +123,14 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return browseItem.getShelfKey();
   }
 
+  private MultiSearchResponse.Item[] getBrowseAround(BrowseRequest request, BrowseContext context,
+                                                     SearchSourceBuilder precedingQuery) {
+    var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
+    var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
+
+    return multiSearchResponse.getResponses();
+  }
+
   private List<CallNumberBrowseItem> additionalPrecedingRequests(BrowseRequest request,
                                                                          BrowseContext context,
                                                                          SearchSourceBuilder precedingQuery) {
@@ -120,6 +156,24 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       log.debug("additionalPrecedingRequests:: response have new {} records", precedingResult.getRecords().size());
     }
     return additionalPrecedingRecords;
+  }
+
+  private boolean isAnchorPresent(SearchResponse searchResponse, BrowseContext context) {
+    var items = callNumberBrowseResultConverter.
+      convert(searchResponse, context, true).getRecords();
+
+    return isNotEmpty(items) && StringUtils.equals(items.get(0).getShelfKey(), context.getAnchor());
+  }
+
+  private BrowseContext buildBrowseContext(BrowseContext context, String anchor) {
+    return BrowseContext.builder()
+      .precedingQuery(context.getPrecedingQuery())
+      .succeedingQuery(context.getSucceedingQuery())
+      .filters(context.getFilters())
+      .anchor(anchor)
+      .precedingLimit(context.getPrecedingLimit())
+      .succeedingLimit(context.getSucceedingLimit())
+      .build();
   }
 
   private static void highlightMatchingCallNumber(BrowseContext ctx,

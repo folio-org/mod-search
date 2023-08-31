@@ -1,5 +1,6 @@
 package org.folio.search.cql;
 
+import static org.folio.search.service.browse.CallNumberBrowseService.CALL_NUMBER_FIELD;
 import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
 import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
 import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
@@ -108,6 +109,9 @@ public class CqlSearchQueryConverter {
       cqlNode = cqlSortNode.getSubtree();
     }
     if (cqlNode instanceof CQLTermNode cqlTermNode) {
+      if (CALL_NUMBER_FIELD.equals(cqlTermNode.getIndex())) {
+        cqlTermQueryConverter.getCallNumberQuery(cqlTermNode, resource, CALL_NUMBER_FIELD);
+      }
       return cqlTermQueryConverter.getQuery(cqlTermNode, resource);
     }
     if (cqlNode instanceof CQLBooleanNode cqlBooleanNode) {

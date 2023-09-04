@@ -81,9 +81,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         && precedingResult.getTotalRecords() > 0) {
       log.debug("getPrecedingResult:: preceding result are empty: Do additional requests");
       var additionalPrecedingRequestsResult = additionalPrecedingRequests(request, context, precedingQuery);
-      var additionalResultProcessed =
-        CallNumberUtils.excludeIrrelevantResultItems(callNumberType, additionalPrecedingRequestsResult);
-      precedingResult.setRecords(mergeSafelyToList(additionalResultProcessed, precedingResult.getRecords())
+      precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
         .stream().distinct().toList());
     }
 
@@ -127,7 +125,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         break;
       }
       var precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
-      additionalPrecedingRecords = mergeSafelyToList(additionalPrecedingRecords, precedingResult.getRecords());
+      var mergedList = mergeSafelyToList(additionalPrecedingRecords, precedingResult.getRecords());
+      additionalPrecedingRecords = CallNumberUtils
+                                   .excludeIrrelevantResultItems(request.getRefinedCondition(), mergedList);
       offset = precedingQuery.from() + precedingQuery.size();
       log.debug("additionalPrecedingRequests:: response have new {} records", precedingResult.getRecords().size());
     }

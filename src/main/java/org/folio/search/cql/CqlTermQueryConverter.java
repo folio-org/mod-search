@@ -84,6 +84,10 @@ public class CqlTermQueryConverter {
     var optionalPlainFieldByPath = searchFieldProvider.getPlainFieldByPath(resource, fieldName);
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
 
+    if (searchTerm instanceof List<?> && ((List<?>) searchTerm).size() == 1) {
+      searchTerm = ((List<?>) searchTerm).get(0);
+    }
+
     var termQueryBuilder = getTermQueryBuilder(termNode, searchTerm);
     if (CollectionUtils.isNotEmpty(fieldsList)) {
       return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));

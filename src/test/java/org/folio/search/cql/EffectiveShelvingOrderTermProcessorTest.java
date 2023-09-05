@@ -4,13 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import java.util.Optional;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
 import org.marc4j.callnum.NlmCallNumber;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @UnitTest
 class EffectiveShelvingOrderTermProcessorTest {
@@ -26,9 +30,12 @@ class EffectiveShelvingOrderTermProcessorTest {
     "K 11 M44 V 270 NO 11 16 41984 JAN JUNE 11"
   })
   void getSearchTerm_parameterized_validShelfKey(String given) {
-    var expected = new LCCallNumber(given).getShelfKey();
+    var expectedLC = new LCCallNumber(given).getShelfKey();
+    var expectedSuDoc = Optional.of(new SuDocCallNumber(given));
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+
+    assertThat(actual).contains(expectedLC);
+    assertSuDocCallNumber(expectedSuDoc, actual);
   }
 
   @ParameterizedTest
@@ -37,9 +44,12 @@ class EffectiveShelvingOrderTermProcessorTest {
     "DA880 o6 j18", "raw2", "isju2ng", "RAW 2", "T 22.1:866"
   })
   void getSearchTerm_parameterized_callNumber(String given) {
-    var expected = new LCCallNumber(given).getShelfKey();
+    var expectedLC = new LCCallNumber(given).getShelfKey();
+    var expectedSuDoc = Optional.of(new SuDocCallNumber(given));
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+
+    assertThat(actual).contains(expectedLC);
+    assertSuDocCallNumber(expectedSuDoc, actual);
   }
 
   @ParameterizedTest
@@ -53,7 +63,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   void getSearchTerm_parameterized_validNlmCallNumber(String given) {
     var expected = new NlmCallNumber(given).getShelfKey().trim();
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).contains(expected);
   }
 
   @ParameterizedTest
@@ -71,7 +81,7 @@ class EffectiveShelvingOrderTermProcessorTest {
 
     assertFalse(nlmCallNumber.isValid());
     assertTrue(lcCallNumber.isValid());
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).contains(expected);
   }
 
   @ParameterizedTest
@@ -80,7 +90,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   void getSearchTerm_parameterized_deweyDecimalNumbers(String given) {
     var expected = new DeweyCallNumber(given).getShelfKey().trim();
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).contains(expected);
   }
 
   @ParameterizedTest
@@ -90,20 +100,28 @@ class EffectiveShelvingOrderTermProcessorTest {
   void getSearchTerm_parameterized_validDeweyDecimalShelfKey(String given) {
     var expected = new DeweyCallNumber(given).getShelfKey().trim();
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).contains(expected);
   }
 
   @ParameterizedTest
   @CsvSource({"rack №1, RACK  1", "raw, RAW", "unknown, UNKNOWN"})
   void getSearchTerm_parameterized_freeText(String given, String expected) {
     var actual = searchTermProcessor.getSearchTerm(given);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).contains(expected);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"", "  ", "   "})
   void getSearchTerm_parameterized_emptyValues(String searchTerm) {
     var actual = searchTermProcessor.getSearchTerm(searchTerm);
+    actual.removeIf(StringUtils::isEmpty);
     assertThat(actual).isEmpty();
+  }
+
+  void assertSuDocCallNumber(Optional<SuDocCallNumber> expectedSuDoc, List<String> actual) {
+    expectedSuDoc
+      .filter(CallNumber::isValid)
+      .map(CallNumber::getShelfKey)
+      .ifPresent(expected -> assertThat(actual).contains(expected));
   }
 }

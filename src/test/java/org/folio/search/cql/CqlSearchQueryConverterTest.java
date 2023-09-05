@@ -65,6 +65,7 @@ class CqlSearchQueryConverterTest {
   private static final String[] TITLE_FIELDS = new String[] {"title.*", "source.*", "source"};
   private static final String TITLE_SEARCH_TYPE = "title";
   private static final String FIELD = "field";
+  private static final String SHARED_FIELD = "shared";
 
   @Autowired
   private CqlSearchQueryConverter cqlSearchQueryConverter;
@@ -364,7 +365,7 @@ class CqlSearchQueryConverterTest {
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .filter(termQuery("f1", "value"))
       .should(termQuery("tenantId", TENANT_ID))
-      .should(termQuery("shared", true))
+      .should(termQuery(SHARED_FIELD, true))
       .minimumShouldMatch(1)));
   }
 
@@ -376,7 +377,10 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "f1==value";
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
     assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery().filter(termQuery("f1", "value"))));
+      boolQuery()
+        .filter(termQuery("f1", "value"))
+        .should(termQuery(SHARED_FIELD, true))
+        .minimumShouldMatch(1)));
   }
 
   @Test
@@ -388,7 +392,7 @@ class CqlSearchQueryConverterTest {
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
         .should(termQuery("tenantId", TENANT_ID))
-        .should(termQuery("shared", true))
+        .should(termQuery(SHARED_FIELD, true))
         .minimumShouldMatch(1)));
   }
 
@@ -404,7 +408,7 @@ class CqlSearchQueryConverterTest {
         .should(termQuery("f2", "v2"))
         .must(boolQuery()
           .should(termQuery("tenantId", TENANT_ID))
-          .should(termQuery("shared", true)))
+          .should(termQuery(SHARED_FIELD, true)))
         .minimumShouldMatch(1)
     ));
   }

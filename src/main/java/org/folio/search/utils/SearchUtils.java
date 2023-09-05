@@ -37,6 +37,8 @@ public class SearchUtils {
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
+  public static final String SHARED_FIELD_NAME = "shared";
+  public static final String TENANT_ID_FIELD_NAME = "tenantId";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";

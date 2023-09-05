@@ -2,7 +2,7 @@ package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
-import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
 import com.google.common.base.CaseFormat;
 import java.util.Collections;

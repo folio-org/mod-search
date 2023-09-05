@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-base.version>7.1.0</folio-spring-base.version>
+    <folio-spring-support.version>7.2.0-SNAPSHOT</folio-spring-support.version>
     <folio-service-tools.version>3.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.5.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.0.6</folio-cql2pgjson.version>
@@ -70,7 +70,12 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-base</artifactId>
-      <version>${folio-spring-base.version}</version>
+      <version>${folio-spring-support.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-spring-system-user</artifactId>
+      <version>${folio-spring-support.version}</version>
     </dependency>
 
     <dependency>

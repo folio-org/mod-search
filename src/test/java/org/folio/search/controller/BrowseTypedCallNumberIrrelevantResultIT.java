@@ -14,6 +14,7 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -112,8 +113,44 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
+  void browseByCallNumber_browsingAroundPrecedingRecordsWithSame10FirstSymbols() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "E 3184 S75 1234"))
+      .param("limit", "19")
+      .param("callNumberType", "lc")
+      .param("expandAll", "true")
+      .param("highlightMatch", "true")
+      .param("precedingRecordsCount", "9");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(66).prev("C 223 3987").next("E 43184 S75 41243").items(List.of(
+        cnBrowseItem(INSTANCE_MAP.get("instance #134"), "C23 987"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #133"), "D15.H63 A3 2002"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #127"), "E 3184 S74 5671"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #128"), "E 3184 S74 5672"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #129"), "E 3184 S74 5673"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #130"), "E 3184 S74 5674"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #102"), "E 3184 S75 1231"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #101"), "E 3184 S75 1232"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #103"), "E 3184 S75 1233"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #104"), "E 3184 S75 1234", true),
+        cnBrowseItem(INSTANCE_MAP.get("instance #105"), "E 3184 S75 1235"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #106"), "E 3184 S75 1236"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #107"), "E 3184 S75 1237"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #108"), "E 3184 S75 1238"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #109"), "E 3184 S75 1239"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #110"), "E 3184 S75 1240"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #111"), "E 3184 S75 1241"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #112"), "E 3184 S75 1242"),
+        cnBrowseItem(INSTANCE_MAP.get("instance #113"), "E 3184 S75 1243")
+      )));
+  }
+
   private static Instance[] instances() {
-    Map<String, List<List<String>>> collectedByTitle = callNumberBrowseInstanceData()
+    List<List<String>> instanceData = new ArrayList<>(callNumberBrowseInstanceData());
+    instanceData.addAll(callNumberBrowseInstanceDataContinued());
+    Map<String, List<List<String>>> collectedByTitle = instanceData
       .stream()
       .collect(groupingBy(d -> d.get(2)));
 
@@ -175,6 +212,47 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H988", "instance #20"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H989", "instance #18"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H990", "instance #81")
+    );
+  }
+
+  private static List<List<String>> callNumberBrowseInstanceDataContinued() {
+    return List.of(
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S74 5671", "instance #127"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S74 5672", "instance #128"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S74 5673", "instance #129"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S74 5674", "instance #130"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "A 3184 S74 ", "instance #131"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "A 3184 S75 1235", "instance #132"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "D15.H63 A3 2002", "instance #133"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "C23 987", "instance #134"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1231", "instance #102"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1232", "instance #101"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1233", "instance #103"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1234", "instance #104"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1235", "instance #105"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1236", "instance #106"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1237", "instance #107"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1238", "instance #108"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1239", "instance #109"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1240", "instance #110"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1241", "instance #111"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1242", "instance #112"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1243", "instance #113"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1244", "instance #114"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1245", "instance #115"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1246", "instance #116"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S76 1247", "instance #117"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1248", "instance #118"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1249", "instance #119"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1250", "instance #120"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1251", "instance #121"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1252", "instance #122"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1253", "instance #123"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "E 3184 S75 1254", "instance #124"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "G75 1255", "instance #135"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "PR 213 E5 41999", "instance #136"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "GA 16 D64 41548A", "instance #137"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "FA 42010 3546 256", "instance #138")
     );
   }
 }

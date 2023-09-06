@@ -137,7 +137,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber).get(0)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .toList();
 
     return new Instance()

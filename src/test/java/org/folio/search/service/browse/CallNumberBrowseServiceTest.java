@@ -327,7 +327,7 @@ class CallNumberBrowseServiceTest {
   private static Instance instance(String... callNumbers) {
     var items = stream(callNumbers)
       .map(callNumber -> new Item()
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber).get(0))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber)))
       .toList();
     return new Instance().items(items);
@@ -357,7 +357,7 @@ class CallNumberBrowseServiceTest {
   private static CallNumberBrowseItem browseItem(String callNumber) {
     return new CallNumberBrowseItem()
       .fullCallNumber(callNumber)
-      .shelfKey(getShelfKeyFromCallNumber(callNumber).get(0))
+      .shelfKey(getShelfKeyFromCallNumber(callNumber))
       .instance(instance(callNumber))
       .totalRecords(1);
   }

@@ -170,7 +170,7 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return cnBrowseItem(instance, shelfKey.get(0), callNumber);
+    return cnBrowseItem(instance, shelfKey, callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
@@ -179,23 +179,23 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey.get(0))
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey.get(0)).fullCallNumber(callNumber);
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber).get(0);
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
     return new CallNumberBrowseItem().totalRecords(totalRecords)
       .shelfKey(shelfKey).fullCallNumber(callNumber).isAnchor(isAnchor);
   }
 
-  public static List<String> getShelfKeyFromCallNumber(String callNumber) {
-    return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber);
+  public static String getShelfKeyFromCallNumber(String callNumber) {
+    return SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber).get(0);
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

@@ -83,6 +83,7 @@ public class BrowseContext {
    *
    * @return {@code true} if multiple anchors are present, {@code false} - otherwise
    */
+
   public List<String> getAnchorsList() {
     return Arrays.asList(anchor.split(","));
   }

@@ -175,7 +175,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(callNumber).typeId(data.get(2).toString()))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber).get(0)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .toList();
 
     return new Instance()

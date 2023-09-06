@@ -162,7 +162,7 @@ public class BrowseContextProvider {
   private static String getAnchor(RangeQueryBuilder rangeQuery) {
     var anchor = rangeQuery.from() != null ? rangeQuery.from() : rangeQuery.to();
     if (anchor instanceof List<?>) {
-        return getMultipleAnchors((List) anchor);
+      return getMultipleAnchors((List) anchor);
     }
     return (String) anchor;
   }

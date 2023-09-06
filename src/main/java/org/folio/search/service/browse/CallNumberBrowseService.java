@@ -45,12 +45,13 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     if (context.isMultiAnchor()) {
       var anchors = context.getAnchorsList();
-      for (String anchor : anchors){
+      for (String anchor : anchors) {
         context = buildBrowseContext(context, anchor);
         var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
         searchResponse = searchRepository.search(request, searchSource);
-        if (isAnchorPresent(searchResponse, context))
+        if (isAnchorPresent(searchResponse, context)) {
           break;
+        }
       }
     } else {
       var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
@@ -69,17 +70,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.debug("browseAround:: by: [request: {}]", request);
     MultiSearchResponse.Item[] responses = {};
-    var precedingQuery = callNumberBrowseQueryProvider.get(request, context,false);
+    var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
 
     if (context.isMultiAnchor()) {
       var anchors = context.getAnchorsList();
-      for (String anchor : anchors){
+      for (String anchor : anchors) {
         context = buildBrowseContext(context, anchor);
         precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
 
         responses = getBrowseAround(request, context, precedingQuery);
-        if (isAnchorPresent(responses[0].getResponse(), context))
+        if (isAnchorPresent(responses[0].getResponse(), context)) {
           break;
+        }
       }
     } else {
       responses = getBrowseAround(request, context, precedingQuery);
@@ -159,8 +161,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   private boolean isAnchorPresent(SearchResponse searchResponse, BrowseContext context) {
-    var items = callNumberBrowseResultConverter.
-      convert(searchResponse, context, true).getRecords();
+    var items = callNumberBrowseResultConverter.convert(searchResponse, context, true).getRecords();
 
     return isNotEmpty(items) && StringUtils.equals(items.get(0).getShelfKey(), context.getAnchor());
   }

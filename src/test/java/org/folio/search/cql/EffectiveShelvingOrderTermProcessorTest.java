@@ -30,11 +30,11 @@ class EffectiveShelvingOrderTermProcessorTest {
     "K 11 M44 V 270 NO 11 16 41984 JAN JUNE 11"
   })
   void getSearchTerm_parameterized_validShelfKey(String given) {
-    var expectedLC = new LCCallNumber(given).getShelfKey();
+    var expectedLc = new LCCallNumber(given).getShelfKey();
     var expectedSuDoc = Optional.of(new SuDocCallNumber(given));
     var actual = searchTermProcessor.getSearchTerm(given);
 
-    assertThat(actual).contains(expectedLC);
+    assertThat(actual).contains(expectedLc);
     assertSuDocCallNumber(expectedSuDoc, actual);
   }
 
@@ -44,11 +44,11 @@ class EffectiveShelvingOrderTermProcessorTest {
     "DA880 o6 j18", "raw2", "isju2ng", "RAW 2", "T 22.1:866"
   })
   void getSearchTerm_parameterized_callNumber(String given) {
-    var expectedLC = new LCCallNumber(given).getShelfKey();
+    var expectedLc = new LCCallNumber(given).getShelfKey();
     var expectedSuDoc = Optional.of(new SuDocCallNumber(given));
     var actual = searchTermProcessor.getSearchTerm(given);
 
-    assertThat(actual).contains(expectedLC);
+    assertThat(actual).contains(expectedLc);
     assertSuDocCallNumber(expectedSuDoc, actual);
   }
 

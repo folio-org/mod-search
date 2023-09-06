@@ -146,19 +146,37 @@ class BrowseContributorConsortiumIT extends BaseIntegrationTest {
   }
 
   @Test
-  void browseByContributor_withNameAndConsortiumInstanceFilter() {
+  void browseByContributor_shared() {
     var request = get(instanceContributorBrowsePath()).param("query",
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
         + "and instances.shared==true").param("limit", "5");
 
     var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
-    var expected = new InstanceContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
+    var expected = new InstanceContributorBrowseResult().totalRecords(12).prev(null).next("George Harrison").items(
       List.of(
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(2, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+          TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
         contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0]),
-        contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1])));
+        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])));
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByContributor_local() {
+    var request = get(instanceContributorBrowsePath()).param("query",
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
+        + "and instances.shared==false").param("limit", "5");
+
+    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
+    var expected = new InstanceContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
+      List.of(
+        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+          TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
+        contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0])));
 
     assertThat(actual).isEqualTo(expected);
   }

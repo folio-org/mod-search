@@ -117,7 +117,7 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
   }
 
   @Test
-  void browseBySubject_browsingAroundWithConsortiumInstanceFilter() {
+  void browseBySubject_browsingAround_shared() {
     var request = get(instanceSubjectBrowsePath())
       .param("query", "("
         + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
@@ -126,13 +126,32 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(10).prev("Music")
+      .totalRecords(23).prev("Philosophy").next("Science--Methodology")
       .items(List.of(
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
-        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
+        subjectBrowseItem(1, "Philosophy"),
+        subjectBrowseItem(1, "Religion"),
         subjectBrowseItem(1, "Rules", true),
-        subjectBrowseItem(1, "Text"),
-        subjectBrowseItem(1, "United States"))));
+        subjectBrowseItem(1, "Science"),
+        subjectBrowseItem(1, "Science--Methodology"))));
+  }
+
+  @Test
+  void browseBySubject_browsingAround_local() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", "("
+        + prepareQuery("value < {value} or value >= {value}", "\"Science\"") + ") "
+        + "and instances.shared==false")
+      .param("limit", "5")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(15).prev("Philosophy").next("Science--Philosophy")
+      .items(List.of(
+        subjectBrowseItem(1, "Philosophy"),
+        subjectBrowseItem(1, "Religion"),
+        subjectBrowseItem(1, "Science", true),
+        subjectBrowseItem(1, "Science--Methodology"),
+        subjectBrowseItem(1, "Science--Philosophy"))));
   }
 
   //todo: move 4 methods below to consortium integration test base in a scope of MSEARCH-562

@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.disMaxQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
@@ -25,9 +28,11 @@ import java.util.function.Supplier;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,8 +58,16 @@ class CallNumberBrowseQueryProviderTest {
   private SearchFieldProvider searchFieldProvider;
   @Mock
   private CallNumberBrowseRangeService browseRangeService;
+  @Mock
+  private ConsortiumSearchHelper consortiumSearchHelper;
   @InjectMocks
   private CallNumberBrowseQueryProvider queryProvider;
+
+  @BeforeEach
+  public void setUpMocks() {
+    lenient().doAnswer(invocation -> invocation.getArgument(0))
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
+  }
 
   @Test
   void get_positive_forward() {
@@ -103,6 +116,19 @@ class CallNumberBrowseQueryProviderTest {
 
     var expectedRangeQuery = rangeQuery(RANGE_FIELD).gte(ANCHOR_AS_NUMBER).lte(100L);
     assertThat(actual).isEqualTo(expectedSucceedingQuery(size, expectedRangeQuery));
+    verify(queryConfiguration).getRangeQueryLimitMultiplier();
+  }
+
+  @Test
+  void get_positive_forwardConsortium() {
+    var query = disMaxQuery();
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
+    var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
+
+    var actual = mockCallNumberConversion(() -> queryProvider.get(request(false), context, true));
+    assertThat(actual)
+      .isEqualTo(expectedSucceedingQuery(25).query(query).fetchSource(new String[] {"id", "title"}, null));
     verify(queryConfiguration).getRangeQueryLimitMultiplier();
   }
 

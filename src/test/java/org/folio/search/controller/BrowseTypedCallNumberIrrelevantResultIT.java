@@ -50,7 +50,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
   void browseByCallNumber_browsingAroundWithEnabledIntermediateValues() {
     var request = get(instanceCallNumberBrowsePath())
       .param("callNumberType", "dewey")
-      .param("query", prepareQuery("typedCallNumber >= {value} or typedCallNumber < {value}", "308 H970"))
+      .param("query", prepareQuery("typedCallNumber >= {value} or typedCallNumber < {value}", "308 H977"))
       .param("limit", "10")
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "5")

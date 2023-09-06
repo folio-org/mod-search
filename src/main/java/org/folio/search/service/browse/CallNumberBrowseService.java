@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.folio.search.utils.CallNumberUtils.excludeIrrelevantResultItems;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
+import org.folio.search.utils.CallNumberUtils;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +61,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
     var records = browseResult.getRecords();
+    browseResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(), records));
     return new BrowseResult<CallNumberBrowseItem>()
       .records(trim(records, context, isBrowsingForward))
       .totalRecords(browseResult.getTotalRecords())
@@ -91,8 +94,15 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
 
+    String callNumberType = request.getRefinedCondition();
+    precedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
+      precedingResult.getRecords()));
+    succeedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
+      succeedingResult.getRecords()));
     if (!backwardSucceedingResult.isEmpty()) {
       log.debug("browseAround:: backward succeeding result is not empty: Update preceding result");
+      backwardSucceedingResult.setRecords(excludeIrrelevantResultItems(callNumberType,
+        backwardSucceedingResult.getRecords()));
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
     }
@@ -153,7 +163,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         break;
       }
       var precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
-      additionalPrecedingRecords = mergeSafelyToList(additionalPrecedingRecords, precedingResult.getRecords());
+      var mergedList = mergeSafelyToList(additionalPrecedingRecords, precedingResult.getRecords());
+      additionalPrecedingRecords = CallNumberUtils
+                                   .excludeIrrelevantResultItems(request.getRefinedCondition(), mergedList);
       offset = precedingQuery.from() + precedingQuery.size();
       log.debug("additionalPrecedingRequests:: response have new {} records", precedingResult.getRecords().size());
     }

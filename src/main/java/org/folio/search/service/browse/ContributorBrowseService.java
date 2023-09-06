@@ -11,6 +11,7 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import one.util.streamex.StreamEx;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
@@ -20,6 +21,7 @@ import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortMode;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
+@RequiredArgsConstructor
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
@@ -34,12 +37,15 @@ public class ContributorBrowseService extends
   private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
   private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.contributorTypeId";
 
+  private final ConsortiumSearchHelper consortiumSearchHelper;
+
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
     var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    return searchSource().query(boolQuery)
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery);
+    return searchSource().query(query)
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }
@@ -56,6 +62,7 @@ public class ContributorBrowseService extends
       ctx.getFilters().forEach(boolQuery::filter);
       query = boolQuery;
     }
+    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query);
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), null, null, null})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
@@ -77,7 +84,7 @@ public class ContributorBrowseService extends
                                                                           boolean isAnchor) {
     return BrowseResult.of(res)
       .map(item -> {
-        var filteredInstanceResources = filterSubResourcesForConsortium(context, item,
+        var filteredInstanceResources = consortiumSearchHelper.filterSubResourcesForConsortium(context, item,
           ContributorResource::getInstances);
         var typeIds = filteredInstanceResources.stream()
           .map(InstanceSubResource::getTypeId)

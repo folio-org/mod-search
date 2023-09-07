@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
-  public static final String CALL_NUMBER_FIELD = "callNumber";
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
   private static final int ADDITIONAL_REQUEST_SIZE_MAX = 500;
   private final SearchRepository searchRepository;
@@ -82,7 +81,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
 
         responses = getBrowseAround(request, context, precedingQuery);
-        if (isAnchorPresent(responses[0].getResponse(), context)) {
+        if (isAnchorPresent(responses[1].getResponse(), context)) {
           break;
         }
       }

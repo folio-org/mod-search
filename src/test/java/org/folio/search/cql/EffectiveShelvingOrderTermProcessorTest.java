@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
@@ -22,6 +23,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   private final EffectiveShelvingOrderTermProcessor searchTermProcessor = new EffectiveShelvingOrderTermProcessor();
 
   @ParameterizedTest
+  @NullSource
   @ValueSource(strings = {
     "T22.19:M54/990",
     "A 11", "DA 3880", "A 210", "ZA 3123", "DA 3880 O6",

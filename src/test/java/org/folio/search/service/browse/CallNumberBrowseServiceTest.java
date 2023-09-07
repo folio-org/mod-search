@@ -43,6 +43,7 @@ import org.z3950.zing.cql.CQLTermNode;
 class CallNumberBrowseServiceTest {
 
   private static final String ANCHOR = "B";
+  private static final String MULTIPLE_ANCHOR = "B,A";
   @InjectMocks
   private CallNumberBrowseService callNumberBrowseService;
 
@@ -194,6 +195,26 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
+  void browse_positive_forwardMultipleAnchors() {
+    var request = request("callNumber >= B", false);
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var multiAnchorContext = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(MULTIPLE_ANCHOR)
+      .build();
+    var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR).build();
+
+    when(browseContextProvider.get(request)).thenReturn(multiAnchorContext);
+    when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
+    when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(
+      BrowseResult.of(1, browseItems("B")));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(1, "B", null, List.of(
+      cnBrowseItem(instance("B"), "B"))));
+  }
+
+  @Test
   void browse_positive_emptyAnchor() {
     var request = request("callNumber >= []", false);
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
@@ -203,6 +224,26 @@ class CallNumberBrowseServiceTest {
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
+  }
+
+  @Test
+  void browse_positive_MultipleAnchors() {
+    var request = request("callNumber >= B or callNumber < B", true);
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
+    prepareMockForBrowsingAround(request,
+      contextAroundIncludingMultipleAnchors("B", MULTIPLE_ANCHOR),
+      BrowseResult.of(1, browseItems("A 11", "A 12")),
+      BrowseResult.of(1, browseItems("B")));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
+      cnBrowseItem(instance("A 11"), "A 11"),
+      cnBrowseItem(instance("A 12"), "A 12"),
+      cnBrowseItem(instance("B"), "B", true)
+    )));
   }
 
   @Test
@@ -334,12 +375,16 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseContext contextAroundIncluding() {
+    return contextAroundIncludingMultipleAnchors(ANCHOR, ANCHOR);
+  }
+
+  private static BrowseContext contextAroundIncludingMultipleAnchors(String anchor, String searchTerm) {
     return BrowseContext.builder()
-      .precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR))
-      .succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR))
+      .precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(searchTerm))
+      .succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(searchTerm))
       .precedingLimit(2)
       .succeedingLimit(3)
-      .anchor(ANCHOR)
+      .anchor(anchor)
       .build();
   }
 

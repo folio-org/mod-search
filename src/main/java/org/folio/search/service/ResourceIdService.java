@@ -26,7 +26,7 @@ import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
-import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

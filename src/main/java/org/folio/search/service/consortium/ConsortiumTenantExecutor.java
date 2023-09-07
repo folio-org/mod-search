@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Component;
 
 @Log4j2

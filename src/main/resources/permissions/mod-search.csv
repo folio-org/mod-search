@@ -3,3 +3,4 @@ inventory-storage.identifier-types.collection.get
 inventory-storage.alternative-title-types.collection.get
 inventory-storage.call-number-types.collection.get
 users.collection.get
+user-tenants.collection.get

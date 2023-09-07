@@ -6,9 +6,12 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.searchResult;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.disMaxQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
@@ -28,6 +31,7 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
@@ -63,12 +67,16 @@ class AuthorityBrowseServiceTest {
   @Mock
   private SearchFieldProvider searchFieldProvider;
   @Mock
+  private ConsortiumSearchHelper consortiumSearchHelper;
+  @Mock
   private SearchResponse searchResponse;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @BeforeEach
   void setUp() {
+    doAnswer(invocation -> invocation.getArgument(0))
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
     authorityBrowseService.setDocumentConverter(documentConverter);
     authorityBrowseService.setSearchRepository(searchRepository);
     authorityBrowseService.setBrowseContextProvider(browseContextProvider);
@@ -311,6 +319,28 @@ class AuthorityBrowseServiceTest {
     var actual = authorityBrowseService.browse(request);
     assertThat(actual).isEqualTo(BrowseResult.of(10, null, null, List.of(
       browseItem("r1"), browseItem("r2"), browseItem("s1"), browseItem("s2"), browseItem("s3"))));
+  }
+
+  @Test
+  void getSearchQuery_positive_consortium() {
+    var query = disMaxQuery();
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+
+    var actual = authorityBrowseService.getSearchQuery(
+      BrowseRequest.builder().targetField("test").build(),
+      BrowseContext.builder().anchor("test").succeedingLimit(1).build(), true);
+    assertThat(actual.query()).isEqualTo(query);
+  }
+
+  @Test
+  void getAnchorSearchQuery_positive_consortium() {
+    var query = disMaxQuery();
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+
+    var actual = authorityBrowseService.getSearchQuery(
+      BrowseRequest.builder().targetField("test").build(),
+      BrowseContext.builder().anchor("test").succeedingLimit(1).build(), true);
+    assertThat(actual.query()).isEqualTo(query);
   }
 
   private static SearchSourceBuilder searchSource(String heading, int size, SortOrder sortOrder) {

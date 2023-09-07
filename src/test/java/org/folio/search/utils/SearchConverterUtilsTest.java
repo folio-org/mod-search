@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -25,10 +26,18 @@ class SearchConverterUtilsTest {
 
   @MethodSource("getValueByPathProvider")
   @DisplayName("should receive value by path")
-  @ParameterizedTest(name = "[{index}] path={1}, expected={2}")
+  @ParameterizedTest(name = "[{index}] path={0}, expected={2}")
   void getValueByPath(String path, Map<String, Object> document, Object expected) {
     var actual = SearchConverterUtils.getMapValueByPath(path, document);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @MethodSource("setValueByPathProvider")
+  @DisplayName("should receive value by path")
+  @ParameterizedTest(name = "[{index}] path={0}, expected={3}")
+  void setValueByPath(String path, Object value, Map<String, Object> document, Object expected) {
+    SearchConverterUtils.setMapValueByPath(path, value, document);
+    assertThat(document).isEqualTo(expected);
   }
 
   @Test
@@ -89,6 +98,21 @@ class SearchConverterUtilsTest {
         mapOf("value", "rus"), mapOf("value", "eng"))), List.of("rus", "eng")),
       arguments("$.languages", mapOf("languages", List.of(
         mapOf("value", "rus"), mapOf("value", "eng"))), List.of(mapOf("value", "rus"), mapOf("value", "eng")))
+    );
+  }
+
+  private static Stream<Arguments> setValueByPathProvider() {
+    String tenantId = "test-tenant";
+    return Stream.of(
+      arguments("$.tenantId", tenantId, new HashMap<>(), mapOf("tenantId", tenantId)),
+      arguments("$.tenantId", tenantId, mapOf("key", "value"), mapOf("key", "value", "tenantId", tenantId)),
+      arguments("$.holdings.tenantId", tenantId, mapOf("key", "value"), mapOf("key", "value")),
+      arguments("$.holdings.tenantId", tenantId, mapOf("holdings", List.of(new HashMap<>(), new HashMap<>())),
+        mapOf("holdings", List.of(mapOf("tenantId", tenantId), mapOf("tenantId", tenantId)))),
+      arguments("$.holdings.tenantId", tenantId,
+        mapOf("holdings", List.of(mapOf("key", "value"), mapOf("key", "value"))),
+        mapOf("holdings",
+          List.of(mapOf("key", "value", "tenantId", tenantId), mapOf("key", "value", "tenantId", tenantId))))
     );
   }
 }

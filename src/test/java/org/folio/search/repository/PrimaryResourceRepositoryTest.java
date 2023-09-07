@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.client.RequestOptions.DEFAULT;
@@ -17,7 +18,9 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import java.io.IOException;
 import java.util.List;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +41,13 @@ class PrimaryResourceRepositoryTest {
   private PrimaryResourceRepository resourceRepository;
   @Mock
   private RestHighLevelClient restHighLevelClient;
+  @Mock
+  private IndexNameProvider indexNameProvider;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(indexNameProvider.getIndexName(any(SearchDocumentBody.class))).thenReturn("index_name");
+  }
 
   @Test
   void indexResources_positive() throws IOException {
@@ -85,6 +95,6 @@ class PrimaryResourceRepositoryTest {
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
-        + "[index=folio_test-resource_test_tenant, type=bulkApi, message: err]");
+        + "[index=index_name, type=bulkApi, message: err]");
   }
 }

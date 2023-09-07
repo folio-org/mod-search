@@ -17,9 +17,10 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
-import org.opensearch.index.query.BoolQueryBuilder;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -27,10 +28,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<SubjectBrowseItem, SubjectResource> {
 
+  private ConsortiumSearchHelper consortiumSearchHelper;
+
+  @Autowired
+  public void setConsortiumSearchHelper(ConsortiumSearchHelper consortiumSearchHelper) {
+    this.consortiumSearchHelper = consortiumSearchHelper;
+  }
+
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
-    return searchSource().query(termQuery(request.getTargetField(), context.getAnchor()))
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context,
+      termQuery(request.getTargetField(), context.getAnchor()));
+    return searchSource().query(query)
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }
@@ -42,9 +52,11 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     if (ctx.getFilters().isEmpty()) {
       query = matchAllQuery();
     } else {
-      query = boolQuery();
-      ctx.getFilters().forEach(filter -> ((BoolQueryBuilder) filter).filter(filter));
+      var boolQuery = boolQuery();
+      ctx.getFilters().forEach(boolQuery::filter);
+      query = boolQuery;
     }
+    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query);
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
@@ -58,13 +70,15 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   }
 
   @Override
-  protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(SearchResult<SubjectResource> res, boolean isAnchor) {
+  protected BrowseResult<SubjectBrowseItem> mapToBrowseResult(BrowseContext context, SearchResult<SubjectResource> res,
+                                                              boolean isAnchor) {
     return BrowseResult.of(res)
       .map(subjectResource -> new SubjectBrowseItem()
         .value(subjectResource.getValue())
         .authorityId(subjectResource.getAuthorityId())
         .isAnchor(isAnchor ? true : null)
-        .totalRecords(subjectResource.getInstances().size()));
+        .totalRecords(consortiumSearchHelper.filterSubResourcesForConsortium(
+          context, subjectResource, SubjectResource::getInstances).size()));
   }
 
   @Override

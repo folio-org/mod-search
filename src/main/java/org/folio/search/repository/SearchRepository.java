@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
-import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 
@@ -45,6 +44,7 @@ public class SearchRepository {
   private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
+  private final IndexNameProvider indexNameProvider;
 
   /**
    * Executes request to elasticsearch and returns search result with related documents.
@@ -54,7 +54,7 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
-    var index = getIndexName(resourceRequest);
+    var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
@@ -68,7 +68,7 @@ public class SearchRepository {
    * @return search result as {@link SearchResponse} object.
    */
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
-    var index = getIndexName(resourceRequest);
+    var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
@@ -81,7 +81,7 @@ public class SearchRepository {
    * @return search result as {@link MultiSearchResponse} object.
    */
   public MultiSearchResponse msearch(ResourceRequest resourceRequest, Collection<SearchSourceBuilder> searchSources) {
-    var index = getIndexName(resourceRequest);
+    var index = indexNameProvider.getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
     var response = performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi");
@@ -106,7 +106,7 @@ public class SearchRepository {
    * @param src - elasticsearch search query source as {@link SearchSourceBuilder} object.
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
-    var index = getIndexName(req);
+    var index = indexNameProvider.getIndexName(req);
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
       .source(src)

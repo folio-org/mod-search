@@ -33,6 +33,7 @@ spring:
       - tenant-languages
       - tenant-features
       - search-preference
+      - user-tenants
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
 
@@ -46,7 +47,6 @@ folio:
       search-all-fields: false
       browse-cn-intermediate-values: true
       browse-cn-intermediate-remove-duplicates: true
-      consortium: true
     indexing:
       instance-subjects:
         retry-attempts: 3
@@ -95,6 +95,9 @@ folio:
       - name: search.instance-subject
         numPartitions: 1
         replicationFactor: 1
+      - name: search.consortium.instance
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2
@@ -112,6 +115,10 @@ folio:
         concurrency: ${KAFKA_SUBJECTS_CONCURRENCY:1}
         topic-pattern: ${KAFKA_SUBJECTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-subject}
         group-id: ${folio.environment}-mod-search-subjects-group
+      consortium-instance:
+        concurrency: 2
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.consortium\.instance
+        group-id: ${folio.environment}-mod-search-consortium-instance-group
   okapiUrl: ${okapi.url}
   logging:
     request:

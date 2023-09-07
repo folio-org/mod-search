@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +22,9 @@ import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -43,6 +44,8 @@ public class IndexService {
   private final SearchSettingsHelper settingsHelper;
   private final ResourceReindexClient resourceReindexClient;
   private final ResourceDescriptionService resourceDescriptionService;
+  private final IndexNameProvider indexNameProvider;
+  private final TenantProvider tenantProvider;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -90,7 +93,7 @@ public class IndexService {
 
     validateResourceName(resourceName, "Index Settings cannot be updated, resource name is invalid.");
 
-    var index = getIndexName(resourceName, tenantId);
+    var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var settings = prepareIndexDynamicSettings(indexSettings);
 
     log.info("Attempts to update settings by [indexName: {}, settings: {}]", index, settings);
@@ -106,7 +109,7 @@ public class IndexService {
    */
   public FolioIndexOperationResponse updateMappings(String resourceName, String tenantId) {
     validateResourceName(resourceName, "Mappings cannot be updated, resource name is invalid.");
-    var index = getIndexName(resourceName, tenantId);
+    var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
     log.info("Attempts to update mappings by [indexName: {}, mappings: {}]", index, mappings);
@@ -120,7 +123,7 @@ public class IndexService {
    * @param tenantId     - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(String resourceName, String tenantId) {
-    var index = getIndexName(resourceName, tenantId);
+    var index = indexNameProvider.getIndexName(resourceName, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceName, tenantId);
     }
@@ -134,7 +137,8 @@ public class IndexService {
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
-    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())) {
+    if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())
+      && notConsortiumMemberTenant(tenantId)) {
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId, reindexRequest.getIndexSettings());
@@ -154,7 +158,7 @@ public class IndexService {
   public void dropIndex(String resource, String tenant) {
     log.debug("dropIndex:: by [resource: {}, tenant: {}]", resource, tenant);
 
-    var index = getIndexName(resource, tenant);
+    var index = indexNameProvider.getIndexName(resource, tenant);
     if (indexRepository.indexExists(index)) {
       indexRepository.dropIndex(index);
     }
@@ -163,7 +167,7 @@ public class IndexService {
   private FolioCreateIndexResponse doCreateIndex(String resourceName, String tenantId, String indexSettings) {
     log.debug("createIndex:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
 
-    var index = getIndexName(resourceName, tenantId);
+    var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
     log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
@@ -237,6 +241,10 @@ public class IndexService {
     var resourceDescription = resourceDescriptionService.find(resourceName)
       .orElseThrow(() -> new RequestValidationException(message, RESOURCE_NAME_PARAMETER, resourceName));
     log.trace("Resource description was found for {}", resourceDescription.getName());
+  }
+
+  private boolean notConsortiumMemberTenant(String tenantId) {
+    return tenantId.equals(tenantProvider.getTenant(tenantId));
   }
 
   private static String normalizeResourceName(String url) {

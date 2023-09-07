@@ -39,7 +39,7 @@ class AbstractBrowseServiceBySearchAfterTest {
     }
 
     @Override
-    protected BrowseResult mapToBrowseResult(SearchResult searchResult, boolean isAnchor) {
+    protected BrowseResult mapToBrowseResult(BrowseContext context, SearchResult searchResult, boolean isAnchor) {
       return null;
     }
 

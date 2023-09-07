@@ -25,21 +25,26 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
+import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
+import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.utils.SearchUtils;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -57,23 +62,31 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
+  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumTenantExecutor consortiumTenantExecutor;
+  private final ConsortiumInstanceService consortiumInstanceService;
+  private final IndexNameProvider indexNameProvider;
 
   /**
-   * Saves list of resources to elasticsearch.
+   * Saves list of resourceEvents to elasticsearch.
    *
-   * @param resources {@link List} of resources as {@link ResourceEvent} objects.
+   * @param resourceEvents {@link List} of resourceEvents as {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resources) {
-    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resources, true));
+  public FolioIndexOperationResponse indexResources(List<ResourceEvent> resourceEvents) {
+    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
 
-    if (CollectionUtils.isEmpty(resources)) {
+    if (CollectionUtils.isEmpty(resourceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resources, SearchUtils::getIndexName);
+    var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
-    return indexSearchDocuments(elasticsearchDocuments);
+    var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
+    log.info("Records indexed to elasticsearch [indexRequests: {}. {}]",
+      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
+
+    return bulkIndexResponse;
   }
 
   /**
@@ -82,30 +95,72 @@ public class ResourceService {
    * @param resourceIdEvents list of {@link ResourceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexResourcesById(List<ResourceEvent> resourceIdEvents) {
+  public FolioIndexOperationResponse indexInstancesById(List<ResourceEvent> resourceIdEvents) {
     log.debug("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsThatCanBeIndexed(resourceIdEvents, SearchUtils::getIndexName);
+    var eventsToIndex = getEventsToIndex(resourceIdEvents);
 
     var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
-    var indexEvents = groupedByOperation.get(INDEX);
-    indexEvents = extractEventsForDataMove(indexEvents);
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
-    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
-    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
-    var indexDocuments = multiTenantSearchDocumentConverter.convert(fetchedInstances);
-    var removeDocuments = multiTenantSearchDocumentConverter.convert(groupedByOperation.get(DELETE));
-    messageProducer.prepareAndSendContributorEvents(groupedByOperation.get(DELETE));
-    messageProducer.prepareAndSendSubjectEvents(groupedByOperation.get(DELETE));
+    var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
+    var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
+
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  public FolioIndexOperationResponse indexConsortiumInstances(List<ConsortiumInstanceEvent> consortiumInstances) {
+    if (CollectionUtils.isEmpty(consortiumInstances)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var validConsortiumInstances = consortiumInstances.stream()
+      .filter(event -> consortiumTenantService.getCentralTenant(event.getTenant()).isPresent())
+      .distinct()
+      .toList();
+
+    if (log.isDebugEnabled()) {
+      var invalidInstances = ListUtils.subtract(consortiumInstances, validConsortiumInstances);
+      log.debug("Skip indexing consortium instances [{}]", invalidInstances);
+    }
+
+    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
+      .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
+
+    var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());
+
+    return consortiumTenantExecutor.execute(centralTenant, () -> {
+      var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
+      var indexDocuments = multiTenantSearchDocumentConverter.convert(resourceEvents);
+      var bulkIndexResponse = indexSearchDocuments(indexDocuments);
+      log.info("Records indexed to central index [requests: {}{}]",
+        getNumberOfRequests(indexDocuments), getErrorMessage(bulkIndexResponse));
+      return bulkIndexResponse;
+    });
+  }
+
+  private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
+    return getEventsThatCanBeIndexed(events, indexNameProvider::getIndexName);
+  }
+
+  private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
+    var indexEvents = extractEventsForDataMove(resourceEvents);
+    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
+    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
+    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
+    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.saveInstances(fetchedInstances));
+  }
+
+  private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
+    messageProducer.prepareAndSendContributorEvents(deleteEvents);
+    messageProducer.prepareAndSendSubjectEvents(deleteEvents);
+    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.deleteInstances(deleteEvents));
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

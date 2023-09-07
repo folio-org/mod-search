@@ -22,6 +22,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 public class AuthorityEventPreProcessor implements EventPreProcessor {
 
   private final ResourceDescriptionService resourceDescriptionService;
+  private final ConsortiumTenantService consortiumTenantService;
   private Map<String, List<String>> fieldTypes;
   private List<String> commonFields;
 
@@ -67,6 +69,15 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
     log.debug("process:: by [id: {}, tenant: {}, resourceType: {}]",
       event.getId(), event.getTenant(), event.getType());
 
+    if (!isDeleteOperation(event.getType())) {
+      var eventNewPart = getNewAsMap(event);
+      eventNewPart.put("tenantId", event.getTenant());
+
+      var centralTenant = consortiumTenantService.getCentralTenant(event.getTenant());
+      if (centralTenant.isPresent() && centralTenant.get().equals(event.getTenant())) {
+        eventNewPart.put("shared", true);
+      }
+    }
     if (event.getType() == ResourceEventType.UPDATE) {
       return getResourceEventsToUpdate(event);
     }
@@ -141,5 +152,9 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
 
   private static boolean isCreateOperation(ResourceEventType typeEnum) {
     return typeEnum == ResourceEventType.CREATE || typeEnum == ResourceEventType.REINDEX;
+  }
+
+  private static boolean isDeleteOperation(ResourceEventType typeEnum) {
+    return typeEnum == ResourceEventType.DELETE || typeEnum == ResourceEventType.DELETE_ALL;
   }
 }

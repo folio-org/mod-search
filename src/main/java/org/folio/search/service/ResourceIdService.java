@@ -26,6 +26,7 @@ import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
+import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class ResourceIdService {
   private final CqlSearchQueryConverter queryConverter;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsTemporaryRepository idsTemporaryRepository;
+  private final SystemUserScopedExecutionService executionService;
 
   /**
    * Returns resource ids for passed cql query in text type.
@@ -136,13 +138,13 @@ public class ResourceIdService {
   }
 
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
-    log.debug("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+    log.info("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    var resource = request.getResource();
-    var searchSource = queryConverter.convert(request.getQuery(), resource)
-      .size(streamIdsProperties.getScrollQuerySize())
-      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
-      .sort(fieldSort("_doc"));
+    var searchSource = executionService.executeSystemUserScoped(request.getTenantId(),
+      () -> queryConverter.convertForConsortia(request.getQuery(), request.getResource())
+        .size(streamIdsProperties.getScrollQuerySize())
+        .fetchSource(new String[] {request.getSourceFieldPath()}, null)
+        .sort(fieldSort("_doc")));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);
   }

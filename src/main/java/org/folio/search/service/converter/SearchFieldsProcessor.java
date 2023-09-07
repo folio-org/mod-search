@@ -13,7 +13,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchUtils;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class SearchFieldsProcessor {
 
   private final JsonConverter jsonConverter;
-  private final FeatureConfigService featureConfigService;
+  private final FeatureConfigServiceDecorator featureConfigService;
   private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
 
   /**

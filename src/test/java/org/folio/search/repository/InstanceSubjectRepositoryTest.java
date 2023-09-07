@@ -9,13 +9,15 @@ import static org.folio.search.model.types.IndexingDataFormat.SMILE;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.folio.search.utils.TestUtils.spyLambda;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.client.RequestOptions.DEFAULT;
@@ -23,12 +25,13 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
 import org.folio.spring.test.type.UnitTest;
@@ -48,7 +51,6 @@ import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.bytes.BytesArray;
-import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.script.Script;
 
 @UnitTest
@@ -57,23 +59,26 @@ class InstanceSubjectRepositoryTest {
 
   @InjectMocks
   private InstanceSubjectRepository repository;
-
+  @Mock
+  private IndexNameProvider indexNameProvider;
   @Spy
   private JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @Spy
   private SmileConverter smileConverter = new SmileConverter();
-  private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
-    spyLambda(Function.class, smileConverter::toSmile);
   @Spy
   private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
   @Mock
   private RestHighLevelClient elasticsearchClient;
+  @Mock
+  private ConsortiumTenantService consortiumTenantService;
   @Captor
   private ArgumentCaptor<BulkRequest> bulkRequestCaptor;
 
   @BeforeEach
   void setUp() {
     repository.setElasticsearchClient(elasticsearchClient);
+    repository.setIndexNameProvider(indexNameProvider);
+    lenient().when(indexNameProvider.getIndexName(any(SearchDocumentBody.class))).thenReturn("index_name");
   }
 
   @Test
@@ -91,7 +96,30 @@ class InstanceSubjectRepositoryTest {
       DocWriteRequest<?> request = requests.get(0);
       assertThat(request).isInstanceOf(UpdateRequest.class);
       var updateRequest = (UpdateRequest) request;
-      assertThat(getParam(updateRequest.script(), "ins")).containsExactly(RESOURCE_ID);
+      assertThat(getParam(updateRequest.script(), "ins"))
+        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID));
+      assertThat(getParam(updateRequest.script(), "del")).isEmpty();
+    });
+  }
+
+  @Test
+  void indexResources_positive_shared() throws IOException {
+    var document = subjectDocumentBodyToIndex();
+    var bulkResponse = mock(BulkResponse.class);
+
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
+    when(bulkResponse.hasFailures()).thenReturn(false);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+
+    var actual = repository.indexResources(List.of(document));
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    assertThat(bulkRequestCaptor.getValue().requests()).hasSize(1).satisfies(requests -> {
+      DocWriteRequest<?> request = requests.get(0);
+      assertThat(request).isInstanceOf(UpdateRequest.class);
+      var updateRequest = (UpdateRequest) request;
+      assertThat(getParam(updateRequest.script(), "ins"))
+        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID, "shared", true));
       assertThat(getParam(updateRequest.script(), "del")).isEmpty();
     });
   }
@@ -113,7 +141,8 @@ class InstanceSubjectRepositoryTest {
     assertThat(requests).hasSize(2);
     for (DocWriteRequest<?> request : requests) {
       var updateRequest = (UpdateRequest) request;
-      assertThat(getParam(updateRequest.script(), "del")).containsExactly(RESOURCE_ID);
+      assertThat(getParam(updateRequest.script(), "del"))
+        .containsExactly(Map.of("instanceId", RESOURCE_ID, "tenantId", TENANT_ID));
       assertThat(getParam(updateRequest.script(), "ins")).isEmpty();
     }
   }
@@ -135,8 +164,8 @@ class InstanceSubjectRepositoryTest {
   }
 
   @SuppressWarnings("unchecked")
-  private Set<String> getParam(Script script, String del) {
-    return (Set<String>) script.getParams().get(del);
+  private Set<Map<String, Object>> getParam(Script script, String param) {
+    return (Set<Map<String, Object>>) script.getParams().get(param);
   }
 
   @SneakyThrows

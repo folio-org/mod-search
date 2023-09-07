@@ -10,17 +10,31 @@
       "index": "keyword_lowercase",
       "showInResponse": [ "browse" ]
     },
-    "contributorTypeId": {
-      "index": "keyword",
-      "showInResponse": [ "browse" ]
-    },
     "contributorNameTypeId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "browse" ]
     },
     "instances": {
-      "index": "source"
+      "type": "object",
+      "properties": {
+        "instanceId": {
+          "index": "source"
+        },
+        "contributorTypeId": {
+          "index": "keyword",
+          "showInResponse": [ "browse" ]
+        },
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "filter" ],
+          "default": false
+        }
+      }
     },
     "authorityId": {
       "index": "keyword",

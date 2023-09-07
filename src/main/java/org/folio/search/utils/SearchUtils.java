@@ -37,6 +37,8 @@ public class SearchUtils {
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
+  public static final String SHARED_FIELD_NAME = "shared";
+  public static final String TENANT_ID_FIELD_NAME = "tenantId";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";
@@ -63,7 +65,7 @@ public class SearchUtils {
     {
       "script": {
         "lang": "painless",
-        "source": "def instanceIds=new LinkedHashSet(ctx._source.instances);instanceIds.addAll(params.ins);params.del.forEach(instanceIds::remove);if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instanceIds;"
+        "source": "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
       }
     }
     """;
@@ -72,7 +74,7 @@ public class SearchUtils {
     {
       "script" : {
         "lang" : "painless",
-        "source" : "def instanceIds=new LinkedHashSet(ctx._source.instances);instanceIds.addAll(params.ins);params.del.forEach(instanceIds::remove);if (instanceIds.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instanceIds;def typeIds=instanceIds.stream().map(id -> id.splitOnToken('|')[1]).sorted().collect(Collectors.toCollection(LinkedHashSet::new));ctx._source.contributorTypeId=typeIds"
+        "source" : "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
       }
     }
     """;

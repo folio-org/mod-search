@@ -70,10 +70,10 @@ public class BrowseContextProvider {
     if (isBoolQueryWithFilters(boolQuery)) {
       var mustClauses = boolQuery.must();
       var firstMustClause = mustClauses.get(0);
-      if (firstMustClause instanceof RangeQueryBuilder) {
+      if (firstMustClause instanceof RangeQueryBuilder rangeQuery) {
         log.trace("Attempts to create browsingContext with filters [request: {}, filters.size: {}]",
           request, logMsg);
-        return createBrowsingContext(request, filters, (RangeQueryBuilder) firstMustClause);
+        return createBrowsingContext(request, filters, rangeQuery);
       }
 
       if (isBoolQuery(firstMustClause)) {
@@ -129,8 +129,8 @@ public class BrowseContextProvider {
   }
 
   static boolean isValidRangeQuery(String targetField, String subField, QueryBuilder q) {
-    if (q instanceof RangeQueryBuilder) {
-      var fieldName = ((RangeQueryBuilder) q).fieldName();
+    if (q instanceof RangeQueryBuilder rangeQuery) {
+      var fieldName = rangeQuery.fieldName();
       var isTargetValid = targetField.equals(fieldName);
       if (!isTargetValid && subField != null) {
         return subField.equals(fieldName);

@@ -1,6 +1,9 @@
-## v2.1.0 In progress
+## v3.0.0 In progress
 ### New APIs versions
 * Remove required `instance-authority-links`
+* Requires `alternative-title-types v1.0`
+* Requires `identifier-types v1.0`
+* Requires `call-number-types v1.0`
 * Provides `indices v0.6`
 * Provides `search v1.1`
 * Provides `browse v1.2`
@@ -10,12 +13,25 @@
 * Endpoint POST /search/resources/jobs have to be able to use long queries ([MSEARCH-520](https://issues.folio.org/browse/MSEARCH-520))
 * Extend `reindex` endpoint with passing index settings ([MSEARCH-437](https://issues.folio.org/browse/MSEARCH-437))
 * Create `PUT /search/index/settings` endpoint to update index settings  ([MSEARCH-436](https://issues.folio.org/browse/MSEARCH-436))
+* Add browse option for NLM call number type  ([MSEARCH-527](https://issues.folio.org/browse/MSEARCH-527))
+* Implement consortium index management  ([MSEARCH-531](https://issues.folio.org/browse/MSEARCH-531))
+* Add shared, tenantId flags to mapping for consortium ([MSEARCH-532](https://issues.folio.org/browse/MSEARCH-532))
+* Implement indexing for consortium tenants  ([MSEARCH-554](https://issues.folio.org/browse/MSEARCH-554))
+* Implement Active Affiliation Context for Search in Consortia Mode  ([MSEARCH-533](https://issues.folio.org/browse/MSEARCH-533))
+* Add tenantId/shared fields to contributors/subjects ([MSEARCH-551](https://issues.folio.org/browse/MSEARCH-551))
+* Implement Active Affiliation Context for stream IDs in Consortia Mode ([MSEARCH-576](https://issues.folio.org/browse/MSEARCH-576))
+* Restrict central tenant queries to only shared records ([MSEARCH-588](https://issues.folio.org/browse/MSEARCH-588))
+* Implement Active Affiliation Context for browsing ([MSEARCH-580](https://issues.folio.org/browse/MSEARCH-580))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))
+* Fix handling of invalid resource names in index management endpoints ([MSEARCH-540](https://issues.folio.org/browse/MSEARCH-540))
+* Improve preceding records searching ([MSEARCH-552](https://issues.folio.org/browse/MSEARCH-552))
+* Includes records with the same first 10 characters of the shelving order in preceding result ([MSEARCH-544](https://issues.folio.org/browse/MSEARCH-544))
 
 ### Tech Dept
 * Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))
+* Kafka topic deletion by tenant id added when tenant disabled ([MSEARCH-541](https://issues.folio.org/browse/MSEARCH-541))
 
 ## v2.0.0 2023-02-16
 ### Breaking changes

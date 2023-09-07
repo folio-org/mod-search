@@ -41,7 +41,7 @@ import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.types.IndexingDataFormat;
-import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
@@ -68,7 +68,7 @@ class SearchDocumentConverterTest {
   @InjectMocks
   private SearchDocumentConverter documentMapper;
   @Mock
-  private LanguageConfigService languageConfigService;
+  private LanguageConfigServiceDecorator languageConfigService;
   @Mock
   private SearchFieldsProcessor searchFieldsProcessor;
   @Mock
@@ -121,8 +121,8 @@ class SearchDocumentConverterTest {
   @Test
   void convert_negative_pathNotFound() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
-      mapOf("id", plainField("keyword"), "title", plainField("keyword"))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
+      mapOf("id", plainField("keyword"), "tenantId", keywordField(), "title", plainField("keyword"))));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID));
     var actual = documentMapper.convert(resourceEvent);
     assertThat(actual).isEqualTo(
       expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID)));
@@ -131,10 +131,12 @@ class SearchDocumentConverterTest {
   @Test
   void convert_negative_emptyTitle() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
-      mapOf("id", plainField("keyword"), "title", plainField("keyword"))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "title", ""));
+      mapOf("id", plainField("keyword"), "tenantId", keywordField(),
+        "title", plainField("keyword"))));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+      "title", ""));
     var actual = documentMapper.convert(resourceEvent);
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "title", "", "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "title", "");
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedJson));
   }
 
@@ -142,11 +144,12 @@ class SearchDocumentConverterTest {
   void convert_positive_multilangResource() {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
-      mapOf("id", plainField("keyword"), "title", multilangField()),
+      mapOf("id", plainField("keyword"), "tenantId", keywordField(), "title", multilangField()),
       List.of("$.lang1", "$.lang2", "$.lang3", "$.lang4", "$.lang5")));
 
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf(
       "id", RESOURCE_ID,
+      "tenantId", TENANT_ID,
       "title", "val",
       "lang1", List.of("eng"),
       "lang2", mapOf("value", "eng"),
@@ -157,8 +160,8 @@ class SearchDocumentConverterTest {
     var actual = documentMapper.convert(resourceEvent);
 
     ObjectNode expectedJson =
-      jsonObject("id", RESOURCE_ID, "title", jsonObject("eng", "val", "src", "val"), "plain_title", "val",
-        "tenantId", TENANT_ID);
+      jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID,
+        "title", jsonObject("eng", "val", "src", "val"), "plain_title", "val");
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent,
       expectedJson));
   }
@@ -166,34 +169,36 @@ class SearchDocumentConverterTest {
   @Test
   void convert_positive_repeatableObjectField() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
-      "id", keywordField(), "identifiers", objectField(mapOf("value", keywordField())))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "identifiers", List.of(
-      mapOf("type", "isbn", "value", "test-isbn"),
-      mapOf("type", "issn", "value", "test-issn"),
-      mapOf("type", "isbn"), "test-isbn-2")));
+      "id", keywordField(), "tenantId", keywordField(),
+      "identifiers", objectField(mapOf("value", keywordField())))));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID,
+      "tenantId", TENANT_ID,
+      "identifiers", List.of(
+        mapOf("type", "isbn", "value", "test-isbn"),
+        mapOf("type", "issn", "value", "test-issn"),
+        mapOf("type", "isbn"), "test-isbn-2")));
 
     var actual = documentMapper.convert(resourceEvent);
 
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID,
-      "identifiers", jsonArray(jsonObject("value", "test-isbn"), jsonObject("value", "test-issn")),
-      "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID,
+      "identifiers", jsonArray(jsonObject("value", "test-isbn"), jsonObject("value", "test-issn")));
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedJson));
   }
 
   @Test
   void convert_positive_multiLanguageValue() {
     var resourceDescription = resourceDescription(mapOf(
-      "id", keywordField(), "alternativeTitle", objectField(mapOf("value", multilangField()))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID,
+      "id", keywordField(), "tenantId", keywordField(),
+      "alternativeTitle", objectField(mapOf("value", multilangField()))));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "alternativeTitle", List.of(mapOf("value", "title1"), mapOf("value", null), emptyMap(), "title3")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
     var actual = documentMapper.convert(resourceEvent);
 
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID,
-      "alternativeTitle", jsonArray(jsonObject("value", jsonObject("src", "title1"), "plain_value", "title1")),
-      "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID,
+      "alternativeTitle", jsonArray(jsonObject("value", jsonObject("src", "title1"), "plain_value", "title1")));
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedJson));
   }
 
@@ -206,8 +211,10 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_extendedFields() {
-    var desc = resourceDescription(mapOf("id", keywordField(), "base", keywordField()));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "base", "base val"));
+    var desc = resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
+      "base", keywordField()));
+    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+      "base", "base val"));
     var expectedContext = ConversionContext.of(resourceEvent, desc, emptyList());
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
@@ -216,47 +223,51 @@ class SearchDocumentConverterTest {
     var actual = documentMapper.convert(resourceEvent);
 
     ObjectNode expectedJson = jsonObject(
-      "id", RESOURCE_ID, "base", "base val", "tenantId", TENANT_ID, "generated", "generated value");
+      "id", RESOURCE_ID, "tenantId", TENANT_ID, "base", "base val", "generated", "generated value");
     assertThat(actual).isEqualTo(expectedSearchDocument(resourceEvent, expectedJson));
   }
 
   @Test
   void convert_positive_useDefaultValueFromFieldDescription() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
-      "id", keywordField(), "value", keywordFieldWithDefaultValue("default"))));
-    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "value", "aValue"));
+      "id", keywordField(), "tenantId", keywordField(),
+      "value", keywordFieldWithDefaultValue("default"))));
+    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "aValue"));
     var actual = documentMapper.convert(event);
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "value", "aValue", "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "aValue");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }
 
   @Test
   void convert_positive_useDefaultValueWhenNoValuePresent() {
     var resourceDescription = resourceDescription(mapOf("id", keywordField(),
+      "tenantId", keywordField(),
       "value", keywordFieldWithDefaultValue("default")));
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
 
-    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID));
+    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID));
     var actual = documentMapper.convert(event);
 
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "value", "default", "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "default");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }
 
   @Test
   void convert_positive_useDefaultWhenValueIsNull() {
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
-      "id", keywordField(), "value", keywordFieldWithDefaultValue("default"))));
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "value", null));
+      "id", keywordField(), "tenantId", keywordField(),
+      "value", keywordFieldWithDefaultValue("default"))));
+    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", null));
     var actual = documentMapper.convert(event);
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "value", "default", "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "default");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }
 
   @Test
   void convert_positive_languageIsNotSpecified() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "language", "rus", "multilang_value", "value"));
+    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+      "language", "rus", "multilang_value", "value"));
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng", "fra"));
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(
@@ -264,14 +275,14 @@ class SearchDocumentConverterTest {
 
     var actual = documentMapper.convert(event);
 
-    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "language", "rus",
-      "multilang_value", jsonObject("src", "value"), "plain_multilang_value", "value", "tenantId", TENANT_ID);
+    ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "language", "rus",
+      "multilang_value", jsonObject("src", "value"), "plain_multilang_value", "value");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }
 
   @Test
   void convert_positive_instanceWithItems() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "items", List.of(
+    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "items", List.of(
       mapOf("id", "item#1"),
       mapOf("id", "item#2", "effectiveShelvingOrder", "F10"),
       mapOf("id", "item#3", "effectiveShelvingOrder", "C5"),
@@ -279,25 +290,26 @@ class SearchDocumentConverterTest {
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(emptySet());
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(
-      resourceDescription(mapOf("id", keywordField(), "items", objectField(
-        mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));
+      resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
+        "items", objectField(mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));
 
     var actual = documentMapper.convert(event);
 
     ObjectNode expectedJson = jsonObject(
       "id", RESOURCE_ID,
+      "tenantId", TENANT_ID,
       "items", jsonArray(
         jsonObject("id", "item#1"),
         jsonObject("id", "item#2", "effectiveShelvingOrder", "F10"),
         jsonObject("id", "item#3", "effectiveShelvingOrder", "C5"),
-        jsonObject("id", "item#4")),
-      "tenantId", TENANT_ID);
+        jsonObject("id", "item#4")));
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {
     return mapOf(
       "id", keywordField(),
+      "tenantId", keywordField(),
       "title", keywordField(),
       "language", keywordField(),
       "multilang_value", multilangField(),
@@ -312,6 +324,7 @@ class SearchDocumentConverterTest {
   private static Map<String, Object> testResourceBody() {
     return mapOf(
       "id", RESOURCE_ID,
+      "tenantId", TENANT_ID,
       "title", List.of("instance title"),
       "language", "eng",
       "multilang_value", "some value",
@@ -326,6 +339,7 @@ class SearchDocumentConverterTest {
   private static ObjectNode expectedSearchDocumentBody() {
     return jsonObject(
       "id", RESOURCE_ID,
+      "tenantId", TENANT_ID,
       "title", jsonArray("instance title"),
       "language", "eng",
       "multilang_value", jsonObject("eng", "some value", "src", "some value"),
@@ -333,8 +347,7 @@ class SearchDocumentConverterTest {
       "bool", true,
       "number", 123,
       "numbers", jsonArray(1, 2, 3, 4),
-      "metadata", jsonObject("createdAt", "12-01-01T12:03:12Z"),
-      "tenantId", TENANT_ID);
+      "metadata", jsonObject("createdAt", "12-01-01T12:03:12Z"));
   }
 
   @SneakyThrows

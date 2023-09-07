@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,6 +42,27 @@ public class SearchConverterUtils {
       }
     }
     return currentValue;
+  }
+
+  public static void setMapValueByPath(String path, Object value, Map<String, Object> map) {
+    if (map == null) {
+      return;
+    }
+    var pathToProcess = path.startsWith("$.") ? path.substring(2) : path;
+    var pathParts = pathToProcess.split("\\.");
+    if (pathParts.length == 1) {
+      setFieldValueByPath(pathParts[0], value, map);
+    } else if (pathParts.length > 1) {
+      var objectPath = Arrays.copyOf(pathParts, pathParts.length - 1);
+      Object currentValue = map;
+      for (String pathValue : objectPath) {
+        currentValue = getFieldValueByPath(pathValue, currentValue);
+        if (currentValue == null) {
+          break;
+        }
+      }
+      setFieldValueByPath(pathParts[pathParts.length - 1], value, currentValue);
+    }
   }
 
   /**
@@ -152,5 +174,17 @@ public class SearchConverterUtils {
       return CollectionUtils.isNotEmpty(result) ? result : null;
     }
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void setFieldValueByPath(String path, Object value, Object object) {
+    if (object instanceof Map) {
+      ((Map<String, Object>) object).put(path, value);
+    }
+    if (object instanceof List) {
+      for (Object listValue : (List<Object>) object) {
+        setFieldValueByPath(path, value, listValue);
+      }
+    }
   }
 }

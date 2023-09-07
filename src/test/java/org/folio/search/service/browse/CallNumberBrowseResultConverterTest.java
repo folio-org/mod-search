@@ -27,7 +27,7 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
-import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +58,7 @@ class CallNumberBrowseResultConverterTest {
   @Mock
   private SearchResponse searchResponse;
   @Mock
-  private FeatureConfigService featureConfigService;
+  private FeatureConfigServiceDecorator featureConfigService;
 
   @MethodSource("testDataProvider")
   @DisplayName("convert_positive_parameterized")

@@ -20,7 +20,7 @@ import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
-import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
@@ -35,7 +35,7 @@ public class SearchMappingsHelper {
 
   private final JsonConverter jsonConverter;
   private final SearchFieldProvider searchFieldProvider;
-  private final LanguageConfigService languageConfigService;
+  private final LanguageConfigServiceDecorator languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
 
   /**
@@ -88,8 +88,8 @@ public class SearchMappingsHelper {
   }
 
   private Map<String, JsonNode> getMappingForField(String name, FieldDescription fieldDescription) {
-    if (fieldDescription instanceof PlainFieldDescription) {
-      return getMappingsForPlainField(name, (PlainFieldDescription) fieldDescription);
+    if (fieldDescription instanceof PlainFieldDescription plainFieldDescription) {
+      return getMappingsForPlainField(name, plainFieldDescription);
     }
     return getMappingForObjectField(name, (ObjectFieldDescription) fieldDescription);
   }

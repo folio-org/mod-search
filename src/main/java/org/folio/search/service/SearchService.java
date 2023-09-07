@@ -43,7 +43,7 @@ public class SearchService {
    * @param request cql search request as {@link CqlSearchRequest} object
    * @return search result.
    */
-  public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
+  public <T> SearchResult<T>  search(CqlSearchRequest<T> request) {
     log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
     if (request.getOffset() + request.getLimit() > 10_000L) {
@@ -54,7 +54,7 @@ public class SearchService {
     }
     var resource = request.getResource();
     var requestTimeout = searchQueryConfiguration.getRequestTimeout();
-    var queryBuilder = cqlSearchQueryConverter.convert(request.getQuery(), resource)
+    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource)
       .from(request.getOffset())
       .size(request.getLimit())
       .trackTotalHits(true)

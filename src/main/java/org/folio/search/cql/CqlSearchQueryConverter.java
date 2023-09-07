@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.types.SearchType;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
@@ -36,6 +37,7 @@ public class CqlSearchQueryConverter {
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
   private final CqlTermQueryConverter cqlTermQueryConverter;
+  private final ConsortiumSearchHelper consortiumSearchHelper;
 
   /**
    * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
@@ -55,6 +57,21 @@ public class CqlSearchQueryConverter {
     var boolQuery = convertToQuery(cqlNode, resource);
     var enhancedQuery = enhanceQuery(boolQuery, resource);
     return queryBuilder.query(enhancedQuery);
+  }
+
+  /**
+   * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
+   * Wraps base 'convert' and adds tenantId+shared filter in case of consortia mode
+   *
+   * @param query    cql query to parse
+   * @param resource resource name
+   * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
+   */
+  public SearchSourceBuilder convertForConsortia(String query, String resource) {
+    var sourceBuilder = convert(query, resource);
+    var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query());
+
+    return sourceBuilder.query(queryBuilder);
   }
 
   /**

@@ -30,7 +30,7 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
-import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 public class CallNumberBrowseResultConverter {
 
   private final ElasticsearchDocumentConverter documentConverter;
-  private final FeatureConfigService featureConfigService;
+  private final FeatureConfigServiceDecorator featureConfigService;
 
   /**
    * Converts received {@link SearchResponse} from Elasticsearch to browsing {@link SearchResult} object.

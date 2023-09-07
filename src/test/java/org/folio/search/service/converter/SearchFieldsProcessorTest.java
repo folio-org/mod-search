@@ -21,7 +21,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
-import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.SearchFieldsProcessorTest.TestContextConfiguration;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
@@ -46,7 +46,7 @@ class SearchFieldsProcessorTest {
   @Autowired
   private SearchFieldsProcessor searchFieldsProcessor;
   @MockBean
-  private FeatureConfigService featureConfigService;
+  private FeatureConfigServiceDecorator featureConfigService;
 
   @Test
   void getSearchFields_positive_emptySearchFields() {

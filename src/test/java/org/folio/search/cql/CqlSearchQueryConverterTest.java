@@ -12,6 +12,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
@@ -19,6 +20,7 @@ import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.Operator.AND;
 import static org.opensearch.index.query.Operator.OR;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.disMaxQuery;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
@@ -35,7 +37,10 @@ import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfigurati
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,10 +73,18 @@ class CqlSearchQueryConverterTest {
   private LocalSearchFieldProvider searchFieldProvider;
   @MockBean
   private CqlSortProvider cqlSortProvider;
+  @MockBean
+  private FolioExecutionContext folioExecutionContext;
+  @MockBean
+  private ConsortiumTenantService consortiumTenantService;
+  @MockBean
+  private ConsortiumSearchHelper consortiumSearchHelper;
 
   @BeforeEach
   void setUp() {
     when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+    doAnswer(invocation -> invocation.getArgument(0))
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
   }
 
   @MethodSource("convertCqlQueryDataProvider")
@@ -335,6 +348,25 @@ class CqlSearchQueryConverterTest {
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert("invalid_field all value", RESOURCE_NAME))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid search field provided in the CQL query");
+  }
+
+  @Test
+  void convertForConsortia_positive_whenConsortiaDisabled() {
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(
+      boolQuery().filter(termQuery("f1", "value"))));
+  }
+
+  @Test
+  void convertForConsortia_positive() {
+    var consortiumQueryMock = disMaxQuery();
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(consortiumQueryMock);
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    var cqlQuery = "f1==value";
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    assertThat(actual).isEqualTo(searchSource().query(consortiumQueryMock));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

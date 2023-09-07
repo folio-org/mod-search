@@ -101,13 +101,14 @@ class CallNumberBrowseServiceTest {
       .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
-      BrowseResult.of(1, browseItems("A 11")),
+      BrowseResult.of(1, browseItems("A 11", "A 12")),
       BrowseResult.of(2, browseItems("B", "C 11")));
 
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
+      cnBrowseItem(instance("A 12"), "A 12"),
       cnBrowseItem(instance("B"), "B", true),
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
@@ -139,12 +140,13 @@ class CallNumberBrowseServiceTest {
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
-      contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11")), BrowseResult.empty());
+      contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11", "A 12")), BrowseResult.empty());
 
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
+      cnBrowseItem(instance("A 12"), "A 12"),
       cnBrowseItem(0, "B", true))));
   }
 
@@ -154,13 +156,14 @@ class CallNumberBrowseServiceTest {
 
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
-      BrowseResult.of(1, browseItems("A 11")),
+      BrowseResult.of(1, browseItems("A 11", "A 12")),
       BrowseResult.of(1, browseItems("C 11")));
 
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
+      cnBrowseItem(instance("A 12"), "A 12"),
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
 
@@ -298,6 +301,7 @@ class CallNumberBrowseServiceTest {
     var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
     when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, false)).thenReturn(BrowseResult.empty());
     when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
   }
 

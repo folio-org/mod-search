@@ -1,9 +1,15 @@
 package org.folio.search.model.index;
 
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SubjectResource {
 
   private String id;
@@ -12,5 +18,5 @@ public class SubjectResource {
 
   private String authorityId;
 
-  private Set<String> instances;
+  private Set<InstanceSubResource> instances;
 }

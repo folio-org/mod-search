@@ -4,6 +4,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,14 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.Item;
+import org.folio.search.model.types.CallNumberType;
+import org.jetbrains.annotations.NotNull;
+import org.marc4j.callnum.DeweyCallNumber;
+import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.springframework.util.Assert;
 
 @UtilityClass
@@ -142,6 +151,75 @@ public class CallNumberUtils {
     }
     long startVal = convertChar(firstPosition, CN_MAX_CHARS);
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
+  }
+
+  /**
+   * Excludes irrelevant items from result.
+   *
+   * <p>
+   * This algorithm takes call number browse result and call number type and removes irrelevant items from result
+   * approach:
+   * <ul>
+   *   <li>Each call number browse item has its own fullCallNumber field, which may vary from its instance's item or
+   *   holding call number. Matching ones filtered </li>
+   *   <li>CallNumberBrowseItem's instance may have items or holdings
+   *   which may have call numbers with different type. They will also be filtered by callNumberType</li>
+   *   <li>all filtered records are added together and returned</li>
+   * </ul>
+   * </p>
+   *
+   * @param callNumberType - call number type to check/compare result items' types
+   * @param records - list of CallNumberBrowseItem objects
+   * @return filtered records
+   */
+  public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String callNumberType,
+                                                                        List<CallNumberBrowseItem> records) {
+    if (StringUtils.isBlank(callNumberType) || records == null || records.isEmpty()) {
+      return records;
+    }
+
+    records.forEach(r -> {
+      r.getInstance().setItems(getItemsFiltered(callNumberType, r));
+      r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
+    });
+    return records;
+  }
+
+  @NotNull
+  private static List<@Valid Holding> getHoldingsFiltered(String callNumberType, CallNumberBrowseItem item) {
+    return item.getInstance().getHoldings()
+      .stream()
+      .filter(h -> isInGivenType(callNumberType, h.getCallNumber()))
+      .toList();
+  }
+
+  @NotNull
+  private static List<@Valid Item> getItemsFiltered(String callNumberType, CallNumberBrowseItem item) {
+    return item.getInstance().getItems()
+      .stream()
+      .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
+        .equals(CallNumberType.fromName(callNumberType)))
+      .toList();
+  }
+
+  private boolean isInGivenType(String callNumberType, String callNumber) {
+    switch (callNumberType) {
+      case "dewey" -> {
+        return new DeweyCallNumber(callNumber).isValid();
+      }
+      case "lc" -> {
+        return new LCCallNumber(callNumber).isValid();
+      }
+      case "nlm" -> {
+        return new NlmCallNumber(callNumber).isValid();
+      }
+      default -> {
+        return false;
+      }
+//      case "sudoc" -> {
+//        return new SuDocCallNumber(callNumber).isValid();
+//      };
+    }
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

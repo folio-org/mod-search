@@ -9,11 +9,9 @@ import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,7 +21,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
-import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -32,8 +30,9 @@ import org.springframework.stereotype.Service;
 public class ResourceFetchService {
 
   private static final int BATCH_SIZE = 50;
+
   private final InventoryViewClient inventoryClient;
-  private final SystemUserScopedExecutionService executionService;
+  private final FolioExecutionContext context;
 
   /**
    * Fetches instances from inventory-storage module using CQL query.
@@ -46,29 +45,20 @@ public class ResourceFetchService {
       return emptyList();
     }
 
-    var instanceEvents = events.stream()
-      .filter(event -> INSTANCE_RESOURCE.equals(event.getResourceName()))
-      .collect(groupingBy(ResourceEvent::getTenant));
-
-    return instanceEvents.entrySet().stream()
-      .map(this::fetchInstances)
-      .flatMap(Collection::stream)
-      .toList();
+    return fetchInstances(events);
   }
 
-  private List<ResourceEvent> fetchInstances(Entry<String, List<ResourceEvent>> entry) {
-    var eventsById = entry.getValue().stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
-    var tenantId = entry.getKey();
-    return executionService.executeSystemUserScoped(tenantId, () -> {
-      var instanceIdList = List.copyOf(eventsById.keySet());
-      return partition(instanceIdList, BATCH_SIZE).stream()
-        .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))
-        .map(ResultList::getResult)
-        .flatMap(instanceViews -> instanceViews.stream()
-          .map(InstanceView::toInstance)
-          .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
-        .toList();
-    });
+  private List<ResourceEvent> fetchInstances(List<ResourceEvent> events) {
+    var eventsById = events.stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
+    var instanceIdList = List.copyOf(eventsById.keySet());
+    var tenantId = context.getTenantId();
+    return partition(instanceIdList, BATCH_SIZE).stream()
+      .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))
+      .map(ResultList::getResult)
+      .flatMap(instanceViews -> instanceViews.stream()
+        .map(InstanceView::toInstance)
+        .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
+      .toList();
   }
 
   private static ResourceEvent mapToResourceEvent(String tenantId, Map<String, Object> instanceMap,

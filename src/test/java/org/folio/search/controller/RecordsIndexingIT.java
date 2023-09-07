@@ -90,20 +90,20 @@ class RecordsIndexingIT extends BaseIntegrationTest {
 
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s1 and s2)", 1);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s1|null"), true);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s2|null"), true);
+    assertSubjectExistenceById(sha1Hex("s1|null"), true);
+    assertSubjectExistenceById(sha1Hex("s2|null"), true);
 
     var instanceToUpdate = new Instance().id(instanceId).title("test-resource").subjects(
       List.of(new Subject().value("s2"), new Subject().value("s3")));
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
     assertCountByQuery(instanceSearchPath(), "subjects=={value}", "(s2 and s3)", 1);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s1|null"), false);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s3|null"), true);
+    assertSubjectExistenceById(sha1Hex("s1|null"), false);
+    assertSubjectExistenceById(sha1Hex("s3|null"), true);
 
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     assertCountByQuery(instanceSearchPath(), "id=={value}", instanceId, 0);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s2|null"), false);
-    assertSubjectExistenceById(sha1Hex(TENANT_ID + "|s3|null"), false);
+    assertSubjectExistenceById(sha1Hex("s2|null"), false);
+    assertSubjectExistenceById(sha1Hex("s3|null"), false);
   }
 
   @Test
@@ -271,7 +271,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
   }
 
   private static String getSubjectId(String instanceId) {
-    return sha1Hex(TENANT_ID + "|subject-" + sha1Hex(instanceId) + "|null");
+    return sha1Hex("subject-" + sha1Hex(instanceId) + "|null");
   }
 
   private void createInstances() {
@@ -294,7 +294,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
   }
 
   private boolean isInstanceSubjectExistsById(String subjectId) throws IOException {
-    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, centralTenant);
     var request = new GetRequest(indexName, subjectId);
     var documentById = restHighLevelClient.get(request, RequestOptions.DEFAULT);
     return documentById.isExists() && !documentById.isSourceEmpty();

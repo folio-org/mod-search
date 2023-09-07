@@ -22,7 +22,6 @@ import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Component;
 public class MultiTenantSearchDocumentConverter {
 
   private final SearchDocumentConverter searchDocumentConverter;
-  private final SystemUserScopedExecutionService executionService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final Map<String, EventPreProcessor> eventPreProcessorBeans;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;

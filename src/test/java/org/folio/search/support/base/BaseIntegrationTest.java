@@ -73,12 +73,11 @@ public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
+  protected static String centralTenant;
 
   @RegisterExtension
   static OkapiExtension okapiExtension =
     new OkapiExtension(new InventoryViewResponseBuilder(), new ResponseTemplateTransformer(true));
-
-  protected static String centralTenant;
 
   @BeforeAll
   static void setUpDefaultTenant(

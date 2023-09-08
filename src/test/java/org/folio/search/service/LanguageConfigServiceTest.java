@@ -23,6 +23,7 @@ import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.SearchUtils;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +45,7 @@ class LanguageConfigServiceTest {
   @Mock
   private LocalSearchFieldProvider searchFieldProvider;
   @Mock
-  private TenantScopedExecutionService tenantScopedExecutionService;
+  private SystemUserScopedExecutionService executionService;
   @Mock
   private SearchConfigurationProperties searchConfigurationProperties;
 
@@ -127,7 +128,7 @@ class LanguageConfigServiceTest {
   void getAllLanguagesForTenant_positive() {
     var entities = List.of(new LanguageConfigEntity("eng", null), new LanguageConfigEntity("kor", "nori"));
     when(configRepository.findAll()).thenReturn(entities);
-    when(tenantScopedExecutionService.executeTenantScoped(eq(TENANT_ID), any()))
+    when(executionService.executeSystemUserScoped(eq(TENANT_ID), any()))
       .then(inv -> inv.<Callable<Set<String>>>getArgument(1).call());
     var actual = configService.getAllLanguagesForTenant(TENANT_ID);
     assertThat(actual, is(Set.of("eng", "kor")));

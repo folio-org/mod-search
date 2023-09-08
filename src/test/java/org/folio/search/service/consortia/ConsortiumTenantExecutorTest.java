@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -96,19 +96,11 @@ class ConsortiumTenantExecutorTest {
   }
 
   private Supplier<String> operation() {
-    return new Supplier<String>() {
-      @Override
-      public String get() {
-        return OPERATION_RESPONSE_MOCK;
-      }
-    };
+    return () -> OPERATION_RESPONSE_MOCK;
   }
 
   private Runnable operationRunnable() {
-    return new Runnable() {
-      @Override
-      public void run() {
-      }
+    return () -> {
     };
   }
 

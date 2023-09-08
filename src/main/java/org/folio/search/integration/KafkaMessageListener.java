@@ -26,7 +26,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.KafkaConstants;
-import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 

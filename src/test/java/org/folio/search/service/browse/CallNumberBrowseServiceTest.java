@@ -168,6 +168,23 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
+  void browse_positive_around_highlightMatchWithSuffix() {
+    var request = request("callNumber >= B or callNumber < B", true);
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
+
+    prepareMockForBrowsingAround(request,
+      contextAroundIncluding(),
+      BrowseResult.empty(),
+      BrowseResult.of(1, List.of(browseItemWithSuffix("B", "2005"))));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual.getRecords().get(0).getIsAnchor()).isTrue();
+  }
+
+  @Test
   void browse_positive_around_noResults() {
     var request = request("callNumber >= B or callNumber < B", false);
     prepareMockForBrowsingAround(request, contextAroundIncluding(), BrowseResult.empty(), BrowseResult.empty());
@@ -359,6 +376,16 @@ class CallNumberBrowseServiceTest {
       .fullCallNumber(callNumber)
       .shelfKey(getShelfKeyFromCallNumber(callNumber))
       .instance(instance(callNumber))
+      .totalRecords(1);
+  }
+
+  private static CallNumberBrowseItem browseItemWithSuffix(String callNumber, String suffix) {
+    var instance = instance(callNumber);
+    instance.getItems().get(0).getEffectiveCallNumberComponents().setSuffix(suffix);
+    return new CallNumberBrowseItem()
+      .fullCallNumber(callNumber)
+      .shelfKey(getShelfKeyFromCallNumber(callNumber) + " " + suffix)
+      .instance(instance)
       .totalRecords(1);
   }
 

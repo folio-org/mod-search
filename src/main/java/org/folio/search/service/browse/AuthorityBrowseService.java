@@ -6,6 +6,7 @@ import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
 import static org.folio.search.model.index.AuthRefType.REFERENCE;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
@@ -64,7 +65,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
     var boolQuery = boolQuery().filter(FILTER_QUERY);
     ctx.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
@@ -80,7 +81,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
     var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
     return searchSource().query(query).from(0).size(1).fetchSource(getIncludedSourceFields(request), null);
   }
 

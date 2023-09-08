@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
  * Class designed to be executed only in scope of consortium central tenant id.
  * So, it can be expected to always have central tenant id in {@link FolioExecutionContext}.
  */
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ConsortiumInstanceService {
@@ -53,6 +55,7 @@ public class ConsortiumInstanceService {
    * @return events that are not related to consortium tenants
    */
   public List<ResourceEvent> saveInstances(List<ResourceEvent> instanceEvents) {
+    log.info("Saving consortium instances to DB [size: {}]", instanceEvents.size());
     if (CollectionUtils.isEmpty(instanceEvents)) {
       return instanceEvents;
     }

@@ -5,7 +5,7 @@
 * Requires `identifier-types v1.0`
 * Requires `call-number-types v1.0`
 * Provides `indices v0.6`
-* Provides `search v1.1`
+* Provides `search v1.2`
 * Provides `browse v1.2`
 
 ### Features
@@ -22,6 +22,7 @@
 * Implement Active Affiliation Context for stream IDs in Consortia Mode ([MSEARCH-576](https://issues.folio.org/browse/MSEARCH-576))
 * Restrict central tenant queries to only shared records ([MSEARCH-588](https://issues.folio.org/browse/MSEARCH-588))
 * Implement Active Affiliation Context for browsing ([MSEARCH-580](https://issues.folio.org/browse/MSEARCH-580))
+* Add new facets for shared/local flag and tenantId ([MSEARCH-534](https://issues.folio.org/browse/MSEARCH-534))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))

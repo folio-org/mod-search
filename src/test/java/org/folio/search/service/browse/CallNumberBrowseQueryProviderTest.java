@@ -66,7 +66,7 @@ class CallNumberBrowseQueryProviderTest {
   @BeforeEach
   public void setUpMocks() {
     lenient().doAnswer(invocation -> invocation.getArgument(0))
-      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any(), any());
   }
 
   @Test
@@ -122,7 +122,7 @@ class CallNumberBrowseQueryProviderTest {
   @Test
   void get_positive_forwardConsortium() {
     var query = disMaxQuery();
-    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(query);
     when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
 

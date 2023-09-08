@@ -86,7 +86,7 @@ folio:
       - name: inventory.bound-with
         numPartitions: 1
         replicationFactor: 1
-      - name: inventory.authority
+      - name: authorities.authority
         numPartitions: 1
         replicationFactor: 1
       - name: search.instance-contributor
@@ -105,7 +105,7 @@ folio:
         group-id: ${folio.environment}-mod-search-events-group
       authorities:
         concurrency: 1
-        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.authority}
+        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
         group-id: ${folio.environment}-mod-search-authorities-group
       contributors:
         concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}

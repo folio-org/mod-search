@@ -106,7 +106,7 @@ folio:
         group-id: ${folio.environment}-mod-search-events-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.authority}
+        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
         group-id: ${folio.environment}-mod-search-authorities-group
       contributors:
         concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:2}

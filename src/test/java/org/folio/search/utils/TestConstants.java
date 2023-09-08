@@ -3,7 +3,7 @@ package org.folio.search.utils;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

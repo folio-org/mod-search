@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.With;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.tools.model.SystemUser;
+import org.folio.spring.model.SystemUser;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("searchFolioExecutionContextBuilder")
 @RequiredArgsConstructor
 public class FolioExecutionContextBuilder {
   private final FolioModuleMetadata moduleMetadata;
@@ -25,7 +25,7 @@ public class FolioExecutionContextBuilder {
     return builder()
       .withTenantId(systemUser.tenantId())
       .withOkapiUrl(systemUser.okapiUrl())
-      .withToken(systemUser.token())
+      .withToken(systemUser.token() == null ? null : systemUser.token().accessToken())
       .build();
   }
 

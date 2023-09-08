@@ -2,7 +2,7 @@ package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
-import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
 import com.google.common.base.CaseFormat;
 import java.util.Collections;
@@ -37,6 +37,8 @@ public class SearchUtils {
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
+  public static final String SHARED_FIELD_NAME = "shared";
+  public static final String TENANT_ID_FIELD_NAME = "tenantId";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";

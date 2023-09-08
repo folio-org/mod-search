@@ -8,29 +8,20 @@ import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
-import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.opensearch.action.search.MultiSearchResponse.Item;
-import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 @Log4j2
 public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractBrowseService<T> {
-
-  private static final String SHARED_FILTER_KEY = "instances.shared";
 
   protected SearchRepository searchRepository;
   protected ElasticsearchDocumentConverter documentConverter;
@@ -129,28 +120,6 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
    */
   protected abstract BrowseResult<T> mapToBrowseResult(BrowseContext context, SearchResult<R> searchResult,
                                                        boolean isAnchor);
-
-  protected Set<InstanceSubResource> filterSubResourcesForConsortium(
-    BrowseContext context, R resource,
-    Function<R, Set<InstanceSubResource>> subResourceExtractor) {
-
-    var subResources = subResourceExtractor.apply(resource);
-    var sharedFilter = getBrowseFilter(context, SHARED_FILTER_KEY);
-
-    return sharedFilter.map(shared -> subResources.stream()
-        .filter(subResource -> subResource.getShared().equals(Boolean.valueOf(shared)))
-        .collect(Collectors.toSet()))
-      .orElse(subResources);
-  }
-
-  private Optional<String> getBrowseFilter(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .map(filter -> filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
-        ? String.valueOf(termFilter.value())
-        : null)
-      .filter(Objects::nonNull)
-      .findFirst();
-  }
 
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
     var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);

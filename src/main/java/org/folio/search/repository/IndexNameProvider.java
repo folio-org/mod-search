@@ -1,7 +1,7 @@
 package org.folio.search.repository;
 
 import static java.util.Locale.ROOT;
-import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;

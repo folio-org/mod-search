@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -26,9 +29,11 @@ import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,9 +63,19 @@ class SubjectBrowseServiceTest {
   @Mock
   private ElasticsearchDocumentConverter documentConverter;
   @Mock
+  private ConsortiumSearchHelper consortiumSearchHelper;
+  @Mock
   private SearchResponse searchResponse;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
+
+  @BeforeEach
+  public void setUpMocks() {
+    doAnswer(invocation -> invocation.getArgument(1))
+      .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any());
+    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).getInstances())
+      .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
+  }
 
   @Test
   void browse_positive_forward() {

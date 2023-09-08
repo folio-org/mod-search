@@ -4,9 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -14,6 +12,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
@@ -21,6 +20,7 @@ import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.Operator.AND;
 import static org.opensearch.index.query.Operator.OR;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.disMaxQuery;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
@@ -37,6 +37,7 @@ import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfigurati
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
@@ -76,10 +77,14 @@ class CqlSearchQueryConverterTest {
   private FolioExecutionContext folioExecutionContext;
   @MockBean
   private ConsortiumTenantService consortiumTenantService;
+  @MockBean
+  private ConsortiumSearchHelper consortiumSearchHelper;
 
   @BeforeEach
   void setUp() {
     when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+    doAnswer(invocation -> invocation.getArgument(0))
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
   }
 
   @MethodSource("convertCqlQueryDataProvider")
@@ -356,57 +361,12 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convertForConsortia_positive() {
-    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    var consortiumQueryMock = disMaxQuery();
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(consortiumQueryMock);
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
     var cqlQuery = "f1==value";
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(boolQuery()
-      .filter(termQuery("f1", "value"))
-      .should(termQuery("tenantId", TENANT_ID))
-      .should(termQuery("shared", true))
-      .minimumShouldMatch(1)));
-  }
-
-  @Test
-  void convertForConsortia_positive_whenCentralTenant() {
-    when(folioExecutionContext.getTenantId()).thenReturn(CONSORTIUM_TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(CONSORTIUM_TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    var cqlQuery = "f1==value";
-    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery().filter(termQuery("f1", "value"))));
-  }
-
-  @Test
-  void convertForConsortia_positive_whenOriginalQueryMatchAll() {
-    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
-    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
-    var actual = cqlSearchQueryConverter.convertForConsortia("cql.allRecords = 1", RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery()
-        .should(termQuery("tenantId", TENANT_ID))
-        .should(termQuery("shared", true))
-        .minimumShouldMatch(1)));
-  }
-
-  @Test
-  void convertForConsortia_positive_whenOriginalBooleanWithShould() {
-    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
-    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
-    var actual = cqlSearchQueryConverter.convertForConsortia("f1==v1 or f2==v2", RESOURCE_NAME);
-    assertThat(actual).isEqualTo(searchSource().query(
-      boolQuery()
-        .should(termQuery("f1", "v1"))
-        .should(termQuery("f2", "v2"))
-        .must(boolQuery()
-          .should(termQuery("tenantId", TENANT_ID))
-          .should(termQuery("shared", true)))
-        .minimumShouldMatch(1)
-    ));
+    assertThat(actual).isEqualTo(searchSource().query(consortiumQueryMock));
   }
 
   private static Stream<Arguments> convertCqlQueryDataProvider() {

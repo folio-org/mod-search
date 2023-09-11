@@ -54,7 +54,7 @@
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>6.6.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.0.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.4.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>

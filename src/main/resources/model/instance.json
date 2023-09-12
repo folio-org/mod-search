@@ -435,6 +435,7 @@
           "index": "keyword"
         },
         "tenantId": {
+          "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
         "sourceId": {

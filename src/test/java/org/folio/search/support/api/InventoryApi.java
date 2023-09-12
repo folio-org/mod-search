@@ -26,12 +26,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 
+@Log4j2
 @RequiredArgsConstructor
 public class InventoryApi {
 
@@ -51,7 +53,15 @@ public class InventoryApi {
     INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
     var instanceEvent = kafkaResourceEvent(tenantId, CREATE, instance, null);
-    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent);
+    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
+        .whenComplete((stringResourceEventSendResult, throwable) -> {
+          if (throwable != null) {
+            log.error("Failed sending instance resource event", throwable);
+          } else {
+            var topic = stringResourceEventSendResult.getRecordMetadata().topic();
+            log.info("Succeeded sending instance resource event to topic: {}", topic);
+          }
+        });
     createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
     createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
   }

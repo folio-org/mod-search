@@ -175,7 +175,12 @@ public class CallNumberUtils {
     }
 
     records.forEach(r -> r.getInstance().setItems(getItemsFiltered(callNumberType, r)));
-    return records;
+    return records
+      .stream()
+      .filter(r -> r.getInstance().getItems()
+        .stream()
+        .anyMatch(i -> r.getFullCallNumber() == null
+          || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()))).toList();
   }
 
   @NotNull

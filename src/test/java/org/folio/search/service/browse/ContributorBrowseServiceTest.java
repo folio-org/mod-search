@@ -79,7 +79,7 @@ class ContributorBrowseServiceTest {
     var browseContext = BrowseContext.builder().anchor("test").succeedingLimit(1).precedingLimit(1).build();
     var queryMock = disMaxQuery();
 
-    when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any()))
+    when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any(), any()))
       .thenReturn(queryMock);
 
     var result = service.getSearchQuery(browseRequest, browseContext, isBrowsingForward);
@@ -94,7 +94,7 @@ class ContributorBrowseServiceTest {
       .anchor("test").succeedingQuery(rangeQuery("test")).succeedingLimit(1).build();
     var queryMock = disMaxQuery();
 
-    when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any()))
+    when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any(), any()))
       .thenReturn(queryMock);
 
     var result = service.getAnchorSearchQuery(browseRequest, browseContext);

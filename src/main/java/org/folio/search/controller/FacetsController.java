@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,8 @@ public class FacetsController implements FacetsApi {
   private static final Map<RecordType, String> RECORD_TYPE_TO_RESOURCE_MAP = Map.of(
     RecordType.INSTANCES, INSTANCE_RESOURCE,
     RecordType.AUTHORITIES, AUTHORITY_RESOURCE,
-    RecordType.CONTRIBUTORS, CONTRIBUTOR_RESOURCE
+    RecordType.CONTRIBUTORS, CONTRIBUTOR_RESOURCE,
+    RecordType.SUBJECTS, INSTANCE_SUBJECT_RESOURCE
   );
 
   private final FacetService facetService;

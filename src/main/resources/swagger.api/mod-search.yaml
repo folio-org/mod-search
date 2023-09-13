@@ -608,7 +608,7 @@ components:
     updateIndexDynamicSettingsRequest:
       $ref: schemas/request/updateIndexDynamicSettingsRequest.json
     RecordType:
-      enum: [ instances, authorities, contributors ]
+      enum: [ instances, authorities, contributors, subjects ]
       type: string
     CallNumberType:
       enum: [ lc, dewey, nlm, sudoc, other, local ]

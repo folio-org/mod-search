@@ -76,7 +76,7 @@ class AuthorityBrowseServiceTest {
   @BeforeEach
   void setUp() {
     doAnswer(invocation -> invocation.getArgument(0))
-      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any(), any());
     authorityBrowseService.setDocumentConverter(documentConverter);
     authorityBrowseService.setSearchRepository(searchRepository);
     authorityBrowseService.setBrowseContextProvider(browseContextProvider);
@@ -324,7 +324,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void getSearchQuery_positive_consortium() {
     var query = disMaxQuery();
-    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(query);
 
     var actual = authorityBrowseService.getSearchQuery(
       BrowseRequest.builder().targetField("test").build(),
@@ -335,7 +335,7 @@ class AuthorityBrowseServiceTest {
   @Test
   void getAnchorSearchQuery_positive_consortium() {
     var query = disMaxQuery();
-    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(query);
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(query);
 
     var actual = authorityBrowseService.getSearchQuery(
       BrowseRequest.builder().targetField("test").build(),

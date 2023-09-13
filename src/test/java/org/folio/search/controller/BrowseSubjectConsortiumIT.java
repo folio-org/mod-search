@@ -9,13 +9,19 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.asJsonString;
+import static org.folio.search.utils.TestUtils.facet;
+import static org.folio.search.utils.TestUtils.facetItem;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -24,10 +30,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.model.Pair;
@@ -38,10 +49,15 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.search.SearchHit;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
@@ -54,15 +70,25 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
-    setUpTenant(CONSORTIUM_TENANT_ID, INSTANCES_CENTRAL.length, INSTANCES_CENTRAL);
-    setUpTenant(TENANT_ID, INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length, INSTANCES_MEMBER);
+    setUpTenant(CONSORTIUM_TENANT_ID);
+    setUpTenant(TENANT_ID);
+    saveRecords(CONSORTIUM_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+      INSTANCES_CENTRAL.length,
+      instance -> inventoryApi.createInstance(CONSORTIUM_TENANT_ID, instance));
+    saveRecords(TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
+      INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
+      instance -> inventoryApi.createInstance(TENANT_ID, instance));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
-        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
+        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, centralTenant));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(23);
+      System.out.println("Resulted subjects");
+      for (SearchHit hit : searchResponse.getHits()) {
+        System.out.println(hit.getSourceAsMap());
+      }
     });
   }
 
@@ -116,6 +142,16 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
     );
   }
 
+  private static Stream<Arguments> facetQueriesProvider() {
+    return Stream.of(
+      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+        facet(facetItem("false", 15), facetItem("true", 10)))),
+      arguments("cql.allRecords=1", array("instances.tenantId"),
+        mapOf("instances.tenantId", facet(facetItem(TENANT_ID, 15),
+          facetItem(CONSORTIUM_TENANT_ID, 10))))
+    );
+  }
+
   @Test
   void browseBySubject_browsingAround_shared() {
     var request = get(instanceSubjectBrowsePath())
@@ -152,6 +188,21 @@ class BrowseSubjectConsortiumIT extends BaseIntegrationTest {
         subjectBrowseItem(1, "Science", true),
         subjectBrowseItem(1, "Science--Methodology"),
         subjectBrowseItem(1, "Science--Philosophy"))));
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForSubjects_parameterized")
+  void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
   }
 
   //todo: move 4 methods below to consortium integration test base in a scope of MSEARCH-562

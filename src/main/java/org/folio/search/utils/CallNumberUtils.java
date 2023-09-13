@@ -15,13 +15,9 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
-import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.types.CallNumberType;
 import org.jetbrains.annotations.NotNull;
-import org.marc4j.callnum.DeweyCallNumber;
-import org.marc4j.callnum.LCCallNumber;
-import org.marc4j.callnum.NlmCallNumber;
 import org.springframework.util.Assert;
 
 @UtilityClass
@@ -178,19 +174,8 @@ public class CallNumberUtils {
       return records;
     }
 
-    records.forEach(r -> {
-      r.getInstance().setItems(getItemsFiltered(callNumberType, r));
-      r.getInstance().setHoldings(getHoldingsFiltered(callNumberType, r));
-    });
+    records.forEach(r -> r.getInstance().setItems(getItemsFiltered(callNumberType, r)));
     return records;
-  }
-
-  @NotNull
-  private static List<@Valid Holding> getHoldingsFiltered(String callNumberType, CallNumberBrowseItem item) {
-    return item.getInstance().getHoldings()
-      .stream()
-      .filter(h -> isInGivenType(callNumberType, h.getCallNumber()))
-      .toList();
   }
 
   @NotNull
@@ -200,26 +185,6 @@ public class CallNumberUtils {
       .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
         .equals(CallNumberType.fromName(callNumberType)))
       .toList();
-  }
-
-  private boolean isInGivenType(String callNumberType, String callNumber) {
-    switch (callNumberType) {
-      case "dewey" -> {
-        return new DeweyCallNumber(callNumber).isValid();
-      }
-      case "lc" -> {
-        return new LCCallNumber(callNumber).isValid();
-      }
-      case "nlm" -> {
-        return new NlmCallNumber(callNumber).isValid();
-      }
-      default -> {
-        return false;
-      }
-//      case "sudoc" -> {
-//        return new SuDocCallNumber(callNumber).isValid();
-//      };
-    }
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

@@ -42,14 +42,14 @@ import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConf
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.metadata.LocalFileProvider;
-import org.folio.search.support.extension.EnableKafka;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.folio.spring.test.extension.EnableKafka;
 import org.folio.spring.test.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.KafkaAdminService;
-import org.folio.spring.tools.systemuser.SystemUserScopedExecutionService;
 import org.hibernate.exception.SQLGrammarException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

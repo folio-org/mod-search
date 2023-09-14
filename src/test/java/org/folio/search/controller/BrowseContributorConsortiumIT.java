@@ -8,14 +8,19 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.contributorBrowseItem;
+import static org.folio.search.utils.TestUtils.facet;
+import static org.folio.search.utils.TestUtils.facetItem;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -25,12 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Contributor;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributorBrowseResult;
+import org.folio.search.domain.dto.RecordType;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.test.type.IntegrationTest;
@@ -38,7 +48,11 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
@@ -78,9 +92,98 @@ class BrowseContributorConsortiumIT extends BaseIntegrationTest {
     });
   }
 
+  //todo: move 4 methods below to consortium integration test base in a scope of MSEARCH-562
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, int expectedCount, Instance... instances) {
+    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), expectedCount,
+      instance -> inventoryApi.createInstance(tenantName, instance));
+  }
+
+  @SneakyThrows
+  private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
+                                      List<T> records, Integer expectedCount, Consumer<T> consumer) {
+    enableTenant(tenant);
+    postInitAction.run();
+    saveRecords(tenant, validationPath, records, expectedCount, consumer);
+  }
+
+  @SneakyThrows
+  protected static void enableTenant(String tenant) {
+    var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
+    tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(CONSORTIUM_TENANT_ID));
+
+    mockMvc.perform(post("/_/tenant", randomId())
+        .content(asJsonString(tenantAttributes))
+        .headers(defaultHeaders(tenant))
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isNoContent());
+  }
+
   @AfterAll
   static void cleanUp() {
     removeTenant();
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForContributors_parameterized")
+  void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
+  }
+
+  @Test
+  void browseByContributor_shared() {
+    var request = get(instanceContributorBrowsePath()).param("query",
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
+        + "and instances.shared==true").param("limit", "5");
+
+    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
+    var expected = new InstanceContributorBrowseResult().totalRecords(12).prev(null).next("George Harrison").items(
+      List.of(
+        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
+        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(2, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+          TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
+        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])));
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByContributor_local() {
+    var request = get(instanceContributorBrowsePath()).param("query",
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
+        + "and instances.shared==false").param("limit", "5");
+
+    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
+    var expected = new InstanceContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
+      List.of(
+        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+          TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
+        contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0])));
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+
+  private static Stream<Arguments> facetQueriesProvider() {
+    return Stream.of(
+      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+        facet(facetItem("false", 8), facetItem("true", 5)))),
+      arguments("cql.allRecords=1", array("instances.tenantId"),
+        mapOf("instances.tenantId", facet(facetItem(TENANT_ID, 8),
+          facetItem(CONSORTIUM_TENANT_ID, 5))))
+    );
   }
 
   private static Instance[] instancesMember() {
@@ -143,69 +246,6 @@ class BrowseContributorConsortiumIT extends BaseIntegrationTest {
       .contributorNameTypeId(nameTypeId)
       .contributorTypeId(typeId)
       .authorityId(authorityId);
-  }
-
-  @Test
-  void browseByContributor_shared() {
-    var request = get(instanceContributorBrowsePath()).param("query",
-      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-        + "and instances.shared==true").param("limit", "5");
-
-    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
-    var expected = new InstanceContributorBrowseResult().totalRecords(12).prev(null).next("George Harrison").items(
-      List.of(
-        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
-        contributorBrowseItem(2, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
-          TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])));
-
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void browseByContributor_local() {
-    var request = get(instanceContributorBrowsePath()).param("query",
-      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-        + "and instances.shared==false").param("limit", "5");
-
-    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
-    var expected = new InstanceContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
-      List.of(
-        contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
-          TYPE_IDS[1], TYPE_IDS[2]),
-        contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
-        contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0])));
-
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  //todo: move 4 methods below to consortium integration test base in a scope of MSEARCH-562
-  @SneakyThrows
-  protected static void setUpTenant(String tenantName, int expectedCount, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), expectedCount,
-      instance -> inventoryApi.createInstance(tenantName, instance));
-  }
-
-  @SneakyThrows
-  private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                      List<T> records, Integer expectedCount, Consumer<T> consumer) {
-    enableTenant(tenant);
-    postInitAction.run();
-    saveRecords(tenant, validationPath, records, expectedCount, consumer);
-  }
-
-  @SneakyThrows
-  protected static void enableTenant(String tenant) {
-    var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
-    tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(CONSORTIUM_TENANT_ID));
-
-    mockMvc.perform(post("/_/tenant", randomId())
-        .content(asJsonString(tenantAttributes))
-        .headers(defaultHeaders(tenant))
-        .contentType(APPLICATION_JSON))
-      .andExpect(status().isNoContent());
   }
 
   private static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,

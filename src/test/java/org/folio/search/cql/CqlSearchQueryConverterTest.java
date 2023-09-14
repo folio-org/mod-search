@@ -84,7 +84,7 @@ class CqlSearchQueryConverterTest {
   void setUp() {
     when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
     doAnswer(invocation -> invocation.getArgument(0))
-      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any());
+      .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any(), any());
   }
 
   @MethodSource("convertCqlQueryDataProvider")
@@ -362,7 +362,7 @@ class CqlSearchQueryConverterTest {
   @Test
   void convertForConsortia_positive() {
     var consortiumQueryMock = disMaxQuery();
-    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any())).thenReturn(consortiumQueryMock);
+    when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(consortiumQueryMock);
     doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
     var cqlQuery = "f1==value";
     var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);

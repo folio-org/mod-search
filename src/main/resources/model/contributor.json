@@ -27,11 +27,11 @@
         },
         "tenantId": {
           "index": "keyword",
-          "searchTypes": [ "filter" ]
+          "searchTypes": [ "facet", "filter" ]
         },
         "shared": {
           "index": "bool",
-          "searchTypes": [ "filter" ],
+          "searchTypes": [ "facet", "filter" ],
           "default": false
         }
       }

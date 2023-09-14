@@ -44,7 +44,7 @@ public class ContributorBrowseService extends
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
     var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery);
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.getResource());
     return searchSource().query(query)
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
@@ -62,7 +62,7 @@ public class ContributorBrowseService extends
       ctx.getFilters().forEach(boolQuery::filter);
       query = boolQuery;
     }
-    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query);
+    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), null, null, null})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))

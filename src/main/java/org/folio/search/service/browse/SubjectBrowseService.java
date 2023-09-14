@@ -39,7 +39,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context,
-      termQuery(request.getTargetField(), context.getAnchor()));
+      termQuery(request.getTargetField(), context.getAnchor()), request.getResource());
     return searchSource().query(query)
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
@@ -56,7 +56,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
       ctx.getFilters().forEach(boolQuery::filter);
       query = boolQuery;
     }
-    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query);
+    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
       .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))

@@ -123,16 +123,6 @@ class CallNumberUtilsTest {
     assertThat(unchangedItems).isEqualTo(List.of(given));
   }
 
-  @ParameterizedTest(name = "[{index}] callNumber={0}, records={1}, expected={2}")
-  @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingDataHoldings")
-  void excludeIrrelevantResultHoldings(String callNumberType, CallNumberBrowseItem given,
-                                       CallNumberBrowseItem expected) {
-    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, List.of(given));
-    assertThat(items).isEqualTo(List.of(expected));
-    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", List.of(given));
-    assertThat(unchangedItems).isEqualTo(List.of(given));
-  }
-
   private static Stream<Arguments> supportedCharactersDataset() {
     return StreamEx.<Arguments>empty()
       .append(letterCharacterDataProvider())

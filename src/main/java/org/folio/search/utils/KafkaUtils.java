@@ -1,6 +1,6 @@
 package org.folio.search.utils;
 
-import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
 import lombok.experimental.UtilityClass;
 

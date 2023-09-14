@@ -14,6 +14,7 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -56,28 +57,49 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "5")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    final CallNumberBrowseResult expected = new CallNumberBrowseResult()
+    var expected = new CallNumberBrowseResult()
       .totalRecords(18)
       .prev("3308 H975")
       .next("3308 H981")
-      .items(List.of(
-        cnBrowseItem(INSTANCE_MAP.get("instance #18"), "308 H975"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H973"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H974"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #09"), "308 H977", true),
-        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H978"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H979"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #02"), "308 H980"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #08"), "308 H981")
+      .items(Arrays.asList(
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
+        cnBrowseItem(instance("instance #11"), "308 H972"),
+        cnBrowseItem(instance("instance #11"), "308 H973"),
+        cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #09"), "308 H977", true),
+        cnBrowseItem(instance("instance #01"), "308 H978"),
+        cnBrowseItem(instance("instance #10"), "308 H979"),
+        cnBrowseItem(instance("instance #02"), "308 H980"),
+        cnBrowseItem(instance("instance #08"), "308 H981")
     ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void browseByCallNumber_browsingAroundWithDisabledIntermediateValuesAndLowLimit() {
+  void browseByCallNumber_browsingAroundWithoutExpandAll() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("callNumberType", "lc")
+      .param("query", prepareQuery("typedCallNumber >= {value} or typedCallNumber < {value}", "Z669.R360 1975"))
+      .param("limit", "10")
+      .param("highlightMatch", "true")
+      .param("precedingRecordsCount", "5");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var expected = new CallNumberBrowseResult()
+      .totalRecords(4)
+      .items(Arrays.asList(
+        cnBrowseItem(instance("instance #10"), "Z669.R360 1975", true),
+        cnBrowseItem(instance("instance #02"), "Z669.R360 1976"),
+        cnBrowseItem(instance("instance #10"), "Z669.R360 1977")
+    ));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("lc", expected.getItems()));
+    leaveOnlyBasicProps(expected);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByCallNumber_browsingAroundWithLowLimit() {
     var limit = 12;
     var request = get(instanceCallNumberBrowsePath())
       .param("callNumberType", "dewey")
@@ -87,29 +109,40 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "7")
       .param("expandAll", "true");
     var result = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    final CallNumberBrowseResult expected = new CallNumberBrowseResult()
+    var expected = new CallNumberBrowseResult()
       .next("3308 H981")
       .totalRecords(18)
-      .items(
-      List.of(
-        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H970"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H971"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #18"), "308 H975"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H976"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H972"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H973"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #11"), "308 H974"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #09"), "308 H977", true),
-        cnBrowseItem(INSTANCE_MAP.get("instance #01"), "308 H978"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #10"), "308 H979"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #02"), "308 H980"),
-        cnBrowseItem(INSTANCE_MAP.get("instance #08"), "308 H981")
-      )
-    );
+      .items(Arrays.asList(
+        cnBrowseItem(instance("instance #10"), "308 H970"),
+        cnBrowseItem(instance("instance #01"), "308 H971"),
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
+        cnBrowseItem(instance("instance #11"), "308 H972"),
+        cnBrowseItem(instance("instance #11"), "308 H973"),
+        cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #09"), "308 H977", true),
+        cnBrowseItem(instance("instance #01"), "308 H978"),
+        cnBrowseItem(instance("instance #10"), "308 H979"),
+        cnBrowseItem(instance("instance #02"), "308 H980"),
+        cnBrowseItem(instance("instance #08"), "308 H981")
+      ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
 
     assertThat(result.getItems()).hasSizeLessThanOrEqualTo(limit);
     assertThat(result).isEqualTo(expected);
+  }
+
+  private void leaveOnlyBasicProps(CallNumberBrowseResult expected) {
+    expected.getItems().forEach(i -> {
+      Instance instance = i.getInstance();
+      instance.setTenantId(null);
+      instance.setShared(null);
+      instance.getItems().forEach(item -> {
+        item.setId(null);
+        item.setTenantId(null);
+        item.setDiscoverySuppress(null);
+      });
+    });
   }
 
   private static Instance[] instances() {
@@ -125,6 +158,21 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     var instanceArray = new Instance[instanceList.size()];
     instanceList.toArray(instanceArray);
     return instanceArray;
+  }
+
+  private static Instance instance(String title) {
+    Instance instance1 = INSTANCE_MAP.get(title);
+
+    Instance instance = new Instance();
+    instance.setId(instance1.getId());
+    instance.setTitle(title);
+    instance.setItems(new ArrayList<>(instance1.getItems()));
+    instance.setTenantId(instance1.getTenantId());
+    instance.setShared(instance1.getShared());
+    instance.staffSuppress(instance1.getStaffSuppress());
+    instance.discoverySuppress(instance1.getDiscoverySuppress());
+    instance.isBoundWith(instance1.getIsBoundWith());
+    return instance;
   }
 
   private static Instance instance(List<List<String>> data, String title) {

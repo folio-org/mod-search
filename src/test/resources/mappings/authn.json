@@ -3,14 +3,19 @@
     {
       "request": {
         "method": "POST",
-        "url": "/authn/login"
+        "url": "/authn/login-with-expiry"
       },
       "response": {
-        "status": 200,
+        "status": 201,
         "headers": {
           "Content-Type": "application/json",
-          "x-okapi-token": "aa.bb.cc"
-        }
+          "Set-Cookie": ["folioAccessToken=accessToken","folioRefreshToken=refreshToken"]
+        },
+        "jsonBody": {
+          "accessTokenExpiration":  "{{now offset='1 days'}}",
+          "refreshTokenExpiration": "{{now offset='1 days'}}"
+        },
+        "transformers": ["response-template"]
       }
     },
     {

@@ -371,13 +371,13 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 
 ### Search API
 
-| METHOD | URL                           | DESCRIPTION                                                                   |
-|:-------|:------------------------------|:------------------------------------------------------------------------------|
-| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records            |
-| GET    | `/search/authorities`         | Search by authority records                                                   |
-| GET    | `/search/{recordType}/facets` | Get facets where recordType could be: instances, authorities, or contributors |
-| GET    | ~~`/search/instances/ids`~~   | (DEPRECATED) Stream instance ids as JSON or plain text                        |
-| GET    | ~~`/search/holdings/ids`~~    | (DEPRECATED) Stream holding record ids as JSON or plain text                  |
+| METHOD | URL                           | DESCRIPTION                                                                          |
+|:-------|:------------------------------|:-------------------------------------------------------------------------------------|
+| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/authorities`         | Search by authority records                                                          |
+| GET    | `/search/{recordType}/facets` | Get facets where recordType could be: instances, authorities, contributors, subjects |
+| GET    | ~~`/search/instances/ids`~~   | (DEPRECATED) Stream instance ids as JSON or plain text                               |
+| GET    | ~~`/search/holdings/ids`~~    | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 
@@ -636,20 +636,22 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ##### Instance facets
 
-| Option                   |  Type   | Description                                                          |
-|:-------------------------|:-------:|:---------------------------------------------------------------------|
-| `source`                 |  term   | Requests a source facet                                              |
-| `instanceTypeId`         |  term   | Requests a type id facet                                             |
-| `statusId`               |  term   | Requests a status id facet                                           |
-| `instanceFormatIds`      |  term   | Requests a format id facet                                           |
-| `modeOfIssuanceId`       |  term   | Requests a mode of issuance id facet                                 |
-| `natureOfContentTermIds` |  term   | Requests a nature of content terms id facet                          |
-| `languages`              |  term   | Requests a language code facet                                       |
-| `instanceTags`           |  term   | Requests a tags facet                                                |
-| `staffSuppress`          | boolean | Requests a staff suppress facet                                      |
-| `discoverySuppress`      | boolean | Requests a discovery suppress facet                                  |
-| `statisticalCodeIds`     |  term   | Requests a statistical code ids facet                                |
-| `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, item facet  |
+| Option                   |  Type   | Description                                                         |
+|:-------------------------|:-------:|:--------------------------------------------------------------------|
+| `source`                 |  term   | Requests a source facet                                             |
+| `instanceTypeId`         |  term   | Requests a type id facet                                            |
+| `statusId`               |  term   | Requests a status id facet                                          |
+| `instanceFormatIds`      |  term   | Requests a format id facet                                          |
+| `modeOfIssuanceId`       |  term   | Requests a mode of issuance id facet                                |
+| `natureOfContentTermIds` |  term   | Requests a nature of content terms id facet                         |
+| `languages`              |  term   | Requests a language code facet                                      |
+| `instanceTags`           |  term   | Requests a tags facet                                               |
+| `staffSuppress`          | boolean | Requests a staff suppress facet                                     |
+| `discoverySuppress`      | boolean | Requests a discovery suppress facet                                 |
+| `statisticalCodeIds`     |  term   | Requests a statistical code ids facet                               |
+| `statisticalCodes`       |  term   | Requests a statistical code ids from instance, holdings, item facet |
+| `tenantId`               |  term   | Requests a tenantId facet                                           |
+| `shared`                 |  term   | Requests a shared/local facet                                       |
 
 ##### Holdings facets
 
@@ -661,6 +663,7 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `holdings.sourceId`            | term | Requests a holdings sourceId facet              |
 | `holdingsTypeId`               | term | Requests a holdings typeId facet                |
 | `holdingsTags`                 | term | Requests a holdings tag facet                   |
+| `holdings.tenantId`            | term | Requests a holdings tenantId facet              |
 
 ##### Item facets
 
@@ -680,12 +683,23 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `headingType`     | term | Requests a heading type facet                         |
 | `subjectHeadings` | term | Requests a subject headings facet                     |
 | `sourceFileId`    | term | Requests a source files facet (default value: `NULL`) |
+| `tenantId`        | term | Requests a tenantId facet                             |
+| `shared`          | term | Requests a shared/local facet                         |
 
 ##### Contributors facets
 
 | Option                  | Type | Description                            |
 |:------------------------|:----:|:---------------------------------------|
 | `contributorNameTypeId` | term | Requests a contributor name type facet |
+| `instances.tenantId`    | term | Requests a tenantId facet              |
+| `instances.shared`      | term | Requests a shared/local facet          |
+
+##### Subjects facets
+
+| Option                  | Type | Description                            |
+|:------------------------|:----:|:---------------------------------------|
+| `instances.tenantId`    | term | Requests a tenantId facet              |
+| `instances.shared`      | term | Requests a shared/local facet          |
 
 #### Sorting results
 

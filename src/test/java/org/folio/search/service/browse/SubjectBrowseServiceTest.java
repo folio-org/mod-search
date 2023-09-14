@@ -72,7 +72,7 @@ class SubjectBrowseServiceTest {
   @BeforeEach
   public void setUpMocks() {
     doAnswer(invocation -> invocation.getArgument(1))
-      .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any());
+      .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any(), any());
     lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).getInstances())
       .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
   }

@@ -49,7 +49,7 @@
     },
     {
       "id": "search",
-      "version": "1.1",
+      "version": "1.2",
       "handlers": [
         {
           "methods": [ "GET" ],
@@ -244,6 +244,10 @@
     },
     {
       "id": "instance-reindex",
+      "version": "0.1"
+    },
+    {
+      "id": "authority-reindex",
       "version": "0.1"
     },
     {

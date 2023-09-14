@@ -14,7 +14,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
-import org.folio.spring.tools.config.properties.FolioEnvironment;
+import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.tools.kafka.FolioKafkaTopic;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -71,7 +71,7 @@ public class KafkaConfiguration {
    */
   @Bean
   public ConsumerFactory<String, ResourceEvent> resourceEventConsumerFactory() {
-    var deserializer = new JsonDeserializer<>(ResourceEvent.class);
+    var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
     Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties());
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);

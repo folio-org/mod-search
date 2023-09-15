@@ -13,12 +13,14 @@ import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class LanguageConfigServiceDecoratorTest extends DecoratorBaseTest {
 

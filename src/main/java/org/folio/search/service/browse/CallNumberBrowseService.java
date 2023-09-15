@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -200,7 +201,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
 
     var firstBrowseItem = items.get(0);
-    if (!StringUtils.equals(firstBrowseItem.getShelfKey(), anchor)) {
+    if (!isAnchorMatching(firstBrowseItem, anchor)) {
       var browseItemsWithEmptyValue = new ArrayList<CallNumberBrowseItem>();
       browseItemsWithEmptyValue.add(getEmptyCallNumberBrowseItem(callNumber, anchor));
       browseItemsWithEmptyValue.addAll(items);
@@ -209,6 +210,15 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
 
     firstBrowseItem.setIsAnchor(true);
+  }
+
+  private static boolean isAnchorMatching(CallNumberBrowseItem browseItem, String anchor) {
+    var suffix = browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
+    var shelfKey = browseItem.getShelfKey();
+    if (Strings.isNotBlank(suffix)) {
+      shelfKey = StringUtils.removeEnd(shelfKey, suffix).trim();
+    }
+    return StringUtils.equals(shelfKey, anchor);
   }
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String callNumber, String shelfKey) {

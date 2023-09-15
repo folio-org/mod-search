@@ -83,8 +83,8 @@ public class CqlTermQueryConverter {
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
     var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());
 
-    if (searchTerm instanceof List<?> && ((List<?>) searchTerm).size() == 1) {
-      searchTerm = ((List<?>) searchTerm).get(0);
+    if (searchTerm instanceof List<?> termList && termList.size() == 1) {
+      searchTerm = termList.get(0);
     }
 
     var termQueryBuilder = termQueryBuilders.get(comparator);

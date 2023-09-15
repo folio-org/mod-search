@@ -32,11 +32,10 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
   }
 
   private static void getValidShelfKey(List<String> searchTerms, CallNumber value) {
-    var term = Optional.of(value)
+    Optional.of(value)
       .filter(CallNumber::isValid)
       .map(CallNumber::getShelfKey)
-      .map(String::trim);
-
-    term.ifPresent(searchTerms::add);
+      .map(String::trim)
+      .ifPresent(searchTerms::add);
   }
 }

@@ -195,7 +195,7 @@ public class TestUtils {
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    var terms = SHELVING_ORDER_TERM_PROCESSOR.getSearchTerm(callNumber);
+    var terms = SHELVING_ORDER_TERM_PROCESSOR.getSearchTerms(callNumber);
     return terms.get(terms.size() - 1);
   }
 

@@ -109,38 +109,6 @@ class BrowseContextProviderTest {
   }
 
   @Test
-  void get_positive_aroundSuDocCallNumberAnchor() {
-    var query = "callNumber > J29.2 or callNumber < J29.2";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(List.of("J29.2"));
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(List.of("J29.2"));
-    when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(
-      searchSource().query(boolQuery().should(succeedingQuery).should(precedingQuery)));
-
-    var actual = browseContextProvider.get(request(query));
-
-    assertThat(actual).isEqualTo(BrowseContext.builder().anchor("J29.2")
-      .precedingQuery(precedingQuery).precedingLimit(9)
-      .succeedingQuery(succeedingQuery).succeedingLimit(11)
-      .build());
-  }
-
-  @Test
-  void get_positive_aroundMultipleAnchor() {
-    var query = "callNumber > J29.2 or callNumber < J29.2";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(List.of("J29.2", "J29 2"));
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(List.of("J29.2", "J29 2"));
-    when(cqlSearchQueryConverter.convert(query, RESOURCE_NAME)).thenReturn(
-      searchSource().query(boolQuery().should(succeedingQuery).should(precedingQuery)));
-
-    var actual = browseContextProvider.get(request(query));
-
-    assertThat(actual).isEqualTo(BrowseContext.builder().anchor("J29.2,J29 2")
-      .precedingQuery(precedingQuery).precedingLimit(9)
-      .succeedingQuery(succeedingQuery).succeedingLimit(11)
-      .build());
-  }
-
-  @Test
   void get_positive_aroundWithFilters() {
     var query = "(callNumber > A or callNumber < A) and location == locationId";
     var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");

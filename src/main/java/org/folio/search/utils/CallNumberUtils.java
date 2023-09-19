@@ -26,7 +26,7 @@ public class CallNumberUtils {
   private static final int CN_MAX_CHARS = 10;
   private static final char ASCII_SPACE = ' ';
   private static final int MAX_SUPPORTED_CHARACTERS = 52;
-  private static final String SUPPORTED_CHARACTERS_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ .,:;=-+~_/\\#$@?";
+  private static final String SUPPORTED_CHARACTERS_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ .,:;=-+~_/\\#@?!";
   private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final Pattern NORMALIZE_REGEX = Pattern.compile("[^a-z0-9]");
 

@@ -103,21 +103,6 @@ class CqlTermQueryConverterTest {
   }
 
   @Test
-  void getQuery_positive_suDocCallNumberProcessing() {
-    var fieldDesc = plainField("long");
-    fieldDesc.setSearchTermProcessor("processor");
-    var expectedQuery = rangeQuery("callNumber").gt(List.of("J29.2"));
-
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "callNumber")).thenReturn(Optional.of(fieldDesc));
-    when(searchTermProcessor.getSearchTerm("A")).thenReturn(List.of("J29.2"));
-    when(termQueryBuilder.getTermLevelQuery("J29.2", "callNumber", RESOURCE_NAME, "long")).thenReturn(expectedQuery);
-
-    var actual = cqlTermQueryConverter.getQuery(cqlTermNode("callNumber all A"), RESOURCE_NAME);
-
-    assertThat(actual).isEqualTo(expectedQuery);
-  }
-
-  @Test
   void getQuery_positive_shouldFindProcessorForSearchAlias() {
     var fieldName = "nameA";
     var fieldSearchAlias = "nameB";

@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
@@ -37,6 +38,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
+  private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
 
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
@@ -45,10 +47,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var isBrowsingForward = context.isBrowsingForward();
     SearchResponse searchResponse = null;
 
-    if (context.isMultiAnchor()) {
-      var anchors = context.getAnchorsList();
+    var anchors = getAnchors(request);
+    if (anchors.size() > 1) {
       for (String anchor : anchors) {
-        context = buildBrowseContext(context, anchor);
+        if (!anchor.equals(context.getAnchor())) {
+          context = buildBrowseContext(context, anchor);
+        }
         var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
         searchResponse = searchRepository.search(request, searchSource);
         if (isAnchorPresent(searchResponse, context)) {
@@ -73,13 +77,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.debug("browseAround:: by: [request: {}]", request);
     MultiSearchResponse.Item[] responses = {};
+
     var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
 
-    if (context.isMultiAnchor()) {
-      var anchors = context.getAnchorsList();
+    var callNumber = callNumberFromRequest(request);
+    var anchors = getAnchors(callNumber);
+    //todo: maybe refactor, looks ugly
+    if (anchors.size() > 1) {
       for (String anchor : anchors) {
-        context = buildBrowseContext(context, anchor);
-        precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
+        if (!anchor.equals(context.getAnchor())) {
+          context = buildBrowseContext(context, anchor);
+          precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
+        }
 
         responses = getBrowseAround(request, context, precedingQuery);
         if (isAnchorPresent(responses[1].getResponse(), context)) {
@@ -116,7 +125,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
 
     if (TRUE.equals(request.getHighlightMatch())) {
-      var callNumber = cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
@@ -128,6 +136,19 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         trim(precedingResult.getRecords(), context, false),
         trim(succeedingResult.getRecords(), context, true)));
 
+  }
+
+  private String callNumberFromRequest(BrowseRequest request) {
+    return cqlSearchQueryConverter.convertToTermNode(request.getQuery(), request.getResource()).getTerm();
+  }
+
+  private List<String> getAnchors(BrowseRequest request) {
+    var termNode = callNumberFromRequest(request);
+    return effectiveShelvingOrderTermProcessor.getSearchTerms(termNode);
+  }
+
+  private List<String> getAnchors(String callNumber) {
+    return effectiveShelvingOrderTermProcessor.getSearchTerms(callNumber);
   }
 
   @Override
@@ -172,6 +193,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return additionalPrecedingRecords;
   }
 
+  //todo: maybe refactor
   private boolean isAnchorPresent(SearchResponse searchResponse, BrowseContext context) {
     var items = callNumberBrowseResultConverter.convert(searchResponse, context, true).getRecords();
 

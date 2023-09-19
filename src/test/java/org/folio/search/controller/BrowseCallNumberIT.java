@@ -33,7 +33,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseCallNumberIT extends BaseIntegrationTest {
 
@@ -51,6 +50,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     removeTenant();
   }
 
+  @Disabled("Will be fixed in MSEARCH-562")
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
@@ -63,6 +63,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @Disabled("Will be fixed in MSEARCH-562")
   @Test
   void browseByCallNumber_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
     var request = get(instanceCallNumberBrowsePath())
@@ -81,6 +82,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
+  @Disabled("Will be fixed in MSEARCH-562")
   //https://issues.folio.org/browse/MSEARCH-513
   @Test
   void browseByCallNumber_browsingVeryFirstCallNumberWithNoException() {
@@ -104,21 +106,24 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @Test
   void browseByCallNumber_browsingAroundWhenMultipleAnchors() {
     var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"J29.2\""))
+      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"J29.29:M54/990\""))
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229 12").items(List.of(
+    var expected = new CallNumberBrowseResult()
+      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229 229  !M 254 !3990").items(List.of(
         cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V2"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V3"),
-        cnBrowseItem(instance("instance #47"), "J29.2", true)
-      )));
+        cnBrowseItem(instance("instance #47"), "J29.29:M54/990", true)
+      ));
+    System.out.println(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Disabled("Will be fixed in MSEARCH-562")
   @Test
   void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceCallNumberBrowsePath())
@@ -138,6 +143,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
+  @Disabled("Will be fixed in MSEARCH-562")
   @Test
   void browseByCalNumber_browseAroundWithEnabledIntermediateValues() {
     enableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
@@ -388,10 +394,12 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   private static Instance instance(List<Object> data) {
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
+        .tenantId(TENANT_ID)
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
+      )
       .toList();
 
     return new Instance()
@@ -457,7 +465,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       List.of("instance #43", List.of("FA 42010 3546 256")),
       List.of("instance #44", List.of("CE 16 B6713 X 41993")),
       List.of("instance #45", List.of("CE 16 B6724 41993")),
-      List.of("instance #47", List.of("J29.2")),
+      List.of("instance #47", List.of("J29.29:M54/990")),
       List.of("instance #46", List.of("F  PR1866.S63 V.1 C.1"))
     );
   }

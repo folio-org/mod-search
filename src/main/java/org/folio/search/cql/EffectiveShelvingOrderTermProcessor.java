@@ -15,26 +15,39 @@ import org.springframework.stereotype.Component;
 public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor {
 
   @Override
-  public List<String> getSearchTerm(String inputTerm) {
+  public String getSearchTerm(String inputTerm) {
+    return getValidShelfKey(new NlmCallNumber(inputTerm))
+      .or(() -> getValidShelfKey(new LCCallNumber(inputTerm)))
+      .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
+      .or(() -> getValidShelfKey(new SuDocCallNumber(inputTerm)))
+      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
+      .trim();
+  }
+
+  public List<String> getSearchTerms(String inputTerm) {
 
     var searchTerms = new ArrayList<String>();
 
-    getValidShelfKey(searchTerms, new SuDocCallNumber(inputTerm));
-    getValidShelfKey(searchTerms, new NlmCallNumber(inputTerm));
-    getValidShelfKey(searchTerms, new LCCallNumber(inputTerm));
-    getValidShelfKey(searchTerms, new DeweyCallNumber(inputTerm));
+    addShelfKeyIfValid(searchTerms, new NlmCallNumber(inputTerm));
+    addShelfKeyIfValid(searchTerms, new LCCallNumber(inputTerm));
+    addShelfKeyIfValid(searchTerms, new DeweyCallNumber(inputTerm));
+    addShelfKeyIfValid(searchTerms, new SuDocCallNumber(inputTerm));
 
     if (searchTerms.isEmpty()) {
-      searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm).trim());
+      searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm));
     }
 
     return searchTerms;
   }
 
-  private static void getValidShelfKey(List<String> searchTerms, CallNumber value) {
-    Optional.of(value)
+  private static Optional<String> getValidShelfKey(CallNumber value) {
+    return Optional.of(value)
       .filter(CallNumber::isValid)
-      .map(CallNumber::getShelfKey)
+      .map(CallNumber::getShelfKey);
+  }
+
+  private static void addShelfKeyIfValid(List<String> searchTerms, CallNumber value) {
+    getValidShelfKey(value)
       .map(String::trim)
       .ifPresent(searchTerms::add);
   }

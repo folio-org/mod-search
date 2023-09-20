@@ -184,7 +184,7 @@ public class CallNumberUtils {
       .stream()
       .filter(r -> {
         Instance instance = r.getInstance();
-        if (instance!=null) {
+        if (instance != null) {
           return instance.getItems()
             .stream()
             .anyMatch(i -> r.getFullCallNumber() == null

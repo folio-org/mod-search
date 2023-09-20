@@ -31,6 +31,8 @@ import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -164,18 +166,23 @@ class CallNumberBrowseServiceTest {
       cnBrowseItem(instance("C 11"), "C 11"))));
   }
 
-  @Test
-  void browse_positive_around_highlightMatchWithSuffix() {
-    var request = request("callNumber >= B or callNumber < B", true);
+  @ValueSource(strings = {"B", "B 2005"})
+  @ParameterizedTest
+  void browse_positive_around_highlightMatchWithSuffix(String callNumber) {
+    var request = request(String.format("callNumber >= %s or callNumber < %s", callNumber, callNumber), true);
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, callNumber));
 
     prepareMockForBrowsingAround(request,
-      contextAroundIncluding(),
+      contextAroundIncluding(callNumber, callNumber),
       BrowseResult.empty(),
       BrowseResult.of(1, List.of(browseItemWithSuffix("B", "2005"))));
 
-    var actual = callNumberBrowseService.browse(request);
+    var actual = callNumberBrowseService.browse(request).getRecords().get(0);
 
-    assertThat(actual.getRecords().get(0).getIsAnchor()).isTrue();
+    assertThat(actual.getInstance()).isNotNull();
+    assertThat(actual.getIsAnchor()).isTrue();
   }
 
   @Test
@@ -246,7 +253,7 @@ class CallNumberBrowseServiceTest {
 
     var precedingResult = BrowseResult.of(1, browseItems("A 11", "A 12"));
     var succeedingResult = BrowseResult.of(1, browseItems("B"));
-    var contextForNoAnchorInResponse = contextAroundIncludingMultipleAnchors("A", ANCHOR);
+    var contextForNoAnchorInResponse = contextAroundIncluding("A", ANCHOR);
 
     //mocks for request without anchor in response
     when(browseContextProvider.get(request)).thenReturn(contextForNoAnchorInResponse);
@@ -257,7 +264,7 @@ class CallNumberBrowseServiceTest {
     when(browseResultConverter.convert(succeedingResponse, contextForNoAnchorInResponse, true))
       .thenReturn(succeedingResult);
 
-    var contextForAnchorInResponse = contextAroundIncludingMultipleAnchors(ANCHOR, ANCHOR);
+    var contextForAnchorInResponse = contextAroundIncluding(ANCHOR, ANCHOR);
 
     //mock for request with anchor in response
     when(browseQueryProvider.get(request, contextForAnchorInResponse, false)).thenReturn(precedingQuery);
@@ -408,10 +415,10 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseContext contextAroundIncluding() {
-    return contextAroundIncludingMultipleAnchors(ANCHOR, ANCHOR);
+    return contextAroundIncluding(ANCHOR, ANCHOR);
   }
 
-  private static BrowseContext contextAroundIncludingMultipleAnchors(String anchor, String searchTerm) {
+  private static BrowseContext contextAroundIncluding(String anchor, String searchTerm) {
     return BrowseContext.builder()
       .precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(searchTerm))
       .succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(searchTerm))
@@ -444,7 +451,7 @@ class CallNumberBrowseServiceTest {
     var instance = instance(callNumber);
     instance.getItems().get(0).getEffectiveCallNumberComponents().setSuffix(suffix);
     return new CallNumberBrowseItem()
-      .fullCallNumber(callNumber)
+      .fullCallNumber(callNumber + " " + suffix)
       .shelfKey(getShelfKeyFromCallNumber(callNumber) + " " + suffix)
       .instance(instance)
       .totalRecords(1);

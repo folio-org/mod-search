@@ -13,7 +13,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -235,10 +234,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private static boolean isAnchorMatching(CallNumberBrowseItem browseItem, String anchor) {
     var suffix = browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
     var shelfKey = browseItem.getShelfKey();
-    if (Strings.isNotBlank(suffix)) {
-      shelfKey = StringUtils.removeEnd(shelfKey, suffix).trim();
-    }
-    return StringUtils.equals(shelfKey, anchor);
+    var shelfKeyNoSuffix = StringUtils.removeEnd(shelfKey, suffix).trim();
+
+    return StringUtils.equals(shelfKey, anchor)
+      || StringUtils.equals(shelfKeyNoSuffix, anchor);
   }
 
   private static CallNumberBrowseItem getEmptyCallNumberBrowseItem(String callNumber, String shelfKey) {

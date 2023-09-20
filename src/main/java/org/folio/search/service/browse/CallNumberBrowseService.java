@@ -82,7 +82,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var callNumber = callNumberFromRequest(request);
     var anchors = getAnchors(callNumber);
-    //todo: maybe refactor, looks ugly
     if (anchors.size() > 1) {
       for (String anchor : anchors) {
         if (!anchor.equals(context.getAnchor())) {
@@ -193,7 +192,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     return additionalPrecedingRecords;
   }
 
-  //todo: maybe refactor
   private boolean isAnchorPresent(SearchResponse searchResponse, BrowseContext context) {
     var items = callNumberBrowseResultConverter.convert(searchResponse, context, true).getRecords();
 

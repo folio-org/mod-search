@@ -15,6 +15,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.types.CallNumberType;
 import org.jetbrains.annotations.NotNull;
@@ -174,13 +175,23 @@ public class CallNumberUtils {
       return records;
     }
 
-    records.forEach(r -> r.getInstance().setItems(getItemsFiltered(callNumberType, r)));
+    records.forEach(r -> {
+      if (r.getInstance() != null) {
+        r.getInstance().setItems(getItemsFiltered(callNumberType, r));
+      }
+    });
     return records
       .stream()
-      .filter(r -> r.getInstance().getItems()
-        .stream()
-        .anyMatch(i -> r.getFullCallNumber() == null
-          || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()))).toList();
+      .filter(r -> {
+        Instance instance = r.getInstance();
+        if (instance!=null) {
+          return instance.getItems()
+            .stream()
+            .anyMatch(i -> r.getFullCallNumber() == null
+              || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()));
+        }
+        return false;
+      }).toList();
   }
 
   @NotNull

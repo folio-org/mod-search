@@ -87,7 +87,7 @@ class CallNumberUtilsTest {
   }
 
   @CsvSource({
-    "' ',0", "#,1", "$,2", "+,3", "',',4", "-,5", ".,6", "/,7", ":,18", ";,19",
+    "' ',0", "$,0", "!,1", "#,2", "+,3", "',',4", "-,5", ".,6", "/,7", ":,18", ";,19",
     "=,20", "?,21", "@,22", "\\,49", "_,50", "~,51"
   })
   @ParameterizedTest
@@ -139,7 +139,7 @@ class CallNumberUtilsTest {
   }
 
   private static Stream<Arguments> otherCharactersDataProvider() {
-    return ".,:;=-+~_/\\#$@?".chars().mapToObj(e -> arguments((char) e));
+    return ".,:;=-+~_/\\#@?!".chars().mapToObj(e -> arguments((char) e));
   }
 
   private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId) {

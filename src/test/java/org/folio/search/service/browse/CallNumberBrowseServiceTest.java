@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
@@ -17,6 +18,7 @@ import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import java.util.List;
 import org.apache.lucene.search.TotalHits;
 import org.folio.search.cql.CqlSearchQueryConverter;
+import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -54,6 +56,8 @@ class CallNumberBrowseServiceTest {
   private CallNumberBrowseQueryProvider browseQueryProvider;
   @Mock
   private CallNumberBrowseResultConverter browseResultConverter;
+  @Mock
+  private EffectiveShelvingOrderTermProcessor shelvingOrderProcessor;
 
   @Mock
   private SearchResponse additionalResponse;
@@ -71,13 +75,13 @@ class CallNumberBrowseServiceTest {
   @BeforeEach
   void setUp() {
     callNumberBrowseService.setBrowseContextProvider(browseContextProvider);
+    lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
   }
 
   @Test
   void browse_positive_around() {
     var request = request("callNumber >= B or callNumber < B", true);
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
-      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(4, browseItems("A1", "A2", "A3", "A4")),
@@ -97,8 +101,6 @@ class CallNumberBrowseServiceTest {
   void browse_positive_aroundWithFoundAnchor() {
     var request = request("callNumber >= B or callNumber < B", true);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
-      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
       BrowseResult.of(1, browseItems("A 11", "A 12")),
@@ -120,9 +122,6 @@ class CallNumberBrowseServiceTest {
     var additionalPrecedingResult = BrowseResult.of(1, browseItems("A"));
     var succeedingResult = BrowseResult.of(1, browseItems("B"));
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
-      .thenReturn(new CQLTermNode(null, null, "B"));
-
     prepareMockForBrowsingAround(request, contextAroundIncluding(), precedingResult, succeedingResult);
     prepareMockForAdditionalRequest(request, contextAroundIncluding(), additionalPrecedingResult);
 
@@ -137,8 +136,6 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true);
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
-      .thenReturn(new CQLTermNode(null, null, "B"));
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11", "A 12")), BrowseResult.empty());
 
@@ -170,9 +167,6 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_around_highlightMatchWithSuffix() {
     var request = request("callNumber >= B or callNumber < B", true);
-
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
-      .thenReturn(new CQLTermNode(null, null, "B"));
 
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(),
@@ -211,6 +205,26 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
+  void browse_positive_forwardMultipleAnchors() {
+    var request = request("callNumber >= B", false);
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
+    var multiAnchorContext = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR)
+      .build();
+    var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR).build();
+
+    when(browseContextProvider.get(request)).thenReturn(multiAnchorContext);
+    when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
+    when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
+    when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(
+      BrowseResult.of(1, browseItems("B")));
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(1, "B", null, List.of(
+      cnBrowseItem(instance("B"), "B"))));
+  }
+
+  @Test
   void browse_positive_emptyAnchor() {
     var request = request("callNumber >= []", false);
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
@@ -220,6 +234,49 @@ class CallNumberBrowseServiceTest {
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
+  }
+
+  @Test
+  void browse_positive_multipleAnchors() {
+    var request = request("callNumber >= B or callNumber < B", true);
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
+    when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(List.of("A", "B"));
+
+    var precedingResult = BrowseResult.of(1, browseItems("A 11", "A 12"));
+    var succeedingResult = BrowseResult.of(1, browseItems("B"));
+    var contextForNoAnchorInResponse = contextAroundIncludingMultipleAnchors("A", ANCHOR);
+
+    //mocks for request without anchor in response
+    when(browseContextProvider.get(request)).thenReturn(contextForNoAnchorInResponse);
+    when(browseQueryProvider.get(request, contextForNoAnchorInResponse, false)).thenReturn(precedingQuery);
+    when(browseQueryProvider.get(request, contextForNoAnchorInResponse, true)).thenReturn(succeedingQuery);
+    var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
+    when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
+    when(browseResultConverter.convert(succeedingResponse, contextForNoAnchorInResponse, true))
+      .thenReturn(succeedingResult);
+
+    var contextForAnchorInResponse = contextAroundIncludingMultipleAnchors(ANCHOR, ANCHOR);
+
+    //mock for request with anchor in response
+    when(browseQueryProvider.get(request, contextForAnchorInResponse, false)).thenReturn(precedingQuery);
+    when(browseQueryProvider.get(request, contextForAnchorInResponse, true)).thenReturn(succeedingQuery);
+    when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
+    when(browseResultConverter.convert(precedingResponse, contextForAnchorInResponse, false))
+      .thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, contextForAnchorInResponse, false))
+      .thenReturn(BrowseResult.empty());
+    when(browseResultConverter.convert(succeedingResponse, contextForAnchorInResponse, true))
+      .thenReturn(succeedingResult);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
+      cnBrowseItem(instance("A 11"), "A 11"),
+      cnBrowseItem(instance("A 12"), "A 12"),
+      cnBrowseItem(instance("B"), "B", true)
+    )));
   }
 
   @Test
@@ -351,12 +408,16 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseContext contextAroundIncluding() {
+    return contextAroundIncludingMultipleAnchors(ANCHOR, ANCHOR);
+  }
+
+  private static BrowseContext contextAroundIncludingMultipleAnchors(String anchor, String searchTerm) {
     return BrowseContext.builder()
-      .precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR))
-      .succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR))
+      .precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(searchTerm))
+      .succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(searchTerm))
       .precedingLimit(2)
       .succeedingLimit(3)
-      .anchor(ANCHOR)
+      .anchor(anchor)
       .build();
   }
 

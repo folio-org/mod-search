@@ -8,17 +8,22 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import org.folio.search.client.UserTenantsClient;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class ConsortiaServiceTest {
 
   @Mock
   private UserTenantsClient userTenantsClient;
+  @Mock
+  private FolioExecutionContext context;
   @InjectMocks
   private ConsortiumTenantService consortiumTenantService;
 

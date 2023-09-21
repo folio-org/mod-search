@@ -17,6 +17,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -26,6 +27,7 @@ import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Log4j2
 @Service
@@ -233,7 +235,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   private static boolean isAnchorMatching(CallNumberBrowseItem browseItem, String anchor) {
-    var suffix = browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
+    var suffix = "";
+    Instance instance = browseItem.getInstance();
+    if (instance != null && !CollectionUtils.isEmpty(instance.getItems())) {
+      suffix = instance.getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
+    }
     var shelfKey = browseItem.getShelfKey();
     if (Strings.isNotBlank(suffix)) {
       shelfKey = StringUtils.removeEnd(shelfKey, suffix).trim();

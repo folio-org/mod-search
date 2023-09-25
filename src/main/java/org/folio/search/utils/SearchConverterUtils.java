@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.SOURCE_FIELD;
 
 import java.util.Arrays;
 import java.util.List;
@@ -144,6 +145,16 @@ public class SearchConverterUtils {
    */
   public static String getResourceEventId(Map<String, Object> eventPayload) {
     return getString(eventPayload, ID_FIELD);
+  }
+
+  /**
+   * Returns resource event source field value from event payload {@link Map} object.
+   *
+   * @param eventPayload - resource event body to analyze
+   * @return event source field value as {@link String} object
+   */
+  public static String getResourceSource(Map<String, Object> eventPayload) {
+    return getString(eventPayload, SOURCE_FIELD);
   }
 
   /**

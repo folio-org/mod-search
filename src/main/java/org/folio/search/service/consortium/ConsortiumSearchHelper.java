@@ -22,12 +22,15 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.MatchAllQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class ConsortiumSearchHelper {
 
+  private static final Logger logger = LoggerFactory.getLogger(ConsortiumSearchHelper.class);
   private static final String BROWSE_SHARED_FILTER_KEY = "instances.shared";
   private static final String BROWSE_TENANT_FILTER_KEY = "instances.tenantId";
 
@@ -59,6 +62,7 @@ public class ConsortiumSearchHelper {
    */
   public QueryBuilder filterBrowseQueryForActiveAffiliation(BrowseContext browseContext, QueryBuilder query,
                                                             String resource) {
+    logger.debug("{}", resource);
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     var sharedFilter = getBrowseSharedFilter(browseContext);
@@ -69,16 +73,15 @@ public class ConsortiumSearchHelper {
 
     removeOriginalSharedFilterFromQuery(query);
 
-    var shared = sharedFilter.map(this::sharedFilterValue).orElse(true);
-    if (Boolean.TRUE.equals(shared)) {
-      return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
-    }
-
     var boolQuery = prepareBoolQueryForActiveAffiliation(query);
     if (boolQuery.should().isEmpty()) {
       boolQuery.minimumShouldMatch(null);
     }
     boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+
+    sharedFilter
+      .map(this::sharedFilterValue)
+      .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
 
     return boolQuery;
   }

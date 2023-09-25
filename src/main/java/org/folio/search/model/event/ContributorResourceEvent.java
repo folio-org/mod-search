@@ -13,4 +13,5 @@ public class ContributorResourceEvent {
   String nameTypeId;
   String typeId;
   String authorityId;
+  boolean shared;
 }

@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -11,8 +11,6 @@ import java.util.Set;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.service.LanguageConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

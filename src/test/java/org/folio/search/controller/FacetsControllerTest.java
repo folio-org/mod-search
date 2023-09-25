@@ -4,13 +4,14 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
 import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.facetResult;
-import static org.folio.search.utils.TestUtils.facetServiceRequest;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,9 +22,10 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.service.FacetService;
-import org.folio.search.support.base.TenantConfig;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -35,16 +37,22 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@Import({ApiExceptionHandler.class, TenantConfig.class})
+@Import({ApiExceptionHandler.class})
 @WebMvcTest(FacetsController.class)
 class FacetsControllerTest {
 
   @MockBean
   private FacetService facetService;
+  @MockBean
+  private TenantProvider tenantProvider;
   @Autowired
   private MockMvc mockMvc;
-  @Autowired
-  private String centralTenant;
+
+  @BeforeEach
+  public void setUp() {
+    lenient().when(tenantProvider.getTenant(TENANT_ID))
+      .thenReturn(TENANT_ID);
+  }
 
   public static Stream<Arguments> facetsTestSource() {
     return Stream.of(
@@ -58,7 +66,7 @@ class FacetsControllerTest {
   @ParameterizedTest
   void getFacets_positive(String recordType, String resource) throws Exception {
     var cqlQuery = "source all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(centralTenant, resource, cqlQuery, "source:5");
+    var expectedFacetRequest = defaultFacetServiceRequest(resource, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenReturn(
       facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
 
@@ -81,7 +89,7 @@ class FacetsControllerTest {
   @Test
   void getFacets_negative_unknownFacet() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = facetServiceRequest(centralTenant, INSTANCE_RESOURCE, cqlQuery, "source:5");
+    var expectedFacetRequest = defaultFacetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenThrow(
       new RequestValidationException("Invalid facet value", "facet", "source"));
 

@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
@@ -6,8 +6,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.folio.search.service.consortium.ConsortiumTenantProvider;
-import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

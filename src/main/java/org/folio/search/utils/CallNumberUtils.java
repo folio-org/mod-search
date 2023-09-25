@@ -198,9 +198,16 @@ public class CallNumberUtils {
   private static List<@Valid Item> getItemsFiltered(String callNumberType, CallNumberBrowseItem item) {
     return item.getInstance().getItems()
       .stream()
-      .filter(i -> CallNumberType.fromId(i.getEffectiveCallNumberComponents().getTypeId())
-        .equals(CallNumberType.fromName(callNumberType)))
+      .filter(i -> callNumberTypeMatch(callNumberType, i))
       .toList();
+  }
+
+  private static boolean callNumberTypeMatch(String callNumberType, Item item) {
+    var itemCallNumberType = CallNumberType.fromId(item.getEffectiveCallNumberComponents().getTypeId());
+    var requestCallNumberType = CallNumberType.fromName(callNumberType);
+    return itemCallNumberType.equals(requestCallNumberType)
+      || requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
+      .orElse(false) && itemCallNumberType.isEmpty();
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

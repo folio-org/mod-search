@@ -8,6 +8,7 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -52,7 +53,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, centralTenant));
+        .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(23);
     });

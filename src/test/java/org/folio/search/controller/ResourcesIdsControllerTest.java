@@ -30,7 +30,6 @@ import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsJobService;
 import org.folio.search.service.ResourceIdsStreamHelper;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @UnitTest
 @WebMvcTest(ResourcesIdsController.class)
 @Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class, ResourceIdsJobService.class,
-         ResourceIdService.class, TenantConfig.class})
+         ResourceIdService.class})
 class ResourcesIdsControllerTest {
 
   @Autowired

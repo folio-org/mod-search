@@ -1,11 +1,13 @@
 package org.folio.search.controller;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
+import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
@@ -64,8 +66,14 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) throws InterruptedException {
-    setUpTenant(CONSORTIUM_TENANT_ID, INSTANCES_CENTRAL.length, INSTANCES_CENTRAL);
-    setUpTenant(MEMBER_TENANT_ID, INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length, INSTANCES_MEMBER);
+    setUpTenant(CONSORTIUM_TENANT_ID);
+    setUpTenant(MEMBER_TENANT_ID);
+    saveRecords(CONSORTIUM_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+      INSTANCES_CENTRAL.length,
+      instance -> inventoryApi.createInstance(CONSORTIUM_TENANT_ID, instance));
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
+      INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     // this is needed to test deleting contributors when all instances are unlinked from a contributor
     var instanceToUpdate = INSTANCES_CENTRAL[0];

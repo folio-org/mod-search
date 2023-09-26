@@ -206,8 +206,8 @@ public class CallNumberUtils {
     var itemCallNumberType = CallNumberType.fromId(item.getEffectiveCallNumberComponents().getTypeId());
     var requestCallNumberType = CallNumberType.fromName(callNumberType);
     return itemCallNumberType.equals(requestCallNumberType)
-      || requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
-      .orElse(false) && itemCallNumberType.isEmpty();
+      || itemCallNumberType.isEmpty() && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
+      .orElse(false);
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

@@ -16,14 +16,14 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addConverter(new StringToCallNumberTypeEnumConverter());
   }
 
-  private static class StringToRecordTypeEnumConverter implements Converter<String, RecordType> {
+  private static final class StringToRecordTypeEnumConverter implements Converter<String, RecordType> {
     @Override
     public RecordType convert(String source) {
       return RecordType.valueOf(source.toUpperCase());
     }
   }
 
-  private static class StringToCallNumberTypeEnumConverter implements Converter<String, CallNumberType> {
+  private static final class StringToCallNumberTypeEnumConverter implements Converter<String, CallNumberType> {
     @Override
     public CallNumberType convert(String source) {
       return CallNumberType.valueOf(source.toUpperCase());

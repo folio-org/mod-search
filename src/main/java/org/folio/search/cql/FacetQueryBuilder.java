@@ -169,7 +169,7 @@ public class FacetQueryBuilder {
 
   @Data
   @RequiredArgsConstructor(staticName = "of")
-  private static class Facet {
+  private static final class Facet {
 
     private final String field;
     private final String aggregationName;

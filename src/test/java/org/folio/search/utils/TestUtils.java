@@ -15,6 +15,7 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -40,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -59,6 +61,7 @@ import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -75,6 +78,7 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.types.CallNumberType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.SearchType;
 import org.opensearch.action.search.SearchResponse;
@@ -169,7 +173,12 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    var callNumberType = Optional.ofNullable(instance.getItems().get(0))
+      .flatMap(item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
+        .map(ItemEffectiveCallNumberComponents::getTypeId));
+    var shelfKey = callNumberType.isEmpty()
+      ? getShelfKeyFromCallNumber(callNumber)
+      : getShelfKeyFromCallNumber(callNumber, callNumberType.get());
     return cnBrowseItem(instance, shelfKey, callNumber);
   }
 
@@ -197,6 +206,15 @@ public class TestUtils {
   public static String getShelfKeyFromCallNumber(String callNumber) {
     var terms = SHELVING_ORDER_TERM_PROCESSOR.getSearchTerms(callNumber);
     return terms.get(terms.size() - 1);
+  }
+
+  public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
+    var callNumberType = CallNumberType.fromId(typeId);
+    if (callNumberType.isEmpty()) {
+      return normalizeEffectiveShelvingOrder(callNumber);
+    }
+
+    return getShelfKeyFromCallNumber(callNumber);
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

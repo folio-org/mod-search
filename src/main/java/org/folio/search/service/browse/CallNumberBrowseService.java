@@ -10,6 +10,7 @@ import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -232,7 +233,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   private static boolean isAnchorMatching(CallNumberBrowseItem browseItem, String anchor) {
-    var suffix = browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
+    var suffix = Optional.ofNullable(browseItem.getInstance())
+      .flatMap(instance -> Optional.ofNullable(instance.getItems())
+        .map(items -> items.isEmpty() ? null : items.get(0).getEffectiveCallNumberComponents().getSuffix()))
+      .orElse(null);
     var shelfKey = browseItem.getShelfKey();
     var shelfKeyNoSuffix = StringUtils.removeEnd(shelfKey, suffix).trim();
 

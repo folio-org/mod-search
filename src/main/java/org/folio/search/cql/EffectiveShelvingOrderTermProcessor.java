@@ -25,7 +25,6 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
   }
 
   public List<String> getSearchTerms(String inputTerm) {
-
     var searchTerms = new ArrayList<String>();
 
     addShelfKeyIfValid(searchTerms, new NlmCallNumber(inputTerm));
@@ -33,9 +32,7 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
     addShelfKeyIfValid(searchTerms, new DeweyCallNumber(inputTerm));
     addShelfKeyIfValid(searchTerms, new SuDocCallNumber(inputTerm));
 
-    if (searchTerms.isEmpty()) {
-      searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm));
-    }
+    searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm));
 
     return searchTerms;
   }

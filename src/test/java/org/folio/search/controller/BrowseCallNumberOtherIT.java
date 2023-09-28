@@ -8,20 +8,23 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTE
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
+import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
-import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.shelfKeyForNotTypedCallNumberFunction;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.TestUtils;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +59,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
       cnBrowseItem(instance("instance #11"), "F-1,452"),
-      cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
+      cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
       cnBrowseItem(0, "g", true),
       cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
@@ -81,7 +84,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
       cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
       cnBrowseItem(instance("instance #11"), "F-1,452"),
-      cnBrowseItem(instance("instance #10"), "FA 42010 3546 256"),
+      cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
       cnBrowseItem(0, "g", true),
       cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
       cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
@@ -94,6 +97,24 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
   }
 
+  @Test
+  void browseByCallNumber_browsingAroundWithNotIndexedCallNumberType() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "FA 42010 3546 256"))
+      .param("limit", "5")
+      .param("precedingRecordsCount", "3")
+      .param("expandAll", "true");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(13).prev("DA 43880 O6 M96").next("G  SHELF#1").items(List.of(
+        cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
+        cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
+        cnBrowseItem(instance("instance #11"), "F-1,452"),
+        cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256", true),
+        cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)")
+      )));
+  }
+
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
       .map(BrowseCallNumberOtherIT::instance)
@@ -102,12 +123,15 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var effectiveShelvingOrderFunction = data.size() < 3
+      ? (Function<String, String>) TestUtils::getShelfKeyFromCallNumber
+      : (Function<String, String>) data.get(2);
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+        .effectiveShelvingOrder(effectiveShelvingOrderFunction.apply(callNumber)))
       .toList();
 
     return new Instance()
@@ -137,7 +161,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       List.of("instance #07", List.of("RAW 22")),
       List.of("instance #08", List.of("PIRANHA 19 _C 11")),
       List.of("instance #09", List.of("F  PR1866.S63 V.1 C.1")),
-      List.of("instance #10", List.of("FA 42010 3546 256")),
+      //for the case when call number type is not specified by inventory but call number may be parsed into a system one
+      List.of("instance #10", List.of("FA 42010 3546 256"), shelfKeyForNotTypedCallNumberFunction()),
       List.of("instance #11", List.of("F-1,452")),
       List.of("instance #12", List.of("G (shelf#1)"))
     );

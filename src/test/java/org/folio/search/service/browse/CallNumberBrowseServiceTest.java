@@ -1,5 +1,6 @@
 package org.folio.search.service.browse;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +80,7 @@ class CallNumberBrowseServiceTest {
     callNumberBrowseService.setBrowseContextProvider(browseContextProvider);
     lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
+    lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList(ANCHOR));
   }
 
   @Test
@@ -173,6 +175,7 @@ class CallNumberBrowseServiceTest {
 
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, callNumber));
+    lenient().when(shelvingOrderProcessor.getSearchTerms(callNumber)).thenReturn(newArrayList(callNumber));
 
     prepareMockForBrowsingAround(request,
       contextAroundIncluding(callNumber, callNumber),
@@ -249,7 +252,7 @@ class CallNumberBrowseServiceTest {
 
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
-    when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(List.of("A", "B"));
+    lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("A", "B"));
 
     var precedingResult = BrowseResult.of(1, browseItems("A 11", "A 12"));
     var succeedingResult = BrowseResult.of(1, browseItems("B"));

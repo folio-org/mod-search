@@ -62,7 +62,7 @@ public class ConsortiumSearchHelper {
    */
   public QueryBuilder filterBrowseQueryForActiveAffiliation(BrowseContext browseContext, QueryBuilder query,
                                                             String resource) {
-    logger.debug("{}", resource);
+    logger.debug("Filtering browse query for {}", resource);
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     var sharedFilter = getBrowseSharedFilter(browseContext);
@@ -77,7 +77,13 @@ public class ConsortiumSearchHelper {
     if (boolQuery.should().isEmpty()) {
       boolQuery.minimumShouldMatch(null);
     }
-    boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+
+    var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
+    if (shared == null) {
+      return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
+    } else if (!shared) {
+      boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+    }
 
     sharedFilter
       .map(this::sharedFilterValue)
@@ -104,7 +110,7 @@ public class ConsortiumSearchHelper {
       subResource -> subResource.getTenantId().equals(contextTenantId);
     if (sharedFilter.isPresent()) {
       if (sharedFilterValue(sharedFilter.get())) {
-        subResourcesFilter = subResourcesFilter.or(InstanceSubResource::getShared);
+        subResourcesFilter = InstanceSubResource::getShared;
       }
     } else {
       if (tenantFilter.isEmpty()) {

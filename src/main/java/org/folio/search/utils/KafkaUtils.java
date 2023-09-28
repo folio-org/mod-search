@@ -15,6 +15,6 @@ public class KafkaUtils {
    * @return topic name as {@link String} object
    */
   public static String getTenantTopicName(String initialName, String tenantId) {
-    return String.format("%s.%s.%s", getFolioEnvName(), tenantId, initialName);
+    return org.folio.spring.tools.kafka.KafkaUtils.getTenantTopicName(initialName, getFolioEnvName(), tenantId);
   }
 }

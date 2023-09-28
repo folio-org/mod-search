@@ -1,10 +1,9 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import java.util.function.Supplier;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 
 public abstract class DecoratorBaseTest {
 

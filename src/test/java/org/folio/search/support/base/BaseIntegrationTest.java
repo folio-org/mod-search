@@ -6,7 +6,6 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -46,7 +45,6 @@ import org.folio.spring.test.extension.EnableKafka;
 import org.folio.spring.test.extension.EnablePostgres;
 import org.folio.spring.test.extension.impl.OkapiConfiguration;
 import org.folio.spring.test.extension.impl.OkapiExtension;
-import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,7 +71,6 @@ public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
-  protected static String centralTenant;
 
   @RegisterExtension
   static OkapiExtension okapiExtension =
@@ -84,7 +81,6 @@ public abstract class BaseIntegrationTest {
     @Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate) {
     setEnvProperty("folio-test");
-    BaseIntegrationTest.centralTenant = CONSORTIUM_TENANT_ID;
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
@@ -264,9 +260,6 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(List<TestData> testDataList, String tenant) {
     enableTenant(tenant);
-    if (!tenant.equals(centralTenant)) {
-      enableTenant(centralTenant);
-    }
     for (TestData testData : testDataList) {
       var type = testData.getType();
       var testRecords = testData.getTestRecords();
@@ -321,14 +314,11 @@ public abstract class BaseIntegrationTest {
   private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
                                       List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
-    if (!tenant.equals(centralTenant)) {
-      enableTenant(centralTenant);
-    }
     postInitAction.run();
     saveRecords(tenant, validationPath, records, expectedCount, consumer);
   }
 
-  private static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
+  protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                       Consumer<T> consumer) {
     records.forEach(consumer);
     if (records.size() > 0) {
@@ -359,18 +349,15 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   @SuppressWarnings("SameParameterValue")
   protected static void disableFeature(String tenantId, TenantConfiguredFeature feature) {
-    mockMvc.perform(put(ApiEndpoints.featureConfigPath(feature))
+    mockMvc.perform(delete(ApiEndpoints.featureConfigPath(feature))
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(false))))
-      .andExpect(status().isOk());
+      .andExpect(status().isNoContent());
   }
 
   @SneakyThrows
   protected static void enableTenant(String tenant) {
     var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
-    if (!centralTenant.equals(tenant)) {
-      tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(centralTenant));
-    }
 
     mockMvc.perform(post("/_/tenant", randomId())
         .content(asJsonString(tenantAttributes))
@@ -382,9 +369,6 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void removeTenant() {
     removeTenant(TENANT_ID);
-    if (!TENANT_ID.equals(centralTenant)) {
-      removeTenant(centralTenant);
-    }
   }
 
   @SneakyThrows

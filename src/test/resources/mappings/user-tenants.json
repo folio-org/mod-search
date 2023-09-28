@@ -3,7 +3,29 @@
     {
       "request": {
         "method": "GET",
-        "urlPath": "/user-tenants"
+        "urlPath": "/user-tenants",
+        "queryParameters" : {
+          "tenantId" : {
+            "matches" : "test_tenant"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/user-tenants",
+        "queryParameters" : {
+          "tenantId" : {
+            "matches" : "member_tenant|consortium"
+          }
+        }
       },
       "response": {
         "status": 200,

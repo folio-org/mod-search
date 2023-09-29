@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.test.type.UnitTest;

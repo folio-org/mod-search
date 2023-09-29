@@ -1,4 +1,4 @@
-package org.folio.search.service.consortia;
+package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,8 +9,6 @@ import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

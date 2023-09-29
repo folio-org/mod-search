@@ -2,6 +2,7 @@ package org.folio.search.service.setter.authority;
 
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,40 +20,36 @@ import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.AuthRefType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = TenantConfig.class)
 class AuthoritySearchResponsePostProcessorTest {
 
-  private @MockBean SearchRepository searchRepository;
-  private @MockBean SearchFieldProvider searchFieldProvider;
-  private @MockBean FolioExecutionContext context;
-  private @MockBean MultiSearchResponse multiSearchResponse;
-  private @MockBean ConsortiumTenantService consortiumTenantService;
-  private @SpyBean AuthoritySearchResponsePostProcessor processor;
-
-  @Autowired
-  private String centralTenant;
+  private @Mock SearchRepository searchRepository;
+  private @Mock SearchFieldProvider searchFieldProvider;
+  private @Mock FolioExecutionContext context;
+  private @Mock MultiSearchResponse multiSearchResponse;
+  private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock TenantProvider tenantProvider;
+  private @InjectMocks AuthoritySearchResponsePostProcessor processor;
 
   private @Captor ArgumentCaptor<List<SearchSourceBuilder>> searchSourceCaptor;
+
 
   @BeforeEach
   void setUp() {
@@ -77,9 +74,10 @@ class AuthoritySearchResponsePostProcessorTest {
   @Test
   void shouldSetNumberOfTitles_whenProcessAuthorizedAuthoritiesThatHaveInstanceReferences() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(centralTenant));
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(10, 11);
+    mockSearchResponse(CONSORTIUM_TENANT_ID, 10, 11);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
@@ -89,7 +87,7 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(authority2).extracting(Authority::getNumberOfTitles).isEqualTo(11);
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+      eq(SimpleResourceRequest.of("instance", CONSORTIUM_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -102,11 +100,11 @@ class AuthoritySearchResponsePostProcessorTest {
 
   @Test
   void shouldSetNumberOfTitlesTo0_whenProcessAuthorizedAuthoritiesThatDoNotHaveInstanceReferences() {
-
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(centralTenant));
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(0, null);
+    mockSearchResponse(TENANT_ID, 0, null);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
@@ -119,15 +117,16 @@ class AuthoritySearchResponsePostProcessorTest {
   @Test
   void shouldSetNumberOfTitles_whenNotInConsortium() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(10, 11);
+    mockSearchResponse(TENANT_ID, 10, 11);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+      eq(SimpleResourceRequest.of("instance", TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -139,17 +138,18 @@ class AuthoritySearchResponsePostProcessorTest {
 
   @Test
   void shouldSetNumberOfTitles_whenCentralTenant() {
-    when(context.getTenantId()).thenReturn(centralTenant);
-    when(consortiumTenantService.getCentralTenant(centralTenant)).thenReturn(Optional.of(centralTenant));
+    when(context.getTenantId()).thenReturn(CONSORTIUM_TENANT_ID);
+    when(tenantProvider.getTenant(CONSORTIUM_TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(CONSORTIUM_TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(10, 11);
+    mockSearchResponse(CONSORTIUM_TENANT_ID, 10, 11);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", centralTenant)), searchSourceCaptor.capture());
+      eq(SimpleResourceRequest.of("instance", CONSORTIUM_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -157,12 +157,12 @@ class AuthoritySearchResponsePostProcessorTest {
       .map(query -> (BoolQueryBuilder) query)
       .allMatch(query -> query.should().size() == 2)
       .allMatch(query -> query.minimumShouldMatch().equals("1"))
-      .allMatch(query -> query.must().get(0).equals(affiliationQuery(centralTenant, null)));
+      .allMatch(query -> query.must().get(0).equals(affiliationQuery(CONSORTIUM_TENANT_ID, null)));
   }
 
-  private void mockSearchResponse(Integer... counts) {
+  private void mockSearchResponse(String tenantId, Integer... counts) {
     var searchResponse = mock(SearchResponse.class);
-    when(searchRepository.msearch(eq(SimpleResourceRequest.of("instance", centralTenant)), any()))
+    when(searchRepository.msearch(eq(SimpleResourceRequest.of("instance", tenantId)), any()))
       .thenReturn(multiSearchResponse);
     var hitsOngoingStubbing = when(searchResponse.getHits());
     var responses = new MultiSearchResponse.Item[counts.length];

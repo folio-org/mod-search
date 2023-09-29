@@ -14,6 +14,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,9 +33,9 @@ import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
-import org.folio.search.support.base.TenantConfig;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +46,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @WebMvcTest(BrowseController.class)
-@Import({ApiExceptionHandler.class, TenantConfig.class})
+@Import({ApiExceptionHandler.class})
 class BrowseControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @Autowired
-  private String centralTenant;
-  @Autowired
-  private TenantProvider tenantProvider;
   @MockBean
   private SubjectBrowseService subjectBrowseService;
   @MockBean
@@ -62,8 +59,16 @@ class BrowseControllerTest {
   private CallNumberBrowseService callNumberBrowseService;
   @MockBean
   private ContributorBrowseService contributorBrowseService;
+  @MockBean
+  private TenantProvider tenantProvider;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
+
+  @BeforeEach
+  public void setUp() {
+    lenient().when(tenantProvider.getTenant(TENANT_ID))
+      .thenReturn(TENANT_ID);
+  }
 
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {
@@ -85,7 +90,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesByCallNumber_positive_allFields() throws Exception {
     var query = "callNumber > B";
-    var request = BrowseRequest.of(INSTANCE_RESOURCE, centralTenant,
+    var request = BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID,
       query, 20, SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, true, true, 5);
     when(callNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
 
@@ -107,7 +112,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, centralTenant, query, 25, "value", null, null, true, 12);
+    var request = BrowseRequest.of(INSTANCE_SUBJECT_RESOURCE, TENANT_ID, query, 25, "value", null, null, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -126,7 +131,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY_RESOURCE, centralTenant, query, 25, "headingRef", null, false, true, 12);
+    var request = BrowseRequest.of(AUTHORITY_RESOURCE, TENANT_ID, query, 25, "headingRef", null, false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -198,7 +203,7 @@ class BrowseControllerTest {
   }
 
   private BrowseRequest browseRequest(String query, int limit) {
-    return BrowseRequest.of(INSTANCE_RESOURCE, centralTenant, query, limit,
+    return BrowseRequest.of(INSTANCE_RESOURCE, TENANT_ID, query, limit,
       SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, false, true, limit / 2);
   }
 }

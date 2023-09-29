@@ -28,10 +28,8 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
@@ -134,7 +132,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(12).prev("DB 211 A66 SUPPL NO 211").next("F  PR1866.S63 V.1 C.1").items(List.of(
+      .totalRecords(12).prev("DB 11 A66 SUPPL NO 11").next("F  PR1866.S63 V.1 C.1").items(List.of(
         cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
         cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
         cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
@@ -169,13 +167,14 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var callNumberTypeId = data.get(2).toString();
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-          .callNumber(callNumber).typeId(data.get(2).toString()))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+          .callNumber(callNumber).typeId(callNumberTypeId))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber, callNumberTypeId)))
       .toList();
 
     return new Instance()

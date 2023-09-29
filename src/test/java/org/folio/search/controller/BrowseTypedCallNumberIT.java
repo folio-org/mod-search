@@ -15,7 +15,11 @@ import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +29,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -159,6 +164,22 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
+  @Test
+  void getFacets_positive_withFiltrationByCallNumberType() throws Exception {
+    var requestBuilder = get("/search/instances/facets")
+      .queryParam("query", "callNumberType=\"dewey\"")
+      .queryParam("facet", "item.effectiveLocationId:5")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].totalRecords", is(1)))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].id", is(DEWEY.getId())))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(4)));
+  }
+
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
       .map(BrowseTypedCallNumberIT::instance)
@@ -174,7 +195,8 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(callNumber).typeId(callNumberTypeId))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber, callNumberTypeId)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber, callNumberTypeId))
+        .effectiveLocationId(callNumberTypeId))
       .toList();
 
     return new Instance()

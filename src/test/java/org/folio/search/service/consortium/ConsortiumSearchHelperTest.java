@@ -26,9 +26,6 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -184,7 +181,8 @@ class ConsortiumSearchHelperTest {
     var browseContext = browseContext(false, null);
     var query = matchAllQuery();
     var expected = boolQuery()
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
@@ -199,14 +197,15 @@ class ConsortiumSearchHelperTest {
   void filterBrowseQueryForActiveAffiliation_positive_shared() {
     var browseContext = browseContext(true, null);
     var query = matchAllQuery();
+    var expected = boolQuery()
+      .must(termQuery(SHARED_FIELD, true));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, "resource");
+    var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, "resource");
 
-    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID,
-      CONSORTIUM_TENANT_ID, "resource");
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -214,7 +213,8 @@ class ConsortiumSearchHelperTest {
     var browseContext = browseContext(false, null);
     var query = matchAllQuery();
     var expected = boolQuery()
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
@@ -234,7 +234,8 @@ class ConsortiumSearchHelperTest {
     var expected = boolQuery()
       .should(termQuery("test", "test"))
       .minimumShouldMatch(1)
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
@@ -293,18 +294,16 @@ class ConsortiumSearchHelperTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = true)
-  @NullSource
-  void filterSubResourcesForConsortium_positive_shared(Boolean shared) {
+  @Test
+  void filterSubResourcesForConsortium_positive_shared() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    var browseContext = browseContext(shared, null);
+    var browseContext = browseContext(true, null);
     var subResources = subResources();
     var resource = SubjectResource.builder().instances(subResources).build();
     var expected = newHashSet(subResources);
-    expected.removeIf(s -> s.getTenantId().equals(CONSORTIUM_TENANT_ID) && !s.getShared());
+    expected.removeIf(s -> !s.getShared());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::getInstances);

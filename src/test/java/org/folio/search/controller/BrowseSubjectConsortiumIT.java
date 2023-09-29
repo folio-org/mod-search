@@ -154,13 +154,13 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(23).prev("Philosophy").next("Science--Methodology")
+      .totalRecords(10).prev("Music").next(null)
       .items(List.of(
-        subjectBrowseItem(1, "Philosophy"),
-        subjectBrowseItem(1, "Religion"),
+        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
+        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
         subjectBrowseItem(1, "Rules", true),
-        subjectBrowseItem(1, "Science"),
-        subjectBrowseItem(1, "Science--Methodology"))));
+        subjectBrowseItem(1, "Text"),
+        subjectBrowseItem(1, "United States"))));
   }
 
   @Test

@@ -14,12 +14,10 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.ThreadUtils;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -110,7 +108,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     var expected = new CallNumberBrowseResult()
-      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229 229  !M 254 !3990").items(List.of(
+      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229.29 M54 3990").items(List.of(
         cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V2"),
@@ -161,7 +159,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
 
     disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
-    ThreadUtils.sleep(Duration.ofSeconds(5)); //needed to wait feature disabling. ...MultipleAnchors breaks otherwise
   }
 
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
@@ -243,10 +240,8 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
           cnBrowseItem(instance("instance #28"), "DB 11 A31 BD 3124"),
           cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
           cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
-          //this one below goes before the next because call number type not specified for indexing, and so it's
-          //indexed as system call number (most likely SuDoc) which causes shelf key to be higher in a list
-          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
           cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
+          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
           cnBrowseItem(instance("instance #27"), "E 211 A506"),
           cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14")
         ))),
@@ -351,11 +346,9 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(backwardQuery, "F 11", 5, new CallNumberBrowseResult()
-        .totalRecords(28).prev("E 212 211   !I 12 !3298").next("F  PR1866.S63 V.1 C.1").items(List.of(
-          //this one below goes before the next because call number type not specified for indexing, and so it's
-          //indexed as system call number (most likely SuDoc) which causes shelf key to be higher in a list
-          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
+        .totalRecords(28).prev("E 212.11 I12 3288 D").next("F  PR1866.S63 V.1 C.1").items(List.of(
           cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
+          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
           cnBrowseItem(instance("instance #27"), "E 211 A506"),
           cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14"),
           cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1")

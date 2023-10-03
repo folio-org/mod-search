@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -170,6 +171,7 @@ public class CallNumberUtils {
    * @return filtered records
    */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String callNumberType,
+                                                                        Set<String> folioCallNumberTypes,
                                                                         List<CallNumberBrowseItem> records) {
     if (StringUtils.isBlank(callNumberType) || records == null || records.isEmpty()) {
       return records;
@@ -177,7 +179,7 @@ public class CallNumberUtils {
 
     records.forEach(r -> {
       if (r.getInstance() != null) {
-        r.getInstance().setItems(getItemsFiltered(callNumberType, r));
+        r.getInstance().setItems(getItemsFiltered(callNumberType, folioCallNumberTypes, r));
       }
     });
     return records
@@ -195,19 +197,21 @@ public class CallNumberUtils {
   }
 
   @NotNull
-  private static List<@Valid Item> getItemsFiltered(String callNumberType, CallNumberBrowseItem item) {
+  private static List<@Valid Item> getItemsFiltered(String callNumberType, Set<String> folioCallNumberTypes,
+                                                    CallNumberBrowseItem item) {
     return item.getInstance().getItems()
       .stream()
-      .filter(i -> callNumberTypeMatch(callNumberType, i))
+      .filter(i -> callNumberTypeMatch(callNumberType, folioCallNumberTypes, i))
       .toList();
   }
 
-  private static boolean callNumberTypeMatch(String callNumberType, Item item) {
-    var itemCallNumberType = CallNumberType.fromId(item.getEffectiveCallNumberComponents().getTypeId());
+  private static boolean callNumberTypeMatch(String callNumberType, Set<String> folioCallNumberTypes, Item item) {
+    var itemCallNumberTypeId = item.getEffectiveCallNumberComponents().getTypeId();
+    var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType);
     return itemCallNumberType.equals(requestCallNumberType)
       || itemCallNumberType.isEmpty() && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
-      .orElse(false);
+      .orElse(false) && !folioCallNumberTypes.contains(itemCallNumberTypeId);
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

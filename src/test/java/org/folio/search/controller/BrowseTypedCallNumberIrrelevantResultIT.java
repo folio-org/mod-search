@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
@@ -73,7 +74,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
     ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", emptySet(), expected.getItems()));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -93,7 +94,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
         cnBrowseItem(instance("instance #10"), "Z669.R360 1977", 1)
     ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("lc", expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("lc", emptySet(), expected.getItems()));
     leaveOnlyBasicProps(expected);
     assertThat(actual).isEqualTo(expected);
   }
@@ -126,7 +127,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
       ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", emptySet(), expected.getItems()));
 
     assertThat(result.getItems()).hasSizeLessThanOrEqualTo(limit);
     assertThat(result).isEqualTo(expected);

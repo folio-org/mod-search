@@ -165,6 +165,27 @@
     },
     {
       "request": {
+        "method": "GET",
+        "url": "/call-number-types?query=source%3D%3D%28%22folio%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "callNumberTypes": [
+            {
+              "id": "6e4d7565-b277-4dfa-8b7d-fbf306d9d0cd",
+              "name": "Folio control number",
+              "source": "folio"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
         "method": "POST",
         "url": "/instance-storage/reindex"
       },

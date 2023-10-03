@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum CallNumberTypeSource {
   SYSTEM("system"),
-  LOCAL("local");
+  LOCAL("local"),
+  FOLIO("folio");
 
   private final String source;
 

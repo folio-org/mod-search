@@ -79,9 +79,9 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(7).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
+      .totalRecords(9).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
-        cnBrowseItem(instance("instance #45"), "1CE 16 B6724 41993", true)
+        cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, true)
       )));
   }
 
@@ -240,6 +240,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #43", List.of("FA 42010 3546 256"), OTHER.getId()),
       List.of("instance #44", List.of("1CE 16 B6713 X 41993"), DEWEY.getId()),
       List.of("instance #45", List.of("1CE 16 B6724 41993"), DEWEY.getId()),
+      List.of("instance #47", List.of("1CE 16 B6724 41993"), DEWEY.getId()),
       List.of("instance #46", List.of("F  PR1866.S63 V.1 C.1"), LOCAL_TYPE_1)
     );
   }

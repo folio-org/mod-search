@@ -218,6 +218,13 @@ public class TestUtils {
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
+  public static CallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
+                                                  Integer totalRecords, Boolean isAnchor) {
+    var shelfKey = getShelfKeyFromCallNumber(callNumber, callNumberType.getId());
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
+      .instance(null).totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
     return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);

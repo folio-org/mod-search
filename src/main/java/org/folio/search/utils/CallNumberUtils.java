@@ -190,7 +190,7 @@ public class CallNumberUtils {
             .anyMatch(i -> r.getFullCallNumber() == null
               || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()));
         }
-        return false;
+        return true;
       }).toList();
   }
 

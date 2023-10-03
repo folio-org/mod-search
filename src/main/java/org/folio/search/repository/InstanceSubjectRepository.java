@@ -24,7 +24,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
@@ -38,7 +37,6 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   private static final String INSTANCE_ID = "instanceId";
 
   private final SearchConfigurationProperties properties;
-  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
@@ -71,8 +69,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
         var instance = new HashMap<String, Object>();
         instance.put(INSTANCE_ID, instanceId);
         instance.put("tenantId", tenantId);
-        consortiumTenantService.getCentralTenant(tenantId).ifPresent(centralTenant ->
-          instance.put("shared", centralTenant.equals(tenantId)));
+        instance.put("shared", payload.getOrDefault("shared", false));
 
         instances.getOrDefault(document.getAction(), instances.get(DELETE)).add(instance);
       } else {

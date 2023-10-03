@@ -13,4 +13,5 @@ public class SubjectResourceEvent {
   String value;
   String authorityId;
   String instanceId;
+  boolean shared;
 }

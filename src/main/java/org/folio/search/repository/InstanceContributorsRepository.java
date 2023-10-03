@@ -18,7 +18,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
-import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
@@ -32,7 +31,6 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
   private static final String TYPE_ID = "typeId";
 
   private final SearchConfigurationProperties properties;
-  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies) {
@@ -48,10 +46,11 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         var action = document.getAction();
         var instanceId = eventPayload.get(INSTANCE_ID);
         var typeId = eventPayload.get(TYPE_ID);
+        var shared = eventPayload.getOrDefault("shared", false);
         if (action == IndexActionType.INDEX) {
-          instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId));
+          instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId, shared));
         } else {
-          instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId));
+          instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId, shared));
         }
       }
 
@@ -71,8 +70,8 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
     var bulkApiResponse = executeBulkRequest(bulkRequest);
 
     return bulkApiResponse.hasFailures()
-      ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
-      : getSuccessIndexOperationResponse();
+           ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
+           : getSuccessIndexOperationResponse();
   }
 
   private Script prepareScript(HashSet<Map<String, Object>> instancesToCreate,
@@ -81,14 +80,12 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       Map.of("ins", instancesToCreate, "del", instancesToDelete));
   }
 
-  private Map<String, Object> prepareInstance(Object instanceId, String tenantId, Object typeId) {
+  private Map<String, Object> prepareInstance(Object instanceId, String tenantId, Object typeId, Object shared) {
     var instancePayload = new HashMap<String, Object>();
     instancePayload.put(INSTANCE_ID, instanceId);
     instancePayload.put(TYPE_ID, typeId);
     instancePayload.put("tenantId", tenantId);
-
-    consortiumTenantService.getCentralTenant(tenantId).ifPresent(centralTenant ->
-      instancePayload.put("shared", centralTenant.equals(tenantId)));
+    instancePayload.put("shared", shared);
 
     return instancePayload;
   }

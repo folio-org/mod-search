@@ -22,13 +22,17 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.MatchAllQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class ConsortiumSearchHelper {
 
+  private static final Logger logger = LoggerFactory.getLogger(ConsortiumSearchHelper.class);
   private static final String BROWSE_SHARED_FILTER_KEY = "instances.shared";
+  private static final String BROWSE_TENANT_FILTER_KEY = "instances.tenantId";
 
   private final FolioExecutionContext folioExecutionContext;
   private final ConsortiumTenantService consortiumTenantService;
@@ -58,6 +62,7 @@ public class ConsortiumSearchHelper {
    */
   public QueryBuilder filterBrowseQueryForActiveAffiliation(BrowseContext browseContext, QueryBuilder query,
                                                             String resource) {
+    logger.debug("Filtering browse query for {}", resource);
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     var sharedFilter = getBrowseSharedFilter(browseContext);
@@ -68,16 +73,21 @@ public class ConsortiumSearchHelper {
 
     removeOriginalSharedFilterFromQuery(query);
 
-    var shared = sharedFilter.map(this::sharedFilterValue).orElse(true);
-    if (Boolean.TRUE.equals(shared)) {
-      return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
-    }
-
     var boolQuery = prepareBoolQueryForActiveAffiliation(query);
     if (boolQuery.should().isEmpty()) {
       boolQuery.minimumShouldMatch(null);
     }
-    boolQuery.must(termQuery("instances.tenantId", contextTenantId));
+
+    var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
+    if (shared == null) {
+      return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
+    } else if (!shared) {
+      boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+    }
+
+    sharedFilter
+      .map(this::sharedFilterValue)
+      .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
 
     return boolQuery;
   }
@@ -94,10 +104,21 @@ public class ConsortiumSearchHelper {
     }
 
     var sharedFilter = getBrowseSharedFilter(context);
+    var tenantFilter = getBrowseTenantFilter(context);
+
     Predicate<InstanceSubResource> subResourcesFilter =
-      sharedFilter.isPresent() && !sharedFilterValue(sharedFilter.get())
-      ? subResource -> subResource.getTenantId().equals(contextTenantId)
-      : subResource -> subResource.getTenantId().equals(contextTenantId) || subResource.getShared();
+      subResource -> subResource.getTenantId().equals(contextTenantId);
+    if (sharedFilter.isPresent()) {
+      if (sharedFilterValue(sharedFilter.get())) {
+        subResourcesFilter = InstanceSubResource::getShared;
+      }
+    } else {
+      if (tenantFilter.isEmpty()) {
+        subResourcesFilter = subResourcesFilter.or(InstanceSubResource::getShared);
+      } else {
+        subResourcesFilter = subResource -> subResource.getTenantId().equals(tenantFilterValue(tenantFilter.get()));
+      }
+    }
     return subResources.stream()
       .filter(subResourcesFilter)
       .collect(Collectors.toSet());
@@ -166,6 +187,16 @@ public class ConsortiumSearchHelper {
       .findFirst();
   }
 
+  private Optional<TermQueryBuilder> getBrowseTenantFilter(BrowseContext context) {
+    return context.getFilters().stream()
+      .map(filter ->
+        filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(BROWSE_TENANT_FILTER_KEY)
+        ? termFilter
+        : null)
+      .filter(Objects::nonNull)
+      .findFirst();
+  }
+
   private boolean sharedFilterValue(TermQueryBuilder sharedQuery) {
     return sharedQuery.value() instanceof Boolean boolValue && boolValue
       || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
@@ -176,5 +207,9 @@ public class ConsortiumSearchHelper {
       return "instances." + fieldName;
     }
     return fieldName;
+  }
+
+  private String tenantFilterValue(TermQueryBuilder tenantQuery) {
+    return String.valueOf(tenantQuery.value());
   }
 }

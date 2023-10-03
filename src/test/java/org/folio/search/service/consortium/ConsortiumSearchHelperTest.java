@@ -1,6 +1,5 @@
 package org.folio.search.service.consortium;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
@@ -15,6 +14,8 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,13 +26,11 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.index.query.QueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -164,7 +163,7 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterBrowseQueryForActiveAffiliation_positive_notConsortiumTenant() {
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var query = matchAllQuery();
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
@@ -179,10 +178,11 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterBrowseQueryForActiveAffiliation_positive_consortiumCentralTenant() {
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var query = matchAllQuery();
     var expected = boolQuery()
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
@@ -195,24 +195,26 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterBrowseQueryForActiveAffiliation_positive_shared() {
-    var browseContext = browseContext(true);
+    var browseContext = browseContext(true, null);
     var query = matchAllQuery();
+    var expected = boolQuery()
+      .must(termQuery(SHARED_FIELD, true));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, "resource");
+    var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, "resource");
 
-    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID,
-      CONSORTIUM_TENANT_ID, "resource");
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   void filterBrowseQueryForActiveAffiliation_positive_local() {
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var query = matchAllQuery();
     var expected = boolQuery()
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
@@ -226,13 +228,14 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterBrowseQueryForActiveAffiliation_positive_localWithShould() {
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var query = boolQuery()
       .should(termQuery("test", "test"));
     var expected = boolQuery()
       .should(termQuery("test", "test"))
       .minimumShouldMatch(1)
-      .must(termQuery(TENANT_ID_FIELD, TENANT_ID));
+      .must(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .must(termQuery(SHARED_FIELD, false));
 
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
@@ -244,14 +247,12 @@ class ConsortiumSearchHelperTest {
     assertThat(browseContext.getFilters()).isNotEmpty();
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = TENANT_ID)
-  @NullSource
-  void filterSubResourcesForConsortium_positive_notConsortiumMemberTenant(String centralTenantId) {
+  @Test
+  void filterSubResourcesForConsortium_positive_notConsortiumTenant() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.ofNullable(centralTenantId));
+    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var resource = new SubjectResource();
     resource.setInstances(subResources());
 
@@ -262,11 +263,26 @@ class ConsortiumSearchHelperTest {
   }
 
   @Test
+  void filterSubResourcesForConsortium_positive_memberTenant() {
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+
+    var browseContext = browseContext(null, "member");
+    var resource = new SubjectResource();
+    resource.setInstances(subResources());
+
+    var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
+      SubjectResource::getInstances);
+
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
   void filterSubResourcesForConsortium_positive_local() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    var browseContext = browseContext(false);
+    var browseContext = browseContext(false, null);
     var subResources = subResources();
     var resource = new SubjectResource();
     resource.setInstances(subResources);
@@ -278,18 +294,16 @@ class ConsortiumSearchHelperTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = true)
-  @NullSource
-  void filterSubResourcesForConsortium_positive_shared(Boolean shared) {
+  @Test
+  void filterSubResourcesForConsortium_positive_shared() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
 
-    var browseContext = browseContext(shared);
+    var browseContext = browseContext(true, null);
     var subResources = subResources();
     var resource = SubjectResource.builder().instances(subResources).build();
     var expected = newHashSet(subResources);
-    expected.removeIf(s -> s.getTenantId().equals(CONSORTIUM_TENANT_ID) && !s.getShared());
+    expected.removeIf(s -> !s.getShared());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::getInstances);
@@ -297,18 +311,22 @@ class ConsortiumSearchHelperTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  private BrowseContext browseContext(Boolean sharedFilter) {
+  private BrowseContext browseContext(Boolean sharedFilter, String tenantFilter) {
     var browseContext = BrowseContext.builder();
 
+    List<QueryBuilder> filters = new ArrayList<>();
     if (sharedFilter != null) {
-      browseContext.filters(newArrayList(termQuery(SHARED_FIELD, sharedFilter)));
+      filters.add(termQuery(SHARED_FIELD, sharedFilter));
+    }
+    if (tenantFilter != null) {
+      filters.add(termQuery(TENANT_ID_FIELD, tenantFilter));
     }
 
-    return browseContext.build();
+    return browseContext.filters(filters).build();
   }
 
   private Set<InstanceSubResource> subResources() {
-    return newHashSet(subResource(TENANT_ID, false),
+    return Set.of(subResource(TENANT_ID, false),
       subResource(TENANT_ID, true),
       subResource(CONSORTIUM_TENANT_ID, false),
       subResource(CONSORTIUM_TENANT_ID, true));

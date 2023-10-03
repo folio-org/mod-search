@@ -9,6 +9,7 @@ import static org.folio.search.utils.CallNumberUtils.excludeIrrelevantResultItem
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -132,6 +133,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     if (TRUE.equals(request.getHighlightMatch())) {
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
+
+    // needed because result list might be modified in a scope of additional actions
+    precedingResult.setRecords(precedingResult.getRecords().stream()
+      .sorted(Comparator.comparing(CallNumberBrowseItem::getShelfKey))
+      .toList());
 
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())

@@ -59,14 +59,14 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     var expected = new CallNumberBrowseResult()
       .totalRecords(18)
-      .prev("3308 H975")
+      .prev("3308 H972")
       .next("3308 H981")
       .items(Arrays.asList(
-        cnBrowseItem(instance("instance #18"), "308 H975"),
-        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #11"), "308 H972"),
         cnBrowseItem(instance("instance #11"), "308 H973"),
         cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #09"), "308 H977", true),
         cnBrowseItem(instance("instance #01"), "308 H978"),
         cnBrowseItem(instance("instance #10"), "308 H979"),
@@ -115,11 +115,11 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .items(Arrays.asList(
         cnBrowseItem(instance("instance #10"), "308 H970"),
         cnBrowseItem(instance("instance #01"), "308 H971"),
-        cnBrowseItem(instance("instance #18"), "308 H975"),
-        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #11"), "308 H972"),
         cnBrowseItem(instance("instance #11"), "308 H973"),
         cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #09"), "308 H977", true),
         cnBrowseItem(instance("instance #01"), "308 H978"),
         cnBrowseItem(instance("instance #10"), "308 H979"),

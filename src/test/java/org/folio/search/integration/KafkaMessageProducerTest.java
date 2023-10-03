@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
+import org.folio.spring.test.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageProducerTest {
 
@@ -38,6 +41,8 @@ class KafkaMessageProducerTest {
   private JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
   @Mock
   private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  @Mock
+  private ConsortiumTenantService tenantService;
 
   @Test
   void shouldSendTwoSubjectEvents_whenSubjectChanged() {
@@ -156,7 +161,7 @@ class KafkaMessageProducerTest {
 
   @NotNull
   private Map<String, String> instanceObjectWithSubjects(String id, Map<String, String> subjectObject) {
-    return mapOf("id", id, "subjects", List.of(subjectObject));
+    return mapOf("id", id, "subjects", List.of(subjectObject), "source", "CONSORTIUM-FOLIO");
   }
 
   @NotNull

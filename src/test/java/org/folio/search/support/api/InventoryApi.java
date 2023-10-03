@@ -145,7 +145,7 @@ public class InventoryApi {
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
-  private static class HoldingEvent {
+  private static final class HoldingEvent {
 
     @JsonUnwrapped
     private Map<String, Object> holding;
@@ -155,7 +155,7 @@ public class InventoryApi {
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
-  private static class ItemEvent {
+  private static final class ItemEvent {
 
     @JsonUnwrapped
     private Map<String, Object> item;

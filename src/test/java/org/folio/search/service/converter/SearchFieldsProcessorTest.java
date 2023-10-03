@@ -218,5 +218,5 @@ class SearchFieldsProcessorTest {
     }
   }
 
-  private static class TestClass { }
+  private static final class TestClass { }
 }

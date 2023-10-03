@@ -207,7 +207,7 @@ class ResourceDescriptionServiceTest {
     return indexFieldType;
   }
 
-  private static class TestFieldDescription extends FieldDescription { }
+  private static final class TestFieldDescription extends FieldDescription { }
 
   /**
    * Beans in that method cannot be converted to lambda because in that case they cannot be processed by spring tools
@@ -257,5 +257,5 @@ class ResourceDescriptionServiceTest {
     }
   }
 
-  private static class TestEntityClass { }
+  private static final class TestEntityClass { }
 }

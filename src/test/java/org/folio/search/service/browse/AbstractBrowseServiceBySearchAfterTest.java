@@ -21,7 +21,7 @@ class AbstractBrowseServiceBySearchAfterTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private static class TestBrowseService extends AbstractBrowseServiceBySearchAfter {
+  private static final class TestBrowseService extends AbstractBrowseServiceBySearchAfter {
 
     @Override
     protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest r, BrowseContext c) {

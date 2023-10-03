@@ -83,7 +83,7 @@ class LocalFileProviderTest {
   @Data
   @NoArgsConstructor
   @AllArgsConstructor(staticName = "of")
-  private static class TestType {
+  private static final class TestType {
 
     private String key;
   }

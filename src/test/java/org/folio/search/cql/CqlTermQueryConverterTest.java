@@ -215,7 +215,7 @@ class CqlTermQueryConverterTest {
     }
   }
 
-  private static class QueryBuilder1 implements TermQueryBuilder {
+  private static final class QueryBuilder1 implements TermQueryBuilder {
 
     @Override
     public Set<String> getSupportedComparators() {
@@ -223,7 +223,7 @@ class CqlTermQueryConverterTest {
     }
   }
 
-  private static class QueryBuilder2 implements TermQueryBuilder {
+  private static final class QueryBuilder2 implements TermQueryBuilder {
 
     @Override
     public Set<String> getSupportedComparators() {

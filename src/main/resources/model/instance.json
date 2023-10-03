@@ -663,6 +663,11 @@
       "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
       "processor": "itemTypedCallNumberProcessor"
     },
+    "callNumberType": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "callNumberTypeProcessor"
+    },
     "itemEffectiveShelvingOrder": {
       "type": "search",
       "index": "keyword",
@@ -704,6 +709,7 @@
       "callNumber",
       "typedCallNumber",
       "itemEffectiveShelvingOrder",
+      "callNumberType",
 
       "alternativeTitles.alternativeTitle",
       "contributors.name",

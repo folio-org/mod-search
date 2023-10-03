@@ -177,7 +177,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].totalRecords", is(1)))
       .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].id", is(DEWEY.getId())))
-      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(4)));
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(5)));
   }
 
   private static Instance[] instances() {

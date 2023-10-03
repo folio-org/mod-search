@@ -59,14 +59,14 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     var expected = new CallNumberBrowseResult()
       .totalRecords(18)
-      .prev("3308 H975")
+      .prev("3308 H972")
       .next("3308 H981")
       .items(Arrays.asList(
-        cnBrowseItem(instance("instance #18"), "308 H975"),
-        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #11"), "308 H972"),
         cnBrowseItem(instance("instance #11"), "308 H973"),
         cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #09"), "308 H977", true),
         cnBrowseItem(instance("instance #01"), "308 H978"),
         cnBrowseItem(instance("instance #10"), "308 H979"),
@@ -89,9 +89,9 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
     var expected = new CallNumberBrowseResult()
       .totalRecords(4)
       .items(Arrays.asList(
-        cnBrowseItem(instance("instance #10"), "Z669.R360 1975", true),
-        cnBrowseItem(instance("instance #02"), "Z669.R360 1976"),
-        cnBrowseItem(instance("instance #10"), "Z669.R360 1977")
+        cnBrowseItem(instance("instance #10"), "Z669.R360 1975", 3, true),
+        cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
+        cnBrowseItem(instance("instance #10"), "Z669.R360 1977", 1)
     ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("lc", expected.getItems()));
     leaveOnlyBasicProps(expected);
@@ -115,11 +115,11 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .items(Arrays.asList(
         cnBrowseItem(instance("instance #10"), "308 H970"),
         cnBrowseItem(instance("instance #01"), "308 H971"),
-        cnBrowseItem(instance("instance #18"), "308 H975"),
-        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #11"), "308 H972"),
         cnBrowseItem(instance("instance #11"), "308 H973"),
         cnBrowseItem(instance("instance #11"), "308 H974"),
+        cnBrowseItem(instance("instance #18"), "308 H975"),
+        cnBrowseItem(instance("instance #01"), "308 H976"),
         cnBrowseItem(instance("instance #09"), "308 H977", true),
         cnBrowseItem(instance("instance #01"), "308 H978"),
         cnBrowseItem(instance("instance #10"), "308 H979"),
@@ -183,7 +183,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(d.get(1))
           .typeId(d.get(0)))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1))))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1), d.get(0))))
       .toList();
 
     return new Instance()
@@ -200,8 +200,8 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
 
   private static List<List<String>> callNumberBrowseInstanceData() {
     return List.of(
-      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1977", "instance #10"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H970", "instance #10"),
+      List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1977", "instance #10"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H971", "instance #01"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H972", "instance #11"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H973", "instance #11"),
@@ -211,9 +211,9 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H977", "instance #09"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H978", "instance #01"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H979", "instance #10"),
+      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H980", "instance #02"),
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1976", "instance #02"),
       List.of("95467209-6d7b-468b-94df-0f5d7ad2747d", "Z669.R360 1975", "instance #10"),
-      List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H980", "instance #02"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H981", "instance #08"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H982", "instance #09"),
       List.of("03dd64d0-5626-4ecd-8ece-4531e0069f35", "308 H983", "instance #07"),

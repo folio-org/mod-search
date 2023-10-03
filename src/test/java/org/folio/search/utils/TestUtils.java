@@ -10,11 +10,16 @@ import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.model.types.CallNumberType.DEWEY;
+import static org.folio.search.model.types.CallNumberType.LC;
+import static org.folio.search.model.types.CallNumberType.NLM;
+import static org.folio.search.model.types.CallNumberType.SUDOC;
 import static org.folio.search.model.types.FieldType.OBJECT;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -40,15 +45,18 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
+import org.folio.search.cql.SuDocCallNumber;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -59,6 +67,7 @@ import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -75,8 +84,13 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.types.CallNumberType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.SearchType;
+import org.marc4j.callnum.AbstractCallNumber;
+import org.marc4j.callnum.DeweyCallNumber;
+import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.common.bytes.BytesArray;
 import org.opensearch.core.ParseField;
@@ -104,6 +118,13 @@ public class TestUtils {
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
   private static final EffectiveShelvingOrderTermProcessor SHELVING_ORDER_TERM_PROCESSOR =
     new EffectiveShelvingOrderTermProcessor();
+
+  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHERVING_ORDER_GENERATORS = Map.of(
+    NLM, callNumber -> new NlmCallNumber(callNumber),
+    LC, callNumber -> new LCCallNumber(callNumber),
+    DEWEY, callNumber -> new DeweyCallNumber(callNumber),
+    SUDOC, callNumber -> new SuDocCallNumber(callNumber)
+  );
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -169,8 +190,12 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return cnBrowseItem(instance, shelfKey, callNumber);
+    return cnBrowseItem(instance, callNumber, 0);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
+                                                  Integer itemNumberForCallNumberType) {
+    return cnBrowseItem(instance, callNumber, itemNumberForCallNumberType, null);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
@@ -178,9 +203,26 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
+    return cnBrowseItem(instance, callNumber, 0, isAnchor);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
+                                                  Integer itemNumberForCallNumberType, Boolean isAnchor) {
+    var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType))
+      .flatMap(item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
+        .map(ItemEffectiveCallNumberComponents::getTypeId));
+    var shelfKey = callNumberType.isEmpty()
+      ? getShelfKeyFromCallNumber(callNumber)
+      : getShelfKeyFromCallNumber(callNumber, callNumberType.get());
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
+                                                  Integer totalRecords, Boolean isAnchor) {
+    var shelfKey = getShelfKeyFromCallNumber(callNumber, callNumberType.getId());
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
+      .instance(null).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
@@ -194,9 +236,32 @@ public class TestUtils {
       .shelfKey(shelfKey).fullCallNumber(callNumber).isAnchor(isAnchor);
   }
 
+  public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber) {
+    return cnBrowseItemWithNoType(instance, callNumber, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber, Boolean isAnchor) {
+    var shelfKey = shelfKeyForNotTypedCallNumberFunction().apply(callNumber);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
+      .instance(instance).totalRecords(1).isAnchor(isAnchor);
+  }
+
+  public static Function<String, String> shelfKeyForNotTypedCallNumberFunction() {
+    return CallNumberUtils::normalizeEffectiveShelvingOrder;
+  }
+
   public static String getShelfKeyFromCallNumber(String callNumber) {
     var terms = SHELVING_ORDER_TERM_PROCESSOR.getSearchTerms(callNumber);
-    return terms.get(terms.size() - 1);
+    return terms.get(0);
+  }
+
+  public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
+    var callNumberType = CallNumberType.fromId(typeId);
+    return callNumberType.flatMap(numberType -> Optional.ofNullable(SHERVING_ORDER_GENERATORS.get(numberType))
+        .map(generator -> generator.apply(callNumber))
+        .filter(AbstractCallNumber::isValid)
+        .map(AbstractCallNumber::getShelfKey))
+      .orElse(normalizeEffectiveShelvingOrder(callNumber));
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

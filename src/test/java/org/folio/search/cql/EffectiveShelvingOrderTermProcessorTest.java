@@ -1,6 +1,7 @@
 package org.folio.search.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -116,7 +117,9 @@ class EffectiveShelvingOrderTermProcessorTest {
   @Test
   void getSearchTerms_getMultiple() {
     var given = "T22.19:M54/990";
-    var expected = List.of(new LCCallNumber(given).getShelfKey(), new SuDocCallNumber(given).getShelfKey());
+    var expected = List.of(new LCCallNumber(given).getShelfKey(),
+      new SuDocCallNumber(given).getShelfKey(),
+      normalizeEffectiveShelvingOrder(given));
     var actual = searchTermProcessor.getSearchTerms(given);
 
     assertThat(actual).isEqualTo(expected);

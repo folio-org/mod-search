@@ -5,12 +5,11 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.cnBrowseItem;
-import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.shelfKeyForNotTypedCallNumberFunction;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Arrays;
@@ -24,24 +23,14 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseAroundCallNumberIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
-
-  private Boolean inConsortiumMode;
-
-  @Autowired
-  public void setInConsortiumMode(String centralTenant) {
-    this.inConsortiumMode = centralTenant.equals(CONSORTIUM_TENANT_ID);
-  }
 
   @BeforeAll
   static void prepare() {
@@ -63,26 +52,26 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "9");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(64).prev("C 223 3987").next("E 43184 S75 41243").items(List.of(
-        cnBrowseItem(instance("instance #34"), "C23 987"),
-        cnBrowseItem(instance("instance #33"), "D15.H63 A3 2002"),
-        cnBrowseItem(instance("instance #27"), "E 3184 S74 5671"),
-        cnBrowseItem(instance("instance #28"), "E 3184 S74 5672"),
-        cnBrowseItem(instance("instance #29"), "E 3184 S74 5673"),
-        cnBrowseItem(instance("instance #30"), "E 3184 S74 5674"),
-        cnBrowseItem(instance("instance #02"), "E 3184 S75 1231"),
-        cnBrowseItem(instance("instance #01"), "E 3184 S75 1232"),
-        cnBrowseItem(instance("instance #03"), "E 3184 S75 1233"),
-        cnBrowseItem(instance("instance #04"), "E 3184 S75 1234", true),
-        cnBrowseItem(instance("instance #05"), "E 3184 S75 1235"),
-        cnBrowseItem(instance("instance #06"), "E 3184 S75 1236"),
-        cnBrowseItem(instance("instance #07"), "E 3184 S75 1237"),
-        cnBrowseItem(instance("instance #08"), "E 3184 S75 1238"),
-        cnBrowseItem(instance("instance #09"), "E 3184 S75 1239"),
-        cnBrowseItem(instance("instance #10"), "E 3184 S75 1240"),
-        cnBrowseItem(instance("instance #11"), "E 3184 S75 1241"),
-        cnBrowseItem(instance("instance #12"), "E 3184 S75 1242"),
-        cnBrowseItem(instance("instance #13"), "E 3184 S75 1243")
+      .totalRecords(59).prev("C23 987").next("E 3184 S75 1243").items(List.of(
+        cnBrowseItemWithNoType(instance("instance #34"), "C23 987"),
+        cnBrowseItemWithNoType(instance("instance #33"), "D15.H63 A3 2002"),
+        cnBrowseItemWithNoType(instance("instance #27"), "E 3184 S74 5671"),
+        cnBrowseItemWithNoType(instance("instance #28"), "E 3184 S74 5672"),
+        cnBrowseItemWithNoType(instance("instance #29"), "E 3184 S74 5673"),
+        cnBrowseItemWithNoType(instance("instance #30"), "E 3184 S74 5674"),
+        cnBrowseItemWithNoType(instance("instance #02"), "E 3184 S75 1231"),
+        cnBrowseItemWithNoType(instance("instance #01"), "E 3184 S75 1232"),
+        cnBrowseItemWithNoType(instance("instance #03"), "E 3184 S75 1233"),
+        cnBrowseItemWithNoType(instance("instance #04"), "E 3184 S75 1234", true),
+        cnBrowseItemWithNoType(instance("instance #05"), "E 3184 S75 1235"),
+        cnBrowseItemWithNoType(instance("instance #06"), "E 3184 S75 1236"),
+        cnBrowseItemWithNoType(instance("instance #07"), "E 3184 S75 1237"),
+        cnBrowseItemWithNoType(instance("instance #08"), "E 3184 S75 1238"),
+        cnBrowseItemWithNoType(instance("instance #09"), "E 3184 S75 1239"),
+        cnBrowseItemWithNoType(instance("instance #10"), "E 3184 S75 1240"),
+        cnBrowseItemWithNoType(instance("instance #11"), "E 3184 S75 1241"),
+        cnBrowseItemWithNoType(instance("instance #12"), "E 3184 S75 1242"),
+        cnBrowseItemWithNoType(instance("instance #13"), "E 3184 S75 1243")
       )));
   }
 
@@ -96,31 +85,31 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(64).prev("E 43184 S75 41233").next("G 275 41255").items(List.of(
-        cnBrowseItem(instance("instance #03"), "E 3184 S75 1233"),
-        cnBrowseItem(instance("instance #04"), "E 3184 S75 1234", true),
-        cnBrowseItem(instance("instance #05"), "E 3184 S75 1235"),
-        cnBrowseItem(instance("instance #06"), "E 3184 S75 1236"),
-        cnBrowseItem(instance("instance #07"), "E 3184 S75 1237"),
-        cnBrowseItem(instance("instance #08"), "E 3184 S75 1238"),
-        cnBrowseItem(instance("instance #09"), "E 3184 S75 1239"),
-        cnBrowseItem(instance("instance #10"), "E 3184 S75 1240"),
-        cnBrowseItem(instance("instance #11"), "E 3184 S75 1241"),
-        cnBrowseItem(instance("instance #12"), "E 3184 S75 1242"),
-        cnBrowseItem(instance("instance #13"), "E 3184 S75 1243"),
-        cnBrowseItem(instance("instance #14"), "E 3184 S75 1244"),
-        cnBrowseItem(instance("instance #15"), "E 3184 S75 1245"),
-        cnBrowseItem(instance("instance #16"), "E 3184 S75 1246"),
-        cnBrowseItem(instance("instance #18"), "E 3184 S75 1248"),
-        cnBrowseItem(instance("instance #19"), "E 3184 S75 1249"),
-        cnBrowseItem(instance("instance #20"), "E 3184 S75 1250"),
-        cnBrowseItem(instance("instance #21"), "E 3184 S75 1251"),
-        cnBrowseItem(instance("instance #22"), "E 3184 S75 1252"),
-        cnBrowseItem(instance("instance #23"), "E 3184 S75 1253"),
-        cnBrowseItem(instance("instance #24"), "E 3184 S75 1254"),
-        cnBrowseItem(instance("instance #17"), "E 3184 S76 1247"),
-        cnBrowseItem(instance("instance #38"), "FA 42010 3546 256"),
-        cnBrowseItem(instance("instance #35"), "G75 1255")
+      .totalRecords(59).prev("E 3184 S75 1233").next("G75 1255").items(List.of(
+        cnBrowseItemWithNoType(instance("instance #03"), "E 3184 S75 1233"),
+        cnBrowseItemWithNoType(instance("instance #04"), "E 3184 S75 1234", true),
+        cnBrowseItemWithNoType(instance("instance #05"), "E 3184 S75 1235"),
+        cnBrowseItemWithNoType(instance("instance #06"), "E 3184 S75 1236"),
+        cnBrowseItemWithNoType(instance("instance #07"), "E 3184 S75 1237"),
+        cnBrowseItemWithNoType(instance("instance #08"), "E 3184 S75 1238"),
+        cnBrowseItemWithNoType(instance("instance #09"), "E 3184 S75 1239"),
+        cnBrowseItemWithNoType(instance("instance #10"), "E 3184 S75 1240"),
+        cnBrowseItemWithNoType(instance("instance #11"), "E 3184 S75 1241"),
+        cnBrowseItemWithNoType(instance("instance #12"), "E 3184 S75 1242"),
+        cnBrowseItemWithNoType(instance("instance #13"), "E 3184 S75 1243"),
+        cnBrowseItemWithNoType(instance("instance #14"), "E 3184 S75 1244"),
+        cnBrowseItemWithNoType(instance("instance #15"), "E 3184 S75 1245"),
+        cnBrowseItemWithNoType(instance("instance #16"), "E 3184 S75 1246"),
+        cnBrowseItemWithNoType(instance("instance #18"), "E 3184 S75 1248"),
+        cnBrowseItemWithNoType(instance("instance #19"), "E 3184 S75 1249"),
+        cnBrowseItemWithNoType(instance("instance #20"), "E 3184 S75 1250"),
+        cnBrowseItemWithNoType(instance("instance #21"), "E 3184 S75 1251"),
+        cnBrowseItemWithNoType(instance("instance #22"), "E 3184 S75 1252"),
+        cnBrowseItemWithNoType(instance("instance #23"), "E 3184 S75 1253"),
+        cnBrowseItemWithNoType(instance("instance #24"), "E 3184 S75 1254"),
+        cnBrowseItemWithNoType(instance("instance #17"), "E 3184 S76 1247"),
+        cnBrowseItemWithNoType(instance("instance #38"), "FA 42010 3546 256"),
+        cnBrowseItemWithNoType(instance("instance #35"), "G75 1255")
       )));
   }
 
@@ -137,7 +126,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+        .effectiveShelvingOrder(shelfKeyForNotTypedCallNumberFunction().apply(callNumber)))
       .toList();
 
     return new Instance()
@@ -153,13 +142,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
   }
 
   private Instance instance(String title) {
-    var instance = INSTANCE_MAP.get(title);
-
-    if (!inConsortiumMode) {
-      instance.setShared(null);
-    }
-
-    return instance;
+    return INSTANCE_MAP.get(title);
   }
 
   private static List<List<Object>> callNumberBrowseInstanceData() {

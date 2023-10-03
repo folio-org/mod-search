@@ -33,6 +33,7 @@ public class SearchUtils {
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
 
   public static final String ID_FIELD = "id";
+  public static final String SOURCE_FIELD = "source";
   public static final String INSTANCE_ID_FIELD = "instanceId";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
@@ -48,6 +49,7 @@ public class SearchUtils {
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String AUTHORITY_ID_FIELD = "authorityId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
+  public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";

@@ -36,7 +36,6 @@ import org.folio.search.utils.SearchUtils;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,7 +71,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, centralTenant));
+        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
     });
@@ -318,7 +317,6 @@ class BrowseContributorIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Disabled("Will be fixed in MSEARCH-562 (or MSEARCH-534)")
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForContributors_parameterized")

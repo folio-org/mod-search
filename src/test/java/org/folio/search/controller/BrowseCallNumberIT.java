@@ -26,7 +26,6 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,7 +49,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     removeTenant();
   }
 
-  @Disabled("Will be fixed in MSEARCH-562")
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
@@ -63,7 +61,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Disabled("Will be fixed in MSEARCH-562")
   @Test
   void browseByCallNumber_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
     var request = get(instanceCallNumberBrowsePath())
@@ -82,7 +79,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
-  @Disabled("Will be fixed in MSEARCH-562")
   //https://issues.folio.org/browse/MSEARCH-513
   @Test
   void browseByCallNumber_browsingVeryFirstCallNumberWithNoException() {
@@ -112,18 +108,16 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     var expected = new CallNumberBrowseResult()
-      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229 229  !M 254 !3990").items(List.of(
+      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229.29 M54 3990").items(List.of(
         cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V2"),
         cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V3"),
         cnBrowseItem(instance("instance #47"), "J29.29:M54/990", true)
       ));
-    System.out.println(expected);
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Disabled("Will be fixed in MSEARCH-562")
   @Test
   void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceCallNumberBrowsePath())
@@ -143,9 +137,8 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
-  @Disabled("Will be fixed in MSEARCH-562")
   @Test
-  void browseByCalNumber_browseAroundWithEnabledIntermediateValues() {
+  void browseByCalNumber_browseAroundWithEnabledIntermediateValues() throws InterruptedException {
     enableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
 
     var request = get(instanceCallNumberBrowsePath())
@@ -155,7 +148,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
 
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(57).prev("DA 43870 B55 541868").next("DA 43880 O6 D5").items(List.of(
+      .totalRecords(58).prev("DA 43870 B55 541868").next("DA 43880 O6 D5").items(List.of(
         cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
         cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
         cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
@@ -192,7 +185,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(aroundQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(50).prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
+        .totalRecords(51).prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
           cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
           cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
           cnBrowseItem(0, "DA 3890 A1", true),
@@ -210,7 +203,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .totalRecords(50).prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
+        .totalRecords(51).prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
           cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
           cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
           cnBrowseItem(0, "DA 3890 A1", true),
@@ -220,7 +213,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // checks order of closely placed call-numbers
       arguments(aroundIncludingQuery, secondAnchorCallNumber, 30, new CallNumberBrowseResult()
-        .totalRecords(50).prev("DA 43870 H47 541975").next("E 3211 N52 VOL 214").items(List.of(
+        .totalRecords(51).prev("DA 43870 H47 541975").next("E 3211 N52 VOL 214").items(List.of(
           cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
           cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
           cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V1"),
@@ -255,7 +248,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // checks if collapsing by the same result works correctly
       arguments(aroundIncludingQuery, "FC", 5, new CallNumberBrowseResult()
-        .totalRecords(39).prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
+        .totalRecords(40).prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
           cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
           cnBrowseItem(0, "FC", true),
@@ -265,7 +258,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // checks if collapsing by the same result works correctly
       arguments(aroundIncludingQuery, "fc", 5, new CallNumberBrowseResult()
-        .totalRecords(39).prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
+        .totalRecords(40).prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
           cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
           cnBrowseItem(0, "fc", true),
@@ -284,7 +277,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(forwardQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
+        .totalRecords(25).prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
           cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
           cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
@@ -294,7 +287,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new CallNumberBrowseResult()
-        .totalRecords(13).prev("F  PR1866.S63 V.1 C.1").next("FC 217 B89").items(List.of(
+        .totalRecords(14).prev("F  PR1866.S63 V.1 C.1").next("FC 217 B89").items(List.of(
           cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
           cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
           cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
@@ -315,7 +308,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       arguments(forwardIncludingQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .totalRecords(24).prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
+        .totalRecords(25).prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
           cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
           cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
           cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),

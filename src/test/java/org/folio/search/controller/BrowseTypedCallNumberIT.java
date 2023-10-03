@@ -15,7 +15,11 @@ import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +29,12 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.test.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Will be fixed in MSEARCH-562")
 @IntegrationTest
 class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
@@ -62,11 +65,11 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(23).prev("DA 43880 O6 L76").next("DA 43890 A2 B76 542002").items(List.of(
-        cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
+      .totalRecords(23).prev("DA 43880 O6 M15").next("DA 43890 A2 B76 542002").items(List.of(
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
+        cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
         cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002", true)
       )));
   }
@@ -74,16 +77,16 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
   @Test
   void browseByCallNumberDewey_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
     var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"CE 16 B6724 41993\""))
+      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"1CE 16 B6724 41993\""))
       .param("callNumberType", "dewey")
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(6).prev(null).next("CE 216 B6724 541993").items(List.of(
-        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
-        cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993", true)
+      .totalRecords(9).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
+        cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
+        cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, true)
       )));
   }
 
@@ -108,7 +111,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
   @Test
   void browseByCallNumberSudoc_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
     var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"PR 44034 B38 41993\""))
+      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"P1.44034 B38 41993\""))
       .param("callNumberType", "sudoc")
       .param("limit", "5")
       .param("expandAll", "true")
@@ -116,10 +119,10 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(5).prev(null).next(null).items(List.of(
-        cnBrowseItem(instance("instance #12"), "DC 211 N52 VOL 14"),
-        cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
-        cnBrowseItem(instance("instance #17"), "GA 16 A63 41581"),
-        cnBrowseItem(instance("instance #16"), "PR 44034 B38 41993", true)
+        cnBrowseItem(instance("instance #12"), "D1.211 N52 VOL 14"),
+        cnBrowseItem(instance("instance #10"), "D1.3201 B34 41972"),
+        cnBrowseItem(instance("instance #17"), "G1.16 A63 41581"),
+        cnBrowseItem(instance("instance #16"), "P1.44034 B38 41993", true)
       )));
   }
 
@@ -134,7 +137,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(12).prev("DB 211 A66 SUPPL NO 211").next("F  PR1866.S63 V.1 C.1").items(List.of(
+      .totalRecords(12).prev("DB 11 A66 SUPPL NO 11").next("F  PR1866.S63 V.1 C.1").items(List.of(
         cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
         cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
         cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
@@ -161,6 +164,22 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       )));
   }
 
+  @Test
+  void getFacets_positive_withFiltrationByCallNumberType() throws Exception {
+    var requestBuilder = get("/search/instances/facets")
+      .queryParam("query", "callNumberType=\"dewey\"")
+      .queryParam("facet", "item.effectiveLocationId:5")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].totalRecords", is(1)))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].id", is(DEWEY.getId())))
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(5)));
+  }
+
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
       .map(BrowseTypedCallNumberIT::instance)
@@ -169,13 +188,15 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var callNumberTypeId = data.get(2).toString();
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-          .callNumber(callNumber).typeId(data.get(2).toString()))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
+          .callNumber(callNumber).typeId(callNumberTypeId))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber, callNumberTypeId))
+        .effectiveLocationId(callNumberTypeId))
       .toList();
 
     return new Instance()
@@ -199,20 +220,20 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #01", List.of("DA 3880 O6 J72"), LC.getId()),
       List.of("instance #02", List.of("DA 3880 O6 M96"), LC.getId()),
       List.of("instance #03", List.of("DA 3880 O6 L5 41955"), LC.getId()),
-      List.of("instance #04", List.of("CE 16 D86 X 41998"), DEWEY.getId()),
+      List.of("instance #04", List.of("1CE 16 D86 X 41998"), DEWEY.getId()),
       List.of("instance #05", List.of("DA 3880 O6 M15"), LC.getId()),
       List.of("instance #06", List.of("DA 3880 O6 L6 V1"), LC.getId()),
       List.of("instance #07", List.of("DA 3870 H47 41975"), LC.getId()),
       List.of("instance #08", List.of("AC 11 A67 X 42000"), NLM.getId()),
       List.of("instance #09", List.of("DA 3700 C95 NO 18"), LC.getId()),
-      List.of("instance #10", List.of("DC 3201 B34 41972"), SUDOC.getId()),
+      List.of("instance #10", List.of("D1.3201 B34 41972"), SUDOC.getId()),
       List.of("instance #11", List.of("DA 3880 K56 M27 41984"), LC.getId()),
-      List.of("instance #12", List.of("DC 211 N52 VOL 14"), SUDOC.getId()),
+      List.of("instance #12", List.of("D1.211 N52 VOL 14"), SUDOC.getId()),
       List.of("instance #13", List.of("DA 3880 O6 M81"), LC.getId()),
       List.of("instance #14", List.of("DA 3890 A1 I72 41885"), LC.getId()),
       List.of("instance #15", List.of("DA 3880 O6 L76"), LC.getId()),
-      List.of("instance #16", List.of("PR 44034 B38 41993"), SUDOC.getId()),
-      List.of("instance #17", List.of("GA 16 A63 41581"), SUDOC.getId()),
+      List.of("instance #16", List.of("P1.44034 B38 41993"), SUDOC.getId()),
+      List.of("instance #17", List.of("G1.16 A63 41581"), SUDOC.getId()),
       List.of("instance #18", List.of("AC 11 E8 NO 14 P S1487"), NLM.getId()),
       List.of("instance #19", List.of("DA 3890 A2 F57 42011"), LC.getId()),
       List.of("instance #20", List.of("DA 3880 O6 L75"), LC.getId()),
@@ -233,14 +254,15 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #35", List.of("E 12.11 I12 288 D"), LOCAL_TYPE_2),
       List.of("instance #36", List.of("DA 3700 B91 L79"), LC.getId()),
       List.of("instance #37", List.of("FC 17 B89"), LOCAL_TYPE_2),
-      List.of("instance #38", List.of("CE 210 K297 41858"), DEWEY.getId()),
+      List.of("instance #38", List.of("1CE 210 K297 41858"), DEWEY.getId()),
       List.of("instance #39", List.of("GA 16 D64 41548A"), OTHER.getId()),
       List.of("instance #40", List.of("PR 213 E5 41999"), LOCAL_TYPE_2),
       List.of("instance #41", List.of("DA 3870 B55 41868"), LC.getId()),
       List.of("instance #42", List.of("FA 46252 3977 12 237"), OTHER.getId()),
       List.of("instance #43", List.of("FA 42010 3546 256"), OTHER.getId()),
-      List.of("instance #44", List.of("CE 16 B6713 X 41993"), DEWEY.getId()),
-      List.of("instance #45", List.of("CE 16 B6724 41993"), DEWEY.getId()),
+      List.of("instance #44", List.of("1CE 16 B6713 X 41993"), DEWEY.getId()),
+      List.of("instance #45", List.of("1CE 16 B6724 41993"), DEWEY.getId()),
+      List.of("instance #47", List.of("1CE 16 B6724 41993"), DEWEY.getId()),
       List.of("instance #46", List.of("F  PR1866.S63 V.1 C.1"), LOCAL_TYPE_1)
     );
   }

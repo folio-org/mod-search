@@ -9,7 +9,9 @@ import static org.folio.search.utils.CallNumberUtils.excludeIrrelevantResultItem
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -44,24 +46,27 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     log.debug("browseInOneDirection:: by: [request: {}]", request);
 
     var isBrowsingForward = context.isBrowsingForward();
-    SearchResponse searchResponse = null;
+    var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
+    var searchResponse = searchRepository.search(request, searchSource);
 
-    var anchors = getAnchors(request);
-    if (anchors.size() > 1) {
+    if (!isAnchorPresent(searchResponse, context)) {
+      var anchors = getAnchors(request);
+      if (!anchors.isEmpty()) {
+        anchors.remove(0);
+      }
       for (String anchor : anchors) {
-        if (!anchor.equals(context.getAnchor())) {
-          context = buildBrowseContext(context, anchor);
-        }
-        var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
-        searchResponse = searchRepository.search(request, searchSource);
+        var contextForAnchor = buildBrowseContext(context, anchor);
+        var searchSourceForAnchor = callNumberBrowseQueryProvider.get(request, contextForAnchor, isBrowsingForward);
+        var responseForAnchor = searchRepository.search(request, searchSourceForAnchor);
+
         if (isAnchorPresent(searchResponse, context)) {
+          context = contextForAnchor;
+          searchResponse = responseForAnchor;
           break;
         }
       }
-    } else {
-      var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
-      searchResponse = searchRepository.search(request, searchSource);
     }
+
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
     var records = browseResult.getRecords();
     browseResult.setRecords(excludeIrrelevantResultItems(request.getRefinedCondition(), records));
@@ -75,26 +80,29 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.debug("browseAround:: by: [request: {}]", request);
-    MultiSearchResponse.Item[] responses = {};
 
     var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
+    var responses = getBrowseAround(request, context, precedingQuery);
 
     var callNumber = callNumberFromRequest(request);
-    var anchors = getAnchors(callNumber);
-    if (anchors.size() > 1) {
-      for (String anchor : anchors) {
-        if (!anchor.equals(context.getAnchor())) {
-          context = buildBrowseContext(context, anchor);
-          precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
-        }
 
-        responses = getBrowseAround(request, context, precedingQuery);
-        if (isAnchorPresent(responses[1].getResponse(), context)) {
+    if (!isAnchorPresent(responses[1].getResponse(), context)) {
+      var anchors = getAnchors(callNumber);
+      if (!anchors.isEmpty()) {
+        anchors.remove(0);
+      }
+      for (String anchor : anchors) {
+        var contextForAnchor = buildBrowseContext(context, anchor);
+        var precedingQueryForAnchor = callNumberBrowseQueryProvider.get(request, contextForAnchor, false);
+        var responsesForAnchor = getBrowseAround(request, contextForAnchor, precedingQueryForAnchor);
+
+        if (isAnchorPresent(responsesForAnchor[1].getResponse(), contextForAnchor)) {
+          context = contextForAnchor;
+          precedingQuery = precedingQueryForAnchor;
+          responses = responsesForAnchor;
           break;
         }
       }
-    } else {
-      responses = getBrowseAround(request, context, precedingQuery);
     }
 
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
@@ -125,6 +133,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     if (TRUE.equals(request.getHighlightMatch())) {
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
+
+    // needed because result list might be modified in a scope of additional actions
+    precedingResult.setRecords(precedingResult.getRecords().stream()
+      .sorted(Comparator.comparing(CallNumberBrowseItem::getShelfKey))
+      .toList());
 
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
@@ -192,7 +205,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   private boolean isAnchorPresent(SearchResponse searchResponse, BrowseContext context) {
-    var items = callNumberBrowseResultConverter.convert(searchResponse, context, true).getRecords();
+    var items = callNumberBrowseResultConverter.convert(searchResponse, context, context.isBrowsingForward())
+      .getRecords();
 
     return isNotEmpty(items) && StringUtils.equals(items.get(0).getShelfKey(), context.getAnchor());
   }
@@ -232,7 +246,10 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   }
 
   private static boolean isAnchorMatching(CallNumberBrowseItem browseItem, String anchor) {
-    var suffix = browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents().getSuffix();
+    var suffix = Optional.ofNullable(browseItem.getInstance())
+      .flatMap(instance -> Optional.ofNullable(instance.getItems())
+        .map(items -> items.isEmpty() ? null : items.get(0).getEffectiveCallNumberComponents().getSuffix()))
+      .orElse(null);
     var shelfKey = browseItem.getShelfKey();
     var shelfKeyNoSuffix = StringUtils.removeEnd(shelfKey, suffix).trim();
 

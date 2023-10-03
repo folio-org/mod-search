@@ -1,17 +1,15 @@
 package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
-import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
-import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
@@ -22,85 +20,26 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class SearchInstanceIT extends BaseIntegrationTest {
+class SearchInstanceConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    setUpTenant(CONSORTIUM_TENANT_ID);
+    setUpTenant(MEMBER_TENANT_ID, getSemanticWeb());
   }
 
   @AfterAll
   static void cleanUp() {
     removeTenant();
-  }
-
-  @MethodSource("testDataProvider")
-  @DisplayName("search by instances (single instance found)")
-  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
-  void searchByInstances_parameterized_singleResult(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
-  }
-
-  @ParameterizedTest(name = "[{index}] {0}")
-  @CsvSource({
-    "title == {value}, web semantic",
-    "title <> {value}, A semantic web primer",
-    "title all {value}, semantic web word",
-    "indexTitle <> {value}, Semantic web primer",
-    "uniformTitle all {value}, deja vu",
-    "uniformTitle all {value}, déjà vu",
-    "contributors.name all {value}, franks",
-    "contributors.authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",
-    "authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",
-    "electronicAccess.materialsSpecification all {value}, material",
-    "items.electronicAccess.materialsSpecification all {value}, table",
-    "item.electronicAccess.materialsSpecification all {value}, table",
-    "holdings.electronicAccess.materialsSpecification all {value}, specification",
-    "publicNotes == {value}, librarian",
-    "itemPublicNotes == {value}, private note for item",
-    "itemPublicNotes == {value}, private circulation note",
-    "holdingsPublicNotes == {value}, librarian private note",
-    "issn = {value}, 03178471",
-    "oclc = {value}, 0262012103",
-    "(keyword all {value}), 0747-0088"
-  })
-  @DisplayName("can search by instances (nothing found)")
-  void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
-  }
-
-  @Test
-  void streamInstanceIds() throws Exception {
-    doGet(instanceIdsPath("cql.allRecords=1"))
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
-  }
-
-  @Test
-  void search_negative_unknownField() throws Exception {
-    attemptSearchByInstances("unknownField all book")
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Invalid search field provided in the CQL query")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("field")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownField")));
   }
 
   @Test
@@ -142,11 +81,11 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
     assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
       .map(hr -> hr.discoverySuppress(false))
-      .map(SearchInstanceIT::removeUnexpectedProperties)
+      .map(SearchInstanceConsortiumIT::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
 
     assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
-      .map(SearchInstanceIT::removeUnexpectedProperties)
+      .map(SearchInstanceConsortiumIT::removeUnexpectedProperties)
       .map(Matchers::is).collect(Collectors.toList())));
 
     assertThat(actual.tenantId(null).shared(null).holdings(null).items(null),
@@ -154,11 +93,13 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   private static Holding removeUnexpectedProperties(Holding holding) {
+    holding.setTenantId(MEMBER_TENANT_ID);
     holding.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
     return holding.callNumberSuffix(null).callNumber(null).callNumberPrefix(null);
   }
 
   private static Item removeUnexpectedProperties(Item item) {
+    item.setTenantId(MEMBER_TENANT_ID);
     item.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
     return item.discoverySuppress(false);
   }
@@ -184,7 +125,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("id = {value}", "5bf370e0*a0a39"),
       arguments("id == {value}", getSemanticWebId()),
 
-      arguments("tenantId = {value}", TENANT_ID),
+      arguments("tenantId = {value}", MEMBER_TENANT_ID),
 
       arguments("shared == {value}", "false"),
 

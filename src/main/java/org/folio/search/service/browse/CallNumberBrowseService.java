@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBrowseItem> {
 
+  static final List<String> FOLIO_CALL_NUMBER_TYPES_SOURCES = Collections.singletonList(FOLIO.getSource());
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
   private static final int ADDITIONAL_REQUEST_SIZE_MAX = 500;
   private final SearchRepository searchRepository;
@@ -47,7 +48,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
   private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
   private final ReferenceDataService referenceDataService;
-  static final List<String> FOLIO_CALL_NUMBER_TYPES_SOURCES = Collections.singletonList(FOLIO.getSource());
 
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {

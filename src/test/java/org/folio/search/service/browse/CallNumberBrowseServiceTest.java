@@ -24,6 +24,7 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -74,6 +75,8 @@ class CallNumberBrowseServiceTest {
   private SearchSourceBuilder succeedingQuery;
   @Mock
   private CqlSearchQueryConverter cqlSearchQueryConverter;
+  @Mock
+  private ReferenceDataService referenceDataService;
 
   @BeforeEach
   void setUp() {

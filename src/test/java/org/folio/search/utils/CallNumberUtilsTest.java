@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.compareIgnoreCase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -117,9 +118,9 @@ class CallNumberUtilsTest {
   @ParameterizedTest(name = "[{index}] callNumber={0}, records={1}, expected={2}")
   @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingData")
   void excludeIrrelevantResultItems(String callNumberType, CallNumberBrowseItem given, CallNumberBrowseItem expected) {
-    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, List.of(given));
+    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, emptySet(), List.of(given));
     assertThat(items).isEqualTo(List.of(expected));
-    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", List.of(given));
+    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", emptySet(), List.of(given));
     assertThat(unchangedItems).isEqualTo(List.of(given));
   }
 

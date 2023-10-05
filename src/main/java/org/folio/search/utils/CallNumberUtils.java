@@ -167,22 +167,22 @@ public class CallNumberUtils {
    * </p>
    *
    * @param callNumberType - call number type to check/compare result items' types
-   * @param records - list of CallNumberBrowseItem objects
+   * @param browseItems - list of CallNumberBrowseItem objects
    * @return filtered records
    */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(String callNumberType,
                                                                         Set<String> folioCallNumberTypes,
-                                                                        List<CallNumberBrowseItem> records) {
-    if (StringUtils.isBlank(callNumberType) || records == null || records.isEmpty()) {
-      return records;
+                                                                        List<CallNumberBrowseItem> browseItems) {
+    if (StringUtils.isBlank(callNumberType) || browseItems == null || browseItems.isEmpty()) {
+      return browseItems;
     }
 
-    records.forEach(r -> {
+    browseItems.forEach(r -> {
       if (r.getInstance() != null) {
         r.getInstance().setItems(getItemsFiltered(callNumberType, folioCallNumberTypes, r));
       }
     });
-    return records
+    return browseItems
       .stream()
       .filter(r -> {
         Instance instance = r.getInstance();
@@ -190,7 +190,7 @@ public class CallNumberUtils {
           return instance.getItems()
             .stream()
             .anyMatch(i -> r.getFullCallNumber() == null
-              || i.getEffectiveCallNumberComponents().getCallNumber().equals(r.getFullCallNumber()));
+              || getFullCallNumber(i).equals(r.getFullCallNumber()));
         }
         return true;
       }).toList();
@@ -212,6 +212,13 @@ public class CallNumberUtils {
     return itemCallNumberType.equals(requestCallNumberType)
       || itemCallNumberType.isEmpty() && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
       .orElse(false) && !folioCallNumberTypes.contains(itemCallNumberTypeId);
+  }
+
+  private static String getFullCallNumber(Item item) {
+    var iecnc = item.getEffectiveCallNumberComponents();
+    return Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
+      .filter(StringUtils::isNotBlank)
+      .collect(joining(StringUtils.SPACE));
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

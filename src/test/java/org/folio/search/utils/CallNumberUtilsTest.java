@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.compareIgnoreCase;
@@ -13,6 +14,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import one.util.streamex.StreamEx;
@@ -119,11 +121,12 @@ class CallNumberUtilsTest {
 
   @ParameterizedTest(name = "[{index}] callNumber={0}, records={1}, expected={2}")
   @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingData")
-  void excludeIrrelevantResultItems(String callNumberType, CallNumberBrowseItem given, CallNumberBrowseItem expected) {
-    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, emptySet(), List.of(given));
-    assertThat(items).isEqualTo(List.of(expected));
-    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", emptySet(), List.of(given));
-    assertThat(unchangedItems).isEqualTo(List.of(given));
+  void excludeIrrelevantResultItems(String callNumberType, List<CallNumberBrowseItem> given,
+                                    List<CallNumberBrowseItem> expected) {
+    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, emptySet(), given);
+    assertThat(items).isEqualTo(expected);
+    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", emptySet(), given);
+    assertThat(unchangedItems).isEqualTo(given);
   }
 
   private static Stream<Arguments> supportedCharactersDataset() {
@@ -198,12 +201,24 @@ class CallNumberUtilsTest {
       List.of(NLM.getId(), "QS 11 .GA1 E53", "00000000-0000-0000-0000-000000000004", "2005")
     );
 
+    var localData = List.of(
+      List.of(UUID.randomUUID().toString(), "localCn1", "00000000-0000-0000-0000-000000000004")
+    );
+    var localAndNotTypedData = List.of(
+      localData.get(0),
+      newArrayList(null, "noTypedCn", "00000000-0000-0000-0000-000000000006")
+    );
+
 
     return Stream.of(
-      arguments("dewey", browseItem(mixedData, id, "308 H977"), browseItem(deweyData, id, "308 H977")),
-      arguments("nlm", browseItem(mixedLcData, id, "WE 200-600"), browseItem(lcData, id, "WE 200-600")),
-      arguments("nlm", browseItem(nlmSuffixData, id, "QS 11 .GA1 E53 2005"),
-        browseItem(nlmSuffixData, id, "QS 11 .GA1 E53 2005"))
+      arguments("dewey", List.of(browseItem(mixedData, id, "308 H977")),
+        List.of(browseItem(deweyData, id, "308 H977"))),
+      arguments("nlm", List.of(browseItem(mixedLcData, id, "WE 200-600")),
+        List.of(browseItem(lcData, id, "WE 200-600"))),
+      arguments("nlm", List.of(browseItem(nlmSuffixData, id, "QS 11 .GA1 E53 2005")),
+        List.of(browseItem(nlmSuffixData, id, "QS 11 .GA1 E53 2005"))),
+      arguments("local", List.of(browseItem(localAndNotTypedData, id, "localCn1")),
+        List.of(browseItem(localData, id, "localCn1")))
     );
   }
 

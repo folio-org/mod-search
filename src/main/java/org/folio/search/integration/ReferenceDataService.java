@@ -23,8 +23,8 @@ public class ReferenceDataService {
 
   private final InventoryReferenceDataClient inventoryReferenceDataClient;
 
-//  @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
-//             key = "@folioExecutionContext.tenantId + ':' + #values + ':' + #type.toString() + ':' + #param.toString()")
+  //  @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
+  //        key = "@folioExecutionContext.tenantId + ':' + #values + ':' + #type.toString() + ':' + #param.toString()")
   public Set<String> fetchReferenceData(ReferenceDataType type, CqlQueryParam param, Collection<String> values) {
     log.info("Fetching reference [type: {}, field: {}, values: {}]", type.toString(), param.toString(), values);
     var uri = type.getUri();

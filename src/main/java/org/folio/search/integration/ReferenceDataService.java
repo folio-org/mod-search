@@ -1,7 +1,6 @@
 package org.folio.search.integration;
 
 import static java.util.stream.Collectors.toSet;
-import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 
 import java.util.Collection;
@@ -13,7 +12,6 @@ import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ReferenceRecord;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -25,8 +23,8 @@ public class ReferenceDataService {
 
   private final InventoryReferenceDataClient inventoryReferenceDataClient;
 
-  @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
-             key = "@folioExecutionContext.tenantId + ':' + #values + ':' + #type.toString() + ':' + #param.toString()")
+//  @Cacheable(cacheNames = REFERENCE_DATA_CACHE, unless = "#result.isEmpty()",
+//             key = "@folioExecutionContext.tenantId + ':' + #values + ':' + #type.toString() + ':' + #param.toString()")
   public Set<String> fetchReferenceData(ReferenceDataType type, CqlQueryParam param, Collection<String> values) {
     log.info("Fetching reference [type: {}, field: {}, values: {}]", type.toString(), param.toString(), values);
     var uri = type.getUri();

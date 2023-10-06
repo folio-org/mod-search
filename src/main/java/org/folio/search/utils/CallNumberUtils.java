@@ -210,8 +210,10 @@ public class CallNumberUtils {
     var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType);
     return itemCallNumberType.equals(requestCallNumberType)
-      || itemCallNumberType.isEmpty() && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL))
-      .orElse(false) && !folioCallNumberTypes.contains(itemCallNumberTypeId);
+      || itemCallNumberTypeId != null
+      && itemCallNumberType.isEmpty()
+      && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
+      && !folioCallNumberTypes.contains(itemCallNumberTypeId);
   }
 
   private static String getFullCallNumber(Item item) {

@@ -3,6 +3,7 @@ package org.folio.search.service.setter.item;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.model.client.CqlQueryParam.SOURCE;
 import static org.folio.search.model.types.CallNumberTypeSource.LOCAL;
+import static org.folio.search.service.browse.CallNumberBrowseService.FOLIO_CALL_NUMBER_TYPES_SOURCES;
 import static org.folio.search.utils.CallNumberUtils.getCallNumberAsLong;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
@@ -61,7 +62,7 @@ public class ItemTypedCallNumberProcessor implements FieldProcessor<Instance, Se
   }
 
   private boolean isLocalCallNumberTypeId(String callNumberTypeId) {
-    return referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, LOCAL_CALL_NUMBER_TYPES_SOURCES)
+    return !referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, FOLIO_CALL_NUMBER_TYPES_SOURCES)
       .contains(callNumberTypeId);
   }
 

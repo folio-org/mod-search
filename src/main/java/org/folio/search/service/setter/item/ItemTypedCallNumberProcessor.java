@@ -42,9 +42,10 @@ public class ItemTypedCallNumberProcessor implements FieldProcessor<Instance, Se
   }
 
   public Optional<Integer> getCallNumberTypedPrefix(String callNumberTypeId) {
-    boolean isLocal = isLocalCallNumberTypeId(callNumberTypeId);
-    return isLocal ? Optional.of(CallNumberType.LOCAL.getNumber())
-                   : CallNumberType.fromId(callNumberTypeId).map(CallNumberType::getNumber);
+    return CallNumberType.fromId(callNumberTypeId)
+      .map(CallNumberType::getNumber)
+      .or(() -> isLocalCallNumberTypeId(callNumberTypeId)
+        ? Optional.of(CallNumberType.LOCAL.getNumber()) : Optional.empty());
   }
 
   private Long toCallNumberLongRepresentation(Item item) {

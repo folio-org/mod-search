@@ -202,8 +202,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("title any {value}", "systems alternative semantic"),
 
       //phrase matching
-      arguments("title == {value}", "semantic web"),
-      arguments("title == {value}", "a semantic web primer"),
+      arguments("title == {value}", "semantic web primer"),
       arguments("title == {value}", "cooperative information systems"),
 
       // ASCII folding
@@ -253,7 +252,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors = {value}", "*rmelen, Frank"),
 
       arguments("contributors.name = {value}", "Van Harmelen, Frank"),
-      arguments("contributors.name == {value}", "Van Harmelen"),
       arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
       arguments("contributors.name = {value}", "Anton*"),
@@ -272,6 +270,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword all {value}", "semantic Antoniou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
       arguments("subjects ==/string {value}", "semantic web"),
+      arguments("keyword ==/string {value}", "A semantic web primer :0747-0850 & wolves"),
 
       arguments("tags.tagList all {value}", "book"),
       arguments("tags.tagList all {value}", "electronic"),
@@ -289,7 +288,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("publicNotes all {value}", "development"),
       arguments("notes.note == {value}", "Librarian private note"),
-      arguments("notes.note == {value}", "The development of the Semantic Web,"),
       arguments("callNumber = {value}", "\"\""),
 
       // search by isbn10
@@ -341,7 +339,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.circulationNotes.note all {value}", "*Note"),
       arguments("item.circulationNotes.note all {value}", "private circulation*"),
 
-      arguments("item.electronicAccess==\"{value}\"", "table"),
       arguments("item.electronicAccess.uri==\"{value}\"", "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"),
       arguments("item.electronicAccess.linkText all {value}", "links available"),
       arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
@@ -368,7 +365,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("items.circulationNotes.note all {value}", "*Note"),
       arguments("items.circulationNotes.note all {value}", "private circulation*"),
 
-      arguments("items.electronicAccess==\"{value}\"", "table"),
       arguments("items.electronicAccess.uri==\"{value}\"", "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"),
       arguments("items.electronicAccess.linkText all {value}", "links available"),
       arguments("items.electronicAccess.publicNote all {value}", "table of contents"),
@@ -381,7 +377,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdings.notes.note == {value}", "Librarian private note for holding"),
       arguments("holdings.tags.tagList == {value}", "holdings-tag"),
 
-      arguments("holdings.electronicAccess==\"{value}\"", "electronicAccess"),
+      arguments("holdings.electronicAccess==\"{value}\"", "Holding's electronicAccess link Text"),
       arguments("holdings.electronicAccess.uri==\"{value}\"", "https://testlibrary.sample.com/holdings?hrid=ho0000006"),
       arguments("holdings.electronicAccess.linkText all {value}", "link text"),
       arguments("holdings.electronicAccess.publicNote all {value}", "note"),

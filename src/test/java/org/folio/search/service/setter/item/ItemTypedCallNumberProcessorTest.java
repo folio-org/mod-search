@@ -1,13 +1,8 @@
 package org.folio.search.service.setter.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
-import static org.folio.search.model.client.CqlQueryParam.SOURCE;
-import static org.folio.search.service.setter.item.ItemTypedCallNumberProcessor.LOCAL_CALL_NUMBER_TYPES_SOURCES;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
@@ -35,12 +30,8 @@ class ItemTypedCallNumberProcessorTest {
 
   @Test
   void getFieldValue_multipleValue_positive() {
-    var localCnId = UUID.randomUUID().toString();
-
-    when(referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, LOCAL_CALL_NUMBER_TYPES_SOURCES))
-      .thenReturn(Set.of(localCnId));
     var eventBody = instance(
-      item("HD 11", localCnId),
+      item("HD 11", UUID.randomUUID().toString()),
       item("HD 11", CallNumberType.LC.getId()),
       item("HD 11", CallNumberType.DEWEY.getId()),
       item("HD 11", CallNumberType.NLM.getId()),
@@ -60,13 +51,6 @@ class ItemTypedCallNumberProcessorTest {
   @MethodSource("emptyCallNumberAfterProcessingSource")
   void getFieldValue_emptyCallNumberAfterProcessing(String effectiveShelvingOrder, String callNumberTypeId) {
     var eventBody = instance(item(effectiveShelvingOrder, callNumberTypeId));
-    var actual = processor.getFieldValue(eventBody);
-    assertThat(actual).isEmpty();
-  }
-
-  @Test
-  void getFieldValue_emptyCallNumberIfNotSystemOrNotLocal() {
-    var eventBody = instance(item("AA 123", UUID.randomUUID().toString()));
     var actual = processor.getFieldValue(eventBody);
     assertThat(actual).isEmpty();
   }

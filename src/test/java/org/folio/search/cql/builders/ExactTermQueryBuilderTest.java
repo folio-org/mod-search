@@ -34,21 +34,21 @@ class ExactTermQueryBuilderTest {
   @Test
   void getQuery_positive() {
     var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2");
-    assertThat(actual).isEqualTo(multiMatchQuery("value", "f1.*", "f2").type(PHRASE));
+    assertThat(actual).isEqualTo(multiMatchQuery("value", "plain_f1", "f2").type(PHRASE));
   }
 
   @Test
   void getFulltextQuery_positive() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
     var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
-    assertThat(actual).isEqualTo(multiMatchQuery("val", "field.*").type(PHRASE));
+    assertThat(actual).isEqualTo(multiMatchQuery("val", "plain_field").type(PHRASE));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
     var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
-    assertThat(actual).isEqualTo(multiMatchQuery("val", "field").type(PHRASE));
+    assertThat(actual).isEqualTo(multiMatchQuery("val", "plain_field").type(PHRASE));
   }
 
   @Test

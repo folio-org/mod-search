@@ -64,8 +64,10 @@ import org.springframework.context.annotation.Import;
 class CqlSearchQueryConverterTest {
 
   private static final String[] TITLE_FIELDS = new String[] {"title.*", "source.*", "source"};
+  private static final String[] UPDATED_TITLE_FIELDS = new String[] {"plain_title", "plain_source", "source"};
   private static final String TITLE_SEARCH_TYPE = "title";
   private static final String FIELD = "field";
+  private static final String UPDATED_FIELD = "plain_field";
 
   @Autowired
   private CqlSearchQueryConverter cqlSearchQueryConverter;
@@ -164,7 +166,7 @@ class CqlSearchQueryConverterTest {
     var actual = cqlSearchQueryConverter.convert(FIELD + " == value", RESOURCE_NAME);
 
     assertThat(actual).isEqualTo(searchSource().query(
-      multiMatchQuery("value", FIELD + ".*").type(PHRASE)));
+      multiMatchQuery("value", UPDATED_FIELD).type(PHRASE)));
   }
 
   @Test
@@ -440,7 +442,7 @@ class CqlSearchQueryConverterTest {
         searchSource().query(getMultiMatchQuery("test-query", TITLE_FIELDS))),
 
       arguments("title == \"test-query\"",
-        searchSource().query(multiMatchQuery("test-query", TITLE_FIELDS).type(PHRASE))),
+        searchSource().query(multiMatchQuery("test-query", UPDATED_TITLE_FIELDS).type(PHRASE))),
 
       arguments("((title all \"test-query\") and languages=(\"eng\" or \"ger\")) sortby title",
         searchSource().query(boolQuery()

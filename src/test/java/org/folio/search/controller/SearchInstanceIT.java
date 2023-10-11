@@ -394,6 +394,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("(keyword all \"{value}\")", "A semantic web primer : wolves"),
       arguments("(keyword all \"{value}\")", "A semantic web primer & wolves"),
       arguments("(keyword all \"{value}\")", "A semantic web primer / wolves"),
+      arguments("keyword == {value}", "Van Harmelen, Frank"),
+      arguments("keyword ==/string {value}", "0262012103"),
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
     );
   }

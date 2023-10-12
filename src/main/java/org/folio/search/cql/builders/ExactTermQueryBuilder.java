@@ -8,7 +8,6 @@ import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.scriptQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.utils.SearchUtils;
@@ -26,10 +25,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getQuery(Object term, String resource, String... fields) {
-    List<String> updatedFields = Arrays.stream(fields)
-      .map(field -> updatePathForTermQueries(resource, field))
-      .toList();
-    return multiMatchQuery(term, updatedFields.toArray(String[]::new)).type(PHRASE);
+    return multiMatchQuery(term, fields).type(PHRASE);
   }
 
   @Override

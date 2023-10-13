@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -33,20 +34,20 @@ class EqualTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2");
+    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
     assertThat(actual).isEqualTo(multiMatchQuery("value", "f1.*", "f2").operator(AND).type(CROSS_FIELDS));
   }
 
   @Test
   void getQuery_positive_emptyValueAndSingleMultilangFieldWithAlias() {
-    var actual = queryBuilder.getQuery("", RESOURCE_NAME, "f1.*");
+    var actual = queryBuilder.getQuery("", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*");
     assertThat(actual).isEqualTo(existsQuery("plain_f1"));
   }
 
   @Test
   void getQuery_positive_emptyValueAndSingleKeywordField() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
-    var actual = queryBuilder.getQuery("", RESOURCE_NAME, "field");
+    var actual = queryBuilder.getQuery("", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "field");
     assertThat(actual).isEqualTo(existsQuery("field"));
   }
 

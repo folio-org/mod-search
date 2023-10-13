@@ -21,7 +21,6 @@ import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.utils.SearchUtils;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -32,7 +31,6 @@ import org.z3950.zing.cql.Modifier;
 public class CqlTermQueryConverter {
 
   public static final String WILDCARD_OPERATOR = "wildcard";
-  public static final String STRING_MODIFIER = "string";
   private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
   private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
 
@@ -96,12 +94,7 @@ public class CqlTermQueryConverter {
       .toList();
 
     if (CollectionUtils.isNotEmpty(fieldsList)) {
-      if (modifiers.contains(STRING_MODIFIER)) {
-        var updatedFieldsList = getUpdatedFields(fieldsList);
-        return termQueryBuilder.getQuery(searchTerm, resource, updatedFieldsList.toArray(String[]::new));
-      }
-
-      return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));
+      return termQueryBuilder.getQuery(searchTerm, resource, modifiers, fieldsList.toArray(String[]::new));
     }
 
     var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
@@ -112,12 +105,6 @@ public class CqlTermQueryConverter {
     return plainFieldByPath.hasFulltextIndex()
            ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
            : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
-  }
-
-  private static List<String> getUpdatedFields(List<String> fieldsList) {
-    return fieldsList.stream()
-      .map(SearchUtils::updatePathForTermQueries)
-      .toList();
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {

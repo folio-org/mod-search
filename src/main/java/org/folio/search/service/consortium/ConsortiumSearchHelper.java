@@ -178,19 +178,17 @@ public class ConsortiumSearchHelper {
   }
 
   private Optional<TermQueryBuilder> getBrowseSharedFilter(BrowseContext context) {
-    return context.getFilters().stream()
-      .map(filter ->
-        filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(BROWSE_SHARED_FILTER_KEY)
-        ? termFilter
-        : null)
-      .filter(Objects::nonNull)
-      .findFirst();
+    return getBrowseFilter(context, BROWSE_SHARED_FILTER_KEY);
   }
 
   private Optional<TermQueryBuilder> getBrowseTenantFilter(BrowseContext context) {
+    return getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
+  }
+
+  public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
     return context.getFilters().stream()
       .map(filter ->
-        filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(BROWSE_TENANT_FILTER_KEY)
+        filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
         ? termFilter
         : null)
       .filter(Objects::nonNull)

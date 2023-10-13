@@ -23,6 +23,7 @@ import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.model.service.BrowseContext;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.test.type.IntegrationTest;
@@ -36,6 +37,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
+  private static final BrowseContext CONTEXT = BrowseContext.builder().build();
 
   @BeforeAll
   static void prepare() {
@@ -74,7 +76,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
     ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", emptySet(), expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "dewey", emptySet(), expected.getItems()));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -94,7 +96,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
         cnBrowseItem(instance("instance #10"), "Z669.R360 1977", 1)
     ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("lc", emptySet(), expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "lc", emptySet(), expected.getItems()));
     leaveOnlyBasicProps(expected);
     assertThat(actual).isEqualTo(expected);
   }
@@ -127,7 +129,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
       ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems("dewey", emptySet(), expected.getItems()));
+    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "dewey", emptySet(), expected.getItems()));
 
     assertThat(result.getItems()).hasSizeLessThanOrEqualTo(limit);
     assertThat(result).isEqualTo(expected);

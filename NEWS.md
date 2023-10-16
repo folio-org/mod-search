@@ -1,4 +1,28 @@
-## v3.0.0 In progress
+## v3.1.0 In progress
+### Breaking changes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### New APIs versions
+* Provides `API_NAME vX.Y`
+* Requires `API_NAME vX.Y`
+
+### Features
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Bug fixes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Tech Dept
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME` `2.7.4`
+* Remove `LIB_NAME`
+
+---
+
+## v3.0.0 2023-10-13
 ### New APIs versions
 * Remove required `instance-authority-links`
 * Requires `alternative-title-types v1.0`
@@ -24,16 +48,35 @@
 * Implement Active Affiliation Context for browsing ([MSEARCH-580](https://issues.folio.org/browse/MSEARCH-580))
 * Add new facets for shared/local flag and tenantId ([MSEARCH-534](https://issues.folio.org/browse/MSEARCH-534))
 * Implement SuDoc call number type ([MSEARCH-569](https://issues.folio.org/browse/MSEARCH-569))
+* Adjust GET /search/authorities to not include titles numberOfTitles ([MSEARCH-518](https://issues.folio.org/browse/MSEARCH-518))
 
 ### Bug fixes
 * Fix bug when number of titles response is greater than real ([MSEARCH-526](https://issues.folio.org/browse/MSEARCH-526))
 * Fix handling of invalid resource names in index management endpoints ([MSEARCH-540](https://issues.folio.org/browse/MSEARCH-540))
 * Improve preceding records searching ([MSEARCH-552](https://issues.folio.org/browse/MSEARCH-552))
 * Includes records with the same first 10 characters of the shelving order in preceding result ([MSEARCH-544](https://issues.folio.org/browse/MSEARCH-544))
+* Fix searching by the first call number from browse result list ([MSEARCH-513](https://issues.folio.org/browse/MSEARCH-513))
 
 ### Tech Dept
 * Change logic of linked titles count on authority search/browse ([MSEARCH-501](https://issues.folio.org/browse/MSEARCH-501))
 * Kafka topic deletion by tenant id added when tenant disabled ([MSEARCH-541](https://issues.folio.org/browse/MSEARCH-541))
+* Logging improvement ([MSEARCH-299](https://issues.folio.org/browse/MSEARCH-299))
+* Allow Kafka Tenant Collection Topics ([MSEARCH-596](https://issues.folio.org/browse/MSEARCH-596))
+
+### Dependencies
+* Bump `folio-spring-support` from `6.1.0` to `7.2.0`
+* Bump `folio-isbn-utils` from `1.5.0` to `1.6.0`
+* Bump `folio-cql2pgjson` from `35.0.6` to `35.1.0`
+* Bump `spring-boot-starter-parent` from `3.0.5` to `3.1.4`
+* Bump `spring-kafka` from `3.0.5` to `3.0.11`
+* Bump `opensearch` from `2.5.0` to `2.9.0`
+* Bump `mapstruct` from `1.5.3.Final` to `1.5.5.Final`
+* Bump `lombok` from `1.18.26` to `1.18.30`
+* Bump `apache-commons-io` from `2.11.0` to `2.14.0`
+* Bump `marc4j` from `2.9.2` to `2.9.5`
+* Add `folio-service-tools` `3.1.0`
+
+---
 
 ## v2.0.0 2023-02-16
 ### Breaking changes

@@ -13,10 +13,11 @@ public interface TermQueryBuilder {
    *
    * @param term     search term as {@link String} object
    * @param resource resource name for querying as {@link String object}
+   * @param modifiers search term modifiers
    * @param fields   resource fields name as {@code array} of {@link String} objects
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getQuery(Object term, String resource, String... fields) {
+  default QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
     throw unsupportedException(fields);
   }
 

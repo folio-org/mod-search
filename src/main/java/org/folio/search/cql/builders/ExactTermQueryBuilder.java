@@ -8,6 +8,7 @@ import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.scriptQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.utils.SearchUtils;
@@ -24,7 +25,10 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   private static final String STRING_MODIFIER = "string";
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
+    if (modifiers.contains(STRING_MODIFIER)) {
+      fields = getUpdatedFields(fields);
+    }
     return multiMatchQuery(term, fields).type(PHRASE);
   }
 
@@ -36,7 +40,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
     return EMPTY_ARRAY.equals(term)
            ? getEmptyArrayScriptQuery(getPathToFulltextPlainValue(fieldName))
-           : getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
+           : getQuery(term, resource, modifiers, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override
@@ -53,5 +57,11 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   @Override
   public Set<String> getSupportedComparators() {
     return Set.of("==");
+  }
+
+  private static String[] getUpdatedFields(String[] fieldsList) {
+    return Arrays.stream(fieldsList)
+      .map(SearchUtils::updatePathForTermQueries)
+      .toArray(String[]::new);
   }
 }

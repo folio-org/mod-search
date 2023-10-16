@@ -3,6 +3,7 @@ package org.folio.search.cql.builders;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.standardField;
@@ -34,9 +35,11 @@ class WildcardTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "contributors.name")).thenReturn(of(standardField()));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME,
+      "contributors.name")).thenReturn(of(standardField()));
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "f2")).thenReturn(of(keywordField()));
-    var actual = queryBuilder.getQuery("value*", RESOURCE_NAME, "f1.*", "f2", "contributors.name");
+    var actual = queryBuilder.getQuery("value*", RESOURCE_NAME,
+      EMPTY_TERM_MODIFIERS, "f1.*", "f2", "contributors.name");
     assertThat(actual).isEqualTo(boolQuery()
       .should(wildcardQuery("plain_f1", "value*"))
       .should(wildcardQuery("f2", "value*"))
@@ -45,14 +48,14 @@ class WildcardTermQueryBuilderTest {
 
   @Test
   void getQuery_positive_singleMultilangFieldInGroup() {
-    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, "f1.*");
+    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*");
     assertThat(actual).isEqualTo(wildcardQuery("plain_f1", "*value*"));
   }
 
   @Test
   void getQuery_positive_singleStandardFieldInGroup() {
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(of(standardField()));
-    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, "field");
+    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "field");
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "*value*"));
   }
 

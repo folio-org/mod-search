@@ -3,6 +3,7 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -73,7 +74,8 @@ class CqlTermQueryConverterTest {
   void getQuery_positive_fieldsGroupMultiMatch() {
     var expectedQuery = multiMatchQuery("book", "title.*", "subjects.*");
     when(searchFieldProvider.getFields(RESOURCE_NAME, "keyword")).thenReturn(List.of("title.*", "subjects.*"));
-    when(termQueryBuilder.getQuery("book", RESOURCE_NAME, "title.*", "subjects.*")).thenReturn(expectedQuery);
+    when(termQueryBuilder.getQuery("book", RESOURCE_NAME,
+      EMPTY_TERM_MODIFIERS, "title.*", "subjects.*")).thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("keyword all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
   }
@@ -82,7 +84,8 @@ class CqlTermQueryConverterTest {
   void getQuery_positive_fieldsGroupWildcardQuery() {
     var expectedQuery = wildcardQuery("plain_title", "book*");
     when(searchFieldProvider.getFields(RESOURCE_NAME, "keyword")).thenReturn(List.of("title.*"));
-    when(wildcardQueryBuilder.getQuery("book*", RESOURCE_NAME, "title.*")).thenReturn(expectedQuery);
+    when(wildcardQueryBuilder.getQuery("book*", RESOURCE_NAME,
+      EMPTY_TERM_MODIFIERS, "title.*")).thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("keyword all book*"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
   }
@@ -95,7 +98,8 @@ class CqlTermQueryConverterTest {
 
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "callNumber")).thenReturn(Optional.of(fieldDesc));
     when(searchTermProcessor.getSearchTerm("A")).thenReturn(100L);
-    when(termQueryBuilder.getTermLevelQuery(100L, "callNumber", RESOURCE_NAME, "long")).thenReturn(expectedQuery);
+    when(termQueryBuilder.getTermLevelQuery(100L, "callNumber",
+      RESOURCE_NAME, "long")).thenReturn(expectedQuery);
 
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("callNumber all A"), RESOURCE_NAME);
 
@@ -110,7 +114,8 @@ class CqlTermQueryConverterTest {
     var fieldDesc = plainField("long");
     fieldDesc.setSearchTermProcessor("processor");
 
-    when(termQueryBuilder.getQuery(100L, RESOURCE_NAME, fieldSearchAlias)).thenReturn(expectedQuery);
+    when(termQueryBuilder.getQuery(100L, RESOURCE_NAME,
+      EMPTY_TERM_MODIFIERS, fieldSearchAlias)).thenReturn(expectedQuery);
     when(searchFieldProvider.getFields(RESOURCE_NAME, fieldName)).thenReturn(List.of(fieldSearchAlias));
     when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, fieldSearchAlias)).thenReturn(Optional.of(fieldDesc));
     when(searchTermProcessor.getSearchTerm("value")).thenReturn(100L);
@@ -131,7 +136,8 @@ class CqlTermQueryConverterTest {
   @Test
   void getQuery_positive_singleMultilangField() {
     var expectedQuery = multiMatchQuery("book", "subjects.*");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME,
+      "subjects")).thenReturn(Optional.of(multilangField()));
     when(termQueryBuilder.getFulltextQuery("book", "subjects", RESOURCE_NAME, emptyList()))
       .thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
@@ -141,8 +147,10 @@ class CqlTermQueryConverterTest {
   @Test
   void getQuery_positive_singleKeywordField() {
     var expectedQuery = termQuery("subjects", "book");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(keywordField()));
-    when(termQueryBuilder.getTermLevelQuery("book", "subjects", RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME,
+      "subjects")).thenReturn(Optional.of(keywordField()));
+    when(termQueryBuilder.getTermLevelQuery("book", "subjects",
+      RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
     assertThat(actual).isEqualTo(expectedQuery);
   }
@@ -153,9 +161,11 @@ class CqlTermQueryConverterTest {
     fieldDescription.setSearchTermProcessor("processor");
     var expectedQuery = termQuery("subjects", "test");
 
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "subjects")).thenReturn(Optional.of(fieldDescription));
+    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME,
+      "subjects")).thenReturn(Optional.of(fieldDescription));
     when(searchTermProcessor.getSearchTerm("book")).thenReturn("test");
-    when(termQueryBuilder.getTermLevelQuery("test", "subjects", RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
+    when(termQueryBuilder.getTermLevelQuery("test", "subjects",
+      RESOURCE_NAME, "keyword")).thenReturn(expectedQuery);
 
     var actual = cqlTermQueryConverter.getQuery(cqlTermNode("subjects all book"), RESOURCE_NAME);
 

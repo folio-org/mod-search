@@ -7,6 +7,7 @@ import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvNam
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.utils.TestUtils.TestResource;
@@ -24,6 +25,8 @@ public class TestConstants {
   public static final JsonNode EMPTY_JSON_OBJECT = JsonNodeFactory.instance.objectNode();
   public static final String RESOURCE_NAME = getResourceName(TestResource.class);
   public static final String INDEX_NAME = indexName(TENANT_ID);
+  public static final List<String> EMPTY_TERM_MODIFIERS = List.of();
+  public static final List<String> STRING_TERM_MODIFIERS = List.of("string");
 
   public static final String AUTHORITY_TOPIC = "authorities.authority";
   public static final String CONTRIBUTOR_TOPIC = "search.instance-contributor";

@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
@@ -33,7 +34,7 @@ class AllTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    var actual = queryBuilder.getQuery("value1 value2", RESOURCE_NAME, "f1.*", "f2");
+    var actual = queryBuilder.getQuery("value1 value2", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
     assertThat(actual).isEqualTo(boolQuery()
       .must(getMultiMatchQuery("value1", "f1.*", "f2"))
       .must(getMultiMatchQuery("value2", "f1.*", "f2")));

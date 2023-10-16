@@ -21,7 +21,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
   private static final Pattern SPLITERATOR = Pattern.compile("([^\\s:\\/&]+)");
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
     if (term instanceof String stringTerm) {
 
       List<String> terms = new ArrayList<>();
@@ -44,7 +44,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
-    return getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
+    return getQuery(term, resource, modifiers, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
     if (fields.length == 1) {
       return getWildcardQuery(term, updatePathForTermQueries(resource, fields[0]));
     }

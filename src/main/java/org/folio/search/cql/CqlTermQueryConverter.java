@@ -89,18 +89,18 @@ public class CqlTermQueryConverter {
         "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
     }
 
+    var modifiers = termNode.getRelation().getModifiers().stream()
+      .map(Modifier::getType)
+      .toList();
+
     if (CollectionUtils.isNotEmpty(fieldsList)) {
-      return termQueryBuilder.getQuery(searchTerm, resource, fieldsList.toArray(String[]::new));
+      return termQueryBuilder.getQuery(searchTerm, resource, modifiers, fieldsList.toArray(String[]::new));
     }
 
     var plainFieldByPath = optionalPlainFieldByPath.orElseThrow(() -> new RequestValidationException(
       "Invalid search field provided in the CQL query", "field", fieldName));
     var index = plainFieldByPath.getIndex();
     validateIndexFormat(index, termNode);
-
-    var modifiers = termNode.getRelation().getModifiers().stream()
-      .map(Modifier::getType)
-      .toList();
 
     return plainFieldByPath.hasFulltextIndex()
            ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)

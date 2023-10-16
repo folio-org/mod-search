@@ -2,6 +2,7 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.Mockito.when;
@@ -31,7 +32,7 @@ class NotEqualToTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, "f1.*", "f2");
+    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
     assertThat(actual).isEqualTo(boolQuery()
       .mustNot(multiMatchQuery("value", "f1.*", "f2").operator(AND).type(CROSS_FIELDS)));
   }

@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 public class NotEqualToTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
     return boolQuery().mustNot(multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS));
   }
 
   @Override
   public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
-    return getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
+    return getQuery(term, resource, modifiers, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override

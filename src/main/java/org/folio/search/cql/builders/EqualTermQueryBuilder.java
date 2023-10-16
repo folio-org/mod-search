@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class EqualTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, String... fields) {
+  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
     return fields.length == 1 && isEmptyString(term)
            ? existsQuery(updatePathForTermQueries(resource, fields[0]))
            : multiMatchQuery(term, fields).operator(AND).type(CROSS_FIELDS);
@@ -27,7 +27,7 @@ public class EqualTermQueryBuilder extends FulltextQueryBuilder {
   public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
     return isEmptyString(term)
            ? existsQuery(getPathToFulltextPlainValue(fieldName))
-           : getQuery(term, resource, updatePathForFulltextQuery(resource, fieldName));
+           : getQuery(term, resource, modifiers, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override

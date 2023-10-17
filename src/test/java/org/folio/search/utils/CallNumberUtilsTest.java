@@ -22,6 +22,7 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.model.service.BrowseContext;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.index.query.TermQueryBuilder;
 
 @UnitTest
 class CallNumberUtilsTest {
@@ -123,10 +125,26 @@ class CallNumberUtilsTest {
   @MethodSource("eliminateIrrelevantItemsOnCallNumberBrowsingData")
   void excludeIrrelevantResultItems(String callNumberType, List<CallNumberBrowseItem> given,
                                     List<CallNumberBrowseItem> expected) {
-    var items = CallNumberUtils.excludeIrrelevantResultItems(callNumberType, emptySet(), given);
+    var context = BrowseContext.builder().build();
+    var items = CallNumberUtils.excludeIrrelevantResultItems(context, callNumberType, emptySet(), given);
     assertThat(items).isEqualTo(expected);
-    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems("", emptySet(), given);
+    var unchangedItems = CallNumberUtils.excludeIrrelevantResultItems(context, "", emptySet(), given);
     assertThat(unchangedItems).isEqualTo(given);
+  }
+
+  @Test
+  void excludeIrrelevantResultItems_positive_tenantFilter() {
+    var tenantId = "tenant";
+    var context = BrowseContext.builder()
+      .filters(List.of(new TermQueryBuilder("holdings.tenantId", tenantId)))
+      .build();
+    var data = List.<List<String>>of(newArrayList(null, "cn", "00000000-0000-0000-0000-000000000006"));
+    var browseItems = List.of(browseItem(data, "id", "cn", TENANT_ID),
+      browseItem(data, "id", "cn", tenantId));
+    var expected = List.of(browseItems.get(1));
+
+    var items = CallNumberUtils.excludeIrrelevantResultItems(context, null, emptySet(), browseItems);
+    assertThat(items).isEqualTo(expected);
   }
 
   private static Stream<Arguments> supportedCharactersDataset() {
@@ -149,9 +167,14 @@ class CallNumberUtilsTest {
   }
 
   private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId, String fullCallNumber) {
+    return browseItem(data, instanceId, fullCallNumber, TENANT_ID);
+  }
+
+  private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId, String fullCallNumber,
+                                                 String tenantId) {
     var items = data.stream().map(d -> new Item()
         .id(d.get(2))
-        .tenantId(TENANT_ID)
+        .tenantId(tenantId)
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(d.get(1))

@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.TermQueryBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -309,6 +310,18 @@ class ConsortiumSearchHelperTest {
       SubjectResource::getInstances);
 
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void getBrowseFilter_positive() {
+    var filterKey = "filterKey";
+    var expected = new TermQueryBuilder(filterKey, "test");
+    var browseContext = browseContext(null, null);
+    browseContext.getFilters().add(expected);
+
+    var actual = ConsortiumSearchHelper.getBrowseFilter(browseContext, filterKey);
+
+    assertThat(actual).contains(expected);
   }
 
   private BrowseContext browseContext(Boolean sharedFilter, String tenantFilter) {

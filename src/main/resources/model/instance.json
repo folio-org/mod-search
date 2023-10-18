@@ -270,7 +270,8 @@
           "index": "keyword"
         },
         "tenantId": {
-          "index": "keyword"
+          "index": "keyword",
+          "showInResponse": [ "call-number-browse" ]
         },
         "hrid": {
           "index": "keyword"

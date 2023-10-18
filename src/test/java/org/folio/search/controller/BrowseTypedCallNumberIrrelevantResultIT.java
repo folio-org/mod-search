@@ -142,7 +142,6 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       instance.setShared(null);
       instance.getItems().forEach(item -> {
         item.setId(null);
-        item.setTenantId(null);
         item.setDiscoverySuppress(null);
       });
     });

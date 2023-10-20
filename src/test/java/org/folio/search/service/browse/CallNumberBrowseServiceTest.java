@@ -386,8 +386,10 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
     var browseItems = browseItems("A1", "A2");
-    browseItems.get(0).getInstance().getItems().get(0).getEffectiveCallNumberComponents().setTypeId(CallNumberType.NLM.getId());
-    browseItems.get(1).getInstance().getItems().get(0).getEffectiveCallNumberComponents().setTypeId(CallNumberType.LC.getId());
+    browseItems.get(0).getInstance().getItems().get(0).getEffectiveCallNumberComponents()
+      .setTypeId(CallNumberType.NLM.getId());
+    browseItems.get(1).getInstance().getItems().get(0).getEffectiveCallNumberComponents()
+      .setTypeId(CallNumberType.LC.getId());
     var browseResult = BrowseResult.of(2, browseItems);
     var expected = BrowseResult.of(2, singletonList(browseItems.get(1))).next("A 12");
 

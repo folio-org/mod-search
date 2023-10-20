@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
@@ -28,6 +29,7 @@ import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.model.types.CallNumberType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -378,6 +380,27 @@ class CallNumberBrowseServiceTest {
     assertThat(actual).isEqualTo(BrowseResult.empty());
   }
 
+  @Test
+  void browse_positive_backwardWithIrrelevantCallNumberTypes() {
+    var request = request("typedCallNumber < B", false, "lc");
+    var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
+    var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
+    var browseItems = browseItems("A1", "A2");
+    browseItems.get(0).getInstance().getItems().get(0).getEffectiveCallNumberComponents().setTypeId(CallNumberType.NLM.getId());
+    browseItems.get(1).getInstance().getItems().get(0).getEffectiveCallNumberComponents().setTypeId(CallNumberType.LC.getId());
+    var browseResult = BrowseResult.of(2, browseItems);
+    var expected = BrowseResult.of(2, singletonList(browseItems.get(1))).next("A 12");
+
+    when(browseContextProvider.get(request)).thenReturn(context);
+    when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
+    when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
+    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(browseResult);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private void prepareMockForBrowsingAround(BrowseRequest request, BrowseContext context,
                                             BrowseResult<CallNumberBrowseItem> precedingResult,
                                             BrowseResult<CallNumberBrowseItem> succeedingResult) {
@@ -435,6 +458,10 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch) {
+    return request(query, highlightMatch);
+  }
+
+  private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType) {
     return BrowseRequest.builder().tenantId(TENANT_ID).resource(RESOURCE_NAME)
       .query(query)
       .highlightMatch(highlightMatch)
@@ -442,6 +469,7 @@ class CallNumberBrowseServiceTest {
       .targetField(CALL_NUMBER_BROWSING_FIELD)
       .limit(5)
       .precedingRecordsCount(2)
+      .refinedCondition(callNumberType)
       .build();
   }
 

@@ -78,8 +78,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var folioCallNumberTypes = folioCallNumberTypes();
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
     var records = browseResult.getRecords();
-    browseResult.setRecords(
-      excludeIrrelevantResultItems(context, request.getRefinedCondition(), folioCallNumberTypes, records));
+    records = excludeIrrelevantResultItems(context, request.getRefinedCondition(), folioCallNumberTypes, records);
     return new BrowseResult<CallNumberBrowseItem>()
       .records(trim(records, context, isBrowsingForward))
       .totalRecords(browseResult.getTotalRecords())

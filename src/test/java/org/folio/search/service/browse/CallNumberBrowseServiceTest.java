@@ -460,7 +460,7 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch) {
-    return request(query, highlightMatch);
+    return request(query, highlightMatch, null);
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType) {

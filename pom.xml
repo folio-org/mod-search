@@ -40,7 +40,7 @@
     <folio-cql2pgjson.version>35.1.0</folio-cql2pgjson.version>
     <opensearch.version>2.9.0</opensearch.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <spring-kafka.version>3.0.11</spring-kafka.version>
+    <spring-kafka.version>3.0.12</spring-kafka.version>
     <apache-commons-io.version>2.14.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>

@@ -290,7 +290,8 @@
         },
         "effectiveLocationId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword",
+          "showInResponse": [ "call-number-browse" ]
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],

@@ -147,6 +147,21 @@ class CallNumberUtilsTest {
     assertThat(items).isEqualTo(expected);
   }
 
+  @Test
+  void excludeIrrelevantResultItems_positive_locationFilter() {
+    var effectiveLocationId = UUID.randomUUID().toString();
+    var context = BrowseContext.builder()
+      .filters(List.of(new TermQueryBuilder("items.effectiveLocationId", effectiveLocationId)))
+      .build();
+    var data = List.<List<String>>of(newArrayList(null, "cn", "00000000-0000-0000-0000-000000000006"));
+    var browseItems = List.of(browseItem(data, "id", "cn", TENANT_ID),
+      browseItem(data, "id", "cn", TENANT_ID, effectiveLocationId));
+    var expected = List.of(browseItems.get(1));
+
+    var items = CallNumberUtils.excludeIrrelevantResultItems(context, null, emptySet(), browseItems);
+    assertThat(items).isEqualTo(expected);
+  }
+
   private static Stream<Arguments> supportedCharactersDataset() {
     return StreamEx.<Arguments>empty()
       .append(letterCharacterDataProvider())
@@ -172,9 +187,15 @@ class CallNumberUtilsTest {
 
   private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId, String fullCallNumber,
                                                  String tenantId) {
+    return browseItem(data, instanceId, fullCallNumber, tenantId, null);
+  }
+
+  private static CallNumberBrowseItem browseItem(List<List<String>> data, String instanceId, String fullCallNumber,
+                                                 String tenantId, String effectiveLocationId) {
     var items = data.stream().map(d -> new Item()
         .id(d.get(2))
         .tenantId(tenantId)
+        .effectiveLocationId(effectiveLocationId)
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(d.get(1))

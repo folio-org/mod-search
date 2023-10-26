@@ -10,7 +10,7 @@
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
 
 ### Bug fixes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

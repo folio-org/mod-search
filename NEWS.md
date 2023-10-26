@@ -11,6 +11,7 @@
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
+* Fix result filtering for items.effectiveLocationId ([MSEARCH-615](https://issues.folio.org/browse/MSEARCH-615))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

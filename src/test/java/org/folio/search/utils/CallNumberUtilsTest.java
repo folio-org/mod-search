@@ -12,6 +12,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 
 import java.util.List;
 import java.util.UUID;
@@ -157,6 +158,25 @@ class CallNumberUtilsTest {
     var browseItems = List.of(browseItem(data, "id", "cn", TENANT_ID),
       browseItem(data, "id", "cn", TENANT_ID, effectiveLocationId));
     var expected = List.of(browseItems.get(1));
+
+    var items = CallNumberUtils.excludeIrrelevantResultItems(context, null, emptySet(), browseItems);
+    assertThat(items).isEqualTo(expected);
+  }
+
+  @Test
+  void excludeIrrelevantResultItems_positive_multipleLocationFilter() {
+    var effectiveLocationId1 = UUID.randomUUID().toString();
+    var effectiveLocationId2 = UUID.randomUUID().toString();
+    var context = BrowseContext.builder()
+      .filters(List.of(boolQuery()
+        .should(new TermQueryBuilder("items.effectiveLocationId", effectiveLocationId1))
+        .should(new TermQueryBuilder("items.effectiveLocationId", effectiveLocationId2))))
+      .build();
+    var data = List.<List<String>>of(newArrayList(null, "cn", "00000000-0000-0000-0000-000000000006"));
+    var browseItems = List.of(browseItem(data, "id", "cn", TENANT_ID),
+      browseItem(data, "id", "cn", TENANT_ID, effectiveLocationId1),
+      browseItem(data, "id", "cn", TENANT_ID, effectiveLocationId2));
+    var expected = browseItems.subList(1, 3);
 
     var items = CallNumberUtils.excludeIrrelevantResultItems(context, null, emptySet(), browseItems);
     assertThat(items).isEqualTo(expected);

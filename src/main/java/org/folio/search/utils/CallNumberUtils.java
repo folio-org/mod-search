@@ -183,7 +183,7 @@ public class CallNumberUtils {
                                                                         List<CallNumberBrowseItem> browseItems) {
     var callNumberType = Optional.ofNullable(StringUtils.trimToNull(callNumberTypeValue));
     var tenantFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
-    var locationFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_LOCATION_FILTER_KEY);
+    var locationFilter = ConsortiumSearchHelper.getBrowseFilterValues(context, BROWSE_LOCATION_FILTER_KEY);
     if (browseItems == null || browseItems.isEmpty()
       || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
       return browseItems;
@@ -211,7 +211,7 @@ public class CallNumberUtils {
 
   @NotNull
   private static List<@Valid Item> getItemsFiltered(Optional<TermQueryBuilder> tenantFilter,
-                                                    Optional<TermQueryBuilder> locationFilter,
+                                                    List<Object> locationFilter,
                                                     Optional<String> callNumberType,
                                                     Set<String> folioCallNumberTypes,
                                                     CallNumberBrowseItem item) {
@@ -242,8 +242,9 @@ public class CallNumberUtils {
     return tenantFilter.isEmpty() || tenantFilter.get().value().equals(item.getTenantId());
   }
 
-  private static boolean locationMatch(Optional<TermQueryBuilder> locationFilter, Item item) {
-    return locationFilter.isEmpty() || locationFilter.get().value().equals(item.getEffectiveLocationId());
+  private static boolean locationMatch(List<Object> locationFilter, Item item) {
+    return locationFilter.isEmpty() || locationFilter.stream()
+      .anyMatch(location -> location.equals(item.getEffectiveLocationId()));
   }
 
   private static String getFullCallNumber(Item item) {

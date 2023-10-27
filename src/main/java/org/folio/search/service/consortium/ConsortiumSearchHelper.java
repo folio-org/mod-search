@@ -8,12 +8,14 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
@@ -187,13 +189,34 @@ public class ConsortiumSearchHelper {
 
   public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
     return context.getFilters().stream()
-      .map(filter ->
-        filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
-        ? termFilter
-        : null)
+      .map(filter -> getTermFilterForKey(filter, filterKey))
       .filter(Objects::nonNull)
       .findFirst();
   }
+
+  public static List<Object> getBrowseFilterValues(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .flatMap(filter -> getTermFiltersForKey(filter, filterKey))
+      .filter(Objects::nonNull)
+      .map(TermQueryBuilder::value)
+      .toList();
+  }
+
+  private static TermQueryBuilder getTermFilterForKey(QueryBuilder filter, String filterKey) {
+    return filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
+      ? termFilter
+      : null;
+  }
+
+  private static Stream<TermQueryBuilder> getTermFiltersForKey(QueryBuilder filter, String filterKey) {
+    if (filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)) {
+      return Stream.of(termFilter);
+    } else if (filter instanceof BoolQueryBuilder boolFilter) {
+      return boolFilter.should().stream().map(shouldFilter -> getTermFilterForKey(shouldFilter, filterKey));
+    }
+    return null;
+  }
+
 
   private boolean sharedFilterValue(TermQueryBuilder sharedQuery) {
     return sharedQuery.value() instanceof Boolean boolValue && boolValue

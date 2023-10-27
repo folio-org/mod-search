@@ -1,3 +1,12 @@
+## v3.0.1 2023-10-27
+### Bug fixes
+* "Exact full match" operator doesn't work for alias fields ([MSEARCH-589](https://issues.folio.org/browse/MSEARCH-589))
+* Filter call-number browse result based on holdings.tenantId filter ([MSEARCH-603](https://issues.folio.org/browse/MSEARCH-603))
+* Fix filtering call-number results for browse in one direction ([MSEARCH-612](https://issues.folio.org/browse/MSEARCH-612))
+* Fix call-number result filtering for items.effectiveLocationId ([MSEARCH-615](https://issues.folio.org/browse/MSEARCH-615))
+
+---
+
 ## v3.0.0 2023-10-13
 ### New APIs versions
 * Remove required `instance-authority-links`

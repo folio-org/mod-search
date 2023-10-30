@@ -1,3 +1,9 @@
+## v3.0.2 2023-11-08
+### Tech Dept
+Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
+
+---
+
 ## v3.0.1 2023-10-27
 ### Bug fixes
 * "Exact full match" operator doesn't work for alias fields ([MSEARCH-589](https://issues.folio.org/browse/MSEARCH-589))

@@ -421,8 +421,7 @@
       { "name": "DB_QUERYTIMEOUT", "value": "60000" },
       { "name": "DB_CHARSET", "value": "UTF-8" },
       { "name": "DB_MAXPOOLSIZE", "value": "5" },
-      { "name": "INITIAL_LANGUAGES", "value": "eng" },
-      { "name": "SYSTEM_USER_PASSWORD", "value": "Mod-search-1-0-0" }
+      { "name": "INITIAL_LANGUAGES", "value": "eng" }
     ]
   }
 }

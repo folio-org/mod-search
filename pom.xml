@@ -12,7 +12,7 @@
   <name>mod-search</name>
   <groupId>org.folio</groupId>
   <artifactId>mod-search</artifactId>
-  <version>3.1.0-SNAPSHOT</version>
+  <version>3.1.0-msearch-631</version>
   <description>FOLIO search service</description>
   <packaging>jar</packaging>
 
@@ -35,6 +35,7 @@
     </sonar.exclusions>
 
     <folio-spring-support.version>7.2.0</folio-spring-support.version>
+    <folio-spring-system-user.version>7.3.0-folspringb-128</folio-spring-system-user.version>
     <folio-service-tools.version>3.1.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.6.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.1.0</folio-cql2pgjson.version>
@@ -75,7 +76,7 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-system-user</artifactId>
-      <version>${folio-spring-support.version}</version>
+      <version>${folio-spring-system-user.version}</version>
     </dependency>
 
     <dependency>

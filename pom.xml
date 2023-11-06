@@ -40,7 +40,9 @@
     <folio-cql2pgjson.version>35.1.0</folio-cql2pgjson.version>
     <opensearch.version>2.9.0</opensearch.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <spring-kafka.version>3.0.12</spring-kafka.version>
+    <!-- bump kafka.version to fix snappy-java vulnerabilities;
+         remove <kafka.version> when using spring-boot-starter-parent >= 3.2 -->
+    <kafka.version>3.5.1</kafka.version>
     <apache-commons-io.version>2.15.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
@@ -101,7 +103,6 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
-      <version>${spring-kafka.version}</version>
     </dependency>
 
     <dependency>

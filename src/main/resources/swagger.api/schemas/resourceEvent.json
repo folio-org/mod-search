@@ -11,6 +11,10 @@
       "description": "Resource event operation type",
       "$ref": "resourceEventType.json"
     },
+    "subType": {
+      "description": "Resource event delete operation type",
+      "$ref": "resourceEventSubType.json"
+    },
     "tenant": {
       "description": "Tenant id",
       "type": "string"

@@ -137,12 +137,12 @@ class CallNumberUtilsTest {
   public void excludeIrrelevantResultItems_with_null_iecnc() {
     var context = BrowseContext.builder().build();
     var givenItems = createItemWithNullEffectiveCallNumberComponents();
-    var callNumberTypeValue = "Z669.R360 197";
+    var callNumberTypeValue = "dewey";
 
     var excludedItems = CallNumberUtils
       .excludeIrrelevantResultItems(context, callNumberTypeValue, emptySet(), givenItems);
 
-    assertThat(excludedItems).isEqualTo(givenItems);
+    assertThat(excludedItems).isEmpty();
   }
 
   @Test
@@ -276,7 +276,7 @@ class CallNumberUtilsTest {
       .holdings(emptyList());
 
     var callNumberBrowseItem = new CallNumberBrowseItem()
-      .fullCallNumber(null)
+      .fullCallNumber("cn")
       .instance(instance);
 
     return List.of(callNumberBrowseItem);

@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
@@ -173,9 +172,9 @@ public class CallNumberUtils {
    * </ul>
    * </p>
    *
-   * @param context - call number browse context
+   * @param context             - call number browse context
    * @param callNumberTypeValue - call number type to check/compare result items' types
-   * @param browseItems - list of CallNumberBrowseItem objects
+   * @param browseItems         - list of CallNumberBrowseItem objects
    * @return filtered records
    */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(BrowseContext context,
@@ -232,10 +231,11 @@ public class CallNumberUtils {
       return true;
     }
 
-    var itemCallNumberTypeId = Optional.ofNullable(item.getEffectiveCallNumberComponents())
-      .map(ItemEffectiveCallNumberComponents::getTypeId)
-      .orElse(null);
+    if (item.getEffectiveCallNumberComponents() == null) {
+      return false;
+    }
 
+    var itemCallNumberTypeId = item.getEffectiveCallNumberComponents().getTypeId();
     var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType.get());
     return itemCallNumberType.equals(requestCallNumberType)

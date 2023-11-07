@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
@@ -202,8 +203,11 @@ public class CallNumberUtils {
         if (instance != null) {
           return instance.getItems()
             .stream()
-            .anyMatch(i -> r.getFullCallNumber() == null
-              || getFullCallNumber(i).equals(r.getFullCallNumber()));
+            .anyMatch(i -> {
+              String fullCallNumber = getFullCallNumber(i);
+              return r.getFullCallNumber() == null
+                || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
+            });
         }
         return true;
       }).toList();
@@ -228,7 +232,10 @@ public class CallNumberUtils {
       return true;
     }
 
-    var itemCallNumberTypeId = item.getEffectiveCallNumberComponents().getTypeId();
+    var itemCallNumberTypeId = Optional.ofNullable(item.getEffectiveCallNumberComponents())
+      .map(ItemEffectiveCallNumberComponents::getTypeId)
+      .orElse(null);
+
     var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType.get());
     return itemCallNumberType.equals(requestCallNumberType)
@@ -248,10 +255,11 @@ public class CallNumberUtils {
   }
 
   private static String getFullCallNumber(Item item) {
-    var iecnc = item.getEffectiveCallNumberComponents();
-    return Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
-      .filter(StringUtils::isNotBlank)
-      .collect(joining(StringUtils.SPACE));
+    return Optional.ofNullable(item.getEffectiveCallNumberComponents())
+      .map(iecnc -> Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
+        .filter(StringUtils::isNotBlank)
+        .collect(Collectors.joining(StringUtils.SPACE)))
+      .orElse(null);
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

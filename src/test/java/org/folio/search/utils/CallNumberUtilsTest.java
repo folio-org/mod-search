@@ -134,6 +134,18 @@ class CallNumberUtilsTest {
   }
 
   @Test
+  public void excludeIrrelevantResultItems_with_null_iecnc() {
+    var context = BrowseContext.builder().build();
+    var givenItems = createItemWithNullEffectiveCallNumberComponents();
+    var callNumberTypeValue = "Z669.R360 197";
+
+    var excludedItems = CallNumberUtils
+      .excludeIrrelevantResultItems(context, callNumberTypeValue, emptySet(), givenItems);
+
+    assertThat(excludedItems).isEqualTo(givenItems);
+  }
+
+  @Test
   void excludeIrrelevantResultItems_positive_tenantFilter() {
     var tenantId = "tenant";
     var context = BrowseContext.builder()
@@ -224,7 +236,7 @@ class CallNumberUtilsTest {
         .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1))))
       .toList();
 
-    var instance =  new Instance()
+    var instance = new Instance()
       .id(instanceId)
       .title("instance #01")
       .staffSuppress(false)
@@ -237,6 +249,37 @@ class CallNumberUtilsTest {
     return new CallNumberBrowseItem()
       .fullCallNumber(fullCallNumber)
       .instance(instance);
+  }
+
+  public static List<CallNumberBrowseItem> createItemWithNullEffectiveCallNumberComponents() {
+    var testId = randomId();
+    var data = List.of(newArrayList(DEWEY.getId(), "308 H977", "00000000-0000-0000-0000-000000000001"));
+
+    var items = data.stream().map(d -> new Item()
+        .id(d.get(2))
+        .tenantId("tenant")
+        .effectiveLocationId(testId)
+        .discoverySuppress(false)
+        .effectiveCallNumberComponents(null)
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1))))
+      .toList();
+
+    var instance = new Instance()
+      .id(testId)
+      .title("instance #01")
+      .staffSuppress(false)
+      .discoverySuppress(false)
+      .isBoundWith(false)
+      .shared(false)
+      .tenantId(TENANT_ID)
+      .items(items)
+      .holdings(emptyList());
+
+    var callNumberBrowseItem = new CallNumberBrowseItem()
+      .fullCallNumber(null)
+      .instance(instance);
+
+    return List.of(callNumberBrowseItem);
   }
 
   private static Stream<Arguments> eliminateIrrelevantItemsOnCallNumberBrowsingData() {

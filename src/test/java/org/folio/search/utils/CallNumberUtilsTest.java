@@ -139,10 +139,10 @@ class CallNumberUtilsTest {
     var givenItems = createItemWithNullEffectiveCallNumberComponents();
     var callNumberTypeValue = "dewey";
 
-    var excludedItems = CallNumberUtils
+    var resultItems = CallNumberUtils
       .excludeIrrelevantResultItems(context, callNumberTypeValue, emptySet(), givenItems);
 
-    assertThat(excludedItems).isEmpty();
+    assertThat(resultItems).isEmpty();
   }
 
   @Test

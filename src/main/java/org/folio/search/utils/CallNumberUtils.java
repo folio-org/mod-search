@@ -195,21 +195,9 @@ public class CallNumberUtils {
           getItemsFiltered(tenantFilter, locationFilter, callNumberType, folioCallNumberTypes, r));
       }
     });
-    return browseItems
-      .stream()
-      .filter(r -> {
-        Instance instance = r.getInstance();
-        if (instance != null) {
-          return instance.getItems()
-            .stream()
-            .anyMatch(i -> {
-              String fullCallNumber = getFullCallNumber(i);
-              return r.getFullCallNumber() == null
-                || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
-            });
-        }
-        return true;
-      }).toList();
+    return browseItems.stream()
+      .filter(CallNumberUtils::isItemRelevant)
+      .toList();
   }
 
   @NotNull
@@ -223,6 +211,20 @@ public class CallNumberUtils {
       .filter(i -> tenantIdMatch(tenantFilter, i) && callNumberTypeMatch(callNumberType, folioCallNumberTypes, i)
         && locationMatch(locationFilter, i))
       .toList();
+  }
+
+  private static boolean isItemRelevant(CallNumberBrowseItem r) {
+    Instance instance = r.getInstance();
+    if (instance != null) {
+      return instance.getItems()
+        .stream()
+        .anyMatch(i -> {
+          String fullCallNumber = getFullCallNumber(i);
+          return r.getFullCallNumber() == null
+            || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
+        });
+    }
+    return true;
   }
 
   private static boolean callNumberTypeMatch(Optional<String> callNumberType, Set<String> folioCallNumberTypes,

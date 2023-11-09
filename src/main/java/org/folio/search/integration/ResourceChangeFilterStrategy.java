@@ -18,11 +18,10 @@ public class ResourceChangeFilterStrategy implements RecordFilterStrategy<String
     var resourceEvent = consumerRecord.value();
     var resourceName = resourceEvent.getResourceName();
     var resourceEventType = resourceEvent.getType();
-    if (resourceEventType == ResourceEventType.DELETE) {
-      log.info("Processing resource event [resourceName: {}]", resourceName);
-      if (resourceName != null && resourceName.equals(AUTHORITY_RESOURCE)
-        && resourceEvent.getSubType() == ResourceEventSubType.HARD_DELETE) {
-        log.info("Skip event. No need to process event for authority resource");
+    if (ResourceEventType.DELETE == resourceEventType) {
+      if (AUTHORITY_RESOURCE.equals(resourceName)
+        && ResourceEventSubType.HARD_DELETE == resourceEvent.getSubType()) {
+        log.info("Skip hard-delete event. No need to process event for authority resource");
         return true;
       }
     }

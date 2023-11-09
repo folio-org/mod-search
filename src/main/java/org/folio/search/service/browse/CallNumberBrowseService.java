@@ -120,7 +120,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
     var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
-    var forwardPrecedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, true);
 
     var callNumberType = request.getRefinedCondition();
     var folioCallNumberTypes = folioCallNumberTypes();
@@ -135,6 +134,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
     }
+    var forwardPrecedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, true);
     if (!forwardPrecedingResult.isEmpty()) {
       log.debug("browseAround:: forward preceding result is not empty: Update preceding result");
       forwardPrecedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,

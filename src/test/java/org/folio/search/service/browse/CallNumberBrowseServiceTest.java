@@ -282,6 +282,8 @@ class CallNumberBrowseServiceTest {
       .thenReturn(precedingResult);
     when(browseResultConverter.convert(succeedingResponse, contextForAnchorInResponse, false))
       .thenReturn(BrowseResult.empty());
+    when(browseResultConverter.convert(precedingResponse, contextForAnchorInResponse, true))
+      .thenReturn(BrowseResult.empty());
     when(browseResultConverter.convert(succeedingResponse, contextForAnchorInResponse, true))
       .thenReturn(succeedingResult);
 
@@ -403,6 +405,44 @@ class CallNumberBrowseServiceTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
+  void browse_positive_emptySucceedingResults() {
+    var request = request("callNumber >= B or callNumber < B", true, 2, 5);
+
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+      .thenReturn(new CQLTermNode(null, null, "B"));
+    lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("B"));
+
+    var precedingResult = BrowseResult.of(2, browseItems("A", "A1"));
+    var succeedingResult = BrowseResult.of(1, browseItems("D"));
+    var forwardPrecedingResult = BrowseResult.of(2, browseItems("B", "C"));
+    var context = contextAroundIncluding();
+
+    when(browseContextProvider.get(request)).thenReturn(context);
+    when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
+    when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
+    var msearchResponse = msearchResponse(precedingResponse, succeedingResponse);
+    when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
+    when(browseResultConverter.convert(precedingResponse, context, false))
+      .thenReturn(precedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, false))
+      .thenReturn(BrowseResult.empty());
+    when(browseResultConverter.convert(precedingResponse, context, true))
+      .thenReturn(forwardPrecedingResult);
+    when(browseResultConverter.convert(succeedingResponse, context, true))
+      .thenReturn(succeedingResult);
+
+    var actual = callNumberBrowseService.browse(request);
+
+    assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
+      cnBrowseItem(instance("A"), "A"),
+      cnBrowseItem(instance("A1"), "A1"),
+      cnBrowseItem(instance("B"), "B", true),
+      cnBrowseItem(instance("C"), "C"),
+      cnBrowseItem(instance("D"), "D")
+    )));
+  }
+
   private void prepareMockForBrowsingAround(BrowseRequest request, BrowseContext context,
                                             BrowseResult<CallNumberBrowseItem> precedingResult,
                                             BrowseResult<CallNumberBrowseItem> succeedingResult) {
@@ -414,6 +454,7 @@ class CallNumberBrowseServiceTest {
     when(searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery))).thenReturn(msearchResponse);
     when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(precedingResult);
     when(browseResultConverter.convert(succeedingResponse, context, false)).thenReturn(BrowseResult.empty());
+    when(browseResultConverter.convert(precedingResponse, context, true)).thenReturn(BrowseResult.empty());
     when(browseResultConverter.convert(succeedingResponse, context, true)).thenReturn(succeedingResult);
   }
 
@@ -460,17 +501,26 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch) {
-    return request(query, highlightMatch, null);
+    return request(query, highlightMatch, null, 1, 2);
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType) {
+    return request(query, highlightMatch, callNumberType, 1, 2);
+  }
+
+  private static BrowseRequest request(String query, boolean highlightMatch, int precedingCount, int limit) {
+    return request(query, highlightMatch, null, precedingCount, limit);
+  }
+
+  private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType, int precedingCount,
+                                       int limit) {
     return BrowseRequest.builder().tenantId(TENANT_ID).resource(RESOURCE_NAME)
       .query(query)
       .highlightMatch(highlightMatch)
       .expandAll(false)
       .targetField(CALL_NUMBER_BROWSING_FIELD)
-      .limit(5)
-      .precedingRecordsCount(2)
+      .precedingRecordsCount(precedingCount)
+      .limit(limit)
       .refinedCondition(callNumberType)
       .build();
   }

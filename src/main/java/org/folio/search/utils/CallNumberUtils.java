@@ -172,9 +172,9 @@ public class CallNumberUtils {
    * </ul>
    * </p>
    *
-   * @param context - call number browse context
+   * @param context             - call number browse context
    * @param callNumberTypeValue - call number type to check/compare result items' types
-   * @param browseItems - list of CallNumberBrowseItem objects
+   * @param browseItems         - list of CallNumberBrowseItem objects
    * @return filtered records
    */
   public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(BrowseContext context,
@@ -195,18 +195,9 @@ public class CallNumberUtils {
           getItemsFiltered(tenantFilter, locationFilter, callNumberType, folioCallNumberTypes, r));
       }
     });
-    return browseItems
-      .stream()
-      .filter(r -> {
-        Instance instance = r.getInstance();
-        if (instance != null) {
-          return instance.getItems()
-            .stream()
-            .anyMatch(i -> r.getFullCallNumber() == null
-              || getFullCallNumber(i).equals(r.getFullCallNumber()));
-        }
-        return true;
-      }).toList();
+    return browseItems.stream()
+      .filter(CallNumberUtils::isItemRelevant)
+      .toList();
   }
 
   @NotNull
@@ -222,10 +213,28 @@ public class CallNumberUtils {
       .toList();
   }
 
+  private static boolean isItemRelevant(CallNumberBrowseItem r) {
+    Instance instance = r.getInstance();
+    if (instance != null) {
+      return instance.getItems()
+        .stream()
+        .anyMatch(i -> {
+          String fullCallNumber = getFullCallNumber(i);
+          return r.getFullCallNumber() == null
+            || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
+        });
+    }
+    return true;
+  }
+
   private static boolean callNumberTypeMatch(Optional<String> callNumberType, Set<String> folioCallNumberTypes,
                                              Item item) {
     if (callNumberType.isEmpty()) {
       return true;
+    }
+
+    if (item.getEffectiveCallNumberComponents() == null) {
+      return false;
     }
 
     var itemCallNumberTypeId = item.getEffectiveCallNumberComponents().getTypeId();
@@ -248,10 +257,11 @@ public class CallNumberUtils {
   }
 
   private static String getFullCallNumber(Item item) {
-    var iecnc = item.getEffectiveCallNumberComponents();
-    return Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
-      .filter(StringUtils::isNotBlank)
-      .collect(joining(StringUtils.SPACE));
+    return Optional.ofNullable(item.getEffectiveCallNumberComponents())
+      .map(iecnc -> Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
+        .filter(StringUtils::isNotBlank)
+        .collect(Collectors.joining(StringUtils.SPACE)))
+      .orElse(null);
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

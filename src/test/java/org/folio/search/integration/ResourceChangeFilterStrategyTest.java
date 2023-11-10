@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.folio.search.domain.dto.ResourceDeleteEventSubType;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEventSubType;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class ResourceChangeFilterStrategyTest {
 
   @Test
   void shouldNotFilterResourceEventWithoutName() {
-    var event = createResourceEvent(ResourceEventType.DELETE, ResourceEventSubType.HARD_DELETE, null);
+    var event = createResourceEvent(ResourceEventType.DELETE, ResourceDeleteEventSubType.HARD_DELETE, null);
     mockConsumerRecord(event);
 
     var actual = filterStrategy.filter(consumerRecord);
@@ -39,7 +39,7 @@ public class ResourceChangeFilterStrategyTest {
   @ValueSource(strings = {"instance", "contributor", "instance_subject"})
   @ParameterizedTest
   void shouldNotFilterNonAuthResourceEvent(String resourceName) {
-    var event = createResourceEvent(ResourceEventType.DELETE, ResourceEventSubType.HARD_DELETE, resourceName);
+    var event = createResourceEvent(ResourceEventType.DELETE, ResourceDeleteEventSubType.HARD_DELETE, resourceName);
     mockConsumerRecord(event);
 
     var actual = filterStrategy.filter(consumerRecord);
@@ -49,7 +49,8 @@ public class ResourceChangeFilterStrategyTest {
 
   @Test
   void shouldFilterHardDeleteAuthResourceEvent() {
-    var event = createResourceEvent(ResourceEventType.DELETE, ResourceEventSubType.HARD_DELETE, AUTHORITY_RESOURCE);
+    var event = createResourceEvent(ResourceEventType.DELETE, ResourceDeleteEventSubType.HARD_DELETE,
+      AUTHORITY_RESOURCE);
     mockConsumerRecord(event);
     var actual = filterStrategy.filter(consumerRecord);
 
@@ -58,7 +59,8 @@ public class ResourceChangeFilterStrategyTest {
 
   @Test
   void shouldNotFilterSoftDeleteAuthResourceEvent() {
-    var event = createResourceEvent(ResourceEventType.DELETE, ResourceEventSubType.SOFT_DELETE, AUTHORITY_RESOURCE);
+    var event = createResourceEvent(ResourceEventType.DELETE, ResourceDeleteEventSubType.SOFT_DELETE,
+      AUTHORITY_RESOURCE);
     mockConsumerRecord(event);
 
     var actual = filterStrategy.filter(consumerRecord);
@@ -68,7 +70,8 @@ public class ResourceChangeFilterStrategyTest {
 
   @Test
   void shouldNotFilterNonDeleteAuthResourceEvent() {
-    var event = createResourceEvent(ResourceEventType.CREATE, ResourceEventSubType.HARD_DELETE, AUTHORITY_RESOURCE);
+    var event = createResourceEvent(ResourceEventType.CREATE, ResourceDeleteEventSubType.HARD_DELETE,
+      AUTHORITY_RESOURCE);
     mockConsumerRecord(event);
 
     var actual = filterStrategy.filter(consumerRecord);
@@ -80,12 +83,12 @@ public class ResourceChangeFilterStrategyTest {
     when(consumerRecord.value()).thenReturn(event);
   }
 
-  private ResourceEvent createResourceEvent(ResourceEventType eventType, ResourceEventSubType subType,
+  private ResourceEvent createResourceEvent(ResourceEventType eventType, ResourceDeleteEventSubType subType,
                                             String resourceName) {
     var event = new ResourceEvent();
     event.setId("1");
     event.setType(eventType);
-    event.setSubType(subType);
+    event.setDeleteEventSubType(subType);
     event.setResourceName(resourceName);
     return event;
   }

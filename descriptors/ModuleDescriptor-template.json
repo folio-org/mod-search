@@ -402,27 +402,227 @@
       }
     },
     "env": [
-      { "name": "ENV", "value": "folio" },
-      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=85.0" },
-      { "name": "KAFKA_HOST", "value": "kafka" },
-      { "name": "KAFKA_PORT", "value": "9092" },
-      { "name": "KAFKA_SECURITY_PROTOCOL", "value": "PLAINTEXT" },
-      { "name": "KAFKA_SSL_KEYSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_KEYSTORE_PASSWORD", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD", "value": "" },
-      { "name": "ELASTICSEARCH_URL", "value": "http://elasticsearch:9200" },
-      { "name": "ELASTICSEARCH_USERNAME", "value": "elastic" },
-      { "name": "ELASTICSEARCH_PASSWORD", "value": "s3cret" },
-      { "name": "DB_HOST", "value": "postgres" },
-      { "name": "DB_PORT", "value": "5432" },
-      { "name": "DB_USERNAME", "value": "folio_admin" },
-      { "name": "DB_PASSWORD", "value": "folio_admin" },
-      { "name": "DB_DATABASE", "value": "okapi_modules" },
-      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
-      { "name": "DB_CHARSET", "value": "UTF-8" },
-      { "name": "DB_MAXPOOLSIZE", "value": "5" },
-      { "name": "INITIAL_LANGUAGES", "value": "eng" }
+      {
+        "name": "ENV",
+        "value": "folio",
+        "description": "The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed"
+      },
+      {
+        "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=85.0"
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": "kafka",
+        "description": "Kafka broker hostname"
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": "9092",
+        "description": "Kafka broker port"
+      },
+      {
+        "name": "KAFKA_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT)"
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_LOCATION",
+        "value": "",
+        "description": "The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client."
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_PASSWORD",
+        "value": "",
+        "description": "The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured."
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_LOCATION",
+        "value": "",
+        "description": "The location of the Kafka trust store file."
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD",
+        "value": "",
+        "description": "The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled."
+      },
+      {
+        "name": "KAFKA_EVENTS_CONSUMER_PATTERN",
+        "value": "",
+        "description": "Custom subscription pattern for Kafka consumers."
+      },
+      {
+        "name": "KAFKA_EVENTS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for message consuming."
+      },
+      {
+        "name": "KAFKA_AUTHORITIES_CONSUMER_PATTERN",
+        "value": "",
+        "description": "Custom subscription pattern for Kafka authority message consumers."
+      },
+      {
+        "name": "KAFKA_AUTHORITIES_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for authority message consuming."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.instance-contributor` topic."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.instance-contributor` topic."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for consortium.instance message consuming."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.consortium.instance` topic."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.consortium.instance` topic."
+      },
+      {
+        "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
+        "value": "200",
+        "description": "Maximum number of records returned in a single call to poll()."
+      },
+      {
+        "name": "ELASTICSEARCH_URL",
+        "value": "http://elasticsearch:9200",
+        "description": "Elasticsearch URL"
+      },
+      {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic",
+        "description": "Elasticsearch username (not required for dev envs)"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret",
+        "description": "Elasticsearch password (not required for dev envs)"
+      },
+      {
+        "name": "ELASTICSEARCH_COMPRESSION_ENABLED",
+        "value": "true",
+        "description": "Specify if Elasticsearch request/response compression enabled"
+      },
+      {
+        "name": "DB_HOST",
+        "value": "postgres",
+        "description": "Postgres hostname"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432",
+        "description": "Postgres port"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "folio_admin",
+        "description": "Postgres username"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "folio_admin",
+        "description": "Postgres username password"
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": "okapi_modules",
+        "description": "Postgres database name"
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": "60000"
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8"
+      },
+      {
+        "name": "DB_MAXPOOLSIZE",
+        "value": "5"
+      },
+      {
+        "name": "INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Amount of retry attempts to delete instance subject resources."
+      },
+      {
+        "name": "INDEXING_DATA_FORMAT",
+        "value": "smile",
+        "description": "Format for passing data to elasticsearch (json/smile)"
+      },
+      {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng",
+        "description": "Comma separated list of languages for multilang fields"
+      },
+      {
+        "name": "MAX_SUPPORTED_LANGUAGES",
+        "value": "5",
+        "description": "Provides the maximum number of supported languages"
+      },
+      {
+        "name": "SYSTEM_USER_USERNAME",
+        "value": "mod-search",
+        "description": "Username for `mod-search` system user"
+      },
+      {
+        "name": "SYSTEM_USER_PASSWORD",
+        "value": "",
+        "description": "Password for `mod-search` system user (not required for dev envs)"
+      },
+      {
+        "name": "OKAPI_URL",
+        "value": "",
+        "description": "OKAPI URL used to login system user, required"
+      },
+      {
+        "name": "SEARCH_BY_ALL_FIELDS_ENABLED",
+        "value": "false",
+        "description": "Specifies if globally search by all field values must be enabled or not (tenant can override this setting)"
+      },
+      {
+        "name": "BROWSE_CN_INTERMEDIATE_VALUES_ENABLED",
+        "value": "true",
+        "description": "Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)"
+      },
+      {
+        "name": "BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES",
+        "value": "true",
+        "description": "Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)"
+      },
+      {
+        "name": "SCROLL_QUERY_SIZE",
+        "value": "1000",
+        "description": "The number of records to be loaded by each scroll query. 10_000 is a max value"
+      },
+      {
+        "name": "STREAM_ID_RETRY_INTERVAL_MS",
+        "value": "1000",
+        "description": "Specifies time to wait before reattempting query."
+      },
+      {
+        "name": "STREAM_ID_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Specifies how many queries attempt to perform after the first one failed."
+      },
+      {
+        "name": "CN_BROWSE_OPTIMIZATION_ENABLED",
+        "value": "true",
+        "description": "Defines if call-number browse optimization is enabled or not"
+      }
     ]
   }
 }

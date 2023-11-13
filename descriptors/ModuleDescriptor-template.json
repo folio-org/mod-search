@@ -528,12 +528,12 @@
       },
       {
         "name": "DB_USERNAME",
-        "value": "folio_admin",
+        "value": "postgres",
         "description": "Postgres username"
       },
       {
         "name": "DB_PASSWORD",
-        "value": "folio_admin",
+        "value": "postgres",
         "description": "Postgres username password"
       },
       {

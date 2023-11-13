@@ -1,6 +1,5 @@
 package org.folio.search.service;
 
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -45,13 +44,12 @@ public class FacetService {
     return facetConverter.convert(searchResponse.getAggregations());
   }
 
-  private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource) {
-    cleanUpFacetSearchSource(searchSource, Collections.emptyList());
-  }
-
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource, List<String> filterNamesToKeep) {
+    if (searchSource == null || searchSource.query() == null) {
+      return;
+    }
     var query = searchSource.query();
-    if (query instanceof BoolQueryBuilder boolQuery) {
+    if (CollectionUtils.isNotEmpty(filterNamesToKeep) && query instanceof BoolQueryBuilder boolQuery) {
       List<QueryBuilder> filtersToKeep = boolQuery.filter().stream()
         .filter(TermQueryBuilder.class::isInstance)
         .filter(filter -> filterNamesToKeep.contains(((TermQueryBuilder) filter).fieldName()))

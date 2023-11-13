@@ -1,10 +1,7 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,7 +54,7 @@ public class FacetService {
     if (query instanceof BoolQueryBuilder boolQuery) {
       List<QueryBuilder> filtersToKeep = boolQuery.filter().stream()
         .filter(TermQueryBuilder.class::isInstance)
-        .filter(filter -> filterNamesToKeep.contains(((TermQueryBuilder)filter).fieldName()))
+        .filter(filter -> filterNamesToKeep.contains(((TermQueryBuilder) filter).fieldName()))
         .toList();
       boolQuery.filter().clear();
       boolQuery.filter().addAll(filtersToKeep);

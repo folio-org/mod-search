@@ -7,21 +7,37 @@
       "version": "0.6",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": [ "search.index.indices.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.indices.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/mappings",
-          "permissionsRequired": [ "search.index.mappings.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.mappings.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/records",
-          "permissionsRequired": [ "search.index.records.collection.post" ],
+          "permissionsRequired": [
+            "search.index.records.collection.post"
+          ],
           "modulePermissions": [
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
@@ -30,9 +46,13 @@
           ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/inventory/reindex",
-          "permissionsRequired": [ "search.index.inventory.reindex.post" ],
+          "permissionsRequired": [
+            "search.index.inventory.reindex.post"
+          ],
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
@@ -40,10 +60,16 @@
           ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/index/settings",
-          "permissionsRequired": [ "search.index.settings.item.put" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.settings.item.put"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -52,34 +78,64 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances",
-          "permissionsRequired": [ "search.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/authorities",
-          "permissionsRequired": [ "search.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/{recordType}/facets",
-          "permissionsRequired": [ "search.facets.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.facets.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [ "search.instances.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/holdings/ids",
-          "permissionsRequired": [ "search.holdings.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.holdings.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -88,22 +144,40 @@
       "version": "0.3",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}/ids",
-          "permissionsRequired": [ "search.resources.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}",
-          "permissionsRequired": [ "search.resources.ids.jobs.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/resources/jobs",
-          "permissionsRequired": [ "search.resources.ids.jobs.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -112,28 +186,52 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/call-numbers/instances",
-          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.call-numbers.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/subjects/instances",
-          "permissionsRequired": [ "browse.subjects.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.subjects.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/contributors/instances",
-          "permissionsRequired": [ "browse.contributors.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.contributors.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/authorities",
-          "permissionsRequired": [ "browse.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -142,44 +240,76 @@
       "version": "0.2",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.item.post" ]
+          "permissionsRequired": [
+            "search.config.languages.item.post"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.collection.get" ]
+          "permissionsRequired": [
+            "search.config.languages.collection.get"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.put" ]
+          "permissionsRequired": [
+            "search.config.languages.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.delete" ]
+          "permissionsRequired": [
+            "search.config.languages.item.delete"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.collection.get" ]
+          "permissionsRequired": [
+            "search.config.features.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.item.post" ]
+          "permissionsRequired": [
+            "search.config.features.item.post"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.put" ]
+          "permissionsRequired": [
+            "search.config.features.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.delete" ]
+          "permissionsRequired": [
+            "search.config.features.item.delete"
+          ]
         }
       ]
     },
@@ -189,7 +319,9 @@
       "interfaceType": "system",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/_/tenant",
           "modulePermissions": [
             "user-tenants.collection.get",
@@ -210,13 +342,16 @@
           ]
         },
         {
-          "methods": [ "DELETE", "GET" ],
+          "methods": [
+            "DELETE",
+            "GET"
+          ],
           "pathPattern": "/_/tenant/{id}"
         }
       ]
     }
   ],
-  "optional":[
+  "optional": [
     {
       "id": "user-tenants",
       "version": "1.0"
@@ -344,7 +479,9 @@
       "permissionName": "search.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options by record type",
       "description": "Returns facets for a query for given filter options by record type",
-      "replaces": ["search.instances.facets.collection.get"]
+      "replaces": [
+        "search.instances.facets.collection.get"
+      ]
     },
     {
       "permissionName": "search.instances.ids.collection.get",
@@ -398,7 +535,13 @@
     "dockerArgs": {
       "HostConfig": {
         "Memory": 1073741824,
-        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+        "PortBindings": {
+          "8081/tcp": [
+            {
+              "HostPort": "%p"
+            }
+          ]
+        }
       }
     },
     "env": [
@@ -448,7 +591,7 @@
       },
       {
         "name": "KAFKA_EVENTS_CONSUMER_PATTERN",
-        "value": "",
+        "value": "(${folio.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
         "description": "Custom subscription pattern for Kafka consumers."
       },
       {
@@ -458,13 +601,23 @@
       },
       {
         "name": "KAFKA_AUTHORITIES_CONSUMER_PATTERN",
-        "value": "",
+        "value": "(${folio.environment}\\.)(.*\\.)authorities\\.authority",
         "description": "Custom subscription pattern for Kafka authority message consumers."
       },
       {
         "name": "KAFKA_AUTHORITIES_CONCURRENCY",
         "value": "1",
         "description": "Custom number of kafka concurrent threads for authority message consuming."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for contributor message consuming."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN",
+        "value": "(${folio.environment}\\.)(.*\\.)search\\.instance-contributor",
+        "description": "Custom subscription pattern for Kafka contributor message consumers."
       },
       {
         "name": "KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS",
@@ -492,9 +645,39 @@
         "description": "Replication factor for `search.consortium.instance` topic."
       },
       {
+        "name": "KAFKA_SUBJECTS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for subject message consuming."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_CONSUMER_PATTERN",
+        "value": "(${folio.environment}\\.)(.*\\.)search\\.instance-subject",
+        "description": "Custom subscription pattern for Kafka subject message consumers."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.instance-subject` topic."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.instance-subject` topic."
+      },
+      {
         "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
         "value": "200",
         "description": "Maximum number of records returned in a single call to poll()."
+      },
+      {
+        "name": "KAFKA_RETRY_INTERVAL_MS",
+        "value": "2000",
+        "description": "Specifies time to wait before reattempting query."
+      },
+      {
+        "name": "KAFKA_RETRY_DELIVERY_ATTEMPTS",
+        "value": "6",
+        "description": "Specifies how many queries attempt to perform after the first one failed."
       },
       {
         "name": "ELASTICSEARCH_URL",
@@ -559,6 +742,11 @@
         "description": "Amount of retry attempts to delete instance subject resources."
       },
       {
+        "name": "INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Amount of retry attempts to delete instance contributor resources."
+      },
+      {
         "name": "INDEXING_DATA_FORMAT",
         "value": "smile",
         "description": "Format for passing data to elasticsearch (json/smile)"
@@ -619,9 +807,29 @@
         "description": "Specifies how many queries attempt to perform after the first one failed."
       },
       {
+        "name": "STREAM_ID_CORE_POOL_SIZE",
+        "value": "2",
+        "description": "The number of threads to keep in the pool, even if they are idle."
+      },
+      {
+        "name": "STREAM_ID_MAX_POOL_SIZE",
+        "value": "2",
+        "description": "The maximum number of threads to allow in the pool."
+      },
+      {
+        "name": "STREAM_ID_QUEUE_CAPACITY",
+        "value": "500",
+        "description": "The capacity of the queue."
+      },
+      {
         "name": "CN_BROWSE_OPTIMIZATION_ENABLED",
         "value": "true",
         "description": "Defines if call-number browse optimization is enabled or not"
+      },
+      {
+        "name": "SEARCH_QUERY_TIMEOUT",
+        "value": "25s",
+        "description": "The maximum time to wait for search query response"
       }
     ]
   }

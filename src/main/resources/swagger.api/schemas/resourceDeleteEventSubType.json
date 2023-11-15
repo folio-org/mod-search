@@ -1,0 +1,6 @@
+{
+  "type": "string",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Resource event delete operation type - one of [soft-delete, hard-delete]",
+  "enum": [ "SOFT_DELETE", "HARD_DELETE"]
+}

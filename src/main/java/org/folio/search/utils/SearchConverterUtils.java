@@ -148,6 +148,16 @@ public class SearchConverterUtils {
   }
 
   /**
+   * Returns resource event source field value from {@link ResourceEvent} object.
+   *
+   * @param event - resource event body to analyze
+   * @return event source field value as {@link String} object
+   */
+  public static String getResourceSource(ResourceEvent event) {
+    return getResourceSource(getEventPayload(event));
+  }
+
+  /**
    * Returns resource event source field value from event payload {@link Map} object.
    *
    * @param eventPayload - resource event body to analyze

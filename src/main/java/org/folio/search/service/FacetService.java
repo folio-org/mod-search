@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FacetService {
 
+  private static final String ITEMS_EFFECTIVE_LOCATION_ID = "items.effectiveLocationId";
+  private static final String TENANT_ID = "holdings.tenantId";
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final FacetQueryBuilder facetQueryBuilder;
@@ -39,7 +41,7 @@ public class FacetService {
     searchSource.size(0).from(0).fetchSource(false);
 
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);
-    cleanUpFacetSearchSource(searchSource, List.of("items.effectiveLocationId"));
+    cleanUpFacetSearchSource(searchSource, List.of(ITEMS_EFFECTIVE_LOCATION_ID, TENANT_ID));
 
     var searchResponse = searchRepository.search(request, searchSource);
     return facetConverter.convert(searchResponse.getAggregations());
@@ -48,15 +50,8 @@ public class FacetService {
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource, List<String> filterNamesToKeep) {
     var query = searchSource.query();
     if (query instanceof BoolQueryBuilder boolQuery) {
-      List<QueryBuilder> filtersToKeep = Collections.emptyList();
-      if (CollectionUtils.isNotEmpty(filterNamesToKeep)) {
-        filtersToKeep = boolQuery.filter().stream()
-          .filter(TermQueryBuilder.class::isInstance)
-          .filter(filter -> filterNamesToKeep.contains(((TermQueryBuilder) filter).fieldName()))
-          .toList();
-      }
-      boolQuery.filter().clear();
-      boolQuery.filter().addAll(filtersToKeep);
+      boolQuery.filter().removeIf(filter -> !(filter instanceof TermQueryBuilder termFilter &&
+        filterNamesToKeep.contains(termFilter.fieldName())));
     }
 
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {

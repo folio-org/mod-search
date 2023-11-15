@@ -68,12 +68,15 @@ class FacetServiceTest {
   }
 
   @Test
-  void getFacets_positive_keepGivenFiler() {
+  void getFacets_positive_keepGivenFilters() {
     var matchQuery = matchQuery("title", "value");
-    var filterToKeep = "items.effectiveLocationId";
+    var filterToKeep1 = "items.effectiveLocationId";
+    var filterToKeep2 = "holdings.tenantId";
+    var tenant = "college";
     var uuid = UUID.randomUUID();
-    String query = "%s==(\"%s\")".formatted(filterToKeep, uuid);
-    var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filterToKeep, uuid.toString()));
+    String query = "%s==(\"%s\") and %s==(\"%s\")".formatted(filterToKeep1, uuid, filterToKeep2, tenant);
+    var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()))
+      .must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()));
     var request = defaultFacetServiceRequest(RESOURCE_NAME, query, "holdings.tenantId:6");
     var sourceAggregation = AggregationBuilders.terms("source").field("source").size(Integer.MAX_VALUE);
     var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)

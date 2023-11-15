@@ -591,7 +591,7 @@
       },
       {
         "name": "KAFKA_EVENTS_CONSUMER_PATTERN",
-        "value": "(${folio.environment}\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
+        "value": "(folio\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
         "description": "Custom subscription pattern for Kafka consumers."
       },
       {
@@ -601,7 +601,7 @@
       },
       {
         "name": "KAFKA_AUTHORITIES_CONSUMER_PATTERN",
-        "value": "(${folio.environment}\\.)(.*\\.)authorities\\.authority",
+        "value": "(folio\\.)(.*\\.)authorities\\.authority",
         "description": "Custom subscription pattern for Kafka authority message consumers."
       },
       {
@@ -616,7 +616,7 @@
       },
       {
         "name": "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN",
-        "value": "(${folio.environment}\\.)(.*\\.)search\\.instance-contributor",
+        "value": "(folio\\.)(.*\\.)search\\.instance-contributor",
         "description": "Custom subscription pattern for Kafka contributor message consumers."
       },
       {
@@ -651,7 +651,7 @@
       },
       {
         "name": "KAFKA_SUBJECTS_CONSUMER_PATTERN",
-        "value": "(${folio.environment}\\.)(.*\\.)search\\.instance-subject",
+        "value": "(folio\\.)(.*\\.)search\\.instance-subject",
         "description": "Custom subscription pattern for Kafka subject message consumers."
       },
       {

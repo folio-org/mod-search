@@ -1,3 +1,11 @@
+## v3.0.3 2023-11-15
+### Tech Dept
+* Ignore authority shadow copies while indexing ([MSEARCH-638](https://issues.folio.org/browse/MSEARCH-638))
+* Fix cannot find call numbers in browse if an Instance has items with and without call number specified ([MSEARCH-622](https://issues.folio.org/browse/MSEARCH-622))
+* Fix Certain call numbers with type specified cannot be found in Browse ([MSEARCH-618](https://issues.folio.org/browse/MSEARCH-618))
+
+---
+
 ## v3.0.2 2023-11-08
 ### Tech Dept
 Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

@@ -4,7 +4,10 @@ import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingO
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import org.folio.search.domain.dto.CallNumberType;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
@@ -14,6 +17,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor {
 
+  private static final Map<String, Function<String, Optional<String>>> CN_TYPE_TO_SHELF_KEY_GENERATOR = Map.of(
+    CallNumberType.NLM.getValue(), cn -> getValidShelfKey(new NlmCallNumber(cn)),
+    CallNumberType.LC.getValue(), cn -> getValidShelfKey(new LCCallNumber(cn)),
+    CallNumberType.DEWEY.getValue(), cn -> getValidShelfKey(new DeweyCallNumber(cn)),
+    CallNumberType.SUDOC.getValue(), cn -> getValidShelfKey(new SuDocCallNumber(cn))
+  );
+
   @Override
   public String getSearchTerm(String inputTerm) {
     return getValidShelfKey(new NlmCallNumber(inputTerm))
@@ -22,6 +32,16 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
       .or(() -> getValidShelfKey(new SuDocCallNumber(inputTerm)))
       .orElse(normalizeEffectiveShelvingOrder(inputTerm))
       .trim();
+  }
+
+  public String getSearchTerm(String inputTerm, String callNumberTypeName) {
+    if (callNumberTypeName == null) {
+      return normalizeEffectiveShelvingOrder(inputTerm);
+    }
+
+    return Optional.ofNullable(CN_TYPE_TO_SHELF_KEY_GENERATOR.get(callNumberTypeName))
+      .flatMap(function -> function.apply(inputTerm))
+      .orElse(normalizeEffectiveShelvingOrder(inputTerm));
   }
 
   public List<String> getSearchTerms(String inputTerm) {

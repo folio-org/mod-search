@@ -10,6 +10,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
@@ -98,7 +99,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(11, "A 13", "C 12", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
       cnBrowseItem(instance("A3"), "A3"),
       cnBrowseItem(instance("A4"), "A4"),
       cnBrowseItem(0, "B", true),
@@ -207,6 +208,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
     var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
@@ -215,7 +217,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, "C 11", null, List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, "C1", null, List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -227,6 +229,7 @@ class CallNumberBrowseServiceTest {
       .build();
     var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(multiAnchorContext.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(multiAnchorContext);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
@@ -258,8 +261,9 @@ class CallNumberBrowseServiceTest {
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("A", "B"));
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn("A");
 
-    var precedingResult = BrowseResult.of(1, browseItems("A 11", "A 12"));
+    var precedingResult = BrowseResult.of(1, browseItems("A1", "A2"));
     var succeedingResult = BrowseResult.of(1, browseItems("B"));
     var contextForNoAnchorInResponse = contextAroundIncluding("A", ANCHOR);
 
@@ -290,8 +294,8 @@ class CallNumberBrowseServiceTest {
     var actual = callNumberBrowseService.browse(request);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
-      cnBrowseItem(instance("A 11"), "A 11"),
-      cnBrowseItem(instance("A 12"), "A 12"),
+      cnBrowseItem(instance("A1"), "A1"),
+      cnBrowseItem(instance("A2"), "A2"),
       cnBrowseItem(instance("B"), "B", true)
     )));
   }
@@ -302,6 +306,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
     var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(2).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
@@ -310,7 +315,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "C 11", "C 12", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "C1", "C2", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
   }
 
@@ -320,6 +325,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte(ANCHOR);
     var context = BrowseContext.builder().succeedingQuery(query).succeedingLimit(5).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
     when(searchRepository.search(request, succeedingQuery)).thenReturn(succeedingResponse);
@@ -336,6 +342,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
@@ -344,7 +351,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A 12", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A2", List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
   }
 
@@ -354,6 +361,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(2).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
@@ -362,7 +370,7 @@ class CallNumberBrowseServiceTest {
 
     var actual = callNumberBrowseService.browse(request);
 
-    assertThat(actual).isEqualTo(BrowseResult.of(5, "A 14", "A 15", List.of(
+    assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", "A5", List.of(
       cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
   }
 
@@ -372,6 +380,7 @@ class CallNumberBrowseServiceTest {
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
@@ -393,8 +402,9 @@ class CallNumberBrowseServiceTest {
     browseItems.get(1).getInstance().getItems().get(0).getEffectiveCallNumberComponents()
       .setTypeId(CallNumberType.LC.getId());
     var browseResult = BrowseResult.of(2, browseItems);
-    var expected = BrowseResult.of(2, singletonList(browseItems.get(1))).next("A 12");
+    var expected = BrowseResult.of(2, singletonList(browseItems.get(1))).next("A2");
 
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseContextProvider.get(request)).thenReturn(context);
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
@@ -411,6 +421,7 @@ class CallNumberBrowseServiceTest {
 
     when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(ANCHOR);
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("B"));
 
     var precedingResult = BrowseResult.of(2, browseItems("A", "A1"));
@@ -447,6 +458,7 @@ class CallNumberBrowseServiceTest {
                                             BrowseResult<CallNumberBrowseItem> precedingResult,
                                             BrowseResult<CallNumberBrowseItem> succeedingResult) {
     when(browseContextProvider.get(request)).thenReturn(context);
+    when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(context.getAnchor());
     when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
     when(browseQueryProvider.get(request, context, true)).thenReturn(succeedingQuery);
 

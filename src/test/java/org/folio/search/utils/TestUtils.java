@@ -241,18 +241,13 @@ public class TestUtils {
   }
 
   public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber, Boolean isAnchor) {
-    var shelfKey = shelfKeyForNotTypedCallNumberFunction().apply(callNumber);
+    var shelfKey = getShelfKeyFromCallNumber(callNumber);
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
-  public static Function<String, String> shelfKeyForNotTypedCallNumberFunction() {
-    return CallNumberUtils::normalizeEffectiveShelvingOrder;
-  }
-
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    var terms = SHELVING_ORDER_TERM_PROCESSOR.getSearchTerms(callNumber);
-    return terms.get(0);
+    return normalizeEffectiveShelvingOrder(callNumber);
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {

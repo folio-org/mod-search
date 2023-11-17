@@ -12,7 +12,6 @@ import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.shelfKeyForNotTypedCallNumberFunction;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Arrays;
@@ -106,7 +105,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(13).prev("DA 43880 O6 M96").next("G  SHELF#1").items(List.of(
+      .totalRecords(13).prev("DA 3880 O6 M96").next("G  SHELF#1").items(List.of(
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
         cnBrowseItem(instance("instance #11"), "F-1,452"),
@@ -162,9 +161,13 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       List.of("instance #08", List.of("PIRANHA 19 _C 11")),
       List.of("instance #09", List.of("F  PR1866.S63 V.1 C.1")),
       //for the case when call number type is not specified by inventory but call number may be parsed into a system one
-      List.of("instance #10", List.of("FA 42010 3546 256"), shelfKeyForNotTypedCallNumberFunction()),
+      List.of("instance #10", List.of("FA 42010 3546 256"), shelfKeyFromCallNumber()),
       List.of("instance #11", List.of("F-1,452")),
       List.of("instance #12", List.of("G (shelf#1)"))
     );
+  }
+
+  private static Function<String, String> shelfKeyFromCallNumber() {
+    return TestUtils::getShelfKeyFromCallNumber;
   }
 }

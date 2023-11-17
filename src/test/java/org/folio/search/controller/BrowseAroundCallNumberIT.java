@@ -7,9 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
+import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.shelfKeyForNotTypedCallNumberFunction;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Arrays;
@@ -126,7 +126,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(shelfKeyForNotTypedCallNumberFunction().apply(callNumber)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
       .toList();
 
     return new Instance()

@@ -7,11 +7,14 @@
 * Requires `API_NAME vX.Y`
 
 ### Features
+* Update module descriptor with environment variables ([MSEARCH-635](https://issues.folio.org/browse/MSEARCH-635))
 * Add filter to ignore hard-delete authority events ([MSEARCH-617](https://issues.folio.org/browse/MSEARCH-617))
+
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
 * Fix result filtering for items.effectiveLocationId ([MSEARCH-615](https://issues.folio.org/browse/MSEARCH-615))
+* Ignore authority shadow copies while indexing ([MSEARCH-638](https://issues.folio.org/browse/MSEARCH-638))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

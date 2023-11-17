@@ -26,9 +26,11 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -178,6 +180,17 @@ class KafkaMessageListenerTest {
     var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, AUTHORITY_RESOURCE, CREATE, payload, null));
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleAuthorityEvent_positive_shouldSkipAuthorityShadowCopies() {
+    var payload = toMap(new Authority().id(RESOURCE_ID).source("CONSORTIUM-MARC"));
+
+    messageListener.handleAuthorityEvents(List.of(new ConsumerRecord<>(
+      inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, null, REINDEX, payload, null))));
+
+    verify(resourceService, never()).indexResources(anyList());
+    verify(batchProcessor, never()).consumeBatchWithFallback(any(), any(), any(), any());
   }
 
   @Test

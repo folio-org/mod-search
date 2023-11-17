@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.integration.ResourceChangeFilterStrategy;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.tools.kafka.FolioKafkaTopic;
@@ -51,6 +52,7 @@ public class KafkaConfiguration {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
     factory.setConsumerFactory(resourceEventConsumerFactory());
+    factory.setRecordFilterStrategy(new ResourceChangeFilterStrategy());
     return factory;
   }
 

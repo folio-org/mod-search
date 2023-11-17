@@ -10,6 +10,7 @@ import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.util.List;
+import java.util.UUID;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.FacetQueryBuilder;
 import org.folio.search.domain.dto.FacetResult;
@@ -57,6 +58,31 @@ class FacetServiceTest {
       .query(boolQuery().must(matchQuery));
 
     when(cqlSearchQueryConverter.convertForConsortia(QUERY, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
+    when(facetQueryBuilder.getFacetAggregations(request, boolQuery)).thenReturn(List.of(sourceAggregation));
+    when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
+    when(searchResponse.getAggregations()).thenReturn(aggregations);
+    when(facetConverter.convert(aggregations)).thenReturn(new FacetResult());
+
+    var actual = facetService.getFacets(request);
+    assertThat(actual).isEqualTo(new FacetResult());
+  }
+
+  @Test
+  void getFacets_positive_keepGivenFilters() {
+    var matchQuery = matchQuery("title", "value");
+    var filterToKeep1 = "items.effectiveLocationId";
+    var filterToKeep2 = "holdings.tenantId";
+    var tenant = "college";
+    var uuid = UUID.randomUUID();
+    String query = "%s==(\"%s\") and %s==(\"%s\")".formatted(filterToKeep1, uuid, filterToKeep2, tenant);
+    var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()))
+      .must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()));
+    var request = defaultFacetServiceRequest(RESOURCE_NAME, query, "holdings.tenantId:6");
+    var sourceAggregation = AggregationBuilders.terms("source").field("source").size(Integer.MAX_VALUE);
+    var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)
+      .query(boolQuery);
+
+    when(cqlSearchQueryConverter.convertForConsortia(query, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
     when(facetQueryBuilder.getFacetAggregations(request, boolQuery)).thenReturn(List.of(sourceAggregation));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);

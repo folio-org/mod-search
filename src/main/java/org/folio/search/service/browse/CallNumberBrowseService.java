@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.model.client.CqlQueryParam.SOURCE;
 import static org.folio.search.model.types.CallNumberTypeSource.FOLIO;
@@ -53,15 +54,19 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
     log.debug("browseInOneDirection:: by: [request: {}]", request);
 
+    var callNumber = callNumberFromRequest(request);
+    var initialAnchor = effectiveShelvingOrderTermProcessor.getSearchTerm(callNumber, request.getRefinedCondition());
+    if (!initialAnchor.equals(context.getAnchor())) {
+      context = buildBrowseContext(context, initialAnchor);
+    }
+
     var isBrowsingForward = context.isBrowsingForward();
     var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
 
-    if (!isAnchorPresent(searchResponse, context)) {
+    if (isBlank(request.getRefinedCondition()) && !isAnchorPresent(searchResponse, context)) {
       var anchors = getAnchors(request);
-      if (!anchors.isEmpty()) {
-        anchors.remove(0);
-      }
+      anchors.remove(initialAnchor);
       for (String anchor : anchors) {
         var contextForAnchor = buildBrowseContext(context, anchor);
         var searchSourceForAnchor = callNumberBrowseQueryProvider.get(request, contextForAnchor, isBrowsingForward);
@@ -90,17 +95,19 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.debug("browseAround:: by: [request: {}]", request);
 
+    var callNumber = callNumberFromRequest(request);
+    var initialAnchor = effectiveShelvingOrderTermProcessor.getSearchTerm(callNumber, request.getRefinedCondition());
+    if (!initialAnchor.equals(context.getAnchor())) {
+      context = buildBrowseContext(context, initialAnchor);
+    }
+
     var precedingQuery = callNumberBrowseQueryProvider.get(request, context, false);
     var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
     var responses = getBrowseAround(request, precedingQuery, succeedingQuery);
 
-    var callNumber = callNumberFromRequest(request);
-
-    if (!isAnchorPresent(responses[1].getResponse(), context)) {
+    if (isBlank(request.getRefinedCondition()) && !isAnchorPresent(responses[1].getResponse(), context)) {
       var anchors = getAnchors(callNumber);
-      if (!anchors.isEmpty()) {
-        anchors.remove(0);
-      }
+      anchors.remove(initialAnchor);
       for (String anchor : anchors) {
         var contextForAnchor = buildBrowseContext(context, anchor);
         var precedingQueryForAnchor = callNumberBrowseQueryProvider.get(request, contextForAnchor, false);

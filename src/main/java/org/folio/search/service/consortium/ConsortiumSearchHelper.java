@@ -113,6 +113,8 @@ public class ConsortiumSearchHelper {
     if (sharedFilter.isPresent()) {
       if (sharedFilterValue(sharedFilter.get())) {
         subResourcesFilter = InstanceSubResource::getShared;
+      } else {
+        subResourcesFilter = subResourcesFilter.and(instanceSubResource -> !instanceSubResource.getShared());
       }
     } else {
       if (tenantFilter.isEmpty()) {

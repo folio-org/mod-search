@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
@@ -287,12 +286,13 @@ class ConsortiumSearchHelperTest {
     var subResources = subResources();
     var resource = new SubjectResource();
     resource.setInstances(subResources);
-    var expected = subResources.stream().filter(s -> s.getTenantId().equals(TENANT_ID)).collect(Collectors.toSet());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::getInstances);
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).hasSize(1)
+      .allMatch(instanceSubResource -> instanceSubResource.getShared().equals(Boolean.FALSE))
+      .allMatch(instanceSubResource -> instanceSubResource.getTenantId().equals(TENANT_ID));
   }
 
   @Test

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class LccnProcessor extends AbstractIdentifierProcessor<Authority> {
 
-  private static final List<String> LCCN_IDENTIFIER_NAMES =
-    List.of("LCCN", "Control number", "Other standard identifier", "System control number");
+  private static final List<String> LCCN_IDENTIFIER_NAME =
+    List.of("LCCN");
 
   /**
    * Used by dependency injection.

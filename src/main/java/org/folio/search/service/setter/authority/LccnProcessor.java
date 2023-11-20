@@ -19,7 +19,7 @@ public class LccnProcessor extends AbstractIdentifierProcessor<Authority> {
    * @param referenceDataService {@link ReferenceDataService} bean
    */
   public LccnProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService, LCCN_IDENTIFIER_NAMES);
+    super(referenceDataService, LCCN_IDENTIFIER_NAME);
   }
 
   @Override

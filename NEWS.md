@@ -9,6 +9,7 @@
 ### Features
 * Update module descriptor with environment variables ([MSEARCH-635](https://issues.folio.org/browse/MSEARCH-635))
 * Add filter to ignore hard-delete authority events ([MSEARCH-617](https://issues.folio.org/browse/MSEARCH-617))
+* Update LccnProcessor to populate lccn field with only "LCCN" ([MSEARCH-630](https://issues.folio.org/browse/MSEARCH-630))
 
 
 ### Bug fixes

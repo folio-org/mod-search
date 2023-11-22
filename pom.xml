@@ -56,7 +56,7 @@
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>7.0.1</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.1.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.4.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
@@ -64,7 +64,7 @@
     <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
+    <maven-failsafe-plugin.version>3.2.2</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
   </properties>
 
@@ -424,7 +424,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>10.12.4</version>
+            <version>10.12.5</version>
           </dependency>
         </dependencies>
         <executions>

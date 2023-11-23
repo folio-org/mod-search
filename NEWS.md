@@ -18,6 +18,7 @@
 * Ignore authority shadow copies while indexing ([MSEARCH-638](https://issues.folio.org/browse/MSEARCH-638))
 * Return result only for desired cn type on browse ([MSEARCH-605](https://issues.folio.org/browse/MSEARCH-605))
 * Fix clearing following filters in FacetService: items.effectiveLocationId, holdings.tenantId ([MSEARCH-620](https://issues.folio.org/browse/MSEARCH-620))
+* Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

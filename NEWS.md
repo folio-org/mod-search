@@ -1,3 +1,7 @@
+## v3.0.4 2023-11-30
+### Bug fixes
+* Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))
+
 ## v3.0.3 2023-11-15
 ### Tech Dept
 * Ignore authority shadow copies while indexing ([MSEARCH-638](https://issues.folio.org/browse/MSEARCH-638))

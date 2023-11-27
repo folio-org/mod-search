@@ -126,7 +126,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   }
 
   @Test
-  void getSearchTerm_shouldTrim() {
+  void getSearchTerm_shouldTrimDeweyShelfKey() {
     var given = "396.300";
     var expected = "3396.300";
     var actual = searchTermProcessor.getSearchTerm(given, "dewey");

@@ -123,6 +123,14 @@ class EffectiveShelvingOrderTermProcessorTest {
     var actual = searchTermProcessor.getSearchTerms(given);
 
     assertThat(actual).isEqualTo(expected);
+  }
 
+  @Test
+  void getSearchTerm_shouldTrim() {
+    var given = "396.300";
+    var expected = "3396.300";
+    var actual = searchTermProcessor.getSearchTerm(given, "dewey");
+
+    assertThat(actual).isEqualTo(expected);
   }
 }

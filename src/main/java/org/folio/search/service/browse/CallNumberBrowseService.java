@@ -43,6 +43,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
   public static final List<String> FOLIO_CALL_NUMBER_TYPES_SOURCES = Collections.singletonList(FOLIO.getSource());
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
+  private static final int MAX_ADDITIONAL_REQUEST_SIZE = 800;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
@@ -229,7 +230,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var desiredCount = isBrowsingForward ? request.getLimit() - precedingRecordsCount : precedingRecordsCount;
     while (additionalRecords.size() < desiredCount
            && query.from() <= searchConfig.getMaxBrowseRequestOffset()) {
-      int size = query.size() * 2;
+      int size = query.size() < MAX_ADDITIONAL_REQUEST_SIZE ? query.size() * 2 : query.size();
       log.debug("additionalRequests:: browsingForward {} request offset {}, size {}",
         isBrowsingForward, offset, size);
       query.from(offset).size(size);

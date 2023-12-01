@@ -20,6 +20,7 @@ import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
 import org.apache.lucene.search.TotalHits;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -80,6 +81,8 @@ class CallNumberBrowseServiceTest {
   private CqlSearchQueryConverter cqlSearchQueryConverter;
   @Mock
   private ReferenceDataService referenceDataService;
+  @Mock
+  private SearchConfigurationProperties searchConfig;
 
   @BeforeEach
   void setUp() {
@@ -134,6 +137,7 @@ class CallNumberBrowseServiceTest {
 
     prepareMockForBrowsingAround(request, contextAroundIncluding(), precedingResult, succeedingResult);
     prepareMockForAdditionalRequest(request, contextAroundIncluding(), additionalPrecedingResult);
+    when(searchConfig.getMaxBrowseRequestOffset()).thenReturn(500L);
 
     var actual = callNumberBrowseService.browse(request);
 

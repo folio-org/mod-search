@@ -830,6 +830,11 @@
         "name": "SEARCH_QUERY_TIMEOUT",
         "value": "25s",
         "description": "The maximum time to wait for search query response"
+      },
+      {
+        "name": "MAX_BROWSE_REQUEST_OFFSET",
+        "value": "500",
+        "description": "The maximum elasticsearch query offset for additional requests on browse around"
       }
     ]
   }

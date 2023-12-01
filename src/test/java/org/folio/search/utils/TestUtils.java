@@ -256,7 +256,8 @@ public class TestUtils {
         .map(generator -> generator.apply(callNumber))
         .filter(AbstractCallNumber::isValid)
         .map(AbstractCallNumber::getShelfKey))
-      .orElse(normalizeEffectiveShelvingOrder(callNumber));
+      .orElse(normalizeEffectiveShelvingOrder(callNumber))
+      .trim();
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

@@ -41,7 +41,8 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
 
     return Optional.ofNullable(CN_TYPE_TO_SHELF_KEY_GENERATOR.get(callNumberTypeName))
       .flatMap(function -> function.apply(inputTerm))
-      .orElse(normalizeEffectiveShelvingOrder(inputTerm));
+      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
+      .trim();
   }
 
   public List<String> getSearchTerms(String inputTerm) {

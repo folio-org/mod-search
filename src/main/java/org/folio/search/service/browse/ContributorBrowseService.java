@@ -11,9 +11,9 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import one.util.streamex.StreamEx;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
@@ -92,9 +92,6 @@ public class ContributorBrowseService extends
           .distinct()
           .sorted()
           .toList();
-        var distinctInstances = StreamEx.of(filteredInstanceResources)
-          .distinct(InstanceSubResource::getInstanceId)
-          .toSet();
 
         return new InstanceContributorBrowseItem()
           .name(item.getName())
@@ -102,12 +99,21 @@ public class ContributorBrowseService extends
           .contributorNameTypeId(item.getContributorNameTypeId())
           .authorityId(item.getAuthorityId())
           .isAnchor(isAnchor)
-          .totalRecords(distinctInstances.size());
+          .totalRecords(getTotalRecords(filteredInstanceResources));
       });
   }
 
   @Override
   protected String getValueForBrowsing(InstanceContributorBrowseItem browseItem) {
     return browseItem.getName();
+  }
+
+  private Integer getTotalRecords(Set<InstanceSubResource> filteredInstanceResources) {
+    return filteredInstanceResources.stream()
+      .map(InstanceSubResource::getInstanceId)
+      .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
+      .distinct()
+      .map(e -> 1)
+      .reduce(0, Integer::sum);
   }
 }

@@ -1,6 +1,7 @@
 package org.folio.search.service.browse;
 
 import static java.util.Locale.ROOT;
+import static java.util.Objects.nonNull;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -14,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.index.SubjectResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -77,12 +79,21 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
         .value(subjectResource.getValue())
         .authorityId(subjectResource.getAuthorityId())
         .isAnchor(isAnchor ? true : null)
-        .totalRecords(consortiumSearchHelper.filterSubResourcesForConsortium(
-          context, subjectResource, SubjectResource::getInstances).size()));
+        .totalRecords(getTotalRecords(context, subjectResource)));
   }
 
   @Override
   protected String getValueForBrowsing(SubjectBrowseItem browseItem) {
     return browseItem.getValue();
+  }
+
+  private Integer getTotalRecords(BrowseContext context, SubjectResource subjectResource) {
+    return consortiumSearchHelper.filterSubResourcesForConsortium(context, subjectResource,
+        SubjectResource::getInstances).stream()
+      .map(InstanceSubResource::getInstanceId)
+      .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
+      .distinct()
+      .map(e -> 1)
+      .reduce(0, Integer::sum);
   }
 }

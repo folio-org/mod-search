@@ -21,6 +21,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -42,13 +43,14 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
   public static final List<String> FOLIO_CALL_NUMBER_TYPES_SOURCES = Collections.singletonList(FOLIO.getSource());
   private static final int ADDITIONAL_REQUEST_SIZE = 100;
-  private static final int ADDITIONAL_REQUEST_SIZE_MAX = 500;
+  private static final int MAX_ADDITIONAL_REQUEST_SIZE = 800;
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final CallNumberBrowseQueryProvider callNumberBrowseQueryProvider;
   private final CallNumberBrowseResultConverter callNumberBrowseResultConverter;
   private final EffectiveShelvingOrderTermProcessor effectiveShelvingOrderTermProcessor;
   private final ReferenceDataService referenceDataService;
+  private final SearchConfigurationProperties searchConfig;
 
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseInOneDirection(BrowseRequest request, BrowseContext context) {
@@ -227,8 +229,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var precedingRecordsCount = request.getPrecedingRecordsCount();
     var desiredCount = isBrowsingForward ? request.getLimit() - precedingRecordsCount : precedingRecordsCount;
     while (additionalRecords.size() < desiredCount
-           && query.from() <= ADDITIONAL_REQUEST_SIZE_MAX) {
-      int size = query.size() * 2;
+           && query.from() <= searchConfig.getMaxBrowseRequestOffset()) {
+      int size = query.size() < MAX_ADDITIONAL_REQUEST_SIZE ? query.size() * 2 : query.size();
       log.debug("additionalRequests:: browsingForward {} request offset {}, size {}",
         isBrowsingForward, offset, size);
       query.from(offset).size(size);

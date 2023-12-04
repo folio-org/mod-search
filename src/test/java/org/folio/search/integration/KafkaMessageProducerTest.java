@@ -3,7 +3,10 @@ package org.folio.search.integration;
 import static java.util.Collections.singletonList;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static org.folio.search.utils.SearchUtils.SOURCE_FIELD;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
@@ -68,6 +71,19 @@ class KafkaMessageProducerTest {
       instanceObjectWithSubjects(instanceId, newContributorObject),
       instanceObjectWithSubjects(instanceId, oldContributorObject)
     );
+    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
+  void shouldSendNoSubjectEvents_whenShadowInstance() {
+    var instanceId = randomId();
+    var name = "Medicine";
+    var newContributorObject = subjectObject(name);
+    Map<String, String> instanceObject = instanceObjectWithSubjects(instanceId, newContributorObject);
+    instanceObject.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + instanceObject.get(SOURCE_FIELD));
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, instanceObject, null);
     producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
@@ -156,12 +172,12 @@ class KafkaMessageProducerTest {
 
   @NotNull
   private Map<String, String> instanceObjectWithContributors(String id, Map<String, String> contributorObject) {
-    return mapOf("id", id, "contributors", List.of(contributorObject));
+    return mapOf(ID_FIELD, id, "contributors", List.of(contributorObject));
   }
 
   @NotNull
   private Map<String, String> instanceObjectWithSubjects(String id, Map<String, String> subjectObject) {
-    return mapOf("id", id, "subjects", List.of(subjectObject), "source", "CONSORTIUM-FOLIO");
+    return mapOf(ID_FIELD, id, "subjects", List.of(subjectObject), SOURCE_FIELD, "FOLIO");
   }
 
   @NotNull

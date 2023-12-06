@@ -64,7 +64,7 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
     for (var document : documents) {
       var payload = getPayload(document);
       var instanceId = String.valueOf(payload.get(INSTANCE_ID));
-      if (StringUtils.isNotBlank(instanceId)) {
+      if (StringUtils.isNotBlank(instanceId) && !"null".equals(instanceId)) {
         var tenantId = document.getTenant();
         var instance = new HashMap<String, Object>();
         instance.put(INSTANCE_ID, instanceId);
@@ -80,10 +80,10 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   }
 
   private EnumMap<IndexActionType, Set<Map<String, Object>>> prepareInstanceMap() {
-    var instanceIds = new EnumMap<IndexActionType, Set<Map<String, Object>>>(IndexActionType.class);
-    instanceIds.put(INDEX, new HashSet<>());
-    instanceIds.put(DELETE, new HashSet<>());
-    return instanceIds;
+    var instances = new EnumMap<IndexActionType, Set<Map<String, Object>>>(IndexActionType.class);
+    instances.put(INDEX, new HashSet<>());
+    instances.put(DELETE, new HashSet<>());
+    return instances;
   }
 
   private UpdateRequest prepareUpsertRequest(SearchDocumentBody doc,
@@ -97,8 +97,8 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
       .upsert(prepareDocumentBody(getPayload(doc), instances), doc.getDataFormat().getXcontentType());
   }
 
-  private Map<String, Object> prepareScriptParams(EnumMap<IndexActionType, Set<Map<String, Object>>> instanceIds) {
-    return Map.of("ins", instanceIds.get(INDEX), "del", instanceIds.get(DELETE));
+  private Map<String, Object> prepareScriptParams(EnumMap<IndexActionType, Set<Map<String, Object>>> instances) {
+    return Map.of("ins", instances.get(INDEX), "del", instances.get(DELETE));
   }
 
   private Map<String, Object> prepareDocumentBody(Map<String, Object> payload,

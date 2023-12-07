@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -29,6 +30,7 @@ import org.z3950.zing.cql.CQLTermNode;
  * <a href="https://www.loc.gov/standards/sru/cql/spec.html">https://www.loc.gov/standards/sru/cql/spec.html</a>
  * </p>
  */
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class CqlSearchQueryConverter {
@@ -70,7 +72,7 @@ public class CqlSearchQueryConverter {
   public SearchSourceBuilder convertForConsortia(String query, String resource) {
     var sourceBuilder = convert(query, resource);
     var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query(), resource);
-
+    log.warn(queryBuilder);
     return sourceBuilder.query(queryBuilder);
   }
 

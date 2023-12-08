@@ -38,11 +38,18 @@ public class FacetService {
     var searchSource = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), request.getResource());
     searchSource.size(0).from(0).fetchSource(false);
 
+    log.warn("Before facetQueryBuilder.getFacetAggregations {}", searchSource.toString());
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);
+
+    log.warn("Before cleanUpFacetSearchSource {}", searchSource.toString());
     cleanUpFacetSearchSource(searchSource, List.of(ITEMS_EFFECTIVE_LOCATION_ID, TENANT_ID));
 
+    log.warn("Before searchRepository.search {}", searchSource.toString());
     var searchResponse = searchRepository.search(request, searchSource);
-    return facetConverter.convert(searchResponse.getAggregations());
+    log.warn("Before facetConverter.convert {}", searchResponse.toString());
+    var result = facetConverter.convert(searchResponse.getAggregations());
+    log.warn("getFacets result {}", result.toString());
+    return result;
   }
 
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource, List<String> filterNamesToKeep) {

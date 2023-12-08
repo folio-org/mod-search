@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,6 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.event.SubjectResourceEvent;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -51,24 +51,23 @@ public class KafkaMessageProducer {
   private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
-  private final TenantProvider tenantProvider;
   private final ConsortiumTenantService consortiumTenantService;
 
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
-    if (isNotEmpty(resourceEvents)) {
-      resourceEvents.stream()
-        .filter(Objects::nonNull)
-        .map(this::getContributorEvents)
-        .flatMap(List::stream)
-        .forEach(kafkaTemplate::send);
-    }
+    prepareAndSendEvents(resourceEvents, this::getContributorEvents);
   }
 
   public void prepareAndSendSubjectEvents(List<ResourceEvent> resourceEvents) {
+    prepareAndSendEvents(resourceEvents, this::getSubjectsEvents);
+  }
+
+  private void prepareAndSendEvents(List<ResourceEvent> resourceEvents,
+                                    Function<ResourceEvent, List<ProducerRecord<String, ResourceEvent>>> toEventsFunc) {
     if (isNotEmpty(resourceEvents)) {
       resourceEvents.stream()
         .filter(Objects::nonNull)
-        .map(this::getSubjectsEvents)
+        .filter(instance -> !StringUtils.startsWith(getResourceSource(instance), SOURCE_CONSORTIUM_PREFIX))
+        .map(toEventsFunc)
         .flatMap(List::stream)
         .forEach(kafkaTemplate::send);
     }

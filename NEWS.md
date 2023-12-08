@@ -1,3 +1,10 @@
+## v3.0.5 2023-12-08
+### Bug fixes
+* Trim search term for typed browse ([MSEARCH-643](https://issues.folio.org/browse/MSEARCH-643))
+* fix shadow instance's subjects/contributors indexing ([MSEARCH-647](https://issues.folio.org/browse/MSEARCH-647))
+
+---
+
 ## v3.0.4 2023-11-30
 ### Bug fixes
 * Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))

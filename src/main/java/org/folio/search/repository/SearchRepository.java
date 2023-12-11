@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 @RequiredArgsConstructor
+@Log4j2
 public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
@@ -56,6 +58,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
+    log.warn("Request for the client for search is: {}", searchRequest);
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
   }
 

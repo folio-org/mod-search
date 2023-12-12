@@ -47,7 +47,7 @@ public class FacetService {
 
     log.warn("Before searchRepository.search {}", searchSource.toString());
     log.warn("Before facetQueryBuilder.getFacetAggregations request: {}", request.toString());
-    log.warn("Before facetQueryBuilder.getFacetAggregations searchSource: {}", request.toString());
+    log.warn("Before facetQueryBuilder.getFacetAggregations searchSource: {}", searchSource.toString());
     var searchResponse = searchRepository.search(request, searchSource);
     log.warn("Before facetConverter.convert {}", searchResponse.toString());
     var result = facetConverter.convert(searchResponse.getAggregations());

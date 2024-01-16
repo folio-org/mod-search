@@ -37,6 +37,9 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -142,15 +145,17 @@ class InstanceSubjectRepositoryTest {
     }
   }
 
-  @Test
-  void indexResources_positive_skipIfInstanceIdIsBlank() throws IOException {
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = "null")
+  void indexResources_positive_skipIfInstanceIdIsBlank(String instanceId) throws IOException {
     var subject = "scala";
 
     var bulkResponse = mock(BulkResponse.class);
     when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
     when(bulkResponse.hasFailures()).thenReturn(false);
 
-    var documents = List.of(subjectDocumentBodyToDelete(subject, ""));
+    var documents = List.of(subjectDocumentBodyToDelete(subject, instanceId));
     var actual = repository.indexResources(documents);
 
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());

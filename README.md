@@ -73,6 +73,7 @@ many variables still have Elasticsearch in their name for backwards compatibilit
 ```shell
 mvn install
 ```
+
 See that it says "BUILD SUCCESS" near the end.
 
 By default the integration tests run against an OpenSearch server.
@@ -81,6 +82,7 @@ To run them against an Elasticsearch server use
 ```shell
 SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch/Dockerfile" mvn install
 ```
+
 for Elasticsearch 7 or
 
 ```shell
@@ -94,7 +96,6 @@ for Elasticsearch 8 or run [GitHub Action elasticsearch.yml](.github/workflows/e
 Run locally with proper environment variables set (see
 [Environment variables](#environment-variables) below) on listening port 8081 (default
 listening port):
-
 
 ```
 KAFKA_HOST=localhost KAFKA_PORT=9092 \
@@ -118,17 +119,20 @@ docker run -t -i -p 8081:8081 mod-search
 
 ## Multi-language search support
 
-Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title, contributors, etc.).
+Each tenant is allowed to pick up to **5** languages from pre-installed list for multi-language indexes (e.g. title,
+contributors, etc.).
 This can be done via following API (`languageAnalyzer` field is optional):
 `POST /search/config/languages`
+
 ```json
 {
-  "code":"eng",
+  "code": "eng",
   "languageAnalyzer": "english"
 }
 ```
 
 The `code` here is an ISO-639-2/B three-letter code. Here is the list of pre-installed languages analyzers:
+
 - ara
 - ger
 - eng
@@ -162,6 +166,7 @@ These languages will be added on tenant init and applied to index. Example usage
 #### Configuring on-premise Elasticsearch instance
 
 It is required to install some required plugins for your search engine instance, here is the list:
+
 * analysis-icu
 * analysis-kuromoji
 * analysis-smartcn
@@ -169,6 +174,7 @@ It is required to install some required plugins for your search engine instance,
 * analysis-phonetic
 
 You can find sample Dockerfile in [docker/opensearch/Dockerfile] or install plugins manually:
+
 ```shell
 ${ES_HOME}/bin/opensearch-plugin install --batch \
   analysis-icu \
@@ -180,11 +186,15 @@ ${ES_HOME}/bin/opensearch-plugin install --batch \
 
 See also [Install OpenSearch/Docker Image](https://opensearch.org/docs/latest/opensearch/install/docker/).
 
-There is an alternative Elasticsearch image from Bitnami - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
-that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to install.
+There is an alternative Elasticsearch image from
+Bitnami - [bitnami/elasticsearch](https://hub.docker.com/r/bitnami/elasticsearch),
+that does not require extending dockerfile but has an env variable `ELASTICSEARCH_PLUGINS` to specify plugins to
+install.
 
-For production installations it is strongly recommended enabling security for instance and set-up user/password. The user
+For production installations it is strongly recommended enabling security for instance and set-up user/password. The
+user
 must have at least following permissions:
+
 * Create/delete/update index and mappings for it.
 * Create/update/delete documents in index.
 
@@ -192,60 +202,78 @@ must have at least following permissions:
 
 The data nodes OpenSearch configuration completely depends on the data.
 If there are 7 mln of instances the configuration with 2 nodes with 8Gb RAM and 500 Gb disk (AWS m5.large) works well.
-The nodes were both master and data node. We performed performance tests for this configuration, and it showed good results.
-We would recommend to performing additional performance testing (try to reindex and search with different configurations)
+The nodes were both master and data node. We performed performance tests for this configuration, and it showed good
+results.
+We would recommend to performing additional performance testing (try to reindex and search with different
+configurations)
 with different type of nodes, and see what configuration is sufficient for what data volume.
 
-Also, for fault tolerance OpenSearch requires dedicated master nodes (not to have quorum problem which is called split brain)
-with less powerful configuration (see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)
+Also, for fault tolerance OpenSearch requires dedicated master nodes (not to have quorum problem which is called split
+brain)
+with less powerful configuration (
+see [High availability](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-ha.html)
 and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/replication.html)).
 
 ### Environment variables
 
-| Name                                               | Default value             | Description                                                                                                                                                                           |
-|:---------------------------------------------------|:--------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DB_HOST                                            | postgres                  | Postgres hostname                                                                                                                                                                     |
-| DB_PORT                                            | 5432                      | Postgres port                                                                                                                                                                         |
-| DB_USERNAME                                        | folio_admin               | Postgres username                                                                                                                                                                     |
-| DB_PASSWORD                                        | -                         | Postgres username password                                                                                                                                                            |
-| DB_DATABASE                                        | okapi_modules             | Postgres database name                                                                                                                                                                |
-| ELASTICSEARCH_URL                                  | http://elasticsearch:9200 | Elasticsearch URL                                                                                                                                                                     |
-| ELASTICSEARCH_USERNAME                             | -                         | Elasticsearch username (not required for dev envs)                                                                                                                                    |
-| ELASTICSEARCH_PASSWORD                             | -                         | Elasticsearch password (not required for dev envs)                                                                                                                                    |
-| ELASTICSEARCH_COMPRESSION_ENABLED                  | true                      | Specify if Elasticsearch request/response compression enabled                                                                                                                         |
-| KAFKA_HOST                                         | kafka                     | Kafka broker hostname                                                                                                                                                                 |
-| KAFKA_PORT                                         | 9092                      | Kafka broker port                                                                                                                                                                     |
-| KAFKA_SECURITY_PROTOCOL                            | PLAINTEXT                 | Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT)                                                                                                           |
-| KAFKA_SSL_KEYSTORE_LOCATION                        | -                         | The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client.                                                          |
-| KAFKA_SSL_KEYSTORE_PASSWORD                        | -                         | The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured.                                                |
-| KAFKA_SSL_TRUSTSTORE_LOCATION                      | -                         | The location of the Kafka trust store file.                                                                                                                                           |
-| KAFKA_SSL_TRUSTSTORE_PASSWORD                      | -                         | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled.                            |
-| KAFKA_EVENTS_CONSUMER_PATTERN                      | -                         | Custom subscription pattern for Kafka consumers.                                                                                                                                      |
-| KAFKA_EVENTS_CONCURRENCY                           | 2                         | Custom number of kafka concurrent threads for message consuming.                                                                                                                      |
-| KAFKA_AUTHORITIES_CONSUMER_PATTERN                 | -                         | Custom subscription pattern for Kafka authority message consumers.                                                                                                                    |
-| KAFKA_AUTHORITIES_CONCURRENCY                      | 1                         | Custom number of kafka concurrent threads for authority message consuming.                                                                                                            |
-| KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS                | 50                        | Amount of partitions for `search.instance-contributor` topic.                                                                                                                         |
-| KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR        | -                         | Replication factor for `search.instance-contributor` topic.                                                                                                                           |
-| KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY              | 2                         | Custom number of kafka concurrent threads for consortium.instance message consuming.                                                                                                  |
-| KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS         | 50                        | Amount of partitions for `search.consortium.instance` topic.                                                                                                                          |
-| KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR | -                         | Replication factor for `search.consortium.instance` topic.                                                                                                                            |
-| KAFKA_CONSUMER_MAX_POLL_RECORDS                    | 200                       | Maximum number of records returned in a single call to poll().                                                                                                                        |
-| INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS          | 3                         | Amount of retry attempts to delete instance subject resources.                                                                                                                        |
-| INDEXING_DATA_FORMAT                               | smile                     | Format for passing data to elasticsearch (json/smile)                                                                                                                                 |
-| INITIAL_LANGUAGES                                  | eng                       | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
-| MAX_SUPPORTED_LANGUAGES                            | 5                         | Provides the maximum number of supported languages                                                                                                                                    |
-| SYSTEM_USER_USERNAME                               | mod-search                | Username for `mod-search` system user                                                                                                                                                 |
-| SYSTEM_USER_PASSWORD                               | -                         | Password for `mod-search` system user (not required for dev envs)                                                                                                                     |
-| SYSTEM_USER_ENABLED                                | true                      | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
-| OKAPI_URL                                          | -                         | OKAPI URL used to login system user, required                                                                                                                                         |
-| ENV                                                | -                         | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
-| SEARCH_BY_ALL_FIELDS_ENABLED                       | false                     | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
-| BROWSE_CN_INTERMEDIATE_VALUES_ENABLED              | true                      | Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)                                                         |
-| BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES           | true                      | Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)                                |
-| SCROLL_QUERY_SIZE                                  | 1000                      | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
-| STREAM_ID_RETRY_INTERVAL_MS                        | 1000                      | Specifies time to wait before reattempting query.                                                                                                                                     |
-| STREAM_ID_RETRY_ATTEMPTS                           | 3                         | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
-| CN_BROWSE_OPTIMIZATION_ENABLED                     | true                      | Defines if call-number browse optimization is enabled or not                                                                                                                          |
+| Name                                               | Default value                                              | Description                                                                                                                                                                           |
+|:---------------------------------------------------|:-----------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DB_HOST                                            | postgres                                                   | Postgres hostname                                                                                                                                                                     |
+| DB_PORT                                            | 5432                                                       | Postgres port                                                                                                                                                                         |
+| DB_USERNAME                                        | postgres                                                   | Postgres username                                                                                                                                                                     |
+| DB_PASSWORD                                        | postgres                                                   | Postgres username password                                                                                                                                                            |
+| DB_DATABASE                                        | okapi_modules                                              | Postgres database name                                                                                                                                                                |
+| ELASTICSEARCH_URL                                  | http://elasticsearch:9200                                  | Elasticsearch URL                                                                                                                                                                     |
+| ELASTICSEARCH_USERNAME                             | -                                                          | Elasticsearch username (not required for dev envs)                                                                                                                                    |
+| ELASTICSEARCH_PASSWORD                             | -                                                          | Elasticsearch password (not required for dev envs)                                                                                                                                    |
+| ELASTICSEARCH_COMPRESSION_ENABLED                  | true                                                       | Specify if Elasticsearch request/response compression enabled                                                                                                                         |
+| KAFKA_HOST                                         | kafka                                                      | Kafka broker hostname                                                                                                                                                                 |
+| KAFKA_PORT                                         | 9092                                                       | Kafka broker port                                                                                                                                                                     |
+| KAFKA_SECURITY_PROTOCOL                            | PLAINTEXT                                                  | Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT)                                                                                                           |
+| KAFKA_SSL_KEYSTORE_LOCATION                        | -                                                          | The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client.                                                          |
+| KAFKA_SSL_KEYSTORE_PASSWORD                        | -                                                          | The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured.                                                |
+| KAFKA_SSL_TRUSTSTORE_LOCATION                      | -                                                          | The location of the Kafka trust store file.                                                                                                                                           |
+| KAFKA_SSL_TRUSTSTORE_PASSWORD                      | -                                                          | The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled.                            |
+| KAFKA_EVENTS_CONSUMER_PATTERN                      | (${folio.environment}\.\)(.*\.)inventory\.(instance\       | holdings-record\                                                                                                                                                                      |item\|bound-with) | Custom subscription pattern for Kafka consumers.                                                                                                                                      |
+| KAFKA_EVENTS_CONCURRENCY                           | 2                                                          | Custom number of kafka concurrent threads for message consuming.                                                                                                                      |
+| KAFKA_AUTHORITIES_CONSUMER_PATTERN                 | (${folio.environment}\.)(.*\.)authorities\.authority       | Custom subscription pattern for Kafka authority message consumers.                                                                                                                    |
+| KAFKA_AUTHORITIES_CONCURRENCY                      | 1                                                          | Custom number of kafka concurrent threads for authority message consuming.                                                                                                            |
+| KAFKA_CONTRIBUTORS_CONCURRENCY                     | 2                                                          | Custom number of kafka concurrent threads for contributor message consuming.                                                                                                          |
+| KAFKA_CONTRIBUTORS_CONSUMER_PATTERN                | (${folio.environment}\.)(.*\.)search\.instance-contributor | Custom subscription pattern for Kafka contributor message consumers.                                                                                                                  |
+| KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS                | 50                                                         | Amount of partitions for `search.instance-contributor` topic.                                                                                                                         |
+| KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR        | -                                                          | Replication factor for `search.instance-contributor` topic.                                                                                                                           |
+| KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY              | 2                                                          | Custom number of kafka concurrent threads for consortium.instance message consuming.                                                                                                  |
+| KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS         | 50                                                         | Amount of partitions for `search.consortium.instance` topic.                                                                                                                          |
+| KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR | -                                                          | Replication factor for `search.consortium.instance` topic.                                                                                                                            |
+| KAFKA_SUBJECTS_CONCURRENCY                         | 2                                                          | Custom number of kafka concurrent threads for subject message consuming.                                                                                                              |
+| KAFKA_SUBJECTS_CONSUMER_PATTERN                    | (${folio.environment}\.)(.*\.)search\.instance-subject     | Custom subscription pattern for Kafka subject message consumers.                                                                                                                      |
+| KAFKA_SUBJECTS_TOPIC_PARTITIONS                    | 50                                                         | Amount of partitions for `search.instance-subject` topic.                                                                                                                             |
+| KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR            | -                                                          | Replication factor for `search.instance-subject` topic.                                                                                                                               |
+| KAFKA_CONSUMER_MAX_POLL_RECORDS                    | 200                                                        | Maximum number of records returned in a single call to poll().                                                                                                                        |
+| KAFKA_RETRY_INTERVAL_MS                            | 2000                                                       | Specifies time to wait before reattempting query.                                                                                                                                     |
+| KAFKA_RETRY_DELIVERY_ATTEMPTS                      | 6                                                          | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
+| INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS          | 3                                                          | Amount of retry attempts to delete instance subject resources.                                                                                                                        |
+| INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS      | 3                                                          | Amount of retry attempts to delete instance contributor resources.                                                                                                                    |
+| INDEXING_DATA_FORMAT                               | smile                                                      | Format for passing data to elasticsearch (json/smile)                                                                                                                                 |
+| INITIAL_LANGUAGES                                  | eng                                                        | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
+| MAX_SUPPORTED_LANGUAGES                            | 5                                                          | Provides the maximum number of supported languages                                                                                                                                    |
+| SYSTEM_USER_USERNAME                               | mod-search                                                 | Username for `mod-search` system user                                                                                                                                                 |
+| SYSTEM_USER_PASSWORD                               | -                                                          | Password for `mod-search` system user (not required for dev envs)                                                                                                                     |
+| OKAPI_URL                                          | -                                                          | OKAPI URL used to login system user, required                                                                                                                                         |
+| ENV                                                | folio                                                      | The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed |
+| SEARCH_BY_ALL_FIELDS_ENABLED                       | false                                                      | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
+| BROWSE_CN_INTERMEDIATE_VALUES_ENABLED              | true                                                       | Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)                                                         |
+| BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES           | true                                                       | Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)                                |
+| SCROLL_QUERY_SIZE                                  | 1000                                                       | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
+| STREAM_ID_RETRY_INTERVAL_MS                        | 1000                                                       | Specifies time to wait before reattempting query.                                                                                                                                     |
+| STREAM_ID_RETRY_ATTEMPTS                           | 3                                                          | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
+| STREAM_ID_CORE_POOL_SIZE                           | 2                                                          | The number of threads to keep in the pool, even if they are idle.                                                                                                                     |
+| STREAM_ID_MAX_POOL_SIZE                            | 2                                                          | The maximum number of threads to allow in the pool.                                                                                                                                   |
+| STREAM_ID_QUEUE_CAPACITY                           | 500                                                        | The capacity of the queue.                                                                                                                                                            |
+| CN_BROWSE_OPTIMIZATION_ENABLED                     | true                                                       | Defines if call-number browse optimization is enabled or not                                                                                                                          |
+| SEARCH_QUERY_TIMEOUT                               | 25s                                                        | The maximum time to wait for search query response                                                                                                                                    |
+| MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
+| SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -257,12 +285,15 @@ Spring boot properties can be overridden using the specified environment variabl
 one of the following approaches (see also the
 documentation [Spring Boot Externalized Configuration](https://docs.spring.io/spring-boot/docs/1.5.6.RELEASE/reference/html/boot-features-external-config.html)):
 
-1. Using the environment variable `SPRING_APPLICATION_JSON` (example: `SPRING_APPLICATION_JSON='{"foo":{"bar":"spam"}}'`)
-2. Using the system variables within the `JAVA_OPTIONS` (example: `JAVA_OPTIONS=-Xmx400m -Dlogging.level.org.folio.search=debug`)
+1. Using the environment variable `SPRING_APPLICATION_JSON` (
+   example: `SPRING_APPLICATION_JSON='{"foo":{"bar":"spam"}}'`)
+2. Using the system variables within the `JAVA_OPTIONS` (
+   example: `JAVA_OPTIONS=-Xmx400m -Dlogging.level.org.folio.search=debug`)
 
 ### Configuring connection to elasticsearch
 
 In order to configure connection to OpenSearch or Elasticsearch you have to provide following env variables:
+
 * `ELASTICSEARCH_URL` - URL to OpenSearch or Elasticsearch master node (e.g. http(s)://elasticsearch:9200);
 * `ELASTICSEARCH_USERNAME` - username of the user to connect to OpenSearch or Elasticsearch;
 * `ELASTICSEARCH_PASSWORD` - password for the user (see
@@ -300,17 +331,18 @@ x-okapi-token: [JWT_TOKEN]
 
 * `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
-will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
-equal to `true` in query will erase all the tenant data in mod-search.
-
+  will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
+  equal to `true` in query will erase all the tenant data in mod-search.
 
 ### Monitoring reindex process
 
 There is no end-to-end monitoring implemented yet, however it is possible to monitor it partially. In order to check
 how many records published to Kafka topic use inventory API:
+
 ```http
 GET [OKAPI_URL]/instance-storage/reindex/[reindex job id]
 ```
+
 _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
@@ -321,10 +353,12 @@ see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/curr
 
 ### CQL support
 
-We use CQL query for search queries, see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
+We use CQL query for search queries,
+see [documentation](https://github.com/folio-org/raml-module-builder#cql-contextual-query-language)
 for more details.
 
 In mod-search there are two main types of searchable fields:
+
 1. _Full text_ capable fields (aka. multi-lang fields) - analyzed and preprocessed fields;
 2. _Term_ fields (keywords, bool, date fields, etc.) - non-analyzed fields.
 
@@ -333,16 +367,16 @@ In mod-search there are two main types of searchable fields:
 Depending on field type, CQL operators will be handled in different ways or not supported at all.
 Here is table of supported operators.
 
-| Operator   | Full text usage                | Term field usage               | Description                                                                                                                                        |
-|:-----------|:-------------------------------|:-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `all`      | `title` `all` `"semantic web"` | N/A                            | Matches a resource that has both `semantic` and `web` in the `title` field                                                                         |
-| `any`      | `title` `any` `"semantic web"` | N/A                            | Matches a resource that has either of/both `semantic` or `web` in the `title` field                                                                |
-| `=`        | `title = "semantic web"`       | `hrid = "hr10"`                | Has the same effect as `all` for FT fields and is the same as `==` for term fields                                                                 |
-| `==`       | `title == "semantic web"`      | `hrid == "hr10"`               | Phrase match for FT fields (i.e. matches resources that contains both `semantic` and `web` exactly in the same order), exact match for term fields |
-| `<>`       | `title <> "semantic web"`      | `hrid <> "hr10"`               | Matches resources that are not equal to a term                                                                                                     |
-| `<`, `>`   | N/A                            | `createdDate > "2020-12-12"`   | Matches resources that has the property greater/less than the limit                                                                                |
-| `<=`, `>=` | N/A                            | `createdDate <= "2020-12-12"`  | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
-| `*`        | `title="mode* europe*"`        | `hrid = "hr10*"`               | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
+| Operator   | Full text usage                | Term field usage              | Description                                                                                                                                        |
+|:-----------|:-------------------------------|:------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `all`      | `title` `all` `"semantic web"` | N/A                           | Matches a resource that has both `semantic` and `web` in the `title` field                                                                         |
+| `any`      | `title` `any` `"semantic web"` | N/A                           | Matches a resource that has either of/both `semantic` or `web` in the `title` field                                                                |
+| `=`        | `title = "semantic web"`       | `hrid = "hr10"`               | Has the same effect as `all` for FT fields and is the same as `==` for term fields                                                                 |
+| `==`       | `title == "semantic web"`      | `hrid == "hr10"`              | Phrase match for FT fields (i.e. matches resources that contains both `semantic` and `web` exactly in the same order), exact match for term fields |
+| `<>`       | `title <> "semantic web"`      | `hrid <> "hr10"`              | Matches resources that are not equal to a term                                                                                                     |
+| `<`, `>`   | N/A                            | `createdDate > "2020-12-12"`  | Matches resources that has the property greater/less than the limit                                                                                |
+| `<=`, `>=` | N/A                            | `createdDate <= "2020-12-12"` | Matches resources that has the property greater or eq/less or eq than the limit                                                                    |
+| `*`        | `title="mode* europe*"`        | `hrid = "hr10*"`              | Allow to search by wildcard, _**NOT recommended to use for FT fields because has low performance, use full-text capabilities instead**_            |
 
 #### CQL query modifiers
 
@@ -353,8 +387,10 @@ CQL operators could have modifiers that change search behaviour
 | `==`     | `string` | `title ==/string "semantic web"` | Exact match for full text fields |
 
 #### Consortium support
+
 Consortium feature is defined automatically at runtime by calling /user-tenants endpoint.
 Consortium feature on module enable is defined by 'centralTenantId' tenant parameter. Example:
+
 ```json
 {
   "module_to": "mod-sample-1.3.1",
@@ -409,12 +445,16 @@ request parameters:
 
 ##### Matching all records
 
-A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest option)
-or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex query.
+A search matching all records in the target index can be executed with a `cql.allRecords=1` (CQL standard, the fastest
+option)
+or a `id=*` (slower option, check all documents in index) query. They can be used alone or as part of a more complex
+query.
 Examples:
 
-- `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does not contain `Smith` as a word.
-- `id=* NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does not contain `Smith` as a word.
+- `cql.allRecords=1 NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does
+  not contain `Smith` as a word.
+- `id=* NOT contributors=Smith sortBy title/sort.ascending` matches all records where contributors name does not
+  contain `Smith` as a word.
 
 ##### Matching undefined or empty values
 
@@ -435,12 +475,14 @@ Search by all feature is optional and disabled by default. However, it can be en
 following HTTP request:
 
 `POST /search/config/features`
+
 ```json
 {
   "feature": "search.all.fields",
   "enabled": true
 }
 ```
+
 Also, search by all fields can be enabled globally by passing to mod-search service following ENV variable:
 
 ```
@@ -456,7 +498,6 @@ does not produce any values, so the following search options will return an empt
 | `cql.allItems`     | full-text or term | `cql.allItems all "book"`        | Matches instances that have given text in item field values                       |
 | `cql.allHoldings`  | full-text or term | `cql.allHoldings all "it001"`    | Matches instances that have given text in holding field values                    |
 | `cql.allInstances` | full-text or term | `cql.allInstances any "1234567"` | Matches instances that have given text in instance field values                   |
-
 
 ##### Instance search options
 
@@ -699,17 +740,19 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 
 ##### Subjects facets
 
-| Option                  | Type | Description                            |
-|:------------------------|:----:|:---------------------------------------|
-| `instances.tenantId`    | term | Requests a tenantId facet              |
-| `instances.shared`      | term | Requests a shared/local facet          |
+| Option               | Type | Description                   |
+|:---------------------|:----:|:------------------------------|
+| `instances.tenantId` | term | Requests a tenantId facet     |
+| `instances.shared`   | term | Requests a shared/local facet |
 
 #### Sorting results
 
 The default sorting is by relevancy. The `sortBy` clause is used to define sorting, for example:
+
 ```
 title all "semantic web" sortBy title/sort.descending - sort by title in descending order
 ```
+
 In case where options are similar, secondary sort is used
 
 ##### Instance sort options
@@ -731,12 +774,12 @@ In case where options are similar, secondary sort is used
 
 ### Browse API
 
-| METHOD | URL                                               | DESCRIPTION                                                                                            |
-|:-------|:--------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
-| GET    | `/browse/subjects/instances`                      | Browse by instance's subjects                                                                          |
-| GET    | `/browse/contributors/instances`                  | Browse by instance's contributors                                                                      |
-| GET    | `/browse/call-numbers/instances`                  | Browse by instance's call-numbers. [call number browsing](doc/browsing.md#call-number-browsing)        |
-| GET    | `/browse/authorities`                             | Browse by authority's headings                                                                         |
+| METHOD | URL                              | DESCRIPTION                                                                                     |
+|:-------|:---------------------------------|:------------------------------------------------------------------------------------------------|
+| GET    | `/browse/subjects/instances`     | Browse by instance's subjects                                                                   |
+| GET    | `/browse/contributors/instances` | Browse by instance's contributors                                                               |
+| GET    | `/browse/call-numbers/instances` | Browse by instance's call-numbers. [call number browsing](doc/browsing.md#call-number-browsing) |
+| GET    | `/browse/authorities`            | Browse by authority's headings                                                                  |
 
 **Query parameters**
 
@@ -749,7 +792,8 @@ In case where options are similar, secondary sort is used
 | callNumberType        | string  | -             | lc, dewey, nlm, sudoc, other, local | Filters the result of call-number browse by it's type                                |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
-only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
+only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal
+to `true`.
 For call-number browsing check the query syntax [here](doc/browsing.md#query-syntax)
 
 ### Resource IDs streaming API
@@ -761,23 +805,28 @@ For call-number browsing check the query syntax [here](doc/browsing.md#query-syn
 | GET    | `/search/resources/jobs/{jobId}/ids` | Retrieve result of the job, that contains resource IDs     |
 
 The process of retrieving ids has two steps:
+
 - Create a job with a CQL query
 - Retrieve ids when a job is completed
 
 #### Create Job
+
 Send a POST request to create a Job
 `POST /search/resources/jobs`
+
 ```json
 {
-  "query":"id=*",
+  "query": "id=*",
   "entityType": "AUTHORITY"
 }
 ```
+
 It is possible to check job status by jobs Id.
 
 `GET /search/resources/jobs/{jobId}`
 
 **Response**
+
 ```json
 {
   "id": "36233d1c-e4c1-4403-a6ee-1d4b5d460dc5",
@@ -794,9 +843,11 @@ When the job is COMPLETED, it is possible to retrieve ids by job id
 
 `GET /search/resources/jobs/{jobId}/ids`
 
-After retrieving ids, job should change status to "DEPRECATED". If there are no completed job with prepared ids, client can't receive ids by query.
+After retrieving ids, job should change status to "DEPRECATED". If there are no completed job with prepared ids, client
+can't receive ids by query.
 
 ## Additional Information
+
 ### Issue tracker
 
 See project [MSEARCH](https://issues.folio.org/browse/MSEARCH)

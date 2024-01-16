@@ -7,21 +7,37 @@
       "version": "0.6",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": [ "search.index.indices.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.indices.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/mappings",
-          "permissionsRequired": [ "search.index.mappings.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.mappings.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/records",
-          "permissionsRequired": [ "search.index.records.collection.post" ],
+          "permissionsRequired": [
+            "search.index.records.collection.post"
+          ],
           "modulePermissions": [
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
@@ -30,9 +46,13 @@
           ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/inventory/reindex",
-          "permissionsRequired": [ "search.index.inventory.reindex.post" ],
+          "permissionsRequired": [
+            "search.index.inventory.reindex.post"
+          ],
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
@@ -40,10 +60,16 @@
           ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/index/settings",
-          "permissionsRequired": [ "search.index.settings.item.put" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.settings.item.put"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -52,34 +78,64 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances",
-          "permissionsRequired": [ "search.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/authorities",
-          "permissionsRequired": [ "search.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/{recordType}/facets",
-          "permissionsRequired": [ "search.facets.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.facets.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [ "search.instances.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/holdings/ids",
-          "permissionsRequired": [ "search.holdings.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.holdings.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -88,22 +144,40 @@
       "version": "0.3",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}/ids",
-          "permissionsRequired": [ "search.resources.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}",
-          "permissionsRequired": [ "search.resources.ids.jobs.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/resources/jobs",
-          "permissionsRequired": [ "search.resources.ids.jobs.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -112,28 +186,52 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/call-numbers/instances",
-          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.call-numbers.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/subjects/instances",
-          "permissionsRequired": [ "browse.subjects.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.subjects.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/contributors/instances",
-          "permissionsRequired": [ "browse.contributors.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.contributors.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/authorities",
-          "permissionsRequired": [ "browse.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -142,44 +240,76 @@
       "version": "0.2",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.item.post" ]
+          "permissionsRequired": [
+            "search.config.languages.item.post"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.collection.get" ]
+          "permissionsRequired": [
+            "search.config.languages.collection.get"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.put" ]
+          "permissionsRequired": [
+            "search.config.languages.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.delete" ]
+          "permissionsRequired": [
+            "search.config.languages.item.delete"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.collection.get" ]
+          "permissionsRequired": [
+            "search.config.features.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.item.post" ]
+          "permissionsRequired": [
+            "search.config.features.item.post"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.put" ]
+          "permissionsRequired": [
+            "search.config.features.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.delete" ]
+          "permissionsRequired": [
+            "search.config.features.item.delete"
+          ]
         }
       ]
     },
@@ -189,13 +319,16 @@
       "interfaceType": "system",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/_/tenant",
           "modulePermissions": [
             "user-tenants.collection.get",
             "users.collection.get",
             "users.item.post",
             "login.item.post",
+            "login.item.delete",
             "perms.users.get",
             "perms.users.item.post",
             "perms.users.assign.immutable",
@@ -209,13 +342,16 @@
           ]
         },
         {
-          "methods": [ "DELETE", "GET" ],
+          "methods": [
+            "DELETE",
+            "GET"
+          ],
           "pathPattern": "/_/tenant/{id}"
         }
       ]
     }
   ],
-  "optional":[
+  "optional": [
     {
       "id": "user-tenants",
       "version": "1.0"
@@ -343,7 +479,9 @@
       "permissionName": "search.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options by record type",
       "description": "Returns facets for a query for given filter options by record type",
-      "replaces": ["search.instances.facets.collection.get"]
+      "replaces": [
+        "search.instances.facets.collection.get"
+      ]
     },
     {
       "permissionName": "search.instances.ids.collection.get",
@@ -397,31 +535,307 @@
     "dockerArgs": {
       "HostConfig": {
         "Memory": 1073741824,
-        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+        "PortBindings": {
+          "8081/tcp": [
+            {
+              "HostPort": "%p"
+            }
+          ]
+        }
       }
     },
     "env": [
-      { "name": "ENV", "value": "folio" },
-      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=85.0" },
-      { "name": "KAFKA_HOST", "value": "kafka" },
-      { "name": "KAFKA_PORT", "value": "9092" },
-      { "name": "KAFKA_SECURITY_PROTOCOL", "value": "PLAINTEXT" },
-      { "name": "KAFKA_SSL_KEYSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_KEYSTORE_PASSWORD", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD", "value": "" },
-      { "name": "ELASTICSEARCH_URL", "value": "http://elasticsearch:9200" },
-      { "name": "ELASTICSEARCH_USERNAME", "value": "elastic" },
-      { "name": "ELASTICSEARCH_PASSWORD", "value": "s3cret" },
-      { "name": "DB_HOST", "value": "postgres" },
-      { "name": "DB_PORT", "value": "5432" },
-      { "name": "DB_USERNAME", "value": "folio_admin" },
-      { "name": "DB_PASSWORD", "value": "folio_admin" },
-      { "name": "DB_DATABASE", "value": "okapi_modules" },
-      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
-      { "name": "DB_CHARSET", "value": "UTF-8" },
-      { "name": "DB_MAXPOOLSIZE", "value": "5" },
-      { "name": "INITIAL_LANGUAGES", "value": "eng" }
+      {
+        "name": "ENV",
+        "value": "folio",
+        "description": "The logical name of the deployment, must be unique across all environments using the same shared Kafka/Elasticsearch clusters, `a-z (any case)`, `0-9`, `-`, `_` symbols only allowed"
+      },
+      {
+        "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=85.0"
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": "kafka",
+        "description": "Kafka broker hostname"
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": "9092",
+        "description": "Kafka broker port"
+      },
+      {
+        "name": "KAFKA_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT)"
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_LOCATION",
+        "value": "",
+        "description": "The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client."
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_PASSWORD",
+        "value": "",
+        "description": "The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured."
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_LOCATION",
+        "value": "",
+        "description": "The location of the Kafka trust store file."
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD",
+        "value": "",
+        "description": "The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled."
+      },
+      {
+        "name": "KAFKA_EVENTS_CONSUMER_PATTERN",
+        "value": "(folio\\.)(.*\\.)inventory\\.(instance|holdings-record|item|bound-with)",
+        "description": "Custom subscription pattern for Kafka consumers."
+      },
+      {
+        "name": "KAFKA_EVENTS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for message consuming."
+      },
+      {
+        "name": "KAFKA_AUTHORITIES_CONSUMER_PATTERN",
+        "value": "(folio\\.)(.*\\.)authorities\\.authority",
+        "description": "Custom subscription pattern for Kafka authority message consumers."
+      },
+      {
+        "name": "KAFKA_AUTHORITIES_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for authority message consuming."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for contributor message consuming."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN",
+        "value": "(folio\\.)(.*\\.)search\\.instance-contributor",
+        "description": "Custom subscription pattern for Kafka contributor message consumers."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.instance-contributor` topic."
+      },
+      {
+        "name": "KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.instance-contributor` topic."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for consortium.instance message consuming."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.consortium.instance` topic."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.consortium.instance` topic."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for subject message consuming."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_CONSUMER_PATTERN",
+        "value": "(folio\\.)(.*\\.)search\\.instance-subject",
+        "description": "Custom subscription pattern for Kafka subject message consumers."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_TOPIC_PARTITIONS",
+        "value": "50",
+        "description": "Amount of partitions for `search.instance-subject` topic."
+      },
+      {
+        "name": "KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.instance-subject` topic."
+      },
+      {
+        "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
+        "value": "200",
+        "description": "Maximum number of records returned in a single call to poll()."
+      },
+      {
+        "name": "KAFKA_RETRY_INTERVAL_MS",
+        "value": "2000",
+        "description": "Specifies time to wait before reattempting query."
+      },
+      {
+        "name": "KAFKA_RETRY_DELIVERY_ATTEMPTS",
+        "value": "6",
+        "description": "Specifies how many queries attempt to perform after the first one failed."
+      },
+      {
+        "name": "ELASTICSEARCH_URL",
+        "value": "http://elasticsearch:9200",
+        "description": "Elasticsearch URL"
+      },
+      {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic",
+        "description": "Elasticsearch username (not required for dev envs)"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret",
+        "description": "Elasticsearch password (not required for dev envs)"
+      },
+      {
+        "name": "ELASTICSEARCH_COMPRESSION_ENABLED",
+        "value": "true",
+        "description": "Specify if Elasticsearch request/response compression enabled"
+      },
+      {
+        "name": "DB_HOST",
+        "value": "postgres",
+        "description": "Postgres hostname"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432",
+        "description": "Postgres port"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "postgres",
+        "description": "Postgres username"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "postgres",
+        "description": "Postgres username password"
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": "okapi_modules",
+        "description": "Postgres database name"
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": "60000"
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8"
+      },
+      {
+        "name": "DB_MAXPOOLSIZE",
+        "value": "5"
+      },
+      {
+        "name": "INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Amount of retry attempts to delete instance subject resources."
+      },
+      {
+        "name": "INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Amount of retry attempts to delete instance contributor resources."
+      },
+      {
+        "name": "INDEXING_DATA_FORMAT",
+        "value": "smile",
+        "description": "Format for passing data to elasticsearch (json/smile)"
+      },
+      {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng",
+        "description": "Comma separated list of languages for multilang fields"
+      },
+      {
+        "name": "MAX_SUPPORTED_LANGUAGES",
+        "value": "5",
+        "description": "Provides the maximum number of supported languages"
+      },
+      {
+        "name": "SYSTEM_USER_USERNAME",
+        "value": "mod-search",
+        "description": "Username for `mod-search` system user"
+      },
+      {
+        "name": "SYSTEM_USER_PASSWORD",
+        "value": "",
+        "description": "Password for `mod-search` system user (not required for dev envs)"
+      },
+      {
+        "name": "OKAPI_URL",
+        "value": "",
+        "description": "OKAPI URL used to login system user, required"
+      },
+      {
+        "name": "SEARCH_BY_ALL_FIELDS_ENABLED",
+        "value": "false",
+        "description": "Specifies if globally search by all field values must be enabled or not (tenant can override this setting)"
+      },
+      {
+        "name": "BROWSE_CN_INTERMEDIATE_VALUES_ENABLED",
+        "value": "true",
+        "description": "Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)"
+      },
+      {
+        "name": "BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES",
+        "value": "true",
+        "description": "Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)"
+      },
+      {
+        "name": "SCROLL_QUERY_SIZE",
+        "value": "1000",
+        "description": "The number of records to be loaded by each scroll query. 10_000 is a max value"
+      },
+      {
+        "name": "STREAM_ID_RETRY_INTERVAL_MS",
+        "value": "1000",
+        "description": "Specifies time to wait before reattempting query."
+      },
+      {
+        "name": "STREAM_ID_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Specifies how many queries attempt to perform after the first one failed."
+      },
+      {
+        "name": "STREAM_ID_CORE_POOL_SIZE",
+        "value": "2",
+        "description": "The number of threads to keep in the pool, even if they are idle."
+      },
+      {
+        "name": "STREAM_ID_MAX_POOL_SIZE",
+        "value": "2",
+        "description": "The maximum number of threads to allow in the pool."
+      },
+      {
+        "name": "STREAM_ID_QUEUE_CAPACITY",
+        "value": "500",
+        "description": "The capacity of the queue."
+      },
+      {
+        "name": "CN_BROWSE_OPTIMIZATION_ENABLED",
+        "value": "true",
+        "description": "Defines if call-number browse optimization is enabled or not"
+      },
+      {
+        "name": "SEARCH_QUERY_TIMEOUT",
+        "value": "25s",
+        "description": "The maximum time to wait for search query response"
+      },
+      {
+        "name": "MAX_BROWSE_REQUEST_OFFSET",
+        "value": "500",
+        "description": "The maximum elasticsearch query offset for additional requests on browse around"
+      }
     ]
   }
 }

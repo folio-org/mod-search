@@ -37,11 +37,13 @@
     <folio-spring-support.version>7.3.0-SNAPSHOT</folio-spring-support.version>
     <folio-service-tools.version>3.1.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.6.0</folio-isbn-utils.version>
-    <folio-cql2pgjson.version>35.1.0</folio-cql2pgjson.version>
+    <folio-cql2pgjson.version>35.1.1</folio-cql2pgjson.version>
     <opensearch.version>2.9.0</opensearch.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <spring-kafka.version>3.0.12</spring-kafka.version>
-    <apache-commons-io.version>2.15.0</apache-commons-io.version>
+    <!-- bump kafka.version to fix snappy-java vulnerabilities;
+         remove <kafka.version> when using spring-boot-starter-parent >= 3.2 -->
+    <kafka.version>3.5.1</kafka.version>
+    <apache-commons-io.version>2.15.1</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.30</lombok.version>
@@ -49,20 +51,20 @@
     <streamex.version>0.8.2</streamex.version>
 
     <!-- Test dependencies versions -->
-    <testcontainers.version>1.19.1</testcontainers.version>
+    <testcontainers.version>1.19.3</testcontainers.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>7.0.1</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.2.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
-    <maven-build-helper-plugin.version>3.4.0</maven-build-helper-plugin.version>
+    <maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
-    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.2.1</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
+    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
   </properties>
 
@@ -422,7 +424,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>10.12.4</version>
+            <version>10.12.6</version>
           </dependency>
         </dependencies>
         <executions>

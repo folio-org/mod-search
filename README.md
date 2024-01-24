@@ -273,6 +273,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | CN_BROWSE_OPTIMIZATION_ENABLED                     | true                                                       | Defines if call-number browse optimization is enabled or not                                                                                                                          |
 | SEARCH_QUERY_TIMEOUT                               | 25s                                                        | The maximum time to wait for search query response                                                                                                                                    |
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
+| SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

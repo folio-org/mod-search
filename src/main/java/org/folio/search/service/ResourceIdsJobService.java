@@ -2,8 +2,6 @@ package org.folio.search.service;
 
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,12 +18,9 @@ import org.springframework.stereotype.Service;
 public class ResourceIdsJobService {
 
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final TenantScopedExecutionService tenantExecutionService;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
-
-  private final ExecutorService executor = Executors.newCachedThreadPool();
 
   public ResourceIdsJob getJobById(String id) {
     var jobEntity = consortiumTenantExecutor.execute(() -> jobRepository.getReferenceById(id));

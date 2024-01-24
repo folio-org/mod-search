@@ -9,6 +9,7 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +24,9 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.spring.client.AuthnClient;
+import org.folio.spring.client.PermissionsClient;
+import org.folio.spring.client.UsersClient;
 import org.folio.spring.test.type.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
@@ -33,12 +37,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 @IntegrationTest
 class SearchInstanceIT extends BaseIntegrationTest {
 
   @BeforeAll
-  static void prepare() {
+  static void prepare(@Autowired ApplicationContext applicationContext) {
+    assertThat(applicationContext.getBean(AuthnClient.class), notNullValue());
+    assertThat(applicationContext.getBean(UsersClient.class), notNullValue());
+    assertThat(applicationContext.getBean(PermissionsClient.class), notNullValue());
+
     setUpTenant(Instance.class, getSemanticWebAsMap());
   }
 

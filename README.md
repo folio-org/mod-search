@@ -245,6 +245,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | STREAM_ID_RETRY_INTERVAL_MS                        | 1000                            | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                           | 3                               | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
 | CN_BROWSE_OPTIMIZATION_ENABLED                     | true                            | Defines if call-number browse optimization is enabled or not                                                                                                                          |
+| SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

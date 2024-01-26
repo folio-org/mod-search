@@ -37,7 +37,7 @@ import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
 import org.opensearch.OpenSearchException;
-import org.opensearch.index.Index;
+import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -12,9 +12,9 @@ import org.opensearch.action.admin.cluster.storedscripts.GetStoredScriptRequest;
 import org.opensearch.action.admin.cluster.storedscripts.PutStoredScriptRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.rest.RestStatus;
+import org.opensearch.core.common.bytes.BytesReference;
+import org.opensearch.core.rest.RestStatus;
 import org.springframework.stereotype.Repository;
 
 @Log4j2

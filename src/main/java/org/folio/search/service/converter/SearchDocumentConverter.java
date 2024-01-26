@@ -30,7 +30,7 @@ import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.search.utils.SearchUtils;
-import org.opensearch.common.bytes.BytesReference;
+import org.opensearch.core.common.bytes.BytesReference;
 import org.springframework.stereotype.Component;
 
 @Log4j2

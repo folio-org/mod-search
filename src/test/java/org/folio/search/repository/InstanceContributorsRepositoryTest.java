@@ -44,7 +44,7 @@ import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.common.bytes.BytesArray;
+import org.opensearch.core.common.bytes.BytesArray;
 import org.opensearch.script.Script;
 
 @UnitTest

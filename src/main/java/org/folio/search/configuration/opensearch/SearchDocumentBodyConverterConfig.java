@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
-import org.opensearch.common.bytes.BytesReference;
+import org.opensearch.core.common.bytes.BytesReference;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -29,7 +29,7 @@ import org.folio.search.exception.SearchServiceException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.types.ErrorCode;
 import org.opensearch.OpenSearchException;
-import org.opensearch.index.Index;
+import org.opensearch.core.index.Index;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

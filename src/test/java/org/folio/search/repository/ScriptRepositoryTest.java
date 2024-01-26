@@ -22,7 +22,7 @@ import org.opensearch.action.admin.cluster.storedscripts.GetStoredScriptResponse
 import org.opensearch.action.admin.cluster.storedscripts.PutStoredScriptRequest;
 import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.rest.RestStatus;
+import org.opensearch.core.rest.RestStatus;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

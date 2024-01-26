@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
-import org.opensearch.common.bytes.BytesArray;
+import org.opensearch.core.common.bytes.BytesArray;
 import org.springframework.stereotype.Component;
 
 /**

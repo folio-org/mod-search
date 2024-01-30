@@ -29,8 +29,9 @@ public class UniformTitleProcessor implements FieldProcessor<Instance, Set<Strin
     var uniformTitleIds = referenceDataService.fetchReferenceData(ALTERNATIVE_TITLE_TYPES, CqlQueryParam.NAME,
       uniformTitleTypeNames);
     if (uniformTitleIds.isEmpty()) {
-      log.warn("Failed to provide uniform titles [processor: {}, resourceId: '{}']",
+      log.debug("Instance doesn't have any 'Uniform Title' [processor: {}, resourceId: '{}']",
         this.getClass().getSimpleName(), instance.getId());
+      return Set.of();
     }
 
     return toStreamSafe(instance.getAlternativeTitles())

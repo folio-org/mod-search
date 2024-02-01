@@ -1,3 +1,9 @@
+## v3.1.0 2024-02-01
+### Features
+* Make system user usage optional ([MSEARCH-631](https://issues.folio.org/browse/MSEARCH-631))
+
+---
+
 ## v3.0.5 2023-12-08
 ### Bug fixes
 * Trim search term for typed browse ([MSEARCH-643](https://issues.folio.org/browse/MSEARCH-643))

@@ -1,4 +1,4 @@
-## v3.1.0 In progress
+## v3.2.0 In progress
 ### Breaking changes
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
 

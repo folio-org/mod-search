@@ -22,6 +22,7 @@
 * Fix clearing following filters in FacetService: items.effectiveLocationId, holdings.tenantId ([MSEARCH-620](https://issues.folio.org/browse/MSEARCH-620))
 * Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))
 * Fix shadow instance's subjects/contributors indexing ([MSEARCH-647](https://issues.folio.org/browse/MSEARCH-647))
+* Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

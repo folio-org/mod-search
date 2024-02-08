@@ -36,6 +36,9 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
+    hikari:
+      data-source-properties:
+        reWriteBatchedInserts: true
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
   cache:
@@ -62,6 +65,7 @@ folio:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
       browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
+      browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:false}
     indexing:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}

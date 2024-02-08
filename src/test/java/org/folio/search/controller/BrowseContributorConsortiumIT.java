@@ -37,7 +37,7 @@ import org.folio.search.domain.dto.InstanceContributorBrowseResult;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.SearchUtils;
-import org.folio.spring.test.type.IntegrationTest;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

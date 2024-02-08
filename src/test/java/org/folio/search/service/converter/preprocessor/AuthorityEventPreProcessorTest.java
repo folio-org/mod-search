@@ -31,7 +31,7 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.TestUtils;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +60,7 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive() {
     var authority = fullAuthorityRecord();
-    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
+    var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
       event("personalName0", expectedAuthorityAsMap(authority, "personalName")),
       event("sftPersonalName0", expectedAuthorityAsMap(authority, "sftPersonalName[0]")),
@@ -87,7 +87,7 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive_onlyPersonalIsPopulated() {
     var authority = new Authority().id(RESOURCE_ID).personalName("a personal name");
-    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
+    var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(
       event("personalName0", expectedAuthorityAsMap(authority, "personalName"))));
   }
@@ -96,7 +96,7 @@ class AuthorityEventPreProcessorTest {
   void process_positive_reindexEvent() {
     var authority = new Authority().id(RESOURCE_ID).uniformTitle("uniform title");
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(authority)).type(REINDEX);
-    var actual = eventPreProcessor.process(event);
+    var actual = eventPreProcessor.preProcess(event);
     assertThat(actual).isEqualTo(List.of(
       event("uniformTitle0", expectedAuthorityAsMap(authority, "uniformTitle")).type(REINDEX)));
   }
@@ -105,7 +105,7 @@ class AuthorityEventPreProcessorTest {
   void process_positive_onlyCommonFieldsArePopulated() {
     var authority = new Authority().id(RESOURCE_ID).subjectHeadings("a subject headings")
       .identifiers(List.of(new Identifiers().value("an authority identifier")));
-    var actual = eventPreProcessor.process(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
+    var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority))));
   }
 
@@ -113,7 +113,7 @@ class AuthorityEventPreProcessorTest {
   void process_positive_deleteEvent() {
     var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").corporateNameTitle("corporate");
     var event = resourceEvent(AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(oldAuthority));
-    var actual = eventPreProcessor.process(event);
+    var actual = eventPreProcessor.preProcess(event);
     assertThat(actual).isEqualTo(List.of(deleteEvent("personalName0"), deleteEvent("corporateNameTitle0")));
   }
 
@@ -124,7 +124,7 @@ class AuthorityEventPreProcessorTest {
     var oldAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal").uniformTitle("uniform title")
       .saftCorporateNameTitle(List.of("saft corp 1", "saft corp 2"));
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(UPDATE).old(toMap(oldAuthority));
-    var actual = eventPreProcessor.process(event);
+    var actual = eventPreProcessor.preProcess(event);
     assertThat(actual).isEqualTo(List.of(
       event("personalNameTitle0", expectedAuthorityAsMap(newAuthority, "personalNameTitle")),
       event("corporateNameTitle0", expectedAuthorityAsMap(newAuthority, "corporateNameTitle")),
@@ -140,7 +140,7 @@ class AuthorityEventPreProcessorTest {
 
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
 
-    var actual = eventPreProcessor.process(event);
+    var actual = eventPreProcessor.preProcess(event);
     assertThat(actual).isEqualTo(List.of(
       event("personalNameTitle0", expectedAuthorityAsMap(newAuthority, true, "personalNameTitle"))));
   }

@@ -37,7 +37,7 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -134,7 +134,7 @@ class MultiTenantSearchDocumentConverterTest {
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescriptionWithPreProcessor()));
     when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
     when(eventPreProcessorBeans.get(CUSTOM_PRE_PROCESSOR)).thenReturn(customEventPreProcessor);
-    when(customEventPreProcessor.process(event)).thenReturn(List.of(event));
+    when(customEventPreProcessor.preProcess(event)).thenReturn(List.of(event));
     when(executionService.execute(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
 

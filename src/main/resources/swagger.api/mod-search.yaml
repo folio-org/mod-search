@@ -704,6 +704,7 @@ components:
           - search.all.fields
           - browse.cn.intermediate.values
           - browse.cn.intermediate.remove.duplicates
+          - browse.classifications
     x-okapi-tenant-header:
       name: x-okapi-tenant
       in: header

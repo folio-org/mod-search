@@ -28,7 +28,7 @@ import org.folio.search.repository.FeatureConfigRepository;
 import org.folio.search.service.FeatureConfigServiceTest.TestContextConfiguration;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -21,7 +21,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

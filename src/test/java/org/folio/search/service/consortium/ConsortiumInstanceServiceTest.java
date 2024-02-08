@@ -28,7 +28,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

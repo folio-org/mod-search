@@ -160,6 +160,10 @@
           "classificationNumber": {
             "type": "string",
             "description": "Classification (e.g. classification scheme, classification schedule)"
+          },
+          "classificationTypeId": {
+            "type": "string",
+            "description": "Classification type ID"
           }
         }
       }

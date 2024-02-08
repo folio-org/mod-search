@@ -6,7 +6,7 @@ import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 
 import java.util.List;
 import org.folio.search.model.client.CqlQueryParam;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest

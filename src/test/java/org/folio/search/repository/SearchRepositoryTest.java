@@ -34,7 +34,7 @@ import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.utils.SearchUtils;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

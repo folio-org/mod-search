@@ -28,7 +28,7 @@ import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.spring.integration.XOkapiHeaders;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

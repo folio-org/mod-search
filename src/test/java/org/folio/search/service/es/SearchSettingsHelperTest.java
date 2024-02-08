@@ -11,7 +11,7 @@ import org.apache.commons.lang3.SerializationException;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

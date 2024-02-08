@@ -26,7 +26,7 @@ import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.service.metadata.ResourceDescriptionServiceTest.TestContextConfiguration;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.TestUtils;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

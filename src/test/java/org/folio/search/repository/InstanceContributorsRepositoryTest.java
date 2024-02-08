@@ -29,7 +29,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

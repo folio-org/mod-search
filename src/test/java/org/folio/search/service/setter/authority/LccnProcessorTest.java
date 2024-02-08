@@ -18,7 +18,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

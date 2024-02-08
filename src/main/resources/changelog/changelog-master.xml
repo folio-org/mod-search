@@ -7,4 +7,5 @@
   <include file="changes/initial_schema.xml" relativeToChangelogFile="true"/>
   <include file="changes/v2.1/change_resource_ids_job_query_type.xml" relativeToChangelogFile="true"/>
   <include file="changes/v3.0/create_consortium_instance.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v3.2/create_instance_classification_table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

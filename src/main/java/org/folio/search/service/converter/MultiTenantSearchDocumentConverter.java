@@ -78,7 +78,7 @@ public class MultiTenantSearchDocumentConverter {
       .map(ResourceDescription::getIndexingConfiguration)
       .map(ResourceIndexingConfiguration::getEventPreProcessor)
       .map(eventPreProcessorBeans::get)
-      .map(eventPreProcessor -> eventPreProcessor.process(event))
+      .map(eventPreProcessor -> eventPreProcessor.preProcess(event))
       .map(Collection::stream)
       .orElseGet(() -> Stream.of(event));
   }

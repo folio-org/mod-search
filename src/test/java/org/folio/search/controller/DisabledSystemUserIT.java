@@ -11,7 +11,7 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.PermissionsClient;
 import org.folio.spring.client.UsersClient;
-import org.folio.spring.test.type.IntegrationTest;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

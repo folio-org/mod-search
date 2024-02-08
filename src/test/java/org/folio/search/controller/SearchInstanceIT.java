@@ -27,7 +27,7 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.PermissionsClient;
 import org.folio.spring.client.UsersClient;
-import org.folio.spring.test.type.IntegrationTest;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -175,6 +175,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   private static Instance removeUnexpectedProperties(Instance instance) {
     instance.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
+    instance.getClassifications().forEach(c -> c.setClassificationTypeId(null));
     instance.setTenantId(null);
     instance.setShared(null);
     return instance.staffSuppress(false).discoverySuppress(false).items(null).holdings(null);

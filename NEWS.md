@@ -12,6 +12,7 @@
 * Update LccnProcessor to populate lccn field with only "LCCN" ([MSEARCH-630](https://issues.folio.org/browse/MSEARCH-630))
 * Make maximum offset for additional elasticsearch request on browse configurable ([MSEARCH-641](https://issues.folio.org/browse/MSEARCH-641))
 * Make system user usage optional ([MSEARCH-631](https://issues.folio.org/browse/MSEARCH-631))
+* Prepare and populate database for classification browse ([MSEARCH-667](https://issues.folio.org/browse/MSEARCH-667))
 
 
 ### Bug fixes

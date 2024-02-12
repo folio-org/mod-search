@@ -48,7 +48,7 @@ import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.service.ResourceService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.service.SystemUserScopedExecutionService;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

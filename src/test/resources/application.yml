@@ -18,6 +18,9 @@ spring:
     password: s3cret
     compression-enabled: false
   datasource:
+    hikari:
+      data-source-properties:
+        reWriteBatchedInserts: true
     username: folio_admin
     password: password
   liquibase:
@@ -47,6 +50,7 @@ folio:
       search-all-fields: false
       browse-cn-intermediate-values: true
       browse-cn-intermediate-remove-duplicates: true
+      browse-classifications: true
     indexing:
       instance-subjects:
         retry-attempts: 3

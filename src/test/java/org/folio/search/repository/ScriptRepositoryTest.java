@@ -11,7 +11,7 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import org.folio.search.exception.SearchOperationException;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

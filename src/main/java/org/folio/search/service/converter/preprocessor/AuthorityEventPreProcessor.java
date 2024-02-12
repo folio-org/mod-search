@@ -65,7 +65,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
    * @return list with divided authority event objects
    */
   @Override
-  public List<ResourceEvent> process(ResourceEvent event) {
+  public List<ResourceEvent> preProcess(ResourceEvent event) {
     log.debug("process:: by [id: {}, tenant: {}, resourceType: {}]",
       event.getId(), event.getTenant(), event.getType());
 

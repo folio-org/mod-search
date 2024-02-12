@@ -27,7 +27,7 @@ import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

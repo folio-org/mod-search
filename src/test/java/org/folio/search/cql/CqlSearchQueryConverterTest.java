@@ -41,7 +41,7 @@ import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

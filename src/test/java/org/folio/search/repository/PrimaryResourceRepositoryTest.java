@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

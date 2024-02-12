@@ -21,7 +21,7 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
-import org.folio.spring.test.type.IntegrationTest;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -106,6 +106,7 @@ class SearchInstanceConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static Instance removeUnexpectedProperties(Instance instance) {
     instance.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
+    instance.getClassifications().forEach(c -> c.setClassificationTypeId(null));
     instance.setTenantId(null);
     instance.setShared(null);
     return instance.staffSuppress(false).discoverySuppress(false).items(null).holdings(null);

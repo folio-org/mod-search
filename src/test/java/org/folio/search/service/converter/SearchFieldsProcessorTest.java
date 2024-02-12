@@ -25,7 +25,7 @@ import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.SearchFieldsProcessorTest.TestContextConfiguration;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.utils.JsonConverter;
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

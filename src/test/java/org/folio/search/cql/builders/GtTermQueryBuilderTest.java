@@ -7,7 +7,7 @@ import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
-import org.folio.spring.test.type.UnitTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
 @UnitTest

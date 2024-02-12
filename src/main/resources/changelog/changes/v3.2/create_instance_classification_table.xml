@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <changeSet id="MSEARCH-667@@create_instance_classification_table" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="instance_classification"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_classification table</comment>
+
+    <createTable tableName="instance_classification">
+      <column name="classification_number" type="VARCHAR(255)">
+        <constraints primaryKey="true" primaryKeyName="pk_instance_classification"/>
+      </column>
+      <column name="classification_type_id" type="VARCHAR(36)">
+        <constraints primaryKey="true" primaryKeyName="pk_instance_classification"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(255)">
+        <constraints primaryKey="true" primaryKeyName="pk_instance_classification"/>
+      </column>
+      <column name="instance_id" type="VARCHAR(36)">
+        <constraints primaryKey="true" primaryKeyName="pk_instance_classification"/>
+      </column>
+      <column name="shared" type="bool" defaultValue="false"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-667@@create_idx_instance_classification_number_and_type_index" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <indexExists indexName="idx_instance_classification_number_and_type"/>
+      </not>
+    </preConditions>
+
+    <comment>Create idx_instance_classification_number_and_type index</comment>
+
+    <createIndex tableName="instance_classification" indexName="idx_instance_classification_number_and_type">
+      <column name="classification_type_id"/>
+      <column name="classification_number"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-667@@create_idx_instance_classification_instance_id_index" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <indexExists indexName="idx_instance_classification_instance_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create idx_instance_classification_number_and_type index</comment>
+
+    <createIndex tableName="instance_classification" indexName="idx_instance_classification_instance_id">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

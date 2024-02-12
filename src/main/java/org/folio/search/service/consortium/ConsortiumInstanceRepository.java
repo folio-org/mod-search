@@ -1,7 +1,7 @@
 package org.folio.search.service.consortium;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getQuestionMarkPlaceholder;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +41,7 @@ public class ConsortiumInstanceRepository {
   public List<ConsortiumInstance> fetch(List<String> instanceIds) {
     log.debug("fetch::consortium instances by [ids: {}]", instanceIds);
     return jdbcTemplate.query(
-      SELECT_BY_ID_SQL.formatted(getTableName(), getQuestionMarkPlaceholder(instanceIds.size())),
+      SELECT_BY_ID_SQL.formatted(getTableName(), getParamPlaceholder(instanceIds.size())),
       (rs, rowNum) -> toConsortiumInstance(rs),
       instanceIds.toArray());
   }

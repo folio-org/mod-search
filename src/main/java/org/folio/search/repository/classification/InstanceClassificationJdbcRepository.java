@@ -1,18 +1,21 @@
 package org.folio.search.repository.classification;
 
-import static org.folio.search.utils.JdbcUtils.getQuestionMarkPlaceholder;
+import static org.folio.search.utils.JdbcUtils.getGroupedParamPlaceholder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.PreparedStatement;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -23,7 +26,7 @@ import org.springframework.stereotype.Repository;
 public class InstanceClassificationJdbcRepository implements InstanceClassificationRepository {
 
   private static final String INSTANCE_CLASSIFICATION_TABLE_NAME = "instance_classification";
-  private static final String CLASSIFICATION_TYPE_COLUMN = "classification_type";
+  private static final String CLASSIFICATION_TYPE_COLUMN = "classification_type_id";
   private static final String CLASSIFICATION_NUMBER_COLUMN = "classification_number";
   private static final String TENANT_ID_COLUMN = "tenant_id";
   private static final String INSTANCE_ID_COLUMN = "instance_id";
@@ -33,28 +36,26 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
   private static final String SELECT_ALL_SQL = "SELECT * FROM %s;";
   private static final String SELECT_ALL_BY_INSTANCE_ID_AGG = """
     SELECT
-        t1.classification_number,
-        t1.classification_type,
+        classification_number,
+        classification_type_id,
         json_agg(json_build_object(
-            'instanceId', t1.instance_id,
-            'shared', t1.shared,
-            'tenantId', t1.tenant_id
+            'instanceId', instance_id,
+            'shared', shared,
+            'tenantId', tenant_id
         )) AS instances
-    FROM %1$s t1
-    INNER JOIN %1$s t2 ON t1.classification_number = t2.classification_number
-                                        AND t1.classification_type = t2.classification_type
-                                        AND t2.instance_id IN (%2$s)
-    GROUP BY t1.classification_number, t1.classification_type;
+    FROM %s
+    WHERE (classification_number, classification_type_id) IN (%s)
+    GROUP BY classification_number, classification_type_id;
     """;
   private static final String INSERT_SQL = """
-    INSERT INTO %s (classification_type, classification_number, tenant_id, instance_id, shared)
+    INSERT INTO %s (classification_type_id, classification_number, tenant_id, instance_id, shared)
     VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT (classification_type, classification_number, tenant_id, instance_id)
+    ON CONFLICT (classification_type_id, classification_number, tenant_id, instance_id)
     DO UPDATE SET shared = EXCLUDED.shared;
     """;
   private static final String DELETE_SQL = """
     DELETE FROM %s
-    WHERE classification_type = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
+    WHERE classification_type_id = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
     """;
   private static final int BATCH_SIZE = 100;
   private static final TypeReference<List<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
@@ -78,7 +79,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
       BATCH_SIZE,
       (PreparedStatement ps, InstanceClassificationEntity item) -> {
         var id = item.id();
-        ps.setString(1, itemTypeToDatabaseValue(id));
+        ps.setString(1, classificationTypeToDatabaseValue(id));
         ps.setString(2, id.number());
         ps.setString(3, id.tenantId());
         ps.setString(4, id.instanceId());
@@ -100,7 +101,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
       BATCH_SIZE,
       (PreparedStatement ps, InstanceClassificationEntity item) -> {
         var id = item.id();
-        ps.setString(1, itemTypeToDatabaseValue(id));
+        ps.setString(1, classificationTypeToDatabaseValue(id));
         ps.setString(2, id.number());
         ps.setString(3, id.tenantId());
         ps.setString(4, id.instanceId());
@@ -115,12 +116,26 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
   }
 
   @Override
-  public List<InstanceClassificationEntityAgg> findAllByInstanceIds(List<String> instanceIds) {
-    log.debug("findAllByInstanceIds::instance classifications [instanceIds: {}]", instanceIds);
+  public List<InstanceClassificationEntityAgg> fetchAggregatedByClassifications(
+    List<InstanceClassificationEntity> classifications) {
+    log.debug("fetchAggregatedByClassifications::instance classifications [entities: {}]", classifications);
+    if (CollectionUtils.isEmpty(classifications)) {
+      return Collections.emptyList();
+    }
     return jdbcTemplate.query(
-      SELECT_ALL_BY_INSTANCE_ID_AGG.formatted(getTableName(), getQuestionMarkPlaceholder(instanceIds.size())),
-      instanceClassificationAggRowMapper(),
-      instanceIds.toArray());
+      SELECT_ALL_BY_INSTANCE_ID_AGG.formatted(getTableName(), getGroupedParamPlaceholder(classifications.size(), 2)),
+      instanceClassificationAggRowMapper(), getArgsForAggregatedByClassifications(classifications));
+  }
+
+  @NotNull
+  private Object[] getArgsForAggregatedByClassifications(List<InstanceClassificationEntity> classifications) {
+    var args = new Object[classifications.size() * 2];
+    int index = 0;
+    for (var classification : classifications) {
+      args[index++] = classification.number();
+      args[index++] = classification.type();
+    }
+    return args;
   }
 
   @NotNull
@@ -128,7 +143,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     return (rs, rowNum) -> {
       var builder = InstanceClassificationEntity.Id.builder();
       var typeVal = rs.getString(CLASSIFICATION_TYPE_COLUMN);
-      builder.type(CLASSIFICATION_TYPE_DEFAULT.equals(typeVal) ? null : typeVal);
+      builder.type(databaseValueToClassificationType(typeVal));
       builder.number(rs.getString(CLASSIFICATION_NUMBER_COLUMN));
       builder.instanceId(rs.getString(INSTANCE_ID_COLUMN));
       builder.tenantId(rs.getString(TENANT_ID_COLUMN));
@@ -141,7 +156,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
   private RowMapper<InstanceClassificationEntityAgg> instanceClassificationAggRowMapper() {
     return (rs, rowNum) -> {
       var typeVal = rs.getString(CLASSIFICATION_TYPE_COLUMN);
-      var type = CLASSIFICATION_TYPE_DEFAULT.equals(typeVal) ? null : typeVal;
+      var type = databaseValueToClassificationType(typeVal);
       var number = rs.getString(CLASSIFICATION_NUMBER_COLUMN);
       var instancesJson = rs.getString("instances");
       List<InstanceSubResource> instanceSubResources;
@@ -158,7 +173,12 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     return JdbcUtils.getFullTableName(context, INSTANCE_CLASSIFICATION_TABLE_NAME);
   }
 
-  private String itemTypeToDatabaseValue(InstanceClassificationEntity.Id id) {
+  private String classificationTypeToDatabaseValue(InstanceClassificationEntity.Id id) {
     return id.type() == null ? CLASSIFICATION_TYPE_DEFAULT : id.type();
+  }
+
+  @Nullable
+  private static String databaseValueToClassificationType(String typeVal) {
+    return CLASSIFICATION_TYPE_DEFAULT.equals(typeVal) ? null : typeVal;
   }
 }

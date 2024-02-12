@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.folio.spring.FolioExecutionContext;
@@ -122,7 +121,7 @@ class InstanceClassificationJdbcRepositoryIT {
     repository.saveAll(entityList);
 
     // Act
-    var allByInstanceIds = repository.findAllByInstanceIds(Collections.singletonList(e1.id().instanceId()));
+    var allByInstanceIds = repository.fetchAggregatedByClassifications(List.of(e1, e2));
 
     // Assert
     assertThat(allByInstanceIds).hasSize(2)

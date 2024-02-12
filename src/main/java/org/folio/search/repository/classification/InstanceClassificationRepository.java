@@ -10,5 +10,6 @@ public interface InstanceClassificationRepository {
 
   List<InstanceClassificationEntity> findAll();
 
-  List<InstanceClassificationEntityAgg> findAllByInstanceIds(List<String> instanceId);
+  List<InstanceClassificationEntityAgg> fetchAggregatedByClassifications(
+    List<InstanceClassificationEntity> classifications);
 }

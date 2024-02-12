@@ -13,7 +13,11 @@ public class JdbcUtils {
     return dbSchemaName + "." + tableName;
   }
 
-  public static String getQuestionMarkPlaceholder(int size) {
+  public static String getParamPlaceholder(int size) {
     return String.join(",", nCopies(size, "?"));
+  }
+
+  public static String getGroupedParamPlaceholder(int size, int groupSize) {
+    return String.join(",", nCopies(size, "(" + getParamPlaceholder(groupSize) + ")"));
   }
 }

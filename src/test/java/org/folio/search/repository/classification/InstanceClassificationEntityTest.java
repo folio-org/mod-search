@@ -39,7 +39,7 @@ class InstanceClassificationEntityTest {
 
     // Act
     InstanceClassificationEntity.Id id = InstanceClassificationEntity.Id.builder()
-      .type(type)
+      .typeId(type)
       .number(number)
       .instanceId(instanceId)
       .tenantId(tenantId)

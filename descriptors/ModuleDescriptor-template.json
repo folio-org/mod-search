@@ -397,6 +397,10 @@
     {
       "id": "call-number-types",
       "version": "1.0"
+    },
+    {
+      "id": "classification-types",
+      "version": "1.2"
     }
   ],
   "permissionSets": [

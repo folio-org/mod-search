@@ -1,0 +1,39 @@
+{
+  "name": "instance_classification",
+  "eventBodyJavaClass": "org.folio.search.model.index.ClassificationResource",
+  "parent": "instance",
+  "fields": {
+    "number": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "browse" ]
+    },
+    "typeId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "instanceId": {
+          "index": "source"
+        },
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "facet", "filter" ],
+          "default": false
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "shelvingOrder": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "classificationShelvingOrderProcessor"
+    }
+  }
+}

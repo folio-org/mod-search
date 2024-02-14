@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,7 +59,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     WHERE classification_type_id = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
     """;
   private static final int BATCH_SIZE = 100;
-  private static final TypeReference<List<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
+  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -133,7 +134,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     int index = 0;
     for (var classification : classifications) {
       args[index++] = classification.number();
-      args[index++] = classification.type();
+      args[index++] = classification.typeId();
     }
     return args;
   }
@@ -143,7 +144,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     return (rs, rowNum) -> {
       var builder = InstanceClassificationEntity.Id.builder();
       var typeVal = rs.getString(CLASSIFICATION_TYPE_COLUMN);
-      builder.type(databaseValueToClassificationType(typeVal));
+      builder.typeId(databaseValueToClassificationType(typeVal));
       builder.number(rs.getString(CLASSIFICATION_NUMBER_COLUMN));
       builder.instanceId(rs.getString(INSTANCE_ID_COLUMN));
       builder.tenantId(rs.getString(TENANT_ID_COLUMN));
@@ -156,16 +157,16 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
   private RowMapper<InstanceClassificationEntityAgg> instanceClassificationAggRowMapper() {
     return (rs, rowNum) -> {
       var typeVal = rs.getString(CLASSIFICATION_TYPE_COLUMN);
-      var type = databaseValueToClassificationType(typeVal);
+      var typeId = databaseValueToClassificationType(typeVal);
       var number = rs.getString(CLASSIFICATION_NUMBER_COLUMN);
       var instancesJson = rs.getString("instances");
-      List<InstanceSubResource> instanceSubResources;
+      Set<InstanceSubResource> instanceSubResources;
       try {
         instanceSubResources = objectMapper.readValue(instancesJson, VALUE_TYPE_REF);
       } catch (JsonProcessingException e) {
         throw new IllegalArgumentException(e);
       }
-      return new InstanceClassificationEntityAgg(type, number, instanceSubResources);
+      return new InstanceClassificationEntityAgg(typeId, number, instanceSubResources);
     };
   }
 
@@ -174,7 +175,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
   }
 
   private String classificationTypeToDatabaseValue(InstanceClassificationEntity.Id id) {
-    return id.type() == null ? CLASSIFICATION_TYPE_DEFAULT : id.type();
+    return id.typeId() == null ? CLASSIFICATION_TYPE_DEFAULT : id.typeId();
   }
 
   @Nullable

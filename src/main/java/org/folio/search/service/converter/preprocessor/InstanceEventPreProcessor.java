@@ -166,7 +166,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
           .build();
         return new InstanceClassificationEntity(classificationId, shared);
       })
-      .collect(Collectors.toList());
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 
   @SuppressWarnings("unchecked")

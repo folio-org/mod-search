@@ -74,10 +74,10 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
     assertThat(instances)
-      .allSatisfy(map -> assertThat(map.get("shared")).isEqualTo(false))
-      .allSatisfy(map -> assertThat(map.get("tenantId")).isEqualTo(TENANT_ID))
-      .anySatisfy(map -> assertThat(map.get("instanceId")).isEqualTo(instanceId1))
-      .anySatisfy(map -> assertThat(map.get("instanceId")).isEqualTo(instanceId2));
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+      .anySatisfy(map -> assertThat(map).containsEntry("instanceId", instanceId1))
+      .anySatisfy(map -> assertThat(map).containsEntry("instanceId", instanceId2));
   }
 
   @Test
@@ -89,7 +89,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     assertCountByQuery(instanceSearchPath(), ID, List.of(instanceId), 1);
     await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.classifications(null));
-    await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).hasSize(0));
+    await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).isEmpty());
   }
 
   private static void assertCountByQuery(String path, CqlQueryParam param, List<String> ids, int expected) {

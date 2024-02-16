@@ -309,7 +309,7 @@ public class SearchUtils {
   }
 
   /**
-   * Normalizes LCCN value
+   * Normalizes LCCN value.
    *
    * @param value LCCN value
    * @return normalized LCCN value

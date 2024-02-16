@@ -30,6 +30,7 @@ public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
+  public static final String INSTANCE_CLASSIFICATION_RESOURCE = "instance_classification";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
 

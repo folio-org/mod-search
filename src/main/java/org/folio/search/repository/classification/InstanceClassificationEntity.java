@@ -12,8 +12,8 @@ public record InstanceClassificationEntity(
     Objects.requireNonNull(id);
   }
 
-  public String type() {
-    return id().type();
+  public String typeId() {
+    return id().typeId();
   }
 
   public String number() {
@@ -46,7 +46,7 @@ public record InstanceClassificationEntity(
   }
 
   @Builder
-  public record Id(String type,
+  public record Id(String typeId,
                    String number,
                    String instanceId,
                    String tenantId) {

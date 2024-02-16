@@ -229,11 +229,11 @@ public class JsonConverter {
   }
 
   /**
-   * Converts object value to the given type, specified in {@link TypeReference} object.
+   * Converts object value to the given typeId, specified in {@link TypeReference} object.
    *
    * @param value object value to convert
-   * @param type  target type as {@link TypeReference} object
-   * @param <T>   generic type for target class
+   * @param type  target typeId as {@link TypeReference} object
+   * @param <T>   generic typeId for target class
    * @return converted value
    */
   public <T> T convert(Object value, TypeReference<T> type) {
@@ -241,6 +241,16 @@ public class JsonConverter {
       return null;
     }
     return objectMapper.convertValue(value, type);
+  }
+
+  /**
+   * Converts object value to the map.
+   *
+   * @param value object value to convert
+   * @return converted map
+   */
+  public Map<String, Object> convertToMap(Object value) {
+    return convert(value, MAP_TYPE_REFERENCE);
   }
 
 

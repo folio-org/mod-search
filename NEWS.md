@@ -3,8 +3,8 @@
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
 
 ### New APIs versions
+* Requires `classification-types v1.2`
 * Provides `API_NAME vX.Y`
-* Requires `API_NAME vX.Y`
 
 ### Features
 * Update module descriptor with environment variables ([MSEARCH-635](https://issues.folio.org/browse/MSEARCH-635))
@@ -13,7 +13,8 @@
 * Make maximum offset for additional elasticsearch request on browse configurable ([MSEARCH-641](https://issues.folio.org/browse/MSEARCH-641))
 * Make system user usage optional ([MSEARCH-631](https://issues.folio.org/browse/MSEARCH-631))
 * Prepare and populate database for classification browse ([MSEARCH-667](https://issues.folio.org/browse/MSEARCH-667))
-
+* Prepare and populate index for classification browse ([MSEARCH-668](https://issues.folio.org/browse/MSEARCH-668))
+* Instance search: Add query search option that search instances by normalized LCCN ([MSEARCH-661](https://issues.folio.org/browse/MSEARCH-661))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
@@ -24,10 +25,9 @@
 * Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))
 * Fix shadow instance's subjects/contributors indexing ([MSEARCH-647](https://issues.folio.org/browse/MSEARCH-647))
 * Mark all exact matches as anchors if there is more then one match ([MSEARCH-669](https://issues.folio.org/browse/MSEARCH-669))
-* Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
 
 ### Tech Dept
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
 
 ### Dependencies
 * Bump `folio-spring-support` from `7.2.0` to `7.2.1`

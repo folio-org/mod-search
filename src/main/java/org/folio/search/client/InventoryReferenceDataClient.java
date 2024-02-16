@@ -29,7 +29,8 @@ public interface InventoryReferenceDataClient {
 
     IDENTIFIER_TYPES("http://identifier-types"),
     ALTERNATIVE_TITLE_TYPES("http://alternative-title-types"),
-    CALL_NUMBER_TYPES("http://call-number-types");
+    CALL_NUMBER_TYPES("http://call-number-types"),
+    CLASSIFICATION_TYPES("http://classification-types");
 
     /**
      * Request URI for feign client.

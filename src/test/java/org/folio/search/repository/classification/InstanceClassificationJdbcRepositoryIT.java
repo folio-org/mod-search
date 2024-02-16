@@ -125,10 +125,11 @@ class InstanceClassificationJdbcRepositoryIT {
 
     // Assert
     assertThat(allByInstanceIds).hasSize(2)
-      .extracting(InstanceClassificationEntityAgg::type, InstanceClassificationEntityAgg::number,
+      .extracting(InstanceClassificationEntityAgg::typeId, InstanceClassificationEntityAgg::number,
         entityAgg -> entityAgg.instances()
           .stream()
           .map(i -> i.getTenantId() + "|" + i.getInstanceId() + "|" + i.getShared())
+          .sorted()
           .collect(Collectors.joining(";")))
       .containsExactlyInAnyOrder(
         tuple("type1", "number1", "tenant1|instanceId1|true;tenant2|instanceId2|false"),
@@ -138,7 +139,7 @@ class InstanceClassificationJdbcRepositoryIT {
   private InstanceClassificationEntity randomEntity() {
     return new InstanceClassificationEntity(InstanceClassificationEntity.Id.builder()
       .number(easyRandom.nextObject(String.class))
-      .type(easyRandom.nextObject(String.class))
+      .typeId(easyRandom.nextObject(String.class))
       .tenantId(easyRandom.nextObject(String.class))
       .instanceId(easyRandom.nextObject(String.class))
       .build(), easyRandom.nextObject(Boolean.class));
@@ -147,7 +148,7 @@ class InstanceClassificationJdbcRepositoryIT {
   private InstanceClassificationEntity randomEntityWithNullType() {
     return new InstanceClassificationEntity(InstanceClassificationEntity.Id.builder()
       .number(easyRandom.nextObject(String.class))
-      .type(null)
+      .typeId(null)
       .tenantId(easyRandom.nextObject(String.class))
       .instanceId(easyRandom.nextObject(String.class))
       .build(), easyRandom.nextObject(Boolean.class));

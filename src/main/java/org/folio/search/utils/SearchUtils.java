@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
@@ -29,6 +30,7 @@ public class SearchUtils {
 
   public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
   public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
+  public static final String INSTANCE_CLASSIFICATION_RESOURCE = "instance_classification";
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
 
@@ -305,6 +307,20 @@ public class SearchUtils {
       .filter(Objects::nonNull)
       .mapToInt(List::size)
       .sum();
+  }
+
+  /**
+   * Normalizes LCCN value.
+   *
+   * @param value LCCN value
+   * @return normalized LCCN value
+   */
+  public static String normalizeLccn(String value) {
+    if (StringUtils.isBlank(value)) {
+      return null;
+    }
+
+    return StringUtils.deleteWhitespace(value).toLowerCase();
   }
 
   private static Object getMultilangValueObject(Object value) {

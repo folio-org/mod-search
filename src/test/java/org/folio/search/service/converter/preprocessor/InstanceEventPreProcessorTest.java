@@ -10,6 +10,7 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 import static org.folio.search.utils.SearchUtils.SOURCE_FIELD;
@@ -18,21 +19,28 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.repository.classification.InstanceClassificationEntity;
+import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -43,6 +51,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
@@ -51,13 +60,14 @@ class InstanceEventPreProcessorTest {
 
   @SuppressWarnings("unchecked")
   private static final Function<InstanceClassificationEntity, Object>[] ENTITY_FIELD_EXTRACTORS = new Function[] {
-    (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::type,
+    (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::typeId,
     (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::number,
     (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::tenantId,
     (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::instanceId,
     (Function<InstanceClassificationEntity, Object>) InstanceClassificationEntity::shared
   };
 
+  private @Spy JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
   private @Mock FeatureConfigService featureConfigService;
   private @Mock ConsortiumTenantService consortiumTenantService;
   private @Mock InstanceClassificationRepository instanceClassificationRepository;
@@ -127,14 +137,25 @@ class InstanceEventPreProcessorTest {
     var newData = instance(id, List.of(classification("n1", "t1"), classification("n2", "t2")));
     var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, CREATE, newData, null);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
+    when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
+      .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
+          Set.of(InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build())),
+        new InstanceClassificationEntityAgg("t2", "n2",
+          Set.of(InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build()))));
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .hasSize(3)
+      .startsWith(resourceEvent)
+      .elements(1, 2)
+      .allSatisfy(event -> assertThat(event)
+        .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant, ResourceEvent::getType)
+        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID, CREATE))
+      .extracting(ResourceEvent::getId)
+      .containsExactlyInAnyOrder("n1|t1", "n2|t2");
 
     verify(instanceClassificationRepository).saveAll(createCaptor.capture());
 
@@ -153,14 +174,23 @@ class InstanceEventPreProcessorTest {
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n2", "t2")));
     var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, DELETE, null, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
+    when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
+      .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
+        Set.of(InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build()))));
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .hasSize(3)
+      .startsWith(resourceEvent)
+      .elements(1, 2)
+      .allSatisfy(event -> assertThat(event)
+        .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
+        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
+      .extracting(ResourceEvent::getId, ResourceEvent::getType)
+      .containsExactlyInAnyOrder(tuple("n1|t1", CREATE), tuple("n2|t2", DELETE));
 
     verify(instanceClassificationRepository).deleteAll(deleteCaptor.capture());
 
@@ -180,14 +210,25 @@ class InstanceEventPreProcessorTest {
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n4", "t4")));
     var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, DELETE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
+    when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
+      .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
+          Set.of(InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build())),
+        new InstanceClassificationEntityAgg("t3", "n3",
+          Set.of(InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build()))));
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .hasSize(4)
+      .startsWith(resourceEvent)
+      .elements(1, 2, 3)
+      .allSatisfy(event -> assertThat(event)
+        .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
+        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
+      .extracting(ResourceEvent::getId, ResourceEvent::getType)
+      .containsExactlyInAnyOrder(tuple("n1|t1", CREATE), tuple("n3|t3", CREATE), tuple("n4|t4", DELETE));
 
     verify(instanceClassificationRepository).saveAll(createCaptor.capture());
 
@@ -219,8 +260,8 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .hasSize(2)
+      .startsWith(resourceEvent);
 
     verify(instanceClassificationRepository).saveAll(createCaptor.capture());
 
@@ -232,8 +273,6 @@ class InstanceEventPreProcessorTest {
     assertThat(deleteCaptor.getValue())
       .extracting(ENTITY_FIELD_EXTRACTORS)
       .containsExactlyInAnyOrder(tuple("t4", "n4", TENANT_ID, id, true));
-
-    verifyNoMoreInteractions(instanceClassificationRepository);
   }
 
   private void mockClassificationBrowseFeatureEnabled(Boolean isEnabled) {

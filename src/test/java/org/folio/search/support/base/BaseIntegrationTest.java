@@ -324,7 +324,7 @@ public abstract class BaseIntegrationTest {
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                       Consumer<T> consumer) {
     records.forEach(consumer);
-    if (records.size() > 0) {
+    if (!records.isEmpty()) {
       checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
     }
   }

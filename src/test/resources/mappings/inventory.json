@@ -114,6 +114,30 @@
     {
       "request": {
         "method": "GET",
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Canceled%20LCCN%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+              "name": "Canceled LCCN"
+            },
+            {
+              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+              "name": "LCCN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
         "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29&limit=100"
       },
       "response": {
@@ -212,6 +236,94 @@
           "id": "37bd1461-ee1a-4522-9f8c-93bab186fad3",
           "jobStatus": "In progress",
           "submittedDate": "2021-11-08T13:00:00.000+00:00"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/classification-types?query=name%3D%3D%28%22NLM%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "classificationTypes": [
+            {
+              "id": "a7f4d03f-b0d8-496c-aebf-4e9cdb678200",
+              "name": "NLM"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/classification-types?query=name%3D%3D%28%22Dewey%22%20or%20%22Additional%20Dewey%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "classificationTypes": [
+            {
+              "id": "42471af9-7d25-4f3a-bf78-60d29dcf463b",
+              "name": "Dewey"
+            },
+            {
+              "id": "74c08086-81a4-4466-93d8-d117ce8646db",
+              "name": "Additional Dewey"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/classification-types?query=name%3D%3D%28%22SUDOC%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "classificationTypes": [
+            {
+              "id": "9075b5f8-7d97-49e1-a431-73fdd468d476",
+              "name": "SUDOC"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/classification-types?query=name%3D%3D%28%22LC%22%20or%20%22LC%20%28local%29%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "classificationTypes": [
+            {
+              "id": "ce176ace-a53e-4b4d-aa89-725ed7b2edac",
+              "name": "LC"
+            },
+            {
+              "id": "a83699eb-cc23-4307-8043-5a38a8dce335",
+              "name": "LC (local)"
+            }
+          ]
         },
         "headers": {
           "Content-Type": "application/json"

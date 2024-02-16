@@ -702,6 +702,12 @@
       "rawProcessing": true,
       "dependsOnFeature": "search.all.fields",
       "searchAliases": [ "cql.all", "cql.allHoldings" ]
+    },
+    "lccn": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "lccnInstanceProcessor",
+      "searchTermProcessor": "lccnSearchTermProcessor"
     }
   },
   "mappingsSource": {
@@ -730,6 +736,7 @@
       "tags.tagList",
       "title",
       "uniformTitle",
+      "lccn",
 
       "holdings.electronicAccess.linkText",
       "holdings.electronicAccess.publicNote",

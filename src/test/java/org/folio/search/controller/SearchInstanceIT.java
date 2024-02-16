@@ -323,6 +323,14 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("oclc = {value}", "ocm60710867"),
       arguments("oclc = {value}", "60710*"),
 
+      // search by lccn
+      arguments("lccn = {value}", "2003065165"),
+      arguments("lccn = {value}", "*65165"),
+      arguments("lccn = {value}", "n 2003075732"),
+      arguments("lccn = {value}", "N2003075732"),
+      arguments("lccn = {value}", "*75732"),
+      arguments("lccn = {value}", "20030*"),
+
       // search by item fields
       arguments("item.hrid = {value}", "item000000000014"),
       arguments("item.hrid = {value}", "item*"),

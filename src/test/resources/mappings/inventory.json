@@ -94,7 +94,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%Canceled%20LCCN%22%29&limit=100"
       },
       "response": {
         "status": 200,

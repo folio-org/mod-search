@@ -546,6 +546,7 @@ does not produce any values, so the following search options will return an empt
 | `isbn`                                 |   term    | `isbn="1234*"`                                                       | Matches instances that have an ISBN identifier with the given value                                                  |
 | `issn`                                 |   term    | `issn="1234*"`                                                       | Matches instances that have an ISSN identifier with the given value                                                  |
 | `oclc`                                 |   term    | `oclc="1234*"`                                                       | Matches instances that have an OCLC identifier with the given value                                                  |
+| `lccn`                                 |   term    | `lccn = "LCCN"`                                                      | Matches instances with the given lccn                                                                                |
 
 ##### Holdings search options
 

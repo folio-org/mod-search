@@ -75,14 +75,18 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   }
 
   @Override
-  protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
+  protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext ctx) {
     log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, filters.size: {}]",
-      request.getTargetField(), collectionToLogMsg(context.getFilters(), true));
+      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true));
 
-    var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), context.getAnchor()));
-    context.getFilters().forEach(boolQuery::filter);
+    var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), ctx.getAnchor()));
+    ctx.getFilters().forEach(boolQuery::filter);
     var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
-    return searchSource().query(query).from(0).size(1).fetchSource(getIncludedSourceFields(request), null);
+    return searchSource()
+      .query(query)
+      .from(0)
+      .size(ctx.getLimit(ctx.isBrowsingForward()))
+      .fetchSource(getIncludedSourceFields(request), null);
   }
 
   @Override

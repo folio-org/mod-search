@@ -150,7 +150,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 6, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 6, ASC), anchorSearchSource("s0", 5)),
       List.of(searchResult(authorities("s1", "s2", "s3", "s4", "s5")), searchResult(authority("s0"))));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -170,7 +170,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 11, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 11, ASC), anchorSearchSource("s0", 10)),
       List.of(SearchResult.of(10, authorities("s1", "s2", "s3")), searchResult(authority("s0"))));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -190,7 +190,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 6, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 6, ASC), anchorSearchSource("s0", 5)),
       List.of(searchResult(authorities("s1", "s2", "s3", "s4", "s5", "s6")), SearchResult.empty()));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -210,7 +210,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
-      List.of(searchSource("s4", 4, DESC), anchorSearchSource("s4")),
+      List.of(searchSource("s4", 4, DESC), anchorSearchSource("s4", 3)),
       List.of(searchResult(authorities("s3", "s2", "s1")), searchResult(authority("s4"))));
 
     var browseSearchResult = authorityBrowseService.browse(request);
@@ -256,7 +256,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0", 3)),
       List.of(
         SearchResult.of(10, authorities("r2", "r1", "r0")),
         searchResult(authorities("s1", "s2", "s3", "s4")),
@@ -274,7 +274,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0", 3)),
       List.of(
         SearchResult.of(10, authorities("r2", "r1")),
         searchResult(authorities("s1", "s2", "s3", "s4")),
@@ -292,7 +292,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0", 3)),
       List.of(
         SearchResult.of(10, authorities("r2", "r1")),
         searchResult(authorities("s1", "s2", "s3")),
@@ -310,7 +310,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
-      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0")),
+      List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC), anchorSearchSource("s0", 3)),
       List.of(
         SearchResult.of(10, authorities("r2", "r1")),
         searchResult(authorities("s1", "s2", "s3")),
@@ -355,11 +355,11 @@ class AuthorityBrowseServiceTest {
     return SearchSourceBuilder.searchSource().query(query).fetchSource((String[]) null, null);
   }
 
-  private static SearchSourceBuilder anchorSearchSource(String headingRef) {
+  private static SearchSourceBuilder anchorSearchSource(String headingRef, int size) {
     var query = boolQuery()
       .filter(termsQuery("authRefType", "Authorized", "Reference"))
       .must(termQuery(TARGET_FIELD, headingRef));
-    return searchSource(query).from(0).size(1).fetchSource((String[]) null, null);
+    return searchSource(query).from(0).size(size).fetchSource((String[]) null, null);
   }
 
   private void mockMultiSearchRequest(ResourceRequest request,

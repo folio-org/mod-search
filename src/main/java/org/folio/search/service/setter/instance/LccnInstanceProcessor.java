@@ -1,26 +1,19 @@
 package org.folio.search.service.setter.instance;
 
-import static org.folio.search.utils.SearchUtils.extractLccnNumericPart;
-import static org.folio.search.utils.SearchUtils.normalizeLccn;
-
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
+import org.folio.search.domain.dto.Identifiers;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
-import org.folio.search.service.setter.AbstractIdentifierProcessor;
+import org.folio.search.service.setter.AbstractLccnProcessor;
 import org.springframework.stereotype.Component;
 
 /**
  * Instance identifier field processor, which normalizes LCCN numbers.
  */
 @Component
-public class LccnInstanceProcessor extends AbstractIdentifierProcessor<Instance> {
-
-  private static final List<String> LCCN_IDENTIFIER_NAME = List.of("LCCN", "Canceled LCCN");
+public class LccnInstanceProcessor extends AbstractLccnProcessor<Instance> {
 
   /**
    * Used by dependency injection.
@@ -28,14 +21,13 @@ public class LccnInstanceProcessor extends AbstractIdentifierProcessor<Instance>
    * @param referenceDataService {@link ReferenceDataService} bean
    */
   public LccnInstanceProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService, LCCN_IDENTIFIER_NAME);
+    super(referenceDataService);
   }
 
   @Override
-  public Set<String> getFieldValue(Instance instance) {
-    return filterIdentifiersValue(instance.getIdentifiers()).stream()
-      .flatMap(value -> Stream.of(normalizeLccn(value), extractLccnNumericPart(value)))
-      .filter(Objects::nonNull)
-      .collect(Collectors.toCollection(LinkedHashSet::new));
+  protected List<Identifiers> getIdentifiers(Instance instance) {
+    return Optional.ofNullable(instance)
+      .map(Instance::getIdentifiers)
+      .orElse(Collections.emptyList());
   }
 }

@@ -1,6 +1,5 @@
 package org.folio.search.service.setter.authority;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
@@ -10,7 +9,6 @@ import static org.folio.search.utils.TestUtils.identifier;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
@@ -31,25 +29,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class LccnProcessorTest {
+class LccnAuthorityProcessorTest {
 
   @InjectMocks
-  private LccnProcessor lccnProcessor;
+  private LccnAuthorityProcessor lccnProcessor;
   @Mock
   private ReferenceDataService referenceDataService;
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] authority with {0}, expected={2}")
-  void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority,
-                                   List<String> expected) {
+  void getFieldValue_parameterized(@SuppressWarnings("unused") String name, Authority authority, Set<String> expected) {
     if (CollectionUtils.isNotEmpty(authority.getIdentifiers())) {
       var identifiers = Set.of(LCCN_IDENTIFIER_TYPE_ID);
       mockFetchReferenceData(identifiers);
     }
 
     var actual = lccnProcessor.getFieldValue(authority);
-    assertThat(actual).containsExactlyElementsOf(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -61,13 +58,16 @@ class LccnProcessorTest {
 
   private static Stream<Arguments> lccnDataProvider() {
     return Stream.of(
-      arguments("all empty fields", new Authority(), emptyList()),
-      arguments("lccn identifier=null", authorityWithIdentifiers(lccn(null)), emptyList()),
-      arguments("lccn identifier='3745-1086'", authorityWithIdentifiers(lccn("3745-1086")), List.of("3745-1086")),
-      arguments("lccn identifier='3745-1086'",
-        authorityWithIdentifiers(lccn("3745-1086"), lccn("3745-1086")), List.of("3745-1086")),
-      arguments("lccn identifier=' 3745-1086 '",
-        authorityWithIdentifiers(lccn(" 3745-1086 ")), List.of("3745-1086"))
+      arguments("all empty fields", new Authority(), emptySet()),
+      arguments("lccn identifier=null", authorityWithIdentifiers(lccn(null), lccn("  ")), emptySet()),
+      arguments("lccn identifier='  nbc  79021425 '",
+        authorityWithIdentifiers(lccn("  nbc  79021425 ")), Set.of("nbc79021425", "79021425")),
+      arguments("lccn identifier='79021425'",
+        authorityWithIdentifiers(lccn("79021425"), lccn("79021425")), Set.of("79021425")),
+      arguments("lccn identifier='N79021425'",
+        authorityWithIdentifiers(lccn("N79021425")), Set.of("n79021425", "79021425")),
+      arguments("lccn identifier='*79021425*'",
+        authorityWithIdentifiers(lccn("*1425"), lccn("7902*")), Set.of("*1425", "1425", "7902*", "7902"))
     );
   }
 

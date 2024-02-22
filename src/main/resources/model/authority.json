@@ -381,7 +381,8 @@
     "lccn": {
       "type": "search",
       "index": "keyword",
-      "processor": "lccnProcessor"
+      "processor": "lccnAuthorityProcessor",
+      "searchTermProcessor": "lccnSearchTermProcessor"
     }
   },
   "mappingsSource": {

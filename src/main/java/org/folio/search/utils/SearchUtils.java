@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
@@ -86,6 +87,8 @@ public class SearchUtils {
     }
     """;
   //CHECKSTYLE.OFF: LineLength
+
+  private static final Pattern LCCN_NUMERIC_PART_REGEX = Pattern.compile("([1-9]\\d+)");
 
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
@@ -321,6 +324,21 @@ public class SearchUtils {
     }
 
     return StringUtils.deleteWhitespace(value).toLowerCase();
+  }
+
+  /**
+   * Extracts numeric part (digits starting with non-zero) of LCCN String value.
+   *
+   * @param value LCCN string value
+   * @return if exists, returns string of numeric part of LCCN value, otherwise returns null
+   */
+  public static String extractLccnNumericPart(String value) {
+    if (StringUtils.isBlank(value)) {
+      return null;
+    }
+
+    var matcher = LCCN_NUMERIC_PART_REGEX.matcher(value);
+    return matcher.find() ? matcher.group(0) : null;
   }
 
   private static Object getMultilangValueObject(Object value) {

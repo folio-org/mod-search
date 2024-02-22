@@ -236,8 +236,13 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("saftGenreTerm = {value}", "\"saft term\""),
       arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
 
-      arguments(specifyCommonField("lccn = {value}"), "3745-1086"),
-      arguments(specifyCommonField("lccn = {value}"), "3745*"),
+      // search by lccn
+      arguments(specifyCommonField("lccn = {value}"), "2003065165"),
+      arguments(specifyCommonField("lccn = {value}"), "*65165"),
+      arguments(specifyCommonField("lccn = {value}"), "n 2003075732"),
+      arguments(specifyCommonField("lccn = {value}"), "N2003075732"),
+      arguments(specifyCommonField("lccn = {value}"), "*75732"),
+      arguments(specifyCommonField("lccn = {value}"), "20030*"),
 
       arguments(specifyCommonField("identifiers.value == {value}"), "authority-identifier"),
       arguments(specifyCommonField("identifiers.value all {value}"), "311417*"),

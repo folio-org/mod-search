@@ -32,7 +32,7 @@ spring:
     cache-names:
       - es-indices
       - reference-data-cache
-      - system-user-cache
+      - browse-config-cache
       - tenant-languages
       - tenant-features
       - search-preference

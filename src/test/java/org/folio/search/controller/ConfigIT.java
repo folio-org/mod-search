@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
@@ -11,9 +12,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,11 +19,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.SneakyThrows;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseConfigCollection;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.TestUtils;
@@ -149,11 +153,11 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var indexedInstance = getIndexedInstanceById(newInstance.getId());
 
-    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance), aMapWithSize(3));
-    assertThat(getMapValueByPath("title.eng", indexedInstance), is(newInstance.getTitle()));
-    assertThat(getMapValueByPath("title.rus", indexedInstance), is(newInstance.getTitle()));
-    assertThat(getMapValueByPath("title.src", indexedInstance), is(newInstance.getTitle()));
-    assertThat(getMapValueByPath("title.fre", indexedInstance), nullValue());
+    assertThat((Map<String, Object>) getMapValueByPath("title", indexedInstance)).hasSize(3);
+    assertThat(getMapValueByPath("title.eng", indexedInstance)).isEqualTo(newInstance.getTitle());
+    assertThat(getMapValueByPath("title.rus", indexedInstance)).isEqualTo(newInstance.getTitle());
+    assertThat(getMapValueByPath("title.src", indexedInstance)).isEqualTo(newInstance.getTitle());
+    assertThat(getMapValueByPath("title.fre", indexedInstance)).isNull();
   }
 
   @Test
@@ -215,6 +219,32 @@ class ConfigIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
   }
 
+  @Test
+  void getBrowseConfigs_positive() throws Exception {
+    doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(3)));
+  }
+
+  @Test
+  void putBrowseConfigs_positive() throws Exception {
+    var config = new BrowseConfig().id(BrowseOptionType.LC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.DEFAULT)
+      .addTypeIdsItem(UUID.randomUUID()).addTypeIdsItem(UUID.randomUUID());
+
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config)
+      .andExpect(status().isOk());
+
+    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(3)));
+
+    var configCollection = parseResponse(result, BrowseConfigCollection.class);
+    assertThat(configCollection.getConfigs())
+      .hasSize(3)
+      .contains(config);
+  }
+
   @SneakyThrows
   private Map<String, Object> getIndexedInstanceById(String id) {
     final var searchRequest = new SearchRequest()
@@ -222,7 +252,7 @@ class ConfigIT extends BaseIntegrationTest {
       .indices(getIndexName(INSTANCE_RESOURCE, TENANT_ID));
 
     await().until(() -> elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT)
-      .getHits().getTotalHits().value > 0);
+                          .getHits().getTotalHits().value > 0);
 
     return elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT).getHits()
       .getAt(0).getSourceAsMap();

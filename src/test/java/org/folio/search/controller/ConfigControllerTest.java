@@ -1,10 +1,13 @@
 package org.folio.search.controller;
 
+import static java.util.UUID.randomUUID;
+import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.languageConfig;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doNothing;
@@ -19,22 +22,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.UUID;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseConfigCollection;
+import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
+import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @UnitTest
 @Import(ApiExceptionHandler.class)
@@ -47,6 +58,8 @@ class ConfigControllerTest {
   private LanguageConfigServiceDecorator languageConfigService;
   @MockBean
   private FeatureConfigServiceDecorator featureConfigService;
+  @MockBean
+  private BrowseConfigServiceDecorator browseConfigService;
 
   @Test
   void createLanguageConfig_positive() throws Exception {
@@ -262,5 +275,40 @@ class ConfigControllerTest {
       .contentType(APPLICATION_JSON);
 
     mockMvc.perform(request).andExpect(status().isNoContent());
+  }
+
+  @Test
+  void getBrowseConfigs_positive() throws Exception {
+    var config = new BrowseConfig().id(BrowseOptionType.LC).shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
+      .typeIds(List.of(randomUUID(), randomUUID()));
+    when(browseConfigService.getConfigs(INSTANCE_CLASSIFICATION))
+      .thenReturn(new BrowseConfigCollection().addConfigsItem(config).totalRecords(1));
+
+    var request = get(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
+      .contentType(APPLICATION_JSON);
+
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.configs[0].id", is(BrowseOptionType.LC.getValue())))
+      .andExpect(jsonPath("$.configs[0].shelvingAlgorithm", is(ShelvingOrderAlgorithmType.LC.getValue())))
+      .andExpect(jsonPath("$.configs[0].typeIds[*]",
+        containsInAnyOrder(config.getTypeIds().stream().map(UUID::toString).toArray())));
+  }
+
+  @Test
+  void putBrowseConfig_positive() throws Exception {
+    var config = new BrowseConfig().id(BrowseOptionType.LC).shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
+      .typeIds(List.of(randomUUID(), randomUUID()));
+    doNothing().when(browseConfigService).upsertConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC, config);
+
+    var request = put(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC))
+      .header(XOkapiHeaders.TENANT, TENANT_ID)
+      .contentType(APPLICATION_JSON)
+      .content(asJsonString(config));
+
+    mockMvc.perform(request).andExpect(status().isOk())
+      .andExpect(MockMvcResultMatchers.content().string(Matchers.emptyOrNullString()));
   }
 }

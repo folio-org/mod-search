@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <changeSet id="MSEARCH-674@@create_browse_config_table" author="pavlo_smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="browse_config"/>
+      </not>
+    </preConditions>
+
+    <comment>Create browse_config table</comment>
+
+    <createTable tableName="browse_config">
+      <column name="browse_type" type="VARCHAR(50)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_browse_config"/>
+      </column>
+      <column name="browse_option_type" type="VARCHAR(10)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_browse_config"/>
+      </column>
+      <column name="shelving_algorithm" type="VARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type_ids" type="VARCHAR(500)" />
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-674@@populate_browse_config_table" author="pavlo_smahin">
+    <preConditions>
+      <tableExists tableName="browse_config"/>
+    </preConditions>
+
+    <comment>Populate browse_config table with default values</comment>
+
+    <insert tableName="browse_config">
+      <column name="browse_type" value="instance-classification"/>
+      <column name="browse_option_type" value="all"/>
+      <column name="shelving_algorithm" value="default"/>
+    </insert>
+    <insert tableName="browse_config">
+      <column name="browse_type" value="instance-classification"/>
+      <column name="browse_option_type" value="lc"/>
+      <column name="shelving_algorithm" value="lc"/>
+    </insert>
+    <insert tableName="browse_config">
+      <column name="browse_type" value="instance-classification"/>
+      <column name="browse_option_type" value="dewey"/>
+      <column name="shelving_algorithm" value="dewey"/>
+    </insert>
+  </changeSet>
+
+
+</databaseChangeLog>

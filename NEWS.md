@@ -4,7 +4,7 @@
 
 ### New APIs versions
 * Requires `classification-types v1.2`
-* Provides `API_NAME vX.Y`
+* Provides `browse-config v1.0`
 
 ### Features
 * Update module descriptor with environment variables ([MSEARCH-635](https://issues.folio.org/browse/MSEARCH-635))
@@ -15,6 +15,7 @@
 * Prepare and populate database for classification browse ([MSEARCH-667](https://issues.folio.org/browse/MSEARCH-667))
 * Prepare and populate index for classification browse ([MSEARCH-668](https://issues.folio.org/browse/MSEARCH-668))
 * Instance search: Add query search option that search instances by normalized LCCN ([MSEARCH-661](https://issues.folio.org/browse/MSEARCH-661))
+* Implement browse config management endpoints ([MSEARCH-674](https://issues.folio.org/browse/MSEARCH-674))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

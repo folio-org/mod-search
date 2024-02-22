@@ -569,6 +569,45 @@ paths:
         '404':
           description: No feature configuration is found by id
 
+  /browse/config/{browseType}:
+    get:
+      operationId: getBrowseConfigs
+      description: Get all configurations for browse type
+      tags:
+        - config
+      parameters:
+        - $ref: '#/components/parameters/browse-type'
+      responses:
+        '200':
+          description: All browse configurations for type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/browseConfigCollection'
+
+  /browse/config/{browseType}/{browseConfigId}:
+    put:
+      operationId: putBrowseConfig
+      description: Update configuration for browse type
+      tags:
+        - config
+      parameters:
+        - $ref: '#/components/parameters/browse-type'
+        - $ref: '#/components/parameters/browse-config-id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/browseConfig'
+      responses:
+        '200':
+          description: Browse configuration has been added/updated.
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+
 components:
   schemas:
     instance:
@@ -613,6 +652,50 @@ components:
     CallNumberType:
       enum: [ lc, dewey, nlm, sudoc, other, local ]
       type: string
+    browseType:
+      type: string
+      enum:
+        - instance-classification
+    browseOptionType:
+      type: string
+      enum:
+        - all
+        - lc
+        - dewey
+    shelvingOrderAlgorithmType:
+      type: string
+      enum:
+        - lc
+        - dewey
+        - default
+    browseConfig:
+      type: object
+      properties:
+        id:
+          description: Option ID
+          $ref: "#/components/schemas/browseOptionType"
+        shelvingAlgorithm:
+          description: Defines shelving order algorithm
+          $ref: "#/components/schemas/shelvingOrderAlgorithmType"
+        typeIds:
+          description: Type IDs that should be used by the option
+          type: array
+          items:
+            description: Type ID
+            type: string
+            format: uuid
+      required:
+        - id
+        - shelvingAlgorithm
+    browseConfigCollection:
+      type: object
+      properties:
+        configs:
+          type: array
+          items:
+            $ref: '#/components/schemas/browseConfig'
+        totalRecords:
+          type: integer
 
   responses:
     unprocessableEntityResponse:
@@ -750,4 +833,17 @@ components:
       schema:
         type: boolean
         default: true
-
+    browse-config-id:
+      name: browseConfigId
+      in: path
+      required: true
+      description: 'ID of browse config'
+      schema:
+        $ref: '#/components/schemas/browseOptionType'
+    browse-type:
+      name: browseType
+      in: path
+      required: true
+      description: 'Browse feature type'
+      schema:
+        $ref: '#/components/schemas/browseType'

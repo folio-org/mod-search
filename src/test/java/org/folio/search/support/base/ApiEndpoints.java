@@ -2,6 +2,8 @@ package org.folio.search.support.base;
 
 import lombok.experimental.UtilityClass;
 import org.folio.cql2pgjson.model.CqlSort;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 
@@ -51,6 +53,14 @@ public class ApiEndpoints {
 
   public static String featureConfigPath(TenantConfiguredFeature feature) {
     return featureConfigPath() + "/" + feature.getValue();
+  }
+
+  public static String browseConfigPath(BrowseType type) {
+    return "/browse/config/" + type.getValue();
+  }
+
+  public static String browseConfigPath(BrowseType type, BrowseOptionType optionType) {
+    return "/browse/config/" + type.getValue() + "/" + optionType.getValue();
   }
 
   public static String createIndicesPath() {

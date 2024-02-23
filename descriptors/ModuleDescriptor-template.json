@@ -236,6 +236,36 @@
       ]
     },
     {
+      "id": "browse-config",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/browse/config/{browseType}",
+          "permissionsRequired": [
+            "browse.config.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "PUT"
+          ],
+          "pathPattern": "/browse/config/{browseType}/{browseConfigId}",
+          "permissionsRequired": [
+            "browse.config.item.put"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        }
+      ]
+    },
+    {
       "id": "search-config",
       "version": "0.2",
       "handlers": [
@@ -531,6 +561,16 @@
       "permissionName": "search.config.features.item.delete",
       "displayName": "Search - removes feature configuration",
       "description": "Removes feature configuration"
+    },
+    {
+      "permissionName": "browse.config.collection.get",
+      "displayName": "Browse - returns configurations for browse type",
+      "description": "Returns configuration for browse type"
+    },
+    {
+      "permissionName": "browse.config.item.put",
+      "displayName": "Browse - updates configuration entry for browse type",
+      "description": "Updates configuration entry for browse type"
     }
   ],
   "launchDescriptor": {

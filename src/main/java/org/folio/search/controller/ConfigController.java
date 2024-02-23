@@ -6,12 +6,17 @@ import static org.springframework.http.ResponseEntity.ok;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseConfigCollection;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.rest.resource.ConfigApi;
+import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +33,7 @@ public class ConfigController implements ConfigApi {
 
   private final LanguageConfigServiceDecorator languageConfigService;
   private final FeatureConfigServiceDecorator featureConfigService;
+  private final BrowseConfigServiceDecorator browseConfigService;
 
   @Override
   public ResponseEntity<LanguageConfig> createLanguageConfig(@Valid LanguageConfig languageConfig) {
@@ -36,8 +42,9 @@ public class ConfigController implements ConfigApi {
   }
 
   @Override
-  public ResponseEntity<LanguageConfig> updateLanguageConfig(String code, LanguageConfig languageConfig) {
-    return ok(languageConfigService.update(code, languageConfig));
+  public ResponseEntity<Void> deleteFeatureConfigurationById(String feature) {
+    featureConfigService.delete(TenantConfiguredFeature.fromValue(feature));
+    return noContent().build();
   }
 
   @Override
@@ -48,13 +55,25 @@ public class ConfigController implements ConfigApi {
   }
 
   @Override
+  public ResponseEntity<FeatureConfigs> getAllFeatures() {
+    return ok(featureConfigService.getAll());
+  }
+
+  @Override
   public ResponseEntity<LanguageConfigs> getAllLanguageConfigs() {
     return ok(languageConfigService.getAll());
   }
 
   @Override
-  public ResponseEntity<FeatureConfigs> getAllFeatures() {
-    return ok(featureConfigService.getAll());
+  public ResponseEntity<BrowseConfigCollection> getBrowseConfigs(BrowseType browseType) {
+    return ResponseEntity.ok(browseConfigService.getConfigs(browseType));
+  }
+
+  @Override
+  public ResponseEntity<Void> putBrowseConfig(BrowseType browseType, BrowseOptionType browseConfigId,
+                                              BrowseConfig browseConfig) {
+    browseConfigService.upsertConfig(browseType, browseConfigId, browseConfig);
+    return ResponseEntity.ok().build();
   }
 
   @Override
@@ -68,8 +87,8 @@ public class ConfigController implements ConfigApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteFeatureConfigurationById(String feature) {
-    featureConfigService.delete(TenantConfiguredFeature.fromValue(feature));
-    return noContent().build();
+  public ResponseEntity<LanguageConfig> updateLanguageConfig(String code, LanguageConfig languageConfig) {
+    return ok(languageConfigService.update(code, languageConfig));
   }
+
 }

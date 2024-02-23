@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 bin/
 .checkstyle
+.jpb
 
 ### STS ###
 .apt_generated
@@ -36,3 +37,4 @@ build/
 
 ### Development
 application-local.yml
+!/.jpb/

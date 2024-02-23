@@ -20,6 +20,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -45,8 +46,13 @@ public class SearchUtils {
   public static final String TENANT_ID_FIELD_NAME = "tenantId";
   public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
+  public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
+  public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";
   public static final String SHELVING_ORDER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
+  public static final String DEFAULT_SHELVING_ORDER_BROWSING_FIELD = "defaultShelvingOrder";
+  public static final String LC_SHELVING_ORDER_BROWSING_FIELD = "lcShelvingOrder";
+  public static final String DEWEY_SHELVING_ORDER_BROWSING_FIELD = "deweyShelvingOrder";
   public static final String SUBJECT_BROWSING_FIELD = "value";
   public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
@@ -66,6 +72,12 @@ public class SearchUtils {
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
+
+  public static final Map<ShelvingOrderAlgorithmType, String> BROWSE_FIELDS_MAP = Map.of(
+    ShelvingOrderAlgorithmType.DEFAULT, DEFAULT_SHELVING_ORDER_BROWSING_FIELD,
+    ShelvingOrderAlgorithmType.LC, LC_SHELVING_ORDER_BROWSING_FIELD,
+    ShelvingOrderAlgorithmType.DEWEY, DEWEY_SHELVING_ORDER_BROWSING_FIELD
+  );
 
   //CHECKSTYLE.ON: LineLength
   public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT_ID = "instance_subject_upsert_script";

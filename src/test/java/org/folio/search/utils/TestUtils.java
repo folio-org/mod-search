@@ -55,12 +55,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.cql.SuDocCallNumber;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
+import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
@@ -116,14 +117,12 @@ public class TestUtils {
 
   public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
-  private static final EffectiveShelvingOrderTermProcessor SHELVING_ORDER_TERM_PROCESSOR =
-    new EffectiveShelvingOrderTermProcessor();
 
-  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHERVING_ORDER_GENERATORS = Map.of(
-    NLM, callNumber -> new NlmCallNumber(callNumber),
-    LC, callNumber -> new LCCallNumber(callNumber),
-    DEWEY, callNumber -> new DeweyCallNumber(callNumber),
-    SUDOC, callNumber -> new SuDocCallNumber(callNumber)
+  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHELVING_ORDER_GENERATORS = Map.of(
+    NLM, NlmCallNumber::new,
+    LC, LCCallNumber::new,
+    DEWEY, DeweyCallNumber::new,
+    SUDOC, SuDocCallNumber::new
   );
 
   @SneakyThrows
@@ -211,9 +210,8 @@ public class TestUtils {
     var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType))
       .flatMap(item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
         .map(ItemEffectiveCallNumberComponents::getTypeId));
-    var shelfKey = callNumberType.isEmpty()
-      ? getShelfKeyFromCallNumber(callNumber)
-      : getShelfKeyFromCallNumber(callNumber, callNumberType.get());
+    var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber, s))
+      .orElseGet(() -> getShelfKeyFromCallNumber(callNumber));
     return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
       .instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
@@ -252,7 +250,7 @@ public class TestUtils {
 
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
     var callNumberType = CallNumberType.fromId(typeId);
-    return callNumberType.flatMap(numberType -> Optional.ofNullable(SHERVING_ORDER_GENERATORS.get(numberType))
+    return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
         .map(generator -> generator.apply(callNumber))
         .filter(AbstractCallNumber::isValid)
         .map(AbstractCallNumber::getShelfKey))
@@ -288,6 +286,29 @@ public class TestUtils {
     return new SubjectBrowseItem().value(subject);
   }
 
+  public static ClassificationNumberBrowseResult classificationBrowseResult(
+    String prev, String next, int totalRecords, List<ClassificationNumberBrowseItem> items) {
+    return new ClassificationNumberBrowseResult()
+      .prev(prev)
+      .next(next)
+      .items(items)
+      .totalRecords(totalRecords);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords) {
+    return classificationBrowseItem(number, typeId, totalRecords, null);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords, Boolean isAnchor) {
+    return new ClassificationNumberBrowseItem()
+      .classificationNumber(number)
+      .classificationTypeId(typeId)
+      .totalRecords(totalRecords)
+      .isAnchor(isAnchor);
+  }
+
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
                                                                     String nameTypeId, String authorityId,
                                                                     String... typeIds) {
@@ -306,7 +327,7 @@ public class TestUtils {
       .name(name)
       .contributorNameTypeId(nameTypeId)
       .authorityId(authorityId)
-      .contributorTypeId(Arrays.asList(typeIds))
+      .contributorTypeId(asList(typeIds))
       .totalRecords(totalRecords)
       .isAnchor(isAnchor);
   }

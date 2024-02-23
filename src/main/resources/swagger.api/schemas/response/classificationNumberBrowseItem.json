@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Classification number browse search result item",
+  "type": "object",
+  "properties": {
+    "classificationNumber": {
+      "type": "string",
+      "description": "Classification number value to display"
+    },
+    "classificationTypeId": {
+      "type": "string",
+      "description": "Classification type ID value"
+    },
+    "isAnchor": {
+      "type": "boolean",
+      "description": "Marks if current value is anchor or not"
+    },
+    "totalRecords": {
+      "type": "integer",
+      "description": "Amount of records for the classification number value"
+    }
+  }
+}

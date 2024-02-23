@@ -51,11 +51,6 @@ folio:
       browse-cn-intermediate-values: true
       browse-cn-intermediate-remove-duplicates: true
       browse-classifications: true
-    browse-classification-types:
-      lc: LC,LC (local)
-      nlm: NLM
-      dewey: Dewey,Additional Dewey
-      sudoc: SUDOC
     indexing:
       instance-subjects:
         retry-attempts: 3

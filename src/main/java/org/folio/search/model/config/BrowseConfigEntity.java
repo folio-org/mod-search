@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.folio.search.configuration.jpa.StringListConverter;
-import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.Hibernate;
 
 @Getter
 @Setter
@@ -46,12 +46,8 @@ public class BrowseConfigEntity {
     if (o == null) {
       return false;
     }
-    Class<?> effectiveClass = o instanceof HibernateProxy
-                              ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                              : o.getClass();
-    Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                                  ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                                  : this.getClass();
+    Class<?> effectiveClass = Hibernate.getClass(o);
+    Class<?> thisEffectiveClass = Hibernate.getClass(this);
     if (thisEffectiveClass != effectiveClass) {
       return false;
     }

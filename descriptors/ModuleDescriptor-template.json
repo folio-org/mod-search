@@ -183,7 +183,7 @@
     },
     {
       "id": "browse",
-      "version": "1.2",
+      "version": "1.3",
       "handlers": [
         {
           "methods": [
@@ -192,6 +192,18 @@
           "pathPattern": "/browse/call-numbers/instances",
           "permissionsRequired": [
             "browse.call-numbers.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/browse/classification-numbers/{browseOptionId}/instances",
+          "permissionsRequired": [
+            "browse.classification-numbers.instances.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -468,6 +480,11 @@
       "permissionName": "browse.call-numbers.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by call number",
       "description": "Browse instances by given query"
+    },
+    {
+      "permissionName": "browse.classification-numbers.instances.collection.get",
+      "displayName": "Browse - provides collections of browse by classification number",
+      "description": "Browse by classification number"
     },
     {
       "permissionName": "browse.subjects.instances.collection.get",

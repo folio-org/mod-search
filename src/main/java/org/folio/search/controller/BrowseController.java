@@ -4,8 +4,10 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
@@ -14,16 +16,21 @@ import static org.folio.search.utils.SearchUtils.TYPED_CALL_NUMBER_BROWSING_FIEL
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
+import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.CallNumberType;
+import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
+import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.service.BrowseRequest.BrowseRequestBuilder;
 import org.folio.search.rest.resource.BrowseApi;
 import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
+import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
@@ -42,6 +49,7 @@ public class BrowseController implements BrowseApi {
   private final AuthorityBrowseService authorityBrowseService;
   private final CallNumberBrowseService callNumberBrowseService;
   private final ContributorBrowseService contributorBrowseService;
+  private final ClassificationBrowseService classificationBrowseService;
   private final TenantProvider tenantProvider;
 
   @Override
@@ -81,6 +89,21 @@ public class BrowseController implements BrowseApi {
   }
 
   @Override
+  public ResponseEntity<ClassificationNumberBrowseResult> browseInstancesByClassificationNumber(
+    BrowseOptionType browseOptionId, String query, String tenant, Integer limit, Boolean expandAll,
+    Boolean highlightMatch, Integer precedingRecordsCount) {
+
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
+      .resource(INSTANCE_CLASSIFICATION_RESOURCE)
+      .browseOptionType(browseOptionId)
+      .targetField(CLASSIFICATION_NUMBER_BROWSING_FIELD)
+      .build();
+
+    var browseResult = classificationBrowseService.browse(browseRequest);
+    return ResponseEntity.ok(toBrowseResultDto(browseResult));
+  }
+
+  @Override
   public ResponseEntity<ContributorBrowseResult> browseInstancesByContributor(String query, String tenant,
                                                                               Integer limit, Boolean highlightMatch,
                                                                               Integer precedingRecordsCount) {
@@ -110,9 +133,17 @@ public class BrowseController implements BrowseApi {
       .next(browseResult.getNext()));
   }
 
+  private ClassificationNumberBrowseResult toBrowseResultDto(BrowseResult<ClassificationNumberBrowseItem> result) {
+    return new ClassificationNumberBrowseResult()
+      .totalRecords(result.getTotalRecords())
+      .items(result.getRecords())
+      .prev(result.getPrev())
+      .next(result.getNext());
+  }
+
   private BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
-                                                              Boolean expandAll, Boolean highlightMatch,
-                                                              Integer precedingRecordsCount) {
+                                                       Boolean expandAll, Boolean highlightMatch,
+                                                       Integer precedingRecordsCount) {
     if (precedingRecordsCount != null && precedingRecordsCount >= limit) {
       throw new RequestValidationException("Preceding records count must be less than request limit",
         "precedingRecordsCount", String.valueOf(precedingRecordsCount));

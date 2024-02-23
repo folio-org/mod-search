@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Identifiers;
@@ -19,11 +20,8 @@ import org.folio.search.model.client.CqlQueryParam;
 public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T, Set<String>> {
 
   private final ReferenceDataService referenceDataService;
+  @Getter
   private final List<String> identifierNames;
-
-  public List<String> getIdentifierNames() {
-    return identifierNames;
-  }
 
   /**
    * Returns set of filtered identifiers value from event body by specified set of types.
@@ -51,8 +49,7 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
     var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
       getIdentifierNames());
     if (identifierTypeIds.isEmpty()) {
-      log.warn("Failed to provide identifiers for processor: {}]",
-        this.getClass().getSimpleName());
+      log.warn("Failed to provide identifiers for [processor: {}]", this.getClass().getSimpleName());
     }
     return identifierTypeIds;
   }

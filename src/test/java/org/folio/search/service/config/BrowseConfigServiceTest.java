@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
+import java.util.Optional;
 import org.folio.search.converter.BrowseConfigMapper;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
@@ -21,6 +23,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.config.BrowseConfigEntity;
 import org.folio.search.model.config.BrowseConfigId;
 import org.folio.search.repository.BrowseConfigEntityRepository;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,15 +31,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class BrowseConfigServiceTest {
 
   @Mock
   private BrowseConfigEntityRepository repository;
-
   @Mock
   private BrowseConfigMapper mapper;
-
   @InjectMocks
   private BrowseConfigService service;
 
@@ -62,6 +64,30 @@ class BrowseConfigServiceTest {
 
     assertEquals(configs, result);
     verify(repository).findByConfigId_BrowseType(type.getValue());
+  }
+
+  @Test
+  void shouldGetConfig() {
+    var browseConfigId = new BrowseConfigId("instance-classification", "lc");
+    var configEntity = getEntity();
+    given(repository.findById(browseConfigId)).willReturn(Optional.of(configEntity));
+    given(mapper.convert(configEntity)).willReturn(config);
+
+    var result = service.getConfig(type, configId);
+
+    assertEquals(config, result);
+    verify(repository).findById(browseConfigId);
+  }
+
+  @Test
+  void shouldThrowExceptionIfConfigNotExists() {
+    given(repository.findById(any())).willReturn(Optional.empty());
+
+    var exception = assertThrows(IllegalStateException.class, () -> service.getConfig(type, configId));
+
+    String expectedMessage = String.format("Config for %s type %s must be present in database", type.getValue(),
+      configId.getValue());
+    assertTrue(exception.getMessage().contains(expectedMessage));
   }
 
   @Test

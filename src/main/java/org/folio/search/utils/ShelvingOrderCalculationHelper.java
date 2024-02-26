@@ -11,8 +11,8 @@ public class ShelvingOrderCalculationHelper {
 
   public static String calculate(@NonNull String input, @NonNull ShelvingOrderAlgorithmType algorithmType) {
     return switch (algorithmType) {
-      case LC -> new LCCallNumber(input).getShelfKey();
-      case DEWEY -> new DeweyCallNumber(input).getShelfKey();
+      case LC -> new LCCallNumber(input).getShelfKey().trim();
+      case DEWEY -> new DeweyCallNumber(input).getShelfKey().trim();
       case DEFAULT -> CallNumberUtils.normalizeEffectiveShelvingOrder(input);
     };
   }

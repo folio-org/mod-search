@@ -111,6 +111,20 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   }
 
   @Test
+  void browseByClassification_noExactMatch() {
+    var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
+      .param("query", prepareQuery("number < {value} or number >= {value}", "\"292.08\""))
+      .param("limit", "3")
+      .param("precedingRecordsCount", "1");
+    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(classificationBrowseResult("292.07", "333.91", 17, List.of(
+      classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1),
+      classificationBrowseItem("292.08", null, 0, true),
+      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1)
+    )));
+  }
+
+  @Test
   void browseByClassification_lcOptionConfiguredWithTwoIds() {
     updateLcConfig(List.of(UUID.fromString(LC_TYPE_ID), UUID.fromString(DEWEY_TYPE_ID)));
 
@@ -194,7 +208,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   }
 
   private static Instance[] instances() {
-    return subjectBrowseInstanceData().stream()
+    return classificationBrowseInstanceData().stream()
       .map(BrowseClassificationIT::instance)
       .toArray(Instance[]::new);
   }
@@ -214,7 +228,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
-  private static List<List<Object>> subjectBrowseInstanceData() {
+  private static List<List<Object>> classificationBrowseInstanceData() {
     return List.of(
       List.of("instance #01", List.of(pair("BJ1453 .I49 1983", LC_TYPE_ID), pair("HD1691 .I5 1967", LC_TYPE_ID))),
       List.of("instance #02", List.of(pair("BJ1453 .I49 1983", LC2_TYPE_ID))),

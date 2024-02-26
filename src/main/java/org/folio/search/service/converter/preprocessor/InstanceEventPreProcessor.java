@@ -61,12 +61,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       return List.of(event);
     }
 
-    List<ResourceEvent> events = new ArrayList<>();
-    events.add(event);
-
-    var classificationEvents = prepareClassificationEvents(event);
-
-    events.addAll(classificationEvents);
+    var events = prepareClassificationEvents(event);
 
     log.info("preProcess::Finished instance event pre-processing");
     if (log.isDebugEnabled()) {

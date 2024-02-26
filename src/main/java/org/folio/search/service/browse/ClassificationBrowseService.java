@@ -23,7 +23,7 @@ import org.folio.search.model.index.ClassificationResource;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
-import org.folio.search.service.config.BrowseConfigService;
+import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.utils.ShelvingOrderCalculationHelper;
 import org.opensearch.index.query.QueryBuilder;
@@ -38,7 +38,7 @@ public class ClassificationBrowseService
   extends AbstractBrowseServiceBySearchAfter<ClassificationNumberBrowseItem, ClassificationResource> {
 
   private final ConsortiumSearchHelper consortiumSearchHelper;
-  private final BrowseConfigService configService;
+  private final BrowseConfigServiceDecorator configService;
 
   @Override
   protected String getValueForBrowsing(ClassificationNumberBrowseItem browseItem) {

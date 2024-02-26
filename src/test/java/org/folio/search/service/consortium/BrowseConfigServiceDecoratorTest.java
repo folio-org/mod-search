@@ -40,6 +40,19 @@ class BrowseConfigServiceDecoratorTest extends DecoratorBaseTest {
   }
 
   @Test
+  void getConfig() {
+    var expected = new BrowseConfig();
+    when(service.getConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC)).thenReturn(expected);
+    mockExecutor(consortiumTenantExecutor);
+
+    var actual = decorator.getConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC);
+
+    assertThat(actual).isEqualTo(expected);
+    verify(service).getConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC);
+    verify(consortiumTenantExecutor).execute(any());
+  }
+
+  @Test
   void upsertConfig() {
     var config = new BrowseConfig();
     doNothing().when(service).upsertConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC, config);

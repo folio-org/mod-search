@@ -16,6 +16,7 @@
 * Prepare and populate index for classification browse ([MSEARCH-668](https://issues.folio.org/browse/MSEARCH-668))
 * Instance search: Add query search option that search instances by normalized LCCN ([MSEARCH-661](https://issues.folio.org/browse/MSEARCH-661))
 * Implement browse config management endpoints ([MSEARCH-674](https://issues.folio.org/browse/MSEARCH-674))
+* Implement endpoint to browse by classifications ([MSEARCH-665](https://issues.folio.org/browse/MSEARCH-665))
 * Authority search: Modify query search option to search authorities by normalized LCCN ([MSEARCH-663](https://issues.folio.org/browse/MSEARCH-663))
 
 ### Bug fixes

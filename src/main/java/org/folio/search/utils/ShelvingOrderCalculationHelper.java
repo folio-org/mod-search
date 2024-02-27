@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import java.util.Locale;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
@@ -13,7 +14,11 @@ public class ShelvingOrderCalculationHelper {
     return switch (algorithmType) {
       case LC -> new LCCallNumber(input).getShelfKey().trim();
       case DEWEY -> new DeweyCallNumber(input).getShelfKey().trim();
-      case DEFAULT -> CallNumberUtils.normalizeEffectiveShelvingOrder(input);
+      case DEFAULT -> normalize(input);
     };
+  }
+
+  private static String normalize(String input) {
+    return input.toUpperCase(Locale.ROOT).trim();
   }
 }

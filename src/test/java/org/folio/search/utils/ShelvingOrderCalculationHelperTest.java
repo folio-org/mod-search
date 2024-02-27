@@ -34,7 +34,7 @@ class ShelvingOrderCalculationHelperTest {
   @Test
   void shouldCalculateDefaultNumber() {
     String input = "hd1691 ^I5 1967";
-    String expectedShelfKey = "HD1691  I5 1967";
+    String expectedShelfKey = "HD1691 ^I5 1967";
 
     String result = calculate(input, ShelvingOrderAlgorithmType.DEFAULT);
 

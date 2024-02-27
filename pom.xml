@@ -37,7 +37,7 @@
     <folio-spring-support.version>8.0.0</folio-spring-support.version>
     <folio-service-tools.version>3.1.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.6.0</folio-isbn-utils.version>
-    <folio-cql2pgjson.version>35.1.1</folio-cql2pgjson.version>
+    <folio-cql2pgjson.version>35.1.2</folio-cql2pgjson.version>
     <opensearch.version>2.11.1</opensearch.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <!-- bump kafka.version to fix snappy-java vulnerabilities;

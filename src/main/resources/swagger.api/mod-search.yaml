@@ -234,6 +234,33 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /browse/classification-numbers/{browseOptionId}/instances:
+    get:
+      operationId: browseInstancesByClassificationNumber
+      description: Provides list of instances for browsing by classification number
+      tags:
+        - browse
+      parameters:
+        - $ref: '#/components/parameters/browse-option-id'
+        - $ref: '#/components/parameters/cql-query'
+        - $ref: '#/components/parameters/browse-limit-param'
+        - $ref: '#/components/parameters/expand-all-param'
+        - $ref: '#/components/parameters/highlight-match'
+        - $ref: '#/components/parameters/preceding-records-count'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: 'Search result for browsing by call number'
+          content:
+            application/json:
+              example: examples/searchResult.sample
+              schema:
+                $ref: '#/components/schemas/classificationNumberBrowseResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /browse/subjects/instances:
     get:
       operationId: browseInstancesBySubject
@@ -585,7 +612,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/browseConfigCollection'
 
-  /browse/config/{browseType}/{browseConfigId}:
+  /browse/config/{browseType}/{browseOptionId}:
     put:
       operationId: putBrowseConfig
       description: Update configuration for browse type
@@ -593,7 +620,7 @@ paths:
         - config
       parameters:
         - $ref: '#/components/parameters/browse-type'
-        - $ref: '#/components/parameters/browse-config-id'
+        - $ref: '#/components/parameters/browse-option-id'
       requestBody:
         required: true
         content:
@@ -630,6 +657,8 @@ components:
       $ref: schemas/response/authoritySearchResult.json
     callNumberBrowseResult:
       $ref: schemas/response/callNumberBrowseResult.json
+    classificationNumberBrowseResult:
+      $ref: schemas/response/classificationNumberBrowseResult.json
     subjectBrowseResult:
       $ref: schemas/response/subjectBrowseResult.json
     contributorBrowseResult:
@@ -833,11 +862,11 @@ components:
       schema:
         type: boolean
         default: true
-    browse-config-id:
-      name: browseConfigId
+    browse-option-id:
+      name: browseOptionId
       in: path
       required: true
-      description: 'ID of browse config'
+      description: 'Browse option type'
       schema:
         $ref: '#/components/schemas/browseOptionType'
     browse-type:

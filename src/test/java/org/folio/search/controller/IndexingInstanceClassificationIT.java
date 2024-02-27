@@ -5,7 +5,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
-import static org.folio.search.model.client.CqlQueryParam.ID;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -63,13 +62,19 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var instance2 = new Instance().id(instanceId2).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
-    assertCountByQuery(instanceSearchPath(), ID, List.of(instanceId1, instanceId2), 2);
+    assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
     await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).hasSize(1));
 
     var hits = fetchAllInstanceClassifications(TENANT_ID).getHits().getHits();
     var sourceAsMap = hits[0].getSourceAsMap();
     assertThat(sourceAsMap)
-      .contains(entry("number", number), entry("typeId", lcTypeId), entry("shelvingOrder", "N 3123"));
+      .contains(
+        entry("number", number),
+        entry("typeId", lcTypeId),
+        entry("defaultShelvingOrder", "N123"),
+        entry("deweyShelvingOrder", "N 3123"),
+        entry("lcShelvingOrder", "N 3123")
+      );
 
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
@@ -86,14 +91,14 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var classification = new InstanceClassificationsInner().classificationNumber("N123").classificationTypeId("type1");
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByQuery(instanceSearchPath(), ID, List.of(instanceId), 1);
+    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
     await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.classifications(null));
     await(() -> assertThat(fetchAllInstanceClassifications(TENANT_ID).getHits().getHits()).isEmpty());
   }
 
-  private static void assertCountByQuery(String path, CqlQueryParam param, List<String> ids, int expected) {
-    var query = exactMatchAny(param, ids).toString();
+  private static void assertCountByIds(String path, List<String> ids, int expected) {
+    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
     await(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
   }
 

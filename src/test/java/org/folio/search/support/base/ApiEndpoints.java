@@ -30,6 +30,10 @@ public class ApiEndpoints {
     return "/browse/contributors/instances";
   }
 
+  public static String instanceClassificationBrowsePath(BrowseOptionType optionType) {
+    return "/browse/classification-numbers/" + optionType.getValue() + "/instances";
+  }
+
   public static String authorityBrowsePath() {
     return "/browse/authorities";
   }

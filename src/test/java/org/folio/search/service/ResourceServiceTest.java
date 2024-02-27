@@ -49,6 +49,7 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.UnitTest;
@@ -89,6 +90,8 @@ class ResourceServiceTest {
   private IndexNameProvider indexNameProvider;
   @Mock
   private Map<String, ResourceRepository> resourceRepositoryBeans;
+  @Mock
+  private InstanceEventPreProcessor instanceEventPreProcessor;
   @InjectMocks
   private ResourceService indexService;
 
@@ -103,6 +106,7 @@ class ResourceServiceTest {
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
       .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
+    lenient().when(instanceEventPreProcessor.preProcess(any())).thenReturn(emptyList());
   }
 
   @Test

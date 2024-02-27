@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,6 +45,7 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +68,7 @@ public class ResourceService {
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
+  private final InstanceEventPreProcessor instanceEventPreProcessor;
 
   /**
    * Saves list of resourceEvents to elasticsearch.
@@ -154,13 +157,34 @@ public class ResourceService {
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
-    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.saveInstances(fetchedInstances));
+
+    var list = preProcessEvents(fetchedInstances, consortiumInstanceService::saveInstances);
+    return multiTenantSearchDocumentConverter.convert(list);
+  }
+
+  private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents,
+                                               UnaryOperator<List<ResourceEvent>> consortiumFunc) {
+    if (instanceEvents == null) {
+      instanceEvents = Collections.emptyList();
+    }
+    var list = instanceEvents.stream()
+      .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
+      .filter(Objects::nonNull)
+      .flatMap(List::stream)
+      .collect(toList());
+
+    var eventsToIndex = consortiumFunc.apply(instanceEvents);
+    if (eventsToIndex != null) {
+      list.addAll(eventsToIndex);
+    }
+    return list;
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
     messageProducer.prepareAndSendContributorEvents(deleteEvents);
     messageProducer.prepareAndSendSubjectEvents(deleteEvents);
-    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.deleteInstances(deleteEvents));
+    var list = preProcessEvents(deleteEvents, consortiumInstanceService::deleteInstances);
+    return multiTenantSearchDocumentConverter.convert(list);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

@@ -1,6 +1,7 @@
 package org.folio.search.service.consortium;
 
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
@@ -226,7 +227,9 @@ public class ConsortiumSearchHelper {
   }
 
   private String getFieldForResource(String fieldName, String resourceName) {
-    if (resourceName.equals(CONTRIBUTOR_RESOURCE) || resourceName.equals(INSTANCE_SUBJECT_RESOURCE)) {
+    if (resourceName.equals(CONTRIBUTOR_RESOURCE)
+        || resourceName.equals(INSTANCE_SUBJECT_RESOURCE)
+        || resourceName.equals(INSTANCE_CLASSIFICATION_RESOURCE)) {
       return "instances." + fieldName;
     }
     return fieldName;

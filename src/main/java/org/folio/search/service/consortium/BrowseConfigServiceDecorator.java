@@ -19,6 +19,10 @@ public class BrowseConfigServiceDecorator {
     return consortiumTenantExecutor.execute(() -> browseConfigService.getConfigs(type));
   }
 
+  public BrowseConfig getConfig(BrowseType type, BrowseOptionType optionType) {
+    return consortiumTenantExecutor.execute(() -> browseConfigService.getConfig(type, optionType));
+  }
+
   public void upsertConfig(BrowseType type, BrowseOptionType configId, BrowseConfig config) {
     consortiumTenantExecutor.run(() -> browseConfigService.upsertConfig(type, configId, config));
   }

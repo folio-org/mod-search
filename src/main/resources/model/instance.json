@@ -267,14 +267,19 @@
       "type": "object",
       "properties": {
         "id": {
+          "showInResponse": [ "search" ],
           "index": "keyword"
         },
         "tenantId": {
           "index": "keyword",
-          "showInResponse": [ "call-number-browse" ]
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "hrid": {
           "index": "keyword"
+        },
+        "holdingsRecordId": {
+          "showInResponse": [ "search" ],
+          "index": "source"
         },
         "accessionNumber": {
           "index": "source"
@@ -286,12 +291,13 @@
           "index": "source"
         },
         "barcode": {
+          "showInResponse": [ "search" ],
           "index": "keyword"
         },
         "effectiveLocationId": {
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword",
-          "showInResponse": [ "call-number-browse" ]
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
@@ -301,6 +307,7 @@
           "type": "object",
           "properties": {
             "name": {
+              "showInResponse": [ "search" ],
               "searchTypes": [ "facet", "filter", "sort" ],
               "index": "keyword",
               "sort": {
@@ -312,6 +319,7 @@
           }
         },
         "materialTypeId": {
+          "showInResponse": [ "search" ],
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -322,6 +330,26 @@
         },
         "itemLevelCallNumberTypeId": {
           "index": "keyword"
+        },
+        "copyNumber": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "volume": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "enumeration": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "chronology": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "yearCaption": {
+          "showInResponse": [ "search" ],
+          "index": "source"
         },
         "effectiveCallNumberComponents": {
           "type": "object",
@@ -375,6 +403,10 @@
               "index": "multilang"
             }
           }
+        },
+        "temporaryLoanTypeId": {
+          "showInResponse": [ "search" ],
+          "index": "source"
         },
         "administrativeNotes": {
           "index": "multilang"
@@ -434,9 +466,11 @@
       "type": "object",
       "properties": {
         "id": {
+          "showInResponse": [ "search" ],
           "index": "keyword"
         },
         "tenantId": {
+          "showInResponse": [ "search" ],
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -449,6 +483,7 @@
           "index": "keyword"
         },
         "permanentLocationId": {
+          "showInResponse": [ "search" ],
           "searchTypes": [ "facet", "filter" ],
           "index": "keyword"
         },
@@ -457,6 +492,7 @@
           "index": "keyword"
         },
         "discoverySuppress": {
+          "showInResponse": [ "search" ],
           "$type": "suppress"
         },
         "hrid": {
@@ -492,6 +528,22 @@
               "index": "multilang"
             }
           }
+        },
+        "copyNumber": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "callNumberPrefix": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "callNumber": {
+          "showInResponse": [ "search" ],
+          "index": "source"
+        },
+        "callNumberSuffix": {
+          "showInResponse": [ "search" ],
+          "index": "source"
         },
         "administrativeNotes": {
           "index": "multilang"

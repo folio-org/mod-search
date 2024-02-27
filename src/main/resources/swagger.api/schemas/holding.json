@@ -1,91 +1,171 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "Holding description",
-  "type": "object",
   "properties": {
-    "id": {
-      "type": "string",
-      "description": "Unique ID of the holding record"
+    "acquisitionFormat": {
+      "description": "Format of holdings record acquisition",
+      "type": "string"
     },
-    "tenantId": {
-      "description": "Tenant ID",
+    "acquisitionMethod": {
+      "description": "Method of holdings record acquisition",
+      "type": "string"
+    },
+    "administrativeNotes": {
+      "description": "Administrative notes",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "callNumber": {
+      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item.",
+      "type": "string"
+    },
+    "callNumberPrefix": {
+      "description": "Prefix of the call number on the holding level.",
+      "type": "string"
+    },
+    "callNumberSuffix": {
+      "description": "Suffix of the call number on the holding level.",
+      "type": "string"
+    },
+    "callNumberTypeId": {
+      "description": "unique ID for the type of call number on a holdings record, a UUID",
+      "type": "string"
+    },
+    "copyNumber": {
+      "description": "Item/Piece ID (usually barcode) for systems that do not use item records. Ability to designate the copy number if institution chooses to use copy numbers.",
+      "type": "string"
+    },
+    "digitizationPolicy": {
+      "description": "Records information regarding digitization aspects.",
+      "type": "string"
+    },
+    "discoverySuppress": {
+      "description": "records the fact that the record should not be displayed in a discovery system",
+      "type": "boolean"
+    },
+    "effectiveLocationId": {
+      "description": "Effective location is calculated by the system based on the values in the permanent and temporary locationId fields.",
+      "type": "string"
+    },
+    "electronicAccess": {
+      "description": "List of electronic access items",
+      "items": {
+        "$ref": "electronicAccess.json"
+      },
+      "type": "array"
+    },
+    "formerIds": {
+      "description": "Previous ID(s) assigned to the holdings record",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "holdingsStatements": {
+      "description": "Holdings record statements",
+      "items": {
+        "$ref": "holdingsStatement.json"
+      },
+      "type": "array"
+    },
+    "holdingsStatementsForIndexes": {
+      "description": "Holdings record indexes statements",
+      "items": {
+        "$ref": "holdingsStatement.json"
+      },
+      "type": "array"
+    },
+    "holdingsStatementsForSupplements": {
+      "description": "Holdings record supplements statements",
+      "items": {
+        "$ref": "holdingsStatement.json"
+      },
+      "type": "array"
+    },
+    "holdingsTypeId": {
+      "description": "unique ID for the type of this holdings record, a UUID",
+      "type": "string"
+    },
+    "hrid": {
+      "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID",
+      "type": "string"
+    },
+    "id": {
+      "description": "the unique ID of the holdings record; UUID",
+      "type": "string"
+    },
+    "illPolicyId": {
+      "description": "unique ID for an ILL policy, a UUID",
+      "type": "string"
+    },
+    "instanceId": {
+      "description": "Inventory instances identifier",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "metadata.json"
+    },
+    "notes": {
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+        "$ref": "note.json"
+      },
+      "type": "array"
+    },
+    "numberOfItems": {
+      "description": "Text (Number)",
       "type": "string"
     },
     "permanentLocationId": {
-      "type": "string",
-      "description": "The permanent shelving location in which an item resides."
+      "description": "The permanent shelving location in which an item resides.",
+      "type": "string"
     },
-    "discoverySuppress": {
-      "type": "boolean",
-      "description": "Indicates that the record should not be displayed in a discovery system"
+    "receiptStatus": {
+      "description": "Receipt status (e.g. pending, awaiting receipt, partially received, fully received, receipt not required, and cancelled)",
+      "type": "string"
     },
-    "hrid": {
-      "type": "string",
-      "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+    "receivingHistory": {
+      "$ref": "holdingsReceivingHistory.json",
+      "description": "Receiving history of holdings record"
+    },
+    "retentionPolicy": {
+      "description": "Records information regarding how long we have agreed to keep something.",
+      "type": "string"
+    },
+    "shelvingTitle": {
+      "description": "Indicates the shelving form of title.",
+      "type": "string"
     },
     "sourceId": {
       "description": "(A reference to) the source of a holdings record",
       "type": "string"
     },
-    "formerIds": {
-      "type": "array",
-      "description": "Previous identifiers assigned to the holding",
-      "items": {
-        "type": "string"
-      }
-    },
     "statisticalCodeIds": {
-      "type": "array",
       "description": "List of statistical code IDs",
       "items": {
-        "type": "string",
-        "description": "UUID for a statistical code"
-      }
+        "description": "UUID for a statistical code",
+        "type": "string"
+      },
+      "type": "array"
     },
     "tags": {
-      "description": "arbitrary tags associated with this holding",
-      "$ref": "tags.json"
+      "$ref": "tags.json",
+      "description": "arbitrary tags associated with this holding"
     },
-    "holdingsTypeId": {
-      "type": "string",
-      "description": "unique ID for the type of this holdings record, a UUID"
+    "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
     },
-    "callNumberPrefix": {
-      "type": "string",
-      "description": "Prefix of the call number on the holding level."
-    },
-    "callNumber": {
-      "type": "string",
-      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item."
-    },
-    "callNumberSuffix": {
-      "type": "string",
-      "description": "Suffix of the call number on the holding level."
-    },
-    "electronicAccess": {
-      "type": "array",
-      "description": "List of electronic access items",
-      "items": {
-        "$ref": "electronicAccess.json"
-      }
-    },
-    "administrativeNotes": {
-      "type": "array",
-      "description": "Administrative notes",
-      "items": {
-        "type": "string"
-      }
-    },
-    "notes": {
-      "type": "array",
-      "description": "Notes about action, copy, binding etc.",
-      "items": {
-        "$ref": "note.json"
-      }
-    },
-    "metadata": {
-      "$ref": "metadata.json"
+    "temporaryLocationId": {
+      "description": "Temporary location is the temporary location, shelving location, or holding which is a physical place where items are stored, or an Online location.",
+      "type": "string"
     }
   },
-  "required": ["electronicAccess", "notes"]
+  "required": [
+    "electronicAccess",
+    "notes"
+  ],
+  "type": "object"
 }

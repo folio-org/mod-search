@@ -126,6 +126,10 @@ folio:
         concurrency: ${KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.consortium\.instance
         group-id: ${folio.environment}-mod-search-consortium-instance-group
+      classification-type:
+        concurrency: ${KAFKA_CLASSIFICATION_TYPE_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
+        group-id: ${folio.environment}-mod-search-classification-type-group
   okapiUrl: ${okapi.url}
   logging:
     request:

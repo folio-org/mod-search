@@ -36,6 +36,8 @@ public class ReferenceDataService {
         .getResult().stream().map(ReferenceRecord::getId)
         .collect(toSet());
     } catch (Exception e) {
+      log.error(() -> "Fail while fetching reference [type: %s, field: %s, values: %s"
+        .formatted(type.toString(), param.toString(), values), e);
       return Collections.emptySet();
     }
   }

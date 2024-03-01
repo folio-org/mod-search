@@ -272,7 +272,8 @@
             "browse.config.item.put"
           ],
           "modulePermissions": [
-            "user-tenants.collection.get"
+            "user-tenants.collection.get",
+            "inventory-storage.classification-types.collection.get"
           ]
         }
       ]

@@ -53,9 +53,9 @@ public class KafkaConfiguration {
     factory.setBatchListener(true);
     factory.setConsumerFactory(resourceEventConsumerFactory());
     factory.setRecordFilterStrategy(new ResourceChangeFilterStrategy());
-    factory.setBatchInterceptor((records, consumer) -> {
-      records.forEach(record -> record.value().id(record.key()));
-      return records;
+    factory.setBatchInterceptor((consumerRecords, consumer) -> {
+      consumerRecords.forEach(consumerRecord -> consumerRecord.value().id(consumerRecord.key()));
+      return consumerRecords;
     });
     return factory;
   }

@@ -23,7 +23,6 @@ import org.folio.search.model.config.BrowseConfigEntity;
 import org.folio.search.model.config.BrowseConfigId;
 import org.folio.search.repository.BrowseConfigEntityRepository;
 import org.folio.search.utils.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -88,12 +87,12 @@ public class BrowseConfigService {
     repository.saveAll(configs);
   }
 
-  private void validateConfig(@NotNull BrowseOptionType optionType, @NotNull BrowseConfig config) {
+  private void validateConfig(BrowseOptionType optionType, BrowseConfig config) {
     validateOptionType(optionType, config);
     validateTypeIds(config);
   }
 
-  private void validateTypeIds(@NotNull BrowseConfig config) {
+  private void validateTypeIds(BrowseConfig config) {
     var ids = CollectionUtils.toStreamSafe(config.getTypeIds()).map(UUID::toString).collect(Collectors.toSet());
     var existedIds = referenceDataService.fetchReferenceData(CLASSIFICATION_TYPES, CqlQueryParam.ID, ids);
     var difference = SetUtils.difference(ids, existedIds);
@@ -102,7 +101,7 @@ public class BrowseConfigService {
     }
   }
 
-  private static void validateOptionType(@NotNull BrowseOptionType optionType, @NotNull BrowseConfig config) {
+  private static void validateOptionType(BrowseOptionType optionType, BrowseConfig config) {
     if (optionType != config.getId()) {
       throw new RequestValidationException(
         ID_VALIDATION_MSG.formatted(optionType.getValue()), "id", config.getId().toString());

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.search.model.types.ClassificationType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -46,8 +45,6 @@ public class SearchConfigurationProperties {
    * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
   private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();
-
-  private Map<ClassificationType, String[]> browseClassificationTypes = emptyMap();
 
   /**
    * Indexing settings for different resources.

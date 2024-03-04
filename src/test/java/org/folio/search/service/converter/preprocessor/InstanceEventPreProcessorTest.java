@@ -105,8 +105,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .isEmpty();
 
     verifyNoInteractions(instanceClassificationRepository);
   }
@@ -124,8 +123,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(1)
-      .containsExactly(resourceEvent);
+      .isEmpty();
 
     verifyNoInteractions(instanceClassificationRepository);
   }
@@ -148,9 +146,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(3)
-      .startsWith(resourceEvent)
-      .elements(1, 2)
+      .hasSize(2)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant, ResourceEvent::getType)
         .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID, CREATE))
@@ -183,9 +179,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(3)
-      .startsWith(resourceEvent)
-      .elements(1, 2)
+      .hasSize(2)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
         .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
@@ -221,9 +215,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(4)
-      .startsWith(resourceEvent)
-      .elements(1, 2, 3)
+      .hasSize(3)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
         .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
@@ -260,8 +252,7 @@ class InstanceEventPreProcessorTest {
 
     // Assert
     assertThat(resourceEvents)
-      .hasSize(2)
-      .startsWith(resourceEvent);
+      .hasSize(1);
 
     verify(instanceClassificationRepository).saveAll(createCaptor.capture());
 

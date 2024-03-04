@@ -11,6 +11,7 @@ import org.folio.search.domain.dto.BrowseConfigCollection;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.config.BrowseConfigId;
 import org.folio.search.repository.BrowseConfigEntityRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,13 +27,26 @@ public class BrowseConfigService {
   private final BrowseConfigEntityRepository repository;
   private final BrowseConfigMapper mapper;
 
-  @Cacheable(cacheNames = BROWSE_CONFIG_CACHE, key = "@folioExecutionContext.tenantId + ':' + #type.value")
   public BrowseConfigCollection getConfigs(@NonNull BrowseType type) {
     log.debug("Fetch browse configuration [browseType: {}]", type.getValue());
     return mapper.convert(repository.findByConfigId_BrowseType(type.getValue()));
   }
 
-  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE, key = "@folioExecutionContext.tenantId + ':' + #type.value")
+  @Cacheable(cacheNames = BROWSE_CONFIG_CACHE,
+             key = "@folioExecutionContext.tenantId + ':' + #type.value + ':' + #optionType.value")
+  public BrowseConfig getConfig(@NonNull BrowseType type, @NonNull BrowseOptionType optionType) {
+    var typeValue = type.getValue();
+    var optionTypeValue = optionType.getValue();
+    log.debug("Fetch browse configuration [browseType: {}, browseOptionType: {}]", typeValue, optionTypeValue);
+
+    return repository.findById(new BrowseConfigId(typeValue, optionTypeValue))
+      .map(mapper::convert)
+      .orElseThrow(() -> new IllegalStateException(
+        "Config for %s type %s must be present in database".formatted(typeValue, optionTypeValue)));
+  }
+
+  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE,
+              key = "@folioExecutionContext.tenantId + ':' + #type.value + ':' + #optionType.value")
   public void upsertConfig(@NonNull BrowseType type,
                            @NonNull BrowseOptionType optionType,
                            @NonNull BrowseConfig config) {

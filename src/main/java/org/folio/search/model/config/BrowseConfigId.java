@@ -6,7 +6,7 @@ import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.Hibernate;
 
 @Getter
 @Embeddable
@@ -32,12 +32,8 @@ public class BrowseConfigId {
     if (o == null) {
       return false;
     }
-    Class<?> effectiveClass = o instanceof HibernateProxy
-                              ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                              : o.getClass();
-    Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                                  ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                                  : this.getClass();
+    Class<?> effectiveClass = Hibernate.getClass(o);
+    Class<?> thisEffectiveClass = Hibernate.getClass(this);
     if (thisEffectiveClass != effectiveClass) {
       return false;
     }

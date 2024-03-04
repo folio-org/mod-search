@@ -50,6 +50,7 @@ import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,6 +75,7 @@ public abstract class BaseIntegrationTest {
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
+  protected static RestHighLevelClient elasticClient;
 
   @RegisterExtension
   static OkapiExtension okapiExtension =
@@ -82,11 +84,13 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate) {
+    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
+    @Autowired RestHighLevelClient restHighLevelClient) {
     setEnvProperty("folio-test");
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
+    BaseIntegrationTest.elasticClient = restHighLevelClient;
   }
 
   @BeforeAll

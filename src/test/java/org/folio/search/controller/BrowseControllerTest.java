@@ -29,6 +29,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
+import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
@@ -59,6 +60,8 @@ class BrowseControllerTest {
   private CallNumberBrowseService callNumberBrowseService;
   @MockBean
   private ContributorBrowseService contributorBrowseService;
+  @MockBean
+  private ClassificationBrowseService classificationBrowseService;
   @MockBean
   private TenantProvider tenantProvider;
   @Mock

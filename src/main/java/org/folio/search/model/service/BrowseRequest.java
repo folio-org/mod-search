@@ -3,10 +3,11 @@ package org.folio.search.model.service;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.model.ResourceRequest;
 
 @Data
-@Builder()
+@Builder
 @RequiredArgsConstructor(staticName = "of")
 public class BrowseRequest implements ResourceRequest {
 
@@ -19,6 +20,11 @@ public class BrowseRequest implements ResourceRequest {
    * Request tenant id.
    */
   private final String tenantId;
+
+  /**
+   * Browse option type.
+   */
+  private final BrowseOptionType browseOptionType;
 
   /**
    * A CQL query string with search conditions.
@@ -63,7 +69,14 @@ public class BrowseRequest implements ResourceRequest {
   public static BrowseRequest of(String resource, String tenantId, String query, Integer limit, String targetField,
                                  String subField, Boolean expandAll, Boolean highlightMatch,
                                  Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, query, limit, targetField, subField, null, expandAll,
+    return new BrowseRequest(resource, tenantId, null, query, limit, targetField, subField, null, expandAll,
+      highlightMatch, precedingRecordsCount);
+  }
+
+  public static BrowseRequest of(String resource, String tenantId, BrowseOptionType optionType, String query,
+                                 Integer limit, String targetField, String subField, Boolean expandAll,
+                                 Boolean highlightMatch, Integer precedingRecordsCount) {
+    return new BrowseRequest(resource, tenantId, optionType, query, limit, targetField, subField, null, expandAll,
       highlightMatch, precedingRecordsCount);
   }
 }

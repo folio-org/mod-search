@@ -64,6 +64,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
     var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), resourceIdsJob)
       .andExpect(jsonPath("$.query", is(query)))
       .andExpect(jsonPath("$.entityType", is(entityType.name())))
+      .andExpect(jsonPath("$.status", is("IN_PROGRESS")))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {

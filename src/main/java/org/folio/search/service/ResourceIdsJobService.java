@@ -37,7 +37,7 @@ public class ResourceIdsJobService {
     log.info("Attempts to create streamJob by [resourceIdsJob: {}]", entity);
     var savedJob = consortiumTenantExecutor.execute(() -> jobRepository.save(entity));
 
-    consortiumTenantExecutor.run(() -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId));
+    consortiumTenantExecutor.runAsync(() -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId));
     return resourceIdsJobMapper.convert(savedJob);
   }
 

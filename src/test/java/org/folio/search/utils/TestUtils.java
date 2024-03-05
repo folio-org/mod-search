@@ -1,5 +1,9 @@
 package org.folio.search.utils;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
@@ -30,6 +34,7 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
 import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 import static org.opensearch.core.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,7 +43,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -103,6 +111,7 @@ import org.opensearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.opensearch.search.aggregations.bucket.range.ParsedRange;
 import org.opensearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.ResultActions;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -612,6 +621,32 @@ public class TestUtils {
   @SuppressWarnings("unchecked")
   public static <T, P extends T> P spyLambda(Class<T> lambdaType, P lambda) {
     return (P) mock(lambdaType, delegatesTo(lambda));
+  }
+
+  public static MappingBuilder mockClassificationTypes(WireMockServer wireMockServer, UUID... typeIds) {
+    List<String> strings = new ArrayList<>();
+    var stub = get(urlPathEqualTo("/classification-types"));
+    for (var typeId : typeIds) {
+      stub.withQueryParam("query", containing(typeId.toString()));
+      strings.add("""
+        {
+          "id": "%s",
+          "name": "LC"
+        }
+        """.formatted(typeId));
+    }
+    stub.willReturn(aResponse()
+      .withStatus(200)
+      .withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+      .withBody("""
+        {
+          "classificationTypes": [
+             %s
+          ]
+        }
+        """.formatted(String.join(",", strings))));
+    wireMockServer.stubFor(stub);
+    return stub;
   }
 
   private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {

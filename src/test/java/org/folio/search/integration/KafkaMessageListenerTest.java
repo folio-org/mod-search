@@ -16,6 +16,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
+import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
 import static org.folio.search.utils.TestConstants.inventoryContributorTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -45,10 +46,13 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.event.ContributorResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +77,8 @@ class KafkaMessageListenerTest {
   private KafkaMessageListener messageListener;
   @Mock
   private ResourceService resourceService;
+  @Mock
+  private ConfigSynchronizationService configSynchronizationService;
   @Mock
   private SystemUserScopedExecutionService executionService;
 
@@ -274,5 +280,26 @@ class KafkaMessageListenerTest {
     verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
       eq(KAFKA_RETRY_TEMPLATE_NAME),
       any(), any());
+  }
+
+  @Test
+  void handleClassificationTypeEvent_positive_filterOnlyDeleteEvents() {
+    var deleteEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE.getValue(), DELETE, null, emptyMap());
+    var createEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE.getValue(), CREATE, emptyMap(), null);
+    var updateEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE.getValue(), UPDATE, null, null);
+
+    messageListener.handleClassificationTypeEvents(List.of(
+      classificationTypeConsumerRecord(deleteEvent),
+      classificationTypeConsumerRecord(updateEvent),
+      classificationTypeConsumerRecord(createEvent))
+    );
+
+    verify(configSynchronizationService).sync(List.of(deleteEvent), ResourceType.CLASSIFICATION_TYPE);
+    verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
+  }
+
+  @NotNull
+  private static ConsumerRecord<String, ResourceEvent> classificationTypeConsumerRecord(ResourceEvent deleteEvent) {
+    return new ConsumerRecord<>(inventoryClassificationTopic(), 0, 0, RESOURCE_ID, deleteEvent);
   }
 }

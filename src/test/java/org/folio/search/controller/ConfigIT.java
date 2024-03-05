@@ -2,13 +2,19 @@ package org.folio.search.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.TWO_SECONDS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
+import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.mockClassificationTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,7 +35,10 @@ import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.TestUtils;
@@ -222,27 +231,64 @@ class ConfigIT extends BaseIntegrationTest {
   @Test
   void getBrowseConfigs_positive() throws Exception {
     doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
-      .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(3)));
   }
 
   @Test
   void putBrowseConfigs_positive() throws Exception {
+    var typeId1 = UUID.randomUUID();
+    var typeId2 = UUID.randomUUID();
     var config = new BrowseConfig().id(BrowseOptionType.LC)
       .shelvingAlgorithm(ShelvingOrderAlgorithmType.DEFAULT)
-      .addTypeIdsItem(UUID.randomUUID()).addTypeIdsItem(UUID.randomUUID());
+      .addTypeIdsItem(typeId1).addTypeIdsItem(typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config)
-      .andExpect(status().isOk());
+    var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
+
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
 
     var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
-      .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(3)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
     assertThat(configCollection.getConfigs())
       .hasSize(3)
       .contains(config);
+    okapi.wireMockServer().removeStub(stub);
+  }
+
+  @Test
+  void browseConfigs_synchronised_whenDeleteClassificationTypeEventReceived() {
+    var typeId1 = UUID.randomUUID();
+    var typeId2 = UUID.randomUUID();
+    var config = new BrowseConfig().id(BrowseOptionType.LC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.DEFAULT)
+      .addTypeIdsItem(typeId2).addTypeIdsItem(typeId1);
+
+    final var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
+
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+
+    kafkaTemplate.send(inventoryClassificationTopic(), typeId1.toString(), new ResourceEvent()
+      .type(ResourceEventType.DELETE)
+      .tenant(TENANT_ID)
+      .resourceName(ResourceType.CLASSIFICATION_TYPE.getValue())
+      .old(mapOf(ID_FIELD, typeId1.toString()))
+    );
+
+    await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
+      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION));
+
+      var configCollection = parseResponse(result, BrowseConfigCollection.class);
+      for (BrowseConfig browseConfig : configCollection.getConfigs()) {
+        if (browseConfig.getId() == BrowseOptionType.LC) {
+          assertThat(browseConfig.getTypeIds())
+            .hasSize(1)
+            .containsExactly(typeId2);
+        }
+      }
+    });
+
+    okapi.wireMockServer().removeStub(stub);
   }
 
   @SneakyThrows
@@ -257,4 +303,5 @@ class ConfigIT extends BaseIntegrationTest {
     return elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT).getHits()
       .getAt(0).getSourceAsMap();
   }
+
 }

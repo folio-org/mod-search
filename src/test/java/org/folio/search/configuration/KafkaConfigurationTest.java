@@ -1,6 +1,7 @@
 package org.folio.search.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -28,14 +29,14 @@ class KafkaConfigurationTest {
 
   @Test
   void standardListenerContainerFactory() {
-    when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
+    when(kafkaProperties.buildConsumerProperties(any())).thenReturn(Collections.emptyMap());
     var containerFactory = kafkaConfiguration.standardListenerContainerFactory();
     assertThat(containerFactory).isNotNull();
   }
 
   @Test
   void consortiumListenerContainerFactory() {
-    when(kafkaProperties.buildConsumerProperties()).thenReturn(Collections.emptyMap());
+    when(kafkaProperties.buildConsumerProperties(any())).thenReturn(Collections.emptyMap());
     var containerFactory = kafkaConfiguration.consortiumListenerContainerFactory();
     assertThat(containerFactory).isNotNull();
   }

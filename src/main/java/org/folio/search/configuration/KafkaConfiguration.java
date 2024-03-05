@@ -53,6 +53,10 @@ public class KafkaConfiguration {
     factory.setBatchListener(true);
     factory.setConsumerFactory(resourceEventConsumerFactory());
     factory.setRecordFilterStrategy(new ResourceChangeFilterStrategy());
+    factory.setBatchInterceptor((consumerRecords, consumer) -> {
+      consumerRecords.forEach(consumerRecord -> consumerRecord.value().id(consumerRecord.key()));
+      return consumerRecords;
+    });
     return factory;
   }
 
@@ -74,7 +78,7 @@ public class KafkaConfiguration {
   @Bean
   public ConsumerFactory<String, ResourceEvent> resourceEventConsumerFactory() {
     var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
-    Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties());
+    Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties(null));
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
     return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
@@ -83,7 +87,7 @@ public class KafkaConfiguration {
   @Bean
   public ConsumerFactory<String, ConsortiumInstanceEvent> consortiumEventConsumerFactory() {
     var deserializer = new JsonDeserializer<>(ConsortiumInstanceEvent.class);
-    Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties());
+    Map<String, Object> config = new HashMap<>(kafkaProperties.buildConsumerProperties(null));
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
     return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
@@ -133,7 +137,7 @@ public class KafkaConfiguration {
   }
 
   private <T> ProducerFactory<String, T> getProducerFactory() {
-    Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties());
+    Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties(null));
     configProps.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
     return new DefaultKafkaProducerFactory<>(configProps);

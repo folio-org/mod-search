@@ -1,5 +1,6 @@
 package org.folio.search.service.consortium;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
@@ -25,5 +26,9 @@ public class BrowseConfigServiceDecorator {
 
   public void upsertConfig(BrowseType type, BrowseOptionType configId, BrowseConfig config) {
     consortiumTenantExecutor.run(() -> browseConfigService.upsertConfig(type, configId, config));
+  }
+
+  public void deleteTypeIdsFromConfigs(BrowseType type, List<String> ids) {
+    consortiumTenantExecutor.run(() -> browseConfigService.deleteTypeIdsFromConfigs(type, ids));
   }
 }

@@ -17,6 +17,7 @@
 * Instance search: Add query search option that search instances by normalized LCCN ([MSEARCH-661](https://issues.folio.org/browse/MSEARCH-661))
 * Implement browse config management endpoints ([MSEARCH-674](https://issues.folio.org/browse/MSEARCH-674))
 * Implement endpoint to browse by classifications ([MSEARCH-665](https://issues.folio.org/browse/MSEARCH-665))
+* Synchronize browse config with classification types changes ([MSEARCH-683](https://issues.folio.org/browse/MSEARCH-683))
 * Authority search: Modify query search option to search authorities by normalized LCCN ([MSEARCH-663](https://issues.folio.org/browse/MSEARCH-663))
 
 ### Bug fixes
@@ -28,6 +29,7 @@
 * Fix shared filter for subjects/contributors ([MSEARCH-639](https://issues.folio.org/browse/MSEARCH-639))
 * Fix shadow instance's subjects/contributors indexing ([MSEARCH-647](https://issues.folio.org/browse/MSEARCH-647))
 * Mark all exact matches as anchors if there is more then one match ([MSEARCH-669](https://issues.folio.org/browse/MSEARCH-669))
+* Make POST /search/resources/jobs endpoint to work asynchronously ([MSEARCH-685](https://issues.folio.org/browse/MSEARCH-685))
 
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))

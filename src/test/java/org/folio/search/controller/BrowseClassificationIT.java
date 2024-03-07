@@ -12,6 +12,7 @@ import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.classificationBrowseItem;
 import static org.folio.search.utils.TestUtils.classificationBrowseResult;
+import static org.folio.search.utils.TestUtils.mockClassificationTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -153,7 +154,9 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
       .typeIds(typeIds);
 
+    var stub = mockClassificationTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
     doPut(browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    okapi.wireMockServer().removeStub(stub);
   }
 
   private static Stream<Arguments> classificationBrowsingDataProvider() {

@@ -42,6 +42,7 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.DefaultFolioExecutionContext;
@@ -101,6 +102,8 @@ class KafkaMessageListenerIT {
   private ResourceService resourceService;
   @MockBean
   private SystemUserScopedExecutionService executionService;
+  @MockBean
+  private ConfigSynchronizationService configSynchronizationService;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")

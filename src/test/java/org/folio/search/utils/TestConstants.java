@@ -34,6 +34,7 @@ public class TestConstants {
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
   public static final String INVENTORY_BOUND_WITH_TOPIC = "inventory.bound-with";
+  public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
   public static final String CONSORTIUM_INSTANCE_TOPIC = "search.consortium.instance";
 
   public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
@@ -76,6 +77,14 @@ public class TestConstants {
 
   public static String inventoryAuthorityTopic(String tenantId) {
     return getTopicName(tenantId, AUTHORITY_TOPIC);
+  }
+
+  public static String inventoryClassificationTopic() {
+    return inventoryClassificationTopic(TENANT_ID);
+  }
+
+  public static String inventoryClassificationTopic(String tenantId) {
+    return getTopicName(tenantId, INVENTORY_CLASSIFICATION_TYPE_TOPIC);
   }
 
   public static String inventoryContributorTopic() {

@@ -102,27 +102,34 @@ folio:
       - name: search.consortium.instance
         numPartitions: 1
         replicationFactor: 1
+      - name: inventory.classification-type
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2
-        topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)
         group-id: ${folio.environment}-mod-search-events-group
       authorities:
         concurrency: 1
-        topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
+        topic-pattern: (${folio.environment}\.)(.*\.)authorities\.authority
         group-id: ${folio.environment}-mod-search-authorities-group
       contributors:
-        concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.instance-contributor
         group-id: ${folio.environment}-mod-search-contributors-group
       subjects:
-        concurrency: ${KAFKA_SUBJECTS_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_SUBJECTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-subject}
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.instance-subject
         group-id: ${folio.environment}-mod-search-subjects-group
       consortium-instance:
-        concurrency: 2
+        concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.consortium\.instance
         group-id: ${folio.environment}-mod-search-consortium-instance-group
+      classification-type:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
+        group-id: ${folio.environment}-mod-search-classification-type-group
   okapiUrl: ${okapi.url}
   logging:
     request:

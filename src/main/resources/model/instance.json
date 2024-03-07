@@ -579,7 +579,7 @@
     },
     "issn": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_uppercase",
       "processor": "issnProcessor"
     },
     "instanceTags": {

@@ -436,6 +436,20 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("issn = {value}", "0040-781x"),
       arguments("issn = {value}", "*0-781X"),
       arguments("issn = {value}", "*0-781x"),
+      arguments("issn = {value}", "**0-781X"),
+      arguments("issn = {value}", "**0-781x"),
+      arguments("issn = {value}", "***0-***X"),
+      arguments("issn = {value}", "***0-***x"),
+      arguments("issn = {value}", "00*0-*8*X"),
+      arguments("issn = {value}", "00*0-*8*x"),
+      arguments("issn = {value}", "***0-***X"),
+      arguments("issn = {value}", "***0-***x"),
+      arguments("issn = {value}", "***0-*X"),
+      arguments("issn = {value}", "***0-**x"),
+      arguments("issn = {value}", "0**-**x"),
+      arguments("issn = {value}", "0*-*x"),
+      arguments("issn = {value}", "*X"),
+      arguments("issn = {value}", "*x"),
       arguments("issn = {value}", "0040-781*")
       );
   }

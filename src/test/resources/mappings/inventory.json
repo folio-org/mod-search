@@ -33,10 +33,6 @@
               "name": "Invalid ISSN"
             },
             {
-              "id": "000000b2-03ed-469a-8179-c1092c991222",
-              "name": "ISSN with trailing X"
-            },
-            {
               "id": "913300b2-03ed-469a-8179-c1092c991227",
               "name": "ISSN"
             }

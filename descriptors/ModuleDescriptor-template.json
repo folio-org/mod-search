@@ -140,6 +140,24 @@
       ]
     },
     {
+      "id": "consortium-search",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/holdings",
+          "permissionsRequired": [
+            "consortium-search.holdings.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        }
+      ]
+    },
+    {
       "id": "resource-ids-streaming",
       "version": "0.3",
       "handlers": [
@@ -589,6 +607,11 @@
       "permissionName": "browse.config.item.put",
       "displayName": "Browse - updates configuration entry for browse type",
       "description": "Updates configuration entry for browse type"
+    },
+    {
+      "permissionName": "consortium-search.holdings.collection.get",
+      "displayName": "Consortium Search - fetch holdings records",
+      "description": "Returns holdings records in consortium"
     }
   ],
   "launchDescriptor": {

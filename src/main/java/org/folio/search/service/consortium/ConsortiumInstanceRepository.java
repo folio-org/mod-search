@@ -1,5 +1,6 @@
 package org.folio.search.service.consortium;
 
+import static org.folio.search.service.consortium.ConsortiumSearchQueryBuilder.CONSORTIUM_TABLES;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.ConsortiumHolding;
+import org.folio.search.model.types.ResourceType;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ConsortiumInstanceRepository {
 
-  static final String CONSORTIUM_INSTANCE_TABLE_NAME = "consortium_instance";
   private static final String SELECT_BY_ID_SQL = "SELECT * FROM %s WHERE instance_id IN (%s)";
   private static final String DELETE_BY_TENANT_AND_ID_SQL = "DELETE FROM %s WHERE tenant_id = ? AND instance_id = ?;";
   private static final String UPSERT_SQL = """
@@ -74,12 +76,27 @@ public class ConsortiumInstanceRepository {
     );
   }
 
+  public List<ConsortiumHolding> fetchHoldings(ConsortiumSearchQueryBuilder searchQueryBuilder) {
+    return jdbcTemplate.query(con -> searchQueryBuilder.buildSelectQuery(context, con),
+      (rs, rowNum) -> new ConsortiumHolding()
+        .id(rs.getString("id"))
+        .hrid(rs.getString("hrid"))
+        .tenantId(rs.getString("tenantId"))
+        .instanceId(rs.getString("instanceId"))
+        .callNumberPrefix(rs.getString("callNumberPrefix"))
+        .callNumber(rs.getString("callNumber"))
+        .copyNumber(rs.getString("copyNumber"))
+        .permanentLocationId(rs.getString("permanentLocationId"))
+        .discoverySuppress(rs.getBoolean("discoverySuppress"))
+    );
+  }
+
   private ConsortiumInstance toConsortiumInstance(ResultSet rs) throws SQLException {
     var id = new ConsortiumInstanceId(rs.getString(TENANT_ID_COLUMN), rs.getString(INSTANCE_ID_COLUMN));
     return new ConsortiumInstance(id, rs.getString(JSON_COLUMN));
   }
 
   private String getTableName() {
-    return getFullTableName(context, CONSORTIUM_INSTANCE_TABLE_NAME);
+    return getFullTableName(context, CONSORTIUM_TABLES.get(ResourceType.INSTANCE));
   }
 }

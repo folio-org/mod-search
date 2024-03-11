@@ -1,0 +1,67 @@
+{
+  "totalRecords": 1,
+  "instances": [
+    {
+      "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+      "tenantId": "test_tenant",
+      "shared": false,
+      "title": "A semantic web primer :0747-0850 & wolves",
+      "contributors": [
+        {
+          "name": "Antoniou, Grigoris matthew",
+          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
+        },
+        {
+          "name": "Van Harmelen, Frank",
+          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+          "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
+          "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c",
+          "primary": true
+        }
+      ],
+      "publication": [
+        {
+          "publisher": "MIT Press",
+          "dateOfPublication": "c2004"
+        }
+      ],
+      "staffSuppress": false,
+      "discoverySuppress": false,
+      "isBoundWith": true,
+      "electronicAccess": [],
+      "notes": [],
+      "items": [
+        {
+          "chronology": "",
+          "copyNumber": "Copy 2",
+          "effectiveCallNumberComponents": {
+            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+            "prefix": "prefix-10101",
+            "suffix": "suffix-10101",
+            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+          },
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "enumeration": "",
+          "notes": [],
+          "volume": "v1",
+          "yearCaption": []
+        },
+        {
+          "chronology": "",
+          "effectiveCallNumberComponents": {
+            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+            "prefix": "prefix-90000",
+            "suffix": "suffix-90000",
+            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+          },
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "enumeration": "",
+          "notes": [],
+          "yearCaption": []
+        }
+      ],
+      "holdings": []
+    }
+  ]
+}

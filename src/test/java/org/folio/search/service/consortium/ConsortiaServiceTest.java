@@ -1,7 +1,7 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +29,7 @@ class ConsortiaServiceTest {
   @Test
   void getCentralTenant_positive() {
     var userTenants = new UserTenantsClient.UserTenants(Collections.singletonList(
-      new UserTenantsClient.UserTenant(CONSORTIUM_TENANT_ID)));
+      new UserTenantsClient.UserTenant(CENTRAL_TENANT_ID)));
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
@@ -38,7 +38,7 @@ class ConsortiaServiceTest {
     assertThat(actual)
       .isNotEmpty()
       .get()
-      .isEqualTo(CONSORTIUM_TENANT_ID);
+      .isEqualTo(CENTRAL_TENANT_ID);
   }
 
   @Test

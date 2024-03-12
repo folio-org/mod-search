@@ -49,6 +49,15 @@ class SearchInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }
 
+  @MethodSource("testIssnDataProvider")
+  @DisplayName("search by instances case insensitive ISSN with trailing X")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
+  void searchByInstancesCaseInsensitiveIssn_parameterized_singleResult(String query, String value) throws Throwable {
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+  }
+
   @ParameterizedTest(name = "[{index}] {0}")
   @CsvSource({
     "title == {value}, web semantic",
@@ -348,5 +357,29 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword ==/string {value}", "0262012103"),
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
     );
+  }
+
+  private static Stream<Arguments> testIssnDataProvider() {
+    return Stream.of(
+      arguments("issn = {value}", "0040-781X"),
+      arguments("issn = {value}", "0040-781x"),
+      arguments("issn = {value}", "*0-781X"),
+      arguments("issn = {value}", "*0-781x"),
+      arguments("issn = {value}", "**0-781X"),
+      arguments("issn = {value}", "**0-781x"),
+      arguments("issn = {value}", "***0-***X"),
+      arguments("issn = {value}", "***0-***x"),
+      arguments("issn = {value}", "00*0-*8*X"),
+      arguments("issn = {value}", "00*0-*8*x"),
+      arguments("issn = {value}", "***0-***X"),
+      arguments("issn = {value}", "***0-***x"),
+      arguments("issn = {value}", "***0-*X"),
+      arguments("issn = {value}", "***0-**x"),
+      arguments("issn = {value}", "0**-**x"),
+      arguments("issn = {value}", "0*-*x"),
+      arguments("issn = {value}", "*X"),
+      arguments("issn = {value}", "*x"),
+      arguments("issn = {value}", "0040-781*")
+      );
   }
 }

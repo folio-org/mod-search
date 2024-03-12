@@ -19,6 +19,7 @@
 * Implement endpoint to browse by classifications ([MSEARCH-665](https://issues.folio.org/browse/MSEARCH-665))
 * Synchronize browse config with classification types changes ([MSEARCH-683](https://issues.folio.org/browse/MSEARCH-683))
 * Authority search: Modify query search option to search authorities by normalized LCCN ([MSEARCH-663](https://issues.folio.org/browse/MSEARCH-663))
+* Add ability to case insensitive search ISSNs with trailing roman numerals ([MSEARCH-672](https://folio-org.atlassian.net/browse/MSEARCH-672))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

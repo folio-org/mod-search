@@ -77,7 +77,7 @@ public class ConsortiumInstanceRepository {
   }
 
   public List<ConsortiumHolding> fetchHoldings(ConsortiumSearchQueryBuilder searchQueryBuilder) {
-    return jdbcTemplate.query(con -> searchQueryBuilder.buildSelectQuery(context, con),
+    return jdbcTemplate.query(searchQueryBuilder.buildSelectQuery(context),
       (rs, rowNum) -> new ConsortiumHolding()
         .id(rs.getString("id"))
         .hrid(rs.getString("hrid"))
@@ -87,7 +87,8 @@ public class ConsortiumInstanceRepository {
         .callNumber(rs.getString("callNumber"))
         .copyNumber(rs.getString("copyNumber"))
         .permanentLocationId(rs.getString("permanentLocationId"))
-        .discoverySuppress(rs.getBoolean("discoverySuppress"))
+        .discoverySuppress(rs.getBoolean("discoverySuppress")),
+      searchQueryBuilder.getQueryArguments()
     );
   }
 

@@ -6,9 +6,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.wrap;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,7 +35,7 @@ public class ConsortiumSearchQueryBuilder {
 
   public ConsortiumSearchQueryBuilder(ConsortiumSearchContext searchContext) {
     this.searchContext = searchContext;
-    this.filters = getFilters(searchContext.getResourceType());
+    this.filters = prepareFilters(searchContext.getResourceType());
   }
 
   public String buildSelectQuery(FolioExecutionContext context) {
@@ -55,12 +52,10 @@ public class ConsortiumSearchQueryBuilder {
     return StringUtils.normalizeSpace(query);
   }
 
-  public PreparedStatement buildSelectQuery(FolioExecutionContext context, Connection con) throws SQLException {
-    var preparedStatement = con.prepareStatement(buildSelectQuery(context));
-    for (int i = 0; i < filters.size(); i++) {
-      preparedStatement.setString(i + 1, filters.get(i).getSecond());
-    }
-    return preparedStatement;
+  public Object[] getQueryArguments() {
+    return filters.stream()
+      .map(Pair::getSecond)
+      .toArray();
   }
 
   private String getOffsetClause() {
@@ -110,7 +105,7 @@ public class ConsortiumSearchQueryBuilder {
     return conditionsClause.isBlank() ? conditionsClause : "WHERE " + conditionsClause;
   }
 
-  private List<Pair<String, String>> getFilters(ResourceType resourceType) {
+  private List<Pair<String, String>> prepareFilters(ResourceType resourceType) {
     var mappedFilterNames = RESOURCE_FILTER_DATABASE_NAME.get(resourceType);
     return searchContext.getFilters().stream()
       .map(filter -> {

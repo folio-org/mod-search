@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class ConsortiumSearchContextTest {
 
   @Test
-  public void testBuilder_success() {
+  void testBuilder_success() {
     ConsortiumSearchContext consContext = ConsortiumSearchContext.builderFor(ResourceType.HOLDINGS)
       .filter("name", "value")
       .limit(10)
@@ -35,14 +35,14 @@ class ConsortiumSearchContextTest {
   }
 
   @Test
-  public void testBuilder_error_filterIsRequired() {
+  void testBuilder_error_filterIsRequired() {
     var searchContextBuilder = ConsortiumSearchContext.builderFor(ResourceType.HOLDINGS).sortBy("id");
     Exception exception = assertThrows(RequestValidationException.class, searchContextBuilder::build);
     assertEquals(FILTER_REQUIRED_MSG, exception.getMessage());
   }
 
   @Test
-  public void testBuilder_error_sortNotAllowed() {
+  void testBuilder_error_sortNotAllowed() {
     var searchContextBuilder = ConsortiumSearchContext.builderFor(ResourceType.HOLDINGS)
       .filter("name", "value")
       .sortBy("wrongField");

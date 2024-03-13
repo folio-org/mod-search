@@ -10,7 +10,7 @@ import static org.folio.search.model.Pair.pair;
 import static org.folio.search.support.base.ApiEndpoints.instanceClassificationBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestUtils.classificationBrowseItem;
 import static org.folio.search.utils.TestUtils.classificationBrowseResult;
@@ -47,11 +47,11 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(CONSORTIUM_TENANT_ID);
+    setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
-    saveRecords(CONSORTIUM_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
       INSTANCES_CENTRAL.length,
-      instance -> inventoryApi.createInstance(CONSORTIUM_TENANT_ID, instance));
+      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
       INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
@@ -59,7 +59,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
-        .indices(getIndexName(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, CONSORTIUM_TENANT_ID));
+        .indices(getIndexName(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(17);
     });

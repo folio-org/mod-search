@@ -4,6 +4,7 @@ import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.CallNumberType;
 import org.folio.search.domain.dto.RecordType;
+import org.folio.search.domain.dto.SortOrder;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
@@ -18,6 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addConverter(new StringToCallNumberTypeEnumConverter());
     registry.addConverter(new StringToBrowseTypeConverter());
     registry.addConverter(new StringToBrowseOptionTypeConverter());
+    registry.addConverter(new StringToSortOrderTypeConverter());
   }
 
   private static final class StringToRecordTypeEnumConverter implements Converter<String, RecordType> {
@@ -45,6 +47,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public BrowseOptionType convert(String source) {
       return BrowseOptionType.fromValue(source.toLowerCase());
+    }
+  }
+
+  private static final class StringToSortOrderTypeConverter implements Converter<String, SortOrder> {
+    @Override
+    public SortOrder convert(String source) {
+      return SortOrder.fromValue(source.toLowerCase());
     }
   }
 }

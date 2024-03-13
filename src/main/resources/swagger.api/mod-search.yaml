@@ -202,6 +202,32 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /search/consortium/holdings:
+    get:
+      operationId: getConsortiumHoldings
+      description: Get a list of holdings (only for consortium environment)
+      tags:
+        - search-consortium
+      parameters:
+        - $ref: '#/components/parameters/instance-id-query-param'
+        - $ref: '#/components/parameters/tenant-id-query-param'
+        - $ref: '#/components/parameters/consortium-limit-param'
+        - $ref: '#/components/parameters/offset-param'
+        - $ref: '#/components/parameters/sort-by-holdings-param'
+        - $ref: '#/components/parameters/sort-order-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: List of holdings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumHoldingCollection'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /browse/call-numbers/instances:
     get:
       operationId: browseInstancesByCallNumber
@@ -725,6 +751,50 @@ components:
             $ref: '#/components/schemas/browseConfig'
         totalRecords:
           type: integer
+    consortiumHolding:
+      type: object
+      properties:
+        id:
+          description: Holdings ID
+          type: string
+        hrid:
+          description: Holdings HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Holding
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        discoverySuppress:
+          description: Discovery suppress flag
+          type: boolean
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent Location ID
+          type: string
+    consortiumHoldingCollection:
+      type: object
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumHolding'
+        totalRecords:
+          type: integer
+    sortOrder:
+      type: string
+      enum:
+        - asc
+        - desc
 
   responses:
     unprocessableEntityResponse:
@@ -755,6 +825,15 @@ components:
         type: integer
         minimum: 0
         maximum: 500
+        default: 100
+    consortium-limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1000
         default: 100
     browse-limit-param:
       in: query
@@ -855,6 +934,44 @@ components:
       required: true
       schema:
         type: string
+    instance-id-query-param:
+      in: query
+      name: instanceId
+      description: UUID of the instance
+      required: false
+      schema:
+        type: string
+    tenant-id-query-param:
+      in: query
+      name: tenantId
+      description: Tenant ID
+      required: false
+      schema:
+        type: string
+    sort-by-holdings-param:
+      in: query
+      name: sortBy
+      description: |
+        Defines a field to sort by. 
+        Possible values:
+          - id
+          - hrid
+          - tenantId
+          - instanceId
+          - callNumberPrefix
+          - callNumber
+          - copyNumber
+          - permanentLocationId
+      required: false
+      schema:
+        type: string
+    sort-order-param:
+      in: query
+      name: sortOrder
+      description: Defines sorting order
+      required: false
+      schema:
+        $ref: '#/components/schemas/sortOrder'
     include-number-of-titles:
       in: query
       name: includeNumberOfTitles

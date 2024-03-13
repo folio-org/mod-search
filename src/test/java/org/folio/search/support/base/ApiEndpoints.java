@@ -1,9 +1,12 @@
 package org.folio.search.support.base;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.Pair;
 
 @UtilityClass
 public class ApiEndpoints {
@@ -11,6 +14,18 @@ public class ApiEndpoints {
   public static String instanceSearchPath() {
     return "/search/instances";
   }
+
+  public static String consortiumHoldingsSearchPath() {
+    return "/search/consortium/holdings";
+  }
+
+  public static String consortiumHoldingsSearchPath(List<Pair<String, String>> queryParams) {
+    var queryParamString = queryParams.stream()
+      .map(param -> param.getFirst() + "=" + param.getSecond())
+      .collect(Collectors.joining("&"));
+    return consortiumHoldingsSearchPath() + "?" + queryParamString;
+  }
+
 
   public static String authoritySearchPath() {
     return "/search/authorities";

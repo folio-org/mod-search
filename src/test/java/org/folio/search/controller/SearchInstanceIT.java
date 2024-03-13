@@ -1,30 +1,23 @@
 package org.folio.search.controller;
 
-import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
+import static org.folio.search.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Holding;
+import org.assertj.core.api.Assertions;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.model.service.ResultList;
+import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.test.type.IntegrationTest;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -104,76 +97,23 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
-  void responseContainsOnlyBasicInstanceProperties() throws Exception {
-    var expected = getSemanticWeb();
-    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()))
-      .andExpect(jsonPath("totalRecords", is(1)))
-      // make sure that no unexpected properties are present
-      .andExpect(jsonPath("instances[0].length()", is(13)));
+  void responseContainsOnlyBasicInstanceProperties() {
+    var expected = getInstanceBasicResponseSample();
+    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()));
 
-    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
-    assertThat(actual.getId(), is(expected.getId()));
-    assertThat(actual.getTitle(), is(expected.getTitle()));
-    assertThat(actual.getContributors(), is(expected.getContributors()));
-    assertThat(actual.getStaffSuppress(), is(false));
-    assertThat(actual.getIsBoundWith(), is(true));
-    assertThat(actual.getDiscoverySuppress(), is(expected.getDiscoverySuppress()));
-    assertThat(actual.getPublication(), is(expected.getPublication()));
-    assertThat(actual.getItems(), is(List.of(
-      new Item()
-        .effectiveCallNumberComponents(callNumber("prefix-10101", "suffix-10101"))
-        .effectiveShelvingOrder("TK 45105.88815 A58 42004 FT MEADE"),
-      new Item()
-        .effectiveCallNumberComponents(callNumber("prefix-90000", "suffix-90000"))
-        .effectiveShelvingOrder("TK 45105.88815 A58 42004 FT MEADE")
-    )));
-    assertThat(actual.getHoldings(), is(List.of()));
-    assertThat(actual.getElectronicAccess(), is(List.of()));
-    assertThat(actual.getNotes(), is(List.of()));
+    var actual = parseResponse(response, InstanceSearchResult.class);
+
+    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
-  void responseContainsAllInstanceProperties() throws Exception {
-    var expected = getSemanticWeb();
-    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true)
-      .andExpect(jsonPath("totalRecords", is(1)));
+  void responseContainsAllInstanceProperties() {
+    var expected = getInstanceFullResponseSample();
+    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true);
 
-    var actual = parseResponse(response, new TypeReference<ResultList<Instance>>() { }).getResult().get(0);
+    var actual = parseResponse(response, InstanceSearchResult.class);
 
-    assertThat(actual.getHoldings(), containsInAnyOrder(expected.getHoldings().stream()
-      .map(hr -> hr.discoverySuppress(false))
-      .map(SearchInstanceIT::removeUnexpectedProperties)
-      .map(Matchers::is).collect(Collectors.toList())));
-
-    assertThat(actual.getItems(), containsInAnyOrder(expected.getItems().stream()
-      .map(SearchInstanceIT::removeUnexpectedProperties)
-      .map(Matchers::is).collect(Collectors.toList())));
-
-    assertThat(actual.tenantId(null).shared(null).holdings(null).items(null),
-      is(removeUnexpectedProperties(expected)));
-  }
-
-  private static Holding removeUnexpectedProperties(Holding holding) {
-    holding.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
-    return holding.callNumberSuffix(null).callNumber(null).callNumberPrefix(null);
-  }
-
-  private static Item removeUnexpectedProperties(Item item) {
-    item.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
-    return item.discoverySuppress(false);
-  }
-
-  private static Instance removeUnexpectedProperties(Instance instance) {
-    instance.getElectronicAccess().forEach(e -> e.setMaterialsSpecification(null));
-    instance.setTenantId(null);
-    instance.setShared(null);
-    return instance.staffSuppress(false).discoverySuppress(false).items(null).holdings(null);
-  }
-
-  private static ItemEffectiveCallNumberComponents callNumber(String prefix, String suffix) {
-    return new ItemEffectiveCallNumberComponents().prefix(prefix).suffix(suffix)
-      .callNumber("TK5105.88815 . A58 2004 FT MEADE")
-      .typeId("512173a7-bd09-490e-b773-17d83f2b63fe");
+    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
 
   private static Stream<Arguments> testDataProvider() {
@@ -235,7 +175,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("identifiers.value all ({value})", "047144250X and 2003065165 and 0317-8471"),
       arguments("identifiers.identifierTypeId == {value}", "c858e4f2-2b6b-4385-842b-60732ee14abb"),
       arguments("identifiers.identifierTypeId == 8261054f-be78-422d-bd51-4ed9f33c3422 "
-        + "and identifiers.value == {value}", "0262012103"),
+                + "and identifiers.value == {value}", "0262012103"),
 
       arguments("publisher all {value}", "MIT"),
       arguments("publisher all {value}", "mit"),
@@ -401,4 +341,5 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
     );
   }
+
 }

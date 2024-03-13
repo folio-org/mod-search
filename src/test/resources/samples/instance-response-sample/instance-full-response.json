@@ -1,0 +1,379 @@
+{
+  "totalRecords": 1,
+  "instances": [
+    {
+      "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+      "tenantId": "test_tenant",
+      "shared": false,
+      "hrid": "inst000000000022",
+      "source": "FOLIO",
+      "statisticalCodeIds": [
+        "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+      ],
+      "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+      "title": "A semantic web primer :0747-0850 & wolves",
+      "indexTitle": "Semantic web primer",
+      "series": [
+        {
+          "value": "Cooperative information systems",
+          "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+        }
+      ],
+      "alternativeTitles": [
+        {
+          "alternativeTitle": "An alternative title"
+        },
+        {
+          "alternativeTitle": "déjà vu"
+        },
+        {
+          "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+        },
+        {
+          "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
+          "alternativeTitle": "An Uniform title"
+        },
+        {
+          "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+          "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+        }
+      ],
+      "identifiers": [
+        {
+          "value": "0262012103",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "9781609383657",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "9780262012102",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "978-0-471-44250-9 (cloth : alk. paper)",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "047144250X",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "2003065165",
+          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+        },
+        {
+          "value": "0317-8471",
+          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+        },
+        {
+          "value": "(OCoLC)ocm0060710867",
+          "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+        },
+        {
+          "value": "ocm0012345 800630",
+          "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+        }
+      ],
+      "contributors": [
+        {
+          "name": "Antoniou, Grigoris matthew",
+          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
+        },
+        {
+          "name": "Van Harmelen, Frank",
+          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+          "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
+          "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c",
+          "primary": true
+        }
+      ],
+      "subjects": [
+        {
+          "value": "Semantic Web",
+          "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+        }
+      ],
+      "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+      "instanceFormatIds": [
+        "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+      ],
+      "languages": [
+        "eng"
+      ],
+      "metadata": {
+        "createdDate": "2020-12-08T15:47:13.625+00:00",
+        "updatedDate": "2021-01-15T15:17:22.851+00:00",
+        "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
+      },
+      "administrativeNotes": [
+        "original + pcc",
+        "for deletion"
+      ],
+      "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+      "natureOfContentTermIds": [
+        "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+      ],
+      "publication": [
+        {
+          "publisher": "MIT Press",
+          "dateOfPublication": "c2004"
+        }
+      ],
+      "staffSuppress": false,
+      "discoverySuppress": false,
+      "isBoundWith": true,
+      "tags": {
+        "tagList": [
+          "book",
+          "electronic",
+          "electronic book"
+        ]
+      },
+      "classifications": [
+        {
+          "classificationNumber": "025.04"
+        },
+        {
+          "classificationNumber": "TK5105.88815 .A58 2004"
+        }
+      ],
+      "electronicAccess": [
+        {
+          "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+          "linkText": "electronic access link text",
+          "publicNote": "Online access via Wiley (1996-current)"
+        }
+      ],
+      "notes": [
+        {
+          "note": "Includes bibliographical references and index.",
+          "staffOnly": false
+        },
+        {
+          "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+          "staffOnly": false
+        },
+        {
+          "note": "Librarian private note",
+          "staffOnly": true
+        }
+      ],
+      "items": [
+        {
+          "accessionNumber": "item_accession_number",
+          "administrativeNotes": [
+            "v1.1",
+            "need attention"
+          ],
+          "barcode": "10101",
+          "chronology": "",
+          "circulationNotes": [
+            {
+              "note": "testCirculationNote",
+              "staffOnly": false
+            }
+          ],
+          "copyNumber": "Copy 2",
+          "discoverySuppress": false,
+          "effectiveCallNumberComponents": {
+            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+            "prefix": "prefix-10101",
+            "suffix": "suffix-10101",
+            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+          },
+          "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "electronicAccess": [
+            {
+              "uri": "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
+              "linkText": "Links available",
+              "publicNote": "Table of contents only"
+            }
+          ],
+          "enumeration": "",
+          "formerIds": [
+            "207b9372-127f-4bdd-83e0-147c9fe9bc16",
+            "81ae0f60-f2bc-450c-84c8-5a21096daed9"
+          ],
+          "hrid": "item000000000014",
+          "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
+          "itemIdentifier": "itemIdentifierFieldValue",
+          "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
+          "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+          "metadata": {
+            "createdDate": "2020-12-08T15:47:21.327+00:00",
+            "updatedDate": "2021-01-18T08:17:56.752+00:00",
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
+          },
+          "notes": [],
+          "statisticalCodeIds": [
+            "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+          ],
+          "status": {
+            "name": "Available"
+          },
+          "tags": {
+            "tagList": [
+              "item-tag"
+            ]
+          },
+          "volume": "v1",
+          "yearCaption": []
+        },
+        {
+          "administrativeNotes": [
+            "v1.2"
+          ],
+          "barcode": "90000",
+          "chronology": "",
+          "circulationNotes": [
+            {
+              "note": "private circulation note",
+              "staffOnly": true
+            },
+            {
+              "note": "public circulation note",
+              "staffOnly": false
+            }
+          ],
+          "discoverySuppress": false,
+          "effectiveCallNumberComponents": {
+            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+            "prefix": "prefix-90000",
+            "suffix": "suffix-90000",
+            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+          },
+          "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "electronicAccess": [
+            {
+              "uri": "http://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
+              "linkText": "Links available",
+              "publicNote": "Table of contents only"
+            }
+          ],
+          "enumeration": "",
+          "formerIds": [],
+          "hrid": "item000000000015",
+          "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
+          "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+          "metadata": {
+            "createdDate": "2020-12-08T15:47:22.827+00:00",
+            "updatedDate": "2020-12-08T15:47:22.827+00:00"
+          },
+          "notes": [
+            {
+              "note": "Includes bibliographical references and index of item.",
+              "staffOnly": false
+            },
+            {
+              "note": "Librarian public note for item",
+              "staffOnly": false
+            },
+            {
+              "note": "Librarian private note for item",
+              "staffOnly": true
+            }
+          ],
+          "statisticalCodeIds": [
+            "615e9911-edb1-4ab3-a9c3-a461a3de02f8"
+          ],
+          "status": {
+            "name": "Available"
+          },
+          "yearCaption": []
+        }
+      ],
+      "holdings": [
+        {
+          "administrativeNotes": [
+            "v2.0",
+            "for deletion"
+          ],
+          "callNumber": null,
+          "discoverySuppress": true,
+          "electronicAccess": [],
+          "formerIds": [
+            "1d76ee84-d776-48d2-ab96-140c24e39ac5"
+          ],
+          "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
+          "hrid": "hold000000000009",
+          "id": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+          "metadata": {
+            "createdDate": "2020-12-08T15:47:19.330+00:00",
+            "updatedDate": "2020-12-08T15:47:19.330+00:00"
+          },
+          "notes": [],
+          "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "statisticalCodeIds": [
+            "a2b01891-c9ab-4d04-8af8-8989af1c6aad"
+          ]
+        },
+        {
+          "discoverySuppress": false,
+          "electronicAccess": [
+            {
+              "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
+              "linkText": "Holding's electronicAccess link Text",
+              "publicNote": "Holding's electronicAccess public note"
+            }
+          ],
+          "formerIds": [
+            "ac727d8c-f422-4c3f-815e-e85694095e71",
+            "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"
+          ],
+          "hrid": "ho00000000006",
+          "id": "9550c935-401a-4a85-875e-4d1fe7678870",
+          "metadata": {
+            "createdDate": "2021-03-04T12:36:17.211+00:00",
+            "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
+            "updatedDate": "2021-03-04T12:36:17.211+00:00",
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
+          },
+          "notes": [
+            {
+              "note": "Includes bibliographical references and index of holdings.",
+              "staffOnly": false
+            },
+            {
+              "note": "Librarian public note for holding",
+              "staffOnly": false
+            },
+            {
+              "note": "Librarian private note for holding",
+              "staffOnly": true
+            }
+          ],
+          "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
+          "statisticalCodeIds": []
+        },
+        {
+          "discoverySuppress": false,
+          "electronicAccess": [],
+          "formerIds": [],
+          "hrid": "ho00000000007",
+          "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
+          "metadata": {
+            "createdDate": "2021-03-04T12:36:57.751+00:00",
+            "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
+            "updatedDate": "2021-03-04T12:36:57.751+00:00",
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
+          },
+          "notes": [],
+          "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
+          "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
+          "statisticalCodeIds": [],
+          "tags": {
+            "tagList": [
+              "holdings-tag"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

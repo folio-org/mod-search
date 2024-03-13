@@ -1,6 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.resourceDescription;
@@ -236,6 +236,6 @@ class SearchTenantServiceTest {
   }
 
   private Parameter centralTenantParameter() {
-    return new Parameter("centralTenantId").value(CONSORTIUM_TENANT_ID);
+    return new Parameter("centralTenantId").value(CENTRAL_TENANT_ID);
   }
 }

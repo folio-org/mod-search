@@ -7,21 +7,37 @@
       "version": "0.6",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/indices",
-          "permissionsRequired": [ "search.index.indices.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.indices.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/mappings",
-          "permissionsRequired": [ "search.index.mappings.item.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.mappings.item.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/records",
-          "permissionsRequired": [ "search.index.records.collection.post" ],
+          "permissionsRequired": [
+            "search.index.records.collection.post"
+          ],
           "modulePermissions": [
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
@@ -30,9 +46,13 @@
           ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/inventory/reindex",
-          "permissionsRequired": [ "search.index.inventory.reindex.post" ],
+          "permissionsRequired": [
+            "search.index.inventory.reindex.post"
+          ],
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
@@ -40,10 +60,16 @@
           ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/index/settings",
-          "permissionsRequired": [ "search.index.settings.item.put" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.index.settings.item.put"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -52,34 +78,82 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances",
-          "permissionsRequired": [ "search.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/authorities",
-          "permissionsRequired": [ "search.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/{recordType}/facets",
-          "permissionsRequired": [ "search.facets.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.facets.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [ "search.instances.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.instances.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/holdings/ids",
-          "permissionsRequired": [ "search.holdings.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.holdings.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "consortium-search",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/holdings",
+          "permissionsRequired": [
+            "consortium-search.holdings.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -88,22 +162,40 @@
       "version": "0.3",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}/ids",
-          "permissionsRequired": [ "search.resources.ids.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/resources/jobs/{jobId}",
-          "permissionsRequired": [ "search.resources.ids.jobs.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/resources/jobs",
-          "permissionsRequired": [ "search.resources.ids.jobs.post" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "search.resources.ids.jobs.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -112,28 +204,52 @@
       "version": "1.2",
       "handlers": [
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/call-numbers/instances",
-          "permissionsRequired": [ "browse.call-numbers.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.call-numbers.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/subjects/instances",
-          "permissionsRequired": [ "browse.subjects.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.subjects.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/contributors/instances",
-          "permissionsRequired": [ "browse.contributors.instances.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.contributors.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/browse/authorities",
-          "permissionsRequired": [ "browse.authorities.collection.get" ],
-          "modulePermissions": ["user-tenants.collection.get"]
+          "permissionsRequired": [
+            "browse.authorities.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -142,44 +258,76 @@
       "version": "0.2",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.item.post" ]
+          "permissionsRequired": [
+            "search.config.languages.item.post"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/languages",
-          "permissionsRequired": [ "search.config.languages.collection.get" ]
+          "permissionsRequired": [
+            "search.config.languages.collection.get"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.put" ]
+          "permissionsRequired": [
+            "search.config.languages.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/languages/{id}",
-          "permissionsRequired": [ "search.config.languages.item.delete" ]
+          "permissionsRequired": [
+            "search.config.languages.item.delete"
+          ]
         },
         {
-          "methods": [ "GET" ],
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.collection.get" ]
+          "permissionsRequired": [
+            "search.config.features.collection.get"
+          ]
         },
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/config/features",
-          "permissionsRequired": [ "search.config.features.item.post" ]
+          "permissionsRequired": [
+            "search.config.features.item.post"
+          ]
         },
         {
-          "methods": [ "PUT" ],
+          "methods": [
+            "PUT"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.put" ]
+          "permissionsRequired": [
+            "search.config.features.item.put"
+          ]
         },
         {
-          "methods": [ "DELETE" ],
+          "methods": [
+            "DELETE"
+          ],
           "pathPattern": "/search/config/features/{id}",
-          "permissionsRequired": [ "search.config.features.item.delete" ]
+          "permissionsRequired": [
+            "search.config.features.item.delete"
+          ]
         }
       ]
     },
@@ -189,7 +337,9 @@
       "interfaceType": "system",
       "handlers": [
         {
-          "methods": [ "POST" ],
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/_/tenant",
           "modulePermissions": [
             "user-tenants.collection.get",
@@ -210,13 +360,16 @@
           ]
         },
         {
-          "methods": [ "DELETE", "GET" ],
+          "methods": [
+            "DELETE",
+            "GET"
+          ],
           "pathPattern": "/_/tenant/{id}"
         }
       ]
     }
   ],
-  "optional":[
+  "optional": [
     {
       "id": "user-tenants",
       "version": "1.0"
@@ -344,7 +497,9 @@
       "permissionName": "search.facets.collection.get",
       "displayName": "Search - returns facets for a query for given filter options by record type",
       "description": "Returns facets for a query for given filter options by record type",
-      "replaces": ["search.instances.facets.collection.get"]
+      "replaces": [
+        "search.instances.facets.collection.get"
+      ]
     },
     {
       "permissionName": "search.instances.ids.collection.get",
@@ -390,6 +545,11 @@
       "permissionName": "search.config.features.item.delete",
       "displayName": "Search - removes feature configuration",
       "description": "Removes feature configuration"
+    },
+    {
+      "permissionName": "consortium-search.holdings.collection.get",
+      "displayName": "Consortium Search - fetch holdings records",
+      "description": "Returns holdings records in consortium"
     }
   ],
   "launchDescriptor": {
@@ -398,31 +558,100 @@
     "dockerArgs": {
       "HostConfig": {
         "Memory": 1073741824,
-        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+        "PortBindings": {
+          "8081/tcp": [
+            {
+              "HostPort": "%p"
+            }
+          ]
+        }
       }
     },
     "env": [
-      { "name": "ENV", "value": "folio" },
-      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=85.0" },
-      { "name": "KAFKA_HOST", "value": "kafka" },
-      { "name": "KAFKA_PORT", "value": "9092" },
-      { "name": "KAFKA_SECURITY_PROTOCOL", "value": "PLAINTEXT" },
-      { "name": "KAFKA_SSL_KEYSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_KEYSTORE_PASSWORD", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_LOCATION", "value": "" },
-      { "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD", "value": "" },
-      { "name": "ELASTICSEARCH_URL", "value": "http://elasticsearch:9200" },
-      { "name": "ELASTICSEARCH_USERNAME", "value": "elastic" },
-      { "name": "ELASTICSEARCH_PASSWORD", "value": "s3cret" },
-      { "name": "DB_HOST", "value": "postgres" },
-      { "name": "DB_PORT", "value": "5432" },
-      { "name": "DB_USERNAME", "value": "folio_admin" },
-      { "name": "DB_PASSWORD", "value": "folio_admin" },
-      { "name": "DB_DATABASE", "value": "okapi_modules" },
-      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
-      { "name": "DB_CHARSET", "value": "UTF-8" },
-      { "name": "DB_MAXPOOLSIZE", "value": "5" },
-      { "name": "INITIAL_LANGUAGES", "value": "eng" }
+      {
+        "name": "ENV",
+        "value": "folio"
+      },
+      {
+        "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=85.0"
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": "kafka"
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": "9092"
+      },
+      {
+        "name": "KAFKA_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT"
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_LOCATION",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_PASSWORD",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_LOCATION",
+        "value": ""
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD",
+        "value": ""
+      },
+      {
+        "name": "ELASTICSEARCH_URL",
+        "value": "http://elasticsearch:9200"
+      },
+      {
+        "name": "ELASTICSEARCH_USERNAME",
+        "value": "elastic"
+      },
+      {
+        "name": "ELASTICSEARCH_PASSWORD",
+        "value": "s3cret"
+      },
+      {
+        "name": "DB_HOST",
+        "value": "postgres"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "folio_admin"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "folio_admin"
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": "okapi_modules"
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": "60000"
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8"
+      },
+      {
+        "name": "DB_MAXPOOLSIZE",
+        "value": "5"
+      },
+      {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng"
+      }
     ]
   }
 }

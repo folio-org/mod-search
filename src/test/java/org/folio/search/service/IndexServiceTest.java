@@ -9,7 +9,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.EMPTY_JSON_OBJECT;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -267,7 +267,7 @@ class IndexServiceTest {
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(INSTANCE_RESOURCE)));
-    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
 

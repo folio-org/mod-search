@@ -17,21 +17,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor {
 
-  private static final Map<String, Function<String, Optional<String>>> CN_TYPE_TO_SHELF_KEY_GENERATOR = Map.of(
-    CallNumberType.NLM.getValue(), cn -> getValidShelfKey(new NlmCallNumber(cn)),
-    CallNumberType.LC.getValue(), cn -> getValidShelfKey(new LCCallNumber(cn)),
-    CallNumberType.DEWEY.getValue(), cn -> getValidShelfKey(new DeweyCallNumber(cn)),
-    CallNumberType.SUDOC.getValue(), cn -> getValidShelfKey(new SuDocCallNumber(cn))
+  private static final Map<String, Function<String, String>> CN_TYPE_TO_SHELF_KEY_GENERATOR = Map.of(
+    CallNumberType.NLM.getValue(), cn -> getShelfKey(new NlmCallNumber(cn)),
+    CallNumberType.LC.getValue(), cn -> getShelfKey(new LCCallNumber(cn)),
+    CallNumberType.DEWEY.getValue(), cn -> getShelfKey(new DeweyCallNumber(cn)),
+    CallNumberType.SUDOC.getValue(), cn -> getShelfKey(new SuDocCallNumber(cn))
   );
 
   @Override
   public String getSearchTerm(String inputTerm) {
-    return getValidShelfKey(new NlmCallNumber(inputTerm))
-      .or(() -> getValidShelfKey(new LCCallNumber(inputTerm)))
-      .or(() -> getValidShelfKey(new DeweyCallNumber(inputTerm)))
-      .or(() -> getValidShelfKey(new SuDocCallNumber(inputTerm)))
-      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
-      .trim();
+    return normalizeEffectiveShelvingOrder(inputTerm);
   }
 
   public String getSearchTerm(String inputTerm, String callNumberTypeName) {
@@ -40,33 +35,24 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
     }
 
     return Optional.ofNullable(CN_TYPE_TO_SHELF_KEY_GENERATOR.get(callNumberTypeName))
-      .flatMap(function -> function.apply(inputTerm))
-      .orElse(normalizeEffectiveShelvingOrder(inputTerm))
-      .trim();
+      .map(function -> function.apply(inputTerm))
+      .orElse(normalizeEffectiveShelvingOrder(inputTerm));
   }
 
   public List<String> getSearchTerms(String inputTerm) {
     var searchTerms = new ArrayList<String>();
 
-    addShelfKeyIfValid(searchTerms, new NlmCallNumber(inputTerm));
-    addShelfKeyIfValid(searchTerms, new LCCallNumber(inputTerm));
-    addShelfKeyIfValid(searchTerms, new DeweyCallNumber(inputTerm));
-    addShelfKeyIfValid(searchTerms, new SuDocCallNumber(inputTerm));
+    searchTerms.add(getShelfKey(new NlmCallNumber(inputTerm)));
+    searchTerms.add(getShelfKey(new LCCallNumber(inputTerm)));
+    searchTerms.add(getShelfKey(new DeweyCallNumber(inputTerm)));
+    searchTerms.add(getShelfKey(new SuDocCallNumber(inputTerm)));
 
     searchTerms.add(normalizeEffectiveShelvingOrder(inputTerm));
 
     return searchTerms;
   }
 
-  private static Optional<String> getValidShelfKey(CallNumber value) {
-    return Optional.of(value)
-      .filter(CallNumber::isValid)
-      .map(CallNumber::getShelfKey);
-  }
-
-  private static void addShelfKeyIfValid(List<String> searchTerms, CallNumber value) {
-    getValidShelfKey(value)
-      .map(String::trim)
-      .ifPresent(searchTerms::add);
+  private static String getShelfKey(CallNumber value) {
+    return value.getShelfKey().trim();
   }
 }

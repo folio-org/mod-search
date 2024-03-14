@@ -33,11 +33,10 @@
 * Fix shadow instance's subjects/contributors indexing ([MSEARCH-647](https://issues.folio.org/browse/MSEARCH-647))
 * Mark all exact matches as anchors if there is more then one match ([MSEARCH-669](https://issues.folio.org/browse/MSEARCH-669))
 * Make POST /search/resources/jobs endpoint to work asynchronously ([MSEARCH-685](https://issues.folio.org/browse/MSEARCH-685))
-* Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
 
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
-* Provide proper docs for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
+* Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
 
 ### Dependencies
 * Bump `folio-spring-support` from `7.2.0` to `7.2.1`

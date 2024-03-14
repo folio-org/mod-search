@@ -76,6 +76,7 @@ public abstract class BaseIntegrationTest {
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   protected static OkapiConfiguration okapi;
   protected static RestHighLevelClient elasticClient;
+  protected static CacheManager cacheManager;
 
   @RegisterExtension
   static OkapiExtension okapiExtension =
@@ -85,12 +86,14 @@ public abstract class BaseIntegrationTest {
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
     @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
-    @Autowired RestHighLevelClient restHighLevelClient) {
+    @Autowired RestHighLevelClient restHighLevelClient,
+    @Autowired CacheManager cacheManager) {
     setEnvProperty("folio-test");
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
     BaseIntegrationTest.elasticClient = restHighLevelClient;
+    BaseIntegrationTest.cacheManager = cacheManager;
   }
 
   @BeforeAll

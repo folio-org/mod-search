@@ -62,6 +62,10 @@
       "type": "string",
       "description": "Suffix of the call number on the holding level."
     },
+    "copyNumber": {
+      "type": "string",
+      "description": "Item/Piece ID (usually barcode) for systems that do not use item records."
+    },
     "electronicAccess": {
       "type": "array",
       "description": "List of electronic access items",

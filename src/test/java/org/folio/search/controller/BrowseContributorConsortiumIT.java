@@ -10,7 +10,7 @@ import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrow
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.contributorBrowseItem;
@@ -66,11 +66,11 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired RestHighLevelClient restHighLevelClient) throws InterruptedException {
-    setUpTenant(CONSORTIUM_TENANT_ID);
+    setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
-    saveRecords(CONSORTIUM_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
       INSTANCES_CENTRAL.length,
-      instance -> inventoryApi.createInstance(CONSORTIUM_TENANT_ID, instance));
+      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
       INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
@@ -78,12 +78,12 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
     // this is needed to test deleting contributors when all instances are unlinked from a contributor
     var instanceToUpdate = INSTANCES_CENTRAL[0];
     instanceToUpdate.setContributors(Collections.emptyList());
-    inventoryApi.updateInstance(CONSORTIUM_TENANT_ID, instanceToUpdate);
+    inventoryApi.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, CONSORTIUM_TENANT_ID));
+        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, CENTRAL_TENANT_ID));
       var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
     });
@@ -149,7 +149,7 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
         facet(facetItem("false", 8), facetItem("true", 5)))),
       arguments("cql.allRecords=1", array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 8),
-          facetItem(CONSORTIUM_TENANT_ID, 5))))
+          facetItem(CENTRAL_TENANT_ID, 5))))
     );
   }
 

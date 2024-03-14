@@ -848,6 +848,13 @@ When the job is COMPLETED, it is possible to retrieve ids by job id
 After retrieving ids, job should change status to "DEPRECATED". If there are no completed job with prepared ids, client
 can't receive ids by query.
 
+### Consortium Search API
+Special API that provide consolidated access to records in consortium environment. Works only for central tenant.
+
+| METHOD | URL                           | DESCRIPTION                   |
+|:-------|:------------------------------|:------------------------------|
+| GET    | `/search/consortium/holdings` | Returns consolidated holdings |
+
 ## Additional Information
 
 ### Issue tracker

@@ -5,6 +5,7 @@
 ### New APIs versions
 * Requires `classification-types v1.2`
 * Provides `browse-config v1.0`
+* Provides `consortium-search v1.0`
 
 ### Features
 * Update module descriptor with environment variables ([MSEARCH-635](https://issues.folio.org/browse/MSEARCH-635))
@@ -19,7 +20,8 @@
 * Implement endpoint to browse by classifications ([MSEARCH-665](https://issues.folio.org/browse/MSEARCH-665))
 * Synchronize browse config with classification types changes ([MSEARCH-683](https://issues.folio.org/browse/MSEARCH-683))
 * Authority search: Modify query search option to search authorities by normalized LCCN ([MSEARCH-663](https://issues.folio.org/browse/MSEARCH-663))
-* Add ability to case insensitive search ISSNs with trailing roman numerals ([MSEARCH-672](https://folio-org.atlassian.net/browse/MSEARCH-672))
+* Add ability to case-insensitive search ISSNs with trailing roman numerals ([MSEARCH-672](https://folio-org.atlassian.net/browse/MSEARCH-672))
+* implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://folio-org.atlassian.net/browse/MSEARCH-692))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

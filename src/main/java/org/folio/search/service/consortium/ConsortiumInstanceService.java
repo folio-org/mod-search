@@ -14,9 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.folio.search.domain.dto.ConsortiumHolding;
+import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
+import org.folio.search.model.service.ConsortiumSearchContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.FolioExecutionContext;
@@ -145,6 +148,11 @@ public class ConsortiumInstanceService {
       mergedItems.clear();
     }
     return resourceEvents;
+  }
+
+  public ConsortiumHoldingCollection fetchHoldings(ConsortiumSearchContext context) {
+    List<ConsortiumHolding> holdingList = repository.fetchHoldings(new ConsortiumSearchQueryBuilder(context));
+    return new ConsortiumHoldingCollection().holdings(holdingList).totalRecords(holdingList.size());
   }
 
   @SuppressWarnings("unchecked")

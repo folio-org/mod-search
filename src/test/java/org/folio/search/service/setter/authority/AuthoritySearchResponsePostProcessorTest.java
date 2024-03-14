@@ -2,7 +2,7 @@ package org.folio.search.service.setter.authority;
 
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.CONSORTIUM_TENANT_ID;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -74,10 +74,10 @@ class AuthoritySearchResponsePostProcessorTest {
   @Test
   void shouldSetNumberOfTitles_whenProcessAuthorizedAuthoritiesThatHaveInstanceReferences() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(CONSORTIUM_TENANT_ID, 10, 11);
+    mockSearchResponse(CENTRAL_TENANT_ID, 10, 11);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
@@ -87,7 +87,7 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(authority2).extracting(Authority::getNumberOfTitles).isEqualTo(11);
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", CONSORTIUM_TENANT_ID)), searchSourceCaptor.capture());
+      eq(SimpleResourceRequest.of("instance", CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -138,18 +138,18 @@ class AuthoritySearchResponsePostProcessorTest {
 
   @Test
   void shouldSetNumberOfTitles_whenCentralTenant() {
-    when(context.getTenantId()).thenReturn(CONSORTIUM_TENANT_ID);
-    when(tenantProvider.getTenant(CONSORTIUM_TENANT_ID)).thenReturn(CONSORTIUM_TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(CONSORTIUM_TENANT_ID)).thenReturn(Optional.of(CONSORTIUM_TENANT_ID));
+    when(context.getTenantId()).thenReturn(CENTRAL_TENANT_ID);
+    when(tenantProvider.getTenant(CENTRAL_TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
-    mockSearchResponse(CONSORTIUM_TENANT_ID, 10, 11);
+    mockSearchResponse(CENTRAL_TENANT_ID, 10, 11);
 
     var authority1 = getAuthority("1", AuthRefType.AUTHORIZED);
     var authority2 = getAuthority("2", AuthRefType.AUTHORIZED);
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of("instance", CONSORTIUM_TENANT_ID)), searchSourceCaptor.capture());
+      eq(SimpleResourceRequest.of("instance", CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -157,7 +157,7 @@ class AuthoritySearchResponsePostProcessorTest {
       .map(query -> (BoolQueryBuilder) query)
       .allMatch(query -> query.should().size() == 2)
       .allMatch(query -> query.minimumShouldMatch().equals("1"))
-      .allMatch(query -> query.must().get(0).equals(affiliationQuery(CONSORTIUM_TENANT_ID, null)));
+      .allMatch(query -> query.must().get(0).equals(affiliationQuery(CENTRAL_TENANT_ID, null)));
   }
 
   private void mockSearchResponse(String tenantId, Integer... counts) {

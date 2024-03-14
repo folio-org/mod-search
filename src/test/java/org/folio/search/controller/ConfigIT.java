@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_SECONDS;
+import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.BrowseConfig;
@@ -289,6 +291,21 @@ class ConfigIT extends BaseIntegrationTest {
     });
 
     okapi.wireMockServer().removeStub(stub);
+  }
+
+  @Test
+  void referenceDataCacheInvalidates_whenClassificationTypeEventReceived() {
+    var cacheKey = "cache-test-key";
+    var referenceDataCache = Objects.requireNonNull(cacheManager.getCache(REFERENCE_DATA_CACHE));
+    referenceDataCache.put(cacheKey, UUID.randomUUID());
+    assertThat(referenceDataCache.get(cacheKey)).isNotNull();
+
+    kafkaTemplate.send(inventoryClassificationTopic(), randomId(), new ResourceEvent()
+      .resourceName(ResourceType.CLASSIFICATION_TYPE.getValue())
+    );
+
+    await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS)
+      .untilAsserted(() -> assertThat(referenceDataCache.get(cacheKey)).isNull());
   }
 
   @SneakyThrows

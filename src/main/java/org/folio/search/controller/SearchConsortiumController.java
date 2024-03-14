@@ -1,0 +1,54 @@
+package org.folio.search.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.SortOrder;
+import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.service.ConsortiumSearchContext;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.rest.resource.SearchConsortiumApi;
+import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.spring.integration.XOkapiHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/")
+public class SearchConsortiumController implements SearchConsortiumApi {
+
+  static final String REQUEST_NOT_ALLOWED_MSG =
+    "The request allowed only for central tenant of consortium environment";
+
+  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumInstanceService instanceService;
+
+  @Override
+  public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
+                                                                           String tenantId, Integer limit,
+                                                                           Integer offset, String sortBy,
+                                                                           SortOrder sortOrder) {
+    checkAllowance(tenantHeader);
+    var context = ConsortiumSearchContext.builderFor(ResourceType.HOLDINGS)
+      .filter("instanceId", instanceId)
+      .filter("tenantId", tenantId)
+      .limit(limit)
+      .offset(offset)
+      .sortBy(sortBy)
+      .sortOrder(sortOrder)
+      .build();
+    return ResponseEntity.ok(instanceService.fetchHoldings(context));
+  }
+
+  private void checkAllowance(String tenantHeader) {
+    var centralTenant = consortiumTenantService.getCentralTenant(tenantHeader);
+    if (centralTenant.isEmpty() || !centralTenant.get().equals(tenantHeader)) {
+      throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantHeader);
+    }
+  }
+
+}

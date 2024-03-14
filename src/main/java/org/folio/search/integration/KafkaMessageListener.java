@@ -3,6 +3,7 @@ package org.folio.search.integration;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
@@ -33,6 +34,7 @@ import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.KafkaConstants;
 import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -163,6 +165,7 @@ public class KafkaMessageListener {
     groupId = "#{folioKafkaProperties.listener['classification-type'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['classification-type'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['classification-type'].topicPattern}")
+  @CacheEvict(cacheNames = REFERENCE_DATA_CACHE, allEntries = true)
   public void handleClassificationTypeEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing classification-type events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()

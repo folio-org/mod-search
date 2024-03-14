@@ -268,6 +268,7 @@ curl --location --request POST 'http://localhost:8081/_/tenant' \
 --header 'x-okapi-tenant: test_tenant' \
 --header 'x-okapi-url: http://api-mock:8080' \
 --data-raw '{
+  "module_to": "mod-search-$version$",
   "purge": "false"
 }
 ```
@@ -301,10 +302,23 @@ curl --location --request POST 'http://localhost:8081/_/tenant' \
     {
       "key": "centralTenantId",
       "value": "consortium"
-    },
+    }
+  ]
+}
+```
+
+Then execute the following to enable `member tenant`
+```shell
+curl --location --request POST 'http://localhost:8081/_/tenant' \
+--header 'Content-Type: application/json' \
+--header 'x-okapi-tenant: member_tenant' \
+--header 'x-okapi-url: http://api-mock:8080' \
+--data-raw '{
+  "module_to": "mod-search-$version$",
+  "parameters": [
     {
-      "key": "loadReference",
-      "value": true
+      "key": "centralTenantId",
+      "value": "consortium"
     }
   ]
 }

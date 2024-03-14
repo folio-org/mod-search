@@ -3,7 +3,7 @@
   "instances": [
     {
       "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
-      "tenantId": "test_tenant",
+      "tenantId": "member_tenant",
       "shared": false,
       "title": "A semantic web primer :0747-0850 & wolves",
       "contributors": [
@@ -33,8 +33,6 @@
       "notes": [],
       "items": [
         {
-          "chronology": "",
-          "copyNumber": "Copy 2",
           "effectiveCallNumberComponents": {
             "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
             "prefix": "prefix-10101",
@@ -42,13 +40,9 @@
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
           "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
-          "enumeration": "",
-          "notes": [],
-          "volume": "v1",
-          "yearCaption": []
+          "notes": []
         },
         {
-          "chronology": "",
           "effectiveCallNumberComponents": {
             "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
             "prefix": "prefix-90000",
@@ -56,9 +50,17 @@
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
           "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
-          "enumeration": "",
-          "notes": [],
-          "yearCaption": []
+          "notes": []
+        },
+        {
+          "effectiveCallNumberComponents": {
+            "callNumber": "332. 2",
+            "prefix": "prefix 2",
+            "suffix": "suff 2",
+            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+          },
+          "effectiveShelvingOrder": "3332 12 suff 2",
+          "notes": []
         }
       ],
       "holdings": []

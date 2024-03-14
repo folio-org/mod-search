@@ -22,12 +22,16 @@ public class ApiEndpoints {
   }
 
   public static String consortiumHoldingsSearchPath(List<Pair<String, String>> queryParams) {
-    var queryParamString = queryParams.stream()
-      .map(param -> param.getFirst() + "=" + param.getSecond())
-      .collect(Collectors.joining("&"));
-    return consortiumHoldingsSearchPath() + "?" + queryParamString;
+    return addQueryParams(consortiumHoldingsSearchPath(), queryParams);
   }
 
+  public static String consortiumItemsSearchPath() {
+    return "/search/consortium/items";
+  }
+
+  public static String consortiumItemsSearchPath(List<Pair<String, String>> queryParams) {
+    return addQueryParams(consortiumItemsSearchPath(), queryParams);
+  }
 
   public static String authoritySearchPath() {
     return "/search/authorities";
@@ -116,5 +120,12 @@ public class ApiEndpoints {
 
   public static String allRecordsSortedBy(String sort, CqlSort order) {
     return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
+  }
+
+  private static String addQueryParams(String path, List<Pair<String, String>> queryParams) {
+    var queryParamString = queryParams.stream()
+      .map(param -> param.getFirst() + "=" + param.getSecond())
+      .collect(Collectors.joining("&"));
+    return path + "?" + queryParamString;
   }
 }

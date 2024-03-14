@@ -86,9 +86,26 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(9).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
+      .totalRecords(11).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
         cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, true)
+      )));
+  }
+
+  @Test
+  void browseByCallNumberDewey_invalidDeweyFormat() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"A 123.4\""))
+      .param("callNumberType", "dewey")
+      .param("limit", "3")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "1");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(8).prev("11 CE 3210 K 3297 541858").next(null).items(List.of(
+        cnBrowseItem(instance("instance #38"), "1CE 210 K297 41858"),
+        cnBrowseItem(instance("instance #48"), "A 123.4", true),
+        cnBrowseItem(instance("instance #49"), "A 123.5")
       )));
   }
 
@@ -181,7 +198,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].totalRecords", is(1)))
       .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].id", is(DEWEY.getId())))
-      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(5)));
+      .andExpect(jsonPath("$.facets.['items.effectiveLocationId'].values[0].totalRecords", is(7)));
   }
 
   private static Instance[] instances() {
@@ -279,7 +296,9 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #44", List.of(List.of("1CE 16 B6713 X 41993", DEWEY.getId()))),
       List.of("instance #45", List.of(List.of("1CE 16 B6724 41993", DEWEY.getId()))),
       List.of("instance #46", List.of(List.of("F  PR1866.S63 V.1 C.1", LOCAL_TYPE_1))),
-      List.of("instance #47", List.of(List.of("1CE 16 B6724 41993", DEWEY.getId())))
+      List.of("instance #47", List.of(List.of("1CE 16 B6724 41993", DEWEY.getId()))),
+      List.of("instance #48", List.of(List.of("A 123.4", DEWEY.getId()))),
+      List.of("instance #49", List.of(List.of("A 123.5", DEWEY.getId())))
     );
   }
 }

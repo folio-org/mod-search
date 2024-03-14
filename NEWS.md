@@ -22,6 +22,8 @@
 * Authority search: Modify query search option to search authorities by normalized LCCN ([MSEARCH-663](https://issues.folio.org/browse/MSEARCH-663))
 * Add ability to case-insensitive search ISSNs with trailing roman numerals ([MSEARCH-672](https://folio-org.atlassian.net/browse/MSEARCH-672))
 * implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://folio-org.atlassian.net/browse/MSEARCH-692))
+* Add ability to case insensitive search ISSNs with trailing roman numerals ([MSEARCH-672](https://folio-org.atlassian.net/browse/MSEARCH-672))
+* Remove call number format validation for shelving order generation ([MSEARCH-689](https://folio-org.atlassian.net/browse/MSEARCH-689))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

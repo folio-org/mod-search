@@ -854,6 +854,7 @@ Special API that provide consolidated access to records in consortium environmen
 | METHOD | URL                           | DESCRIPTION                   |
 |:-------|:------------------------------|:------------------------------|
 | GET    | `/search/consortium/holdings` | Returns consolidated holdings |
+| GET    | `/search/consortium/items`    | Returns consolidated items    |
 
 ## Additional Information
 

@@ -7,6 +7,7 @@ public enum ResourceType {
 
   INSTANCE("instance"),
   HOLDINGS("holdings"),
+  ITEM("item"),
   AUTHORITY("authority"),
   CLASSIFICATION_TYPE("classification-type");
 

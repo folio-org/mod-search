@@ -133,5 +133,41 @@
       "createdDate": "2020-12-08T15:47:22.827+00:00",
       "updatedDate": "2020-12-08T15:47:22.827+00:00"
     }
+  },
+  {
+    "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
+    "hrid": "it00000000001",
+    "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+    "formerIds": [],
+    "barcode": "12345",
+    "effectiveShelvingOrder": "3332 12 suff 2",
+    "effectiveCallNumberComponents": {
+      "callNumber": "332. 2",
+      "prefix": "prefix 2",
+      "suffix": "suff 2",
+      "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+    },
+    "yearCaption": [],
+    "administrativeNotes": [],
+    "notes": [],
+    "circulationNotes": [],
+    "status": {
+      "name": "Available",
+      "date": "2024-03-14T13:05:09.407+00:00"
+    },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+    "permanentLoanTypeId": "e8b311a6-3b21-43f2-a269-dd9310cb2d0e",
+    "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
+    "electronicAccess": [],
+    "statisticalCodeIds": [],
+    "tags": {
+      "tagList": []
+    },
+    "metadata": {
+      "createdDate": "2024-03-14T13:05:09.406+00:00",
+      "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
+      "updatedDate": "2024-03-14T13:05:09.406+00:00",
+      "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
+    }
   }
 ]

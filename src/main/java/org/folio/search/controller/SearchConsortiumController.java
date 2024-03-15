@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.ConsortiumSearchContext;
@@ -42,6 +43,24 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .sortOrder(sortOrder)
       .build();
     return ResponseEntity.ok(instanceService.fetchHoldings(context));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumItemCollection> getConsortiumItems(String tenantHeader, String instanceId,
+                                                                     String holdingsRecordId, String tenantId,
+                                                                     Integer limit, Integer offset, String sortBy,
+                                                                     SortOrder sortOrder) {
+    checkAllowance(tenantHeader);
+    var context = ConsortiumSearchContext.builderFor(ResourceType.ITEM)
+      .filter("instanceId", instanceId)
+      .filter("tenantId", tenantId)
+      .filter("holdingsRecordId", holdingsRecordId)
+      .limit(limit)
+      .offset(offset)
+      .sortBy(sortBy)
+      .sortOrder(sortOrder)
+      .build();
+    return ResponseEntity.ok(instanceService.fetchItems(context));
   }
 
   private void checkAllowance(String tenantHeader) {

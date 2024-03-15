@@ -228,6 +228,33 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /search/consortium/items:
+    get:
+      operationId: getConsortiumItems
+      description: Get a list of items (only for consortium environment)
+      tags:
+        - search-consortium
+      parameters:
+        - $ref: '#/components/parameters/instance-id-query-param'
+        - $ref: '#/components/parameters/holdings-id-query-param'
+        - $ref: '#/components/parameters/tenant-id-query-param'
+        - $ref: '#/components/parameters/consortium-limit-param'
+        - $ref: '#/components/parameters/offset-param'
+        - $ref: '#/components/parameters/sort-by-item-param'
+        - $ref: '#/components/parameters/sort-order-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumItemCollection'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /browse/call-numbers/instances:
     get:
       operationId: browseInstancesByCallNumber
@@ -790,6 +817,36 @@ components:
             $ref: '#/components/schemas/consortiumHolding'
         totalRecords:
           type: integer
+    consortiumItem:
+      type: object
+      properties:
+        id:
+          description: Item ID
+          type: string
+        hrid:
+          description: Item HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Item
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        holdingsRecordId:
+          description: Related Holding Record Id
+          type: string
+        barcode:
+          description: Item barcode
+          type: string
+    consortiumItemCollection:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumItem'
+        totalRecords:
+          type: integer
     sortOrder:
       type: string
       enum:
@@ -941,6 +998,13 @@ components:
       required: false
       schema:
         type: string
+    holdings-id-query-param:
+      in: query
+      name: holdingsRecordId
+      description: UUID of the holdings record
+      required: false
+      schema:
+        type: string
     tenant-id-query-param:
       in: query
       name: tenantId
@@ -962,6 +1026,21 @@ components:
           - callNumber
           - copyNumber
           - permanentLocationId
+      required: false
+      schema:
+        type: string
+    sort-by-item-param:
+      in: query
+      name: sortBy
+      description: |
+        Defines a field to sort by. 
+        Possible values:
+          - id
+          - hrid
+          - tenantId
+          - instanceId
+          - holdingsRecordId
+          - barcode
       required: false
       schema:
         type: string

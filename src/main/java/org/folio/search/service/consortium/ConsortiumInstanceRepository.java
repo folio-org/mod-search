@@ -15,6 +15,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ConsortiumHolding;
+import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -88,6 +89,19 @@ public class ConsortiumInstanceRepository {
         .copyNumber(rs.getString("copyNumber"))
         .permanentLocationId(rs.getString("permanentLocationId"))
         .discoverySuppress(rs.getBoolean("discoverySuppress")),
+      searchQueryBuilder.getQueryArguments()
+    );
+  }
+
+  public List<ConsortiumItem> fetchItems(ConsortiumSearchQueryBuilder searchQueryBuilder) {
+    return jdbcTemplate.query(searchQueryBuilder.buildSelectQuery(context),
+      (rs, rowNum) -> new ConsortiumItem()
+        .id(rs.getString("id"))
+        .hrid(rs.getString("hrid"))
+        .tenantId(rs.getString("tenantId"))
+        .instanceId(rs.getString("instanceId"))
+        .holdingsRecordId(rs.getString("holdingsRecordId"))
+        .barcode(rs.getString("barcode")),
       searchQueryBuilder.getQueryArguments()
     );
   }

@@ -16,6 +16,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.ConsortiumItem;
+import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
@@ -153,6 +155,11 @@ public class ConsortiumInstanceService {
   public ConsortiumHoldingCollection fetchHoldings(ConsortiumSearchContext context) {
     List<ConsortiumHolding> holdingList = repository.fetchHoldings(new ConsortiumSearchQueryBuilder(context));
     return new ConsortiumHoldingCollection().holdings(holdingList).totalRecords(holdingList.size());
+  }
+
+  public ConsortiumItemCollection fetchItems(ConsortiumSearchContext context) {
+    List<ConsortiumItem> itemList = repository.fetchItems(new ConsortiumSearchQueryBuilder(context));
+    return new ConsortiumItemCollection().items(itemList).totalRecords(itemList.size());
   }
 
   @SuppressWarnings("unchecked")

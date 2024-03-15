@@ -11,6 +11,10 @@
       "description": "Tenant ID",
       "type": "string"
     },
+    "holdingsRecordId": {
+      "description": "Holdings record ID",
+      "type": "string"
+    },
     "hrid": {
       "type": "string",
       "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"

@@ -54,7 +54,7 @@ class ConsortiumSearchQueryBuilderTest {
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ?) i "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
                  + "ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
@@ -87,7 +87,7 @@ class ConsortiumSearchQueryBuilderTest {
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ?) i "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
                  + "LIMIT 100 OFFSET 10", actual);
   }
 
@@ -102,7 +102,7 @@ class ConsortiumSearchQueryBuilderTest {
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ?) i "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
                  + "ORDER BY id LIMIT 100 OFFSET 10", actual);
   }
 
@@ -117,7 +117,7 @@ class ConsortiumSearchQueryBuilderTest {
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ?) i "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
                  + "ORDER BY id desc OFFSET 10", actual);
   }
 
@@ -132,14 +132,41 @@ class ConsortiumSearchQueryBuilderTest {
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ?) i "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
                  + "ORDER BY id desc LIMIT 100", actual);
+  }
+
+  @Test
+  void testBuildSelectQuery_forItemResource_whenAllParametersDefined() {
+    var searchContext = new SearchContextMockBuilder().forItem().build();
+
+    var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
+    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.items ->> 'id' AS id, i.items ->> 'hrid' AS hrid, "
+                 + "i.items ->> 'holdingsRecordId' AS holdingsRecordId, i.items ->> 'barcode' AS barcode "
+                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'items') as items "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
+                 + "WHERE i.items ->> 'holdingsRecordId' = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+  }
+
+  @Test
+  void testBuildSelectQuery_forItemResource_whenJsonbFilterIsEmpty() {
+    var searchContext = new SearchContextMockBuilder().forItem().withHoldingsRecordId(null).build();
+
+    var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
+    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.items ->> 'id' AS id, i.items ->> 'hrid' AS hrid, "
+                 + "i.items ->> 'holdingsRecordId' AS holdingsRecordId, i.items ->> 'barcode' AS barcode "
+                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'items') as items "
+                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
+                 + "ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
   private static final class SearchContextMockBuilder {
     private ResourceType resourceType;
     private String instanceId = "inst123";
     private String tenantId = "tenant";
+    private String holdingsRecordId = "holding123";
     private String sortBy = "id";
     private SortOrder sortOrder = SortOrder.DESC;
     private Integer limit = 100;
@@ -150,8 +177,18 @@ class ConsortiumSearchQueryBuilderTest {
       return this;
     }
 
+    SearchContextMockBuilder forItem() {
+      this.resourceType = ResourceType.ITEM;
+      return this;
+    }
+
     SearchContextMockBuilder withInstanceId(String instanceId) {
       this.instanceId = instanceId;
+      return this;
+    }
+
+    SearchContextMockBuilder withHoldingsRecordId(String holdingsRecordId) {
+      this.holdingsRecordId = holdingsRecordId;
       return this;
     }
 
@@ -199,6 +236,9 @@ class ConsortiumSearchQueryBuilderTest {
       }
       if (StringUtils.isNotBlank(tenantId)) {
         filters.add(Pair.pair("tenantId", tenantId));
+      }
+      if (StringUtils.isNotBlank(holdingsRecordId) && resourceType == ResourceType.ITEM) {
+        filters.add(Pair.pair("holdingsRecordId", tenantId));
       }
       return filters;
     }

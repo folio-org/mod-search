@@ -1,3 +1,15 @@
+## v3.0.6 2024-03-18
+### New APIs versions
+* Provides `consortium-search v1.0`
+
+### Features
+* implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://issues.folio.org/browse/MSEARCH-692))
+* implement endpoint for consolidate items access in consortium ([MSEARCH-693](https://issues.folio.org/browse/MSEARCH-693))
+* Ignore call number format validation for shelving order generation ([MSEARCH-689](https://issues.folio.org/browse/MSEARCH-689))
+
+---
+
+
 ## v3.0.5 2023-12-08
 ### Bug fixes
 * Trim search term for typed browse ([MSEARCH-643](https://issues.folio.org/browse/MSEARCH-643))

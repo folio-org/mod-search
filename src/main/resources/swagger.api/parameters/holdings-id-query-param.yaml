@@ -1,0 +1,6 @@
+in: query
+name: holdingsRecordId
+description: UUID of the holdings record
+required: false
+schema:
+  type: string

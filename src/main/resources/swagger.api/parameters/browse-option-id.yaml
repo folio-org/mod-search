@@ -1,0 +1,6 @@
+name: browseOptionId
+in: path
+required: true
+description: 'Browse option type'
+schema:
+  $ref: '../schemas/browseOptionType.yaml'

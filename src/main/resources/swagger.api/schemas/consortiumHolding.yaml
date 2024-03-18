@@ -1,0 +1,29 @@
+type: object
+properties:
+  id:
+    description: Holdings ID
+    type: string
+  hrid:
+    description: Holdings HRID
+    type: string
+  tenantId:
+    description: Tenant ID of the Holding
+    type: string
+  instanceId:
+    description: Related Instance Id
+    type: string
+  discoverySuppress:
+    description: Discovery suppress flag
+    type: boolean
+  callNumberPrefix:
+    description: Call number prefix
+    type: string
+  callNumber:
+    description: Call number
+    type: string
+  copyNumber:
+    description: Copy number
+    type: string
+  permanentLocationId:
+    description: Permanent Location ID
+    type: string

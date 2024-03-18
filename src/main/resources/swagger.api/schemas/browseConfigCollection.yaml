@@ -1,0 +1,8 @@
+type: object
+properties:
+  configs:
+    type: array
+    items:
+      $ref: '../schemas/browseConfig.yaml'
+  totalRecords:
+    type: integer

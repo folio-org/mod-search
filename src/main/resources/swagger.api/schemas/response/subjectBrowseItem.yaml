@@ -1,0 +1,15 @@
+description: Subject browse search result item
+type: object
+properties:
+  value:
+    type: string
+    description: Subject value to be used for browsing
+  isAnchor:
+    type: boolean
+    description: Marks if current value is anchor or not
+  totalRecords:
+    type: integer
+    description: Amount of records for the subject browse item
+  authorityId:
+    type: string
+    description: ID of authority record that controls the subject

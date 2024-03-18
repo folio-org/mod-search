@@ -1,0 +1,26 @@
+get:
+  operationId: browseInstancesByClassificationNumber
+  description: Provides list of instances for browsing by classification number
+  tags:
+    - browse
+  parameters:
+    - $ref: '../../parameters/browse-option-id.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/browse-limit-param.yaml'
+    - $ref: '../../parameters/expand-all-param.yaml'
+    - $ref: '../../parameters/highlight-match.yaml'
+    - $ref: '../../parameters/preceding-records-count.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: 'Search result for browsing by call number'
+      content:
+        application/json:
+          example:
+            $ref: '../../examples/searchResult.yaml'
+          schema:
+            $ref: '../../schemas/response/classificationNumberBrowseResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

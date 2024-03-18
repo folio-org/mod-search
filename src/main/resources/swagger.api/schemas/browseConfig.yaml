@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    description: Option ID
+    $ref: "../schemas/browseOptionType.yaml"
+  shelvingAlgorithm:
+    description: Defines shelving order algorithm
+    $ref: "../schemas/shelvingOrderAlgorithmType.yaml"
+  typeIds:
+    description: Type IDs that should be used by the option
+    type: array
+    items:
+      description: Type ID
+      type: string
+      format: uuid
+required:
+  - id
+  - shelvingAlgorithm

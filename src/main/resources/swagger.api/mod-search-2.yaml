@@ -1,0 +1,252 @@
+openapi: 3.0.0
+info:
+  title: Search API
+  version: v2.1.0
+  description: Search API
+
+servers:
+  - url: https://folio-dev-spitfire-okapi.ci.folio.org/
+
+paths:
+  /search/instances:
+    $ref: './paths/search-instances/search-instances.yaml'
+
+  /search/instances/ids:
+    $ref: './paths/search-instances/search-instances-ids.yaml'
+
+  /search/holdings/ids:
+    $ref: './paths/search-holdings/search-holdings-ids.yaml'
+
+  /search/{recordType}/facets:
+    $ref: './paths/search-facets/search-record-type-facets.yaml'
+
+  /search/authorities:
+    $ref: './paths/search-authorities/search-authorities.yaml'
+
+  /search/resources/jobs/{jobId}:
+    $ref: './paths/search-resources/search-resources-jobs-job-id.yaml'
+
+  /search/resources/jobs:
+    $ref: './paths/search-resources/search-resources-jobs.yaml'
+
+  /search/resources/jobs/{jobId}/ids:
+    $ref: './paths/search-resources/search-resources-jobs-job-id-ids.yaml'
+
+  /search/consortium/holdings:
+    $ref: './paths/search-consortium/search-consortium-holdings.yaml'
+
+  /search/consortium/items:
+    $ref: './paths/search-consortium/search-consortium-items.yaml'
+
+  /search/index/indices:
+    $ref: './paths/search-index/search-index-indices.yaml'
+
+  /search/index/mappings:
+    $ref: './paths/search-index/search-index-mappings.yaml'
+
+  /search/index/records:
+    $ref: './paths/search-index/search-index-records.yaml'
+
+  /search/index/settings:
+    $ref: './paths/search-index/search-index-settings.yaml'
+
+  /search/index/inventory/reindex:
+    $ref: './paths/search-index/search-index-inventory-reindex.yaml'
+
+  /search/config/languages:
+    $ref: './paths/search-config/search-config-languages.yaml'
+
+  /search/config/languages/{code}:
+    $ref: './paths/search-config/search-config-languages-code.yaml'
+
+  /search/config/features:
+    $ref: './paths/search-config/search-config-features.yaml'
+
+  /search/config/features/{featureId}:
+    $ref: './paths/search-config/search-config-features-feature-id.yaml'
+
+  /browse/call-numbers/instances:
+    $ref: './paths/browse-call-numbers/browse-call-numbers-instances.yaml'
+
+  /browse/classification-numbers/{browseOptionId}/instances:
+    $ref: './paths/browse-classification-numbers/browse-option-id-instances.yaml'
+
+  /browse/subjects/instances:
+    $ref: './paths/browse-subject/browse-subjects-instances.yaml'
+
+  /browse/contributors/instances:
+    $ref: './paths/browse-contributors/browse-contributors-instances.yaml'
+
+  /browse/authorities:
+    $ref: './paths/browse-authorities/browse-authorities.yaml'
+
+  /browse/config/{browseType}:
+    $ref: './paths/browse-config/browse-type.yaml'
+
+  /browse/config/{browseType}/{browseOptionId}:
+    $ref: './paths/browse-config/browse-type-browse-option-id.yaml'
+
+components:
+  schemas:
+    instance:
+      $ref: schemas/instance.json
+    item:
+      $ref: schemas/item.json
+    folioCreateIndexResponse:
+      $ref: schemas/folioCreateIndexResponse.json
+    folioIndexOperationResponse:
+      $ref: schemas/folioIndexOperationResponse.json
+    resourceEvent:
+      $ref: schemas/resourceEvent.json
+    indexRecordRequest:
+      type: array
+      items:
+        $ref: '#/components/schemas/resourceEvent'
+    instanceSearchResult:
+      $ref: schemas/response/instanceSearchResult.json
+    authoritySearchResult:
+      $ref: schemas/response/authoritySearchResult.json
+    callNumberBrowseResult:
+      $ref: schemas/response/callNumberBrowseResult.json
+    classificationNumberBrowseResult:
+      $ref: schemas/response/classificationNumberBrowseResult.json
+    subjectBrowseResult:
+      $ref: schemas/response/subjectBrowseResult.json
+    contributorBrowseResult:
+      $ref: schemas/response/instanceContributorBrowseResult.json
+    authorityBrowseResult:
+      $ref: schemas/response/authorityBrowseResult.json
+    facetResult:
+      $ref: schemas/response/facetResult.json
+    resourceIds:
+      $ref: schemas/response/resourceIds.json
+    errorResponse:
+      $ref: schemas/errors.json
+    reindexRequest:
+      $ref: schemas/request/reindexRequest.json
+    updateIndexDynamicSettingsRequest:
+      $ref: schemas/request/updateIndexDynamicSettingsRequest.json
+    RecordType:
+      enum: [ instances, authorities, contributors, subjects ]
+      type: string
+    CallNumberType:
+      enum: [ lc, dewey, nlm, sudoc, other, local ]
+      type: string
+    browseType:
+      type: string
+      enum:
+        - instance-classification
+    browseOptionType:
+      type: string
+      enum:
+        - all
+        - lc
+        - dewey
+    shelvingOrderAlgorithmType:
+      type: string
+      enum:
+        - lc
+        - dewey
+        - default
+    browseConfig:
+      type: object
+      properties:
+        id:
+          description: Option ID
+          $ref: "#/components/schemas/browseOptionType"
+        shelvingAlgorithm:
+          description: Defines shelving order algorithm
+          $ref: "#/components/schemas/shelvingOrderAlgorithmType"
+        typeIds:
+          description: Type IDs that should be used by the option
+          type: array
+          items:
+            description: Type ID
+            type: string
+            format: uuid
+      required:
+        - id
+        - shelvingAlgorithm
+    browseConfigCollection:
+      type: object
+      properties:
+        configs:
+          type: array
+          items:
+            $ref: '#/components/schemas/browseConfig'
+        totalRecords:
+          type: integer
+    consortiumHolding:
+      type: object
+      properties:
+        id:
+          description: Holdings ID
+          type: string
+        hrid:
+          description: Holdings HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Holding
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        discoverySuppress:
+          description: Discovery suppress flag
+          type: boolean
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent Location ID
+          type: string
+    consortiumHoldingCollection:
+      type: object
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumHolding'
+        totalRecords:
+          type: integer
+    consortiumItem:
+      type: object
+      properties:
+        id:
+          description: Item ID
+          type: string
+        hrid:
+          description: Item HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Item
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        holdingsRecordId:
+          description: Related Holding Record Id
+          type: string
+        barcode:
+          description: Item barcode
+          type: string
+    consortiumItemCollection:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumItem'
+        totalRecords:
+          type: integer
+    sortOrder:
+      type: string
+      enum:
+        - asc
+        - desc

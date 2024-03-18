@@ -1,0 +1,6 @@
+name: Content-Type
+in: header
+description: Content-Type header value
+required: false
+schema:
+  type: string

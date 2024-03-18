@@ -1,0 +1,12 @@
+description: Call-number browse search result item
+type: object
+properties:
+  authority:
+    description: Related authority object
+    $ref: ../authority.yaml
+  headingRef:
+    type: string
+    description: The heading/reference of the record that provides authority information for authority browse item
+  isAnchor:
+    type: boolean
+    description: Marks if current value is anchor or not

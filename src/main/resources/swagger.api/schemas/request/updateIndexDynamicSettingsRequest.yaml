@@ -1,0 +1,11 @@
+description: Update Index Settings request body
+type: object
+properties:
+  resourceName:
+    type: string
+    description: Resource name to set index Settings
+  indexSettings:
+    description: Index settings to apply for index
+    $ref: "../indexDynamicSettings.yaml"
+required:
+  - resourceName

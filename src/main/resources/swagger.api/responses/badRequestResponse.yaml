@@ -1,0 +1,7 @@
+description: Validation errors
+content:
+  application/json:
+    example:
+      $ref: "../examples/validationErrorResponse.yaml"
+    schema:
+      $ref: "../schemas/errors.yaml"

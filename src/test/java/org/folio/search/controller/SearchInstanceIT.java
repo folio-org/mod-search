@@ -49,6 +49,15 @@ class SearchInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }
 
+  @MethodSource("testCaseInsensitiveDataProvider")
+  @DisplayName("search by instances case insensitive (single instance found)")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
+  void searchByInstancesCaseInsensitive_parameterized_singleResult(String query, String value) throws Throwable {
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+  }
+
   @MethodSource("testIssnDataProvider")
   @DisplayName("search by instances case insensitive ISSN with trailing X")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
@@ -356,6 +365,35 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword == {value}", "Van Harmelen, Frank"),
       arguments("keyword ==/string {value}", "0262012103"),
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
+    );
+  }
+
+  private static Stream<Arguments> testCaseInsensitiveDataProvider() {
+    return Stream.of(
+      arguments("keyword == {value}", "VAN Harmelen, Frank"),
+      arguments("(keyword all \"{value}\")", "A semantic WEB primer : wolves"),
+      arguments("(keyword all \"{value}\")", "A semantic web Primer & WOLVES"),
+      arguments("holdingsIdentifiers all {value}", "HOLD000000000009"),
+      arguments("items.electronicAccess==\"{value}\"", "TABLE"),
+      arguments("items.hrid = {value}", "ITEM*"),
+      arguments("item.circulationNotes.note all {value}", "private circulation NOTE"),
+      arguments("item.notes.note == {value}", "Librarian PUBLIC note for item"),
+      arguments("itemIdentifiers all {value}", "ITEM_accession_number"),
+      arguments("item.hrid = {value}", "ITEM000000000014"),
+      arguments("lccn = {value}", "n2003075732"),
+      arguments("oclc = {value}", "OCM60710867"),
+      arguments("isbn = {value}", "PAPER"),
+      arguments("isbn = {value}", "047144250x"),
+      arguments("tags.tagList all {value}", "BOOK"),
+      arguments("keyword all {value}", "SEMANTIC Antoniou ocm0012345 047144250x"),
+      arguments("contributors = {value}", "VAN Harmelen, Fr*"),
+      arguments("contributors all {value}", "GRIGORIS Antoniou"),
+      arguments("contributors any {value}", "Grigoris FRANK"),
+      arguments("identifiers.value all ({value})", "047144250x and 2003065165 and 0317-8471"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "deja VU"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "UNIFORM"),
+      arguments("title all {value}", "system INFORMATION"),
+      arguments("title all {value}", "SEMANTIC")
     );
   }
 

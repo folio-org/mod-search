@@ -33,6 +33,11 @@
         "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
         "char_filter": [ "and_char_replacement" ],
         "type": "custom"
+      },
+      "whitespace_analyzer": {
+        "tokenizer": "whitespace",
+        "filter": ["lowercase"],
+        "type": "custom"
       }
     },
     "tokenizers": { },

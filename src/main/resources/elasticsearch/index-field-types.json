@@ -35,7 +35,7 @@
   "whitespace": {
     "mapping": {
       "type": "text",
-      "analyzer": "whitespace"
+      "analyzer": "whitespace_analyzer"
     }
   },
   "date": {

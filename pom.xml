@@ -55,7 +55,7 @@
 
     <!-- Test dependencies versions -->
     <wiremock.version>2.27.2</wiremock.version>
-    <awaitility.version>4.2.0</awaitility.version>
+    <awaitility.version>4.2.1</awaitility.version>
 
     <!-- Plugins versions -->
     <maven-openapi-generator-plugin.version>7.4.0</maven-openapi-generator-plugin.version>

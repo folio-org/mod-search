@@ -1016,7 +1016,7 @@ components:
       in: query
       name: sortBy
       description: |
-        Defines a field to sort by. 
+        Defines a field to sort by.
         Possible values:
           - id
           - hrid
@@ -1033,7 +1033,7 @@ components:
       in: query
       name: sortBy
       description: |
-        Defines a field to sort by. 
+        Defines a field to sort by.
         Possible values:
           - id
           - hrid

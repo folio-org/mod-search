@@ -261,7 +261,6 @@ public class TestUtils {
     var callNumberType = CallNumberType.fromId(typeId);
     return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
         .map(generator -> generator.apply(callNumber))
-        .filter(AbstractCallNumber::isValid)
         .map(AbstractCallNumber::getShelfKey))
       .orElse(normalizeEffectiveShelvingOrder(callNumber))
       .trim();

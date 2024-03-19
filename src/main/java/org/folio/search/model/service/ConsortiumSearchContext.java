@@ -15,14 +15,12 @@ public class ConsortiumSearchContext {
 
   static final String SORT_NOT_ALLOWED_MSG = "Not allowed sort field for %s";
   static final String FILTER_REQUIRED_MSG = "At least one filter criteria required";
+  static final String INSTANCE_ID_FILTER_REQUIRED_MSG = "instanceId filter is required";
 
   private static final Map<ResourceType, List<String>> ALLOWED_SORT_FIELDS = Map.of(
     ResourceType.HOLDINGS, List.of("id", "hrid", "tenantId", "instanceId",
-      "callNumberPrefix", "callNumber", "copyNumber", "permanentLocationId")
-  );
-
-  private static final Map<ResourceType, String> DEFAULT_SORT_FIELD = Map.of(
-    ResourceType.HOLDINGS, "id"
+      "callNumberPrefix", "callNumber", "copyNumber", "permanentLocationId"),
+    ResourceType.ITEM, List.of("id", "hrid", "tenantId", "instanceId", "holdingsRecordId", "barcode")
   );
 
   private final ResourceType resourceType;
@@ -36,6 +34,13 @@ public class ConsortiumSearchContext {
                           String sortBy, SortOrder sortOrder) {
     this.resourceType = resourceType;
     this.filters = filters;
+
+    if (ResourceType.ITEM == resourceType) {
+      boolean instanceIdFilterExist = filters.stream().anyMatch(filter -> filter.getFirst().equals("instanceId"));
+      if (!instanceIdFilterExist) {
+        throw new RequestValidationException(INSTANCE_ID_FILTER_REQUIRED_MSG, null, null);
+      }
+    }
     if (sortBy != null && !ALLOWED_SORT_FIELDS.get(resourceType).contains(sortBy)) {
       throw new RequestValidationException(SORT_NOT_ALLOWED_MSG.formatted(resourceType.getValue()), "sortBy", sortBy);
     }
@@ -54,7 +59,7 @@ public class ConsortiumSearchContext {
 
   public static class ConsortiumSearchContextBuilder {
     private final ResourceType resourceType;
-    private List<Pair<String, String>> filters = new ArrayList<>();
+    private final List<Pair<String, String>> filters = new ArrayList<>();
     private Integer limit;
     private Integer offset;
     private String sortBy;

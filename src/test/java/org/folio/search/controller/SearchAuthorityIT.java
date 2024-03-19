@@ -83,6 +83,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.authorities[0].id", is(getAuthoritySampleId())));
   }
+
   @CsvSource({
     "cql.allRecords=1,",
     "id={value}, \"\"",

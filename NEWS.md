@@ -24,6 +24,7 @@
 * Remove call number format validation for shelving order generation ([MSEARCH-689](https://folio-org.atlassian.net/browse/MSEARCH-689))
 * Implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://folio-org.atlassian.net/browse/MSEARCH-692))
 * Implement endpoint for consolidate items access in consortium ([MSEARCH-693](https://folio-org.atlassian.net/browse/MSEARCH-693))
+* Make Inventory and Authority searches case-insensitive ([MSEARCH-696](https://folio-org.atlassian.net/browse/MSEARCH-696))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

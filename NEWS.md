@@ -38,6 +38,7 @@
 
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
+* Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
 
 ### Dependencies
 * Bump `folio-spring-support` from `7.2.0` to `7.2.1`

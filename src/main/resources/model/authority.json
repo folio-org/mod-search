@@ -7,11 +7,11 @@
   },
   "fields": {
     "id": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": [ "search", "browse" ]
     },
     "tenantId": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "search", "browse" ]
     },
@@ -265,7 +265,7 @@
       "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchTypes": [ "facet", "filter" ]
     },
     "identifiers": {
@@ -273,10 +273,10 @@
       "properties": {
         "value": {
           "searchAliases": [ "keyword" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "identifierTypeId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         }
       }
     },
@@ -317,13 +317,13 @@
       }
     },
     "sourceFileId": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "search", "browse" ],
       "default": "NULL"
     },
     "naturalId": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": [ "search", "browse" ]
     },
     "shared": {
@@ -336,7 +336,7 @@
   "searchFields": {
     "headingType": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
@@ -356,7 +356,7 @@
     },
     "authRefType": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "authRefTypeProcessor",
       "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
@@ -380,7 +380,7 @@
     },
     "lccn": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "lccnAuthorityProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
     }

@@ -10,7 +10,7 @@ services:
     networks:
       - mod-search-local
     ports:
-      - "${APP_PORT}:8081"
+      - "8081:8081"
       - "${DEBUG_PORT}:${DEBUG_PORT}"
     depends_on:
       - api-mock
@@ -19,17 +19,19 @@ services:
       - postgres
     environment:
       ELASTICSEARCH_URL: http://opensearch:9200
-      DB_HOST: postgres
-      JAVA_OPTIONS: -Xmx120m -Xms120m
-      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}
-      okapi.url: ${OKAPI_URL}
-      KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS: 1
-      KAFKA_SUBJECTS_TOPIC_PARTITIONS: 1
-      KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS: 1
-      BROWSE_CLASSIFICATIONS_ENABLED: true
+      ENV: ${ENV}
+      KAFKA_HOST: ${KAFKA_HOST}
+      KAFKA_PORT: ${KAFKA_PORT}
+      REPLICATION_FACTOR: ${REPLICATION_FACTOR}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JAVA_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
 
   api-mock:
-    container_name: api-mock-mod-search
+    container_name: api-mock_mod-search
     image: wiremock/wiremock:2.32.0
     networks:
       - mod-search-local
@@ -41,7 +43,7 @@ services:
       - ../src/test/resources/mappings:/home/wiremock/mappings
 
   opensearch:
-    container_name: opensearch-mod-search
+    container_name: opensearch_mod-search
     image: dev.folio/opensearch:1.3.2
     build:
       context: opensearch
@@ -60,7 +62,7 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   opensearch-dashboards:
-    container_name: opensearch-dashboards-mod-search
+    container_name: opensearch-dashboards_mod-search
     image: dev.folio/opensearch-dashboards:1.3.2
     build:
       context: dashboards
@@ -75,7 +77,7 @@ services:
       - opensearch
 
   zookeeper:
-    container_name: zookeeper-mod-search
+    container_name: zookeeper_mod-search
     image: wurstmeister/zookeeper:3.4.6
     networks:
       - mod-search-local
@@ -83,13 +85,14 @@ services:
       - "2181:2181"
 
   kafka:
-    container_name: kafka-mod-search
+    container_name: kafka_mod-search
     image: wurstmeister/kafka:2.13-2.8.1
     networks:
       - mod-search-local
     depends_on:
       - zookeeper
     ports:
+      - "9092:9092"
       - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
@@ -103,7 +106,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
 
   kafka-ui:
-    container_name: kafka-ui-mod-search
+    container_name: kafka-ui_mod-search
     image: provectuslabs/kafka-ui:latest
     ports:
       - "8080:8080"
@@ -119,19 +122,19 @@ services:
       - mod-search-local
 
   postgres:
-    container_name: postgres-mod-search
+    container_name: postgres_mod-search
     image: postgres:12-alpine
     networks:
       - mod-search-local
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: okapi_modules
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
 
   pgadmin:
-    container_name: pgadmin-mod-search
+    container_name: pgadmin_mod-search
     image: dpage/pgadmin4:6.7
     networks:
       - mod-search-local

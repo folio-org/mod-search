@@ -134,6 +134,9 @@ public class KafkaMessageProducer {
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {
     var tenantId = event.getTenant();
     var instanceId = getResourceEventId(event);
+    if (StringUtils.isBlank(instanceId)) {
+      return emptyList();
+    }
     var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, tenantId);
     var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
 

@@ -49,7 +49,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
     System.out.println();
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
            ? getEmptyArrayScriptQuery(fieldName)
-           : termQuery(fieldName, term);
+           : termQuery(fieldName, term).caseInsensitive(true);
   }
 
   private static ScriptQueryBuilder getEmptyArrayScriptQuery(String fieldName) {

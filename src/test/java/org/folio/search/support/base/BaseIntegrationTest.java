@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -78,9 +77,10 @@ public abstract class BaseIntegrationTest {
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
 
+
   @RegisterExtension
   static OkapiExtension okapiExtension =
-    new OkapiExtension(new InventoryViewResponseBuilder(), new ResponseTemplateTransformer(true));
+    new OkapiExtension(new InventoryViewResponseBuilder());
 
   @BeforeAll
   static void setUpDefaultTenant(

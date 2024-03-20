@@ -26,6 +26,8 @@ public class SearchController implements SearchApi {
   @Override
   public ResponseEntity<InstanceSearchResult> searchInstances(String tenantId, String query, Integer limit,
                                                               Integer offset, Boolean expandAll) {
+    System.out.println("tenantId: " + tenantId);
+    System.out.printf("query: %s, limit: %d, offset: %d, expandAll: %b\n", query, limit, offset, expandAll);
     tenantId = tenantProvider.getTenant(tenantId);
     var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
     var result = searchService.search(searchRequest);

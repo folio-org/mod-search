@@ -45,6 +45,8 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
+    System.out.println("tsaghik exect getTermLevelQuery, term: " + term);
+    System.out.println();
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
            ? getEmptyArrayScriptQuery(fieldName)
            : termQuery(fieldName, term);

@@ -1,2 +1,8 @@
-enum: [ lc, dewey, nlm, sudoc, other, local ]
 type: string
+enum:
+  - lc
+  - dewey
+  - nlm
+  - sudoc
+  - other
+  - local

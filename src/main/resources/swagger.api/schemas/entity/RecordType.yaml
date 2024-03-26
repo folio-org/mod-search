@@ -1,2 +1,6 @@
 type: string
-enum: [ instances, authorities, contributors, subjects ]
+enum:
+  - instances
+  - authorities
+  - contributors
+  - subjects

@@ -3,4 +3,4 @@ in: path
 required: true
 description: 'Browse feature type'
 schema:
-  $ref: '../schemas/browseType.yaml'
+  $ref: '../schemas/entity/browseType.yaml'

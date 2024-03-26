@@ -33,6 +33,9 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -122,6 +125,24 @@ class InstanceContributorsRepositoryTest {
     });
   }
 
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = "null")
+  void indexResources_positive_skipIfInstanceIdIsBlank(String instanceId) throws IOException {
+    var typeId = randomId();
+
+    var bulkResponse = mock(BulkResponse.class);
+    when(elasticsearchClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
+    when(bulkResponse.hasFailures()).thenReturn(false);
+
+    var documents = List.of(contributorDocumentBodyToIndex(typeId, instanceId));
+    var actual = repository.indexResources(documents);
+
+    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
+    var requests = bulkRequestCaptor.getValue().requests();
+    assertThat(requests).isEmpty();
+  }
+
   @SuppressWarnings("unchecked")
   private Set<Map<String, Object>> getParam(Script script, String param) {
     return (Set<Map<String, Object>>) script.getParams().get(param);
@@ -129,9 +150,14 @@ class InstanceContributorsRepositoryTest {
 
   @SneakyThrows
   private SearchDocumentBody contributorDocumentBodyToIndex(String typeId) {
+    return contributorDocumentBodyToIndex(typeId, RESOURCE_ID);
+  }
+
+  @SneakyThrows
+  private SearchDocumentBody contributorDocumentBodyToIndex(String typeId, String instanceId) {
     var id = randomId();
     var authorityId = randomId();
-    var body = mapOf("id", id, "instanceId", RESOURCE_ID, "name", "test", "nameTypeId", randomId(),
+    var body = mapOf("id", id, "instanceId", instanceId, "name", "test", "nameTypeId", randomId(),
       "typeId", typeId, "authorityId", authorityId, "shared", true);
     var event = resourceEvent(id, CONTRIBUTOR_RESOURCE, CREATE, body, null);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, INDEX);

@@ -1,9 +1,7 @@
-## v3.2.0 In progress
-### Breaking changes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
-
+## v3.2.0 2024-03-20
 ### New APIs versions
 * Requires `classification-types v1.2`
+* Provides `browse v1.3`
 * Provides `browse-config v1.0`
 * Provides `consortium-search v1.0`
 
@@ -38,9 +36,16 @@
 
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
+* Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
 
 ### Dependencies
-* Bump `folio-spring-support` from `7.2.0` to `7.2.1`
+* Bump `spring-boot` from `3.1.5` to `3.2.3`
+* Bump `folio-spring-support` from `7.2.0` to `8.1.0`
+* Bump `folio-service-tools` from `3.1.0` to `4.0.0`
+* Bump `folio-cql2pgjson` from `35.1.0` to `35.2.0`
+* Bump `opensearch` from `2.9.0` to `2.12.0`
+* Bump `apache-commons-io` from `2.15.0` to `2.15.1`
+* Bump `lombok` from `1.18.30` to `1.18.32`
 
 ---
 

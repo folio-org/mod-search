@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -23,6 +25,7 @@ import org.opensearch.action.update.UpdateRequest;
 import org.opensearch.script.Script;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class InstanceContributorsRepository extends AbstractResourceRepository {
@@ -44,27 +47,33 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
         var tenantId = document.getTenant();
         var eventPayload = getPayload(document);
         var action = document.getAction();
-        var instanceId = eventPayload.get(INSTANCE_ID);
-        var typeId = eventPayload.get(TYPE_ID);
-        var shared = eventPayload.getOrDefault("shared", false);
-        if (action == IndexActionType.INDEX) {
-          instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId, shared));
+        var instanceId = String.valueOf(eventPayload.get(INSTANCE_ID));
+        if (StringUtils.isNotBlank(instanceId) && !"null".equals(instanceId)) {
+          var typeId = eventPayload.get(TYPE_ID);
+          var shared = eventPayload.getOrDefault("shared", false);
+          if (action == IndexActionType.INDEX) {
+            instancesToCreate.add(prepareInstance(instanceId, tenantId, typeId, shared));
+          } else {
+            instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId, shared));
+          }
         } else {
-          instancesToDelete.add(prepareInstance(instanceId, tenantId, typeId, shared));
+          log.warn("InstanceId is blank in contributor event. [payload: {}]", eventPayload);
         }
       }
 
-      var searchDocument = documents.iterator().next();
-      var upsertRequest = new UpdateRequest()
-        .id(searchDocument.getId())
-        .scriptedUpsert(true)
-        .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
-        .index(indexNameProvider.getIndexName(searchDocument))
-        .script(prepareScript(instancesToCreate, instancesToDelete))
-        .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete)),
-          searchDocument.getDataFormat().getXcontentType());
+      if (!instancesToCreate.isEmpty() || !instancesToDelete.isEmpty()) {
+        var searchDocument = documents.iterator().next();
+        var upsertRequest = new UpdateRequest()
+          .id(searchDocument.getId())
+          .scriptedUpsert(true)
+          .retryOnConflict(properties.getIndexing().getInstanceContributors().getRetryAttempts())
+          .index(indexNameProvider.getIndexName(searchDocument))
+          .script(prepareScript(instancesToCreate, instancesToDelete))
+          .upsert(prepareDocumentBody(getPayload(searchDocument), subtract(instancesToCreate, instancesToDelete)),
+            searchDocument.getDataFormat().getXcontentType());
 
-      bulkRequest.add(upsertRequest);
+        bulkRequest.add(upsertRequest);
+      }
     }
 
     var bulkApiResponse = executeBulkRequest(bulkRequest);
@@ -80,7 +89,7 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
       Map.of("ins", instancesToCreate, "del", instancesToDelete));
   }
 
-  private Map<String, Object> prepareInstance(Object instanceId, String tenantId, Object typeId, Object shared) {
+  private Map<String, Object> prepareInstance(String instanceId, String tenantId, Object typeId, Object shared) {
     var instancePayload = new HashMap<String, Object>();
     instancePayload.put(INSTANCE_ID, instanceId);
     instancePayload.put(TYPE_ID, typeId);

@@ -13,10 +13,10 @@ get:
       content:
         application/json:
           example:
-            $ref: '../../examples/InstanceIdsResult.yaml'
+            $ref: '../../examples/result/InstanceIdsResult.yaml'
         application/text:
           example:
-            $ref: '../../examples/IdsTextResult.yaml'
+            $ref: '../../examples/result/IdsTextResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

@@ -7,7 +7,7 @@ post:
     content:
       application/json:
         example:
-          $ref: '../../examples/indexRecordRequestBody.yaml'
+          $ref: '../../examples/request/indexRecordRequestBody.yaml'
         schema:
           $ref: '../../schemas/request/indexRecordRequest.yaml'
   responses:
@@ -16,8 +16,8 @@ post:
       content:
         application/json:
           example:
-            $ref: '../../examples/indexRecordResponse.yaml'
+            $ref: '../../examples/response/indexRecordResponse.yaml'
           schema:
-            $ref: '../../schemas/folioIndexOperationResponse.yaml'
+            $ref: '../../schemas/response/folioIndexOperationResponse.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

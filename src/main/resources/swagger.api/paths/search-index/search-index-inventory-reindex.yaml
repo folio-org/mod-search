@@ -7,7 +7,7 @@ post:
     content:
       application/json:
         example:
-          $ref: '../../examples/reindexRequest.yaml'
+          $ref: '../../examples/request/reindexRequest.yaml'
         schema:
           $ref: '../../schemas/request/reindexRequest.yaml'
   parameters:
@@ -18,6 +18,6 @@ post:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/reindexJob.yaml'
+            $ref: '../../schemas/entity/reindexJob.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

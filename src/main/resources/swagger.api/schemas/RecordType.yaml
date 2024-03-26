@@ -1,3 +1,0 @@
-RecordType:
-  enum: [ instances, authorities, contributors, subjects ]
-  type: string

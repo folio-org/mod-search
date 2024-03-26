@@ -2,4 +2,4 @@ description: Validation error for the request.
 content:
   application/json:
     schema:
-      $ref: '../schemas/errors.yaml'
+      $ref: '../schemas/response/errorResponse.yaml'

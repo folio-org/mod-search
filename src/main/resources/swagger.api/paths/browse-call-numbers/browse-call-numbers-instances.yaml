@@ -15,14 +15,14 @@ get:
       description: Type of call number
       required: false
       schema:
-        $ref: '../../schemas/callNumberType.yaml'
+        $ref: '../../schemas/entity/callNumberType.yaml'
   responses:
     '200':
       description: 'Search result for browsing by call number'
       content:
         application/json:
           example:
-            $ref: '../../examples/searchResult.yaml'
+            $ref: '../../examples/result/searchResult.yaml'
           schema:
             $ref: '../../schemas/response/callNumberBrowseResult.yaml'
     '400':

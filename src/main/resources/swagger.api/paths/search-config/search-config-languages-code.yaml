@@ -9,14 +9,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/languageConfig.json'
+          $ref: '../../schemas/entity/languageConfig.yaml'
   responses:
     '200':
       description: Language support has been added.
       content:
         application/json:
           schema:
-            $ref: '../../schemas/languageConfig.json'
+            $ref: '../../schemas/entity/languageConfig.yaml'
     '422':
       $ref: '../../responses/unprocessableEntityResponse.yaml'
 delete:

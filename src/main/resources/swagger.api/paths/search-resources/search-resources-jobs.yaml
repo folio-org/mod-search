@@ -9,18 +9,18 @@ post:
     content:
       application/json:
         example:
-          $ref: '../../examples/streamIdsJobRequest.yaml'
+          $ref: '../../examples/request/streamIdsJobRequest.yaml'
         schema:
-          $ref: '../../schemas/resourceIdsJob.yaml'
+          $ref: '../../schemas/entity/resourceIdsJob.yaml'
   responses:
     '200':
       description: 'Job for the stream of resource ids'
       content:
         application/json:
           example:
-            $ref: '../../examples/streamIdsJobResponse.yaml'
+            $ref: '../../examples/response/streamIdsJobResponse.yaml'
           schema:
-            $ref: '../../schemas/resourceIdsJob.yaml'
+            $ref: '../../schemas/entity/resourceIdsJob.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

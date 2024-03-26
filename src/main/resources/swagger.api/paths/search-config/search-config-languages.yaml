@@ -7,14 +7,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/languageConfig.yaml'
+          $ref: '../../schemas/entity/languageConfig.yaml'
   responses:
     '200':
       description: Language support has been added.
       content:
         application/json:
           schema:
-            $ref: '../../schemas/languageConfig.yaml'
+            $ref: '../../schemas/entity/languageConfig.yaml'
     '422':
       $ref: '../../responses/unprocessableEntityResponse.yaml'
 get:
@@ -28,4 +28,4 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/languageConfigs.yaml'
+            $ref: '../../schemas/entity/languageConfigs.yaml'

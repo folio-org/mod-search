@@ -11,4 +11,4 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/browseConfigCollection.yaml'
+            $ref: '../../schemas/entity/browseConfigCollection.yaml'

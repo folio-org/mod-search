@@ -9,14 +9,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/featureConfig.yaml'
+          $ref: '../../schemas/entity/featureConfig.yaml'
   responses:
     '200':
       description: Feature configuration has been added.
       content:
         application/json:
           schema:
-            $ref: '../../schemas/featureConfig.yaml'
+            $ref: '../../schemas/entity/featureConfig.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '422':

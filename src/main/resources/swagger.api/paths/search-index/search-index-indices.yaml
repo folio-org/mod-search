@@ -9,7 +9,7 @@ post:
     content:
       application/json:
         example:
-          $ref: '../../examples/indexRequestBody.yaml'
+          $ref: '../../examples/request/indexRequestBody.yaml'
         schema:
           $ref: '../../schemas/request/createIndexRequest.yaml'
   responses:
@@ -18,7 +18,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/folioCreateIndexResponse.yaml'
+            $ref: '../../schemas/response/folioCreateIndexResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/consortiumHoldingCollection.yaml'
+            $ref: '../../schemas/entity/consortiumHoldingCollection.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

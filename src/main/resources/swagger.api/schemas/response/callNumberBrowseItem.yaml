@@ -15,4 +15,4 @@ properties:
     description: Amount of records for the call number value
   instance:
     description: Related instance object
-    $ref: "../instance.yaml"
+    $ref: "../../schemas/entity/instance.yaml"

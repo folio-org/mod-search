@@ -1,3 +1,4 @@
 type: array
 items:
-  $ref: '../../schemas/resourceEvent.yaml'
+  type: object
+  $ref: '../entity/resourceEvent.yaml'

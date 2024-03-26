@@ -9,1066 +9,136 @@ servers:
 
 paths:
   /search/instances:
-    get:
-      operationId: searchInstances
-      description: Get a list of instances for CQL query
-      tags:
-        - search
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
-        - $ref: '#/components/parameters/offset-param'
-        - $ref: '#/components/parameters/expand-all-param'
-      responses:
-        '200':
-          description: 'Instance search result'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/instanceSearchResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-instances/search-instances.yaml'
 
   /search/instances/ids:
-    get:
-      operationId: getInstanceIds
-      description: Get a list of instance ids for CQL query
-      tags:
-        - search-resources-ids
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/content-type-header'
-      responses:
-        '200':
-          description: 'Instance ids as json stream'
-          content:
-            application/json:
-              example: examples/InstanceIdsResult.sample
-            application/text:
-              example: examples/IdsTextResult.sample
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-instances/search-instances-ids.yaml'
 
   /search/holdings/ids:
-    get:
-      operationId: getHoldingIds
-      description: Get a list of holding ids linked to instances found by the CQL query
-      tags:
-        - search-resources-ids
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/content-type-header'
-      responses:
-        '200':
-          description: 'Instance ids as json stream'
-          content:
-            application/json:
-              example: examples/HoldingIdsResult.sample
-            application/text:
-              example: examples/IdsTextResult.sample
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-holdings/search-holdings-ids.yaml'
 
   /search/{recordType}/facets:
-    get:
-      operationId: getFacets
-      description: Provides list of facets for the record type
-      tags:
-        - facets
-      parameters:
-        - name: recordType
-          required: true
-          in: path
-          schema:
-            $ref: '#/components/schemas/RecordType'
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/facet-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      responses:
-        '200':
-          description: 'Facet search result'
-          content:
-            application/json:
-              example: examples/facetResult.sample
-              schema:
-                $ref: '#/components/schemas/facetResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-facets/search-record-type-facets.yaml'
 
   /search/authorities:
-    get:
-      operationId: searchAuthorities
-      description: Get a list of authorities for CQL query
-      tags:
-        - search
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
-        - $ref: '#/components/parameters/offset-param'
-        - $ref: '#/components/parameters/expand-all-param'
-        - $ref: '#/components/parameters/include-number-of-titles'
-      responses:
-        '200':
-          description: 'Authorities search result'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/authoritySearchResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-authorities/search-authorities.yaml'
 
   /search/resources/jobs/{jobId}:
-    get:
-      operationId: getIdsJob
-      description: Get a job for the stream of resource ids.
-      tags:
-        - search-resources-ids
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/job-stream-id'
-      responses:
-        '200':
-          description: 'Job for the stream of resource ids'
-          content:
-            application/json:
-              example: examples/streamIdsJobResponse.sample
-              schema:
-                $ref: schemas/resourceIdsJob.json
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-resources/search-resources-jobs-job-id.yaml'
 
   /search/resources/jobs:
-    post:
-      operationId: submitIdsJob
-      description: Creates a job for the stream of resource ids.
-      tags:
-        - search-resources-ids
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      requestBody:
-        content:
-          application/json:
-            example: examples/streamIdsJobRequest.sample
-            schema:
-              $ref: schemas/resourceIdsJob.json
-      responses:
-        '200':
-          description: 'Job for the stream of resource ids'
-          content:
-            application/json:
-              example: examples/streamIdsJobResponse.sample
-              schema:
-                $ref: schemas/resourceIdsJob.json
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-resources/search-resources-jobs.yaml'
 
   /search/resources/jobs/{jobId}/ids:
-    get:
-      operationId: getResourceIds
-      description: Get a list of resource ids by job id
-      tags:
-        - search-resources-ids
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/job-stream-id'
-      responses:
-        '200':
-          description: 'Resources ids as a json stream'
-          content:
-            application/json:
-              example: examples/resourceIdsResult.sample
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-resources/search-resources-jobs-job-id-ids.yaml'
 
   /search/consortium/holdings:
-    get:
-      operationId: getConsortiumHoldings
-      description: Get a list of holdings (only for consortium environment)
-      tags:
-        - search-consortium
-      parameters:
-        - $ref: '#/components/parameters/instance-id-query-param'
-        - $ref: '#/components/parameters/tenant-id-query-param'
-        - $ref: '#/components/parameters/consortium-limit-param'
-        - $ref: '#/components/parameters/offset-param'
-        - $ref: '#/components/parameters/sort-by-holdings-param'
-        - $ref: '#/components/parameters/sort-order-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      responses:
-        '200':
-          description: List of holdings
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/consortiumHoldingCollection'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-consortium/search-consortium-holdings.yaml'
 
   /search/consortium/items:
-    get:
-      operationId: getConsortiumItems
-      description: Get a list of items (only for consortium environment)
-      tags:
-        - search-consortium
-      parameters:
-        - $ref: '#/components/parameters/instance-id-query-param'
-        - $ref: '#/components/parameters/holdings-id-query-param'
-        - $ref: '#/components/parameters/tenant-id-query-param'
-        - $ref: '#/components/parameters/consortium-limit-param'
-        - $ref: '#/components/parameters/offset-param'
-        - $ref: '#/components/parameters/sort-by-item-param'
-        - $ref: '#/components/parameters/sort-order-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      responses:
-        '200':
-          description: List of items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/consortiumItemCollection'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-
-  /browse/call-numbers/instances:
-    get:
-      operationId: browseInstancesByCallNumber
-      description: Provides list of instances for browsing by call number
-      tags:
-        - browse
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/browse-limit-param'
-        - $ref: '#/components/parameters/expand-all-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/highlight-match'
-        - $ref: '#/components/parameters/preceding-records-count'
-        - in: query
-          name: callNumberType
-          description: Type of call number
-          required: false
-          schema:
-            $ref: '#/components/schemas/CallNumberType'
-      responses:
-        '200':
-          description: 'Search result for browsing by call number'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/callNumberBrowseResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-
-  /browse/classification-numbers/{browseOptionId}/instances:
-    get:
-      operationId: browseInstancesByClassificationNumber
-      description: Provides list of instances for browsing by classification number
-      tags:
-        - browse
-      parameters:
-        - $ref: '#/components/parameters/browse-option-id'
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/browse-limit-param'
-        - $ref: '#/components/parameters/expand-all-param'
-        - $ref: '#/components/parameters/highlight-match'
-        - $ref: '#/components/parameters/preceding-records-count'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      responses:
-        '200':
-          description: 'Search result for browsing by call number'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/classificationNumberBrowseResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-
-  /browse/subjects/instances:
-    get:
-      operationId: browseInstancesBySubject
-      description: Provides list of instances for browsing by subject
-      tags:
-        - browse
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/highlight-match'
-        - $ref: '#/components/parameters/preceding-records-count'
-      responses:
-        '200':
-          description: 'Search result for browsing by call number'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/subjectBrowseResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-
-  /browse/contributors/instances:
-    get:
-      operationId: browseInstancesByContributor
-      description: Provides list of instances for browsing by contributor
-      tags:
-        - browse
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/highlight-match'
-        - $ref: '#/components/parameters/preceding-records-count'
-      responses:
-        '200':
-          description: 'Search result for browsing by contributor'
-          content:
-            application/json:
-              example: examples/browseContributorsResult.sample
-              schema:
-                $ref: '#/components/schemas/contributorBrowseResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-
-  /browse/authorities:
-    get:
-      operationId: browseAuthorities
-      description: Provides list of authorities by headingRef
-      tags:
-        - browse
-      parameters:
-        - $ref: '#/components/parameters/cql-query'
-        - $ref: '#/components/parameters/limit-param'
-        - $ref: '#/components/parameters/expand-all-param'
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-        - $ref: '#/components/parameters/highlight-match'
-        - $ref: '#/components/parameters/preceding-records-count'
-      responses:
-        '200':
-          description: 'Search result for browsing by authorities'
-          content:
-            application/json:
-              example: examples/searchResult.sample
-              schema:
-                $ref: '#/components/schemas/authorityBrowseResult'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-consortium/search-consortium-items.yaml'
 
   /search/index/indices:
-    post:
-      operationId: createIndices
-      description: Creates indices for passed resource name and tenant id in request header.
-      tags:
-        - index-management
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      requestBody:
-        content:
-          application/json:
-            example: examples/indexRequestBody.sample
-            schema:
-              $ref: schemas/request/createIndexRequest.json
-      responses:
-        '200':
-          description: Response with created indices and status (error message will be present if operation failed)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/folioCreateIndexResponse'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-index/search-index-indices.yaml'
 
   /search/index/mappings:
-    post:
-      operationId: updateMappings
-      description: Creates mappings for passed resource name and tenant id in request header.
-      tags:
-        - index-management
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: schemas/request/updateMappingsRequest.json
-      responses:
-        '200':
-          description: Response with created indices and status (error message will be present if operation failed)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/folioIndexOperationResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-index/search-index-mappings.yaml'
 
   /search/index/records:
-    post:
-      operationId: indexRecords
-      description: Indexes the records into elasticsearch.
-      tags:
-        - index-management
-      requestBody:
-        content:
-          application/json:
-            example: examples/indexRecordRequestBody.sample
-            schema:
-              $ref: '#/components/schemas/indexRecordRequest'
-      responses:
-        '200':
-          description: Response with created indices and status (error message will be present if operation failed)
-          content:
-            application/json:
-              example: examples/indexRecordResponse.sample
-              schema:
-                $ref: '#/components/schemas/folioIndexOperationResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-index/search-index-records.yaml'
 
   /search/index/settings:
-    put:
-      operationId: updateIndexDynamicSettings
-      description: Update Index Dynamic Settings data.
-      tags:
-        - index-management
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/updateIndexDynamicSettingsRequest'
-      responses:
-        '200':
-          description: Response with updated index settings and status (error message will be present if operation failed)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/folioIndexOperationResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-index/search-index-settings.yaml'
 
   /search/index/inventory/reindex:
-    post:
-      operationId: reindexInventoryRecords
-      description: Initiates reindex for the inventory records
-      tags:
-        - index-management
-      requestBody:
-        content:
-          application/json:
-            example: examples/reindexRequest.sample
-            schema:
-              $ref: '#/components/schemas/reindexRequest'
-      parameters:
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
-      responses:
-        '200':
-          description: Reindex operation has been started
-          content:
-            application/json:
-              schema:
-                $ref: schemas/reindexJob.json
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
+    $ref: './paths/search-index/search-index-inventory-reindex.yaml'
 
   /search/config/languages:
-    post:
-      operationId: createLanguageConfig
-      description: Save languages that will be used for analyzers
-      tags:
-        - config
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: schemas/languageConfig.json
-      responses:
-        '200':
-          description: Language support has been added.
-          content:
-            application/json:
-              schema:
-                $ref: schemas/languageConfig.json
-        '422':
-          $ref: '#/components/responses/unprocessableEntityResponse'
-    get:
-      operationId: getAllLanguageConfigs
-      description: Get all supported languages
-      tags:
-        - config
-      responses:
-        '200':
-          description: All supported languages
-          content:
-            application/json:
-              schema:
-                $ref: schemas/languageConfigs.json
+    $ref: './paths/search-config/search-config-languages.yaml'
 
   /search/config/languages/{code}:
-    put:
-      operationId: updateLanguageConfig
-      description: Update language config settings
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/language-code'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: schemas/languageConfig.json
-      responses:
-        '200':
-          description: Language support has been added.
-          content:
-            application/json:
-              schema:
-                $ref: schemas/languageConfig.json
-        '422':
-          $ref: '#/components/responses/unprocessableEntityResponse'
-    delete:
-      operationId: deleteLanguageConfig
-      description: Delete all supported languages
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/language-code'
-      responses:
-        '204':
-          description: Language support has been removed
-        '404':
-          description: No language support is found
+    $ref: './paths/search-config/search-config-languages-code.yaml'
 
   /search/config/features:
-    post:
-      operationId: saveFeatureConfiguration
-      description: Save feature configuration (enables or disables pre-defined optional search options)
-      tags:
-        - config
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: schemas/featureConfig.json
-      responses:
-        '200':
-          description: Language support has been added.
-          content:
-            application/json:
-              schema:
-                $ref: schemas/featureConfig.json
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '422':
-          $ref: '#/components/responses/unprocessableEntityResponse'
-    get:
-      operationId: getAllFeatures
-      description: Get all feature configurations per tenant
-      tags:
-        - config
-      responses:
-        '200':
-          description: All feature configurations
-          content:
-            application/json:
-              schema:
-                $ref: schemas/featureConfigs.json
+    $ref: './paths/search-config/search-config-features.yaml'
 
   /search/config/features/{featureId}:
-    put:
-      operationId: updateFeatureConfiguration
-      description: Update feature configuration settings
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/feature-id'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: schemas/featureConfig.json
-      responses:
-        '200':
-          description: Feature configuration has been added.
-          content:
-            application/json:
-              schema:
-                $ref: schemas/featureConfig.json
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '422':
-          $ref: '#/components/responses/unprocessableEntityResponse'
-    delete:
-      operationId: deleteFeatureConfigurationById
-      description: Delete feature configuration by id
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/feature-id'
-      responses:
-        '204':
-          description: Feature configuration has been removed
-        '404':
-          description: No feature configuration is found by id
+    $ref: './paths/search-config/search-config-features-feature-id.yaml'
+
+  /browse/call-numbers/instances:
+    $ref: './paths/browse-call-numbers/browse-call-numbers-instances.yaml'
+
+  /browse/classification-numbers/{browseOptionId}/instances:
+    $ref: './paths/browse-classification-numbers/browse-option-id-instances.yaml'
+
+  /browse/subjects/instances:
+    $ref: './paths/browse-subject/browse-subjects-instances.yaml'
+
+  /browse/contributors/instances:
+    $ref: './paths/browse-contributors/browse-contributors-instances.yaml'
+
+  /browse/authorities:
+    $ref: './paths/browse-authorities/browse-authorities.yaml'
 
   /browse/config/{browseType}:
-    get:
-      operationId: getBrowseConfigs
-      description: Get all configurations for browse type
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/browse-type'
-      responses:
-        '200':
-          description: All browse configurations for type
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/browseConfigCollection'
+    $ref: './paths/browse-config/browse-type.yaml'
 
   /browse/config/{browseType}/{browseOptionId}:
-    put:
-      operationId: putBrowseConfig
-      description: Update configuration for browse type
-      tags:
-        - config
-      parameters:
-        - $ref: '#/components/parameters/browse-type'
-        - $ref: '#/components/parameters/browse-option-id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/browseConfig'
-      responses:
-        '200':
-          description: Browse configuration has been added/updated.
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '422':
-          $ref: '#/components/responses/unprocessableEntityResponse'
+    $ref: './paths/browse-config/browse-type-browse-option-id.yaml'
 
 components:
-  schemas:
-    instance:
-      $ref: schemas/instance.json
-    item:
-      $ref: schemas/item.json
-    folioCreateIndexResponse:
-      $ref: schemas/folioCreateIndexResponse.json
-    folioIndexOperationResponse:
-      $ref: schemas/folioIndexOperationResponse.json
-    resourceEvent:
-      $ref: schemas/resourceEvent.json
-    indexRecordRequest:
-      type: array
-      items:
-        $ref: '#/components/schemas/resourceEvent'
-    instanceSearchResult:
-      $ref: schemas/response/instanceSearchResult.json
-    authoritySearchResult:
-      $ref: schemas/response/authoritySearchResult.json
-    callNumberBrowseResult:
-      $ref: schemas/response/callNumberBrowseResult.json
-    classificationNumberBrowseResult:
-      $ref: schemas/response/classificationNumberBrowseResult.json
-    subjectBrowseResult:
-      $ref: schemas/response/subjectBrowseResult.json
-    contributorBrowseResult:
-      $ref: schemas/response/instanceContributorBrowseResult.json
-    authorityBrowseResult:
-      $ref: schemas/response/authorityBrowseResult.json
-    facetResult:
-      $ref: schemas/response/facetResult.json
-    resourceIds:
-      $ref: schemas/response/resourceIds.json
-    errorResponse:
-      $ref: schemas/errors.json
-    reindexRequest:
-      $ref: schemas/request/reindexRequest.json
-    updateIndexDynamicSettingsRequest:
-      $ref: schemas/request/updateIndexDynamicSettingsRequest.json
-    RecordType:
-      enum: [ instances, authorities, contributors, subjects ]
-      type: string
-    CallNumberType:
-      enum: [ lc, dewey, nlm, sudoc, other, local ]
-      type: string
-    browseType:
-      type: string
-      enum:
-        - instance-classification
-    browseOptionType:
-      type: string
-      enum:
-        - all
-        - lc
-        - dewey
-    shelvingOrderAlgorithmType:
-      type: string
-      enum:
-        - lc
-        - dewey
-        - default
-    browseConfig:
-      type: object
-      properties:
-        id:
-          description: Option ID
-          $ref: "#/components/schemas/browseOptionType"
-        shelvingAlgorithm:
-          description: Defines shelving order algorithm
-          $ref: "#/components/schemas/shelvingOrderAlgorithmType"
-        typeIds:
-          description: Type IDs that should be used by the option
-          type: array
-          items:
-            description: Type ID
-            type: string
-            format: uuid
-      required:
-        - id
-        - shelvingAlgorithm
-    browseConfigCollection:
-      type: object
-      properties:
-        configs:
-          type: array
-          items:
-            $ref: '#/components/schemas/browseConfig'
-        totalRecords:
-          type: integer
-    consortiumHolding:
-      type: object
-      properties:
-        id:
-          description: Holdings ID
-          type: string
-        hrid:
-          description: Holdings HRID
-          type: string
-        tenantId:
-          description: Tenant ID of the Holding
-          type: string
-        instanceId:
-          description: Related Instance Id
-          type: string
-        discoverySuppress:
-          description: Discovery suppress flag
-          type: boolean
-        callNumberPrefix:
-          description: Call number prefix
-          type: string
-        callNumber:
-          description: Call number
-          type: string
-        copyNumber:
-          description: Copy number
-          type: string
-        permanentLocationId:
-          description: Permanent Location ID
-          type: string
-    consortiumHoldingCollection:
-      type: object
-      properties:
-        holdings:
-          type: array
-          items:
-            $ref: '#/components/schemas/consortiumHolding'
-        totalRecords:
-          type: integer
-    consortiumItem:
-      type: object
-      properties:
-        id:
-          description: Item ID
-          type: string
-        hrid:
-          description: Item HRID
-          type: string
-        tenantId:
-          description: Tenant ID of the Item
-          type: string
-        instanceId:
-          description: Related Instance Id
-          type: string
-        holdingsRecordId:
-          description: Related Holding Record Id
-          type: string
-        barcode:
-          description: Item barcode
-          type: string
-    consortiumItemCollection:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/consortiumItem'
-        totalRecords:
-          type: integer
-    sortOrder:
-      type: string
-      enum:
-        - asc
-        - desc
-
   responses:
     unprocessableEntityResponse:
-      description: Validation error for the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
+      $ref: './responses/unprocessableEntityResponse.yaml'
     badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example: examples/validationErrorResponse.sample
-          schema:
-            $ref: "#/components/schemas/errorResponse"
+      $ref: './responses/badRequestResponse.yaml'
     internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example: examples/unknownError.sample
+      $ref: './responses/internalServerErrorResponse.yaml'
 
   parameters:
     limit-param:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 100
+      $ref: './parameters/limit-param.yaml'
     consortium-limit-param:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 1000
-        default: 100
+      $ref: './parameters/consortium-limit-param.yaml'
     browse-limit-param:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the browse response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
+      $ref: './parameters/browse-limit-param.yaml'
     offset-param:
-      in: query
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 9999
-        default: 0
+      $ref: './parameters/offset-param.yaml'
     cql-query:
-      name: query
-      in: query
-      required: true
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
+      $ref: './parameters/cql-query.yaml'
     expand-all-param:
-      in: query
-      name: expandAll
-      description: Whether to return only basic properties or entire instance.
-      schema:
-        type: boolean
-        default: false
+      $ref: './parameters/expand-all-param.yaml'
     facet-param:
-      in: query
-      name: facet
-      description: List of facet names.
-      required: true
-      schema:
-        type: array
-        items:
-          type: string
+      $ref: './parameters/facet-param.yaml'
     language-code:
-      name: code
-      in: path
-      required: true
-      description: Language code
-      schema:
-        type: string
-        pattern: '[a-zA-Z]{3}'
+      $ref: './parameters/language-code.yaml'
     feature-id:
-      name: featureId
-      in: path
-      required: true
-      description: Feature id (name)
-      schema:
-        type: string
-        enum:
-          - search.all.fields
-          - browse.cn.intermediate.values
-          - browse.cn.intermediate.remove.duplicates
-          - browse.classifications
+      $ref: './parameters/feature-id.yaml'
     x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: X-Okapi-Tenant header value
-      required: true
-      schema:
-        type: string
+      $ref: './parameters/x-okapi-tenant-header.yaml'
     content-type-header:
-      name: Content-Type
-      in: header
-      description: Content-Type header value
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/content-type-header.yaml'
     preceding-records-count:
-      in: query
-      name: precedingRecordsCount
-      description: Number of preceding records for browsing around and around-including options
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
+      $ref: './parameters/preceding-records-count.yaml'
     highlight-match:
-      in: query
-      name: highlightMatch
-      description: Whether to highlight matched resource by query input or not.
-      required: false
-      schema:
-        type: boolean
-        default: true
+      $ref: './parameters/highlight-match.yaml'
     job-stream-id:
-      in: path
-      name: jobId
-      description: UUID of the job to get
-      required: true
-      schema:
-        type: string
+      $ref: './parameters/job-stream-id.yaml'
     instance-id-query-param:
-      in: query
-      name: instanceId
-      description: UUID of the instance
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/instance-id-query-param.yaml'
     holdings-id-query-param:
-      in: query
-      name: holdingsRecordId
-      description: UUID of the holdings record
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/holdings-id-query-param.yaml'
     tenant-id-query-param:
-      in: query
-      name: tenantId
-      description: Tenant ID
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/tenant-id-query-param.yaml'
     sort-by-holdings-param:
-      in: query
-      name: sortBy
-      description: |
-        Defines a field to sort by.
-        Possible values:
-          - id
-          - hrid
-          - tenantId
-          - instanceId
-          - callNumberPrefix
-          - callNumber
-          - copyNumber
-          - permanentLocationId
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/sort-by-holdings-param.yaml'
     sort-by-item-param:
-      in: query
-      name: sortBy
-      description: |
-        Defines a field to sort by.
-        Possible values:
-          - id
-          - hrid
-          - tenantId
-          - instanceId
-          - holdingsRecordId
-          - barcode
-      required: false
-      schema:
-        type: string
+      $ref: './parameters/sort-by-item-param.yaml'
     sort-order-param:
-      in: query
-      name: sortOrder
-      description: Defines sorting order
-      required: false
-      schema:
-        $ref: '#/components/schemas/sortOrder'
+      $ref: './parameters/sort-order-param.yaml'
     include-number-of-titles:
-      in: query
-      name: includeNumberOfTitles
-      description: Whether to perform a search for a number of linked instances.
-      schema:
-        type: boolean
-        default: true
+      $ref: './parameters/include-number-of-titles.yaml'
     browse-option-id:
-      name: browseOptionId
-      in: path
-      required: true
-      description: 'Browse option type'
-      schema:
-        $ref: '#/components/schemas/browseOptionType'
+      $ref: './parameters/browse-option-id.yaml'
     browse-type:
-      name: browseType
-      in: path
-      required: true
-      description: 'Browse feature type'
-      schema:
-        $ref: '#/components/schemas/browseType'
+      $ref: './parameters/browse-type.yaml'

@@ -11,4 +11,4 @@ properties:
     default: instance
   indexSettings:
     description: Index settings to apply for index
-    $ref: "../indexSettings.yaml"
+    $ref: "../../schemas/entity/indexSettings.yaml"

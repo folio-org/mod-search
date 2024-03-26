@@ -2,4 +2,4 @@ description: When unhandled exception occurred during code execution, e.g. NullP
 content:
   application/json:
     example:
-      $ref: "../examples/unknownError.yaml"
+      $ref: "../examples/response/unknownError.yaml"

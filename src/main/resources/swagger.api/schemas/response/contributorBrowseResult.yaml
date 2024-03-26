@@ -1,4 +1,4 @@
-description: Authority browse search response
+description: Instance contributor browse search response
 type: object
 properties:
   totalRecords:
@@ -12,6 +12,6 @@ properties:
     description: Next value for browsing forward
   items:
     type: array
-    description: List of authority browse items
+    description: List of instance contributor browse items
     items:
-      $ref: 'authorityBrowseItem.yaml'
+      $ref: 'instanceContributorBrowseItem.yaml'

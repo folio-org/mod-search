@@ -16,6 +16,6 @@ put:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/folioIndexOperationResponse.yaml'
+            $ref: '../../schemas/response/folioIndexOperationResponse.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

@@ -7,14 +7,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/featureConfig.yaml'
+          $ref: '../../schemas/entity/featureConfig.yaml'
   responses:
     '200':
       description: Language support has been added.
       content:
         application/json:
           schema:
-            $ref: '../../schemas/featureConfig.yaml'
+            $ref: '../../schemas/entity/featureConfig.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '422':
@@ -30,4 +30,4 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/featureConfigs.yaml'
+            $ref: '../../schemas/entity/featureConfigs.yaml'

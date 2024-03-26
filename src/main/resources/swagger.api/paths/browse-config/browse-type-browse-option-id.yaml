@@ -11,7 +11,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/browseConfig.yaml'
+          $ref: '../../schemas/entity/browseConfig.yaml'
   responses:
     '200':
       description: Browse configuration has been added/updated.

@@ -12,7 +12,7 @@ get:
       content:
         application/json:
           example:
-            $ref: '../../examples/resourceIdsResult.yaml'
+            $ref: '../../examples/result/resourceIdsResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

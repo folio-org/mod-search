@@ -9,136 +9,136 @@ servers:
 
 paths:
   /search/instances:
-    $ref: './paths/search-instances/search-instances.yaml'
+    $ref: 'paths/search-instances/search-instances.yaml'
 
   /search/instances/ids:
-    $ref: './paths/search-instances/search-instances-ids.yaml'
+    $ref: 'paths/search-instances/search-instances-ids.yaml'
 
   /search/holdings/ids:
-    $ref: './paths/search-holdings/search-holdings-ids.yaml'
+    $ref: 'paths/search-holdings/search-holdings-ids.yaml'
 
   /search/{recordType}/facets:
-    $ref: './paths/search-facets/search-record-type-facets.yaml'
+    $ref: 'paths/search-facets/search-record-type-facets.yaml'
 
   /search/authorities:
-    $ref: './paths/search-authorities/search-authorities.yaml'
+    $ref: 'paths/search-authorities/search-authorities.yaml'
 
   /search/resources/jobs/{jobId}:
-    $ref: './paths/search-resources/search-resources-jobs-job-id.yaml'
+    $ref: 'paths/search-resources/search-resources-jobs-job-id.yaml'
 
   /search/resources/jobs:
-    $ref: './paths/search-resources/search-resources-jobs.yaml'
+    $ref: 'paths/search-resources/search-resources-jobs.yaml'
 
   /search/resources/jobs/{jobId}/ids:
-    $ref: './paths/search-resources/search-resources-jobs-job-id-ids.yaml'
+    $ref: 'paths/search-resources/search-resources-jobs-job-id-ids.yaml'
 
   /search/consortium/holdings:
-    $ref: './paths/search-consortium/search-consortium-holdings.yaml'
+    $ref: 'paths/search-consortium/search-consortium-holdings.yaml'
 
   /search/consortium/items:
-    $ref: './paths/search-consortium/search-consortium-items.yaml'
+    $ref: 'paths/search-consortium/search-consortium-items.yaml'
 
   /search/index/indices:
-    $ref: './paths/search-index/search-index-indices.yaml'
+    $ref: 'paths/search-index/search-index-indices.yaml'
 
   /search/index/mappings:
-    $ref: './paths/search-index/search-index-mappings.yaml'
+    $ref: 'paths/search-index/search-index-mappings.yaml'
 
   /search/index/records:
-    $ref: './paths/search-index/search-index-records.yaml'
+    $ref: 'paths/search-index/search-index-records.yaml'
 
   /search/index/settings:
-    $ref: './paths/search-index/search-index-settings.yaml'
+    $ref: 'paths/search-index/search-index-settings.yaml'
 
   /search/index/inventory/reindex:
-    $ref: './paths/search-index/search-index-inventory-reindex.yaml'
+    $ref: 'paths/search-index/search-index-inventory-reindex.yaml'
 
   /search/config/languages:
-    $ref: './paths/search-config/search-config-languages.yaml'
+    $ref: 'paths/search-config/search-config-languages.yaml'
 
   /search/config/languages/{code}:
-    $ref: './paths/search-config/search-config-languages-code.yaml'
+    $ref: 'paths/search-config/search-config-languages-code.yaml'
 
   /search/config/features:
-    $ref: './paths/search-config/search-config-features.yaml'
+    $ref: 'paths/search-config/search-config-features.yaml'
 
   /search/config/features/{featureId}:
-    $ref: './paths/search-config/search-config-features-feature-id.yaml'
+    $ref: 'paths/search-config/search-config-features-feature-id.yaml'
 
   /browse/call-numbers/instances:
-    $ref: './paths/browse-call-numbers/browse-call-numbers-instances.yaml'
+    $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
 
   /browse/classification-numbers/{browseOptionId}/instances:
-    $ref: './paths/browse-classification-numbers/browse-option-id-instances.yaml'
+    $ref: 'paths/browse-classification-numbers/browse-option-id-instances.yaml'
 
   /browse/subjects/instances:
-    $ref: './paths/browse-subject/browse-subjects-instances.yaml'
+    $ref: 'paths/browse-subject/browse-subjects-instances.yaml'
 
   /browse/contributors/instances:
-    $ref: './paths/browse-contributors/browse-contributors-instances.yaml'
+    $ref: 'paths/browse-contributors/browse-contributors-instances.yaml'
 
   /browse/authorities:
-    $ref: './paths/browse-authorities/browse-authorities.yaml'
+    $ref: 'paths/browse-authorities/browse-authorities.yaml'
 
   /browse/config/{browseType}:
-    $ref: './paths/browse-config/browse-type.yaml'
+    $ref: 'paths/browse-config/browse-type.yaml'
 
   /browse/config/{browseType}/{browseOptionId}:
-    $ref: './paths/browse-config/browse-type-browse-option-id.yaml'
+    $ref: 'paths/browse-config/browse-type-browse-option-id.yaml'
 
 components:
   responses:
     unprocessableEntityResponse:
-      $ref: './responses/unprocessableEntityResponse.yaml'
+      $ref: 'responses/unprocessableEntityResponse.yaml'
     badRequestResponse:
-      $ref: './responses/badRequestResponse.yaml'
+      $ref: 'responses/badRequestResponse.yaml'
     internalServerErrorResponse:
-      $ref: './responses/internalServerErrorResponse.yaml'
+      $ref: 'responses/internalServerErrorResponse.yaml'
 
   parameters:
     limit-param:
-      $ref: './parameters/limit-param.yaml'
+      $ref: 'parameters/limit-param.yaml'
     consortium-limit-param:
-      $ref: './parameters/consortium-limit-param.yaml'
+      $ref: 'parameters/consortium-limit-param.yaml'
     browse-limit-param:
-      $ref: './parameters/browse-limit-param.yaml'
+      $ref: 'parameters/browse-limit-param.yaml'
     offset-param:
-      $ref: './parameters/offset-param.yaml'
+      $ref: 'parameters/offset-param.yaml'
     cql-query:
-      $ref: './parameters/cql-query.yaml'
+      $ref: 'parameters/cql-query.yaml'
     expand-all-param:
-      $ref: './parameters/expand-all-param.yaml'
+      $ref: 'parameters/expand-all-param.yaml'
     facet-param:
-      $ref: './parameters/facet-param.yaml'
+      $ref: 'parameters/facet-param.yaml'
     language-code:
-      $ref: './parameters/language-code.yaml'
+      $ref: 'parameters/language-code.yaml'
     feature-id:
-      $ref: './parameters/feature-id.yaml'
+      $ref: 'parameters/feature-id.yaml'
     x-okapi-tenant-header:
-      $ref: './parameters/x-okapi-tenant-header.yaml'
+      $ref: 'parameters/x-okapi-tenant-header.yaml'
     content-type-header:
-      $ref: './parameters/content-type-header.yaml'
+      $ref: 'parameters/content-type-header.yaml'
     preceding-records-count:
-      $ref: './parameters/preceding-records-count.yaml'
+      $ref: 'parameters/preceding-records-count.yaml'
     highlight-match:
-      $ref: './parameters/highlight-match.yaml'
+      $ref: 'parameters/highlight-match.yaml'
     job-stream-id:
-      $ref: './parameters/job-stream-id.yaml'
+      $ref: 'parameters/job-stream-id.yaml'
     instance-id-query-param:
-      $ref: './parameters/instance-id-query-param.yaml'
+      $ref: 'parameters/instance-id-query-param.yaml'
     holdings-id-query-param:
-      $ref: './parameters/holdings-id-query-param.yaml'
+      $ref: 'parameters/holdings-id-query-param.yaml'
     tenant-id-query-param:
-      $ref: './parameters/tenant-id-query-param.yaml'
+      $ref: 'parameters/tenant-id-query-param.yaml'
     sort-by-holdings-param:
-      $ref: './parameters/sort-by-holdings-param.yaml'
+      $ref: 'parameters/sort-by-holdings-param.yaml'
     sort-by-item-param:
-      $ref: './parameters/sort-by-item-param.yaml'
+      $ref: 'parameters/sort-by-item-param.yaml'
     sort-order-param:
-      $ref: './parameters/sort-order-param.yaml'
+      $ref: 'parameters/sort-order-param.yaml'
     include-number-of-titles:
-      $ref: './parameters/include-number-of-titles.yaml'
+      $ref: 'parameters/include-number-of-titles.yaml'
     browse-option-id:
-      $ref: './parameters/browse-option-id.yaml'
+      $ref: 'parameters/browse-option-id.yaml'
     browse-type:
-      $ref: './parameters/browse-type.yaml'
+      $ref: 'parameters/browse-type.yaml'

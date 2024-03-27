@@ -3,4 +3,4 @@ name: sortOrder
 description: 'Defines sorting order'
 required: false
 schema:
-  $ref: './../schemas/entity/sortOrder.yaml'
+  $ref: '../schemas/entity/sortOrder.yaml'

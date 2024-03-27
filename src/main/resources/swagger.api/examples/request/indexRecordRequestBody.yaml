@@ -1,3 +1,4 @@
+example:
 - resourceName: instance
   type: CREATE
   tenant: diku

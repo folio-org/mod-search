@@ -7,7 +7,7 @@ post:
     content:
       application/json:
         example:
-          $ref: '../../examples/request/indexRecordRequestBody.yaml'
+          - $ref: '../../examples/request/indexRecordRequestBody.yaml'
         schema:
           $ref: '../../schemas/request/indexRecordRequest.yaml'
   responses:
@@ -15,8 +15,9 @@ post:
       description: Response with created indices and status (error message will be present if operation failed)
       content:
         application/json:
-          example:
-            $ref: '../../examples/response/indexRecordResponse.yaml'
+          examples:
+            indexRecordResponse:
+              $ref: '../../examples/response/indexRecordResponse.yaml'
           schema:
             $ref: '../../schemas/response/folioIndexOperationResponse.yaml'
     '500':

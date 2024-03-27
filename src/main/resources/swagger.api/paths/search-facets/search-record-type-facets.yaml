@@ -4,11 +4,7 @@ get:
   tags:
     - facets
   parameters:
-    - name: recordType
-      required: true
-      in: path
-      schema:
-        $ref: '../../schemas/entity/RecordType.yaml'
+    - $ref: '../../parameters/record-type.yaml'
     - $ref: '../../parameters/cql-query.yaml'
     - $ref: '../../parameters/facet-param.yaml'
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'

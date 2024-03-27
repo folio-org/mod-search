@@ -1,4 +1,6 @@
-id: "eea1432c-beb8-4f4f-b96a-f8de977f1106"
-query: "title=*"
-status: "completed"
-createdDate: "1974-12-03T00:00:00"
+value:
+  id: 'eea1432c-beb8-4f4f-b96a-f8de977f1106'
+  query: 'title=*'
+  status: 'COMPLETED'
+  entityType: 'INSTANCE'
+  createdDate: '1974-12-03T00:00:00'

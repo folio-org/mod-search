@@ -11,8 +11,9 @@ get:
       description: 'Job for the stream of resource ids'
       content:
         application/json:
-          example:
-            $ref: '../../examples/response/streamIdsJobResponse.yaml'
+          examples:
+            streamIdsJobResponse:
+              $ref: '../../examples/response/streamIdsJobResponse.yaml'
           schema:
             $ref: '../../schemas/entity/resourceIdsJob.yaml'
     '400':

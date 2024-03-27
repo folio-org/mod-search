@@ -8,8 +8,9 @@ post:
   requestBody:
     content:
       application/json:
-        example:
-          $ref: '../../examples/request/streamIdsJobRequest.yaml'
+        examples:
+          streamIdsJobRequest:
+            $ref: '../../examples/request/streamIdsJobRequest.yaml'
         schema:
           $ref: '../../schemas/entity/resourceIdsJob.yaml'
   responses:
@@ -17,8 +18,9 @@ post:
       description: 'Job for the stream of resource ids'
       content:
         application/json:
-          example:
-            $ref: '../../examples/response/streamIdsJobResponse.yaml'
+          examples:
+            streamIdsJobResponse:
+              $ref: '../../examples/response/streamIdsJobResponse.yaml'
           schema:
             $ref: '../../schemas/entity/resourceIdsJob.yaml'
     '400':

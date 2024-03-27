@@ -1,0 +1,5 @@
+name: recordType
+required: true
+in: path
+schema:
+  $ref: '../schemas/entity/recordType.yaml'

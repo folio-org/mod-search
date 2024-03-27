@@ -8,8 +8,9 @@ post:
   requestBody:
     content:
       application/json:
-        example:
-          $ref: '../../examples/request/indexRequestBody.yaml'
+        examples:
+          objectExample:
+            $ref: '../../examples/request/indexRequestBody.yaml'
         schema:
           $ref: '../../schemas/request/createIndexRequest.yaml'
   responses:

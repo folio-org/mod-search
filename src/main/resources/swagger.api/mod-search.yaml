@@ -88,10 +88,6 @@ paths:
 
 components:
   schemas:
-    sortOrder:
-      $ref: 'schemas/entity/sortOrder.yaml'
-    browseType:
-      $ref: 'schemas/entity/browseType.yaml'
     recordType:
       $ref: 'schemas/entity/recordType.yaml'
     browseOptionType:

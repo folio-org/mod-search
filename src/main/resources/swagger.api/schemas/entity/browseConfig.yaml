@@ -1,7 +1,6 @@
 type: object
 properties:
   id:
-    description: Option ID
     $ref: "browseOptionType.yaml"
   shelvingAlgorithm:
     description: Defines shelving order algorithm

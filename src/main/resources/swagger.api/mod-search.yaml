@@ -88,10 +88,6 @@ paths:
 
 components:
   schemas:
-    recordType:
-      $ref: 'schemas/entity/recordType.yaml'
-    browseOptionType:
-      $ref: 'schemas/entity/browseOptionType.yaml'
     callNumberType:
       $ref: 'schemas/entity/callNumberType.yaml'
 

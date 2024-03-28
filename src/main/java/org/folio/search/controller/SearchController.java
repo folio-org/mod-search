@@ -40,6 +40,8 @@ public class SearchController implements SearchApi {
   public ResponseEntity<AuthoritySearchResult> searchAuthorities(
     String tenant, String query, Integer limit, Integer offset, Boolean expandAll, Boolean includeNumberOfTitles) {
 
+    System.out.printf("query: %s, limit: %d, offset: %d, expandAll: %b\n", query, limit, offset, expandAll);
+
     tenant = tenantProvider.getTenant(tenant);
     var searchRequest = CqlSearchRequest.of(
       Authority.class, tenant, query, limit, offset, expandAll, includeNumberOfTitles);

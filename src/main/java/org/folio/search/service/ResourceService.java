@@ -83,13 +83,24 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
+    var deleteAllEvents = getDeleteAllEvents(resourceEvents);
+    for (ResourceEvent deleteAllEvent : deleteAllEvents) {
+      primaryResourceRepository.deleteResourceByTenantId(deleteAllEvent.getResourceName(), deleteAllEvent.getTenant());
+    }
+
     var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
-    log.info("Records indexed to elasticsearch [indexRequests: {}. {}]",
+    log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  private List<ResourceEvent> getDeleteAllEvents(List<ResourceEvent> resourceEvents) {
+    return resourceEvents.stream()
+      .filter(resourceEvent -> ResourceEventType.DELETE_ALL == resourceEvent.getType())
+      .toList();
   }
 
   /**
@@ -207,13 +218,17 @@ public class ResourceService {
     return errorMessage.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errorMessage);
   }
 
-  private <T> List<T> getEventsThatCanBeIndexed(List<T> events, Function<T, String> eventToIndexNameFunc) {
+  private List<ResourceEvent> getEventsThatCanBeIndexed(List<ResourceEvent> events,
+                                                        Function<ResourceEvent, String> eventToIndexNameFunc) {
     var esIndices = events.stream().map(eventToIndexNameFunc).collect(toSet());
     var existingIndices = esIndices.stream().filter(indexRepository::indexExists).collect(toSet());
-    var eventsToIndex = new ArrayList<T>();
-    var unknownEvents = new ArrayList<T>();
+    var eventsToIndex = new ArrayList<ResourceEvent>();
+    var unknownEvents = new ArrayList<ResourceEvent>();
 
     for (var event : events) {
+      if (ResourceEventType.DELETE_ALL == event.getType()) {
+        continue;
+      }
       if (existingIndices.contains(eventToIndexNameFunc.apply(event))) {
         eventsToIndex.add(event);
       } else {

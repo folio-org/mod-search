@@ -90,6 +90,14 @@ components:
   schemas:
     callNumberType:
       $ref: 'schemas/entity/callNumberType.yaml'
+    sortOrder:
+      $ref: 'schemas/entity/sortOrder.yaml'
+    browseType:
+      $ref: 'schemas/entity/browseType.yaml'
+    recordType:
+      $ref: 'schemas/entity/recordType.yaml'
+    browseOptionType:
+      $ref: 'schemas/entity/browseOptionType.yaml'
 
   responses:
     unprocessableEntityResponse:
@@ -139,10 +147,31 @@ components:
     sort-by-item-param:
       $ref: 'parameters/sort-by-item-param.yaml'
     sort-order-param:
-      $ref: 'parameters/sort-order-param.yaml'
+      in: query
+      name: sortOrder
+      description: 'Defines sorting order'
+      required: false
+      schema:
+        $ref: '#/components/schemas/sortOrder'
     include-number-of-titles:
       $ref: 'parameters/include-number-of-titles.yaml'
     browse-option-id:
-      $ref: 'parameters/browse-option-id.yaml'
+      name: browseOptionId
+      in: path
+      required: true
+      description: 'Browse option type'
+      schema:
+        $ref: '#/components/schemas/browseOptionType'
     browse-type:
-      $ref: 'parameters/browse-type.yaml'
+      name: browseType
+      in: path
+      required: true
+      description: 'Browse feature type'
+      schema:
+        $ref: '#/components/schemas/browseType'
+    record-type:
+      name: recordType
+      required: true
+      in: path
+      schema:
+        $ref: '#/components/schemas/recordType'

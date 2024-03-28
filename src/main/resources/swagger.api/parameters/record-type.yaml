@@ -2,4 +2,9 @@ name: recordType
 required: true
 in: path
 schema:
-  $ref: '../schemas/entity/recordType.yaml'
+  type: string
+  enum:
+    - instances
+    - authorities
+    - contributors
+    - subjects

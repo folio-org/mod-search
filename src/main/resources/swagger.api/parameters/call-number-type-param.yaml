@@ -1,0 +1,13 @@
+in: query
+name: callNumberType
+description: Type of call number
+required: false
+schema:
+  type: string
+  enum:
+    - lc
+    - dewey
+    - nlm
+    - sudoc
+    - other
+    - local

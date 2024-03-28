@@ -3,7 +3,7 @@ name: sortOrder
 description: 'Defines sorting order'
 required: false
 schema:
-  type: enum
+  type: string
   enum:
     - asc
     - desc

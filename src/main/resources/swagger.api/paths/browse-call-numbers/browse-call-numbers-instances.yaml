@@ -10,12 +10,7 @@ get:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
     - $ref: '../../parameters/highlight-match.yaml'
     - $ref: '../../parameters/preceding-records-count.yaml'
-    - in: query
-      name: callNumberType
-      description: Type of call number
-      required: false
-      schema:
-        $ref: '../../schemas/entity/callNumberType.yaml'
+    - $ref: '../../parameters/call-number-type-param.yaml'
   responses:
     '200':
       description: 'Search result for browsing by call number'

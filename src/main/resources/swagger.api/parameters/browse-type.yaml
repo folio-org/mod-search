@@ -3,4 +3,6 @@ in: path
 required: true
 description: 'Browse feature type'
 schema:
-  $ref: '../schemas/entity/browseType.yaml'
+  type: string
+  enum:
+    - instance-classification

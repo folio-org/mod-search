@@ -175,3 +175,11 @@ components:
       in: path
       schema:
         $ref: '#/components/schemas/recordType'
+    call-number-type-param:
+      in: query
+      name: callNumberType
+      description: Type of call number
+      required: false
+      schema:
+        $ref: '#/components/schemas/callNumberType'
+

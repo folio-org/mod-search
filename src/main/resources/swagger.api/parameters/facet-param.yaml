@@ -1,0 +1,8 @@
+in: query
+name: facet
+description: List of facet names.
+required: true
+schema:
+  type: array
+  items:
+    type: string

@@ -1,0 +1,25 @@
+get:
+  operationId: getConsortiumItems
+  description: Get a list of items (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/instance-id-query-param.yaml'
+    - $ref: '../../parameters/holdings-id-query-param.yaml'
+    - $ref: '../../parameters/tenant-id-query-param.yaml'
+    - $ref: '../../parameters/consortium-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/sort-by-item-param.yaml'
+    - $ref: '../../parameters/sort-order-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: List of items
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumItemCollection.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

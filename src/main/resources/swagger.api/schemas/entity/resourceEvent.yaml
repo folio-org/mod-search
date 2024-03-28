@@ -1,0 +1,24 @@
+type: object
+description: Resource event body
+properties:
+  id:
+    description: Resource id
+    type: string
+  type:
+    description: Resource event operation type
+    $ref: 'resourceEventType.yaml'
+  deleteEventSubType:
+    description: Resource event delete operation type
+    $ref: 'resourceDeleteEventSubType.yaml'
+  tenant:
+    description: Tenant id
+    type: string
+  resourceName:
+    description: Name of resource
+    type: string
+  new:
+    description: Instance record new fields
+    type: object
+  old:
+    description: Instance record old fields
+    type: object

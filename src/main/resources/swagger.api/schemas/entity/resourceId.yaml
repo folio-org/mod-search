@@ -1,0 +1,6 @@
+description: "Resource Id"
+type: object
+properties:
+  id:
+    type: string
+    description: "Resource uuid"

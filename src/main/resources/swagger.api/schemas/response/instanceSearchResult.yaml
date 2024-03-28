@@ -1,0 +1,11 @@
+description: "Instance search result response"
+type: "object"
+properties:
+  totalRecords:
+    type: "integer"
+    description: "Amount of instances found"
+  instances:
+    type: "array"
+    description: "List of instances found"
+    items:
+      $ref: "../../schemas/entity/instance.yaml"

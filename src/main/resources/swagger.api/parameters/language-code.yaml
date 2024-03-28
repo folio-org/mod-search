@@ -1,0 +1,7 @@
+name: code
+in: path
+required: true
+description: Language code
+schema:
+  type: string
+  pattern: '[a-zA-Z]{3}'

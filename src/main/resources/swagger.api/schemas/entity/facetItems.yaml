@@ -1,0 +1,4 @@
+description: "JSON schema for facet items"
+type: "array"
+items:
+  $ref: "facetItem.yaml"

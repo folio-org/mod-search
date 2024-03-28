@@ -1,0 +1,20 @@
+type: object
+properties:
+  id:
+    description: Item ID
+    type: string
+  hrid:
+    description: Item HRID
+    type: string
+  tenantId:
+    description: Tenant ID of the Item
+    type: string
+  instanceId:
+    description: Related Instance Id
+    type: string
+  holdingsRecordId:
+    description: Related Holding Record Id
+    type: string
+  barcode:
+    description: Item barcode
+    type: string

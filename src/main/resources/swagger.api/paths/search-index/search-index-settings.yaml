@@ -1,0 +1,21 @@
+put:
+  operationId: updateIndexDynamicSettings
+  description: Update Index Dynamic Settings data.
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/request/updateIndexDynamicSettingsRequest.yaml'
+  responses:
+    '200':
+      description: Response with updated index settings and status (error message will be present if operation failed)
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/folioIndexOperationResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

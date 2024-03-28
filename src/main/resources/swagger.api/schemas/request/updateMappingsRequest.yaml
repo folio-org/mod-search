@@ -1,0 +1,9 @@
+type: object
+description: Request to create resource mappings in Elasticsearch
+properties:
+  resourceName:
+    type: string
+    description: Name of resource
+additionalProperties: false
+required:
+  - resourceName

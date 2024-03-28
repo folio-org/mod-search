@@ -1,0 +1,24 @@
+description: Instance contributor browse search result item
+type: object
+properties:
+  name:
+    type: string
+    description: Personal name, corporate name, meeting name
+  contributorTypeId:
+    type: array
+    description: IDs for the contributor type term
+    items:
+      type: string
+      description: ID for the contributor type term
+  contributorNameTypeId:
+    type: string
+    description: Contributor type terms defined by the MARC code list for relators
+  authorityId:
+    type: string
+    description: ID of authority record that controls the contributor
+  isAnchor:
+    type: boolean
+    description: Marks if current value is anchor or not
+  totalRecords:
+    type: integer
+    description: Amount of records for the subject browse item

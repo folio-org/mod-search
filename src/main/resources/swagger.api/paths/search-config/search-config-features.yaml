@@ -1,0 +1,33 @@
+post:
+  operationId: saveFeatureConfiguration
+  description: Save feature configuration (enables or disables pre-defined optional search options)
+  tags:
+    - config
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/entity/featureConfig.yaml'
+  responses:
+    '200':
+      description: Language support has been added.
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/featureConfig.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '422':
+      $ref: '../../responses/unprocessableEntityResponse.yaml'
+get:
+  operationId: getAllFeatures
+  description: Get all feature configurations per tenant
+  tags:
+    - config
+  responses:
+    '200':
+      description: All feature configurations
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/featureConfigs.yaml'

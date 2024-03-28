@@ -1,0 +1,6 @@
+in: query
+name: tenantId
+description: Tenant ID
+required: false
+schema:
+  type: string

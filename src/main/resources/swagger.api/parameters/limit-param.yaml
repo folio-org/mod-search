@@ -1,0 +1,8 @@
+in: query
+name: limit
+description: Limit the number of elements returned in the response.
+schema:
+  type: integer
+  minimum: 0
+  maximum: 500
+  default: 100

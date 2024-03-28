@@ -1,0 +1,6 @@
+in: query
+name: includeNumberOfTitles
+description: Whether to perform a search for a number of linked instances.
+schema:
+  type: boolean
+  default: true

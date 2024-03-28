@@ -23,8 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.folio.search.domain.dto.ResourceId;
-import org.folio.search.domain.dto.ResourceIds;
+import org.folio.search.model.ResourceId;
+import org.folio.search.model.ResourceIds;
 import org.folio.search.model.service.CqlResourceIdsRequest;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsJobService;

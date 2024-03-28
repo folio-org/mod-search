@@ -1,0 +1,10 @@
+name: recordType
+required: true
+in: path
+schema:
+  type: string
+  enum:
+    - instances
+    - authorities
+    - contributors
+    - subjects

@@ -1,0 +1,8 @@
+name: browseType
+in: path
+required: true
+description: 'Browse feature type'
+schema:
+  type: string
+  enum:
+    - instance-classification

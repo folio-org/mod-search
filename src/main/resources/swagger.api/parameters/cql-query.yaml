@@ -1,0 +1,6 @@
+name: query
+in: query
+required: true
+description: A CQL query string with search conditions.
+schema:
+  type: string

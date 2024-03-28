@@ -1,0 +1,12 @@
+description: Get job by id response
+type: object
+properties:
+  id:
+    description: Job id
+    type: string
+  jobStatus:
+    description: Overall job status
+    type: string
+  submittedDate:
+    description: Timestamp when the job has been submitted
+    type: string

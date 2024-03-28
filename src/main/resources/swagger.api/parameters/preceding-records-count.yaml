@@ -1,0 +1,8 @@
+in: query
+name: precedingRecordsCount
+description: Number of preceding records for browsing around and around-including options
+required: false
+schema:
+  type: integer
+  minimum: 1
+  maximum: 100

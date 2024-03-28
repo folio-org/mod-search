@@ -1,0 +1,19 @@
+get:
+  operationId: getResourceIds
+  description: Get a list of resource ids by job id
+  tags:
+    - search-resources-ids
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/job-stream-id.yaml'
+  responses:
+    '200':
+      description: 'Resources ids as a json stream'
+      content:
+        application/json:
+          example:
+            $ref: '../../examples/result/resourceIdsResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

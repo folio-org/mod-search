@@ -1,0 +1,6 @@
+in: path
+name: jobId
+description: UUID of the job to get
+required: true
+schema:
+  type: string

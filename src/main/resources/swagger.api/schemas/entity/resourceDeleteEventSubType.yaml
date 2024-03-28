@@ -1,0 +1,5 @@
+type: string
+description: Resource event delete operation type - one of [soft-delete, hard-delete]
+enum:
+  - SOFT_DELETE
+  - HARD_DELETE

@@ -1,0 +1,8 @@
+type: object
+properties:
+  holdings:
+    type: array
+    items:
+      $ref: './consortiumHolding.yaml'
+  totalRecords:
+    type: integer

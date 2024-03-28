@@ -23,7 +23,7 @@ name: api-lint
 env:
   API_TYPES: 'OAS'
   API_DIRECTORIES: 'src/main/resources/swagger.api'
-  API_EXCLUDES: ''
+  API_EXCLUDES: 'paths responses'
   API_WARNINGS: false
 
 on:

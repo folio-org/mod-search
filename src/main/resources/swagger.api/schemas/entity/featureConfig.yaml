@@ -1,0 +1,13 @@
+description: Feature config request value
+type: object
+properties:
+  feature:
+    description: The feature name
+    $ref: "tenantConfiguredFeature.yaml"
+  enabled:
+    type: boolean
+    description: Action - enable or disable option
+additionalProperties: false
+required:
+  - feature
+  - enabled

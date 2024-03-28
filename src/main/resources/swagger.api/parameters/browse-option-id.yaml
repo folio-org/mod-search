@@ -1,0 +1,10 @@
+name: browseOptionId
+in: path
+required: true
+description: 'Browse option type'
+schema:
+  type: string
+  enum:
+    - all
+    - lc
+    - dewey

@@ -1,0 +1,16 @@
+in: query
+name: sortBy
+description: |
+  Defines a field to sort by.
+  Possible values:
+    - id
+    - hrid
+    - tenantId
+    - instanceId
+    - callNumberPrefix
+    - callNumber
+    - copyNumber
+    - permanentLocationId
+required: false
+schema:
+  type: string

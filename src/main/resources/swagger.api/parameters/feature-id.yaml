@@ -1,0 +1,11 @@
+name: featureId
+in: path
+required: true
+description: Feature id (name)
+schema:
+  type: string
+  enum:
+    - search.all.fields
+    - browse.cn.intermediate.values
+    - browse.cn.intermediate.remove.duplicates
+    - browse.classifications

@@ -1,0 +1,11 @@
+description: "Resource ids as mod-search response"
+type: object
+properties:
+  totalRecords:
+    type: integer
+    description: "Amount of resource ids found"
+  ids:
+    type: array
+    description: "List of resource ids"
+    items:
+      $ref: "resourceId.yaml"

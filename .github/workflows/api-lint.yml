@@ -23,7 +23,7 @@ name: api-lint
 env:
   API_TYPES: 'OAS'
   API_DIRECTORIES: 'src/main/resources/swagger.api'
-  API_EXCLUDES: 'schemas/entity/browseOptionType.yaml'
+  API_EXCLUDES: 'browseOptionType.yaml'
   API_WARNINGS: false
 
 on:

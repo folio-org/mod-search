@@ -215,7 +215,7 @@ class SearchDocumentConverterTest {
       "base", keywordField()));
     var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "base", "base val"));
-    var expectedContext = ConversionContext.of(resourceEvent, desc, emptyList());
+    var expectedContext = ConversionContext.of(resourceEvent, desc, emptyList(), TENANT_ID);
 
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
     when(searchFieldsProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));

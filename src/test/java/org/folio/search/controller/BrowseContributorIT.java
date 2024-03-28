@@ -7,7 +7,6 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
-import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.contributorBrowseItem;
@@ -17,8 +16,6 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Collections;
@@ -41,10 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.action.search.SearchRequest;
-import org.opensearch.client.RequestOptions;
-import org.opensearch.client.RestHighLevelClient;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseContributorIT extends BaseIntegrationTest {
@@ -60,7 +53,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
   private static final Instance[] INSTANCES = instances();
 
   @BeforeAll
-  static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
+  static void prepare() {
     setUpTenant(INSTANCES);
 
     // this is needed to test deleting contributors when all instances are unlinked from a contributor
@@ -69,11 +62,8 @@ class BrowseContributorIT extends BaseIntegrationTest {
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var searchRequest = new SearchRequest()
-        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID));
-      var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(12);
+      var counted = countIndexDocument(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID);
+      assertThat(counted).isEqualTo(12);
     });
   }
 

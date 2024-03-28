@@ -74,6 +74,9 @@ public class PlainFieldDescription extends FieldDescription {
    */
   private boolean indexPlainValue = true;
 
+  @JsonProperty("isTenant")
+  private boolean isTenantField = false;
+
   /**
    * Provides sort description for field. If not specified - standard rules will be applied for sort field.
    */

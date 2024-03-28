@@ -130,6 +130,10 @@ folio:
         concurrency: ${KAFKA_CLASSIFICATION_TYPE_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
         group-id: ${folio.environment}-mod-search-classification-type-group
+      location:
+        concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.location
+        group-id: ${folio.environment}-mod-search-location-type-group
   okapiUrl: ${okapi.url}
   logging:
     request:

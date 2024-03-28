@@ -29,4 +29,9 @@ public class ConversionContext {
    * List of supported language for resource.
    */
   private final List<String> languages;
+
+  /**
+   * Tenant id of resource.
+   */
+  private final String tenantId;
 }

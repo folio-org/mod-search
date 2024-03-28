@@ -12,4 +12,8 @@ public interface ResourceRepository {
    * @param esDocumentBodies list wth {@link SearchDocumentBody} object
    */
   FolioIndexOperationResponse indexResources(List<SearchDocumentBody> esDocumentBodies);
+
+  default FolioIndexOperationResponse deleteResourceByTenantId(String resource, String tenantId) {
+    throw new UnsupportedOperationException("Not implemented for repository");
+  }
 }

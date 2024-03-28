@@ -8,7 +8,6 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceClassificationBrowsePath;
-import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.classificationBrowseItem;
 import static org.folio.search.utils.TestUtils.classificationBrowseResult;
@@ -16,8 +15,6 @@ import static org.folio.search.utils.TestUtils.mockClassificationTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
@@ -43,10 +40,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.action.search.SearchRequest;
-import org.opensearch.client.RequestOptions;
-import org.opensearch.client.RestHighLevelClient;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseClassificationIT extends BaseIntegrationTest {
@@ -56,14 +49,11 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   private static final String DEWEY_TYPE_ID = "50524585-046b-49a1-8ca7-8d46f2a8dc19";
 
   @BeforeAll
-  static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
+  static void prepare() {
     setUpTenant(instances());
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var searchRequest = new SearchRequest()
-        .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-        .indices(getIndexName(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID));
-      var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(17);
+      var counted = countIndexDocument(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID);
+      assertThat(counted).isEqualTo(17);
     });
   }
 

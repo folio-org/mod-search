@@ -153,13 +153,15 @@ public class ConsortiumInstanceService {
   }
 
   public ConsortiumHoldingCollection fetchHoldings(ConsortiumSearchContext context) {
-    List<ConsortiumHolding> holdingList = repository.fetchHoldings(new ConsortiumSearchQueryBuilder(context));
-    return new ConsortiumHoldingCollection().holdings(holdingList).totalRecords(holdingList.size());
+    var searchQueryBuilder = new ConsortiumSearchQueryBuilder(context);
+    List<ConsortiumHolding> holdingList = repository.fetchHoldings(searchQueryBuilder);
+    return new ConsortiumHoldingCollection().holdings(holdingList).totalRecords(repository.count(searchQueryBuilder));
   }
 
   public ConsortiumItemCollection fetchItems(ConsortiumSearchContext context) {
-    List<ConsortiumItem> itemList = repository.fetchItems(new ConsortiumSearchQueryBuilder(context));
-    return new ConsortiumItemCollection().items(itemList).totalRecords(itemList.size());
+    var searchQueryBuilder = new ConsortiumSearchQueryBuilder(context);
+    List<ConsortiumItem> itemList = repository.fetchItems(searchQueryBuilder);
+    return new ConsortiumItemCollection().items(itemList).totalRecords(repository.count(searchQueryBuilder));
   }
 
   @SuppressWarnings("unchecked")

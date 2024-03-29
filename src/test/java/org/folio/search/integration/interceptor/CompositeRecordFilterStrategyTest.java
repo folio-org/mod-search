@@ -20,13 +20,13 @@ import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class CompositeRecordFilterStrategyTest {
+class CompositeRecordFilterStrategyTest {
 
   private @Mock RecordFilterStrategy<String, Integer> mockStrategy1;
   private @Mock RecordFilterStrategy<String, Integer> mockStrategy2;
 
   @Test
-  public void testRecordIsFilteredOut() {
+  void testRecordIsFilteredOut() {
     var testRecord = new ConsumerRecord<>("topic", 0, 0, "testkey", 100);
     when(mockStrategy1.filter(any())).thenReturn(false);
     when(mockStrategy2.filter(any())).thenReturn(true);
@@ -36,7 +36,7 @@ public class CompositeRecordFilterStrategyTest {
   }
 
   @Test
-  public void testRecordNotFilteredOut() {
+  void testRecordNotFilteredOut() {
     var testRecord = new ConsumerRecord<>("topic", 0, 0, "testkey", 100);
     when(mockStrategy1.filter(any())).thenReturn(false);
     when(mockStrategy2.filter(any())).thenReturn(false);
@@ -46,7 +46,7 @@ public class CompositeRecordFilterStrategyTest {
   }
 
   @Test
-  public void testRecordIsFilteredOutByFirstStrategy() {
+  void testRecordIsFilteredOutByFirstStrategy() {
     var testRecord = new ConsumerRecord<>("topic", 0, 0, "testkey", 100);
     when(mockStrategy1.filter(any())).thenReturn(true);
     when(mockStrategy2.filter(any())).thenReturn(false);

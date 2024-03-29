@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteAllRecordFilterStrategyTest {
+class DeleteAllRecordFilterStrategyTest {
 
   @Mock
   private PrimaryResourceRepository primaryResourceRepository;
@@ -29,7 +29,7 @@ public class DeleteAllRecordFilterStrategyTest {
   private ResourceEvent resourceEvent;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     resourceEvent = new ResourceEvent();
     resourceEvent.setType(ResourceEventType.DELETE_ALL);
     resourceEvent.setResourceName("testResource");
@@ -39,14 +39,14 @@ public class DeleteAllRecordFilterStrategyTest {
   }
 
   @Test
-  public void testDeleteAllEventIsFilteredOut() {
+  void testDeleteAllEventIsFilteredOut() {
     assertTrue(deleteAllRecordFilterStrategy.filter(consumerRecord));
     verify(primaryResourceRepository).deleteResourceByTenantId(resourceEvent.getResourceName(),
       resourceEvent.getTenant());
   }
 
   @Test
-  public void testNonDeleteAllEventIsNotFilteredOut() {
+  void testNonDeleteAllEventIsNotFilteredOut() {
     resourceEvent.setType(ResourceEventType.CREATE);
     assertFalse(deleteAllRecordFilterStrategy.filter(consumerRecord));
     verify(primaryResourceRepository, never()).deleteResourceByTenantId(resourceEvent.getResourceName(),

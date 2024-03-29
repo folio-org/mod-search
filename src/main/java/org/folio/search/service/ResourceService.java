@@ -83,11 +83,6 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var deleteAllEvents = getDeleteAllEvents(resourceEvents);
-    for (ResourceEvent deleteAllEvent : deleteAllEvents) {
-      primaryResourceRepository.deleteResourceByTenantId(deleteAllEvent.getResourceName(), deleteAllEvent.getTenant());
-    }
-
     var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
@@ -95,12 +90,6 @@ public class ResourceService {
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
-  }
-
-  private List<ResourceEvent> getDeleteAllEvents(List<ResourceEvent> resourceEvents) {
-    return resourceEvents.stream()
-      .filter(resourceEvent -> ResourceEventType.DELETE_ALL == resourceEvent.getType())
-      .toList();
   }
 
   /**
@@ -226,9 +215,6 @@ public class ResourceService {
     var unknownEvents = new ArrayList<ResourceEvent>();
 
     for (var event : events) {
-      if (ResourceEventType.DELETE_ALL == event.getType()) {
-        continue;
-      }
       if (existingIndices.contains(eventToIndexNameFunc.apply(event))) {
         eventsToIndex.add(event);
       } else {

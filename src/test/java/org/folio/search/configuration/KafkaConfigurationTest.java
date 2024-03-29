@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.kafka.listener.BatchInterceptor;
+import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -30,7 +32,8 @@ class KafkaConfigurationTest {
   @Test
   void standardListenerContainerFactory() {
     when(kafkaProperties.buildConsumerProperties(any())).thenReturn(Collections.emptyMap());
-    var containerFactory = kafkaConfiguration.standardListenerContainerFactory();
+    var containerFactory = kafkaConfiguration.standardListenerContainerFactory(new RecordFilterStrategy[0],
+      new BatchInterceptor[0]);
     assertThat(containerFactory).isNotNull();
   }
 

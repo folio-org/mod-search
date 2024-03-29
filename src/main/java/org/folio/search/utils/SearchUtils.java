@@ -36,6 +36,7 @@ public class SearchUtils {
   public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
   public static final String LOCATION_RESOURCE = "location";
+  public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
 
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";

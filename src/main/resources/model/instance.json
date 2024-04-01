@@ -34,7 +34,7 @@
     },
     "source": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword_lowercase"
+      "index": "keyword"
     },
     "title": {
       "searchTypes": "sort",
@@ -302,7 +302,7 @@
           "properties": {
             "name": {
               "searchTypes": [ "facet", "filter", "sort" ],
-              "index": "keyword_lowercase",
+              "index": "keyword",
               "sort": {
                 "fieldName": "items.status.name",
                 "type": "collection",

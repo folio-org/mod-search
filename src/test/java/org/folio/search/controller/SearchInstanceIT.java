@@ -430,13 +430,13 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors any {value}", "GRIGORIS FRANK"),
       arguments("contributors all {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors == {value}", "VAN HARMELEN, FRANK"),
-      arguments("contributors ==/STRING {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors ==/string {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors = {value}", "VAN HARMELEN, FR*"),
       arguments("contributors = {value}", "*RMELEN, FRANK"),
 
       arguments("contributors.name = {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors.name == {value}", "VAN HARMELEN"),
-      arguments("contributors.name ==/STRING {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors.name ==/string {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors.name = {value}", "VAN HARMELEN, FR*"),
       arguments("contributors.name = {value}", "ANTON*"),
       arguments("contributors.name = {value}", "*RMELEN, FRANK"),
@@ -453,7 +453,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword all {value}", "SEMANTIC WEB PRIMER"),
       arguments("keyword all {value}", "SEMANTIC ANTONIOU OCM0012345 047144250X"),
       arguments("subjects all {value}", "SEMANTIC"),
-      arguments("subjects ==/STRING {value}", "SEMANTIC WEB"),
+      arguments("subjects ==/string {value}", "SEMANTIC WEB"),
 
       arguments("tags.tagList all {value}", "BOOK"),
       arguments("tags.tagList all {value}", "ELECTRONIC"),
@@ -536,8 +536,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.linkText all {value}", "LINKS AVAILABLE"),
       arguments("item.electronicAccess.publicNote all {value}", "TABLE OF CONTENTS"),
 
-      arguments("item.effectiveShelvingOrder ==/STRING \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
-      arguments("itemEffectiveShelvingOrder ==/STRING \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
+      arguments("item.effectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
+      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "ITEM000000000014"),
@@ -587,7 +587,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER & WOLVES"),
       arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER / WOLVES"),
       arguments("keyword == {value}", "VAN HARMELEN, FRANK"),
-      arguments("keyword ==/STRING {value}", "0262012103"),
+      arguments("keyword ==/string {value}", "0262012103"),
       arguments("(title all \"{value}\")", "A SEMANTIC WEB PRIMER : 0747-0850")
     );
   }

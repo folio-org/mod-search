@@ -324,7 +324,8 @@
     },
     "naturalId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search", "browse" ]
+      "showInResponse": [ "search", "browse" ],
+      "searchTermProcessor": "naturalIdSearchTermProcessor"
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],

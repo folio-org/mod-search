@@ -803,7 +803,7 @@ components:
           description: Call number
           type: string
         callNumberSuffix:
-          description: Call number prefix
+          description: Call number suffix
           type: string
         copyNumber:
           description: Copy number

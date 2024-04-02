@@ -442,7 +442,7 @@
         },
         "sourceId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword_lowercase"
+          "index": "keyword"
         },
         "holdingsTypeId": {
           "searchTypes": [ "facet", "filter" ],

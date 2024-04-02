@@ -317,7 +317,7 @@
       }
     },
     "sourceFileId": {
-      "index": "keyword_lowercase",
+      "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "search", "browse" ],
       "default": "NULL"
@@ -337,7 +337,7 @@
   "searchFields": {
     "headingType": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword",
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,

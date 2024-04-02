@@ -50,7 +50,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
@@ -67,7 +68,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
@@ -83,7 +85,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
@@ -98,7 +101,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
@@ -113,7 +117,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
@@ -128,7 +133,8 @@ class ConsortiumSearchQueryBuilderTest {
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
     assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
                  + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'copyNumber' AS copyNumber, "
+                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
                  + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
                  + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
                  + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SearchHoldingsConsortiumIT extends BaseConsortiumIntegrationTest {
+class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
@@ -60,7 +60,7 @@ class SearchHoldingsConsortiumIT extends BaseConsortiumIntegrationTest {
     var result = doGet(consortiumHoldingsSearchPath(queryParams), CENTRAL_TENANT_ID);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);
 
-    assertThat(actual.getTotalRecords()).isEqualTo(1);
+    assertThat(actual.getTotalRecords()).isEqualTo(3);
     assertThat(actual.getHoldings())
       .satisfiesExactly(input -> assertEquals("call number", input.getCallNumber()));
   }
@@ -101,6 +101,7 @@ class SearchHoldingsConsortiumIT extends BaseConsortiumIntegrationTest {
         .instanceId(instance.getId())
         .callNumberPrefix(holding.getCallNumberPrefix())
         .callNumber(holding.getCallNumber())
+        .callNumberSuffix(holding.getCallNumberSuffix())
         .copyNumber(holding.getCopyNumber())
         .permanentLocationId(holding.getPermanentLocationId())
         .discoverySuppress(holding.getDiscoverySuppress() != null && holding.getDiscoverySuppress()))

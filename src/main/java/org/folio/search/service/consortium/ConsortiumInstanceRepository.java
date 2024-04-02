@@ -86,11 +86,17 @@ public class ConsortiumInstanceRepository {
         .instanceId(rs.getString("instanceId"))
         .callNumberPrefix(rs.getString("callNumberPrefix"))
         .callNumber(rs.getString("callNumber"))
+        .callNumberSuffix(rs.getString("callNumberSuffix"))
         .copyNumber(rs.getString("copyNumber"))
         .permanentLocationId(rs.getString("permanentLocationId"))
         .discoverySuppress(rs.getBoolean("discoverySuppress")),
       searchQueryBuilder.getQueryArguments()
     );
+  }
+
+  public Integer count(ConsortiumSearchQueryBuilder searchQueryBuilder) {
+    return jdbcTemplate.queryForObject(searchQueryBuilder.buildCountQuery(context),
+      Integer.class, searchQueryBuilder.getQueryArguments());
   }
 
   public List<ConsortiumItem> fetchItems(ConsortiumSearchQueryBuilder searchQueryBuilder) {

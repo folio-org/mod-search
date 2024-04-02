@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SearchItemsConsortiumIT extends BaseConsortiumIntegrationTest {
+class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
@@ -64,7 +64,7 @@ class SearchItemsConsortiumIT extends BaseConsortiumIntegrationTest {
     var result = doGet(consortiumItemsSearchPath(queryParams), CENTRAL_TENANT_ID);
     var actual = parseResponse(result, ConsortiumItemCollection.class);
 
-    assertThat(actual.getTotalRecords()).isEqualTo(1);
+    assertThat(actual.getTotalRecords()).isEqualTo(2);
     assertThat(actual.getItems())
       .satisfiesExactly(input -> assertEquals("10101", input.getBarcode()));
   }

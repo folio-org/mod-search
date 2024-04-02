@@ -690,6 +690,9 @@ components:
         callNumber:
           description: Call number
           type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
         copyNumber:
           description: Copy number
           type: string
@@ -911,6 +914,7 @@ components:
           - instanceId
           - callNumberPrefix
           - callNumber
+          - callNumberSuffix
           - copyNumber
           - permanentLocationId
       required: false

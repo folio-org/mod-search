@@ -314,7 +314,7 @@ public class SearchUtils {
    * @return true - if value is blank, false - otherwise
    */
   private static boolean isBlankString(String value) {
-      return StringUtils.isBlank(value);
+    return StringUtils.isBlank(value);
   }
 
   /**
@@ -341,7 +341,9 @@ public class SearchUtils {
    * @return normalized LCCN value
    */
   public static String normalizeLccn(String value) {
-    if (isBlankString(value)) return null;
+    if (isBlankString(value)) {
+      return null;
+    }
 
     return StringUtils.deleteWhitespace(value).toLowerCase();
   }
@@ -353,7 +355,9 @@ public class SearchUtils {
    * @return normalized NaturalId value
    */
   public static String normalizeNaturalId(String value) {
-    if (isBlankString(value)) return null;
+    if (isBlankString(value)) {
+      return null;
+    }
 
     return value.toLowerCase();
   }
@@ -365,7 +369,9 @@ public class SearchUtils {
    * @return if exists, returns string of numeric part of LCCN value, otherwise returns null
    */
   public static String extractLccnNumericPart(String value) {
-    if (isBlankString(value)) return null;
+    if (isBlankString(value)) {
+      return null;
+    }
 
     var matcher = LCCN_NUMERIC_PART_REGEX.matcher(value);
     return matcher.find() ? matcher.group(0) : null;

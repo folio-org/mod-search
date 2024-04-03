@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceDeleteEventSubType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.integration.interceptor.ResourceChangeRecordFilterStrategy;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class ResourceChangeFilterStrategyTest {
+class ResourceChangeRecordFilterStrategyTest {
 
-  private final ResourceChangeFilterStrategy filterStrategy = new ResourceChangeFilterStrategy();
+  private final ResourceChangeRecordFilterStrategy filterStrategy = new ResourceChangeRecordFilterStrategy();
 
   @Mock
   private ConsumerRecord<String, ResourceEvent> consumerRecord;

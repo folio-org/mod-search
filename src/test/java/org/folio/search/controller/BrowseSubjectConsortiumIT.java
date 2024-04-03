@@ -48,9 +48,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
-import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.search.SearchHit;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
@@ -61,7 +59,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
   private static final Instance[] INSTANCES_CENTRAL = instancesCentral();
 
   @BeforeAll
-  static void prepare(@Autowired RestHighLevelClient restHighLevelClient) {
+  static void prepare() {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
@@ -75,7 +73,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, CENTRAL_TENANT_ID));
-      var searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+      var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(23);
       System.out.println("Resulted subjects");
       for (SearchHit hit : searchResponse.getHits()) {

@@ -29,6 +29,7 @@ public class TestConstants {
   public static final List<String> STRING_TERM_MODIFIERS = List.of("string");
 
   public static final String AUTHORITY_TOPIC = "authorities.authority";
+  public static final String LOCATION_TOPIC = "inventory.location";
   public static final String CONTRIBUTOR_TOPIC = "search.instance-contributor";
   public static final String INVENTORY_ITEM_TOPIC = "inventory.item";
   public static final String INVENTORY_INSTANCE_TOPIC = "inventory.instance";
@@ -77,6 +78,10 @@ public class TestConstants {
 
   public static String inventoryAuthorityTopic(String tenantId) {
     return getTopicName(tenantId, AUTHORITY_TOPIC);
+  }
+
+  public static String inventoryLocationTopic(String tenantId) {
+    return getTopicName(tenantId, LOCATION_TOPIC);
   }
 
   public static String inventoryClassificationTopic() {

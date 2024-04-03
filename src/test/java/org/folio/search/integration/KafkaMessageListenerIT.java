@@ -9,8 +9,6 @@ import static org.awaitility.Durations.TEN_SECONDS;
 import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
@@ -261,11 +259,11 @@ class KafkaMessageListenerIT {
   }
 
   private static ResourceEvent instanceEvent(String instanceId) {
-    return resourceEvent(instanceId, INSTANCE_RESOURCE, mapOf("id", instanceId));
+    return resourceEvent(instanceId, null, mapOf("id", instanceId));
   }
 
   private static ResourceEvent authorityEvent(String id) {
-    return resourceEvent(id, AUTHORITY_RESOURCE, mapOf("id", id)).id(id);
+    return resourceEvent(id, null, mapOf("id", id)).id(id);
   }
 
   @TestConfiguration

@@ -29,7 +29,8 @@ public class ConsortiumSearchQueryBuilder {
   );
   private static final Map<ResourceType, List<String>> RESOURCE_FIELDS = Map.of(
     ResourceType.HOLDINGS,
-    List.of("id", "hrid", "callNumberPrefix", "callNumber", "copyNumber", "permanentLocationId", "discoverySuppress"),
+    List.of("id", "hrid", "callNumberPrefix", "callNumber", "callNumberSuffix",
+      "copyNumber", "permanentLocationId", "discoverySuppress"),
     ResourceType.ITEM,
     List.of("id", "hrid", "holdingsRecordId", "barcode")
   );
@@ -72,6 +73,16 @@ public class ConsortiumSearchQueryBuilder {
                    + getOrderByClause()
                    + getLimitClause()
                    + getOffsetClause();
+    return StringUtils.normalizeSpace(query);
+  }
+
+  public String buildCountQuery(FolioExecutionContext context) {
+    var fullTableName = getFullTableName(context, CONSORTIUM_TABLES.get(resourceType));
+    var resourceCollection = RESOURCE_COLLECTION_NAME.get(resourceType);
+    String subQuery = "SELECT instance_id, tenant_id, json_array_elements(json -> '" + resourceCollection + "') "
+                      + "as " + resourceCollection + " FROM " + fullTableName + SPACE + getWhereClause(filters, null);
+    String query = "SELECT count(*) FROM (" + subQuery + ") i"
+                   + getWhereClause(jsonbFilters, "i." + resourceCollection);
     return StringUtils.normalizeSpace(query);
   }
 

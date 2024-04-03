@@ -19,7 +19,7 @@ public class ConsortiumSearchContext {
 
   private static final Map<ResourceType, List<String>> ALLOWED_SORT_FIELDS = Map.of(
     ResourceType.HOLDINGS, List.of("id", "hrid", "tenantId", "instanceId",
-      "callNumberPrefix", "callNumber", "copyNumber", "permanentLocationId"),
+      "callNumberPrefix", "callNumber", "callNumberSuffix", "copyNumber", "permanentLocationId"),
     ResourceType.ITEM, List.of("id", "hrid", "tenantId", "instanceId", "holdingsRecordId", "barcode")
   );
 

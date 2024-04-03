@@ -13,7 +13,6 @@ import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
 import static org.folio.search.utils.SearchUtils.normalizeLccn;
-import static org.folio.search.utils.SearchUtils.normalizeNaturalId;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -101,26 +100,12 @@ class SearchUtilsTest {
     assertThat(normalized).isEqualTo(expected);
   }
 
-  @Test
-  @DisplayName("Natural Id value normalization")
-  void getNaturalIdNormalized_parameterized() {
-    var normalized = normalizeNaturalId("N12345");
-    assertThat(normalized).isEqualTo("n12345");
-  }
-
   @DisplayName("LCCN value numeric part")
   @CsvSource({"nbc 1234,1234", "nbc1234,1234", "  N  1234 ,1234", "*1234,1234", "1234*,1234"})
   @ParameterizedTest(name = "[{index}] value={0}, expected={1}")
   void extractLccnNumericPart_parameterized(String value, String expected) {
     var numericPart = extractLccnNumericPart(value);
     assertThat(numericPart).isEqualTo(expected);
-  }
-
-  @Test
-  @DisplayName("Natural Id value normalization - Blank value")
-  void getNaturalIdNormalized_blank() {
-    var normalized = normalizeNaturalId("");
-    assertThat(normalized).isNull();
   }
 
   @CsvSource({

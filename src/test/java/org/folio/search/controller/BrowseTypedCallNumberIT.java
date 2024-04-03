@@ -110,6 +110,23 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
   }
 
   @Test
+  void browseByShelfKeyDewey_backward() {
+    var request = get(instanceCallNumberBrowsePath())
+      .param("query", prepareQuery("itemEffectiveShelvingOrder < {value}", "\"A 3123.4\""))
+      .param("callNumberType", "dewey")
+      .param("limit", "5")
+      .param("expandAll", "true");
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+      .totalRecords(6).prev(null).next("11 CE 3210 K 3297 541858").items(List.of(
+        cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
+        cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, null),
+        cnBrowseItem(instance("instance #04"), "1CE 16 D86 X 41998"),
+        cnBrowseItem(instance("instance #38"), "1CE 210 K297 41858")
+      )));
+  }
+
+  @Test
   void browseByCallNumberNlm_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
     var request = get(instanceCallNumberBrowsePath())
       .param("query",

@@ -308,16 +308,6 @@ public class SearchUtils {
   }
 
   /**
-   * Check if passed value is blank.
-   *
-   * @param value - value to check
-   * @return true - if value is blank, false - otherwise
-   */
-  private static boolean isBlankString(String value) {
-    return StringUtils.isBlank(value);
-  }
-
-  /**
    * Returns number of requests in map as integer value.
    *
    * @param requestsPerResource - map with requests per resource name
@@ -341,7 +331,7 @@ public class SearchUtils {
    * @return normalized LCCN value
    */
   public static String normalizeLccn(String value) {
-    if (isBlankString(value)) {
+    if (StringUtils.isBlank(value)) {
       return null;
     }
 
@@ -355,7 +345,7 @@ public class SearchUtils {
    * @return normalized NaturalId value
    */
   public static String normalizeNaturalId(String value) {
-    if (isBlankString(value)) {
+    if (StringUtils.isBlank(value)) {
       return null;
     }
 
@@ -369,7 +359,7 @@ public class SearchUtils {
    * @return if exists, returns string of numeric part of LCCN value, otherwise returns null
    */
   public static String extractLccnNumericPart(String value) {
-    if (isBlankString(value)) {
+    if (StringUtils.isBlank(value)) {
       return null;
     }
 

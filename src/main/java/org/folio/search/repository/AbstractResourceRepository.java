@@ -54,8 +54,8 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
       performExceptionalOperation(() -> elasticsearchClient.deleteByQuery(request, DEFAULT), indexName,
         "deleteByQueryApi");
     return bulkByScrollResponse.getBulkFailures().isEmpty()
-           ? getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse))
-           : getSuccessIndexOperationResponse();
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
   }
 
   @Autowired

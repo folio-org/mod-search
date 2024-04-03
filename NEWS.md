@@ -1,3 +1,9 @@
+## v3.0.7 2024-04-03
+### Bug fixes
+* Fix calculating totalNumber in Consortium Search API responses ([MSEARCH-710](https://issues.folio.org/browse/MSEARCH-710))
+
+---
+
 ## v3.0.6 2024-03-18
 ### New APIs versions
 * Provides `consortium-search v1.0`
@@ -8,7 +14,6 @@
 * Ignore call number format validation for shelving order generation ([MSEARCH-689](https://issues.folio.org/browse/MSEARCH-689))
 
 ---
-
 
 ## v3.0.5 2023-12-08
 ### Bug fixes

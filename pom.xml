@@ -40,7 +40,7 @@
     <folio-cql2pgjson.version>35.2.0</folio-cql2pgjson.version>
     <opensearch.version>2.12.0</opensearch.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <apache-commons-io.version>2.15.1</apache-commons-io.version>
+    <apache-commons-io.version>2.16.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.32</lombok.version>

@@ -34,7 +34,7 @@
         "char_filter": [ "and_char_replacement" ],
         "type": "custom"
       },
-      "whitespace_analyzer": {
+      "whitespace_lowercase_analyzer": {
         "tokenizer": "whitespace",
         "filter": ["lowercase"],
         "type": "custom"

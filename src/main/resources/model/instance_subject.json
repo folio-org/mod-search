@@ -14,7 +14,7 @@
       "showInResponse": [ "browse" ]
     },
     "instances": {
-      "type": "object",
+      "type": "nested",
       "properties": {
         "instanceId": {
           "index": "source"

@@ -70,7 +70,6 @@ public class CqlSearchQueryConverter {
   public SearchSourceBuilder convertForConsortia(String query, String resource) {
     var sourceBuilder = convert(query, resource);
     var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query(), resource);
-
     return sourceBuilder.query(queryBuilder);
   }
 

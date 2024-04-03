@@ -56,12 +56,18 @@ public class FacetQueryBuilder {
    * @return {@link List} with elasticsearch {@link AggregationBuilder} values
    */
   public List<AggregationBuilder> getFacetAggregations(CqlFacetRequest request, QueryBuilder query) {
-    return request.getFacet().stream()
+    var list = request.getFacet().stream()
       .map(facet -> searchFieldProvider.getModifiedField(facet, request.getResource()))
       .map(facet -> getFacetFieldAndLimitAsPair(request.getResource(), facet))
       .map(facet -> getFacetAggregation(request, query, facet))
       .flatMap(Collection::stream)
+      .map(aggregationBuilder -> {
+        var nested = AggregationBuilders.nested(aggregationBuilder.getName(), "instances");
+        nested.subAggregation(aggregationBuilder);
+        return (AggregationBuilder) nested;
+      })
       .toList();
+    return list;
   }
 
   private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,

@@ -136,7 +136,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments("instances.shared==(\"true\")", array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 15), facetItem("true", 10)))),
       arguments("cql.allRecords=1", array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 15),
@@ -149,7 +149,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
     var request = get(instanceSubjectBrowsePath())
       .param("query", "("
         + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
-        + "and instances.shared==true")
+        )
       .param("limit", "5")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);

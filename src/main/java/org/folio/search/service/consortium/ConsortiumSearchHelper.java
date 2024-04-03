@@ -6,6 +6,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.lucene.search.join.ScoreMode;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.spring.FolioExecutionContext;
@@ -80,17 +82,20 @@ public class ConsortiumSearchHelper {
     if (boolQuery.should().isEmpty()) {
       boolQuery.minimumShouldMatch(null);
     }
+    var nestedBoolQuery = boolQuery();
+    var nestedQuery = nestedQuery("instances", nestedBoolQuery, ScoreMode.None);
+    boolQuery.must(nestedQuery);
 
     var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
     if (shared == null) {
       return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
     } else if (!shared) {
-      boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+      nestedBoolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
     }
 
     sharedFilter
       .map(this::sharedFilterValue)
-      .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+      .ifPresent(sharedValue -> nestedBoolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
 
     return boolQuery;
   }
@@ -129,6 +134,21 @@ public class ConsortiumSearchHelper {
       .collect(Collectors.toSet());
   }
 
+  public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .map(filter -> getTermFilterForKey(filter, filterKey))
+      .filter(Objects::nonNull)
+      .findFirst();
+  }
+
+  public static List<Object> getBrowseFilterValues(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .flatMap(filter -> getTermFiltersForKey(filter, filterKey))
+      .filter(Objects::nonNull)
+      .map(TermQueryBuilder::value)
+      .toList();
+  }
+
   private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
     BoolQueryBuilder boolQuery;
     if (query instanceof MatchAllQueryBuilder) {
@@ -138,18 +158,41 @@ public class ConsortiumSearchHelper {
     } else {
       boolQuery = boolQuery().must(query);
     }
-    boolQuery.minimumShouldMatch(1);
     return boolQuery;
   }
 
   private void addActiveAffiliationClauses(BoolQueryBuilder boolQuery, String contextTenantId,
                                            String centralTenantId, String resource) {
     var affiliationShouldClauses = getAffiliationShouldClauses(contextTenantId, centralTenantId, resource);
-    if (boolQuery.should().isEmpty()) {
-      affiliationShouldClauses.forEach(boolQuery::should);
+    if (boolQuery.should().isEmpty() && boolQuery.filter().isEmpty()) {
+      if (resource.equals(INSTANCE_SUBJECT_RESOURCE)) {
+        var nestedBoolQuery = boolQuery();
+        nestedBoolQuery.minimumShouldMatch(1);
+        var nestedQuery = nestedQuery("instances", nestedBoolQuery, ScoreMode.None);
+        boolQuery.must(nestedQuery);
+        affiliationShouldClauses.forEach(nestedBoolQuery::should);
+      } else {
+        affiliationShouldClauses.forEach(boolQuery::should);
+      }
     } else {
       var innerBoolQuery = boolQuery();
-      affiliationShouldClauses.forEach(innerBoolQuery::should);
+      if (resource.equals(INSTANCE_SUBJECT_RESOURCE)) {
+        if (!boolQuery.filter().isEmpty()) {
+          var nestedBoolQuery = boolQuery();
+          var nestedQuery = nestedQuery("instances", nestedBoolQuery, ScoreMode.None);
+          boolQuery.must(nestedQuery);
+          boolQuery.filter().forEach(nestedBoolQuery::filter);
+          if (boolQuery.filter().size() == 1
+              && ((TermQueryBuilder) boolQuery.filter().get(0)).fieldName().equals("instances.shared")) {
+            if (((TermQueryBuilder) boolQuery.filter().get(0)).value() == Boolean.FALSE) {
+              nestedBoolQuery.filter(termQuery(getFieldForResource(TENANT_ID_FIELD_NAME, resource), contextTenantId));
+            }
+          }
+          boolQuery.filter().clear();
+        }
+      } else {
+        affiliationShouldClauses.forEach(innerBoolQuery::should);
+      }
       boolQuery.must(innerBoolQuery);
     }
   }
@@ -178,7 +221,7 @@ public class ConsortiumSearchHelper {
   private void removeOriginalSharedFilterFromQuery(QueryBuilder queryBuilder) {
     if (queryBuilder instanceof BoolQueryBuilder bqb) {
       bqb.filter().removeIf(filter -> filter instanceof TermQueryBuilder tqb
-        && tqb.fieldName().equals(BROWSE_SHARED_FILTER_KEY));
+                                      && tqb.fieldName().equals(BROWSE_SHARED_FILTER_KEY));
     }
   }
 
@@ -190,25 +233,10 @@ public class ConsortiumSearchHelper {
     return getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
   }
 
-  public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .map(filter -> getTermFilterForKey(filter, filterKey))
-      .filter(Objects::nonNull)
-      .findFirst();
-  }
-
-  public static List<Object> getBrowseFilterValues(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .flatMap(filter -> getTermFiltersForKey(filter, filterKey))
-      .filter(Objects::nonNull)
-      .map(TermQueryBuilder::value)
-      .toList();
-  }
-
   private static TermQueryBuilder getTermFilterForKey(QueryBuilder filter, String filterKey) {
     return filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
-      ? termFilter
-      : null;
+           ? termFilter
+           : null;
   }
 
   private static Stream<TermQueryBuilder> getTermFiltersForKey(QueryBuilder filter, String filterKey) {
@@ -220,10 +248,9 @@ public class ConsortiumSearchHelper {
     return null;
   }
 
-
   private boolean sharedFilterValue(TermQueryBuilder sharedQuery) {
     return sharedQuery.value() instanceof Boolean boolValue && boolValue
-      || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
+           || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
   }
 
   private String getFieldForResource(String fieldName, String resourceName) {

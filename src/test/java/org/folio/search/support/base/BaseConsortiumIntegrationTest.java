@@ -48,7 +48,7 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   }
 
   @SneakyThrows
-  private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
+  protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
                                       List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();

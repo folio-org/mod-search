@@ -13,7 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.ResourceChangeFilterStrategy;
+import org.folio.search.integration.interceptor.CompositeRecordFilterStrategy;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.tools.kafka.FolioKafkaTopic;
@@ -27,11 +27,14 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.BatchInterceptor;
+import org.springframework.kafka.listener.CompositeBatchInterceptor;
+import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 /**
- * Responsible for configuration of kafka consumer bean factories and creation of topics at at application startup for
+ * Responsible for configuration of kafka consumer bean factories and creation of topics at application startup for
  * kafka listeners.
  */
 @Log4j2
@@ -48,15 +51,14 @@ public class KafkaConfiguration {
    * @return {@link ConcurrentKafkaListenerContainerFactory} object as Spring bean.
    */
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, ResourceEvent> standardListenerContainerFactory() {
+  public ConcurrentKafkaListenerContainerFactory<String, ResourceEvent> standardListenerContainerFactory(
+    RecordFilterStrategy<String, ResourceEvent>[] recordFilterStrategies,
+    BatchInterceptor<String, ResourceEvent>[] batchInterceptors) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
     factory.setConsumerFactory(resourceEventConsumerFactory());
-    factory.setRecordFilterStrategy(new ResourceChangeFilterStrategy());
-    factory.setBatchInterceptor((consumerRecords, consumer) -> {
-      consumerRecords.forEach(consumerRecord -> consumerRecord.value().id(consumerRecord.key()));
-      return consumerRecords;
-    });
+    factory.setRecordFilterStrategy(new CompositeRecordFilterStrategy<>(recordFilterStrategies));
+    factory.setBatchInterceptor(new CompositeBatchInterceptor<>(batchInterceptors));
     return factory;
   }
 

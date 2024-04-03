@@ -6,6 +6,7 @@ import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -15,6 +16,9 @@ import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.setEnvProperty;
 import static org.hamcrest.Matchers.is;
+import static org.opensearch.client.RequestOptions.DEFAULT;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -49,7 +54,10 @@ import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,60 +85,9 @@ public abstract class BaseIntegrationTest {
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
 
-
   @RegisterExtension
   static OkapiExtension okapiExtension =
     new OkapiExtension(new InventoryViewResponseBuilder());
-
-  @BeforeAll
-  static void setUpDefaultTenant(
-    @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
-    @Autowired RestHighLevelClient restHighLevelClient,
-    @Autowired CacheManager cacheManager) {
-    setEnvProperty("folio-test");
-    BaseIntegrationTest.mockMvc = mockMvc;
-    BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
-    BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
-    BaseIntegrationTest.elasticClient = restHighLevelClient;
-    BaseIntegrationTest.cacheManager = cacheManager;
-  }
-
-  @BeforeAll
-  static void cleanUpCaches(@Autowired CacheManager cacheManager) {
-    TestUtils.cleanUpCaches(cacheManager);
-  }
-
-  @AfterAll
-  static void afterAll() {
-    removeEnvProperty();
-  }
-
-  public static HttpHeaders defaultHeaders() {
-    return defaultHeaders(TENANT_ID);
-  }
-
-  public static HttpHeaders defaultHeaders(String tenant) {
-    var httpHeaders = new HttpHeaders();
-
-    httpHeaders.setContentType(APPLICATION_JSON);
-    httpHeaders.add(XOkapiHeaders.TENANT, tenant);
-    httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
-
-    return httpHeaders;
-  }
-
-  @SneakyThrows
-  public static ResultActions attemptGet(String uri, Object... args) {
-    return attemptGet(uri, TENANT_ID, args);
-  }
-
-  @SneakyThrows
-  public static ResultActions attemptGet(String uri, String tenantId, Object... args) {
-    return mockMvc.perform(get(uri, args)
-      .headers(defaultHeaders(tenantId))
-      .accept("application/json;charset=UTF-8"));
-  }
 
   @SneakyThrows
   protected static ResultActions attemptPost(String uri, Object body) {
@@ -164,22 +121,6 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static ResultActions doPut(String uri, Object body) {
     return attemptPut(uri, body)
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(String uri, Object... args) {
-    return mockMvc.perform(get(uri, args)
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
-    return mockMvc.perform(request
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
       .andExpect(status().isOk());
   }
 
@@ -229,6 +170,20 @@ public abstract class BaseIntegrationTest {
   protected static ResultActions doSearch(
     String path, String tenantId, String query, Integer limit, Integer offset, Boolean expandAll) {
     return attemptSearch(path, tenantId, query, limit, offset, expandAll).andExpect(status().isOk());
+  }
+
+  protected static long countIndexDocument(String resource, String tenantId) throws IOException {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
+      .indices(getIndexName(resource, tenantId));
+    var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
+    return searchResponse.getHits().getTotalHits().value;
+  }
+
+  protected static void cleanUpIndex(String resource, String tenantId) throws IOException {
+    var request = new DeleteByQueryRequest(getIndexName(resource, tenantId));
+    request.setQuery(matchAllQuery());
+    elasticClient.deleteByQuery(request, DEFAULT);
   }
 
   @SneakyThrows
@@ -321,15 +276,15 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  private static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                      List<T> records, Integer expectedCount, Consumer<T> consumer) {
+  protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
+                                        List<T> records, Integer expectedCount, Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
     saveRecords(tenant, validationPath, records, expectedCount, consumer);
   }
 
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
-                                      Consumer<T> consumer) {
+                                        Consumer<T> consumer) {
     records.forEach(consumer);
     if (!records.isEmpty()) {
       checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
@@ -396,6 +351,72 @@ public abstract class BaseIntegrationTest {
 
   protected static String prepareQuery(String queryTemplate, String value) {
     return value != null ? queryTemplate.replace("{value}", value) : queryTemplate;
+  }
+
+  @BeforeAll
+  static void setUpDefaultTenant(
+    @Autowired MockMvc mockMvc,
+    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
+    @Autowired RestHighLevelClient restHighLevelClient,
+    @Autowired CacheManager cacheManager) {
+    setEnvProperty("folio-test");
+    BaseIntegrationTest.mockMvc = mockMvc;
+    BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
+    BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
+    BaseIntegrationTest.elasticClient = restHighLevelClient;
+    BaseIntegrationTest.cacheManager = cacheManager;
+  }
+
+  @BeforeAll
+  static void cleanUpCaches(@Autowired CacheManager cacheManager) {
+    TestUtils.cleanUpCaches(cacheManager);
+  }
+
+  @AfterAll
+  static void afterAll() {
+    removeEnvProperty();
+  }
+
+  public static HttpHeaders defaultHeaders() {
+    return defaultHeaders(TENANT_ID);
+  }
+
+  public static HttpHeaders defaultHeaders(String tenant) {
+    var httpHeaders = new HttpHeaders();
+
+    httpHeaders.setContentType(APPLICATION_JSON);
+    httpHeaders.add(XOkapiHeaders.TENANT, tenant);
+    httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
+
+    return httpHeaders;
+  }
+
+  @SneakyThrows
+  public static ResultActions attemptGet(String uri, Object... args) {
+    return attemptGet(uri, TENANT_ID, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions attemptGet(String uri, String tenantId, Object... args) {
+    return mockMvc.perform(get(uri, args)
+      .headers(defaultHeaders(tenantId))
+      .accept("application/json;charset=UTF-8"));
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(String uri, Object... args) {
+    return mockMvc.perform(get(uri, args)
+        .headers(defaultHeaders())
+        .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
+    return mockMvc.perform(request
+        .headers(defaultHeaders())
+        .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
   }
 
   @Getter

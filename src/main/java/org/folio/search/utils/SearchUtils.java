@@ -339,20 +339,6 @@ public class SearchUtils {
   }
 
   /**
-   * Normalizes NaturalId value.
-   *
-   * @param value NaturalId value
-   * @return normalized NaturalId value
-   */
-  public static String normalizeNaturalId(String value) {
-    if (StringUtils.isBlank(value)) {
-      return null;
-    }
-
-    return value.toLowerCase();
-  }
-
-  /**
    * Extracts numeric part (digits starting with non-zero) of LCCN String value.
    *
    * @param value LCCN string value

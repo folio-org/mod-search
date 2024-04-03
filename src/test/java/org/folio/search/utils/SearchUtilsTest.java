@@ -116,6 +116,13 @@ class SearchUtilsTest {
     assertThat(numericPart).isEqualTo(expected);
   }
 
+  @Test
+  @DisplayName("Natural Id value normalization - Blank value")
+  void getNaturalIdNormalized_blank() {
+    var normalized = normalizeNaturalId("");
+    assertThat(normalized).isNull();
+  }
+
   @CsvSource({
     "path,path",
     "object.value,object.value",

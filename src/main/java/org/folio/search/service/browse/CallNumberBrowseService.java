@@ -11,6 +11,7 @@ import static org.folio.search.model.client.CqlQueryParam.SOURCE;
 import static org.folio.search.model.types.CallNumberTypeSource.FOLIO;
 import static org.folio.search.utils.CallNumberUtils.excludeIrrelevantResultItems;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
+import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +56,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     log.debug("browseInOneDirection:: by: [request: {}]", request);
 
     var callNumber = callNumberFromRequest(request);
-    var initialAnchor = effectiveShelvingOrderTermProcessor.getSearchTerm(callNumber, request.getRefinedCondition());
+    var initialAnchor = request.getQuery().contains(SHELVING_ORDER_BROWSING_FIELD)
+      ? context.getAnchor()
+      : effectiveShelvingOrderTermProcessor.getSearchTerm(callNumber, request.getRefinedCondition());
     if (!initialAnchor.equals(context.getAnchor())) {
       context = buildBrowseContext(context, initialAnchor);
     }

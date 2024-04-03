@@ -25,7 +25,7 @@
       "showInResponse": [ "search", "call-number-browse" ]
     },
     "tenantId": {
-      "index": "keyword_lowercase",
+      "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "search" ]
     },
@@ -270,7 +270,7 @@
           "index": "keyword_lowercase"
         },
         "tenantId": {
-          "index": "keyword_lowercase",
+          "index": "keyword",
           "showInResponse": [ "call-number-browse" ]
         },
         "hrid": {
@@ -438,7 +438,7 @@
         },
         "tenantId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword_lowercase"
+          "index": "keyword"
         },
         "sourceId": {
           "searchTypes": [ "facet", "filter" ],

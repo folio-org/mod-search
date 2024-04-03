@@ -11,7 +11,7 @@
       "showInResponse": [ "search", "browse" ]
     },
     "tenantId": {
-      "index": "keyword_lowercase",
+      "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "search", "browse" ]
     },

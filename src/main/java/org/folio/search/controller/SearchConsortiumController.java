@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Log4j2
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -82,6 +84,8 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     }
     var instanceId = result.getRecords().iterator().next().getId();
     var item = result.getRecords().iterator().next().getItems().iterator().next();
+    log.info("Instance: {}", result.getRecords().iterator().next());
+    log.info("Item: {}", item);
     return ResponseEntity.ok(new ConsortiumItem()
       .id(itemId)
       .tenantId(item.getTenantId())

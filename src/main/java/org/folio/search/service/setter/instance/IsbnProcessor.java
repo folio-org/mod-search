@@ -73,7 +73,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
    * @return normalized isbn value
    */
   public List<String> normalizeIsbn(String value) {
-    String isbnValue = StringUtils.trim(value).replaceAll("\\s+", " ");
+    String isbnValue = StringUtils.trim(value).replaceAll("\\s+", " ").toLowerCase();
     if (StringUtils.isEmpty(isbnValue)) {
       return emptyList();
     }

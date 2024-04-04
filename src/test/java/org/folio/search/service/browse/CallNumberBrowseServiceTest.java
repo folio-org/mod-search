@@ -6,7 +6,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
@@ -16,7 +15,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
@@ -362,27 +360,6 @@ class CallNumberBrowseServiceTest {
   }
 
   @Test
-  void browse_positive_backwardShelvingOrderTyped() {
-    var request = request("itemEffectiveShelvingOrder < B", SHELVING_ORDER_BROWSING_FIELD, false, "lc");
-    var query = rangeQuery(SHELVING_ORDER_BROWSING_FIELD).lt(ANCHOR);
-    var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
-    var browseItems = browseItems("A1", "A2");
-    browseItems.forEach(browseItem -> browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents()
-      .setTypeId(CallNumberType.LC.getId()));
-    var browseResult = BrowseResult.of(2, browseItems).next("A2");
-
-    when(browseContextProvider.get(request)).thenReturn(context);
-    when(browseQueryProvider.get(request, context, false)).thenReturn(precedingQuery);
-    when(searchRepository.search(request, precedingQuery)).thenReturn(precedingResponse);
-    when(browseResultConverter.convert(precedingResponse, context, false)).thenReturn(browseResult);
-
-    var actual = callNumberBrowseService.browse(request);
-
-    assertThat(actual).isEqualTo(browseResult);
-    verifyNoInteractions(shelvingOrderProcessor);
-  }
-
-  @Test
   void browse_positive_backwardWithPrevValue() {
     var request = request("callNumber < B", false);
     var query = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
@@ -540,29 +517,24 @@ class CallNumberBrowseServiceTest {
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch) {
-    return request(query, CALL_NUMBER_BROWSING_FIELD, highlightMatch, null, 1, 2);
+    return request(query, highlightMatch, null, 1, 2);
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType) {
-    return request(query, CALL_NUMBER_BROWSING_FIELD, highlightMatch, callNumberType, 1, 2);
-  }
-
-  private static BrowseRequest request(String query, String browsingField, boolean highlightMatch,
-                                       String callNumberType) {
-    return request(query, browsingField, highlightMatch, callNumberType, 1, 2);
+    return request(query, highlightMatch, callNumberType, 1, 2);
   }
 
   private static BrowseRequest request(String query, boolean highlightMatch, int precedingCount, int limit) {
-    return request(query, CALL_NUMBER_BROWSING_FIELD, highlightMatch, null, precedingCount, limit);
+    return request(query, highlightMatch, null, precedingCount, limit);
   }
 
-  private static BrowseRequest request(String query, String browsingField, boolean highlightMatch,
-                                       String callNumberType, int precedingCount, int limit) {
+  private static BrowseRequest request(String query, boolean highlightMatch, String callNumberType, int precedingCount,
+                                       int limit) {
     return BrowseRequest.builder().tenantId(TENANT_ID).resource(RESOURCE_NAME)
       .query(query)
       .highlightMatch(highlightMatch)
       .expandAll(false)
-      .targetField(browsingField)
+      .targetField(CALL_NUMBER_BROWSING_FIELD)
       .precedingRecordsCount(precedingCount)
       .limit(limit)
       .refinedCondition(callNumberType)

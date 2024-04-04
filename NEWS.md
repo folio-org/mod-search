@@ -1,9 +1,3 @@
-## v3.2.1 2024-04-04
-### Bug fixes
-* Fix browsing in one direction by shelving order ([MSEARCH-704](https://issues.folio.org/browse/MSEARCH-704))
-
----
-
 ## v3.2.0 2024-03-20
 ### New APIs versions
 * Requires `classification-types v1.2`

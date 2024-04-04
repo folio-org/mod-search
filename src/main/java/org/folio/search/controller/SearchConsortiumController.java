@@ -75,7 +75,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   public ResponseEntity<ConsortiumItem> getConsortiumItem(String itemId, String tenantHeader, String tenantId) {
     var tenant = verifyAndGetTenant(tenantHeader);
     var query = "items.id=" + itemId;
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, false);
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
     var result = searchService.search(searchRequest);
 
     if (CollectionUtils.isEmpty(result.getRecords())

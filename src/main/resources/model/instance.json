@@ -273,6 +273,9 @@
           "index": "keyword",
           "showInResponse": [ "call-number-browse" ]
         },
+        "holdingsRecordId": {
+          "index": "keyword"
+        },
         "hrid": {
           "index": "keyword"
         },

@@ -1,13 +1,18 @@
 package org.folio.search.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.ConsortiumSearchContext;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchConsortiumApi;
+import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -27,13 +32,14 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
   private final ConsortiumTenantService consortiumTenantService;
   private final ConsortiumInstanceService instanceService;
+  private final SearchService searchService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
                                                                            String tenantId, Integer limit,
                                                                            Integer offset, String sortBy,
                                                                            SortOrder sortOrder) {
-    checkAllowance(tenantHeader);
+    verifyAndGetTenant(tenantHeader);
     var context = ConsortiumSearchContext.builderFor(ResourceType.HOLDINGS)
       .filter("instanceId", instanceId)
       .filter("tenantId", tenantId)
@@ -50,7 +56,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
                                                                      String holdingsRecordId, String tenantId,
                                                                      Integer limit, Integer offset, String sortBy,
                                                                      SortOrder sortOrder) {
-    checkAllowance(tenantHeader);
+    verifyAndGetTenant(tenantHeader);
     var context = ConsortiumSearchContext.builderFor(ResourceType.ITEM)
       .filter("instanceId", instanceId)
       .filter("tenantId", tenantId)
@@ -63,11 +69,33 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     return ResponseEntity.ok(instanceService.fetchItems(context));
   }
 
-  private void checkAllowance(String tenantHeader) {
+  @Override
+  public ResponseEntity<ConsortiumItem> getConsortiumItem(String itemId, String tenantHeader, String tenantId) {
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var query = "items.id=" + itemId;
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, false);
+    var result = searchService.search(searchRequest);
+
+    if (CollectionUtils.isEmpty(result.getRecords())
+      || CollectionUtils.isEmpty(result.getRecords().iterator().next().getItems())) {
+      return ResponseEntity.ok(new ConsortiumItem());
+    }
+    var instanceId = result.getRecords().iterator().next().getId();
+    var item = result.getRecords().iterator().next().getItems().iterator().next();
+    return ResponseEntity.ok(new ConsortiumItem()
+      .id(itemId)
+      .tenantId(item.getTenantId())
+      .instanceId(instanceId)
+      .holdingsRecordId(item.getHoldingsRecordId())
+    );
+  }
+
+  private String verifyAndGetTenant(String tenantHeader) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantHeader);
     if (centralTenant.isEmpty() || !centralTenant.get().equals(tenantHeader)) {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantHeader);
     }
+    return centralTenant.get();
   }
 
 }

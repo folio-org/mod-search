@@ -255,6 +255,28 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
+  /search/consortium/item:
+    get:
+      operationId: getConsortiumItem
+      description: Get an item (only for consortium environment)
+      tags:
+        - search-consortium
+      parameters:
+        - $ref: '#/components/parameters/item-id-query-param'
+        - $ref: '#/components/parameters/tenant-id-query-param'
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: an instance item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumItem'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
   /browse/call-numbers/instances:
     get:
       operationId: browseInstancesByCallNumber
@@ -1001,6 +1023,13 @@ components:
       required: false
       schema:
         type: string
+    item-id-query-param:
+      in: query
+      name: itemId
+      description: UUID of the item
+      required: true
+      schema:
+        type: string
     holdings-id-query-param:
       in: query
       name: holdingsRecordId
@@ -1019,7 +1048,7 @@ components:
       in: query
       name: sortBy
       description: |
-        Defines a field to sort by. 
+        Defines a field to sort by.
         Possible values:
           - id
           - hrid
@@ -1037,7 +1066,7 @@ components:
       in: query
       name: sortBy
       description: |
-        Defines a field to sort by. 
+        Defines a field to sort by.
         Possible values:
           - id
           - hrid

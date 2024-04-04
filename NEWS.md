@@ -1,3 +1,9 @@
+## v3.0.8 2024-04-04
+### Bug fixes
+* Fix browsing in one direction by shelving order ([MSEARCH-704](https://issues.folio.org/browse/MSEARCH-704))
+
+---
+
 ## v3.0.7 2024-04-03
 ### Bug fixes
 * Fix calculating totalNumber in Consortium Search API responses ([MSEARCH-710](https://issues.folio.org/browse/MSEARCH-710))

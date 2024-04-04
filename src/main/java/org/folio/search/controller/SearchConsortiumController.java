@@ -84,7 +84,6 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     }
     var instanceId = result.getRecords().iterator().next().getId();
     var item = result.getRecords().iterator().next().getItems().iterator().next();
-    log.info("Instance: {}", result.getRecords().iterator().next());
     log.info("Item: {}", item);
     return ResponseEntity.ok(new ConsortiumItem()
       .id(itemId)

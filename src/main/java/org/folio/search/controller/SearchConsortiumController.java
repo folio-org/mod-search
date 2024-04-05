@@ -1,8 +1,10 @@
 package org.folio.search.controller;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
@@ -54,6 +56,27 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   }
 
   @Override
+  public ResponseEntity<ConsortiumHolding> getConsortiumHolding(UUID id, String tenantHeader) {
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var query = "holdings.id=" + id.toString();
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
+    var result = searchService.search(searchRequest);
+
+    if (CollectionUtils.isEmpty(result.getRecords())
+      || CollectionUtils.isEmpty(result.getRecords().iterator().next().getHoldings())) {
+      return ResponseEntity.ok(new ConsortiumHolding());
+    }
+
+    var instance = result.getRecords().iterator().next();
+    var holding = instance.getHoldings().iterator().next();
+    return ResponseEntity.ok(new ConsortiumHolding()
+      .id(id.toString())
+      .tenantId(holding.getTenantId())
+      .instanceId(instance.getId())
+    );
+  }
+
+  @Override
   public ResponseEntity<ConsortiumItemCollection> getConsortiumItems(String tenantHeader, String instanceId,
                                                                      String holdingsRecordId, String tenantId,
                                                                      Integer limit, Integer offset, String sortBy,
@@ -72,9 +95,9 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   }
 
   @Override
-  public ResponseEntity<ConsortiumItem> getConsortiumItem(String itemId, String tenantHeader, String tenantId) {
+  public ResponseEntity<ConsortiumItem> getConsortiumItem(UUID itemId, String tenantHeader) {
     var tenant = verifyAndGetTenant(tenantHeader);
-    var query = "items.id=" + itemId;
+    var query = "items.id=" + itemId.toString();
     var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
     var result = searchService.search(searchRequest);
 
@@ -82,13 +105,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       || CollectionUtils.isEmpty(result.getRecords().iterator().next().getItems())) {
       return ResponseEntity.ok(new ConsortiumItem());
     }
-    var instanceId = result.getRecords().iterator().next().getId();
-    var item = result.getRecords().iterator().next().getItems().iterator().next();
-    log.info("Item: {}", item);
+    var instance = result.getRecords().iterator().next();
+    var item = instance.getItems().iterator().next();
     return ResponseEntity.ok(new ConsortiumItem()
-      .id(itemId)
+      .id(itemId.toString())
       .tenantId(item.getTenantId())
-      .instanceId(instanceId)
+      .instanceId(instance.getId())
       .holdingsRecordId(item.getHoldingsRecordId())
     );
   }

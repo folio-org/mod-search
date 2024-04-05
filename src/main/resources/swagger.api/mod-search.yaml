@@ -255,15 +255,43 @@ paths:
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
 
-  /search/consortium/item:
+  /search/consortium/holding/{id}:
+    get:
+      operationId: getConsortiumHolding
+      description: Get holding by id (only for consortium environment)
+      tags:
+        - search-consortium
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            $ref: "#/components/schemas/uuid"
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
+      responses:
+        '200':
+          description: an instance holding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumHolding'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+  /search/consortium/item/{id}:
     get:
       operationId: getConsortiumItem
       description: Get an item (only for consortium environment)
       tags:
         - search-consortium
       parameters:
-        - $ref: '#/components/parameters/item-id-query-param'
-        - $ref: '#/components/parameters/tenant-id-query-param'
+        - name: id
+          required: true
+          in: path
+          schema:
+            $ref: "#/components/schemas/uuid"
         - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         '200':
@@ -877,6 +905,9 @@ components:
       enum:
         - asc
         - desc
+    uuid:
+      type: string
+      format: uuid
 
   responses:
     unprocessableEntityResponse:
@@ -1021,13 +1052,6 @@ components:
       name: instanceId
       description: UUID of the instance
       required: false
-      schema:
-        type: string
-    item-id-query-param:
-      in: query
-      name: itemId
-      description: UUID of the item
-      required: true
       schema:
         type: string
     holdings-id-query-param:

@@ -171,6 +171,18 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/consortium/holding/{id}",
+          "permissionsRequired": [
+            "consortium-search.items.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/consortium/item",
           "permissionsRequired": [
             "consortium-search.items.collection.get"

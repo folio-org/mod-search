@@ -2,14 +2,17 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +49,7 @@ public class IndexService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
+  private final LocationService locationService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -145,8 +149,38 @@ public class IndexService {
       });
     }
     var resource = normalizeResourceName(resources.get(0));
+
+    if (LOCATION_RESOURCE.equals(resource)) {
+      return reindexInventoryLocations(tenantId);
+    } else {
+      return reindexInventoryAsync(resource);
+    }
+  }
+
+  /**
+   * Runs reindex request for mod-inventory-storage.
+   *
+   * @param resource       - resource name as {@link String} object
+   */
+  public ReindexJob reindexInventoryAsync(String resource) {
     var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
+    log.info("reindexInventory:: Starting reindex for uri {}", reindexUri);
     return resourceReindexClient.submitReindex(reindexUri);
+  }
+
+  /**
+   * Runs synchronous locations reindex in mod-search.
+   */
+  public ReindexJob reindexInventoryLocations(String tenantId) {
+    log.info("reindexLocations:: Starting reindex");
+    var response = new ReindexJob().id(UUID.randomUUID().toString())
+      .jobStatus("Completed")
+      .submittedDate(new Date().toString());
+
+    locationService.reindex(tenantId);
+    log.info("reindexLocations:: Reindex completed");
+
+    return response;
   }
 
   /**

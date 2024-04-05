@@ -7,6 +7,7 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
@@ -78,6 +79,8 @@ class IndexServiceTest {
   private ResourceDescriptionService resourceDescriptionService;
   @Mock
   private IndexNameProvider indexNameProvider;
+  @Mock
+  private LocationService locationService;
 
   @Mock
   private TenantProvider tenantProvider;
@@ -257,6 +260,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verify(indexRepository).dropIndex(indexName);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -273,6 +277,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(indexRepository);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -286,6 +291,7 @@ class IndexServiceTest {
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest());
     assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -300,6 +306,7 @@ class IndexServiceTest {
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
     assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -327,6 +334,7 @@ class IndexServiceTest {
 
     verify(indexRepository).dropIndex(instanceIndexName);
     verify(indexRepository).dropIndex(secondaryIndexName);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -342,6 +350,7 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, null);
 
     assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -356,6 +365,7 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(resourceName));
 
     assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(locationService);
   }
 
   @Test
@@ -376,6 +386,42 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
 
     assertThat(actual).isEqualTo(reindexResponse);
+    verifyNoInteractions(locationService);
+  }
+
+  @Test
+  void reindexInventory_positive_locations() {
+    when(resourceDescriptionService.find(LOCATION_RESOURCE))
+      .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
+
+    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION_RESOURCE));
+
+    assertThat(actual.getId()).isNotBlank();
+    assertThat(actual.getSubmittedDate()).isNotBlank();
+    assertThat(actual.getJobStatus()).isEqualTo("Completed");
+    verify(locationService).reindex(TENANT_ID);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
+  @Test
+  void reindexInventory_positive_locationsAndRecreateIndex() {
+    var indexName = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+
+    when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+
+    var reindexRequest = new ReindexRequest().resourceName(LOCATION_RESOURCE).recreateIndex(true);
+    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
+
+    assertThat(actual.getId()).isNotBlank();
+    assertThat(actual.getSubmittedDate()).isNotBlank();
+    assertThat(actual.getJobStatus()).isEqualTo("Completed");
+    verify(locationService).reindex(TENANT_ID);
+    verifyNoInteractions(resourceReindexClient);
   }
 
   @Test

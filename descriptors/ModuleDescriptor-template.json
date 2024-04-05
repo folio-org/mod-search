@@ -56,7 +56,8 @@
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
-            "user-tenants.collection.get"
+            "user-tenants.collection.get",
+            "inventory-storage.locations.collection.get"
           ]
         },
         {
@@ -474,6 +475,10 @@
     {
       "id": "classification-types",
       "version": "1.2"
+    },
+    {
+      "id": "locations",
+      "version": "3.0"
     }
   ],
   "permissionSets": [

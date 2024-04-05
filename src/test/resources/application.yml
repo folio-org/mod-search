@@ -57,6 +57,8 @@ folio:
       instance-contributors:
         retry-attempts: 3
       data-format: ${INDEXING_DATA_FORMAT:json}
+  reindex:
+    location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
   query:
     properties:
       request-timeout: 25s

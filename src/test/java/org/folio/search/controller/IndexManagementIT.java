@@ -1,8 +1,14 @@
 package org.folio.search.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.FIVE_SECONDS;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,6 +21,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.SearchUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -62,6 +69,27 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.id", is("37bd1461-ee1a-4522-9f8c-93bab186fad3")))
       .andExpect(jsonPath("$.jobStatus", is("In progress")))
       .andExpect(jsonPath("$.submittedDate", is("2021-11-08T13:00:00.000+00:00")));
+  }
+
+  @Test
+  void runReindex_positive_locations() throws Exception {
+    var request = post(ApiEndpoints.reindexPath())
+      .content(asJsonString(new ReindexRequest().resourceName(LOCATION_RESOURCE)))
+      .headers(defaultHeaders())
+      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
+      .contentType(MediaType.APPLICATION_JSON);
+
+    assertThat(countDefaultIndexDocument(LOCATION_RESOURCE)).isZero();
+    mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id", notNullValue()))
+      .andExpect(jsonPath("$.jobStatus", is("Completed")))
+      .andExpect(jsonPath("$.submittedDate", notNullValue()));
+
+    await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+      var counted = countDefaultIndexDocument(SearchUtils.LOCATION_RESOURCE);
+      assertThat(counted).isEqualTo(3);
+    });
   }
 
   @Test

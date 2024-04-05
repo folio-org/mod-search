@@ -4,10 +4,11 @@
 
 ### New APIs versions
 * Provides `API_NAME vX.Y`
-* Requires `API_NAME vX.Y`
+* Requires `locations v3.0`
 
 ### Features
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
+* Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
 
 ### Bug fixes
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

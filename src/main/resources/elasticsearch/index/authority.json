@@ -15,17 +15,23 @@
     },
     "normalizer": {
       "keyword_lowercase": {
-        "filter": [ "lowercase" ],
+        "filter": [
+          "lowercase",
+          "icu_folding"
+        ],
         "type": "custom"
       }
     },
     "analyzer": {
       "source_analyzer": {
         "tokenizer": "icu_tokenizer",
-        "filter": [ "folio_word_delimiter_graph", "icu_folding" ],
+        "filter": [
+          "folio_word_delimiter_graph",
+          "icu_folding"
+        ],
         "type": "custom"
       }
     },
-    "tokenizers": { }
+    "tokenizers": {}
   }
 }

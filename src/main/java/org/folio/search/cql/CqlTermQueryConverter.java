@@ -1,24 +1,13 @@
 package org.folio.search.cql;
 
-import static java.util.Collections.unmodifiableMap;
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang3.StringUtils.lowerCase;
-import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.StringJoiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.lucene.search.join.ScoreMode;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.types.FieldType;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.QueryBuilder;
@@ -26,6 +15,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.z3950.zing.cql.CQLTermNode;
 import org.z3950.zing.cql.Modifier;
+
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.lowerCase;
+import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 
 @Component
 public class CqlTermQueryConverter {
@@ -102,9 +101,15 @@ public class CqlTermQueryConverter {
     var index = plainFieldByPath.getIndex();
     validateIndexFormat(index, termNode);
 
-    return plainFieldByPath.hasFulltextIndex()
-           ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
-           : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
+    var queryBuilder = plainFieldByPath.hasFulltextIndex()
+                       ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
+                       : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
+
+    var parentDescription = plainFieldByPath.getParentDescription();
+    if (parentDescription != null && parentDescription.getType() == FieldType.NESTED) {
+      return nestedQuery(parentDescription.getName(), queryBuilder, ScoreMode.None);
+    }
+    return queryBuilder;
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
@@ -143,7 +148,7 @@ public class CqlTermQueryConverter {
         stringJoiner.add(String.format("comparator '%s': %s", c, buildersAsString));
       });
       throw new IllegalStateException(String.format("Multiple TermQueryBuilder objects cannot be responsible "
-        + "for the same comparator. Found issues: [%s]", stringJoiner));
+                                                    + "for the same comparator. Found issues: [%s]", stringJoiner));
     }
 
     return unmodifiableMap(queryBuildersMap);

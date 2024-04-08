@@ -1,36 +1,5 @@
 package org.folio.search.service.metadata;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableMap;
-import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
-import static org.folio.search.model.types.SearchType.FACET;
-import static org.folio.search.utils.CollectionUtils.anyMatch;
-import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
-import static org.folio.search.utils.SearchUtils.CQL_META_FIELD_PREFIX;
-import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
-import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
-import static org.folio.search.utils.SearchUtils.getPathForMultilangField;
-import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,6 +11,18 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.model.types.ResponseGroupType;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
+
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.types.SearchType.FACET;
+import static org.folio.search.utils.CollectionUtils.anyMatch;
+import static org.folio.search.utils.SearchUtils.*;
 
 /**
  * Provides search fields from local JSON files with fields/resource descriptions.
@@ -95,15 +76,15 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public String[] getSourceFields(String resource, ResponseGroupType groupType) {
-    return sourceFields.getOrDefault(resource, emptyMap()).get(groupType);
-  }
-
-  @Override
   public Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path) {
     return metadataResourceProvider.getResourceDescription(resource)
       .map(ResourceDescription::getFlattenFields)
       .map(flattenFields -> flattenFields.get(path));
+  }
+
+  @Override
+  public String[] getSourceFields(String resource, ResponseGroupType groupType) {
+    return sourceFields.getOrDefault(resource, emptyMap()).get(groupType);
   }
 
   @Override
@@ -202,8 +183,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private static List<String> getFieldsForSearchAlias(String searchAlias, String path) {
     return searchAlias.startsWith(CQL_META_FIELD_PREFIX)
-      ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
-      : singletonList(path);
+           ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
+           : singletonList(path);
   }
 
   private static Map<String, Map<ResponseGroupType, String[]>> collectSourceFields(

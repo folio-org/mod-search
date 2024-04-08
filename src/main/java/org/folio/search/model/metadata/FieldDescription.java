@@ -33,4 +33,8 @@ public abstract class FieldDescription {
    */
   @JsonProperty("$type")
   private String fieldType;
+
+  private FieldDescription parentDescription;
+
+  private String name;
 }

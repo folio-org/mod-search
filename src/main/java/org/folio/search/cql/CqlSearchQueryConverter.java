@@ -1,19 +1,12 @@
 package org.folio.search.cql;
 
-import static org.folio.search.utils.SearchQueryUtils.isBoolQuery;
-import static org.folio.search.utils.SearchQueryUtils.isDisjunctionFilterQuery;
-import static org.folio.search.utils.SearchQueryUtils.isFilterQuery;
-import static org.opensearch.index.query.QueryBuilders.boolQuery;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.apache.lucene.search.join.ScoreMode;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
@@ -21,6 +14,18 @@ import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLSortNode;
 import org.z3950.zing.cql.CQLTermNode;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static org.folio.search.utils.SearchQueryUtils.*;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 
 /**
  * Convert a CQL query into a elasticsearch query.
@@ -56,7 +61,112 @@ public class CqlSearchQueryConverter {
 
     var boolQuery = convertToQuery(cqlNode, resource);
     var enhancedQuery = enhanceQuery(boolQuery, resource);
-    return queryBuilder.query(enhancedQuery);
+    var improvedQuery = improveQuery(enhancedQuery, resource);
+    return queryBuilder.query(improvedQuery);
+  }
+
+  private QueryBuilder improveQuery(QueryBuilder enhancedQuery, String resource) {
+    if (enhancedQuery instanceof BoolQueryBuilder boolQueryBuilder) {
+      Set<String> paths = new HashSet<>();
+      boolean allNested = true;
+      for (QueryBuilder queryBuilder : boolQueryBuilder.must()) {
+        if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+          paths.add(nestedQueryBuilder.path());
+        } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+          allNested = checkPaths(paths, innerBoolQueryBuilder);
+        } else {
+          allNested = false;
+          break;
+        }
+      }
+      for (QueryBuilder queryBuilder : boolQueryBuilder.mustNot()) {
+        if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+          paths.add(nestedQueryBuilder.path());
+        } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+          allNested = checkPaths(paths, innerBoolQueryBuilder);
+        } else {
+          allNested = false;
+          break;
+        }
+      }
+      for (QueryBuilder queryBuilder : boolQueryBuilder.should()) {
+        if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+          paths.add(nestedQueryBuilder.path());
+        } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+          allNested = checkPaths(paths, innerBoolQueryBuilder);
+        } else {
+          allNested = false;
+          break;
+        }
+      }
+      for (QueryBuilder queryBuilder : boolQueryBuilder.filter()) {
+        if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+          paths.add(nestedQueryBuilder.path());
+        } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+          allNested = checkPaths(paths, innerBoolQueryBuilder);
+        } else {
+          allNested = false;
+          break;
+        }
+      }
+
+      if (allNested && paths.size() == 1) {
+        var newQuery = nestedQuery(paths.iterator().next(), boolQueryBuilder, ScoreMode.None);
+        List<QueryBuilder> mustQueryBuilders = new ArrayList<>();
+        for (QueryBuilder queryBuilder : boolQueryBuilder.must()) {
+          if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+            mustQueryBuilders.add(nestedQueryBuilder.query());
+          }
+        }
+
+      }
+    }
+    return null;
+  }
+
+  private boolean checkPaths(Set<String> paths, BoolQueryBuilder boolQueryBuilder) {
+    boolean allNested = true;
+    for (QueryBuilder queryBuilder : boolQueryBuilder.must()) {
+      if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+        paths.add(nestedQueryBuilder.path());
+      } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+        allNested = checkPaths(paths, innerBoolQueryBuilder);
+      } else {
+        allNested = false;
+        break;
+      }
+    }
+    for (QueryBuilder queryBuilder : boolQueryBuilder.should()) {
+      if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+        paths.add(nestedQueryBuilder.path());
+      } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+        allNested = checkPaths(paths, innerBoolQueryBuilder);
+      } else {
+        allNested = false;
+        break;
+      }
+    }
+    for (QueryBuilder queryBuilder : boolQueryBuilder.mustNot()) {
+      if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+        paths.add(nestedQueryBuilder.path());
+      } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+        allNested = checkPaths(paths, innerBoolQueryBuilder);
+      } else {
+        allNested = false;
+        break;
+      }
+    }
+    for (QueryBuilder queryBuilder : boolQueryBuilder.filter()) {
+      if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder) {
+        paths.add(nestedQueryBuilder.path());
+      } else if (queryBuilder instanceof BoolQueryBuilder innerBoolQueryBuilder) {
+        allNested = checkPaths(paths, innerBoolQueryBuilder);
+      } else {
+        allNested = false;
+        break;
+      }
+    }
+    return allNested;
   }
 
   /**
@@ -167,6 +277,20 @@ public class CqlSearchQueryConverter {
         mustQueryConditions.add(innerQuery);
       }
     }
+    var nestedByPath = mustQueryConditions.stream()
+      .filter(queryBuilder -> queryBuilder instanceof NestedQueryBuilder)
+      .map(queryBuilder -> (NestedQueryBuilder) queryBuilder)
+      .collect(Collectors.groupingBy(NestedQueryBuilder::path));
+
+    nestedByPath.forEach((path, nestedQueries) -> {
+      var innerQuery = boolQuery();
+      var newNestedQuery = nestedQuery(path, innerQuery, ScoreMode.None);
+      nestedQueries.forEach(nestedQueryBuilder -> {
+        innerQuery.must(nestedQueryBuilder.query());
+        mustQueryConditions.remove(nestedQueryBuilder);
+      });
+      mustQueryConditions.add(newNestedQuery);
+    });
     mustConditions.clear();
     mustConditions.addAll(mustQueryConditions);
     return query;

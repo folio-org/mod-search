@@ -1,0 +1,120 @@
+{
+  "from": 0,
+  "size": 100,
+  "timeout": "25000ms",
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "bool": {
+            "should": [
+              {
+                "nested": {
+                  "query": {
+                    "multi_match": {
+                      "query": "An Uniform title",
+                      "fields": [
+                        "alternativeTitles.alternativeTitle.*^1.0"
+                      ],
+                      "type": "phrase",
+                      "operator": "OR",
+                      "slop": 0,
+                      "prefix_length": 0,
+                      "max_expansions": 50,
+                      "zero_terms_query": "NONE",
+                      "auto_generate_synonyms_phrase_query": true,
+                      "fuzzy_transpositions": true,
+                      "boost": 1.0
+                    }
+                  },
+                  "path": "alternativeTitles",
+                  "ignore_unmapped": false,
+                  "score_mode": "none",
+                  "boost": 1.0
+                }
+              },
+              {
+                "nested": {
+                  "query": {
+                    "multi_match": {
+                      "query": "An alternative title",
+                      "fields": [
+                        "alternativeTitles.alternativeTitle.*^1.0"
+                      ],
+                      "type": "phrase",
+                      "operator": "OR",
+                      "slop": 0,
+                      "prefix_length": 0,
+                      "max_expansions": 50,
+                      "zero_terms_query": "NONE",
+                      "auto_generate_synonyms_phrase_query": true,
+                      "fuzzy_transpositions": true,
+                      "boost": 1.0
+                    }
+                  },
+                  "path": "alternativeTitles",
+                  "ignore_unmapped": false,
+                  "score_mode": "none",
+                  "boost": 1.0
+                }
+              }
+            ],
+            "adjust_pure_negative": true,
+            "boost": 1.0
+          }
+        },
+        {
+          "nested": {
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "term": {
+                      "alternativeTitles.alternativeTitleTypeId": {
+                        "value": "9d968396-0cce-4e9f-8867-c4d04c01f535",
+                        "boost": 1.0
+                      }
+                    }
+                  }
+                ],
+                "adjust_pure_negative": true,
+                "boost": 1.0
+              }
+            },
+            "path": "alternativeTitles",
+            "ignore_unmapped": false,
+            "score_mode": "none",
+            "boost": 1.0
+          }
+        }
+      ],
+      "adjust_pure_negative": true,
+      "boost": 1.0
+    }
+  },
+  "_source": {
+    "includes": [
+      "id",
+      "tenantId",
+      "plain_title",
+      "contributors.plain_name",
+      "contributors.primary",
+      "contributors.contributorNameTypeId",
+      "contributors.contributorTypeId",
+      "contributors.authorityId",
+      "publication.plain_publisher",
+      "publication.dateOfPublication",
+      "staffSuppress",
+      "discoverySuppress",
+      "isBoundWith",
+      "shared",
+      "items.effectiveCallNumberComponents.callNumber",
+      "items.effectiveCallNumberComponents.prefix",
+      "items.effectiveCallNumberComponents.suffix",
+      "items.effectiveCallNumberComponents.typeId",
+      "items.effectiveShelvingOrder"
+    ],
+    "excludes": []
+  },
+  "track_total_hits": 2147483647
+}

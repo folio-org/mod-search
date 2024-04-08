@@ -1,12 +1,13 @@
 package org.folio.search.model.metadata;
 
+import com.fasterxml.jackson.databind.util.StdConverter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import com.fasterxml.jackson.databind.util.StdConverter;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * This Jackson converter is used to post-process ResourceDescription after it has been deserialized.
@@ -53,19 +54,23 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
 
   private static Map<String, PlainFieldDescription> getFlattenFields(ResourceDescription desc) {
     var result = new LinkedHashMap<String, PlainFieldDescription>();
-    result.putAll(getFlattenFields(null, desc.getFields()));
-    result.putAll(getFlattenFields(null, desc.getSearchFields()));
+    result.putAll(getFlattenFields(null, desc.getFields(), null));
+    result.putAll(getFlattenFields(null, desc.getSearchFields(), null));
     return unmodifiableMap(result);
   }
 
   private static Map<String, PlainFieldDescription> getFlattenFields(
-    String path, Map<String, ? extends FieldDescription> fields) {
+    String path, Map<String, ? extends FieldDescription> fields, FieldDescription parent) {
     var result = new LinkedHashMap<String, PlainFieldDescription>();
     fields.forEach((currentName, desc) -> {
+      desc.setName(currentName);
+      if (parent != null) {
+        desc.setParentDescription(parent);
+      }
       var currentPath = getFieldPath(path, currentName);
 
       if (desc instanceof ObjectFieldDescription) {
-        result.putAll(getFlattenFields(currentPath, ((ObjectFieldDescription) desc).getProperties()));
+        result.putAll(getFlattenFields(currentPath, ((ObjectFieldDescription) desc).getProperties(), desc));
       }
 
       if (desc instanceof PlainFieldDescription) {

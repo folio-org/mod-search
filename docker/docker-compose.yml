@@ -28,7 +28,8 @@ services:
       DB_HOST: ${DB_HOST}
       DB_DATABASE: ${DB_DATABASE}
       DB_PASSWORD: ${DB_PASSWORD}
-      JAVA_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
+      ELASTICSEARCH_COMPRESSION_ENABLED: false
+      JAVA_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT} -Dlog4j.configurationFile=dev-log4j2.properties"
 
   api-mock:
     container_name: api-mock_mod-search

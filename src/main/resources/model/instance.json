@@ -43,10 +43,10 @@
       "showInResponse": [ "search", "call-number-browse" ]
     },
     "alternativeTitles": {
-      "type": "object",
+      "type": "nested",
       "properties": {
         "alternativeTitleTypeId": {
-          "index": "source"
+          "index": "keyword"
         },
         "alternativeTitle": {
           "searchAliases": [ "title", "keyword" ],

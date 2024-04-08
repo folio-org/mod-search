@@ -21,6 +21,9 @@ properties:
   callNumber:
     description: Call number
     type: string
+  callNumberSuffix:
+    description: Call number suffix
+    type: string
   copyNumber:
     description: Copy number
     type: string

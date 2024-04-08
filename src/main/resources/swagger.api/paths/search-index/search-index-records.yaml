@@ -7,7 +7,7 @@ post:
     content:
       application/json:
         example:
-          - $ref: '../../examples/request/indexRecordRequestBody.yaml'
+          $ref: '../../examples/request/indexRecordRequestBody.yaml'
         schema:
           $ref: '../../schemas/request/indexRecordRequest.yaml'
   responses:

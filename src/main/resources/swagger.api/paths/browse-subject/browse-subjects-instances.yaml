@@ -15,7 +15,7 @@ get:
       content:
         application/json:
           example:
-            $ref: '../../examples/result/searchResult.yaml'
+            $ref: '../../examples/result/browseSubjectResult.yaml'
           schema:
             $ref: '../../schemas/response/subjectBrowseResult.yaml'
     '400':

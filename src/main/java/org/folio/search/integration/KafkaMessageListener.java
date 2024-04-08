@@ -10,12 +10,9 @@ import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.List;
@@ -67,7 +64,7 @@ public class KafkaMessageListener {
     var batch = getInstanceResourceEvents(consumerRecords);
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
-      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
         resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
       return null;
     }));
@@ -90,7 +87,7 @@ public class KafkaMessageListener {
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .filter(authority -> !StringUtils.startsWith(getResourceSource(authority), SOURCE_CONSORTIUM_PREFIX))
-      .map(authority -> authority.resourceName(AUTHORITY_RESOURCE).id(getResourceEventId(authority)))
+      .map(authority -> authority.id(getResourceEventId(authority)))
       .toList();
 
     indexResources(batch, resourceService::indexResources);
@@ -111,7 +108,7 @@ public class KafkaMessageListener {
     log.info("Processing contributor events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(contributor -> contributor.resourceName(CONTRIBUTOR_RESOURCE).id(getResourceEventId(contributor)))
+      .map(contributor -> contributor.id(getResourceEventId(contributor)))
       .toList();
 
     indexResources(batch, resourceService::indexResources);
@@ -127,7 +124,7 @@ public class KafkaMessageListener {
     log.info("Processing subjects events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(subject -> subject.resourceName(INSTANCE_SUBJECT_RESOURCE).id(getResourceEventId(subject)))
+      .map(subject -> subject.id(getResourceEventId(subject)))
       .toList();
 
     indexResources(batch, resourceService::indexResources);
@@ -182,11 +179,27 @@ public class KafkaMessageListener {
     }));
   }
 
+  @KafkaListener(
+    id = KafkaConstants.LOCATION_LISTENER_ID,
+    containerFactory = "standardListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['location'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['location'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['location'].topicPattern}")
+  public void handleLocationEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing location events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .map(location -> location.id(getResourceEventId(location) + "|" + location.getTenant()))
+      .toList();
+
+    indexResources(batch, resourceService::indexResources);
+  }
+
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
-      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+      folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
         indexConsumer, KafkaMessageListener::logFailedEvent);
       return null;
     }));
@@ -208,7 +221,7 @@ public class KafkaMessageListener {
       return null;
     }
     var operation = isInstanceResource(consumerRecord) ? value.getType() : CREATE;
-    return value.id(instanceId).type(operation).resourceName(INSTANCE_RESOURCE);
+    return value.id(instanceId).type(operation);
   }
 
   private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
@@ -231,8 +244,11 @@ public class KafkaMessageListener {
     }
 
     var eventType = event.getType() != null ? event.getType().getValue() : "unknown";
-    log.warn(new FormattedMessage("Failed to index resource event [eventType: {}, tenantId: {}, id: {}]",
-      eventType, event.getTenant(), event.getId()), e);
+    var resourceName = event.getResourceName() != null ? event.getResourceName() : "unknown";
+    log.warn(new FormattedMessage(
+      "Failed to index resource event [resource: {}, eventType: {}, tenantId: {}, id: {}]",
+      resourceName, eventType, event.getTenant(), event.getId()
+    ), e);
   }
 
   private static void logFailedConsortiumEvent(ConsortiumInstanceEvent event, Exception e) {

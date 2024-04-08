@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.interceptor;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
@@ -8,9 +8,11 @@ import org.folio.search.domain.dto.ResourceDeleteEventSubType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
+import org.springframework.stereotype.Component;
 
 @Log4j2
-public class ResourceChangeFilterStrategy implements RecordFilterStrategy<String, ResourceEvent> {
+@Component
+public class ResourceChangeRecordFilterStrategy implements RecordFilterStrategy<String, ResourceEvent> {
 
   @Override
   public boolean filter(ConsumerRecord<String, ResourceEvent> consumerRecord) {

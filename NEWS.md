@@ -1,3 +1,27 @@
+## v3.3.0 YYYY-mm-DD
+### Breaking changes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### New APIs versions
+* Provides `API_NAME vX.Y`
+* Requires `API_NAME vX.Y`
+
+### Features
+* Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
+
+### Bug fixes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Tech Dept
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME` `2.7.4`
+* Remove `LIB_NAME`
+
+---
+
 ## v3.2.0 2024-03-20
 ### New APIs versions
 * Requires `classification-types v1.2`
@@ -22,6 +46,7 @@
 * Remove call number format validation for shelving order generation ([MSEARCH-689](https://folio-org.atlassian.net/browse/MSEARCH-689))
 * Implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://folio-org.atlassian.net/browse/MSEARCH-692))
 * Implement endpoint for consolidate items access in consortium ([MSEARCH-693](https://folio-org.atlassian.net/browse/MSEARCH-693))
+* Make Inventory and Authority searches case-insensitive ([MSEARCH-696](https://folio-org.atlassian.net/browse/MSEARCH-696))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))

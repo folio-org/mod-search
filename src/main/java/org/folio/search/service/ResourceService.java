@@ -86,7 +86,7 @@ public class ResourceService {
     var eventsToIndex = getEventsToIndex(resourceEvents);
     var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
-    log.info("Records indexed to elasticsearch [indexRequests: {}. {}]",
+    log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
@@ -207,11 +207,12 @@ public class ResourceService {
     return errorMessage.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errorMessage);
   }
 
-  private <T> List<T> getEventsThatCanBeIndexed(List<T> events, Function<T, String> eventToIndexNameFunc) {
+  private List<ResourceEvent> getEventsThatCanBeIndexed(List<ResourceEvent> events,
+                                                        Function<ResourceEvent, String> eventToIndexNameFunc) {
     var esIndices = events.stream().map(eventToIndexNameFunc).collect(toSet());
     var existingIndices = esIndices.stream().filter(indexRepository::indexExists).collect(toSet());
-    var eventsToIndex = new ArrayList<T>();
-    var unknownEvents = new ArrayList<T>();
+    var eventsToIndex = new ArrayList<ResourceEvent>();
+    var unknownEvents = new ArrayList<ResourceEvent>();
 
     for (var event : events) {
       if (existingIndices.contains(eventToIndexNameFunc.apply(event))) {

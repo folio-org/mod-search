@@ -1,6 +1,7 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
@@ -102,7 +103,7 @@ public class SearchDocumentConverter {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceData = getNewAsMap(event);
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
-    return ConversionContext.of(event, resourceDescription, resourceLanguages);
+    return ConversionContext.of(event, resourceDescription, resourceLanguages, event.getTenant());
   }
 
   private static Map<String, Object> convertMapUsingResourceFields(
@@ -133,6 +134,10 @@ public class SearchDocumentConverter {
     var desc = (PlainFieldDescription) fieldEntry.getValue();
     if (desc.isNotIndexed()) {
       return emptyMap();
+    }
+
+    if (desc.isTenantField()) {
+      return singletonMap(fieldName, ctx.getTenantId());
     }
 
     var plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());

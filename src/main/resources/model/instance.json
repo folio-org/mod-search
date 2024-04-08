@@ -21,7 +21,7 @@
   },
   "fields": {
     "id": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": [ "search", "call-number-browse" ]
     },
     "tenantId": {
@@ -30,7 +30,7 @@
       "showInResponse": [ "search" ]
     },
     "hrid": {
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "source": {
       "searchTypes": [ "facet", "filter" ],
@@ -53,7 +53,7 @@
           "index": "multilang"
         },
         "authorityId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ]
         }
       }
@@ -70,7 +70,7 @@
           "searchAliases": [ "series", "title", "keyword" ]
         },
         "authorityId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ]
         }
       }
@@ -83,7 +83,7 @@
           "index": "whitespace"
         },
         "identifierTypeId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         }
       }
     },
@@ -100,15 +100,15 @@
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorNameTypeId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "contributorTypeId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "authorityId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ],
           "showInResponse": [ "search", "call-number-browse" ]
         }
@@ -122,30 +122,30 @@
           "searchAliases": [ "subjects" ]
         },
         "authorityId": {
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ]
         }
       }
     },
     "instanceTypeId": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "statisticalCodeIds": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "statusId": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "instanceFormatIds": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "languages": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "metadata": {
       "type": "object",
@@ -155,30 +155,30 @@
           "index": "date"
         },
         "createdByUserId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "createdByUsername": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "updatedDate": {
           "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "updatedByUsername": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         }
       }
     },
     "modeOfIssuanceId": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "natureOfContentTermIds": {
       "searchTypes": [ "facet", "filter" ],
-      "index": "keyword"
+      "index": "keyword_lowercase"
     },
     "publication": {
       "type": "object",
@@ -207,7 +207,7 @@
       "type": "object",
       "properties": {
         "classificationNumber": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         }
       }
     },
@@ -230,7 +230,7 @@
       "properties": {
         "uri": {
           "searchAliases": [ "electronicAccess" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "linkText": {
           "searchAliases": [ "electronicAccess" ],
@@ -267,14 +267,14 @@
       "type": "object",
       "properties": {
         "id": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "tenantId": {
           "index": "keyword",
           "showInResponse": [ "call-number-browse" ]
         },
         "hrid": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "accessionNumber": {
           "index": "source"
@@ -286,16 +286,16 @@
           "index": "source"
         },
         "barcode": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "effectiveLocationId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword",
+          "index": "keyword_lowercase",
           "showInResponse": [ "call-number-browse" ]
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "status": {
           "type": "object",
@@ -313,7 +313,7 @@
         },
         "materialTypeId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "discoverySuppress": {
           "searchTypes": [ "facet", "filter" ],
@@ -321,7 +321,7 @@
           "default": false
         },
         "itemLevelCallNumberTypeId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "effectiveCallNumberComponents": {
           "type": "object",
@@ -361,7 +361,7 @@
           "properties": {
             "uri": {
               "searchAliases": [ "items.electronicAccess" ],
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "linkText": {
               "searchAliases": [ "items.electronicAccess" ],
@@ -411,20 +411,20 @@
               "index": "date"
             },
             "createdByUserId": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "createdByUsername": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
             },
             "updatedByUserId": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "updatedByUsername": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             }
           }
         }
@@ -434,7 +434,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "tenantId": {
           "searchTypes": [ "facet", "filter" ],
@@ -446,21 +446,21 @@
         },
         "holdingsTypeId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "permanentLocationId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "discoverySuppress": {
           "$type": "suppress"
         },
         "hrid": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "formerIds": {
           "index": "source"
@@ -478,7 +478,7 @@
           "properties": {
             "uri": {
               "searchAliases": [ "holdings.electronicAccess" ],
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "linkText": {
               "searchAliases": [ "holdings.electronicAccess" ],
@@ -515,20 +515,20 @@
               "index": "date"
             },
             "createdByUserId": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "createdByUsername": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
             },
             "updatedByUserId": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             },
             "updatedByUsername": {
-              "index": "keyword"
+              "index": "keyword_lowercase"
             }
           }
         }
@@ -585,67 +585,67 @@
     "instanceTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "tagsProcessor"
     },
     "itemTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "itemTagsProcessor"
     },
     "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "holdingsTagsProcessor"
     },
     "holdingsTypeId": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "holdingsTypeIdProcessor"
     },
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "statisticalCodesProcessor"
     },
     "itemFullCallNumbers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchAliases": [ "holdings.fullCallNumber" ],
       "processor": "holdingsCallNumberComponentsProcessor"
     },
     "itemNormalizedCallNumbers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchAliases": [ "items.normalizedCallNumbers" ],
       "processor": "itemNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsNormalizedCallNumbers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchAliases": [ "holdings.normalizedCallNumbers" ],
       "processor": "holdingsNormalizedCallNumbersProcessor",
       "searchTermProcessor": "callNumberSearchTermProcessor"
     },
     "holdingsIdentifiers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "itemIdentifiersProcessor"
     },
     "uniformTitle": {
@@ -672,7 +672,7 @@
     },
     "itemEffectiveShelvingOrder": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchAliases": [ "items.effectiveShelvingOrder" ],
       "processor": "itemEffectiveShelvingOrderProcessor"
     },
@@ -702,7 +702,7 @@
     },
     "lccn": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "lccnInstanceProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
     }

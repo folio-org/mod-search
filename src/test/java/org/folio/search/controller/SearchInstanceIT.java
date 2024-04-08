@@ -49,6 +49,15 @@ class SearchInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }
 
+  @MethodSource("testCaseInsensitiveDataProvider")
+  @DisplayName("search by instances case insensitive (single instance found)")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
+  void searchByInstancesCaseInsensitive_parameterized_singleResult(String query, String value) throws Throwable {
+    doSearchByInstances(prepareQuery(query, value))
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+  }
+
   @MethodSource("testIssnDataProvider")
   @DisplayName("search by instances case insensitive ISSN with trailing X")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
@@ -356,6 +365,230 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword == {value}", "Van Harmelen, Frank"),
       arguments("keyword ==/string {value}", "0262012103"),
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
+    );
+  }
+
+  private static Stream<Arguments> testCaseInsensitiveDataProvider() {
+    return Stream.of(
+      arguments("title <> {value}", "UNKNOWN VALUE"),
+      arguments("indexTitle <> {value}", "UNKNOWN VALUE"),
+
+      arguments("title all {value}", "SEMANTIC"),
+      arguments("title all {value}", "PRIMERS"),
+      arguments("title all {value}", "CHERCHELL"),
+      arguments("title all {value}", "COOPERATE"),
+      arguments("title all {value}", "COOPERATIVE"),
+      arguments("title any {value}", "SEMANTIC WEB WORD"),
+      arguments("title all {value}", "SYSTEM INFORMATION"),
+      // search by instance title (search across 2 fields)
+      arguments("title any {value}", "SYSTEMS ALTERNATIVE SEMANTIC"),
+
+      //phrase matching
+      arguments("title == {value}", "SEMANTIC WEB"),
+      arguments("title == {value}", "A SEMANTIC WEB PRIMER"),
+      arguments("title == {value}", "COOPERATIVE INFORMATION SYSTEMS"),
+
+      // ASCII folding
+      arguments("title all {value}", "DEJA VU"),
+      arguments("title all {value}", "DÉJÀ VU"),
+      arguments("title all {value}", "ALGÉRIE"),
+      // e here should replace e + U + 0301 (Combining Acute Accent)
+      arguments("title all {value}", "ALGERIE"),
+
+      arguments("series all {value}", "COOPERATIVE INFORMATION SYSTEMS"),
+      arguments("series all {value}", "COOPERATE"),
+      arguments("series all {value}", "COOPERATIVE"),
+
+      arguments("alternativeTitles.alternativeTitle == {value}", "AN ALTERNATIVE TITLE"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "UNIFORM"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "DEJA VU"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "DÉJÀ VU"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "PANGOK"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "PANG'OK"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "PANG OK"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "BANGK'ASYURANGSŬ"),
+      arguments("alternativeTitles.alternativeTitle all {value}", "ASYURANGSŬ"),
+
+      arguments("uniformTitle all {value}", "UNIFORM"),
+
+      arguments("identifiers.value == {value}", "0262012103"),
+      arguments("identifiers.value all {value}", "200306*"),
+      arguments("identifiers.value all ({value})", "047144250X OR 2003065165 OR 0000-0000"),
+      arguments("identifiers.value all ({value})", "047144250X AND 2003065165 AND 0317-8471"),
+      arguments("identifiers.identifierTypeId == {value}", "C858E4F2-2B6B-4385-842B-60732EE14ABB"),
+      arguments("identifiers.identifierTypeId == 8261054F-BE78-422D-BD51-4ED9F33C3422 "
+        + "AND identifiers.value == {value}", "0262012103"),
+
+      arguments("publisher all {value}", "MIT"),
+      arguments("publisher all {value}", "MIT"),
+      arguments("publisher all {value}", "PRESS"),
+
+      arguments("contributors all {value}", "FRANK"),
+      arguments("contributors all {value}", "FRANK"),
+      arguments("contributors all {value}", "GRIGORIS"),
+      arguments("contributors all {value}", "GRIGORIS ANTONIOU"),
+      arguments("contributors any {value}", "GRIGORIS FRANK"),
+      arguments("contributors all {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors == {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors ==/string {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors = {value}", "VAN HARMELEN, FR*"),
+      arguments("contributors = {value}", "*RMELEN, FRANK"),
+
+      arguments("contributors.name = {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors.name == {value}", "VAN HARMELEN"),
+      arguments("contributors.name ==/string {value}", "VAN HARMELEN, FRANK"),
+      arguments("contributors.name = {value}", "VAN HARMELEN, FR*"),
+      arguments("contributors.name = {value}", "ANTON*"),
+      arguments("contributors.name = {value}", "*RMELEN, FRANK"),
+
+      arguments("contributors.authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
+      arguments("authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
+
+      arguments("hrid == {value}", "INST000000000022"),
+      arguments("hrid == {value}", "INST00*"),
+      arguments("hrid == {value}", "*00022"),
+      arguments("hrid == {value}", "*00000002*"),
+
+      arguments("keyword = *", ""),
+      arguments("keyword all {value}", "SEMANTIC WEB PRIMER"),
+      arguments("keyword all {value}", "SEMANTIC ANTONIOU OCM0012345 047144250X"),
+      arguments("subjects all {value}", "SEMANTIC"),
+      arguments("subjects ==/string {value}", "SEMANTIC WEB"),
+
+      arguments("tags.tagList all {value}", "BOOK"),
+      arguments("tags.tagList all {value}", "ELECTRONIC"),
+
+      arguments("classifications.classificationNumber=={value}", "025.04"),
+      arguments("classifications.classificationNumber=={value}", "025*"),
+
+      arguments("electronicAccess.uri==\"{value}\"", "HTTPS://TESTLIBRARY.SAMPLE.COM/JOURNAL/10.1002/(ISSN)1938-3703"),
+      arguments("electronicAccess.linkText all {value}", "ACCESS"),
+      arguments("electronicAccess.publicNote all {value}", "ONLINE"),
+      arguments("instanceFormatIds == {value}", "7F9C4AC0-FA3D-43B7-B978-3BF0BE38C4DA"),
+
+      arguments("administrativeNotes == {value}", "ORIGINAL + PCC"),
+      arguments("administrativeNotes any {value}", "ORIGINAL PCC"),
+
+      arguments("publicNotes all {value}", "DEVELOPMENT"),
+      arguments("notes.note == {value}", "LIBRARIAN PRIVATE NOTE"),
+      arguments("notes.note == {value}", "THE DEVELOPMENT OF THE SEMANTIC WEB,"),
+      arguments("callNumber = {value}", "\"\""),
+
+      // search by isbn10
+      arguments("isbn = {value}", "047144250X"),
+      arguments("isbn = {value}", "04714*"),
+      arguments("isbn = {value}", "0471-4*"),
+
+      // search by isbn13
+      arguments("isbn = {value}", "9780471442509"),
+      arguments("isbn = {value}", "978-0471-44250-9"),
+      arguments("isbn = {value}", "PAPER"),
+      arguments("isbn = {value}", "978-0471*"),
+      arguments("isbn = {value}", "9780471*"),
+
+      arguments("issn = {value}", "0317-8471"),
+      arguments("issn = {value}", "0317*"),
+
+      // search by oclc
+      arguments("oclc = {value}", "12345 800630"),
+      arguments("oclc = {value}", "OCM60710867"),
+      arguments("oclc = {value}", "60710*"),
+
+      // search by lccn
+      arguments("lccn = {value}", "2003065165"),
+      arguments("lccn = {value}", "*65165"),
+      arguments("lccn = {value}", "N 2003075732"),
+      arguments("lccn = {value}", "N2003075732"),
+      arguments("lccn = {value}", "*75732"),
+      arguments("lccn = {value}", "20030*"),
+
+      // search by item fields
+      arguments("item.hrid = {value}", "ITEM000000000014"),
+      arguments("item.hrid = {value}", "ITEM*"),
+      arguments("item.hrid = {value}", "*00014"),
+      arguments("item.hrid = {value}", "ITEM*00014"),
+
+      arguments("itemPublicNotes all {value}", "BIBLIOGRAPHICAL REFERENCES"),
+      arguments("itemPublicNotes all {value}", "PUBLIC CIRCULATION NOTE"),
+
+      arguments("itemIdentifiers all {value}", "ITEM000000000014"),
+      arguments("itemIdentifiers all {value}", "81AE0F60-F2BC-450C-84C8-5A21096DAED9"),
+      arguments("itemIdentifiers all {value}", "ITEM_ACCESSION_NUMBER"),
+      arguments("itemIdentifiers all {value}", "7212BA6A-8DCF-45A1-BE9A-FFAA847C4423"),
+      arguments("itemIdentifiers all {value}", "ITEMIDENTIFIERFIELDVALUE"),
+
+      arguments("item.administrativeNotes == {value}", "NEED ATTENTION"),
+      arguments("item.administrativeNotes all {value}", "V1.1"),
+
+      arguments("item.notes.note == {value}", "LIBRARIAN PUBLIC NOTE FOR ITEM"),
+      arguments("item.notes.note == {value}", "LIBRARIAN PRIVATE NOTE FOR ITEM"),
+      arguments("item.notes.note == {value}", "TESTCIRCULATIONNOTE"),
+      arguments("item.notes.note == {value}", "PRIVATE CIRCULATION NOTE"),
+
+      arguments("item.circulationNotes.note == {value}", "TESTCIRCULATIONNOTE"),
+      arguments("item.circulationNotes.note all {value}", "PUBLIC CIRCULATION NOTE"),
+      arguments("item.circulationNotes.note all {value}", "PRIVATE CIRCULATION NOTE"),
+      arguments("item.circulationNotes.note all {value}", "*NOTE"),
+      arguments("item.circulationNotes.note all {value}", "PRIVATE CIRCULATION*"),
+
+      arguments("item.electronicAccess==\"{value}\"", "TABLE"),
+      arguments("item.electronicAccess.uri==\"{value}\"", "HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML"),
+      arguments("item.electronicAccess.linkText all {value}", "LINKS AVAILABLE"),
+      arguments("item.electronicAccess.publicNote all {value}", "TABLE OF CONTENTS"),
+
+      arguments("item.effectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
+      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
+
+      // Search by item fields (Backward compatibility)
+      arguments("items.hrid = {value}", "ITEM000000000014"),
+      arguments("items.hrid = {value}", "ITEM*"),
+      arguments("items.hrid = {value}", "*00014"),
+      arguments("items.hrid = {value}", "ITEM*00014"),
+
+      arguments("items.notes.note == {value}", "LIBRARIAN PUBLIC NOTE FOR ITEM"),
+      arguments("items.notes.note == {value}", "LIBRARIAN PRIVATE NOTE FOR ITEM"),
+      arguments("items.notes.note == {value}", "TESTCIRCULATIONNOTE"),
+      arguments("items.notes.note == {value}", "PRIVATE CIRCULATION NOTE"),
+
+      arguments("items.tags.tagList all {value}", "ITEM-TAG"),
+
+      arguments("items.circulationNotes.note == {value}", "TESTCIRCULATIONNOTE"),
+      arguments("items.circulationNotes.note all {value}", "PUBLIC CIRCULATION NOTE"),
+      arguments("items.circulationNotes.note all {value}", "PRIVATE CIRCULATION NOTE"),
+      arguments("items.circulationNotes.note all {value}", "*NOTE"),
+      arguments("items.circulationNotes.note all {value}", "PRIVATE CIRCULATION*"),
+
+      arguments("items.electronicAccess==\"{value}\"", "TABLE"),
+      arguments("items.electronicAccess.uri==\"{value}\"", "HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML"),
+      arguments("items.electronicAccess.linkText all {value}", "LINKS AVAILABLE"),
+      arguments("items.electronicAccess.publicNote all {value}", "TABLE OF CONTENTS"),
+
+      // search by holding fields
+      arguments("holdings.administrativeNotes == {value}", "FOR DELETION"),
+      arguments("holdings.administrativeNotes all {value}", "V2.0"),
+      arguments("holdingsPublicNotes all {value}", "BIBLIOGRAPHICAL REFERENCES"),
+      arguments("holdings.notes.note == {value}", "LIBRARIAN PUBLIC NOTE FOR HOLDING"),
+      arguments("holdings.notes.note == {value}", "LIBRARIAN PRIVATE NOTE FOR HOLDING"),
+      arguments("holdings.tags.tagList == {value}", "HOLDINGS-TAG"),
+
+      arguments("holdings.electronicAccess==\"{value}\"", "ELECTRONICACCESS"),
+      arguments("holdings.electronicAccess.uri==\"{value}\"", "HTTPS://TESTLIBRARY.SAMPLE.COM/HOLDINGS?HRID=HO0000006"),
+      arguments("holdings.electronicAccess.linkText all {value}", "LINK TEXT"),
+      arguments("holdings.electronicAccess.publicNote all {value}", "NOTE"),
+
+      arguments("holdingsIdentifiers all {value}", "HOLD000000000009"),
+      arguments("holdingsIdentifiers == {value}", "1D76EE84-D776-48D2-AB96-140C24E39AC5"),
+      arguments("holdingsIdentifiers all {value}", "9B8EC096-FA2E-451B-8E7A-6D1C977EE946"),
+      arguments("holdingsIdentifiers all {value}", "E3FF6133-B9A2-4D4C-A1C9-DC1867D4DF19"),
+
+      //search by multiple different parameters
+      arguments("(keyword all \"{value}\")", "WOLVES MATTHEW 9781609383657"),
+      arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER : WOLVES"),
+      arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER & WOLVES"),
+      arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER / WOLVES"),
+      arguments("keyword == {value}", "VAN HARMELEN, FRANK"),
+      arguments("keyword ==/string {value}", "0262012103"),
+      arguments("(title all \"{value}\")", "A SEMANTIC WEB PRIMER : 0747-0850")
     );
   }
 

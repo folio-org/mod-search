@@ -24,21 +24,16 @@ public class LocationService {
   private final ResourceService resourceService;
 
   public void reindex(String tenantId) {
-    var processed = 0;
-    var locationResponse = client.getLocations(processed, properties.getLocationBatchSize());
-    var total = locationResponse.totalRecords();
-    var locations = locationResponse.locations();
-
-    indexLocations(tenantId, locations);
-    processed += locations.size();
-    log.info("reindex:: Successfully indexed {} of {} locations", processed, total);
-
-    while (processed < total) {
-      locations = client.getLocations(processed, properties.getLocationBatchSize()).locations();
-      indexLocations(tenantId, locations);
+    int processed = 0;
+    int total;
+    do {
+      var locationResponse = client.getLocations(processed, properties.getLocationBatchSize());
+      total = locationResponse.totalRecords();
+      var locations = locationResponse.locations();
       processed += locations.size();
+      indexLocations(tenantId, locations);
       log.info("reindex:: Successfully indexed {} of {} locations", processed, total);
-    }
+    } while (processed < total);
   }
 
   private void indexLocations(String tenantId, List<Map<String, Object>> locations) {

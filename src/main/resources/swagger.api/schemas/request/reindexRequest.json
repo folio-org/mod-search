@@ -11,7 +11,12 @@
     "resourceName": {
       "type": "string",
       "description": "Resource name to run reindex for",
-      "default": "instance"
+      "default": "instance",
+      "enum": [
+        "instance",
+        "authority",
+        "location"
+      ]
     },
     "indexSettings": {
       "description": "Index settings to apply for index",

@@ -3,7 +3,7 @@
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
+* Provides `indices v0.7`
 * Requires `locations v3.0`
 
 ### Features

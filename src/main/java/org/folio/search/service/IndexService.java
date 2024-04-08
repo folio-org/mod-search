@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.client.ResourceReindexClient;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -268,7 +267,7 @@ public class IndexService {
   }
 
   private static String getReindexRequestResourceName(ReindexRequest req) {
-    return req == null || StringUtils.isBlank(req.getResourceName()) ? INSTANCE_RESOURCE : req.getResourceName();
+    return req == null || req.getResourceName() == null ? INSTANCE_RESOURCE : req.getResourceName().getValue();
   }
 
   private void validateResourceName(String resourceName, String message) {

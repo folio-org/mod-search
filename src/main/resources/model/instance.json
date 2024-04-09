@@ -705,6 +705,12 @@
       "index": "keyword_lowercase",
       "processor": "lccnInstanceProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
+    },
+    "normalizedClassificationNumber": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "classificationNumberProcessor",
+      "searchTermProcessor": "classificationNumberSearchTermProcessor"
     }
   },
   "mappingsSource": {

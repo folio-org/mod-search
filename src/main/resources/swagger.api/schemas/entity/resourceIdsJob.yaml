@@ -1,0 +1,31 @@
+type: object
+description: "Job for the stream of entity ids."
+properties:
+  id:
+    type: string
+    description: "Unique ID for the job record."
+  query:
+    type: string
+    description: "CQL query for getting ids."
+  status:
+    type: string
+    description: "Ids streaming status."
+    enum:
+      - "IN_PROGRESS"
+      - "ERROR"
+      - "COMPLETED"
+      - "DEPRECATED"
+  entityType:
+    type: string
+    description: "Type of entity for streaming ids."
+    enum:
+      - "INSTANCE"
+      - "AUTHORITY"
+      - "HOLDINGS"
+  createdDate:
+    description: "Date and time when the record was created."
+    type: string
+additionalProperties: false
+required:
+  - query
+  - entityType

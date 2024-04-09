@@ -19,7 +19,7 @@ name: api-doc
 env:
   API_TYPES: 'OAS'
   API_DIRECTORIES: 'src/main/resources/swagger.api'
-  API_EXCLUDES: ''
+  API_EXCLUDES: 'paths responses'
   OUTPUT_DIR: 'folio-api-docs'
   AWS_S3_BUCKET: 'foliodocs'
   AWS_S3_FOLDER: 'api'

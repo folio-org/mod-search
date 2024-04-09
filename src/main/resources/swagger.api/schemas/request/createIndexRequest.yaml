@@ -1,0 +1,9 @@
+type: object
+description: Request body to create Elasticsearch index
+properties:
+  resourceName:
+    type: string
+    description: Name of resource
+additionalProperties: false
+required:
+  - resourceName

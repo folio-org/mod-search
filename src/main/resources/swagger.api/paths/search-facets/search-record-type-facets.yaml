@@ -1,0 +1,23 @@
+get:
+  operationId: getFacets
+  description: Provides list of facets for the record type
+  tags:
+    - facets
+  parameters:
+    - $ref: '../../parameters/record-type.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/facet-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: 'Facet search result'
+      content:
+        application/json:
+          example:
+            $ref: '../../examples/result/facetResult.yaml'
+          schema:
+            $ref: '../../schemas/response/facetResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

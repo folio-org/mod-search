@@ -1,0 +1,25 @@
+get:
+  operationId: searchAuthorities
+  description: Get a list of authorities for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/expand-all-param.yaml'
+    - $ref: '../../parameters/include-number-of-titles.yaml'
+  responses:
+    '200':
+      description: 'Authorities search result'
+      content:
+        application/json:
+          example:
+            $ref: '../../examples/result/searchResult.yaml'
+          schema:
+            $ref: '../../schemas/response/authoritySearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

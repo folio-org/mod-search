@@ -412,7 +412,8 @@
             "inventory-storage.inventory-view.instances.collection.get",
             "inventory-storage.identifier-types.collection.get",
             "inventory-storage.alternative-title-types.collection.get",
-            "instance-authority-links.authorities.bulk.post"
+            "instance-authority-links.authorities.bulk.post",
+            "inventory-storage.locations.collection.get"
           ]
         },
         {

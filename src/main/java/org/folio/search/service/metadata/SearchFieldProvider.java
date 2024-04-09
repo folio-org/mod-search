@@ -64,6 +64,15 @@ public interface SearchFieldProvider {
   boolean isMultilangField(String resourceName, String path);
 
   /**
+   * Checks if field by path is full-text or not.
+   *
+   * @param resourceName resource name as {@link String} object
+   * @param path         path to the field as {@link String} object
+   * @return true if field by path is full-text, false - otherwise
+   */
+  boolean isFullTextField(String resourceName, String path);
+
+  /**
    * Apply resource field modifiers for field.
    *
    * @param field    that should be modified {@link String} object

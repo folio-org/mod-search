@@ -276,6 +276,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | SEARCH_QUERY_TIMEOUT                               | 25s                                                        | The maximum time to wait for search query response                                                                                                                                    |
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
+| REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -331,7 +332,8 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`
+* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `locations`
+  Please note that `locations` reindex is synchronous
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.

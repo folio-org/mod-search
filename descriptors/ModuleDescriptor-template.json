@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "0.6",
+      "version": "0.7",
       "handlers": [
         {
           "methods": [
@@ -56,7 +56,8 @@
           "modulePermissions": [
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
-            "user-tenants.collection.get"
+            "user-tenants.collection.get",
+            "inventory-storage.locations.collection.get"
           ]
         },
         {
@@ -474,6 +475,10 @@
     {
       "id": "classification-types",
       "version": "1.2"
+    },
+    {
+      "id": "locations",
+      "version": "3.0"
     }
   ],
   "permissionSets": [
@@ -937,6 +942,11 @@
         "name": "MAX_BROWSE_REQUEST_OFFSET",
         "value": "500",
         "description": "The maximum elasticsearch query offset for additional requests on browse around"
+      },
+      {
+        "name": "REINDEX_LOCATION_BATCH_SIZE",
+        "value": "1000",
+        "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
       }
     ]
   }

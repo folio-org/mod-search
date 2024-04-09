@@ -11,10 +11,13 @@
   "analysis": {
     "normalizer": {
       "keyword_lowercase": {
-        "filter": [ "lowercase" ],
+        "filter": [
+          "lowercase",
+          "icu_folding"
+        ],
         "type": "custom"
       }
     },
-    "tokenizers": { }
+    "tokenizers": {}
   }
 }

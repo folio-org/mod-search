@@ -5,16 +5,27 @@
     "refresh_interval": "1s",
     "codec": "best_compression",
     "mapping.total_fields.limit": 1000,
-    "sort.field": [ "name", "contributorNameTypeId", "authorityId" ],
-    "sort.order": [ "asc", "asc", "asc" ]
+    "sort.field": [
+      "name",
+      "contributorNameTypeId",
+      "authorityId"
+    ],
+    "sort.order": [
+      "asc",
+      "asc",
+      "asc"
+    ]
   },
   "analysis": {
     "normalizer": {
       "keyword_lowercase": {
-        "filter": [ "lowercase" ],
+        "filter": [
+          "lowercase",
+          "icu_folding"
+        ],
         "type": "custom"
       }
     },
-    "tokenizers": { }
+    "tokenizers": {}
   }
 }

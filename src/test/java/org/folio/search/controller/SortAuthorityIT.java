@@ -37,18 +37,18 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingRef", is("111")))
       .andExpect(jsonPath("authorities[1].headingRef", is("aaa")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("bbb")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("ccc")))
-      .andExpect(jsonPath("authorities[4].headingRef", is("ddd")));
+      .andExpect(jsonPath("authorities[2].headingRef", is("ccc")))
+      .andExpect(jsonPath("authorities[3].headingRef", is("ŚŚŚ")))
+      .andExpect(jsonPath("authorities[4].headingRef", is("zzz")));
   }
 
   @Test
   void canSortAuthoritiesByHeadingRef_desc() throws Exception {
     doSearchByAuthorities(allRecordsSortedBy("headingRef", DESCENDING))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].headingRef", is("ddd")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("ccc")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("bbb")))
+      .andExpect(jsonPath("authorities[0].headingRef", is("zzz")))
+      .andExpect(jsonPath("authorities[1].headingRef", is("ŚŚŚ")))
+      .andExpect(jsonPath("authorities[2].headingRef", is("ccc")))
       .andExpect(jsonPath("authorities[3].headingRef", is("aaa")))
       .andExpect(jsonPath("authorities[4].headingRef", is("111")));
   }
@@ -64,7 +64,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("authorities[2].headingRef", is("111")))
 
       .andExpect(jsonPath("authorities[3].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("ddd")))
+      .andExpect(jsonPath("authorities[3].headingRef", is("zzz")))
 
       .andExpect(jsonPath("authorities[4].headingType", is("Uniform Title")));
   }
@@ -76,7 +76,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("authorities[0].headingType", is("Uniform Title")))
 
       .andExpect(jsonPath("authorities[1].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("ddd")))
+      .andExpect(jsonPath("authorities[1].headingRef", is("zzz")))
 
       .andExpect(jsonPath("authorities[2].headingType", is("Personal Name")))
       .andExpect(jsonPath("authorities[2].headingRef", is("111")))
@@ -98,7 +98,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("authorities[2].headingRef", is("aaa")))
 
       .andExpect(jsonPath("authorities[3].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("ddd")))
+      .andExpect(jsonPath("authorities[3].headingRef", is("zzz")))
 
       .andExpect(jsonPath("authorities[4].authRefType", is("Reference")));
   }
@@ -110,7 +110,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("authorities[0].authRefType", is("Reference")))
 
       .andExpect(jsonPath("authorities[1].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("ddd")))
+      .andExpect(jsonPath("authorities[1].headingRef", is("zzz")))
 
       .andExpect(jsonPath("authorities[2].authRefType", is("Authorized")))
       .andExpect(jsonPath("authorities[2].headingRef", is("aaa")))
@@ -144,13 +144,13 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .corporateName("aaa");
 
     authorities[2]
-      .sftUniformTitle(Collections.singletonList("bbb"));
+      .sftUniformTitle(Collections.singletonList("ŚŚŚ"));
 
     authorities[3]
       .saftGenreTerm(Collections.singletonList("ccc"));
 
     authorities[4]
-      .personalName("ddd");
+      .personalName("zzz");
 
     return authorities;
   }

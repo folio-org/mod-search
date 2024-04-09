@@ -8,6 +8,7 @@
 
 ### Features
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
+* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
 
 ### Bug fixes
 * Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))

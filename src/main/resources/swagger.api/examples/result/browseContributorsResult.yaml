@@ -1,0 +1,38 @@
+totalRecords: 5
+next: Paul McCartney
+items:
+  - name: Anthony Kiedis
+    contributorTypeId:
+      - "2a165833-1673-493f-934b-f3d3c8fcb299"
+    contributorNameTypeId: "e2ef4075-310a-4447-a231-712bf10cc985"
+    authorityId: "7ff32633-cc49-4332-870a-b05e329d2a2d"
+    isAnchor: false
+    totalRecords: 1
+  - name: Bon Jovi
+    contributorTypeId:
+      - "2a165833-1673-493f-934b-f3d3c8fcb299"
+      - "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+      - "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+    contributorNameTypeId: "e2ef4075-310a-4447-a231-712bf10cc985"
+    authorityId: "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+    isAnchor: false
+    totalRecords: 2
+  - name: John Lennon
+    isAnchor: true
+    totalRecords: 0
+  - name: Klaus Meine
+    contributorTypeId:
+      - "2a165833-1673-493f-934b-f3d3c8fcb299"
+      - "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+    contributorNameTypeId: "e2ef4075-310a-4447-a231-712bf10cc985"
+    authorityId: "7ff32633-cc49-4332-870a-b05e329d2a2d"
+    isAnchor: false
+    totalRecords: 2
+  - name: Paul McCartney
+    contributorTypeId:
+      - "2a165833-1673-493f-934b-f3d3c8fcb299"
+      - "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+    contributorNameTypeId: "e2ef4075-310a-4447-a231-712bf10cc985"
+    authorityId: "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+    isAnchor: false
+    totalRecords: 2

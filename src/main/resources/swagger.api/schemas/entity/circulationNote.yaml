@@ -1,0 +1,10 @@
+description: "Circulations note for item"
+type: object
+properties:
+  note:
+    type: string
+    description: "Text to display"
+  staffOnly:
+    type: boolean
+    description: "Flag to restrict display of this note"
+    default: false

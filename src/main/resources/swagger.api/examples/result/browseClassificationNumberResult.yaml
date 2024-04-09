@@ -1,0 +1,12 @@
+totalRecords: 2
+prev: "string"
+next: "string"
+items:
+  - classificationNumber: "QA76.73.C15"
+    classificationTypeId: "LC"
+    isAnchor: true
+    totalRecords: 10
+  - classificationNumber: "TK5105.88815"
+    classificationTypeId: "DDC"
+    isAnchor: false
+    totalRecords: 5

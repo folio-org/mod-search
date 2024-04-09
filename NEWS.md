@@ -65,6 +65,7 @@
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
 * Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
+* Clean up API documentation to enable checking of the request/response bodies samples([MSEARCH-546](https://issues.folio.org/browse/MSEARCH-546))
 
 ### Dependencies
 * Bump `spring-boot` from `3.1.5` to `3.2.3`

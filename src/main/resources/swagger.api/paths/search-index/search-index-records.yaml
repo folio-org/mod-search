@@ -1,0 +1,24 @@
+post:
+  operationId: indexRecords
+  description: Indexes the records into elasticsearch.
+  tags:
+    - index-management
+  requestBody:
+    content:
+      application/json:
+        example:
+          $ref: '../../examples/request/indexRecordRequestBody.yaml'
+        schema:
+          $ref: '../../schemas/request/indexRecordRequest.yaml'
+  responses:
+    '200':
+      description: Response with created indices and status (error message will be present if operation failed)
+      content:
+        application/json:
+          examples:
+            indexRecordResponse:
+              $ref: '../../examples/response/indexRecordResponse.yaml'
+          schema:
+            $ref: '../../schemas/response/folioIndexOperationResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

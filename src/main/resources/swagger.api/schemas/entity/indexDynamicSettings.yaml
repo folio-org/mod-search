@@ -1,0 +1,13 @@
+description: Elasticsearch/Opensearch index dynamic settings
+type: object
+properties:
+  numberOfReplicas:
+    type: integer
+    description: The number of replicas each primary shard has.
+    minimum: 1
+    maximum: 100
+  refreshInterval:
+    type: integer
+    description: How often to make new changes to the index visible to search (seconds). '-1' disables refresh.
+    minimum: -1
+    maximum: 3600

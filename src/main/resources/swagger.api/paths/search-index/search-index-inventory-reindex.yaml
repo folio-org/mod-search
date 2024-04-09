@@ -1,0 +1,23 @@
+post:
+  operationId: reindexInventoryRecords
+  description: Initiates reindex for the inventory records
+  tags:
+    - index-management
+  requestBody:
+    content:
+      application/json:
+        example:
+          $ref: '../../examples/request/reindexRequest.yaml'
+        schema:
+          $ref: '../../schemas/request/reindexRequest.yaml'
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Reindex operation has been started
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/reindexJob.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

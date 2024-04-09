@@ -4,7 +4,8 @@ import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
-import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -155,18 +155,16 @@ class SearchTenantServiceTest {
   }
 
   @Test
-  void shouldRunReindexOnTenantParamPresentForResourcesThatSupportsReindex() {
-    var resourceDescription = secondaryResourceDescription("secondary", RESOURCE_NAME);
+  void shouldFailToRunReindexOnSupportsReindexParamPresentButNotSupportedByApi() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME, "secondary"));
     when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
-    when(resourceDescriptionService.get("secondary")).thenReturn(resourceDescription);
     var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindex").value("true"));
 
-    searchTenantService.afterTenantUpdate(attributes);
+    var ex = assertThrows(IllegalArgumentException.class, () -> searchTenantService.afterTenantUpdate(attributes));
 
-    verify(indexService).reindexInventory(TENANT_ID, new ReindexRequest().resourceName(RESOURCE_NAME));
-    verify(indexService, never()).reindexInventory(TENANT_ID, new ReindexRequest().resourceName("secondary"));
+    assertEquals("Unexpected value '%s'".formatted(RESOURCE_NAME), ex.getMessage());
+    verify(indexService, never()).reindexInventory(any(), any());
   }
 
   @Test

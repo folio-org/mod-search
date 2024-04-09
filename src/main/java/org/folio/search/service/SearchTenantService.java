@@ -171,7 +171,8 @@ public class SearchTenantService extends TenantService {
       .findFirst()
       .ifPresent(parameter -> resourceNames.forEach(resource -> {
         if (resourceDescriptionService.get(resource).isReindexSupported()) {
-          indexService.reindexInventory(context.getTenantId(), new ReindexRequest().resourceName(resource));
+          indexService.reindexInventory(context.getTenantId(),
+            new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource)));
         }
       }));
   }

@@ -180,6 +180,10 @@ public abstract class BaseIntegrationTest {
     return searchResponse.getHits().getTotalHits().value;
   }
 
+  protected static long countDefaultIndexDocument(String resource) throws IOException {
+    return countIndexDocument(resource, TENANT_ID);
+  }
+
   protected static void cleanUpIndex(String resource, String tenantId) throws IOException {
     var request = new DeleteByQueryRequest(getIndexName(resource, tenantId));
     request.setQuery(matchAllQuery());

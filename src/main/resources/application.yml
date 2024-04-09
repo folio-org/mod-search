@@ -72,7 +72,8 @@ folio:
       instance-contributors:
         retry-attempts: ${INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS:3}
       data-format: ${INDEXING_DATA_FORMAT:smile}
-
+  reindex:
+    location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

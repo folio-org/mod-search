@@ -237,6 +237,18 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("classifications.classificationNumber=={value}", "025.04"),
       arguments("classifications.classificationNumber=={value}", "025*"),
 
+      // search by normalized classification number
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691 .I5 1967"),
+      arguments("normalizedClassificationNumber==\"{value}\"", "hd1691 .I5 1967"), // Case sensitivity
+      arguments("normalizedClassificationNumber==\"{value}\"", "*1691 .I5 1967"), // Leading wildcard
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691*"), // Trailing wildcard
+      arguments("normalizedClassificationNumber==\"{value}\"", "*1691*"), // Leading and trailing wildcard
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691.I51967"), // Spaces internal
+      arguments("normalizedClassificationNumber==\"{value}\"", "  HD1691 .I5 1967"), // Spaces leading
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691 .I5 1967   "), // Spaces trailing
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691 I5 1967"), // Special characters
+      arguments("normalizedClassificationNumber==\"{value}\"", "HD1691I51967"), // Special characters and spaces
+
       arguments("electronicAccess.uri==\"{value}\"", "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"),
       arguments("electronicAccess.linkText all {value}", "access"),
       arguments("electronicAccess.publicNote all {value}", "online"),

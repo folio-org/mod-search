@@ -35,7 +35,7 @@
     </sonar.exclusions>
 
     <folio-spring-support.version>8.1.0</folio-spring-support.version>
-    <folio-service-tools.version>4.0.0</folio-service-tools.version>
+    <folio-service-tools.version>4.0.1</folio-service-tools.version>
     <folio-isbn-utils.version>1.6.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.2.0</folio-cql2pgjson.version>
     <opensearch.version>2.12.0</opensearch.version>

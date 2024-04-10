@@ -1,3 +1,9 @@
+## v3.0.9 2024-04-10
+### Bug fixes
+* Do not delete kafka topics if tenant collection topic feature is enabled ([MSEARCH-725](https://issues.folio.org/browse/MSEARCH-725))
+
+---
+
 ## v3.0.8 2024-04-04
 ### Bug fixes
 * Fix browsing in one direction by shelving order ([MSEARCH-704](https://issues.folio.org/browse/MSEARCH-704))

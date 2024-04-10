@@ -35,8 +35,10 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "Cooperative information systems",
     "0262012103",
     "2003065165",
+    "Cambridge, Mass.",
     "Antoniou, Grigoris matthew",
     "TK5105.88815 .A58 2004",
+    "Antoniou matthew",
     "Cambridge, Mass.",
 
     // holding field values

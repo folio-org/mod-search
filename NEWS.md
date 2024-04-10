@@ -1,3 +1,9 @@
+## v3.2.3 2024-04-23
+### Bug fixes
+* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+
+---
+
 ## v3.2.2 2024-04-10
 ### Bug fixes
 * Do not delete kafka topics if tenant collection topic feature is enabled ([MSEARCH-725](https://issues.folio.org/browse/MSEARCH-725))

@@ -117,6 +117,11 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
+  public boolean isFullTextField(String resourceName, String path) {
+    return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::hasFulltextIndex).isPresent();
+  }
+
+  @Override
   public String getModifiedField(String field, String resource) {
     var queryWrapper = new Object() {
       String value = field;

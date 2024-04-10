@@ -74,7 +74,7 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
   @SuppressWarnings("unchecked")
   private void collectFieldValuesFromEventBody(String path, MultilangValue ctx, Object v, Predicate<String> filter) {
     if (v instanceof String) {
-      ctx.addValue(StringUtils.strip((String) v), searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, path));
+      ctx.addValue(StringUtils.strip((String) v), searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, path));
     }
 
     if (v instanceof Collection<?>) {

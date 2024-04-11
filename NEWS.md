@@ -1,23 +1,23 @@
 ## v3.3.0 YYYY-mm-DD
 ### Breaking changes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))
 
 ### New APIs versions
 * Provides `indices v0.7`
 * Requires `locations v3.0`
 
 ### Features
-* Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
-* Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
-* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
-* Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://issues.folio.org/browse/MSEARCH-697))
-* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+* Create location index and process location events ([MSEARCH-703](https://folio-org.atlassian.net/browse/MSEARCH-703))
+* Implement reindexing of locations ([MSEARCH-702](https://folio-org.atlassian.net/browse/MSEARCH-702))
+* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://folio-org.atlassian.net/browse/MSEARCH-690))
+* Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://folio-org.atlassian.net/browse/MSEARCH-697))
+* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://folio-org.atlassian.net/browse/MSEARCH-606))
 
 ### Bug fixes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
 
 ### Tech Dept
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

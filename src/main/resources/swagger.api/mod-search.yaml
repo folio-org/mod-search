@@ -38,6 +38,9 @@ paths:
   /search/consortium/items:
     $ref: 'paths/search-consortium/search-consortium-items.yaml'
 
+  /search/consortium/locations:
+    $ref: 'paths/search-consortium/search-consortium-locations.yaml'
+
   /search/index/indices:
     $ref: 'paths/search-index/search-index-indices.yaml'
 
@@ -146,6 +149,8 @@ components:
       $ref: 'parameters/sort-by-holdings-param.yaml'
     sort-by-item-param:
       $ref: 'parameters/sort-by-item-param.yaml'
+    sort-by-location-name-param:
+      $ref: 'parameters/sort-by-location-name-param.yaml'
     sort-order-param:
       in: query
       name: sortOrder

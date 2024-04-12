@@ -1,0 +1,11 @@
+type: object
+properties:
+  id:
+    description: Location ID
+    type: string
+  name:
+      description: Location name
+      type: string
+  tenantId:
+    description: Tenant ID of the Location
+    type: string

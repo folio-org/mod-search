@@ -1,0 +1,8 @@
+type: object
+properties:
+  locations:
+    type: array
+    items:
+      $ref: './location.yaml'
+  totalRecords:
+    type: integer

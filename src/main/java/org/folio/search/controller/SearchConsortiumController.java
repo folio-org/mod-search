@@ -3,12 +3,17 @@ package org.folio.search.controller;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
+import org.folio.search.domain.dto.ConsortiumLocationCollection;
+import org.folio.search.domain.dto.Location;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.ConsortiumSearchContext;
+import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchConsortiumApi;
+import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumLocationService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +32,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
   private final ConsortiumTenantService consortiumTenantService;
   private final ConsortiumInstanceService instanceService;
+  private final ConsortiumLocationService locationService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
@@ -61,6 +67,22 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .sortOrder(sortOrder)
       .build();
     return ResponseEntity.ok(instanceService.fetchItems(context));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumLocationCollection> getConsortiumLocations(String tenantHeader,
+                                                                             String tenantId,
+                                                                             Integer limit,
+                                                                             Integer offset,
+                                                                             String sortBy,
+                                                                             SortOrder sortOrder) {
+    checkAllowance(tenantHeader);
+
+    var result = locationService.fetchLocations(tenantId, limit, offset, sortBy, sortOrder);
+    return ResponseEntity.ok(new
+      ConsortiumLocationCollection()
+      .locations(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
   }
 
   private void checkAllowance(String tenantHeader) {

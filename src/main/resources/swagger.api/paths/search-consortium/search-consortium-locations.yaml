@@ -1,0 +1,23 @@
+get:
+  operationId: getConsortiumLocations
+  description: Get a list of locations (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/tenant-id-query-param.yaml'
+    - $ref: '../../parameters/consortium-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/sort-by-location-name-param.yaml'
+    - $ref: '../../parameters/sort-order-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: List of locations
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumLocationCollection.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

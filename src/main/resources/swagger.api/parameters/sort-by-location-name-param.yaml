@@ -1,0 +1,6 @@
+in: query
+name: sortBy
+description: Defines a field to sort by location name.
+required: false
+schema:
+  type: string

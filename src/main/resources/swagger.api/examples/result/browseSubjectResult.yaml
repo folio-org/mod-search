@@ -1,16 +1,17 @@
-totalRecords: 3
-prev: "string"
-next: "string"
-items:
-  - value: "Biology"
-    isAnchor: true
-    totalRecords: 5
-    authorityId: "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f"
-  - value: "Chemistry"
-    isAnchor: false
-    totalRecords: 5
-    authorityId: "11110000-fcf6-45cc-b6da-4420a61ef72c"
-  - value: "Physics"
-    isAnchor: false
-    totalRecords: 5
-    authorityId: "5fab345a-30a4-4aee-8667-1e33d4627ce9"
+value:
+  totalRecords: 10
+  prev: "Biology"
+  next: "Physics"
+  items:
+    - value: "Biology"
+      isAnchor: true
+      totalRecords: 5
+      authorityId: "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f"
+    - value: "Chemistry"
+      isAnchor: false
+      totalRecords: 5
+      authorityId: "11110000-fcf6-45cc-b6da-4420a61ef72c"
+    - value: "Physics"
+      isAnchor: false
+      totalRecords: 5
+      authorityId: "5fab345a-30a4-4aee-8667-1e33d4627ce9"

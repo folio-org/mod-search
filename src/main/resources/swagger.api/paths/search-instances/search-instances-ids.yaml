@@ -1,6 +1,8 @@
 get:
   operationId: getInstanceIds
+  summary: Get Instance IDs
   description: Get a list of instance ids for CQL query
+  deprecated: true
   tags:
     - search-resources-ids
   parameters:
@@ -12,11 +14,13 @@ get:
       description: 'Instance ids as json stream'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/InstanceIdsResult.yaml'
+          examples:
+            InstanceIdsResult:
+              $ref: '../../examples/result/InstanceIdsResult.yaml'
         application/text:
-          example:
-            $ref: '../../examples/result/IdsTextResult.yaml'
+          examples:
+            IdsTextResult:
+              $ref: '../../examples/result/IdsTextResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

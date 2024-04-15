@@ -1,5 +1,6 @@
 post:
   operationId: createIndices
+  summary: Create Index
   description: Creates indices for passed resource name and tenant id in request header.
   tags:
     - index-management
@@ -20,6 +21,9 @@ post:
         application/json:
           schema:
             $ref: '../../schemas/response/folioCreateIndexResponse.yaml'
+          examples:
+            indexOperationResponse:
+              $ref: '../../examples/response/indexOperationResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

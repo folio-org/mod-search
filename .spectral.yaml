@@ -1,0 +1,157 @@
+extends: [ "spectral:oas" ]
+aliases:
+  PathItem:
+    description: ''
+    targets:
+      - formats:
+          - oas2
+        given:
+          - "$.paths[*]"
+      - formats:
+          - oas3
+        given:
+          - "$.paths[*]"
+  OperationObject:
+    description: 'The complete operation object. Use it in combo with field object.'
+    targets:
+      - formats:
+          - oas2
+        given:
+          - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+      - formats:
+          - oas3
+        given:
+          - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+  DescribableObjects:
+    description: ''
+    targets:
+      - formats:
+          - oas2
+        given:
+          - "$.info"
+          - "$.tags[*]"
+          - "#OperationObject"
+          - "$.paths[*][*].responses[*]"
+          - "$..parameters[?(@ && @.in)]"
+          - "$.definitions[*]"
+      - formats:
+          - oas3
+        given:
+          - "$.info"
+          - "$.tags[*]"
+          - "#OperationObject"
+          - "$.paths[*][*].responses[*]"
+          - "$..parameters[?(@ && @.in)]"
+          - "$.components.schemas[*]"
+          - "$.servers[*]"
+  MediaTypeObjects:
+    description: ''
+    targets:
+      - formats:
+          - oas2
+        given:
+          - $.paths[*][*]..parameters[?(@ && @.in == "body")]
+          - "$.paths[*][*].responses[*]"
+      - formats:
+          - oas3
+        given:
+          - "$.paths[*][*].requestBody.content[*]"
+          - "$.paths[*][*].responses[*].content[*]"
+rules:
+  docs-descriptions:
+    given:
+      - "#DescribableObjects"
+    severity: warn
+    then:
+      - function: truthy
+        field: description
+      - function: length
+        functionOptions:
+          min: 10
+        field: description
+      - function: pattern
+        functionOptions:
+          match: "/^[A-Z]/"
+        field: description
+    description: "Descriptions should be provided for describable objects, such as `info`, `tags`, `operations`, `parameters`, and more."
+    message: "{{error}}."
+  docs-info-contact:
+    given:
+      - "$"
+    severity: warn
+    then:
+      function: truthy
+      field: info.contact
+    description: "`Info` object should include contact information."
+  docs-parameters-examples-or-schema:
+    given:
+      - "$.paths.parameters[*]"
+    severity: error
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          allOf:
+            - required:
+                - examples
+            - required:
+                - schema
+    description: "Path parameter must contain a defined schema or examples."
+    message: No example or schema provided for {{property}}
+    formats:
+      - oas3
+  docs-summary:
+    given:
+      - "#PathItem[*]"
+    severity: error
+    then:
+      - function: truthy
+        field: summary
+    description: "Path parameter must contain a defined schema or examples."
+    message: No summary provided for {{property}}
+    formats:
+      - oas3
+  docs-media-types-examples-or-schema:
+    given:
+      - "#MediaTypeObjects"
+    severity: error
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          allOf:
+            - required:
+                - examples
+            - required:
+                - schema
+    description: "Media object must contain a defined schema or examples."
+    message: No example or schema provided for {{property}}
+    formats:
+      - oas3
+  docs-tags-alphabetical:
+    given:
+      - "$"
+    severity: warn
+    then:
+      function: alphabetical
+      functionOptions:
+        keyedBy: name
+      field: tags
+    description: "Tags are not in alphabetical order."
+    message: Tags should be defined in alphabetical order
+  docs-operation-tags:
+    given:
+      - "#OperationObject"
+    severity: warn
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          minItems: 1
+      field: tags
+    description: "Operation must have at least one tag."
+    message: Operation should have non-empty `tags` array.
+

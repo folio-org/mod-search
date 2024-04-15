@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.ReferenceDataService;
 
 public abstract class AbstractLccnProcessor<T> extends AbstractIdentifierProcessor<T> {
@@ -28,5 +28,5 @@ public abstract class AbstractLccnProcessor<T> extends AbstractIdentifierProcess
       .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  protected abstract List<Identifiers> getIdentifiers(T entity);
+  protected abstract List<Identifier> getIdentifiers(T entity);
 }

@@ -1,5 +1,6 @@
 get:
   operationId: getConsortiumHoldings
+  summary: Get Consolidated Holdings
   description: Get a list of holdings (only for consortium environment)
   tags:
     - search-consortium
@@ -18,6 +19,9 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/entity/consortiumHoldingCollection.yaml'
+          examples:
+            consortiumHoldingsCollectionResponse:
+              $ref: '../../examples/response/consortiumHoldingsCollectionResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

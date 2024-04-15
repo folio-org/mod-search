@@ -1,5 +1,6 @@
 get:
   operationId: getResourceIds
+  summary: Get Resource IDs
   description: Get a list of resource ids by job id
   tags:
     - search-resources-ids
@@ -11,8 +12,9 @@ get:
       description: 'Resources ids as a json stream'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/resourceIdsResult.yaml'
+          examples:
+            idsResponse:
+              $ref: '../../examples/result/resourceIdsResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

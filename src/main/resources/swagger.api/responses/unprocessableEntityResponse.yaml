@@ -3,3 +3,6 @@ content:
   application/json:
     schema:
       $ref: '../schemas/response/errorResponse.yaml'
+    examples:
+      response:
+        $ref: '../examples/response/validationErrorResponse.yaml'

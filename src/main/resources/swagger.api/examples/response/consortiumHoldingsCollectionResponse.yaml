@@ -1,0 +1,19 @@
+value:
+  holdings:
+    - id: 68ec4438-8b93-46df-8c36-232db4f7862e
+      hrid: ho00231
+      tenantId: college
+      instanceId: 1af42087-458d-4777-a797-a7717020ab18
+      discoverySuppress: false
+      callNumberPrefix: int
+      callNumber: MS 33.123
+      callNumberSuffix: pro
+      copyNumber: c10
+      permanentLocationId: e18610eb-0842-4dac-bd6a-23e6ef962230
+    - id: b6993450-25c1-4c23-a1d1-98abb67fb506
+      hrid: ho00333
+      tenantId: university
+      instanceId: 1af42087-458d-4777-a797-a7717020ab18
+      discoverySuppress: true
+      permanentLocationId: e18610eb-0842-4dac-bd6a-23e6ef962230
+  totalRecords: 1203

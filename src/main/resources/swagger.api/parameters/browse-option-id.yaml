@@ -3,8 +3,4 @@ in: path
 required: true
 description: 'Browse option type'
 schema:
-  type: string
-  enum:
-    - all
-    - lc
-    - dewey
+  $ref: '../schemas/entity/browseOptionType.yaml'

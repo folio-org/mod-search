@@ -1,5 +1,6 @@
 get:
   operationId: searchAuthorities
+  summary: Search Authorities
   description: Get a list of authorities for CQL query
   tags:
     - search
@@ -15,10 +16,11 @@ get:
       description: 'Authorities search result'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/searchResult.yaml'
           schema:
             $ref: '../../schemas/response/authoritySearchResult.yaml'
+          examples:
+            searchResult:
+              $ref: '../../examples/result/authoritySearchResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

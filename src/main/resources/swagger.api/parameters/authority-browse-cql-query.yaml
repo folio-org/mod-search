@@ -1,0 +1,93 @@
+name: query
+in: query
+required: true
+description: |
+  A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `headingRef`.
+  Filters support logic operators `AND` and `OR`. All filters should be combined in parentheses.
+  Anchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
+  <table>
+    <caption>
+        Supported filter options
+    </caption>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Data type</th>
+        <th>Supported operators</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>tenantId</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by tenant ID in consortium</td>
+    </tr>
+    <tr>
+        <td>shared</td>
+        <td>boolean</td>
+        <td>==</td>
+        <td>Filter by shared/non-shared in consortium</td>
+    </tr>
+    <tr>
+        <td>sourceFileId</td>
+        <td>uuid</td>
+        <td>==</td>
+        <td>Filter by authority source file ID. `NULL` value to filter by non-specified.</td>
+    </tr>
+    <tr>
+        <td>headingType</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by heading type: `Personal Name`, `Corporate Name`, `Conference Name`, `Geographic Name`, `Uniform
+            Title`, `Topical`, `Genre`
+        </td>
+    </tr>
+    <tr>
+        <td>isTitleHeadingRef</td>
+        <td>boolean</td>
+        <td>==</td>
+        <td>Filter title/non-title heading</td>
+    </tr>
+    <tr>
+        <td>authRefType</td>
+        <td>boolean</td>
+        <td>==</td>
+        <td>Filter by reference type: `Authorized`, `Reference`, `Auth/Ref`</td>
+    </tr>
+    <tr>
+        <td>subjectHeadings</td>
+        <td>char</td>
+        <td>==</td>
+        <td>Filter by subject heading code</td>
+    </tr>
+    <tr>
+        <td>metadata.createdDate</td>
+        <td>date</td>
+        <td>==, >, <, <=, >=</td>
+        <td>Filter by authority create date</td>
+    </tr>
+    <tr>
+        <td>metadata.updatedDate</td>
+        <td>date</td>
+        <td>==, >, <, <=, >=</td>
+        <td>Filter by authority update date</td>
+    </tr>
+    </tbody>
+  </table>
+schema:
+  type: string
+examples:
+  browseAround:
+    value: headingRef >= "Comic-Con" or headingRef < "Comic-Con"
+    summary: Search for all authority headings before and after "Comic-Con"
+  browseForward:
+    value: headingRef >= "Comic-Con"
+    summary: Search for all authority headings after "Comic-Con"
+  browseBackward:
+    value: headingRef >= "Comic-Con"
+    summary: Search for all authority headings before "Comic-Con"
+  browseAroundWithFilters:
+    value: (headingRef >= "Comic-Con" or headingRef < "Comic-Con") and authRefType==("Authorized" or "Auth/Ref") and headingType=="Personal Name"
+    summary: Search for "Authorized" or "Auth/Ref" personal name authority headings before and after "Comic-Con"

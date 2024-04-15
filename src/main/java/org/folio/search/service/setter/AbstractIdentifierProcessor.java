@@ -11,7 +11,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
 
@@ -29,12 +29,12 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
    * @param identifiers event body as map to process
    * @return {@link Set} of filtered identifiers value
    */
-  protected Set<String> filterIdentifiersValue(List<Identifiers> identifiers) {
+  protected Set<String> filterIdentifiersValue(List<Identifier> identifiers) {
     var identifierTypeIds = fetchIdentifierIdsFromCache();
 
     return toStreamSafe(identifiers)
       .filter(identifier -> identifierTypeIds.contains(identifier.getIdentifierTypeId()))
-      .map(Identifiers::getValue)
+      .map(Identifier::getValue)
       .filter(Objects::nonNull)
       .map(String::trim)
       .collect(toCollection(LinkedHashSet::new));

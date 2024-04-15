@@ -1,5 +1,6 @@
 put:
   operationId: updateLanguageConfig
+  summary: Update Language Configuration
   description: Update language config settings
   tags:
     - config
@@ -10,6 +11,11 @@ put:
       application/json:
         schema:
           $ref: '../../schemas/entity/languageConfig.yaml'
+        examples:
+          updateLanguageConfigRequest:
+            value:
+              code: eng
+              languageAnalyzer: eng-analyzer
   responses:
     '200':
       description: Language support has been added.
@@ -17,10 +23,16 @@ put:
         application/json:
           schema:
             $ref: '../../schemas/entity/languageConfig.yaml'
+          examples:
+            updateLanguageConfigResponse:
+              value:
+                code: eng
+                languageAnalyzer: eng-analyzer
     '422':
       $ref: '../../responses/unprocessableEntityResponse.yaml'
 delete:
   operationId: deleteLanguageConfig
+  summary: Delete Language Configuration
   description: Delete all supported languages
   tags:
     - config

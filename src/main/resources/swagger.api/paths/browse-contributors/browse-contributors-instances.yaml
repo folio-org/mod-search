@@ -1,10 +1,11 @@
 get:
   operationId: browseInstancesByContributor
+  summary: Browse Instance Contributors
   description: Provides list of instances for browsing by contributor
   tags:
     - browse
   parameters:
-    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/instance-contributors-browse-cql-query.yaml'
     - $ref: '../../parameters/limit-param.yaml'
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
     - $ref: '../../parameters/highlight-match.yaml'
@@ -14,8 +15,9 @@ get:
       description: 'Search result for browsing by contributor'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/browseContributorsResult.yaml'
+          examples:
+            browseResult:
+              $ref: '../../examples/result/browseContributorsResult.yaml'
           schema:
             $ref: '../../schemas/response/contributorBrowseResult.yaml'
     '400':

@@ -1,5 +1,6 @@
 get:
   operationId: getFacets
+  summary: Get Facets
   description: Provides list of facets for the record type
   tags:
     - facets
@@ -13,8 +14,9 @@ get:
       description: 'Facet search result'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/facetResult.yaml'
+          examples:
+            facetResult:
+              $ref: '../../examples/result/facetResult.yaml'
           schema:
             $ref: '../../schemas/response/facetResult.yaml'
     '400':

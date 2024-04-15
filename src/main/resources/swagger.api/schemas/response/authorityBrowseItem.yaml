@@ -1,9 +1,8 @@
-description: Call-number browse search result item
+description: Authority browse result item
 type: object
 properties:
   authority:
-    description: Related authority object
-    $ref: '../../schemas/entity/authority.yaml'
+    $ref: '../../schemas/dto/authority/authority.yaml'
   headingRef:
     type: string
     description: The heading/reference of the record that provides authority information for authority browse item

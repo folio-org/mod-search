@@ -1,0 +1,18 @@
+value:
+  instances:
+    - id: "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f"
+      tenantId: "tenant"
+      shared: false
+      title: "Bilingualism: a bibliography of 1000 references with special reference to Wales."
+      contributors:
+        - name: "Eichhorst, Georg."
+          contributorTypeId: "a"
+          authorityId: "a"
+          primary: true
+      publication:
+        - publisher: "Duncker und Humblot"
+          dateOfPublication: "1976"
+      staffSuppress: false
+      discoverySuppress: false
+      isBoundWith: false
+  totalRecords: 1

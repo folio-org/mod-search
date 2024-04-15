@@ -1,5 +1,6 @@
 post:
   operationId: createLanguageConfig
+  summary: Create Language Configuration
   description: Save languages that will be used for analyzers
   tags:
     - config
@@ -8,6 +9,11 @@ post:
       application/json:
         schema:
           $ref: '../../schemas/entity/languageConfig.yaml'
+        examples:
+          createLanguageConfigRequest:
+            value:
+              code: eng
+              languageAnalyzer: eng-analyzer
   responses:
     '200':
       description: Language support has been added.
@@ -15,10 +21,16 @@ post:
         application/json:
           schema:
             $ref: '../../schemas/entity/languageConfig.yaml'
+          examples:
+            createLanguageConfigResponse:
+              value:
+                code: eng
+                languageAnalyzer: eng-analyzer
     '422':
       $ref: '../../responses/unprocessableEntityResponse.yaml'
 get:
   operationId: getAllLanguageConfigs
+  summary: Get Language Configurations
   description: Get all supported languages
   tags:
     - config
@@ -29,3 +41,12 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/entity/languageConfigs.yaml'
+          examples:
+            languageConfigsResponse:
+              value:
+                languageConfigs:
+                  - code: eng
+                    languageAnalyzer: eng-analyzer
+                  - code: ukr
+                    languageAnalyzer: ukr-analyzer
+                totalRecords: 2

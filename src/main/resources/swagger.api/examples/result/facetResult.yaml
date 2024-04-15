@@ -1,9 +1,10 @@
-facets:
-  source:
-    values:
-      - id: "MARC"
-        totalRecords: 20
-      - id: "FOLIO"
-        totalRecords: 10
-    totalRecords: 2
-totalRecords: 1
+value:
+  facets:
+    source:
+      values:
+        - id: "MARC"
+          totalRecords: 20
+        - id: "FOLIO"
+          totalRecords: 10
+      totalRecords: 2
+  totalRecords: 1

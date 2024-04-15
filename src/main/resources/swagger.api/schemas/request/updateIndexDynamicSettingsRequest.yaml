@@ -5,7 +5,6 @@ properties:
     type: string
     description: Resource name to set index Settings
   indexSettings:
-    description: Index settings to apply for index
     $ref: "../../schemas/entity/indexDynamicSettings.yaml"
 required:
   - resourceName

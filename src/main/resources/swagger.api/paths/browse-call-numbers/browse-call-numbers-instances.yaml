@@ -1,6 +1,8 @@
 get:
   operationId: browseInstancesByCallNumber
+  summary: Browse Call Numbers
   description: Provides list of instances for browsing by call number
+  deprecated: true
   tags:
     - browse
   parameters:
@@ -16,8 +18,9 @@ get:
       description: 'Search result for browsing by call number'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/browseCallNumberResult.yaml'
+          examples:
+            browseResult:
+              $ref: '../../examples/result/browseCallNumberResult.yaml'
           schema:
             $ref: '../../schemas/response/callNumberBrowseResult.yaml'
     '400':

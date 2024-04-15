@@ -1,0 +1,34 @@
+value:
+  totalRecords: 3
+  prev: 'Adair, Thomas Montgomery, 1913-1988'
+  next: 'Leven, Mel'
+  items:
+    - headingRef: 'Allen, Barbara'
+      isAnchor: true
+    - authority:
+        id: c277c198-dee9-418e-a1ea-05d64a586c48
+        tenantId: fs09000000
+        shared: false
+        personalName: 'Allen, Bruce Ware'
+        subjectHeadings: a
+        identifiers:
+          - value: n 2015023577
+            identifierTypeId: 5d164f4b-0b15-4e42-ae75-cfcf85318ad9
+          - value: n 2015023577
+            identifierTypeId: ddaf3d51-de81-4768-b1aa-a1e985d4e999
+          - value: (DLC)n 2015023577
+            identifierTypeId: 2baf4cec-6abf-438b-abd0-a6c512c3c173
+        notes: [ ]
+        metadata:
+          createdDate: '2024-04-01T01:37:34.15755006Z'
+          createdByUserId: 7816fe0c-3389-4df5-85fb-d38c5c7bd9ed
+          updatedDate: '2024-04-01T01:37:34.15755006Z'
+          updatedByUserId: 7816fe0c-3389-4df5-85fb-d38c5c7bd9ed
+        headingType: Personal Name
+        authRefType: Authorized
+        headingRef: 'Allen, Bruce Ware'
+        numberOfTitles: 0
+        sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
+        naturalId: n2015023577
+      headingRef: 'Allen, Bruce Ware'
+summary: Browse expanded response

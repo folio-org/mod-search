@@ -24,9 +24,9 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceClassificationsInner;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseIntegrationTest;
@@ -212,7 +212,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .id(randomId())
       .title((String) data.get(0))
       .classifications(((List<Pair<String, String>>) data.get(1)).stream()
-        .map(pair -> new InstanceClassificationsInner()
+        .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
           .classificationTypeId(String.valueOf(pair.getSecond())))
         .collect(Collectors.toList()))

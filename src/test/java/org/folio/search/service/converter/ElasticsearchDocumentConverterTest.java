@@ -24,7 +24,7 @@ import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
 import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.SeriesItem;
@@ -99,8 +99,8 @@ class ElasticsearchDocumentConverterTest {
     return instance;
   }
 
-  private static Identifiers identifier(String value) {
-    var identifier = new Identifiers();
+  private static Identifier identifier(String value) {
+    var identifier = new Identifier();
     identifier.setValue(value);
     return identifier;
   }

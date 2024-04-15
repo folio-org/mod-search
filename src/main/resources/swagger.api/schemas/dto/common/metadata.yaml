@@ -1,5 +1,6 @@
 type: object
 description: "Record metadata"
+additionalProperties: false
 properties:
   createdDate:
     description: "Date and time when the record was created"

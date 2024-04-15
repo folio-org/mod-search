@@ -1,2 +1,3 @@
-recreateIndex: true
-
+value:
+  recreateIndex: true
+  resourceName: instance

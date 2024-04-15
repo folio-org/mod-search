@@ -1,4 +1,3 @@
-id: "tags.schema"
 title: "tags"
 description: "List of simple tags that can be added to an object"
 type: "object"

@@ -1,5 +1,6 @@
 get:
   operationId: getBrowseConfigs
+  summary: Get Browse Configurations
   description: Get all configurations for browse type
   tags:
     - config
@@ -12,3 +13,6 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/entity/browseConfigCollection.yaml'
+          examples:
+            configCollection:
+              $ref: "../../examples/response/browseConfigCollectionResponse.yaml"

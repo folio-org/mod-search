@@ -1,0 +1,49 @@
+name: query
+in: query
+required: true
+description: |
+  A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `number`. 
+  Filters support logic operators `AND` and `OR`. All filters should be combined in parentheses.
+  Anchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
+  <table>
+    <caption>
+        Supported filter options
+    </caption>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Data type</th>
+        <th>Supported operators</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>instances.tenantId</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by tenant ID in consortium</td>
+    </tr>
+    <tr>
+        <td>instances.shared</td>
+        <td>boolean</td>
+        <td>==</td>
+        <td>Filter by shared/non-shared in consortium</td>
+    </tr>
+    </tbody>
+  </table>
+schema:
+  type: string
+examples:
+  browseAround:
+    value: number >= "DT571.F84" or number < "DT571.F84"
+    summary: Search for all classification numbers before and after "DT571.F84"
+  browseForward:
+    value: number >= "DT571.F84"
+    summary: Search for all classification numbers after "DT571.F84"
+  browseBackward:
+    value: number >= "DT571.F84"
+    summary: Search for all classification numbers before "DT571.F84"
+  browseAroundWithFilters:
+    value: (number >= "DT571.F84" or number < "DT571.F84") and instances.shared==false
+    summary: Search for local classification numbers before and after "DT571.F84"

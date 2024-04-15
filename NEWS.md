@@ -4,14 +4,16 @@
 
 ### New APIs versions
 * Provides `indices v0.7`
+* Provides `search v1.3`
 * Requires `locations v3.0`
 
 ### Features
-* Create location index and process location events ([MSEARCH-703](https://folio-org.atlassian.net/browse/MSEARCH-703))
-* Implement reindexing of locations ([MSEARCH-702](https://folio-org.atlassian.net/browse/MSEARCH-702))
-* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://folio-org.atlassian.net/browse/MSEARCH-690))
-* Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://folio-org.atlassian.net/browse/MSEARCH-697))
-* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://folio-org.atlassian.net/browse/MSEARCH-606))
+* Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
+* Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
+* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
+* Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://issues.folio.org/browse/MSEARCH-697))
+* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+* Facets: add support for instance classification facets ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

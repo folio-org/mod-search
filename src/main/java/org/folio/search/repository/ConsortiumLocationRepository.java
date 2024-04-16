@@ -13,11 +13,10 @@ import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
@@ -31,39 +30,51 @@ public class ConsortiumLocationRepository {
 
   public static final String LOCATION_INDEX = "location";
   private static final String OPERATION_TYPE = "searchApi";
+  private final IndexNameProvider indexNameProvider;
   private final ElasticsearchDocumentConverter documentConverter;
 
   private final RestHighLevelClient client;
 
-  public SearchResult<Location> fetchLocations(String tenantId,
+  public SearchResult<Location> fetchLocations(String tenantHeader,
+                                               String tenantId,
                                                Integer limit,
                                                Integer offset,
                                                String sortBy,
                                                SortOrder sortOrder) {
 
     var sourceBuilder = getSearchSourceBuilder(tenantId, limit, offset, sortBy, sortOrder);
-    var response = search(sourceBuilder);
+    var response = search(sourceBuilder, tenantHeader);
     return documentConverter.convertToSearchResult(response, Location.class);
   }
 
   @NotNull
   private static SearchSourceBuilder getSearchSourceBuilder(String tenantId, Integer limit, Integer offset, String sortBy, SortOrder sortOrder) {
     var sourceBuilder = new SearchSourceBuilder();
-    sourceBuilder.query(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, tenantId));
-    sourceBuilder.from(offset);
-    sourceBuilder.size(limit);
-    sourceBuilder.sort(SortBuilders
-      .fieldSort(sortBy)
-      .order(sortOrder == SortOrder.DESC ? DESC : ASC));
 
-    log.info("searching locations by query: {}", sourceBuilder.toString());
+    Optional.ofNullable(tenantId)
+      .ifPresent(id -> sourceBuilder
+        .query(QueryBuilders
+          .termQuery(TENANT_ID_FIELD_NAME, id)));
+
+    Optional.ofNullable(offset)
+      .ifPresent(sourceBuilder::from);
+
+    Optional.ofNullable(limit)
+      .ifPresent(sourceBuilder::size);
+
+    Optional.ofNullable(sortBy)
+      .ifPresent(sort -> sourceBuilder
+        .sort(SortBuilders.fieldSort(sort)
+          .order(sortOrder == SortOrder.DESC ? DESC : ASC)));
+
     return sourceBuilder;
   }
 
-  private SearchResponse search(SearchSourceBuilder sourceBuilder) {
-    var searchRequest = new SearchRequest(LOCATION_INDEX);
+  private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {
+    var index = indexNameProvider.getIndexName(LOCATION_INDEX, tenantHeader);
+    var searchRequest = new SearchRequest(index);
     searchRequest.source(sourceBuilder);
-    return performExceptionalOperation(() -> client.search(searchRequest, RequestOptions.DEFAULT), LOCATION_INDEX, OPERATION_TYPE);
+    return performExceptionalOperation(() -> client.search(searchRequest, RequestOptions.DEFAULT), index, OPERATION_TYPE);
   }
 
 }

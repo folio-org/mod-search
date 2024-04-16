@@ -15,13 +15,14 @@ public class ConsortiumLocationService {
 
   private final ConsortiumLocationRepository repository;
 
-  public SearchResult<Location> fetchLocations(String tenantId,
+  public SearchResult<Location> fetchLocations(String tenantHeader,
+                                               String tenantId,
                                                Integer limit,
                                                Integer offset,
                                                String sortBy,
                                                SortOrder sortOrder) {
-    log.info("fetching consortium locations by tenantId: {}", tenantId);
-    return repository.fetchLocations(tenantId, limit, offset, sortBy, sortOrder);
+    log.info("fetching consortium locations for tenant: {}", tenantHeader);
+    return repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
   }
 
   }

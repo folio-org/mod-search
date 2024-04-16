@@ -2,17 +2,20 @@ package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.readJsonFromFile;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Instance;
@@ -111,6 +114,14 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, expandAll);
+  }
+
+  protected static final Map<String, Object> LOCATIONS_RECORD_AS_MAP =
+    readJsonFromFile("/samples/location-sample/locations.json", MAP_TYPE_REFERENCE);
+
+
+  protected static Map<String, Object> getLocationsSampleAsMap() {
+    return LOCATIONS_RECORD_AS_MAP;
   }
 
 }

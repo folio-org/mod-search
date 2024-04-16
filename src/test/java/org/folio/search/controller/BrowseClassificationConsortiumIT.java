@@ -36,7 +36,6 @@ import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceClassificationsInner;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;

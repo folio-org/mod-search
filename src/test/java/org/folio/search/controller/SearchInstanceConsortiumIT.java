@@ -7,7 +7,7 @@ import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 
 import org.assertj.core.api.Assertions;
-import org.folio.search.domain.dto.InstanceBasicSearchResultItem;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -38,7 +38,7 @@ class SearchInstanceConsortiumIT extends BaseConsortiumIntegrationTest {
     var actual = parseResponse(response, InstanceSearchResult.class);
 
     Assertions.assertThat(actual.getInstances())
-      .allSatisfy(instanceDto -> Assertions.assertThat(instanceDto).isInstanceOf(InstanceBasicSearchResultItem.class));
+      .allSatisfy(instanceDto -> Assertions.assertThat(instanceDto).isInstanceOf(Instance.class));
   }
 
 }

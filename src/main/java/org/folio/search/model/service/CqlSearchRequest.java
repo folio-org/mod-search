@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.utils.SearchUtils;
 
 /**
  * CQL based search request model.
@@ -20,7 +21,7 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Resource class for response.
    */
-  private final Class<T> responseClass;
+  private final Class<T> resourceClass;
 
   /**
    * Request tenant id.
@@ -55,26 +56,26 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Creates {@link CqlSearchRequest} object for given variables.
    *
-   * @param <T>                   - generic type for {@link CqlSearchRequest} object.
-   * @param resourceName          - resource name
+   * @param resourceClass         -  resource class
    * @param tenantId              - tenant id
    * @param query                 - CQL query
    * @param limit                 - search result records limit
    * @param offset                - search result offset
    * @param expandAll             - whether to return only response properties or entire record
+   * @param <R>                   - generic type for {@link CqlSearchRequest} object.
    * @param includeNumberOfTitles - indicates whether the number of titles should be counted.
    * @return created {@link CqlSearchRequest} object
    */
-  public static <T> CqlSearchRequest<T> of(String resourceName, Class<T> responseClass, String tenantId, String query,
+  public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll,
                                            Boolean includeNumberOfTitles) {
-    return new CqlSearchRequest<>(resourceName, responseClass, tenantId, query, limit, offset, expandAll,
+    var resource = SearchUtils.getResourceName(resourceClass);
+    return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll,
       includeNumberOfTitles);
   }
 
-  public static <T> CqlSearchRequest<T> of(String resourceName, Class<T> responseClass, String tenantId, String query,
+  public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll) {
-    return CqlSearchRequest.of(resourceName, responseClass, tenantId, query, limit, offset, expandAll, true
-    );
+    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, offset, expandAll, true);
   }
 }

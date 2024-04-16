@@ -15,4 +15,8 @@ value:
       staffSuppress: false
       discoverySuppress: false
       isBoundWith: false
+      electronicAccess: [ ]
+      notes: [ ]
+      items: [ ]
+      holdings: [ ]
   totalRecords: 1

@@ -69,9 +69,9 @@ public class SearchService {
     }
 
     var searchResponse = searchRepository.search(request, queryBuilder, preference);
-    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResponseClass());
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
 
-    searchResultPostProcessing(request.getResponseClass(), request.getIncludeNumberOfTitles(), searchResult);
+    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
 
     return searchResult;
   }

@@ -182,7 +182,7 @@ public class TestUtils {
 
   public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query,
                                                              boolean expandAll) {
-    return CqlSearchRequest.of(resourceClass.getSimpleName(), resourceClass, tenantId, query, 100, 0, expandAll);
+    return CqlSearchRequest.of(resourceClass, tenantId, query, 100, 0, expandAll);
   }
 
   public static CqlFacetRequest defaultFacetServiceRequest(String resource, String query, String... facets) {

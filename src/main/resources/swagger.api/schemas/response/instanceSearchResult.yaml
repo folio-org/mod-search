@@ -8,7 +8,4 @@ properties:
     type: "array"
     description: "List of instances found"
     items:
-      title: InstanceDto
-      anyOf:
-        - $ref: "../../schemas/dto/instance/instanceBasicSearchResultItem.yaml"
-        - $ref: "../../schemas/dto/instance/instanceFullSearchResultItem.yaml"
+      $ref: "../../schemas/entity/instance.yaml"

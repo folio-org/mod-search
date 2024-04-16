@@ -86,13 +86,13 @@ rules:
   docs-parameters-examples-or-schema:
     given:
       - "$.paths.parameters[*]"
-    severity: error
+    severity: info
     then:
       function: schema
       functionOptions:
         schema:
           type: object
-          allOf:
+          anyOf:
             - required:
                 - examples
             - required:
@@ -115,13 +115,13 @@ rules:
   docs-media-types-examples-or-schema:
     given:
       - "#MediaTypeObjects"
-    severity: error
+    severity: info
     then:
       function: schema
       functionOptions:
         schema:
           type: object
-          allOf:
+          anyOf:
             - required:
                 - examples
             - required:

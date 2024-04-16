@@ -265,7 +265,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | SEARCH_BY_ALL_FIELDS_ENABLED                       | false                                                      | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
 | BROWSE_CN_INTERMEDIATE_VALUES_ENABLED              | true                                                       | Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)                                                         |
 | BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES           | true                                                       | Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)                                |
-| BROWSE_CLASSIFICATIONS_ENABLED                     | false                                                      | Specifies if globally instance classification indexing will be performed                                                                                                              |
+| BROWSE_CLASSIFICATIONS_ENABLED                     | true                                                       | Specifies if globally instance classification indexing will be performed                                                                                                              |
 | SCROLL_QUERY_SIZE                                  | 1000                                                       | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
 | STREAM_ID_RETRY_INTERVAL_MS                        | 1000                                                       | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                           | 3                                                          | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
@@ -668,7 +668,7 @@ Facets can be retrieved by using following API `GET /{recordType}/facets`. It co
 
 | Parameter    | Required | Description                                                                                                                                                                                |
 |:-------------|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `recordType` |   Yes    | Type of record: authorities, instances, or contributors                                                                                                                                    |
+| `recordType` |   Yes    | Type of record: authorities, instances, contributors, subjects, classifications                                                                                                            |
 | `query`      |   Yes    | A CQL query to search by                                                                                                                                                                   |
 | `facet`      |   Yes    | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
 
@@ -745,6 +745,13 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `instances.shared`      | term | Requests a shared/local facet          |
 
 ##### Subjects facets
+
+| Option               | Type | Description                   |
+|:---------------------|:----:|:------------------------------|
+| `instances.tenantId` | term | Requests a tenantId facet     |
+| `instances.shared`   | term | Requests a shared/local facet |
+
+##### Classifications facets
 
 | Option               | Type | Description                   |
 |:---------------------|:----:|:------------------------------|

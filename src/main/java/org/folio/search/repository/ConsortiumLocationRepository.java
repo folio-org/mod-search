@@ -1,5 +1,11 @@
 package org.folio.search.repository;
 
+import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.search.sort.SortOrder.ASC;
+import static org.opensearch.search.sort.SortOrder.DESC;
+
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Location;
@@ -16,12 +22,6 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
-import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
-import static org.opensearch.search.sort.SortOrder.ASC;
-import static org.opensearch.search.sort.SortOrder.DESC;
 
 @Log4j2
 @Repository
@@ -48,7 +48,11 @@ public class ConsortiumLocationRepository {
   }
 
   @NotNull
-  private static SearchSourceBuilder getSearchSourceBuilder(String tenantId, Integer limit, Integer offset, String sortBy, SortOrder sortOrder) {
+  private static SearchSourceBuilder getSearchSourceBuilder(String tenantId,
+                                                            Integer limit,
+                                                            Integer offset,
+                                                            String sortBy,
+                                                            SortOrder sortOrder) {
     var sourceBuilder = new SearchSourceBuilder();
 
     Optional.ofNullable(tenantId)
@@ -74,7 +78,8 @@ public class ConsortiumLocationRepository {
     var index = indexNameProvider.getIndexName(LOCATION_INDEX, tenantHeader);
     var searchRequest = new SearchRequest(index);
     searchRequest.source(sourceBuilder);
-    return performExceptionalOperation(() -> client.search(searchRequest, RequestOptions.DEFAULT), index, OPERATION_TYPE);
+    return performExceptionalOperation(() -> client.search(searchRequest,
+      RequestOptions.DEFAULT), index, OPERATION_TYPE);
   }
 
 }

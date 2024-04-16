@@ -1,5 +1,14 @@
 package org.folio.search.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.Pair.pair;
+import static org.folio.search.sample.SampleLocations.getLocationsSampleAsMap;
+import static org.folio.search.support.base.ApiEndpoints.consortiumLocationsSearchPath;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.search.utils.TestUtils.parseResponse;
+
+import java.util.List;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.domain.dto.Location;
 import org.folio.search.model.Pair;
@@ -8,15 +17,6 @@ import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.model.Pair.pair;
-import static org.folio.search.support.base.ApiEndpoints.consortiumLocationsSearchPath;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.search.utils.TestUtils.parseResponse;
 
 @IntegrationTest
 public class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {

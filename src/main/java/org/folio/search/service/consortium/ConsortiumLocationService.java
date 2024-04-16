@@ -25,4 +25,4 @@ public class ConsortiumLocationService {
     return repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
   }
 
-  }
+}

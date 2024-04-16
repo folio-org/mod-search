@@ -74,7 +74,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
                                                                              String sortBy,
                                                                              SortOrder sortOrder) {
     checkAllowance(tenantHeader);
-    var result = locationService.fetchLocations(tenantHeader,tenantId, limit, offset, sortBy, sortOrder);
+    var result = locationService.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new
       ConsortiumLocationCollection()

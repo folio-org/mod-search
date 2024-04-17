@@ -54,24 +54,19 @@ public class ConsortiumLocationRepository {
                                                             String sortBy,
                                                             SortOrder sortOrder) {
     var sourceBuilder = new SearchSourceBuilder();
-
     Optional.ofNullable(tenantId)
       .ifPresent(id -> sourceBuilder
         .query(QueryBuilders
           .termQuery(TENANT_ID_FIELD_NAME, id)));
-
-    Optional.ofNullable(offset)
-      .ifPresent(sourceBuilder::from);
-
-    Optional.ofNullable(limit)
-      .ifPresent(sourceBuilder::size);
 
     Optional.ofNullable(sortBy)
       .ifPresent(sort -> sourceBuilder
         .sort(SortBuilders.fieldSort(sort)
           .order(sortOrder == SortOrder.DESC ? DESC : ASC)));
 
-    return sourceBuilder;
+    return sourceBuilder
+      .from(offset)
+      .size(limit);
   }
 
   private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {

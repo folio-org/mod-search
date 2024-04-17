@@ -855,10 +855,11 @@ can't receive ids by query.
 ### Consortium Search API
 Special API that provide consolidated access to records in consortium environment. Works only for central tenant.
 
-| METHOD | URL                           | DESCRIPTION                   |
-|:-------|:------------------------------|:------------------------------|
-| GET    | `/search/consortium/holdings` | Returns consolidated holdings |
-| GET    | `/search/consortium/items`    | Returns consolidated items    |
+| METHOD | URL                            | DESCRIPTION                    |
+|:-------|:-------------------------------|:-------------------------------|
+| GET    | `/search/consortium/holdings`  | Returns consolidated holdings  |
+| GET    | `/search/consortium/items`     | Returns consolidated items     |
+| GET    | `/search/consortium/locations` | Returns consolidated locations |
 
 ## Additional Information
 

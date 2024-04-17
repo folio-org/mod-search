@@ -167,6 +167,18 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/locations",
+          "permissionsRequired": [
+            "consortium-search.locations.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -635,6 +647,11 @@
       "permissionName": "consortium-search.items.collection.get",
       "displayName": "Consortium Search - fetch items records",
       "description": "Returns items records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.locations.collection.get",
+      "displayName": "Consortium Search - fetch locations records",
+      "description": "Returns location records in consortium"
     }
   ],
   "launchDescriptor": {

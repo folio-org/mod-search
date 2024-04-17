@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
+class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {

@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
@@ -29,7 +30,8 @@ public class FacetsController implements FacetsApi {
     RecordType.INSTANCES, INSTANCE_RESOURCE,
     RecordType.AUTHORITIES, AUTHORITY_RESOURCE,
     RecordType.CONTRIBUTORS, CONTRIBUTOR_RESOURCE,
-    RecordType.SUBJECTS, INSTANCE_SUBJECT_RESOURCE
+    RecordType.SUBJECTS, INSTANCE_SUBJECT_RESOURCE,
+    RecordType.CLASSIFICATIONS, INSTANCE_CLASSIFICATION_RESOURCE
   );
 
   private final FacetService facetService;

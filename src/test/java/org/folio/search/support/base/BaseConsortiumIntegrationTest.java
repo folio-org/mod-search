@@ -1,7 +1,12 @@
 package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -111,6 +116,13 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, expandAll);
+  }
+
+  public static  void awaitAssertLocationCount(int expected) {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
+      var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
+      assertThat(totalHits).isEqualTo(expected);
+    });
   }
 
 }

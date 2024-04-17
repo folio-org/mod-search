@@ -1,9 +1,5 @@
 package org.folio.search.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
@@ -91,13 +87,6 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
     kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
     awaitAssertLocationCount(1);
-  }
-
-  private void awaitAssertLocationCount(int expected) {
-    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
-      assertThat(totalHits).isEqualTo(expected);
-    });
   }
 
 }

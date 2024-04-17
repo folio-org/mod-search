@@ -5,12 +5,11 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
-import static org.folio.search.support.base.ApiEndpoints.consortiumLocationsSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
-import static org.folio.search.utils.TestConstants.inventoryLocationTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -41,7 +40,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Location;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.support.api.InventoryApi;
@@ -200,6 +198,8 @@ public abstract class BaseIntegrationTest {
     doIfNotNull(limit, value -> requestBuilder.queryParam("limit", String.valueOf(value)));
     doIfNotNull(offset, value -> requestBuilder.queryParam("offset", String.valueOf(value)));
     doIfNotNull(expandAll, value -> requestBuilder.queryParam("expandAll", String.valueOf(value)));
+    doIfNotNull(limit, value -> requestBuilder.queryParam("tenantId", CENTRAL_TENANT_ID));
+    doIfNotNull(limit, value -> requestBuilder.queryParam("sortBy", "name"));
 
     return mockMvc.perform(requestBuilder.queryParam("query", query)
       .headers(defaultHeaders(tenantId))
@@ -280,12 +280,6 @@ public abstract class BaseIntegrationTest {
       setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount,
         record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, record)));
     }
-
-    if (type.equals(Location.class)) {
-      setUpTenant(tenant, consortiumLocationsSearchPath(), postInitAction, asList(records), expectedCount,
-        record -> kafkaTemplate.send(inventoryLocationTopic(tenant), resourceEvent(null, null, record)));
-    }
-
   }
 
   @SneakyThrows

@@ -31,8 +31,7 @@ properties:
       type: string
       description: "UUID for a statistical code"
   tags:
-    description: "arbitrary tags associated with this holding"
-    $ref: "tags.yaml"
+    $ref: "../common/tags.yaml"
   holdingsTypeId:
     type: string
     description: "unique ID for the type of this holdings record, a UUID"
@@ -64,7 +63,7 @@ properties:
     items:
       $ref: "note.yaml"
   metadata:
-    $ref: "metadata.yaml"
+    $ref: "../common/metadata.yaml"
 required:
   - electronicAccess
   - notes

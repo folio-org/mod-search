@@ -1,6 +1,8 @@
 get:
   operationId: getHoldingIds
+  summary: Get Holdings IDs
   description: Get a list of holding ids linked to instances found by the CQL query
+  deprecated: true
   tags:
     - search-resources-ids
   parameters:
@@ -12,11 +14,13 @@ get:
       description: 'Instance ids as json stream'
       content:
         application/json:
-          example:
-            $ref: '../../examples/result/HoldingIdsResult.yaml'
+          examples:
+            HoldingIdsResult:
+              $ref: '../../examples/result/HoldingIdsResult.yaml'
         application/text:
-          example:
-            $ref: '../../examples/result/IdsTextResult.yaml'
+          examples:
+            IdsTextResult:
+              $ref: '../../examples/result/IdsTextResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

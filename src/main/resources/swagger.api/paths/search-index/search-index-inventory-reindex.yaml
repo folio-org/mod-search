@@ -1,13 +1,15 @@
 post:
   operationId: reindexInventoryRecords
+  summary: Re-Index
   description: Initiates reindex for the inventory records
   tags:
     - index-management
   requestBody:
     content:
       application/json:
-        example:
-          $ref: '../../examples/request/reindexRequest.yaml'
+        examples:
+          reindexRequest:
+            $ref: '../../examples/request/reindexRequest.yaml'
         schema:
           $ref: '../../schemas/request/reindexRequest.yaml'
   parameters:
@@ -19,5 +21,8 @@ post:
         application/json:
           schema:
             $ref: '../../schemas/entity/reindexJob.yaml'
+          examples:
+            reindexJobResponse:
+              $ref: '../../examples/response/reindexJobResponse.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

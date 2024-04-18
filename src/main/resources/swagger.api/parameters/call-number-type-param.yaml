@@ -3,11 +3,4 @@ name: callNumberType
 description: Type of call number
 required: false
 schema:
-  type: string
-  enum:
-    - lc
-    - dewey
-    - nlm
-    - sudoc
-    - other
-    - local
+  $ref: '../schemas/entity/callNumberType.yaml'

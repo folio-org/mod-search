@@ -2,8 +2,9 @@ description: "Result value for specific facet"
 type: "object"
 properties:
   values:
-    description: "Facet items"
-    $ref: "facetItems.yaml"
+    type: "array"
+    items:
+      $ref: "facetItem.yaml"
   totalRecords:
     type: "integer"
     description: "Amount of facet items"

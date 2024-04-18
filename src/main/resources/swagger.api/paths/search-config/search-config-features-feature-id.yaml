@@ -1,5 +1,6 @@
 put:
   operationId: updateFeatureConfiguration
+  summary: Update Feature Configuration
   description: Update feature configuration settings
   tags:
     - config
@@ -10,6 +11,9 @@ put:
       application/json:
         schema:
           $ref: '../../schemas/entity/featureConfig.yaml'
+        examples:
+          updateRequest:
+            $ref: '../../examples/request/updateCreateFeatureRequest.yaml'
   responses:
     '200':
       description: Feature configuration has been added.
@@ -17,12 +21,16 @@ put:
         application/json:
           schema:
             $ref: '../../schemas/entity/featureConfig.yaml'
+          examples:
+            updateResponse:
+              $ref: '../../examples/response/updateFeatureResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '422':
       $ref: '../../responses/unprocessableEntityResponse.yaml'
 delete:
   operationId: deleteFeatureConfigurationById
+  summary: Delete Feature Configuration
   description: Delete feature configuration by id
   tags:
     - config

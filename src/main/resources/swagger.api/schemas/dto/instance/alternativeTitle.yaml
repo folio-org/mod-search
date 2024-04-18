@@ -1,5 +1,6 @@
 type: object
 description: "An alternative title description"
+additionalProperties: false
 properties:
   alternativeTitleTypeId:
     type: string

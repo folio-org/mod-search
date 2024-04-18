@@ -1,5 +1,6 @@
 post:
   operationId: submitIdsJob
+  summary: Trigger new Job
   description: Creates a job for the stream of resource ids.
   tags:
     - search-resources-ids

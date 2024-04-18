@@ -2,10 +2,45 @@ openapi: 3.0.0
 info:
   title: Search API
   version: v2.1.0
-  description: Search API
+  description: |
+    API for searching, browsing, and managing facets for various record types, including instances, holdings, and authorities.
+    It also provides endpoints for configuring search and browse features, as well as managing the search index.
+  contact:
+    name: Spitfire team
 
 servers:
-  - url: https://folio-dev-spitfire-okapi.ci.folio.org/
+  - url: https://{environment}-okapi.ci.folio.org
+    description: Development environments.
+    variables:
+      environment:
+        default: folio-dev-spitfire
+        enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+  - url: https://folio-{environment}-okapi.dev.folio.org
+    description: Reference environments.
+    variables:
+      environment:
+        default: snapshot
+        enum:
+          - snapshot
+          - snapshot-2
+
+tags:
+  - name: browse
+    description: Provides endpoints to browse records (e.g., instances, authorities) in alphabetical order by a specific field, such as call number, classification number, subject, or contributor.
+  - name: config
+    description: Provides endpoints to configure search and browse features, such as enabling/disabling specific features or managing language settings.
+  - name: facets
+    description: Provides endpoints to retrieve aggregated information (facets) about records, such as counts of records by specific fields or ranges of values. This can be used for faceted search or browsing.
+  - name: index-management
+    description: Provides endpoints to manage the search index, including creating or updating mappings, settings, and manually populating the index with records from external sources (e.g., inventory).
+  - name: search
+    description: Provides endpoints to search for records (e.g., instances, authorities) using CQL (Contextual Query Language) queries. Supports various search options and retrieval of search results.
+  - name: search-consortium
+    description: Provides endpoints to search for consolidated records (e.g., holdings, items) across multiple institutions or libraries within a consortium.
+  - name: search-resources-ids
+    description: Provides endpoints to retrieve record IDs by CQL queries, without returning the full record data.
 
 paths:
   /search/instances:
@@ -69,7 +104,7 @@ paths:
     $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
 
   /browse/classification-numbers/{browseOptionId}/instances:
-    $ref: 'paths/browse-classification-numbers/browse-option-id-instances.yaml'
+    $ref: 'paths/browse-classification-numbers/browse-instance-classifications.yaml'
 
   /browse/subjects/instances:
     $ref: 'paths/browse-subject/browse-subjects-instances.yaml'
@@ -86,100 +121,6 @@ paths:
   /browse/config/{browseType}/{browseOptionId}:
     $ref: 'paths/browse-config/browse-type-browse-option-id.yaml'
 
-components:
-  schemas:
-    callNumberType:
-      $ref: 'schemas/entity/callNumberType.yaml'
-    sortOrder:
-      $ref: 'schemas/entity/sortOrder.yaml'
-    browseType:
-      $ref: 'schemas/entity/browseType.yaml'
-    recordType:
-      $ref: 'schemas/entity/recordType.yaml'
-    browseOptionType:
-      $ref: 'schemas/entity/browseOptionType.yaml'
 
-  responses:
-    unprocessableEntityResponse:
-      $ref: 'responses/unprocessableEntityResponse.yaml'
-    badRequestResponse:
-      $ref: 'responses/badRequestResponse.yaml'
-    internalServerErrorResponse:
-      $ref: 'responses/internalServerErrorResponse.yaml'
 
-  parameters:
-    limit-param:
-      $ref: 'parameters/limit-param.yaml'
-    consortium-limit-param:
-      $ref: 'parameters/consortium-limit-param.yaml'
-    browse-limit-param:
-      $ref: 'parameters/browse-limit-param.yaml'
-    offset-param:
-      $ref: 'parameters/offset-param.yaml'
-    cql-query:
-      $ref: 'parameters/cql-query.yaml'
-    expand-all-param:
-      $ref: 'parameters/expand-all-param.yaml'
-    facet-param:
-      $ref: 'parameters/facet-param.yaml'
-    language-code:
-      $ref: 'parameters/language-code.yaml'
-    feature-id:
-      $ref: 'parameters/feature-id.yaml'
-    x-okapi-tenant-header:
-      $ref: 'parameters/x-okapi-tenant-header.yaml'
-    content-type-header:
-      $ref: 'parameters/content-type-header.yaml'
-    preceding-records-count:
-      $ref: 'parameters/preceding-records-count.yaml'
-    highlight-match:
-      $ref: 'parameters/highlight-match.yaml'
-    job-stream-id:
-      $ref: 'parameters/job-stream-id.yaml'
-    instance-id-query-param:
-      $ref: 'parameters/instance-id-query-param.yaml'
-    holdings-id-query-param:
-      $ref: 'parameters/holdings-id-query-param.yaml'
-    tenant-id-query-param:
-      $ref: 'parameters/tenant-id-query-param.yaml'
-    sort-by-holdings-param:
-      $ref: 'parameters/sort-by-holdings-param.yaml'
-    sort-by-item-param:
-      $ref: 'parameters/sort-by-item-param.yaml'
-    sort-order-param:
-      in: query
-      name: sortOrder
-      description: 'Defines sorting order'
-      required: false
-      schema:
-        $ref: '#/components/schemas/sortOrder'
-    include-number-of-titles:
-      $ref: 'parameters/include-number-of-titles.yaml'
-    browse-option-id:
-      name: browseOptionId
-      in: path
-      required: true
-      description: 'Browse option type'
-      schema:
-        $ref: '#/components/schemas/browseOptionType'
-    browse-type:
-      name: browseType
-      in: path
-      required: true
-      description: 'Browse feature type'
-      schema:
-        $ref: '#/components/schemas/browseType'
-    record-type:
-      name: recordType
-      required: true
-      in: path
-      schema:
-        $ref: '#/components/schemas/recordType'
-    call-number-type-param:
-      in: query
-      name: callNumberType
-      description: Type of call number
-      required: false
-      schema:
-        $ref: '#/components/schemas/callNumberType'
 

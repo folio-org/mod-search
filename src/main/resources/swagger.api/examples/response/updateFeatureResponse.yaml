@@ -1,0 +1,4 @@
+value:
+  feature: "search.all.fields"
+  enabled: false
+summary: Disable Search all fields feature.

@@ -66,8 +66,7 @@ properties:
     type: string
     description: "Call number type id"
   tags:
-    description: "arbitrary tags associated with this item"
-    $ref: 'tags.yaml'
+    $ref: "../common/tags.yaml"
   electronicAccess:
     type: array
     description: "List of electronic access items"
@@ -95,6 +94,6 @@ properties:
     items:
       $ref: "circulationNote.yaml"
   metadata:
-    $ref: "metadata.yaml"
+    $ref: "../common/metadata.yaml"
 required:
   - notes

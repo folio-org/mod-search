@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.Set;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceClassificationsInner;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +16,13 @@ class ClassificationNumberProcessorTest {
 
   private ClassificationNumberProcessor processor;
   private Instance instance;
-  private InstanceClassificationsInner classification;
+  private Classification classification;
 
   @BeforeEach
   void setUp() {
     processor = new ClassificationNumberProcessor();
     instance = new Instance();
-    classification = new InstanceClassificationsInner();
+    classification = new Classification();
   }
 
   @Test

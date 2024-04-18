@@ -1,0 +1,55 @@
+name: query
+in: query
+required: true
+description: |
+  A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `name`. 
+  Filters support logic operators `AND` and `OR`. All filters should be combined in parentheses.
+  Anchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
+  <table>
+    <caption>
+        Supported filter options
+    </caption>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Data type</th>
+        <th>Supported operators</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>contributorNameTypeId</td>
+        <td>uuid</td>
+        <td>==</td>
+        <td>Filter by contributor name type</td>
+    </tr>
+    <tr>
+        <td>instances.tenantId</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by tenant ID in consortium</td>
+    </tr>
+    <tr>
+        <td>instances.shared</td>
+        <td>boolean</td>
+        <td>==</td>
+        <td>Filter by shared/non-shared in consortium</td>
+    </tr>
+    </tbody>
+  </table>
+schema:
+  type: string
+examples:
+  browseAround:
+    value: name >= "Abedi, Ali" or name < "Abedi, Ali"
+    summary: Search for all contributor values before and after "Abedi, Ali"
+  browseForward:
+    value: name >= "Abedi, Ali"
+    summary: Search for all contributor values after "Abedi, Ali"
+  browseBackward:
+    value: name >= "Abedi, Ali"
+    summary: Search for all contributor values before "Abedi, Ali"
+  browseAroundWithFilters:
+    value: (name >= "Abedi, Ali" or name < "Abedi, Ali") and instances.shared==false and contributorNameTypeId="b6993450-25c1-4c23-a1d1-98abb67fb506"
+    summary: Search for local contributor values with name type id = "b6993450-25c1-4c23-a1d1-98abb67fb506" before and after "Abedi, Ali"

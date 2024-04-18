@@ -73,7 +73,7 @@ import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -565,15 +565,15 @@ public class TestUtils {
     return new Tags().tagList(tagValues != null ? asList(tagValues) : null);
   }
 
-  public static Identifiers identifier(String id, String value) {
-    return new Identifiers().identifierTypeId(id).value(value);
+  public static Identifier identifier(String id, String value) {
+    return new Identifier().identifierTypeId(id).value(value);
   }
 
-  public static Instance instanceWithIdentifiers(Identifiers... identifiers) {
+  public static Instance instanceWithIdentifiers(Identifier... identifiers) {
     return new Instance().id(RESOURCE_ID).identifiers(identifiers != null ? asList(identifiers) : null);
   }
 
-  public static Authority authorityWithIdentifiers(Identifiers... identifiers) {
+  public static Authority authorityWithIdentifiers(Identifier... identifiers) {
     return new Authority().identifiers(identifiers != null ? asList(identifiers) : null);
   }
 

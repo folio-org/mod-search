@@ -1,0 +1,9 @@
+type: object
+description: Classification object
+properties:
+  classificationNumber:
+    description: "Classification (e.g. classification scheme, classification schedule)"
+    type: string
+  classificationTypeId:
+    description: "Classification type ID"
+    type: string

@@ -21,7 +21,10 @@ public class ConsortiumLocationService {
                                                Integer offset,
                                                String sortBy,
                                                SortOrder sortOrder) {
-    log.info("fetching consortium locations for tenant: {}", tenantHeader);
+    log.info("fetching consortium locations for tenant: {}, tenantId: {}, sortBy: {}",
+      tenantHeader,
+      tenantId,
+      sortBy);
     return repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
   }
 

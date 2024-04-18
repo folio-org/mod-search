@@ -59,13 +59,11 @@ public class ConsortiumLocationRepository {
         .query(QueryBuilders
           .termQuery(TENANT_ID_FIELD_NAME, id)));
 
-    Optional.ofNullable(sortBy)
-      .ifPresent(sort -> sourceBuilder
-        .sort(SortBuilders.fieldSort(sort)
-          .order(sortOrder == SortOrder.DESC ? DESC : ASC)));
-
     return sourceBuilder
       .from(offset)
+      .sort(SortBuilders
+        .fieldSort(sortBy)
+        .order(sortOrder == SortOrder.DESC ? DESC : ASC))
       .size(limit);
   }
 

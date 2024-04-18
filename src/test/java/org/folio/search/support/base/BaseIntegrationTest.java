@@ -198,8 +198,6 @@ public abstract class BaseIntegrationTest {
     doIfNotNull(limit, value -> requestBuilder.queryParam("limit", String.valueOf(value)));
     doIfNotNull(offset, value -> requestBuilder.queryParam("offset", String.valueOf(value)));
     doIfNotNull(expandAll, value -> requestBuilder.queryParam("expandAll", String.valueOf(value)));
-    doIfNotNull(limit, value -> requestBuilder.queryParam("tenantId", CENTRAL_TENANT_ID));
-    doIfNotNull(limit, value -> requestBuilder.queryParam("sortBy", "name"));
 
     return mockMvc.perform(requestBuilder.queryParam("query", query)
       .headers(defaultHeaders(tenantId))

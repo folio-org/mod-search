@@ -37,7 +37,6 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   @SneakyThrows
   protected static void removeTenant() {
     removeTenant(TENANT_ID);
-    removeTenant(MEMBER_TENANT_ID);
     removeTenant(CENTRAL_TENANT_ID);
   }
 

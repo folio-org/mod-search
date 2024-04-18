@@ -32,7 +32,8 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(MEMBER_TENANT_ID);
+    removeTenant(CENTRAL_TENANT_ID);
   }
 
   @Test

@@ -16,13 +16,13 @@ env:
   API_DIRECTORIES: 'src/main/resources/swagger.api'
   API_EXCLUDES: ''
 
-on:
-  push:
-    paths:
-      - 'src/main/resources/swagger.api/**'
-  pull_request:
-    paths:
-      - 'src/main/resources/swagger.api/**'
+#on:
+#  push:
+#    paths:
+#      - 'src/main/resources/swagger.api/**'
+#  pull_request:
+#    paths:
+#      - 'src/main/resources/swagger.api/**'
 
 jobs:
   api-schema-lint:

@@ -18,8 +18,9 @@ name: api-doc
 
 env:
   API_TYPES: 'OAS'
-  API_DIRECTORIES: 'src/main/resources/swagger.api'
-  API_EXCLUDES: 'paths responses'
+  API_DIRECTORIES: 'target/api/openapi'
+  API_INPUT_SPEC: 'src/main/resources/swagger.api/mod-search.yaml'
+  API_EXCLUDES: ''
   OUTPUT_DIR: 'folio-api-docs'
   AWS_S3_BUCKET: 'foliodocs'
   AWS_S3_FOLDER: 'api'
@@ -28,6 +29,7 @@ env:
   AWS_S3_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master ]
     paths:
@@ -43,6 +45,13 @@ jobs:
         with:
           ref: ${{ github.REF }}
           submodules: recursive
+      - name: Build spec
+        uses: s4u/setup-maven-action@v1.12.0
+      - run: |
+          mvn openapi-generator:generate \
+          -Dopenapi.generator.maven.plugin.inputSpec=${{ env.API_INPUT_SPEC }} \
+          -Dopenapi.generator.maven.plugin.generatorName=openapi-yaml \
+          -Dopenapi.generator.maven.plugin.output=target/api
       - name: Prepare folio-tools
         run: |
           git clone https://github.com/folio-org/folio-tools
@@ -88,4 +97,3 @@ jobs:
           destination_prefix: ${{ env.AWS_S3_FOLDER }}
           delete: false
           quiet: false
-

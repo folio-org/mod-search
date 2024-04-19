@@ -7,7 +7,6 @@ import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;

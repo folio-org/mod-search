@@ -7,4 +7,3 @@ schema:
   enum:
     - asc
     - desc
-  default: asc

@@ -3,6 +3,6 @@ properties:
   locations:
     type: array
     items:
-      $ref: './location.yaml'
+      $ref: './consortiumLocation.yaml'
   totalRecords:
     type: integer

@@ -8,7 +8,7 @@ import static org.opensearch.search.sort.SortOrder.DESC;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.domain.dto.Location;
+import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
@@ -35,16 +35,16 @@ public class ConsortiumLocationRepository {
 
   private final RestHighLevelClient client;
 
-  public SearchResult<Location> fetchLocations(String tenantHeader,
-                                               String tenantId,
-                                               Integer limit,
-                                               Integer offset,
-                                               String sortBy,
-                                               SortOrder sortOrder) {
+  public SearchResult<ConsortiumLocation> fetchLocations(String tenantHeader,
+                                                         String tenantId,
+                                                         Integer limit,
+                                                         Integer offset,
+                                                         String sortBy,
+                                                         SortOrder sortOrder) {
 
     var sourceBuilder = getSearchSourceBuilder(tenantId, limit, offset, sortBy, sortOrder);
     var response = search(sourceBuilder, tenantHeader);
-    return documentConverter.convertToSearchResult(response, Location.class);
+    return documentConverter.convertToSearchResult(response, ConsortiumLocation.class);
   }
 
   @NotNull

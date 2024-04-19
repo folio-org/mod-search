@@ -19,8 +19,8 @@ import java.util.Map;
 import lombok.SneakyThrows;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceClassificationsInner;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.SearchUtils;
@@ -57,7 +57,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var instanceId2 = randomId();
     var lcTypeId = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
     var number = "N123";
-    var classification = new InstanceClassificationsInner().classificationNumber(number).classificationTypeId(lcTypeId);
+    var classification = new Classification().classificationNumber(number).classificationTypeId(lcTypeId);
     var instance1 = new Instance().id(instanceId1).addClassificationsItem(classification);
     var instance2 = new Instance().id(instanceId2).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance1);
@@ -88,7 +88,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
   @Test
   void shouldIndexInstanceClassification_deleteDocument() {
     var instanceId = randomId();
-    var classification = new InstanceClassificationsInner().classificationNumber("N123").classificationTypeId("type1");
+    var classification = new Classification().classificationNumber("N123").classificationTypeId("type1");
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);

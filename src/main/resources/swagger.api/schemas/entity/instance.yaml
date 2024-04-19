@@ -35,27 +35,27 @@ properties:
     description: "List of series titles associated with the resource (e.g. Harry Potter)"
     type: array
     items:
-      $ref: "seriesItem.yaml"
+      $ref: "../dto/instance/seriesItem.yaml"
   alternativeTitles:
     type: array
     description: "List of alternative titles for the resource (e.g. original language version title of a movie)"
     items:
-      $ref: "alternativeTitle.yaml"
+      $ref: "../dto/instance/alternativeTitle.yaml"
   identifiers:
     type: array
     description: "Resource identifier value array"
     items:
-      $ref: "identifiers.yaml"
+      $ref: "../dto/common/identifier.yaml"
   contributors:
     type: array
     description: "List of contributors names"
     items:
-      $ref: "contributor.yaml"
+      $ref: "../dto/instance/contributor.yaml"
   subjects:
     type: array
     description: "List of subject headings"
     items:
-      $ref: "subject.yaml"
+      $ref: "../dto/instance/subject.yaml"
   instanceTypeId:
     description: "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined"
     type: string
@@ -70,7 +70,7 @@ properties:
     items:
       type: string
   metadata:
-    $ref: "metadata.yaml"
+    $ref: "../dto/common/metadata.yaml"
   administrativeNotes:
     type: array
     description: "Administrative notes"
@@ -89,14 +89,7 @@ properties:
     description: "List of publication items"
     type: array
     items:
-      type: object
-      properties:
-        publisher:
-          description: "Name of publisher, distributor, etc."
-          type: string
-        dateOfPublication:
-          description: "Date (year YYYY) of publication, distribution, etc."
-          type: string
+      $ref: '../dto/instance/publication.yaml'
   staffSuppress:
     description: "Records the fact that the record should not be displayed for others than catalogers"
     type: boolean
@@ -107,40 +100,32 @@ properties:
     description: "Indicates if this instance is included in a bound-with"
     type: boolean
   tags:
-    description: "arbitrary tags associated with this instance"
-    $ref: "tags.yaml"
+    $ref: "../dto/common/tags.yaml"
   classifications:
     type: array
     description: "List of classifications"
     items:
-      type: object
-      properties:
-        classificationNumber:
-          description: "Classification (e.g. classification scheme, classification schedule)"
-          type: string
-        classificationTypeId:
-          description: "Classification type ID"
-          type: string
+      $ref: '../dto/instance/classification.yaml'
   electronicAccess:
     description: "List of electronic access items"
     type: array
     items:
-      $ref: "electronicAccess.yaml"
+      $ref: "../dto/instance/electronicAccess.yaml"
   notes:
     description: "Bibliographic notes (e.g. general notes, specialized notes), and administrative notes"
     type: array
     items:
-      $ref: "note.yaml"
+      $ref: "../dto/instance/note.yaml"
   items:
     description: "List of instance items"
     type: array
     items:
-      $ref: "item.yaml"
+      $ref: "../dto/instance/item.yaml"
   holdings:
     description: "List of instance holding records"
     type: array
     items:
-      $ref: "holding.yaml"
+      $ref: "../dto/instance/holding.yaml"
 required:
   - electronicAccess
   - notes

@@ -8,4 +8,4 @@ properties:
     type: "array"
     description: "List of authorities found"
     items:
-      $ref: "../../schemas/entity/authority.yaml"
+      $ref: "../../schemas/dto/authority/authority.yaml"

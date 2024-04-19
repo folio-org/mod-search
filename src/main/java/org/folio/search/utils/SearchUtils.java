@@ -152,7 +152,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getIndexName(String resource, String tenantId) {
-    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
+    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource.toLowerCase(ROOT) + "_" + tenantId;
   }
 
   /**

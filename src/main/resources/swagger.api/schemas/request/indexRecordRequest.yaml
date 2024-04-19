@@ -1,4 +1,0 @@
-type: array
-items:
-  type: object
-  $ref: '../entity/resourceEvent.yaml'

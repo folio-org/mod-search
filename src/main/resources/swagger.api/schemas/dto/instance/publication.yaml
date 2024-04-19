@@ -1,0 +1,8 @@
+type: object
+properties:
+  publisher:
+    description: "Name of publisher, distributor, etc."
+    type: string
+  dateOfPublication:
+    description: "Date (year YYYY) of publication, distribution, etc."
+    type: string

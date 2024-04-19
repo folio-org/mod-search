@@ -1,6 +1,6 @@
 in: query
 name: precedingRecordsCount
-description: Number of preceding records for browsing around and around-including options
+description: Number of preceding records for browsing around and around-including queries
 required: false
 schema:
   type: integer

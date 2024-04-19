@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.model.metadata.FieldDescription;
@@ -104,7 +104,7 @@ class AuthorityEventPreProcessorTest {
   @Test
   void process_positive_onlyCommonFieldsArePopulated() {
     var authority = new Authority().id(RESOURCE_ID).subjectHeadings("a subject headings")
-      .identifiers(List.of(new Identifiers().value("an authority identifier")));
+      .identifiers(List.of(new Identifier().value("an authority identifier")));
     var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
     assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority))));
   }
@@ -172,7 +172,7 @@ class AuthorityEventPreProcessorTest {
       .sftUniformTitle(List.of("a sft uniform title"))
       .saftUniformTitle(List.of("a saft uniform title"))
       .subjectHeadings("a subject heading")
-      .identifiers(List.of(new Identifiers()
+      .identifiers(List.of(new Identifier()
         .value("an identifier value")
         .identifierTypeId("an identifier type id")));
   }

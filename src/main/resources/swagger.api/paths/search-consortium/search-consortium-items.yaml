@@ -1,5 +1,6 @@
 get:
   operationId: getConsortiumItems
+  summary: Get Consolidated Items
   description: Get a list of items (only for consortium environment)
   tags:
     - search-consortium
@@ -19,6 +20,9 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/entity/consortiumItemCollection.yaml'
+          examples:
+            consortiumItemCollection:
+              $ref: '../../examples/response/consortiumItemCollectionResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

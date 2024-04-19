@@ -1,3 +1,4 @@
+description: Shelving order algorithm
 type: string
 enum:
   - lc

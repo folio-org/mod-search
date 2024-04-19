@@ -1,0 +1,7 @@
+type: "object"
+properties:
+  noteTypeId:
+    description: "ID of the type of note"
+  note:
+    type: "string"
+    description: "Text content of the note"

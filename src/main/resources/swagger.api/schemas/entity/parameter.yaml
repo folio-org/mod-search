@@ -7,3 +7,6 @@ properties:
   value:
     description: "Parameter value"
     type: "string"
+example:
+  key: "source"
+  value: "null"

@@ -1,5 +1,6 @@
 get:
   operationId: getIdsJob
+  summary: Get Job
   description: Get a job for the stream of resource ids.
   tags:
     - search-resources-ids

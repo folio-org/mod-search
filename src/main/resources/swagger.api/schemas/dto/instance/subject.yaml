@@ -1,5 +1,6 @@
 type: object
 description: "A subject heading description"
+additionalProperties: false
 properties:
   value:
     type: string

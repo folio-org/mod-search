@@ -1,5 +1,6 @@
 type: object
 description: "A series item description"
+additionalProperties: false
 properties:
   value:
     type: string

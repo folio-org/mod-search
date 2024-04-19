@@ -53,10 +53,9 @@ public class BrowseController implements BrowseApi {
   private final TenantProvider tenantProvider;
 
   @Override
-  public ResponseEntity<AuthorityBrowseResult> browseAuthorities(String query, String tenant,
-                                                                 Integer limit, Boolean expandAll,
-                                                                 Boolean highlightMatch,
-                                                                 Integer precedingRecordsCount) {
+  public ResponseEntity<AuthorityBrowseResult> browseAuthorities(String query, String tenant, Boolean expandAll,
+                                                                 Boolean highlightMatch, Integer precedingRecordsCount,
+                                                                 Integer limit) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
       .resource(AUTHORITY_RESOURCE).targetField(AUTHORITY_BROWSING_FIELD).build();
     var browseResult = authorityBrowseService.browse(browseRequest);
@@ -90,10 +89,10 @@ public class BrowseController implements BrowseApi {
 
   @Override
   public ResponseEntity<ClassificationNumberBrowseResult> browseInstancesByClassificationNumber(
-    BrowseOptionType browseOptionId, String query, String tenant, Integer limit, Boolean expandAll,
+    BrowseOptionType browseOptionId, String query, String tenant, Integer limit,
     Boolean highlightMatch, Integer precedingRecordsCount) {
 
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_CLASSIFICATION_RESOURCE)
       .browseOptionType(browseOptionId)
       .targetField(CLASSIFICATION_NUMBER_BROWSING_FIELD)

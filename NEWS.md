@@ -6,6 +6,7 @@
 * Provides `indices v0.7`
 * Provides `search v1.3`
 * Requires `locations v3.0`
+* Provides `consortium-search v1.1`
 
 ### Features
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
@@ -14,6 +15,7 @@
 * Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://issues.folio.org/browse/MSEARCH-697))
 * Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
 * Facets: add support for instance classification facets ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+* Return Unified List of Inventory Locations in a Consortium ([MSEARCH-681](https://folio-org.atlassian.net/browse/MSEARCH-681))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

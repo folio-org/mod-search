@@ -1,7 +1,12 @@
 name: Run Spectral on Pull Requests
 
 on:
-  - pull_request
+  push:
+    paths:
+      - 'src/main/resources/swagger.api/**'
+  pull_request:
+    paths:
+      - 'src/main/resources/swagger.api/**'
 
 jobs:
   build:

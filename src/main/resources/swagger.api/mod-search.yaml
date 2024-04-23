@@ -73,6 +73,9 @@ paths:
   /search/consortium/items:
     $ref: 'paths/search-consortium/search-consortium-items.yaml'
 
+  /search/consortium/locations:
+    $ref: 'paths/search-consortium/search-consortium-locations.yaml'
+
   /search/index/indices:
     $ref: 'paths/search-index/search-index-indices.yaml'
 

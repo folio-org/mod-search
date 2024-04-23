@@ -112,5 +112,4 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, expandAll);
   }
-
 }

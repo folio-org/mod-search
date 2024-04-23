@@ -45,9 +45,12 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual.getLocations()).hasSize(7);
     assertThat(actual.getTotalRecords()).isEqualTo(7);
-    assertThat(actual.getLocations().get(0).getName()).isNotNull();
-    assertThat(actual.getLocations().get(1).getId()).isNotNull();
-    assertThat(actual.getLocations().get(1).getTenantId()).isNotNull();
+    assertThat(actual.getLocations())
+      .allSatisfy(location -> {
+        assertThat(location.getId()).isNotBlank();
+        assertThat(location.getName()).isNotBlank();
+        assertThat(location.getTenantId()).isNotBlank();
+      });
   }
 
   @Test

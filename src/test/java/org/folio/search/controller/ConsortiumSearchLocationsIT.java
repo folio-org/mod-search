@@ -1,10 +1,14 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleLocations.getLocationsSampleAsMap;
 import static org.folio.search.support.base.ApiEndpoints.consortiumLocationsSearchPath;
+import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryLocationTopic;
@@ -78,6 +82,9 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
     getLocationsSampleAsMap().stream().map(
       location -> kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, location, null))
       .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), event));
-    awaitAssertLocationCount(7);
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
+      var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
+      assertThat(totalHits).isEqualTo(7);
+    });
   }
 }

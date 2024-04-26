@@ -38,6 +38,9 @@ public class TestConstants {
   public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
   public static final String CONSORTIUM_INSTANCE_TOPIC = "search.consortium.instance";
 
+  public static final String LOCAL_CN_TYPE = "6fd29f52-5c9c-44d0-b529-e9c5eb3a0aba";
+  public static final String FOLIO_CN_TYPE = "6e4d7565-b277-4dfa-8b7d-fbf306d9d0cd";
+
   public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISBN_IDENTIFIER_TYPE_ID = randomId();

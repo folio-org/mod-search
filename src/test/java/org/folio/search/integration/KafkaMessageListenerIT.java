@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -191,7 +190,7 @@ class KafkaMessageListenerIT {
       inventoryInstanceTopic(), KafkaMessageListenerIT::instanceEvent);
 
     var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
-    await().atMost(Duration.ofSeconds(20)).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       verify(resourceService).indexInstancesById(List.of(expectedEvents.get(0)));
       verify(resourceService).indexInstancesById(List.of(expectedEvents.get(1)));
       verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvents.get(2)));

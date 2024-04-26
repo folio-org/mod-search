@@ -62,9 +62,8 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     setUpTenant(CENTRAL_TENANT_ID, INSTANCES_CENTRAL);
     setUpTenant(MEMBER_TENANT_ID);
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
-      INSTANCES_CENTRAL.length,
+      4,
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-    asList(INSTANCES_MEMBER).forEach(instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var searchRequest = new SearchRequest()

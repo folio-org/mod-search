@@ -5,6 +5,8 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.BatchHoldingIdsDto;
+import org.folio.search.domain.dto.BatchItemIdsDto;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -132,6 +134,18 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .instanceId(instance.getId())
       .holdingsRecordId(item.getHoldingsRecordId())
     );
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumItemCollection> fetchConsortiumBatchItems(String tenantHeader,
+                                                                            BatchItemIdsDto batchItemIdsDto) {
+    return SearchConsortiumApi.super.fetchConsortiumBatchItems(tenantHeader, batchItemIdsDto);
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
+                                                                                  BatchHoldingIdsDto holdingIdsDto) {
+    return SearchConsortiumApi.super.fetchConsortiumBatchHoldings(tenantHeader, holdingIdsDto);
   }
 
   private String verifyAndGetTenant(String tenantHeader) {

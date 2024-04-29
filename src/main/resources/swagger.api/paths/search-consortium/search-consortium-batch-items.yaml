@@ -1,0 +1,27 @@
+post:
+  operationId: fetchConsortiumBatchItems
+  summary: Fetch Consolidated Items
+  description: Fetch a list of items (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../parameters/batchItemIdsDto.yaml'
+  responses:
+    '200':
+      description: List of items
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumItemCollection.yaml'
+          examples:
+            consortiumItemCollection:
+              $ref: '../../examples/response/consortiumItemCollectionResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

@@ -83,12 +83,8 @@ paths:
       tags:
         - search-consortium
       parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            $ref: "#/components/schemas/uuid"
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: 'parameters/record-id-param.yaml'
+        - $ref: 'parameters/x-okapi-tenant-header.yaml'
       responses:
         '200':
           description: an instance holding
@@ -108,12 +104,8 @@ paths:
       tags:
         - search-consortium
       parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            $ref: "#/components/schemas/uuid"
-        - $ref: '#/components/parameters/x-okapi-tenant-header'
+        - $ref: 'parameters/record-id-param.yaml'
+        - $ref: 'parameters/x-okapi-tenant-header.yaml'
       responses:
         '200':
           description: an instance item
@@ -173,11 +165,5 @@ paths:
 
   /browse/config/{browseType}/{browseOptionId}:
     $ref: 'paths/browse-config/browse-type-browse-option-id.yaml'
-
-components:
-  schemas:
-    uuid:
-      type: string
-      format: uuid
 
 

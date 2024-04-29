@@ -1,15 +1,16 @@
 package org.folio.search.controller;
 
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.ConsortiumSearchContext;
@@ -65,8 +66,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
     var result = searchService.search(searchRequest);
 
-    if (CollectionUtils.isEmpty(result.getRecords())
-      || CollectionUtils.isEmpty(result.getRecords().iterator().next().getHoldings())) {
+    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().iterator().next().getHoldings())) {
       return ResponseEntity.ok(new ConsortiumHolding());
     }
 
@@ -120,10 +120,10 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
     var result = searchService.search(searchRequest);
 
-    if (CollectionUtils.isEmpty(result.getRecords())
-      || CollectionUtils.isEmpty(result.getRecords().iterator().next().getItems())) {
+    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().iterator().next().getItems())) {
       return ResponseEntity.ok(new ConsortiumItem());
     }
+
     var instance = result.getRecords().iterator().next();
     var item = instance.getItems().iterator().next();
     return ResponseEntity.ok(new ConsortiumItem()

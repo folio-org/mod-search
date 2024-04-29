@@ -196,7 +196,7 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/consortium/item",
+          "pathPattern": "/search/consortium/item/{id}",
           "permissionsRequired": [
             "consortium-search.items.collection.get"
           ],

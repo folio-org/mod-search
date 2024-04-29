@@ -1,0 +1,69 @@
+description: "Holding description"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique ID of the holding record"
+  tenantId:
+    description: "Tenant ID"
+    type: string
+  permanentLocationId:
+    type: string
+    description: "The permanent shelving location in which an item resides."
+  discoverySuppress:
+    type: boolean
+    description: "Indicates that the record should not be displayed in a discovery system"
+  hrid:
+    type: string
+    description: "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+  sourceId:
+    description: "(A reference to) the source of a holdings record"
+    type: string
+  formerIds:
+    type: array
+    description: "Previous identifiers assigned to the holding"
+    items:
+      type: string
+  statisticalCodeIds:
+    type: array
+    description: "List of statistical code IDs"
+    items:
+      type: string
+      description: "UUID for a statistical code"
+  tags:
+    $ref: "../common/tags.yaml"
+  holdingsTypeId:
+    type: string
+    description: "unique ID for the type of this holdings record, a UUID"
+  callNumberPrefix:
+    type: string
+    description: "Prefix of the call number on the holding level."
+  callNumber:
+    type: string
+    description: "Call Number is an identifier assigned to an item, usually printed on a label attached to the item."
+  callNumberSuffix:
+    type: string
+    description: "Suffix of the call number on the holding level."
+  copyNumber:
+    type: string
+    description: "Item/Piece ID (usually barcode) for systems that do not use item records."
+  electronicAccess:
+    type: array
+    description: "List of electronic access items"
+    items:
+      $ref: "electronicAccess.yaml"
+  administrativeNotes:
+    type: array
+    description: "Administrative notes"
+    items:
+      type: string
+  notes:
+    type: array
+    description: "Notes about action, copy, binding etc."
+    items:
+      $ref: "note.yaml"
+  metadata:
+    $ref: "../common/metadata.yaml"
+required:
+  - electronicAccess
+  - notes

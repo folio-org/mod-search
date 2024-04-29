@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
@@ -68,13 +68,13 @@ class IsbnProcessorTest {
       arguments("issn identifier='0747-0088'", instanceWithIdentifiers(identifier("issn", "0747-0088")), emptyList()),
       arguments("isbn identifier=null", instanceWithIdentifiers(isbn(null)), emptyList()),
       arguments("isbn identifier='047144250X'",
-        instanceWithIdentifiers(isbn("047144250X")), List.of("047144250X", "9780471442509")),
+        instanceWithIdentifiers(isbn("047144250X")), List.of("047144250x")),
       arguments("invalid isbn identifier='1 86197 271-7'",
         instanceWithIdentifiers(invalidIsbn("1 86197 271-7")), List.of("1861972717", "9781861972712")),
       arguments("invalid isbn identifier='1 86197 2717'",
         instanceWithIdentifiers(invalidIsbn("1 86197 2717")), List.of("1861972717")),
       arguments("invalid isbn identifier='047144250X'",
-        instanceWithIdentifiers(invalidIsbn("047144250X")), List.of("047144250X", "9780471442509")),
+        instanceWithIdentifiers(invalidIsbn("047144250X")), List.of("047144250x")),
       arguments("isbn identifier='1 86197 271-7'",
         instanceWithIdentifiers(isbn("1 86197 271-7")), List.of("1861972717", "9781861972712")),
       arguments("isbn identifier='1-86-197 271-7'",
@@ -102,7 +102,7 @@ class IsbnProcessorTest {
       arguments("isbn identifier='978-0 4712 442509 (alk. paper)'",
         instanceWithIdentifiers(isbn("978-0 4712 442509 (alk. paper)")), List.of("97804712442509 (alk. paper)")),
       arguments("isbn identifier='047144250X (paper)'",
-        instanceWithIdentifiers(isbn("047144250X (paper)")), List.of("047144250X", "9780471442509", "(paper)")),
+        instanceWithIdentifiers(isbn("047144250X (paper)")), List.of("047144250x (paper)")),
       arguments("isbn identifier='1 86197 271-7 (paper)'",
         instanceWithIdentifiers(isbn("1 86197 271-7 (paper)")), List.of("1861972717", "9781861972712", "(paper)")),
       arguments("isbn identifier='1 86197 2717 (paper)'",
@@ -112,11 +112,11 @@ class IsbnProcessorTest {
     );
   }
 
-  private static Identifiers isbn(String value) {
+  private static Identifier isbn(String value) {
     return identifier(ISBN_IDENTIFIER_TYPE_ID, value);
   }
 
-  private static Identifiers invalidIsbn(String value) {
+  private static Identifier invalidIsbn(String value) {
     return identifier(INVALID_ISBN_IDENTIFIER_TYPE_ID, value);
   }
 

@@ -7,7 +7,7 @@
   },
   "fields": {
     "id": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": [ "search", "browse" ]
     },
     "tenantId": {
@@ -265,7 +265,7 @@
       "authRefType": "Auth/Ref"
     },
     "subjectHeadings": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "searchTypes": [ "facet", "filter" ]
     },
     "identifiers": {
@@ -273,10 +273,10 @@
       "properties": {
         "value": {
           "searchAliases": [ "keyword" ],
-          "index": "keyword"
+          "index": "keyword_lowercase"
         },
         "identifierTypeId": {
-          "index": "keyword"
+          "index": "keyword_lowercase"
         }
       }
     },
@@ -323,7 +323,7 @@
       "default": "NULL"
     },
     "naturalId": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": [ "search", "browse" ]
     },
     "shared": {
@@ -356,7 +356,7 @@
     },
     "authRefType": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "authRefTypeProcessor",
       "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
@@ -380,7 +380,7 @@
     },
     "lccn": {
       "type": "search",
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "processor": "lccnAuthorityProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
     }

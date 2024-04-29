@@ -1,0 +1,11 @@
+description: Authority browse result item
+type: object
+properties:
+  authority:
+    $ref: '../../schemas/dto/authority/authority.yaml'
+  headingRef:
+    type: string
+    description: The heading/reference of the record that provides authority information for authority browse item
+  isAnchor:
+    type: boolean
+    description: Marks if current value is anchor or not

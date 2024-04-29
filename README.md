@@ -265,7 +265,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | SEARCH_BY_ALL_FIELDS_ENABLED                       | false                                                      | Specifies if globally search by all field values must be enabled or not (tenant can override this setting)                                                                            |
 | BROWSE_CN_INTERMEDIATE_VALUES_ENABLED              | true                                                       | Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)                                                         |
 | BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES           | true                                                       | Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)                                |
-| BROWSE_CLASSIFICATIONS_ENABLED                     | false                                                      | Specifies if globally instance classification indexing will be performed                                                                                                              |
+| BROWSE_CLASSIFICATIONS_ENABLED                     | true                                                       | Specifies if globally instance classification indexing will be performed                                                                                                              |
 | SCROLL_QUERY_SIZE                                  | 1000                                                       | The number of records to be loaded by each scroll query. 10_000 is a max value                                                                                                        |
 | STREAM_ID_RETRY_INTERVAL_MS                        | 1000                                                       | Specifies time to wait before reattempting query.                                                                                                                                     |
 | STREAM_ID_RETRY_ATTEMPTS                           | 3                                                          | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
@@ -276,6 +276,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | SEARCH_QUERY_TIMEOUT                               | 25s                                                        | The maximum time to wait for search query response                                                                                                                                    |
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
+| REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -331,7 +332,8 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`
+* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `locations`
+  Please note that `locations` reindex is synchronous
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.
@@ -503,51 +505,52 @@ does not produce any values, so the following search options will return an empt
 
 ##### Instance search options
 
-| Option                                 |   Type    | Example                                                              | Description                                                                                                                            |
-|:---------------------------------------|:---------:|:---------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------|
-| `keyword`                              | full-text | `keyword all "web semantic"`                                         | An alias for: `title`, `alternativeTitles`, `indexTitle`, `series`, `identifiers.value`, `contributors.name`                           |
-| `id`                                   |   term    | `id=="1234567"`                                                      | Matches instance with the id                                                                                                           |
-| `hrid`                                 |   term    | `hrid=="hr1*0"`                                                      | Matches instances with given HRID                                                                                                      |
-| `source`                               |   term    | `source=="MARC"`                                                     | Matches instances with given source (FOLIO/MARC)                                                                                       |
-| `title`                                | full-text | `title all "semantic web"`                                           | Matches instances with the given title, searches against `title`, `alternativeTitles`, `indexTitle`, `series` fields                   |
-| `alternativeTitles.alternativeTitle`   | full-text | `alternativeTitles.alternativeTitle all "semantic web"`              | Matches instances with the given alternative title                                                                                     |
-| `uniformTitle`                         | full-text | `uniformTitle all "semantic web"`                                    | Matches instances with the given uniform title                                                                                         |
-| `indexTitle`                           | full-text | `indexTitle all "semantic web"`                                      | Matches instances with the given index title                                                                                           |
-| `series`                               | full-text | `series all "series"`                                                | Matches instance with given series value                                                                                               |
-| `identifiers.value`                    |   term    | `identifiers.value = "1023*"`                                        | Matches instances with the given identifier value                                                                                      |
-| `identifiers.identifierTypeId`         |   term    | `identifiers.identifierTypeId=="123" identifiers.value = "1023*"`    | Matches instances that have an identifier of type `123` and ANY identifier with value `1023*`                                          |
-| `contributors`                         | full-text | `contributors all "John"`                                            | Matches instances that have a `John` contributor                                                                                       |
-| `contributors.name`                    |   term    | `contributors.name all "John"`                                       | Matches instances that have a primary `John` contributor                                                                               |
-| `contributors.contributorTypeId`       |   term    | `contributors.contributorTypeId all "1234567"`                       | Matches instances that have a contributor type Id `1234567`                                                                            |
-| `contributors.contributorNameTypeId`   |   term    | `contributors.contributorNameTypeId all "1234567"`                   | Matches instances that have a contributor name type Id `1234567`                                                                       |
-| `contributors.primary`                 |   term    | `contributors all "John" and contributors.primary==true`             | Matches instances that have a primary `John` contributor                                                                               |
-| `contributors.authorityId`             |   term    | `contributors.authorityId == "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Matches instances that have a contributor authorityId `81ae0f60-f2bc-450c-84c8-5a21096daed9`                                           |
-| `authorityId`                          |   term    | `authorityId == "81ae0f60-f2bc-450c-84c8-5a21096daed9"`              | Matches instances that have a contributor authorityId `81ae0f60-f2bc-450c-84c8-5a21096daed9`                                           |
-| `subjects`                             | full-text | `subjects all "Chemistry"`                                           | Matches instances that have a `Chemistry` subject                                                                                      |
-| `instanceTypeId`                       |   term    | `instanceTypeId == "123"`                                            | Matches instances with the `123` type                                                                                                  |
-| `statusId`                             |   term    | `statusId == "123"`                                                  | Matches instances with the `123` status                                                                                                |
-| `instanceFormatIds`                    |   term    | `instanceFormatIds == "123"`                                         | Matches instances with the `123` format id                                                                                             |
-| `languages`                            |   term    | `languages == "eng"`                                                 | Matches instances that have `eng` language                                                                                             |
-| `metadata.createdDate`                 |   term    | `metadata.createdDate > "2021-03-01T00:00:00.000+00:00"`             | Matches instances that were created after  `2020-12-12`                                                                                |
-| `metadata.updatedDate`                 |   term    | `metadata.updatedDate > "2020-12-12"`                                | Matches instances that were updated after  `2020-12-12`                                                                                |
-| `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                     |
-| `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                    |
-| `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                           |
-| `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                            |
-| `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                |
-| `electronicAccess`                     | full-text | `electronicAccess any "resource"`                                    | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                                 |
-| `electronicAccess.uri`                 |   term    | `electronicAccess.uri="http://folio.org*"`                           | Search by electronic access URI                                                                                                        |
-| `electronicAccess.linkText`            | full-text | `electronicAccess.linkText="Folio website"`                          | Search by electronic access link text                                                                                                  |
-| `electronicAccess.publicNote`          | full-text | `electronicAccess.publicNote="a rare book"`                          | Search by electronic access public note                                                                                                |
-| `staffSuppress`                        |   term    | `staffSuppress==true`                                                | Matches instances that are staff suppressed                                                                                            |
-| `discoverySuppress`                    |   term    | `discoverySuppress==true`                                            | Matches instances that are suppressed from discovery                                                                                   |
-| `publicNotes`                          | full-text | `publicNotes all "public note"`                                      | Matches instances that have a public note (i.e. `note.staffOnly` is `false`)                                                           |
-| `administrativeNotes`                  | full-text | `administrativeNotes all "librarian note"`                           | Search by administrative notes                                                                                                         |
-| `notes.note`                           | full-text | `notes.note all "librarian note"`                                    | Search by instance notes (include staffOnly)                                                                                           |
-| `isbn`                                 |   term    | `isbn="1234*"`                                                       | Matches instances that have an ISBN identifier with the given value                                                                    |
-| `issn`                                 |   term    | `issn="1234*"`                                                       | Matches instances that have an ISSN identifier with the given value                                                                    |
-| `oclc`                                 |   term    | `oclc="1234*"`                                                       | Matches instances that have an OCLC identifier with the given value                                                                    |
-| `lccn`                                 |   term    | `lccn = "LCCN"`                                                      | Matches instances with the given lccn                                                                                                  |
+| Option                                 |   Type    | Example                                                              | Description                                                                                                                                       |
+|:---------------------------------------|:---------:|:---------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `keyword`                              | full-text | `keyword all "web semantic"`                                         | An alias for: `title`, `alternativeTitles`, `indexTitle`, `series`, `identifiers.value`, `contributors.name`                                      |
+| `id`                                   |   term    | `id=="1234567"`                                                      | Matches instance with the id                                                                                                                      |
+| `hrid`                                 |   term    | `hrid=="hr1*0"`                                                      | Matches instances with given HRID                                                                                                                 |
+| `source`                               |   term    | `source=="MARC"`                                                     | Matches instances with given source (FOLIO/MARC)                                                                                                  |
+| `title`                                | full-text | `title all "semantic web"`                                           | Matches instances with the given title, searches against `title`, `alternativeTitles`, `indexTitle`, `series` fields                              |
+| `alternativeTitles.alternativeTitle`   | full-text | `alternativeTitles.alternativeTitle all "semantic web"`              | Matches instances with the given alternative title                                                                                                |
+| `uniformTitle`                         | full-text | `uniformTitle all "semantic web"`                                    | Matches instances with the given uniform title                                                                                                    |
+| `indexTitle`                           | full-text | `indexTitle all "semantic web"`                                      | Matches instances with the given index title                                                                                                      |
+| `series`                               | full-text | `series all "series"`                                                | Matches instance with given series value                                                                                                          |
+| `identifiers.value`                    |   term    | `identifiers.value = "1023*"`                                        | Matches instances with the given identifier value                                                                                                 |
+| `identifiers.identifierTypeId`         |   term    | `identifiers.identifierTypeId=="123" identifiers.value = "1023*"`    | Matches instances that have an identifier of type `123` and ANY identifier with value `1023*`                                                     |
+| `contributors`                         | full-text | `contributors all "John"`                                            | Matches instances that have a `John` contributor                                                                                                  |
+| `contributors.name`                    |   term    | `contributors.name all "John"`                                       | Matches instances that have a primary `John` contributor                                                                                          |
+| `contributors.contributorTypeId`       |   term    | `contributors.contributorTypeId all "1234567"`                       | Matches instances that have a contributor type Id `1234567`                                                                                       |
+| `contributors.contributorNameTypeId`   |   term    | `contributors.contributorNameTypeId all "1234567"`                   | Matches instances that have a contributor name type Id `1234567`                                                                                  |
+| `contributors.primary`                 |   term    | `contributors all "John" and contributors.primary==true`             | Matches instances that have a primary `John` contributor                                                                                          |
+| `contributors.authorityId`             |   term    | `contributors.authorityId == "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Matches instances that have a contributor authorityId `81ae0f60-f2bc-450c-84c8-5a21096daed9`                                                      |
+| `authorityId`                          |   term    | `authorityId == "81ae0f60-f2bc-450c-84c8-5a21096daed9"`              | Matches instances that have a contributor authorityId `81ae0f60-f2bc-450c-84c8-5a21096daed9`                                                      |
+| `subjects`                             | full-text | `subjects all "Chemistry"`                                           | Matches instances that have a `Chemistry` subject                                                                                                 |
+| `instanceTypeId`                       |   term    | `instanceTypeId == "123"`                                            | Matches instances with the `123` type                                                                                                             |
+| `statusId`                             |   term    | `statusId == "123"`                                                  | Matches instances with the `123` status                                                                                                           |
+| `instanceFormatIds`                    |   term    | `instanceFormatIds == "123"`                                         | Matches instances with the `123` format id                                                                                                        |
+| `languages`                            |   term    | `languages == "eng"`                                                 | Matches instances that have `eng` language                                                                                                        |
+| `metadata.createdDate`                 |   term    | `metadata.createdDate > "2021-03-01T00:00:00.000+00:00"`             | Matches instances that were created after  `2020-12-12`                                                                                           |
+| `metadata.updatedDate`                 |   term    | `metadata.updatedDate > "2020-12-12"`                                | Matches instances that were updated after  `2020-12-12`                                                                                           |
+| `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                                |
+| `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                               |
+| `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                                      |
+| `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                                       |
+| `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                           |
+| `electronicAccess`                     | full-text | `electronicAccess any "resource"`                                    | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                                            |
+| `electronicAccess.uri`                 |   term    | `electronicAccess.uri="http://folio.org*"`                           | Search by electronic access URI                                                                                                                   |
+| `electronicAccess.linkText`            | full-text | `electronicAccess.linkText="Folio website"`                          | Search by electronic access link text                                                                                                             |
+| `electronicAccess.publicNote`          | full-text | `electronicAccess.publicNote="a rare book"`                          | Search by electronic access public note                                                                                                           |
+| `staffSuppress`                        |   term    | `staffSuppress==true`                                                | Matches instances that are staff suppressed                                                                                                       |
+| `discoverySuppress`                    |   term    | `discoverySuppress==true`                                            | Matches instances that are suppressed from discovery                                                                                              |
+| `publicNotes`                          | full-text | `publicNotes all "public note"`                                      | Matches instances that have a public note (i.e. `note.staffOnly` is `false`)                                                                      |
+| `administrativeNotes`                  | full-text | `administrativeNotes all "librarian note"`                           | Search by administrative notes                                                                                                                    |
+| `notes.note`                           | full-text | `notes.note all "librarian note"`                                    | Search by instance notes (include staffOnly)                                                                                                      |
+| `isbn`                                 |   term    | `isbn="1234*"`                                                       | Matches instances that have an ISBN identifier with the given value                                                                               |
+| `issn`                                 |   term    | `issn="1234*"`                                                       | Matches instances that have an ISSN identifier with the given value                                                                               |
+| `oclc`                                 |   term    | `oclc="1234*"`                                                       | Matches instances that have an OCLC identifier with the given value                                                                               |
+| `lccn`                                 |   term    | `lccn = "LCCN"`                                                      | Matches instances with the given lccn                                                                                                             |
+| `normalizedClassificationNumber`       |   term    | `normalizedClassificationNumber == "LCCN"`                           | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
 
 ##### Holdings search options
 
@@ -665,7 +668,7 @@ Facets can be retrieved by using following API `GET /{recordType}/facets`. It co
 
 | Parameter    | Required | Description                                                                                                                                                                                |
 |:-------------|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `recordType` |   Yes    | Type of record: authorities, instances, or contributors                                                                                                                                    |
+| `recordType` |   Yes    | Type of record: authorities, instances, contributors, subjects, classifications                                                                                                            |
 | `query`      |   Yes    | A CQL query to search by                                                                                                                                                                   |
 | `facet`      |   Yes    | A name of the facet with optional size in the format `{facetName}` or `{facetName}:{size}` (for example: `source`, `source:5`). If the size is not specified, all values will be retrieved |
 
@@ -742,6 +745,13 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 | `instances.shared`      | term | Requests a shared/local facet          |
 
 ##### Subjects facets
+
+| Option               | Type | Description                   |
+|:---------------------|:----:|:------------------------------|
+| `instances.tenantId` | term | Requests a tenantId facet     |
+| `instances.shared`   | term | Requests a shared/local facet |
+
+##### Classifications facets
 
 | Option               | Type | Description                   |
 |:---------------------|:----:|:------------------------------|
@@ -852,10 +862,11 @@ can't receive ids by query.
 ### Consortium Search API
 Special API that provide consolidated access to records in consortium environment. Works only for central tenant.
 
-| METHOD | URL                           | DESCRIPTION                   |
-|:-------|:------------------------------|:------------------------------|
-| GET    | `/search/consortium/holdings` | Returns consolidated holdings |
-| GET    | `/search/consortium/items`    | Returns consolidated items    |
+| METHOD | URL                            | DESCRIPTION                    |
+|:-------|:-------------------------------|:-------------------------------|
+| GET    | `/search/consortium/holdings`  | Returns consolidated holdings  |
+| GET    | `/search/consortium/items`     | Returns consolidated items     |
+| GET    | `/search/consortium/locations` | Returns consolidated locations |
 
 ## Additional Information
 

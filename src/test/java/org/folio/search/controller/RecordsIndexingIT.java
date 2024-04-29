@@ -21,7 +21,6 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.toMap;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,7 +35,6 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.model.client.CqlQueryParam;
@@ -140,71 +138,6 @@ class RecordsIndexingIT extends BaseIntegrationTest {
     var deleteEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
     assertCountByQuery(authoritySearchPath(), ID, List.of(authorityId), 0);
-  }
-
-  @Test
-  void runReindex_positive_instance() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
-
-    mockMvc.perform(request)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id", is("77ef33c0-2774-45e9-9f45-eb54082e2820")))
-      .andExpect(jsonPath("$.jobStatus", is("In progress")))
-      .andExpect(jsonPath("$.submittedDate", is("2021-11-08T12:00:00.000+00:00")));
-  }
-
-  @Test
-  void runReindex_positive_authority() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName(getResourceName(Authority.class))))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
-
-    mockMvc.perform(request)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id", is("37bd1461-ee1a-4522-9f8c-93bab186fad3")))
-      .andExpect(jsonPath("$.jobStatus", is("In progress")))
-      .andExpect(jsonPath("$.submittedDate", is("2021-11-08T13:00:00.000+00:00")));
-  }
-
-  @Test
-  void runReindex_positive_instanceSubject() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName("instance_subject")))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
-
-    mockMvc.perform(request)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Reindex request contains invalid resource name")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("instance_subject")));
-  }
-
-  @Test
-  void runReindex_positive_contributor() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName("contributor")))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
-
-    mockMvc.perform(request)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Reindex request contains invalid resource name")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("contributor")));
   }
 
   @Test

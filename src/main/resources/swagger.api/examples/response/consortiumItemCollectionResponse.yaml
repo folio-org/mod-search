@@ -1,0 +1,15 @@
+value:
+  items:
+    - id: 68ec4438-8b93-46df-8c36-232db4f7862e
+      hrid: it00231
+      tenantId: college
+      instanceId: 1af42087-458d-4777-a797-a7717020ab18
+      holdingsRecordId: 2ec87381-cfc6-4cd7-8368-9398410a64c4
+      barcode: "1233322"
+    - id: dab66210-5038-424a-a31e-cda18b4d4061
+      hrid: it00033321
+      tenantId: university
+      instanceId: 1af42087-458d-4777-a797-a7717020ab18
+      holdingsRecordId: 2ec87381-cfc6-4cd7-8368-9398410a64c4
+      barcode: "7873426"
+  totalRecords: 1203

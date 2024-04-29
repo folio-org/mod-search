@@ -1,0 +1,8 @@
+description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/response/errorResponse.yaml"
+    examples:
+      unknownError:
+        $ref: "../examples/response/unknownError.yaml"

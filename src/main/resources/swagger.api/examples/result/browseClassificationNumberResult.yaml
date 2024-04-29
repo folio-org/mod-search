@@ -1,0 +1,12 @@
+value:
+  totalRecords: 2
+  prev: "QA76.73.C15"
+  items:
+    - classificationNumber: "QA76.73.C15"
+      classificationTypeId: "5af5cb9d-063f-48ea-8148-7da3ecaafd7d"
+      isAnchor: true
+      totalRecords: 10
+    - classificationNumber: "TK5105.88815"
+      classificationTypeId: "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d"
+      isAnchor: false
+      totalRecords: 5

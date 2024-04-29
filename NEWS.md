@@ -1,19 +1,27 @@
 ## v3.3.0 YYYY-mm-DD
 ### Breaking changes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
-* Requires `API_NAME vX.Y`
+* Provides `indices v0.7`
+* Provides `search v1.3`
+* Requires `locations v3.0`
+* Provides `consortium-search v1.1`
 
 ### Features
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
+* Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
+* Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
+* Instance search: add search option that search instances by normalized classification number ([MSEARCH-697](https://issues.folio.org/browse/MSEARCH-697))
+* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+* Facets: add support for instance classification facets ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
+* Return Unified List of Inventory Locations in a Consortium ([MSEARCH-681](https://folio-org.atlassian.net/browse/MSEARCH-681))
 
 ### Bug fixes
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
 
 ### Tech Dept
-* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+* Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
@@ -46,6 +54,7 @@
 * Remove call number format validation for shelving order generation ([MSEARCH-689](https://folio-org.atlassian.net/browse/MSEARCH-689))
 * Implement endpoint for consolidate holdings access in consortium ([MSEARCH-692](https://folio-org.atlassian.net/browse/MSEARCH-692))
 * Implement endpoint for consolidate items access in consortium ([MSEARCH-693](https://folio-org.atlassian.net/browse/MSEARCH-693))
+* Make Inventory and Authority searches case-insensitive ([MSEARCH-696](https://folio-org.atlassian.net/browse/MSEARCH-696))
 
 ### Bug fixes
 * Fix secure setup of system users by default ([MSEARCH-608](https://issues.folio.org/browse/MSEARCH-608))
@@ -61,6 +70,7 @@
 ### Tech Dept
 * Fix log level and message wording for uniform titles ([MSEARCH-666](https://issues.folio.org/browse/MSEARCH-666))
 * Update development.md for local environment testing ([MSEARCH-592](https://issues.folio.org/browse/MSEARCH-592))
+* Clean up API documentation to enable checking of the request/response bodies samples([MSEARCH-546](https://issues.folio.org/browse/MSEARCH-546))
 
 ### Dependencies
 * Bump `spring-boot` from `3.1.5` to `3.2.3`

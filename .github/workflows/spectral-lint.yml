@@ -1,0 +1,22 @@
+name: Run Spectral on Pull Requests
+
+on:
+  push:
+    paths:
+      - 'src/main/resources/swagger.api/**'
+  pull_request:
+    paths:
+      - 'src/main/resources/swagger.api/**'
+
+jobs:
+  build:
+    name: Run Spectral
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v3
+
+      # Run Spectral
+      - uses: stoplightio/spectral-action@latest
+        with:
+          file_glob: 'src/main/resources/swagger.api/*.yaml'

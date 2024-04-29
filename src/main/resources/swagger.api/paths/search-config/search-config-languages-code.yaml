@@ -1,0 +1,45 @@
+put:
+  operationId: updateLanguageConfig
+  summary: Update Language Configuration
+  description: Update language config settings
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/language-code.yaml'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/entity/languageConfig.yaml'
+        examples:
+          updateLanguageConfigRequest:
+            value:
+              code: eng
+              languageAnalyzer: eng-analyzer
+  responses:
+    '200':
+      description: Language support has been added.
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/languageConfig.yaml'
+          examples:
+            updateLanguageConfigResponse:
+              value:
+                code: eng
+                languageAnalyzer: eng-analyzer
+    '422':
+      $ref: '../../responses/unprocessableEntityResponse.yaml'
+delete:
+  operationId: deleteLanguageConfig
+  summary: Delete Language Configuration
+  description: Delete all supported languages
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/language-code.yaml'
+  responses:
+    '204':
+      description: Language support has been removed
+    '404':
+      description: No language support is found

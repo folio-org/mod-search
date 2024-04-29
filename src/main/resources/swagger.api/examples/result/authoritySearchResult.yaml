@@ -1,0 +1,21 @@
+value:
+  totalRecords: 10
+  authorities:
+  - id: f866ae27-ec31-4eb4-8ade-89fe3d9625eb
+    tenantId: diku
+    shared: false
+    headingType: Personal Name
+    authRefType: Authorized
+    headingRef: Kerouac, Jack
+    numberOfTitles: 0
+    sourceFileId: 'NULL'
+    naturalId: aat32
+  - id: d16bc790-fa2a-4bae-9563-9796bc7bef3c
+    tenantId: diku
+    shared: false
+    headingType: Personal Name
+    authRefType: Authorized
+    headingRef: Roberts, Julia, 1967-
+    numberOfTitles: 1
+    sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
+    naturalId: n910740801

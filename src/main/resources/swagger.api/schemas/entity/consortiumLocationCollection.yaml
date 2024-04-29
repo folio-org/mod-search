@@ -1,0 +1,8 @@
+type: object
+properties:
+  locations:
+    type: array
+    items:
+      $ref: './consortiumLocation.yaml'
+  totalRecords:
+    type: integer

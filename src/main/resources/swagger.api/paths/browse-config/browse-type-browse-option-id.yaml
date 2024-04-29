@@ -1,0 +1,25 @@
+put:
+  operationId: putBrowseConfig
+  summary: Update Browse Configurations
+  description: Update configuration for browse type
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/browse-type.yaml'
+    - $ref: '../../parameters/browse-option-id.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/entity/browseConfig.yaml'
+        examples:
+          updateRequest:
+            $ref: '../../examples/request/browseConfigUpdateRequest.yaml'
+  responses:
+    '200':
+      description: Browse configuration has been updated.
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '422':
+      $ref: '../../responses/unprocessableEntityResponse.yaml'

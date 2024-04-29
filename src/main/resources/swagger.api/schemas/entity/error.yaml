@@ -1,0 +1,16 @@
+description: "An error"
+type: "object"
+properties:
+  message:
+    type: "string"
+    description: "Error message text"
+  type:
+    type: "string"
+    description: "Error message type"
+  code:
+    type: "string"
+    description: "Error message code"
+  parameters:
+    type: "array"
+    items:
+      $ref: "./parameter.yaml"

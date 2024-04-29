@@ -1,0 +1,6 @@
+in: query
+name: expandAll
+description: Whether to return only basic properties or entire instance.
+schema:
+  type: boolean
+  default: false

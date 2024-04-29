@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
@@ -81,11 +81,11 @@ class OclcProcessorTest {
     );
   }
 
-  private static Identifiers oclc(String value) {
+  private static Identifier oclc(String value) {
     return identifier(OCLC_IDENTIFIER_TYPE_ID, value);
   }
 
-  private static Identifiers canceledOclc(String value) {
+  private static Identifier canceledOclc(String value) {
     return identifier(CANCELED_OCLC_IDENTIFIER_TYPE_ID, value);
   }
 

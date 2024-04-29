@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Contributor;
+import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceContributorBrowseResult;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.SearchUtils;
@@ -100,8 +100,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
         + "and instances.shared==true").param("limit", "5");
 
-    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
-    var expected = new InstanceContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
+    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
       List.of(
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
@@ -121,8 +121,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
         + "and instances.shared==false").param("limit", "5");
 
-    var actual = parseResponse(doGet(request), InstanceContributorBrowseResult.class);
-    var expected = new InstanceContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
+    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    var expected = new ContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
       List.of(
         contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
           TYPE_IDS[1], TYPE_IDS[2]),

@@ -1,0 +1,10 @@
+type: object
+description: "A series item description"
+additionalProperties: false
+properties:
+  value:
+    type: string
+    description: "Series title value"
+  authorityId:
+    type: string
+    description: "UUID of authority record that controls a series title"

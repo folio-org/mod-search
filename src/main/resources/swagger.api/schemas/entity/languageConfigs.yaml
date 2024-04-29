@@ -1,0 +1,16 @@
+description: Language config
+type: object
+properties:
+  languageConfigs:
+    type: array
+    description: Configured languages for a tenant
+    items:
+      $ref: "./languageConfig.yaml"
+  totalRecords:
+    type: integer
+    description: Total records that matches the query.
+    minimum: 0
+additionalProperties: false
+required:
+  - languageConfigs
+  - totalRecords

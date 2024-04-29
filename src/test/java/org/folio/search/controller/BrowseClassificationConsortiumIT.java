@@ -9,30 +9,45 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.support.base.ApiEndpoints.instanceClassificationBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.classificationBrowseItem;
 import static org.folio.search.utils.TestUtils.classificationBrowseResult;
+import static org.folio.search.utils.TestUtils.facet;
+import static org.folio.search.utils.TestUtils.facetItem;
+import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.InstanceClassificationsInner;
+import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 
@@ -103,6 +118,31 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
     )));
   }
 
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForClassifications_parameterized")
+  void getFacetsForClassifications_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.CLASSIFICATIONS, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
+  }
+
+  private static Stream<Arguments> facetQueriesProvider() {
+    return Stream.of(
+      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+        facet(facetItem("false", 11), facetItem("true", 8)))),
+      arguments("cql.allRecords=1", array("instances.tenantId"),
+        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 11),
+          facetItem(CENTRAL_TENANT_ID, 8))))
+    );
+  }
+
   private static Instance[] instancesCentral() {
     return classificationBrowseInstanceData().subList(0, 5).stream()
       .map(BrowseClassificationConsortiumIT::instance)
@@ -121,7 +161,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .id(randomId())
       .title((String) data.get(0))
       .classifications(((List<Pair<String, String>>) data.get(1)).stream()
-        .map(pair -> new InstanceClassificationsInner()
+        .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
           .classificationTypeId(String.valueOf(pair.getSecond())))
         .collect(Collectors.toList()))

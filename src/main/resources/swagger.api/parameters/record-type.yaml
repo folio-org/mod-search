@@ -1,0 +1,6 @@
+name: recordType
+description: "Type of record to get facets for."
+required: true
+in: path
+schema:
+  $ref: "../schemas/entity/recordType.yaml"

@@ -1,0 +1,11 @@
+description: "Authority search result response"
+type: "object"
+properties:
+  totalRecords:
+    type: "integer"
+    description: "Amount of authorities found"
+  authorities:
+    type: "array"
+    description: "List of authorities found"
+    items:
+      $ref: "../../schemas/dto/authority/authority.yaml"

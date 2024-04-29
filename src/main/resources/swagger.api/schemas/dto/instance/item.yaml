@@ -1,0 +1,99 @@
+description: "Item description"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique ID of the item record"
+  tenantId:
+    description: "Tenant ID"
+    type: string
+  holdingsRecordId:
+    description: "Holdings record ID"
+    type: string
+  hrid:
+    type: string
+    description: "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
+  accessionNumber:
+    type: string
+    description: "Also called inventory number"
+  formerIds:
+    type: array
+    description: "Previous identifiers assigned to the item"
+    items:
+      type: string
+  itemIdentifier:
+    type: string
+    description: "Item identifier number, e.g. imported from the union catalogue (read only)."
+  barcode:
+    type: string
+    description: "Unique inventory control number for physical resources, used largely for circulation purposes"
+  effectiveLocationId:
+    type: string
+    description: "Read only current home location for the item."
+  status:
+    description: "The status of the item"
+    type: object
+    properties:
+      name:
+        description: "Name of the status e.g. Available, Checked out, In transit"
+        type: string
+  materialTypeId:
+    type: string
+    description: "Material type, term. Define what type of thing the item is."
+  discoverySuppress:
+    type: boolean
+    description: "Records the fact that the record should not be displayed in a discovery system"
+  effectiveCallNumberComponents:
+    type: object
+    description: "Elements of a full call number generated from the item or holding"
+    properties:
+      callNumber:
+        type: string
+        description: "Effective Call Number is an identifier assigned to an item or its holding and associated with the item."
+      prefix:
+        type: string
+        description: "Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item."
+      suffix:
+        type: string
+        description: "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item."
+      typeId:
+        type: string
+        description: "Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding."
+  effectiveShelvingOrder:
+    type: string
+    description: "A system generated normalization of the call number that allows for call number sorting in reports and search results"
+  itemLevelCallNumberTypeId:
+    type: string
+    description: "Call number type id"
+  tags:
+    $ref: "../common/tags.yaml"
+  electronicAccess:
+    type: array
+    description: "List of electronic access items"
+    items:
+      $ref: "electronicAccess.yaml"
+  administrativeNotes:
+    type: array
+    description: "Administrative notes"
+    items:
+      type: string
+  notes:
+    type: array
+    description: "Notes about action, copy, binding etc."
+    items:
+      $ref: "note.yaml"
+  statisticalCodeIds:
+    type: array
+    description: "List of statistical code IDs"
+    items:
+      type: string
+      description: "UUID for a statistical code"
+  circulationNotes:
+    type: array
+    description: "Notes to be displayed in circulation processes."
+    items:
+      $ref: "circulationNote.yaml"
+  metadata:
+    $ref: "../common/metadata.yaml"
+required:
+  - notes

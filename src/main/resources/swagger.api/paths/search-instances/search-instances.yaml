@@ -1,0 +1,26 @@
+get:
+  operationId: searchInstances
+  summary: Search Instances
+  description: Get a list of instances for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/instance-search-cql-query.yaml'
+    - $ref: '../../parameters/limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/expand-all-param.yaml'
+  responses:
+    '200':
+      description: 'Instance search result'
+      content:
+        application/json:
+          examples:
+            searchResult:
+              $ref: '../../examples/result/instanceSearchResult.yaml'
+          schema:
+            $ref: '../../schemas/response/instanceSearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

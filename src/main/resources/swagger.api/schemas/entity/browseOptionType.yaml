@@ -1,0 +1,6 @@
+description: Browse option type
+type: string
+enum:
+  - all
+  - lc
+  - dewey

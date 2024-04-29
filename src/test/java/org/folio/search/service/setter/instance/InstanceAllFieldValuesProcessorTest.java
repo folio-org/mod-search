@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.folio.search.domain.dto.Holding;
-import org.folio.search.domain.dto.Identifiers;
+import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.Note;
@@ -54,15 +54,15 @@ class InstanceAllFieldValuesProcessorTest {
   @Test
   void getFieldValue_positive_multilangTitle() {
     var instanceId = randomId();
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "id")).thenReturn(false);
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "title")).thenReturn(true);
+    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "id")).thenReturn(false);
+    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "title")).thenReturn(true);
     var actual = processor.getFieldValue(toMap(new Instance().id(instanceId).title("my resource")));
     assertThat(actual).isEqualTo(MultilangValue.of(singleton(instanceId), newLinkedHashSet("my resource")));
   }
 
   @Test
   void getFieldValue_positive_multilangSubjects() {
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "subjects.value")).thenReturn(true);
+    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "subjects.value")).thenReturn(true);
     var actual =
       processor.getFieldValue(
         toMap(new Instance().subjects(List.of(new Subject().value("subject1"), new Subject().value("subject2")))));
@@ -72,11 +72,11 @@ class InstanceAllFieldValuesProcessorTest {
   @Test
   void getFieldValue_positive_identifiers() {
     var actual = processor.getFieldValue(toMap(new Instance().identifiers(List.of(
-      new Identifiers().identifierTypeId(randomId()).value("978-1-56619-909-4"),
-      new Identifiers().identifierTypeId(randomId()).value("1-56619-909-3")))));
+      new Identifier().identifierTypeId(randomId()).value("978-1-56619-909-4"),
+      new Identifier().identifierTypeId(randomId()).value("1-56619-909-3")))));
     assertThat(actual).isEqualTo(MultilangValue.of(
       newLinkedHashSet("978-1-56619-909-4", "1-56619-909-3"), emptySet()));
-    verify(searchFieldProvider, times(2)).isMultilangField(INSTANCE_RESOURCE, "identifiers.value");
+    verify(searchFieldProvider, times(2)).isFullTextField(INSTANCE_RESOURCE, "identifiers.value");
   }
 
   @Test
@@ -85,14 +85,14 @@ class InstanceAllFieldValuesProcessorTest {
       new Note().note("public note").staffOnly(false),
       new Note().note("private note").staffOnly(true)))));
     assertThat(actual).isEqualTo(MultilangValue.of(newLinkedHashSet("public note", "private note"), emptySet()));
-    verify(searchFieldProvider, times(2)).isMultilangField(INSTANCE_RESOURCE, "notes.note");
+    verify(searchFieldProvider, times(2)).isFullTextField(INSTANCE_RESOURCE, "notes.note");
   }
 
   @Test
   void getFieldValue_positive_classification() {
     var actual = processor.getFieldValue(mapOf("matchKey", "123456"));
     assertThat(actual).isEqualTo(MultilangValue.of(newLinkedHashSet("123456"), emptySet()));
-    verify(searchFieldProvider).isMultilangField(INSTANCE_RESOURCE, "matchKey");
+    verify(searchFieldProvider).isFullTextField(INSTANCE_RESOURCE, "matchKey");
   }
 
   @Test
@@ -100,12 +100,12 @@ class InstanceAllFieldValuesProcessorTest {
     var isbnValues = newLinkedHashSet("1-56619-909-3", "1566199093", "9781566199093");
     var actual = processor.getFieldValue(mapOf("isbn", isbnValues));
     assertThat(actual).isEqualTo(MultilangValue.of(isbnValues, emptySet()));
-    verify(searchFieldProvider, times(3)).isMultilangField(INSTANCE_RESOURCE, "isbn");
+    verify(searchFieldProvider, times(3)).isFullTextField(INSTANCE_RESOURCE, "isbn");
   }
 
   @Test
   void getFieldValue_positive_multilangTitleValue() {
-    when(searchFieldProvider.isMultilangField(INSTANCE_RESOURCE, "title")).thenReturn(true);
+    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "title")).thenReturn(true);
 
     var value = "titleValue";
     var actual = processor.getFieldValue(mapOf("plain_title", value, "title", mapOf("src", value, "eng", value)));
@@ -155,6 +155,6 @@ class InstanceAllFieldValuesProcessorTest {
       .items(List.of(new Item().id(randomId()).barcode("000333"), new Item().id(randomId()).hrid("i1")))
       .holdings(List.of(new Holding().id(randomId()).hrid("h1")))));
     assertThat(actual).isEqualTo(MultilangValue.of(singleton(instanceId), emptySet()));
-    verify(searchFieldProvider).isMultilangField(INSTANCE_RESOURCE, "id");
+    verify(searchFieldProvider).isFullTextField(INSTANCE_RESOURCE, "id");
   }
 }

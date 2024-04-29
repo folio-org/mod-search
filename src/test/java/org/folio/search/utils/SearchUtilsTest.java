@@ -257,6 +257,22 @@ class SearchUtilsTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @ParameterizedTest
+  @MethodSource("provideStringsForAlphanumericNormalization")
+  void testNormalizeToAlphanumeric(String input, String expected) {
+    assertThat(SearchUtils.normalizeToAlphaNumeric(input)).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> provideStringsForAlphanumericNormalization() {
+    return Stream.of(
+      Arguments.of(null, null),
+      Arguments.of("   ", null),
+      Arguments.of("abc123", "abc123"),
+      Arguments.of(" abc#!@ 123 ", "abc123"),
+      Arguments.of("#!@", null)
+    );
+  }
+
   private static Stream<Arguments> isEmptyStringDataSource() {
     return Stream.of(
       arguments(new Object(), false),

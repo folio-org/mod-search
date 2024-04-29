@@ -1,0 +1,30 @@
+post:
+  operationId: submitIdsJob
+  summary: Trigger new Job
+  description: Creates a job for the stream of resource ids.
+  tags:
+    - search-resources-ids
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    content:
+      application/json:
+        examples:
+          streamIdsJobRequest:
+            $ref: '../../examples/request/streamIdsJobRequest.yaml'
+        schema:
+          $ref: '../../schemas/entity/resourceIdsJob.yaml'
+  responses:
+    '200':
+      description: 'Job for the stream of resource ids'
+      content:
+        application/json:
+          examples:
+            streamIdsJobResponse:
+              $ref: '../../examples/response/streamIdsJobResponse.yaml'
+          schema:
+            $ref: '../../schemas/entity/resourceIdsJob.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

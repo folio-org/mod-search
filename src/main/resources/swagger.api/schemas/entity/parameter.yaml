@@ -1,0 +1,12 @@
+description: "List of key/value parameters of an error"
+type: "object"
+properties:
+  key:
+    description: "Parameter key"
+    type: "string"
+  value:
+    description: "Parameter value"
+    type: "string"
+example:
+  key: "source"
+  value: "null"

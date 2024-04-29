@@ -1,0 +1,6 @@
+in: query
+name: tenantId
+description: "Tenant ID to filter by"
+required: false
+schema:
+  type: string

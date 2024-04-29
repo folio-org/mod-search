@@ -1,0 +1,6 @@
+in: query
+name: instanceId
+description: UUID of the instance
+required: false
+schema:
+  type: string

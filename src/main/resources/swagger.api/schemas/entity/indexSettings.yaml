@@ -1,0 +1,18 @@
+description: Elasticsearch/Opensearch index settings
+type: object
+properties:
+  numberOfShards:
+    type: integer
+    description: The number of primary shards that an index should have.
+    minimum: 1
+    maximum: 100
+  numberOfReplicas:
+    type: integer
+    description: The number of replicas each primary shard has.
+    minimum: 1
+    maximum: 100
+  refreshInterval:
+    type: integer
+    description: How often to make new changes to the index visible to search (seconds). '-1' disables refresh.
+    minimum: -1
+    maximum: 3600

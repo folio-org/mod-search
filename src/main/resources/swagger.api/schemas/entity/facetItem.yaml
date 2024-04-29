@@ -1,0 +1,9 @@
+type: "object"
+description: "Facet item description"
+properties:
+  id:
+    type: "string"
+    description: "Facet value"
+  totalRecords:
+    type: "number"
+    description: "Amount of search results for that facet"

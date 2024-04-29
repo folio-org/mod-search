@@ -93,7 +93,7 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     awaitAssertLocationCount(1);
   }
 
-  private void awaitAssertLocationCount(int expected) {
+  public static  void awaitAssertLocationCount(int expected) {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
       assertThat(totalHits).isEqualTo(expected);

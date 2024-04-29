@@ -1,0 +1,14 @@
+in: query
+name: sortBy
+description: |
+  Defines a field to sort by.
+  Possible values:
+    - id
+    - hrid
+    - tenantId
+    - instanceId
+    - holdingsRecordId
+    - barcode
+required: false
+schema:
+  type: string

@@ -1,0 +1,624 @@
+name: query
+in: query
+required: true
+description: |
+  A CQL query string
+  <h5 id="instance-search-options">Instance search options</h5>
+    <table>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Example</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>keyword</td>
+        <td>full-text</td>
+        <td>keyword all &quot;web semantic&quot;</td>
+        <td>An alias for: title, alternativeTitles, indexTitle, series, identifiers.value, contributors.name</td>
+    </tr>
+    <tr>
+        <td>id</td>
+        <td>term</td>
+        <td>id==&quot;1234567&quot;</td>
+        <td>Matches instance with the id</td>
+    </tr>
+    <tr>
+        <td>hrid</td>
+        <td>term</td>
+        <td>hrid==&quot;hr1*0&quot;</td>
+        <td>Matches instances with given HRID</td>
+    </tr>
+    <tr>
+        <td>source</td>
+        <td>term</td>
+        <td>source==&quot;MARC&quot;</td>
+        <td>Matches instances with given source (FOLIO/MARC)</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>full-text</td>
+        <td>title all &quot;semantic web&quot;</td>
+        <td>Matches instances with the given title, searches against title, alternativeTitles,
+            indexTitle, series fields
+        </td>
+    </tr>
+    <tr>
+        <td>alternativeTitles.alternativeTitle</td>
+        <td>full-text</td>
+        <td>alternativeTitles.alternativeTitle all &quot;semantic web&quot;</td>
+        <td>Matches instances with the given alternative title</td>
+    </tr>
+    <tr>
+        <td>uniformTitle</td>
+        <td>full-text</td>
+        <td>uniformTitle all &quot;semantic web&quot;</td>
+        <td>Matches instances with the given uniform title</td>
+    </tr>
+    <tr>
+        <td>indexTitle</td>
+        <td>full-text</td>
+        <td>indexTitle all &quot;semantic web&quot;</td>
+        <td>Matches instances with the given index title</td>
+    </tr>
+    <tr>
+        <td>series</td>
+        <td>full-text</td>
+        <td>series all &quot;series&quot;</td>
+        <td>Matches instance with given series value</td>
+    </tr>
+    <tr>
+        <td>identifiers.value</td>
+        <td>term</td>
+        <td>identifiers.value = &quot;1023*&quot;</td>
+        <td>Matches instances with the given identifier value</td>
+    </tr>
+    <tr>
+        <td>identifiers.identifierTypeId</td>
+        <td>term</td>
+        <td>identifiers.identifierTypeId==&quot;123&quot; identifiers.value = &quot;1023*&quot;
+        </td>
+        <td>Matches instances that have an identifier of type 123 and ANY
+            identifier with value 1023*
+        </td>
+    </tr>
+    <tr>
+        <td>contributors</td>
+        <td>full-text</td>
+        <td>contributors all &quot;John&quot;</td>
+        <td>Matches instances that have a John contributor</td>
+    </tr>
+    <tr>
+        <td>contributors.name</td>
+        <td>term</td>
+        <td>contributors.name all &quot;John&quot;</td>
+        <td>Matches instances that have a primary John contributor</td>
+    </tr>
+    <tr>
+        <td>contributors.contributorTypeId</td>
+        <td>term</td>
+        <td>contributors.contributorTypeId all &quot;1234567&quot;</td>
+        <td>Matches instances that have a contributor type Id 1234567</td>
+    </tr>
+    <tr>
+        <td>contributors.contributorNameTypeId</td>
+        <td>term</td>
+        <td>contributors.contributorNameTypeId all &quot;1234567&quot;</td>
+        <td>Matches instances that have a contributor name type Id 1234567</td>
+    </tr>
+    <tr>
+        <td>contributors.primary</td>
+        <td>term</td>
+        <td>contributors all &quot;John&quot; and contributors.primary==true</td>
+        <td>Matches instances that have a primary John contributor</td>
+    </tr>
+    <tr>
+        <td>contributors.authorityId</td>
+        <td>term</td>
+        <td>contributors.authorityId ==
+            &quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;
+        </td>
+        <td>Matches instances that have a contributor authorityId 81ae0f60-f2bc-450c-84c8-5a21096daed9
+        </td>
+    </tr>
+    <tr>
+        <td>authorityId</td>
+        <td>term</td>
+        <td>authorityId == &quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;</td>
+        <td>Matches instances that have a contributor authorityId 81ae0f60-f2bc-450c-84c8-5a21096daed9
+        </td>
+    </tr>
+    <tr>
+        <td>subjects</td>
+        <td>full-text</td>
+        <td>subjects all &quot;Chemistry&quot;</td>
+        <td>Matches instances that have a Chemistry subject</td>
+    </tr>
+    <tr>
+        <td>instanceTypeId</td>
+        <td>term</td>
+        <td>instanceTypeId == &quot;123&quot;</td>
+        <td>Matches instances with the 123 type</td>
+    </tr>
+    <tr>
+        <td>statusId</td>
+        <td>term</td>
+        <td>statusId == &quot;123&quot;</td>
+        <td>Matches instances with the 123 status</td>
+    </tr>
+    <tr>
+        <td>instanceFormatIds</td>
+        <td>term</td>
+        <td>instanceFormatIds == &quot;123&quot;</td>
+        <td>Matches instances with the 123 format id</td>
+    </tr>
+    <tr>
+        <td>languages</td>
+        <td>term</td>
+        <td>languages == &quot;eng&quot;</td>
+        <td>Matches instances that have eng language</td>
+    </tr>
+    <tr>
+        <td>metadata.createdDate</td>
+        <td>term</td>
+        <td>metadata.createdDate &gt; &quot;2021-03-01T00:00:00.000+00:00&quot;
+        </td>
+        <td>Matches instances that were created after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>metadata.updatedDate</td>
+        <td>term</td>
+        <td>metadata.updatedDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches instances that were updated after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>modeOfIssuanceId</td>
+        <td>term</td>
+        <td>modeOfIssuanceId==&quot;123&quot;</td>
+        <td>Matches instances that have 123 mode of issuance</td>
+    </tr>
+    <tr>
+        <td>natureOfContentTermIds</td>
+        <td>term</td>
+        <td>natureOfContentTermIds==&quot;123&quot;</td>
+        <td>Matches instances that have 123 nature of content</td>
+    </tr>
+    <tr>
+        <td>publisher</td>
+        <td>full-text</td>
+        <td>publisher all &quot;Publisher of Ukraine&quot;</td>
+        <td>Matches instances that have Publisher of Ukraine publisher</td>
+    </tr>
+    <tr>
+        <td>instanceTags</td>
+        <td>term</td>
+        <td>instanceTags==&quot;important&quot;</td>
+        <td>Matches instances that have important tag</td>
+    </tr>
+    <tr>
+        <td>classifications.classificationNumber</td>
+        <td>term</td>
+        <td>classifications.classificationNumber==&quot;cl1&quot;</td>
+        <td>Matches instances that have cl1 classification number</td>
+    </tr>
+    <tr>
+        <td>electronicAccess</td>
+        <td>full-text</td>
+        <td>electronicAccess any &quot;resource&quot;</td>
+        <td>An alias for all electronicAccess fields - uri, linkText,
+            materialsSpecification, publicNote
+        </td>
+    </tr>
+    <tr>
+        <td>electronicAccess.uri</td>
+        <td>term</td>
+        <td>electronicAccess.uri=&quot;http://folio.org*&quot;</td>
+        <td>Search by electronic access URI</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.linkText</td>
+        <td>full-text</td>
+        <td>electronicAccess.linkText=&quot;Folio website&quot;</td>
+        <td>Search by electronic access link text</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.publicNote</td>
+        <td>full-text</td>
+        <td>electronicAccess.publicNote=&quot;a rare book&quot;</td>
+        <td>Search by electronic access public note</td>
+    </tr>
+    <tr>
+        <td>staffSuppress</td>
+        <td>term</td>
+        <td>staffSuppress==true</td>
+        <td>Matches instances that are staff suppressed</td>
+    </tr>
+    <tr>
+        <td>discoverySuppress</td>
+        <td>term</td>
+        <td>discoverySuppress==true</td>
+        <td>Matches instances that are suppressed from discovery</td>
+    </tr>
+    <tr>
+        <td>publicNotes</td>
+        <td>full-text</td>
+        <td>publicNotes all &quot;public note&quot;</td>
+        <td>Matches instances that have a public note (i.e. note.staffOnly is
+            false)
+        </td>
+    </tr>
+    <tr>
+        <td>administrativeNotes</td>
+        <td>full-text</td>
+        <td>administrativeNotes all &quot;librarian note&quot;</td>
+        <td>Search by administrative notes</td>
+    </tr>
+    <tr>
+        <td>notes.note</td>
+        <td>full-text</td>
+        <td>notes.note all &quot;librarian note&quot;</td>
+        <td>Search by instance notes (include staffOnly)</td>
+    </tr>
+    <tr>
+        <td>isbn</td>
+        <td>term</td>
+        <td>isbn=&quot;1234*&quot;</td>
+        <td>Matches instances that have an ISBN identifier with the given value</td>
+    </tr>
+    <tr>
+        <td>issn</td>
+        <td>term</td>
+        <td>issn=&quot;1234*&quot;</td>
+        <td>Matches instances that have an ISSN identifier with the given value</td>
+    </tr>
+    <tr>
+        <td>oclc</td>
+        <td>term</td>
+        <td>oclc=&quot;1234*&quot;</td>
+        <td>Matches instances that have an OCLC identifier with the given value</td>
+    </tr>
+    <tr>
+        <td>lccn</td>
+        <td>term</td>
+        <td>lccn = &quot;LCCN&quot;</td>
+        <td>Matches instances with the given lccn</td>
+    </tr>
+    <tr>
+        <td>normalizedClassificationNumber</td>
+        <td>term</td>
+        <td>normalizedClassificationNumber == &quot;LCCN&quot;</td>
+        <td>Matches instances with the given classification number (normalizes case,
+            whitespaces, special characters, supports leading and trailing wildcard)
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    <h5 id="holdings-search-options">Holdings search options</h5>
+    <table>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Example</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>holdings.id</td>
+        <td>term</td>
+        <td>holdings.id==&quot;1234567&quot;</td>
+        <td>Matches instances that have a holding with the id</td>
+    </tr>
+    <tr>
+        <td>holdings.sourceId</td>
+        <td>term</td>
+        <td>holdings.sourceId==&quot;FOLIO&quot;</td>
+        <td>Matches instances that have a holding with the source FOLIO</td>
+    </tr>
+    <tr>
+        <td>holdings.holdingsTypeId</td>
+        <td>term</td>
+        <td>holdings.holdingsTypeId==&quot;1234567&quot;</td>
+        <td>Matches instances that have a holding with the holdings type id 1234567
+        </td>
+    </tr>
+    <tr>
+        <td>holdings.permanentLocationId</td>
+        <td>term</td>
+        <td>holdings.permanentLocationId==&quot;123765&quot;</td>
+        <td>Matches instances that have holdings with given statisticalCodeId</td>
+    </tr>
+    <tr>
+        <td>holdings.statisticalCodeIds</td>
+        <td>term</td>
+        <td>holdings.statisticalCodeIds==&quot;123765&quot;</td>
+        <td>Matches instances that have holdings with given permanentLocationId</td>
+    </tr>
+    <tr>
+        <td>holdings.discoverySuppress</td>
+        <td>term</td>
+        <td>holdings.discoverySuppress==true</td>
+        <td>Matches instances that have holdings suppressed/not suppressed from discovery</td>
+    </tr>
+    <tr>
+        <td>holdings.hrid</td>
+        <td>term</td>
+        <td>holdings.hrid==&quot;hr10*3&quot;</td>
+        <td>Matches instances that have a holding with given HRID</td>
+    </tr>
+    <tr>
+        <td>holdingsTags</td>
+        <td>term</td>
+        <td>holdingsTags==&quot;important&quot;</td>
+        <td>Matches instances that have holdings with given tags</td>
+    </tr>
+    <tr>
+        <td>holdingsFullCallNumbers</td>
+        <td>term</td>
+        <td>holdingsFullCallNumbers=&quot;cn*434&quot;</td>
+        <td>Matches instances that have holdings with given call number string (prefix + call
+            number + suffix)
+        </td>
+    </tr>
+    <tr>
+        <td>holdingsNormalizedCallNumbers</td>
+        <td>term</td>
+        <td>holdingsNormalizedCallNumbers=&quot;cn434&quot;</td>
+        <td>Matches instances that have holdings with given call number and might not be
+            formatted correctly
+        </td>
+    </tr>
+    <tr>
+        <td>holdings.electronicAccess</td>
+        <td>full-text</td>
+        <td>holdings.electronicAccess any &quot;resource&quot;</td>
+        <td>An alias for all electronicAccess fields - uri, linkText,
+            materialsSpecification, publicNote
+        </td>
+    </tr>
+    <tr>
+        <td>holdings.electronicAccess.uri</td>
+        <td>term</td>
+        <td>holdings.electronicAccess.uri=&quot;http://folio.org*&quot;</td>
+        <td>Search by electronic access URI</td>
+    </tr>
+    <tr>
+        <td>holdings.electronicAccess.linkText</td>
+        <td>full-text</td>
+        <td>holdings.electronicAccess.linkText=&quot;Folio website&quot;</td>
+        <td>Search by electronic access link text</td>
+    </tr>
+    <tr>
+        <td>holdings.electronicAccess.publicNote</td>
+        <td>full-text</td>
+        <td>holdings.electronicAccess.publicNote=&quot;a rare book&quot;</td>
+        <td>Search by electronic access public note</td>
+    </tr>
+    <tr>
+        <td>holdings.administrativeNotes</td>
+        <td>full-text</td>
+        <td>holdings.administrativeNotes all &quot;librarian note&quot;</td>
+        <td>Search by holdings administrative notes</td>
+    </tr>
+    <tr>
+        <td>holdings.notes.note</td>
+        <td>full-text</td>
+        <td>holdings.notes.note all &quot;librarian note&quot;</td>
+        <td>Search by holdings notes</td>
+    </tr>
+    <tr>
+        <td>holdingsTypeId</td>
+        <td>term</td>
+        <td>holdingsTypeId==&quot;123&quot;</td>
+        <td>Search by holdings type id</td>
+    </tr>
+    <tr>
+        <td>holdingsPublicNotes</td>
+        <td>full-text</td>
+        <td>holdingsPublicNotes all &quot;public note&quot;</td>
+        <td>Search by holdings public notes</td>
+    </tr>
+    <tr>
+        <td>holdingsIdentifiers</td>
+        <td>term</td>
+        <td>holdingsIdentifiers == &quot;ho00000000006&quot;</td>
+        <td>Search by holdings Identifiers: holdings.id, holdings.hrid,
+            holdings.formerIds
+        </td>
+    </tr>
+    <tr>
+        <td>holdings.metadata.createdDate</td>
+        <td>term</td>
+        <td>metadata.createdDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches instances with holdings that were created after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>holdings.metadata.updatedDate</td>
+        <td>term</td>
+        <td>metadata.updatedDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches instances with holdings that were updated after 2020-12-12</td>
+    </tr>
+    </tbody>
+    </table>
+    <h5 id="item-search-options">Item search options</h5>
+    <table>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Example</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>item.id</td>
+        <td>term</td>
+        <td>item.id==&quot;1234567&quot;</td>
+        <td>Matches instances that have an item with the id</td>
+    </tr>
+    <tr>
+        <td>item.hrid</td>
+        <td>term</td>
+        <td>item.hrid==&quot;it001&quot;</td>
+        <td>Matches instances that have an item with the HRID</td>
+    </tr>
+    <tr>
+        <td>item.barcode</td>
+        <td>term</td>
+        <td>item.barcode==&quot;10011&quot;</td>
+        <td>Matches instances that have an item with the barcode</td>
+    </tr>
+    <tr>
+        <td>item.effectiveLocationId</td>
+        <td>term</td>
+        <td>item.effectiveLocationId==&quot;1212&quot;</td>
+        <td>Matches instances that have item with the effective location</td>
+    </tr>
+    <tr>
+        <td>item.statisticalCodeIds</td>
+        <td>term</td>
+        <td>item.statisticalCodeIds==&quot;1212&quot;</td>
+        <td>Matches instances that have item with the statistical code Id</td>
+    </tr>
+    <tr>
+        <td>item.status.name</td>
+        <td>term</td>
+        <td>item.status.name==&quot;Available&quot;</td>
+        <td>Matches instances that have item with given status</td>
+    </tr>
+    <tr>
+        <td>item.materialTypeId</td>
+        <td>term</td>
+        <td>item.materialTypeId=&quot;23434&quot;</td>
+        <td>Matches instances that have item with given material type</td>
+    </tr>
+    <tr>
+        <td>item.discoverySuppress</td>
+        <td>term</td>
+        <td>item.discoverySuppress=true</td>
+        <td>Matches instances that have item suppressed/not suppressed from discovery</td>
+    </tr>
+    <tr>
+        <td>itemFullCallNumbers</td>
+        <td>term</td>
+        <td>itemFullCallNumbers=&quot;cn*434&quot;</td>
+        <td>Matches instances that have item with given call number string (prefix + call number
+            + suffix)
+        </td>
+    </tr>
+    <tr>
+        <td>itemNormalizedCallNumbers</td>
+        <td>term</td>
+        <td>itemNormalizedCallNumbers=&quot;cn434&quot;</td>
+        <td>Matches instances that have item with given call number and might not be formatted
+            correctly
+        </td>
+    </tr>
+    <tr>
+        <td>itemLevelCallNumberTypeId</td>
+        <td>term</td>
+        <td>
+            itemLevelCallNumberTypeId=&quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;
+        </td>
+        <td>Matches instances that have item with given call number type id</td>
+    </tr>
+    <tr>
+        <td>itemTags</td>
+        <td>term</td>
+        <td>itemTags=&quot;important&quot;</td>
+        <td>Matches instances that have item with given tag</td>
+    </tr>
+    <tr>
+        <td>item.electronicAccess</td>
+        <td>full-text</td>
+        <td>item.electronicAccess any &quot;resource&quot;</td>
+        <td>An alias for all electronicAccess fields - uri, linkText,
+            materialsSpecification, publicNote
+        </td>
+    </tr>
+    <tr>
+        <td>item.effectiveShelvingOrder</td>
+        <td>term</td>
+        <td>item.effectiveShelvingOrder=&quot;A 12&quot;</td>
+        <td>Matches instances that have item with given effectiveShelvingOrder
+            value
+        </td>
+    </tr>
+    <tr>
+        <td>item.electronicAccess.uri</td>
+        <td>term</td>
+        <td>item.electronicAccess.uri=&quot;http://folio.org*&quot;</td>
+        <td>Search by electronic access URI</td>
+    </tr>
+    <tr>
+        <td>item.electronicAccess.linkText</td>
+        <td>full-text</td>
+        <td>item.electronicAccess.linkText=&quot;Folio website&quot;</td>
+        <td>Search by electronic access link text</td>
+    </tr>
+    <tr>
+        <td>item.electronicAccess.publicNote</td>
+        <td>full-text</td>
+        <td>item.electronicAccess.publicNote=&quot;a rare book&quot;</td>
+        <td>Search by electronic access public note</td>
+    </tr>
+    <tr>
+        <td>item.administrativeNotes</td>
+        <td>full-text</td>
+        <td>item.administrativeNotes all &quot;librarian note&quot;</td>
+        <td>Search by item administrative notes</td>
+    </tr>
+    <tr>
+        <td>item.notes.note</td>
+        <td>full-text</td>
+        <td>item.notes.note all &quot;librarian note&quot;</td>
+        <td>Search by item notes and circulation notes</td>
+    </tr>
+    <tr>
+        <td>item.circulationNotes.note</td>
+        <td>full-text</td>
+        <td>item.circulationNotes.note all &quot;circulation note&quot;</td>
+        <td>Search by item circulation notes</td>
+    </tr>
+    <tr>
+        <td>itemPublicNotes</td>
+        <td>full-text</td>
+        <td>itemPublicNotes all &quot;public note&quot;</td>
+        <td>Search by item public notes and circulation notes</td>
+    </tr>
+    <tr>
+        <td>itemIdentifiers</td>
+        <td>term</td>
+        <td>itemIdentifiers all &quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;
+        </td>
+        <td>Search by item Identifiers: item.id, item.hrid, item.formerIds,
+            item.accessionNumber, item.itemIdentifier
+        </td>
+    </tr>
+    <tr>
+        <td>item.metadata.createdDate</td>
+        <td>term</td>
+        <td>item.metadata.createdDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches instances with item that were created after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>item.metadata.updatedDate</td>
+        <td>term</td>
+        <td>item.metadata.updatedDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches instances with item that were updated after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>callNumberType</td>
+        <td>term</td>
+        <td>callNumberType = &quot;lc&quot;</td>
+        <td>Matches instances with item that has call number with type Library of Congress classification. Supported values: lc, dewey, nlm, sudoc, other, local.</td>
+    </tr>
+    </tbody>
+    </table>
+schema:
+  type: string

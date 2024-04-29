@@ -2,7 +2,9 @@ package org.folio.search.controller;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
 import static org.folio.search.utils.TestUtils.facet;
@@ -58,7 +60,9 @@ class FacetsControllerTest {
     return Stream.of(
       Arguments.arguments("authorities", AUTHORITY_RESOURCE),
       Arguments.arguments("instances", INSTANCE_RESOURCE),
-      Arguments.arguments("contributors", CONTRIBUTOR_RESOURCE)
+      Arguments.arguments("contributors", CONTRIBUTOR_RESOURCE),
+      Arguments.arguments("subjects", INSTANCE_SUBJECT_RESOURCE),
+      Arguments.arguments("classifications", INSTANCE_CLASSIFICATION_RESOURCE)
     );
   }
 

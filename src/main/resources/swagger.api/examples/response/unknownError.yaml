@@ -1,0 +1,6 @@
+value:
+  errors:
+    - message: "Illegal argument error"
+      type: "IllegalArgumentException"
+      code: "unknown_error"
+  total_records: 1

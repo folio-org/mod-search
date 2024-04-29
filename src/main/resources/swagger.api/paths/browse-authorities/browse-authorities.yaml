@@ -1,0 +1,31 @@
+get:
+  operationId: browseAuthorities
+  summary: Browse Authorities
+  description: Provides list of authorities by headingRef
+  tags:
+    - browse
+  parameters:
+    - $ref: '../../parameters/authority-browse-cql-query.yaml'
+    - $ref: '../../parameters/authority-expand-all-param.yaml'
+    - $ref: '../../parameters/highlight-match.yaml'
+    - $ref: '../../parameters/preceding-records-count.yaml'
+    - $ref: '../../parameters/limit-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: 'Search result for browsing by authorities'
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/authorityBrowseResult.yaml'
+          examples:
+            browseResult:
+              $ref: '../../examples/response/browseAuthorityResponse.yaml'
+            browseEmptyResult:
+              $ref: '../../examples/response/browseAuthorityEmptyResponse.yaml'
+            browseExpandedResult:
+              $ref: '../../examples/response/browseAuthorityExpandedResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

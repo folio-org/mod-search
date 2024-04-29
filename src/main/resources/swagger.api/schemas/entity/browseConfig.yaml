@@ -1,0 +1,16 @@
+type: object
+properties:
+  id:
+    $ref: "browseOptionType.yaml"
+  shelvingAlgorithm:
+    $ref: "shelvingOrderAlgorithmType.yaml"
+  typeIds:
+    description: Type IDs that should be used by the option
+    type: array
+    items:
+      description: Type ID
+      type: string
+      format: uuid
+required:
+  - id
+  - shelvingAlgorithm

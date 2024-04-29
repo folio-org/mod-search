@@ -1,0 +1,18 @@
+get:
+  operationId: getBrowseConfigs
+  summary: Get Browse Configurations
+  description: Get all configurations for browse type
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/browse-type.yaml'
+  responses:
+    '200':
+      description: All browse configurations for type
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/browseConfigCollection.yaml'
+          examples:
+            configCollection:
+              $ref: "../../examples/response/browseConfigCollectionResponse.yaml"

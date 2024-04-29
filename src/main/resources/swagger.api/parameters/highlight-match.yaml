@@ -1,0 +1,7 @@
+in: query
+name: highlightMatch
+description: Whether to highlight matched resource by query input or not.
+required: false
+schema:
+  type: boolean
+  default: true

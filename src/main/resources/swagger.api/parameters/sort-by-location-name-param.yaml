@@ -1,0 +1,12 @@
+in: query
+name: sortBy
+description: |
+  Defines a field to sort by.
+  Possible values:
+    - id
+    - tenantId
+    - name
+required: false
+schema:
+  type: string
+  default: name

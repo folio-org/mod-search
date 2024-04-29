@@ -1,0 +1,19 @@
+value:
+  totalRecords: 3
+  prev: 'Adair, Thomas Montgomery, 1913-1988'
+  next: 'Leven, Mel'
+  items:
+    - headingRef: 'Allen, Barbara'
+      isAnchor: true
+    - authority:
+        id: 7c1fff0d-6c83-4ee9-b64b-2beb0d3b9bfd
+        tenantId: diku
+        shared: false
+        headingType: Personal Name
+        authRefType: Reference
+        headingRef: 'Allen, Barbara, 1906-1974'
+        sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
+        naturalId: n94088693
+        numberOfTitles: 2
+      headingRef: 'Allen, Barbara, 1906-1974'
+summary: Browse response

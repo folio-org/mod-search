@@ -1,0 +1,35 @@
+type: object
+description: "Instance basic search result item"
+additionalProperties: false
+properties:
+  id:
+    description: "The unique ID of the instance record; a UUID"
+    type: string
+  tenantId:
+    description: "Tenant ID"
+    type: string
+  shared:
+    description: "Indicate if it shared record"
+    type: boolean
+  title:
+    description: "The primary title (or label) associated with the resource"
+    type: string
+  contributors:
+    type: array
+    description: "List of contributors names"
+    items:
+      $ref: "contributor.yaml"
+  publication:
+    description: "List of publication items"
+    type: array
+    items:
+      $ref: 'publication.yaml'
+  staffSuppress:
+    description: "Records the fact that the record should not be displayed for others than catalogers"
+    type: boolean
+  discoverySuppress:
+    description: "Records the fact that the record should not be displayed in a discovery system"
+    type: boolean
+  isBoundWith:
+    description: "Indicates if this instance is included in a bound-with"
+    type: boolean

@@ -1,0 +1,192 @@
+description: "An authority description"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Authority UUID"
+  tenantId:
+    description: "Tenant ID"
+    type: "string"
+  shared:
+    description: "Indicate if it shared record"
+    type: "boolean"
+  source:
+    type: "string"
+    description: "The metadata source and its format of the underlying record to the authority record"
+  sourceFileId:
+    type: "string"
+    description: "Authority source file id; UUID"
+  naturalId:
+    type: "string"
+    description: "Authority Natural ID"
+  personalName:
+    type: "string"
+    description: "Heading personal name"
+  sftPersonalName:
+    type: "array"
+    description: "See from tracing personal names"
+    items:
+      type: "string"
+      description: "See from tracing personal name"
+  saftPersonalName:
+    type: "array"
+    description: "See also from tracing personal names"
+    items:
+      type: "string"
+      description: "See also from tracing personal name"
+  personalNameTitle:
+    type: "string"
+    description: "Heading personal name title"
+  sftPersonalNameTitle:
+    type: "array"
+    description: "See from tracing personal name title"
+    items:
+      type: "string"
+  saftPersonalNameTitle:
+    type: "array"
+    description: "See also from tracing personal name title"
+    items:
+      type: "string"
+  corporateName:
+    type: "string"
+    description: "Heading corporate name"
+  sftCorporateName:
+    type: "array"
+    description: "See from tracing corporate names"
+    items:
+      type: "string"
+      description: "See from tracing corporate name"
+  saftCorporateName:
+    type: "array"
+    description: "See also from tracing corporate names"
+    items:
+      type: "string"
+      description: "See also from tracing corporate name"
+  corporateNameTitle:
+    type: "string"
+    description: "Heading corporate name title"
+  sftCorporateNameTitle:
+    type: "array"
+    description: "See from tracing corporate name title"
+    items:
+      type: "string"
+  saftCorporateNameTitle:
+    type: "array"
+    description: "See also from tracing corporate name title"
+    items:
+      type: "string"
+  meetingName:
+    type: "string"
+    description: "Heading meeting name"
+  sftMeetingName:
+    type: "array"
+    description: "See from tracing meeting names"
+    items:
+      type: "string"
+      description: "See from tracing meeting name"
+  saftMeetingName:
+    type: "array"
+    description: "See also from tracing meeting names"
+    items:
+      type: "string"
+      description: "See also from tracing meeting name"
+  meetingNameTitle:
+    type: "string"
+    description: "Heading meeting name title"
+  sftMeetingNameTitle:
+    type: "array"
+    description: "See from tracing meeting name title"
+    items:
+      type: "string"
+  saftMeetingNameTitle:
+    type: "array"
+    description: "See also from tracing meeting name title"
+    items:
+      type: "string"
+  uniformTitle:
+    type: "string"
+    description: "Heading uniform title"
+  sftUniformTitle:
+    type: "array"
+    description: "See from tracing uniform titles"
+    items:
+      type: "string"
+      description: "See from tracing uniform title"
+  saftUniformTitle:
+    type: "array"
+    description: "See also from tracing uniform titles"
+    items:
+      type: "string"
+      description: "See also from tracing uniform title"
+  topicalTerm:
+    type: "string"
+    description: "Heading topical term"
+  sftTopicalTerm:
+    type: "array"
+    description: "See from tracing topical terms"
+    items:
+      type: "string"
+      description: "See from tracing topical term"
+  saftTopicalTerm:
+    type: "array"
+    description: "See also from tracing topical terms"
+    items:
+      type: "string"
+      description: "See also from tracing topical term"
+  subjectHeadings:
+    type: "string"
+    description: "Children's subject headings"
+  geographicName:
+    type: "string"
+    description: "Heading geographic name"
+  sftGeographicName:
+    type: "array"
+    description: "See from tracing geographic names"
+    items:
+      type: "string"
+      description: "See from tracing geographic name"
+  saftGeographicName:
+    type: "array"
+    description: "See also from tracing geographic names"
+    items:
+      type: "string"
+      description: "See also from tracing geographic name"
+  genreTerm:
+    type: "string"
+    description: "Heading genre/form term"
+  sftGenreTerm:
+    type: "array"
+    description: "See from tracing genre/form terms"
+    items:
+      type: "string"
+      description: "See from tracing genre/form term"
+  saftGenreTerm:
+    type: "array"
+    description: "See also from tracing genre/form terms"
+    items:
+      type: "string"
+      description: "See also from tracing genre/form term"
+  identifiers:
+    type: "array"
+    description: "An extensible set of name-value pairs of identifiers associated with the resource"
+    items:
+      $ref: "../common/identifier.yaml"
+  notes:
+    type: "array"
+    description: "Notes (e.g. nonpublic general note)"
+    items:
+      $ref: "authorityNote.yaml"
+  metadata:
+    $ref: "../common/metadata.yaml"
+  headingType:
+    type: "string"
+    description: "Generated field by mod-search, used to easily identity the heading type of the record that provides authority information"
+  authRefType:
+    type: "string"
+    description: "Generated field by mod-search, used to easily identity the authorized/reference type of the record that provides authority information"
+  headingRef:
+    type: "string"
+    description: "Generated field by mod-search, used to easily identity the heading/reference of the record that provides authority information"
+  numberOfTitles:
+    type: "integer"
+    description: "Generated field by mod-search, used to count the total number of bib records linked to this authority record"

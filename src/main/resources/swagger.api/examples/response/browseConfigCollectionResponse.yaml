@@ -1,0 +1,12 @@
+value:
+  configs:
+    - id: all
+      shelvingAlgorithm: default
+      typeIds: [ ]
+    - id: dewey
+      shelvingAlgorithm: dewey
+      typeIds: [ ]
+    - id: lc
+      shelvingAlgorithm: lc
+      typeIds: [ ]
+  totalRecords: 3

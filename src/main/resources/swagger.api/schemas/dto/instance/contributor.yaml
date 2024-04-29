@@ -1,0 +1,22 @@
+type: object
+description: "A contributor description"
+additionalProperties: false
+properties:
+  name:
+    type: string
+    description: "Personal name, corporate name, meeting name"
+  contributorTypeId:
+    type: string
+    description: "ID for the contributor type term defined as a reference table in settings"
+  contributorTypeText:
+    type: string
+    description: "Free text element for adding contributor type terms other than those defined by the MARC code list for relators"
+  contributorNameTypeId:
+    type: string
+    description: "Contributor type terms defined by the MARC code list for relators"
+  authorityId:
+    type: string
+    description: "ID of authority record that controls the contributor"
+  primary:
+    type: boolean
+    description: "Whether this is the primary contributor"

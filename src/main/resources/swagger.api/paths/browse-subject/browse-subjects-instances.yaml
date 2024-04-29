@@ -1,0 +1,26 @@
+get:
+  operationId: browseInstancesBySubject
+  summary: Browse Instance Subjects
+  description: Provides list of instances for browsing by subject
+  tags:
+    - browse
+  parameters:
+    - $ref: '../../parameters/instance-subjects-browse-cql-query.yaml'
+    - $ref: '../../parameters/limit-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/highlight-match.yaml'
+    - $ref: '../../parameters/preceding-records-count.yaml'
+  responses:
+    '200':
+      description: 'Search result for browsing by call number'
+      content:
+        application/json:
+          examples:
+            browseResult:
+              $ref: '../../examples/result/browseSubjectResult.yaml'
+          schema:
+            $ref: '../../schemas/response/subjectBrowseResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

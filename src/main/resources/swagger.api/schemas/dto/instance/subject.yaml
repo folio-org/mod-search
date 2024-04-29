@@ -1,0 +1,10 @@
+type: object
+description: "A subject heading description"
+additionalProperties: false
+properties:
+  value:
+    type: string
+    description: "Subject heading value"
+  authorityId:
+    type: string
+    description: "UUID of authority record that controls a subject heading"

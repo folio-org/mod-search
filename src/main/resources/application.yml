@@ -65,14 +65,15 @@ folio:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
       browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
-      browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:false}
+      browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
     indexing:
       instance-subjects:
         retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
       instance-contributors:
         retry-attempts: ${INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS:3}
       data-format: ${INDEXING_DATA_FORMAT:smile}
-
+  reindex:
+    location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

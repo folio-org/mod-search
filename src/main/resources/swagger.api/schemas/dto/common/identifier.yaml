@@ -1,0 +1,10 @@
+type: object
+description: "Resource identifier"
+additionalProperties: false
+properties:
+  value:
+    type: string
+    description: "Resource identifier value"
+  identifierTypeId:
+    type: string
+    description: "Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)"

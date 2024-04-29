@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -103,6 +104,7 @@ public class SearchUtils {
   //CHECKSTYLE.OFF: LineLength
 
   private static final Pattern LCCN_NUMERIC_PART_REGEX = Pattern.compile("([1-9]\\d+)");
+  private static final Pattern NON_ALPHA_NUMERIC_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 
   /**
    * Performs elasticsearch exceptional operation and returns the received result.
@@ -150,7 +152,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getIndexName(String resource, String tenantId) {
-    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + tenantId;
+    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource.toLowerCase(ROOT) + "_" + tenantId;
   }
 
   /**
@@ -338,6 +340,24 @@ public class SearchUtils {
     }
 
     return StringUtils.deleteWhitespace(value).toLowerCase();
+  }
+
+  /**
+   * This method normalize the given string to an alphanumeric string.
+   * If the input string is null or blank, this method returns null.
+   * Non-alphanumeric characters in the input string are replaced with an empty string.
+   * If the resulting string is blank, this method returns null.
+   *
+   * @param value The String that is to be normalized.
+   * @return The normalized alphanumeric string. If the input string or the resulting string is blank, returns null.
+   */
+  public static String normalizeToAlphaNumeric(String value) {
+    return Optional.ofNullable(value)
+      .filter(StringUtils::isNotBlank)
+      .map(NON_ALPHA_NUMERIC_CHARS_PATTERN::matcher)
+      .map(matcher -> matcher.replaceAll(""))
+      .filter(StringUtils::isNotBlank)
+      .orElse(null);
   }
 
   /**

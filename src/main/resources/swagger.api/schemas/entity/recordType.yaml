@@ -1,0 +1,7 @@
+type: string
+enum:
+  - instances
+  - authorities
+  - contributors
+  - subjects
+  - classifications

@@ -1,0 +1,28 @@
+get:
+  operationId: getConsortiumHoldings
+  summary: Get Consolidated Holdings
+  description: Get a list of holdings (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/instance-id-query-param.yaml'
+    - $ref: '../../parameters/tenant-id-query-param.yaml'
+    - $ref: '../../parameters/consortium-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/sort-by-holdings-param.yaml'
+    - $ref: '../../parameters/sort-order-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: List of holdings
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumHoldingCollection.yaml'
+          examples:
+            consortiumHoldingsCollectionResponse:
+              $ref: '../../examples/response/consortiumHoldingsCollectionResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

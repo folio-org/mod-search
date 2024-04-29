@@ -9,6 +9,7 @@ import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.service.ConsortiumSearchContext;
@@ -17,6 +18,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchConsortiumApi;
 import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumLocationService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
   private final ConsortiumTenantService consortiumTenantService;
   private final ConsortiumInstanceService instanceService;
+  private final ConsortiumLocationService locationService;
   private final SearchService searchService;
 
   @Override
@@ -92,6 +95,22 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .sortOrder(sortOrder)
       .build();
     return ResponseEntity.ok(instanceService.fetchItems(context));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumLocationCollection> getConsortiumLocations(String tenantHeader,
+                                                                             String tenantId,
+                                                                             Integer limit,
+                                                                             Integer offset,
+                                                                             String sortBy,
+                                                                             SortOrder sortOrder) {
+    verifyAndGetTenant(tenantHeader);
+    var result = locationService.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumLocationCollection()
+      .locations(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
   }
 
   @Override

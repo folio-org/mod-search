@@ -1,0 +1,27 @@
+get:
+  operationId: getHoldingIds
+  summary: Get Holdings IDs
+  description: Get a list of holding ids linked to instances found by the CQL query
+  deprecated: true
+  tags:
+    - search-resources-ids
+  parameters:
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/content-type-header.yaml'
+  responses:
+    '200':
+      description: 'Instance ids as json stream'
+      content:
+        application/json:
+          examples:
+            HoldingIdsResult:
+              $ref: '../../examples/result/HoldingIdsResult.yaml'
+        application/text:
+          examples:
+            IdsTextResult:
+              $ref: '../../examples/result/IdsTextResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

@@ -1,0 +1,43 @@
+put:
+  operationId: updateFeatureConfiguration
+  summary: Update Feature Configuration
+  description: Update feature configuration settings
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/feature-id.yaml'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/entity/featureConfig.yaml'
+        examples:
+          updateRequest:
+            $ref: '../../examples/request/updateCreateFeatureRequest.yaml'
+  responses:
+    '200':
+      description: Feature configuration has been added.
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/featureConfig.yaml'
+          examples:
+            updateResponse:
+              $ref: '../../examples/response/updateFeatureResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '422':
+      $ref: '../../responses/unprocessableEntityResponse.yaml'
+delete:
+  operationId: deleteFeatureConfigurationById
+  summary: Delete Feature Configuration
+  description: Delete feature configuration by id
+  tags:
+    - config
+  parameters:
+    - $ref: '../../parameters/feature-id.yaml'
+  responses:
+    '204':
+      description: Feature configuration has been removed
+    '404':
+      description: No feature configuration is found by id

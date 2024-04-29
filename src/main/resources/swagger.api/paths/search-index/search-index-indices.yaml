@@ -1,0 +1,30 @@
+post:
+  operationId: createIndices
+  summary: Create Index
+  description: Creates indices for passed resource name and tenant id in request header.
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    content:
+      application/json:
+        examples:
+          objectExample:
+            $ref: '../../examples/request/indexRequestBody.yaml'
+        schema:
+          $ref: '../../schemas/request/createIndexRequest.yaml'
+  responses:
+    '200':
+      description: Response with created indices and status (error message will be present if operation failed)
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/folioCreateIndexResponse.yaml'
+          examples:
+            indexOperationResponse:
+              $ref: '../../examples/response/indexOperationResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

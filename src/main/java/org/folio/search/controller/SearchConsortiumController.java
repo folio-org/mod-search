@@ -145,8 +145,9 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .map(UUID::toString)
       .map("items.id = %s"::formatted)
       .collect(Collectors.joining(" or "));
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1000, 0, true);
     var result = searchService.search(searchRequest);
+    log.info("QUERY for Batch ITEMS: {}, number of found instances: {}", query, result.getRecords());
     var consortiumItems = result.getRecords().stream()
       .map(instance -> {
         var item = instance.getItems().iterator().next();
@@ -157,6 +158,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
           .holdingsRecordId(item.getHoldingsRecordId());
       })
       .toList();
+    log.info("ITEMS: {}", consortiumItems);
     return ResponseEntity
       .ok(new ConsortiumItemCollection().items(consortiumItems).totalRecords(result.getTotalRecords()));
   }
@@ -169,7 +171,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       .map(UUID::toString)
       .map("holdings.id = %s"::formatted)
       .collect(Collectors.joining(" or "));
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1000, 0, true);
     var result = searchService.search(searchRequest);
     var consortiumHoldings = result.getRecords().stream()
       .map(instance -> {

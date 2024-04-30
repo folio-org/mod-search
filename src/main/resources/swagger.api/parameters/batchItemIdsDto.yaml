@@ -1,9 +1,11 @@
 description: Batch Item IDs DTO
 type: object
 properties:
-  id:
-    description: Item ID
-    type: string
-    format: uuid
+  ids:
+    description: Item IDs
+    type: array
+    items:
+      type: string
+      format: uuid
 required:
-  - id
+  - ids

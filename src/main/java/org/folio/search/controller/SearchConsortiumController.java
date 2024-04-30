@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BatchHoldingIdsDto;
@@ -139,13 +140,48 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumItemCollection> fetchConsortiumBatchItems(String tenantHeader,
                                                                             BatchItemIdsDto batchItemIdsDto) {
-    return SearchConsortiumApi.super.fetchConsortiumBatchItems(tenantHeader, batchItemIdsDto);
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var query = batchItemIdsDto.getIds().stream()
+      .map(UUID::toString)
+      .map("items.id = %s"::formatted)
+      .collect(Collectors.joining(" or "));
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
+    var result = searchService.search(searchRequest);
+    var consortiumItems = result.getRecords().stream()
+      .map(instance -> {
+        var item = instance.getItems().iterator().next();
+        return new ConsortiumItem()
+          .id(item.getId())
+          .tenantId(item.getTenantId())
+          .instanceId(instance.getId())
+          .holdingsRecordId(item.getHoldingsRecordId());
+      })
+      .toList();
+    return ResponseEntity
+      .ok(new ConsortiumItemCollection().items(consortiumItems).totalRecords(result.getTotalRecords()));
   }
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchHoldingIdsDto holdingIdsDto) {
-    return SearchConsortiumApi.super.fetchConsortiumBatchHoldings(tenantHeader, holdingIdsDto);
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var query = holdingIdsDto.getIds().stream()
+      .map(UUID::toString)
+      .map("holdings.id = %s"::formatted)
+      .collect(Collectors.joining(" or "));
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true);
+    var result = searchService.search(searchRequest);
+    var consortiumHoldings = result.getRecords().stream()
+      .map(instance -> {
+        var holding = instance.getHoldings().iterator().next();
+        return new ConsortiumHolding()
+          .id(holding.getId())
+          .tenantId(holding.getTenantId())
+          .instanceId(instance.getId());
+      })
+      .toList();
+    return ResponseEntity
+      .ok(new ConsortiumHoldingCollection().holdings(consortiumHoldings).totalRecords(result.getTotalRecords()));
   }
 
   private String verifyAndGetTenant(String tenantHeader) {

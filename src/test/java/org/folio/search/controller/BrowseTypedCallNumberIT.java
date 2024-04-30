@@ -11,6 +11,8 @@ import static org.folio.search.model.types.CallNumberType.NLM;
 import static org.folio.search.model.types.CallNumberType.OTHER;
 import static org.folio.search.model.types.CallNumberType.SUDOC;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.utils.TestConstants.FOLIO_CN_TYPE;
+import static org.folio.search.utils.TestConstants.LOCAL_CN_TYPE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -39,9 +41,7 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
-  private static final String LOCAL_TYPE_1 = "6fd29f52-5c9c-44d0-b529-e9c5eb3a0aba";
   private static final String LOCAL_TYPE_2 = "654d7565-b277-4dfa-8b7d-fbf306d9d0cd";
-  private static final String FOLIO_TYPE = "6e4d7565-b277-4dfa-8b7d-fbf306d9d0cd";
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
@@ -289,17 +289,17 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #20", List.of(List.of("DA 3880 O6 L75", LC.getId()))),
       List.of("instance #21", List.of(List.of("FC 17 B89", OTHER.getId()))),
       List.of("instance #22", List.of(List.of("DA 3890 A2 B76 42002", LC.getId()))),
-      List.of("instance #23", List.of(List.of("DB 11 A66 SUPPL NO 11", LOCAL_TYPE_1))),
+      List.of("instance #23", List.of(List.of("DB 11 A66 SUPPL NO 11", LOCAL_CN_TYPE))),
       List.of("instance #24", List.of(List.of("DA 3900 C39 NO 11", LC.getId()))),
       List.of("instance #25", List.of(List.of("AC 11 A4 VOL 235", NLM.getId()))),
-      List.of("instance #26", List.of(List.of("PR 17 I55 42006", LOCAL_TYPE_1))),
-      List.of("instance #27", List.of(List.of("E 211 A506", LOCAL_TYPE_1), List.of("E 311 A506", FOLIO_TYPE))),
+      List.of("instance #26", List.of(List.of("PR 17 I55 42006", LOCAL_CN_TYPE))),
+      List.of("instance #27", List.of(List.of("E 211 A506", LOCAL_CN_TYPE), List.of("E 311 A506", FOLIO_CN_TYPE))),
       List.of("instance #28", List.of(List.of("DB 11 A31 BD 3124", LOCAL_TYPE_2))),
       List.of("instance #29", List.of(List.of("DA 3880 O6 D5", LC.getId()))),
       List.of("instance #30", List.of(List.of("GA 16 G32 41557 V1", LOCAL_TYPE_2))),
-      List.of("instance #31", List.of(List.of("AB 14 C72 NO 220", LOCAL_TYPE_1))),
+      List.of("instance #31", List.of(List.of("AB 14 C72 NO 220", LOCAL_CN_TYPE))),
       List.of("instance #32", List.of(List.of("DA 3880 O5 C3 V1", LC.getId()))),
-      List.of("instance #33", List.of(List.of("E 12.11 I2 298", LOCAL_TYPE_1))),
+      List.of("instance #33", List.of(List.of("E 12.11 I2 298", LOCAL_CN_TYPE))),
       List.of("instance #34", List.of(List.of("DA 3900 C89 V1", LC.getId()))),
       List.of("instance #35", List.of(List.of("E 12.11 I12 288 D", LOCAL_TYPE_2))),
       List.of("instance #36", List.of(List.of("DA 3700 B91 L79", LC.getId()))),
@@ -312,7 +312,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
       List.of("instance #43", List.of(List.of("FA 42010 3546 256", OTHER.getId()))),
       List.of("instance #44", List.of(List.of("1CE 16 B6713 X 41993", DEWEY.getId()))),
       List.of("instance #45", List.of(List.of("1CE 16 B6724 41993", DEWEY.getId()))),
-      List.of("instance #46", List.of(List.of("F  PR1866.S63 V.1 C.1", LOCAL_TYPE_1))),
+      List.of("instance #46", List.of(List.of("F  PR1866.S63 V.1 C.1", LOCAL_CN_TYPE))),
       List.of("instance #47", List.of(List.of("1CE 16 B6724 41993", DEWEY.getId()))),
       List.of("instance #48", List.of(List.of("A 123.4", DEWEY.getId()))),
       List.of("instance #49", List.of(List.of("A 123.5", DEWEY.getId())))

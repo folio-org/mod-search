@@ -2,12 +2,10 @@ package org.folio.search.service.setter.item;
 
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.model.client.CqlQueryParam.SOURCE;
-import static org.folio.search.model.types.CallNumberTypeSource.LOCAL;
+import static org.folio.search.service.browse.CallNumberBrowseService.FOLIO_CALL_NUMBER_TYPES_SOURCES;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashSet;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -23,8 +21,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CallNumberTypeProcessor implements FieldProcessor<Instance, Set<String>> {
-
-  static final List<String> LOCAL_CALL_NUMBER_TYPES_SOURCES = Collections.singletonList(LOCAL.getSource());
 
   private final ReferenceDataService referenceDataService;
 
@@ -45,16 +41,15 @@ public class CallNumberTypeProcessor implements FieldProcessor<Instance, Set<Str
   }
 
   private String callNumberTypeIdToString(String callNumberTypeId) {
-    if (isLocalCallNumberTypeId(callNumberTypeId)) {
-      return CallNumberType.LOCAL.toString();
-    }
     return CallNumberType.fromId(callNumberTypeId)
       .map(CallNumberType::toString)
+      .or(() -> isLocalCallNumberTypeId(callNumberTypeId)
+        ? Optional.of(CallNumberType.LOCAL.toString()) : Optional.empty())
       .orElse(null);
   }
 
   private boolean isLocalCallNumberTypeId(String callNumberTypeId) {
-    return referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, LOCAL_CALL_NUMBER_TYPES_SOURCES)
+    return !referenceDataService.fetchReferenceData(CALL_NUMBER_TYPES, SOURCE, FOLIO_CALL_NUMBER_TYPES_SOURCES)
       .contains(callNumberTypeId);
   }
 

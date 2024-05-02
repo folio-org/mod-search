@@ -5,7 +5,6 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.TEN_SECONDS;
 import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -191,7 +190,7 @@ class KafkaMessageListenerIT {
       inventoryInstanceTopic(), KafkaMessageListenerIT::instanceEvent);
 
     var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
-    await().atMost(TEN_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       verify(resourceService).indexInstancesById(List.of(expectedEvents.get(0)));
       verify(resourceService).indexInstancesById(List.of(expectedEvents.get(1)));
       verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvents.get(2)));

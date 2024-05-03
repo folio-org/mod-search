@@ -1,3 +1,9 @@
+## v3.2.4 2024-05-03
+### Bug fixes
+* Fix title count when on central tenant ([MSEARCH-745](https://issues.folio.org/browse/MSEARCH-745))
+
+---
+
 ## v3.2.3 2024-04-23
 ### Bug fixes
 * Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))

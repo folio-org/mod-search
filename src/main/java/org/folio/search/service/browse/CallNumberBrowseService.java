@@ -151,14 +151,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     log.info("browseAround:: precedingResult records: {}", precedingResult.getRecords());
     log.info("browseAround:: succeedingResult records: {}", succeedingResult.getRecords());
-    if (!backwardSucceedingResult.isEmpty()) {
-      log.info("browseAround:: backward succeeding result is not empty: Update preceding result");
-      backwardSucceedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
-        backwardSucceedingResult.getRecords()));
-      precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
-        .stream().distinct().toList());
-      log.info("browseAround:: precedingResult records: {}", precedingResult.getRecords());
-    }
     var forwardPrecedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, true);
     if (!forwardPrecedingResult.isEmpty()) {
       log.info("browseAround:: forward preceding result is not empty: Update preceding result");
@@ -166,7 +158,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         forwardPrecedingResult.getRecords()));
       succeedingResult.setRecords(mergeSafelyToList(succeedingResult.getRecords(), forwardPrecedingResult.getRecords())
         .stream().distinct().toList());
-      log.info("browseAround:: succeedingResult records: {}", succeedingResult.getRecords());
+      log.info("browseAround:: forwardPrecedingResult records: {}", forwardPrecedingResult.getRecords());
     }
 
     if (precedingResult.getRecords().size() < request.getPrecedingRecordsCount()
@@ -177,8 +169,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       log.info("browseAround:: additionalPrecedingRequestsResult records: {}", additionalPrecedingRequestsResult);
       precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
         .stream().distinct().toList());
-      log.info("browseAround:: precedingResult records: {}", precedingResult.getRecords());
+      log.info("browseAround:: additionalPrecedingRequestsResult records: {}", additionalPrecedingRequestsResult);
     }
+
+    if (!backwardSucceedingResult.isEmpty()) {
+      log.info("browseAround:: backward succeeding result is not empty: Update preceding result");
+      backwardSucceedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
+        backwardSucceedingResult.getRecords()));
+      precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
+        .stream().distinct().toList());
+      log.info("browseAround:: backwardSucceedingResult records: {}", backwardSucceedingResult.getRecords());
+    }
+
     if (succeedingResult.getRecords().size() < request.getLimit() - request.getPrecedingRecordsCount()
         && succeedingResult.getTotalRecords() > 0) {
       log.info("getSucceedingResult:: succeeding result is empty: Do additional requests");
@@ -186,6 +188,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         folioCallNumberTypes, true);
       succeedingResult.setRecords(mergeSafelyToList(additionalSucceedingRequestsResult, succeedingResult.getRecords())
         .stream().distinct().toList());
+      log.info("getSucceedingResult:: additionalSucceedingRequestsResult records: {}",
+        additionalSucceedingRequestsResult);
     }
 
     // needed because result list might be modified in a scope of additional actions

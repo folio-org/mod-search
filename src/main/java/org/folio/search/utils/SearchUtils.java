@@ -360,21 +360,6 @@ public class SearchUtils {
       .orElse(null);
   }
 
-  /**
-   * Extracts numeric part (digits starting with non-zero) of LCCN String value.
-   *
-   * @param value LCCN string value
-   * @return if exists, returns string of numeric part of LCCN value, otherwise returns null
-   */
-  public static String extractLccnNumericPart(String value) {
-    if (StringUtils.isBlank(value)) {
-      return null;
-    }
-
-    var matcher = LCCN_NUMERIC_PART_REGEX.matcher(value);
-    return matcher.find() ? matcher.group(0) : null;
-  }
-
   private static Object getMultilangValueObject(Object value) {
     return value instanceof MultilangValue v ? v.getMultilangValues() : value;
   }

@@ -99,6 +99,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
   @Override
   protected BrowseResult<CallNumberBrowseItem> browseAround(BrowseRequest request, BrowseContext context) {
     log.info("browseAround:: by: [request: {}]", request);
+    log.info("browseAround:: by: [context: {}]", context);
 
     var callNumber = callNumberFromRequest(request);
     log.info("browseAround:: callNumber: {}", callNumber);
@@ -146,15 +147,16 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var callNumberType = request.getRefinedCondition();
     var folioCallNumberTypes = folioCallNumberTypes();
+    log.info("browseAround:: total precedingResult records (before): {}", precedingResult.getRecords().size());
     precedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
       precedingResult.getRecords()));
     succeedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
       succeedingResult.getRecords()));
 
     log.info("browseAround:: total: {}, precedingResult records: {}",
-      precedingResult.getRecords().size(), precedingResult.getRecords());
+      precedingResult.getRecords().size(), printItems(precedingResult.getRecords()));
     log.info("browseAround:: total: {}, succeedingResult records: {}",
-      succeedingResult.getRecords().size(), succeedingResult.getRecords());
+      succeedingResult.getRecords().size(), printItems(succeedingResult.getRecords()));
     var forwardPrecedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, true);
     if (!forwardPrecedingResult.isEmpty()) {
       log.info("browseAround:: forward preceding result is not empty: Update preceding result");
@@ -162,7 +164,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         forwardPrecedingResult.getRecords()));
       succeedingResult.setRecords(mergeSafelyToList(succeedingResult.getRecords(), forwardPrecedingResult.getRecords())
         .stream().distinct().toList());
-      log.info("browseAround:: forwardPrecedingResult records: {}", forwardPrecedingResult.getRecords());
+      log.info("browseAround:: forwardPrecedingResult records: {}",
+        printItems(forwardPrecedingResult.getRecords()));
     }
 
     if (precedingResult.getRecords().size() < request.getPrecedingRecordsCount()
@@ -171,7 +174,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       var additionalPrecedingRequestsResult = additionalRequests(request, context, precedingQuery,
         folioCallNumberTypes, false);
       log.info("browseAround:: size: {}, additionalPrecedingRequestsResult records: {}",
-        additionalPrecedingRequestsResult.size(), additionalPrecedingRequestsResult);
+        additionalPrecedingRequestsResult.size(), printItems(additionalPrecedingRequestsResult));
       precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
         .stream().distinct().toList());
     }
@@ -183,7 +186,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
       log.info("browseAround:: size: {}, backwardSucceedingResult records: {}",
-        backwardSucceedingResult.getRecords().size(), backwardSucceedingResult.getRecords());
+        backwardSucceedingResult.getRecords().size(), printItems(backwardSucceedingResult.getRecords()));
     }
 
     if (succeedingResult.getRecords().size() < request.getLimit() - request.getPrecedingRecordsCount()
@@ -194,7 +197,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       succeedingResult.setRecords(mergeSafelyToList(additionalSucceedingRequestsResult, succeedingResult.getRecords())
         .stream().distinct().toList());
       log.info("browseAround::getSucceedingResult:: size: {}, additionalSucceedingRequestsResult records: {}",
-        additionalSucceedingRequestsResult.size(), additionalSucceedingRequestsResult);
+        additionalSucceedingRequestsResult.size(), printItems(additionalSucceedingRequestsResult));
     }
 
     // needed because result list might be modified in a scope of additional actions
@@ -217,6 +220,13 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         trim(precedingResult.getRecords(), context, false),
         trim(succeedingResult.getRecords(), context, true)));
 
+  }
+
+  private List<String> printItems(List<CallNumberBrowseItem> items) {
+    return items.stream()
+      .map(item -> "fullCallNumber: %s   shelfKey: %s   isAnchor: %s"
+        .formatted(item.getFullCallNumber(), item.getShelfKey(), item.getIsAnchor()))
+      .toList();
   }
 
   private String callNumberFromRequest(BrowseRequest request) {

@@ -152,9 +152,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       succeedingResult.getRecords()));
 
     log.info("browseAround:: total: {}, precedingResult records: {}",
-      precedingResult.getTotalRecords(), precedingResult.getRecords());
+      precedingResult.getRecords().size(), precedingResult.getRecords());
     log.info("browseAround:: total: {}, succeedingResult records: {}",
-      succeedingResult.getTotalRecords(), succeedingResult.getRecords());
+      succeedingResult.getRecords().size(), succeedingResult.getRecords());
     var forwardPrecedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, true);
     if (!forwardPrecedingResult.isEmpty()) {
       log.info("browseAround:: forward preceding result is not empty: Update preceding result");
@@ -167,7 +167,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     if (precedingResult.getRecords().size() < request.getPrecedingRecordsCount()
         && precedingResult.getTotalRecords() > 0) {
-      log.info("getPrecedingResult:: preceding result is empty: Do additional requests");
+      log.info("browseAround::getPrecedingResult:: preceding result is empty: Do additional requests");
       var additionalPrecedingRequestsResult = additionalRequests(request, context, precedingQuery,
         folioCallNumberTypes, false);
       log.info("browseAround:: size: {}, additionalPrecedingRequestsResult records: {}",
@@ -183,18 +183,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult.setRecords(mergeSafelyToList(backwardSucceedingResult.getRecords(), precedingResult.getRecords())
         .stream().distinct().toList());
       log.info("browseAround:: size: {}, backwardSucceedingResult records: {}",
-        backwardSucceedingResult.getTotalRecords(), backwardSucceedingResult.getRecords());
+        backwardSucceedingResult.getRecords().size(), backwardSucceedingResult.getRecords());
     }
 
     if (succeedingResult.getRecords().size() < request.getLimit() - request.getPrecedingRecordsCount()
         && succeedingResult.getTotalRecords() > 0) {
-      log.info("getSucceedingResult:: succeeding result is empty: Do additional requests");
+      log.info("browseAround::getSucceedingResult:: succeeding result is empty: Do additional requests");
       var additionalSucceedingRequestsResult = additionalRequests(request, context, succeedingQuery,
         folioCallNumberTypes, true);
       succeedingResult.setRecords(mergeSafelyToList(additionalSucceedingRequestsResult, succeedingResult.getRecords())
         .stream().distinct().toList());
-      log.info("getSucceedingResult:: additionalSucceedingRequestsResult records: {}",
-        additionalSucceedingRequestsResult);
+      log.info("browseAround::getSucceedingResult:: size: {}, additionalSucceedingRequestsResult records: {}",
+        additionalSucceedingRequestsResult.size(), additionalSucceedingRequestsResult);
     }
 
     // needed because result list might be modified in a scope of additional actions

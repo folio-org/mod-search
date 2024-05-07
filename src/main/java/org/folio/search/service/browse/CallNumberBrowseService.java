@@ -190,8 +190,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         printItems(forwardPrecedingResult.getRecords()));
     }
 
-    if (succeedingResult.getRecords().size() < request.getLimit() - request.getPrecedingRecordsCount()
-        && succeedingResult.getTotalRecords() > 0) {
+    if (succeedingResult.getRecords().size()
+      < callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getLimit() - request.getPrecedingRecordsCount())
+      && succeedingResult.getTotalRecords() > 0) {
       log.info("browseAround::getSucceedingResult:: succeeding result is empty: Do additional requests");
       var additionalSucceedingRequestsResult = additionalRequests(request, context, succeedingQuery,
         folioCallNumberTypes, true);

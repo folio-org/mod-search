@@ -263,9 +263,12 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     int offset = query.from() + query.size();
     query.size(ADDITIONAL_REQUEST_SIZE);
 
-    var precedingRecordsCount = request.getPrecedingRecordsCount();
-    var desiredCount = isBrowsingForward ? request.getLimit() - precedingRecordsCount : precedingRecordsCount;
-    var maxBrowseRequestOffset = 10000;
+    var precedingRecordsCount =
+      callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getPrecedingRecordsCount());
+    var desiredCount = isBrowsingForward
+      ? callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getLimit() - precedingRecordsCount)
+      : precedingRecordsCount;
+    var maxBrowseRequestOffset = searchConfig.getMaxBrowseRequestOffset();
     while (additionalRecords.size() < desiredCount && query.from() <= maxBrowseRequestOffset) {
       int size = query.size() < MAX_ADDITIONAL_REQUEST_SIZE ? query.size() * 2 : query.size();
       log.debug("additionalRequests:: browsingForward {} request offset {}, size {}",

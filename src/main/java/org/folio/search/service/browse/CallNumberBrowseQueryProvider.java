@@ -57,8 +57,7 @@ public class CallNumberBrowseQueryProvider {
     var scriptCode = isBrowsingForward ? SORT_SCRIPT_FOR_SUCCEEDING_QUERY : SORT_SCRIPT_FOR_PRECEDING_QUERY;
     var script = new Script(INLINE, DEFAULT_SCRIPT_LANG, scriptCode, singletonMap("cn", ctx.getAnchor()));
 
-    var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
-    var pageSize = (int) Math.max(MIN_QUERY_SIZE, Math.ceil(ctx.getLimit(isBrowsingForward) * multiplier));
+    var pageSize = getBrowsingQueryPageSize(ctx.getLimit(isBrowsingForward));
     var initialQuery = getQuery(ctx, request, pageSize, isBrowsingForward);
     var query = consortiumSearchHelper.filterQueryForActiveAffiliation(initialQuery, INSTANCE_RESOURCE);
     var searchSource = searchSource().from(0).size(pageSize)
@@ -71,6 +70,11 @@ public class CallNumberBrowseQueryProvider {
     }
 
     return searchSource;
+  }
+
+  public int getBrowsingQueryPageSize(int limit) {
+    var multiplier = queryConfiguration.getRangeQueryLimitMultiplier();
+    return (int) Math.max(MIN_QUERY_SIZE, Math.ceil(limit * multiplier));
   }
 
   private QueryBuilder getQuery(BrowseContext ctx, BrowseRequest request, int size, boolean isBrowsingForward) {

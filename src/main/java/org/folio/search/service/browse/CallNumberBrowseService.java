@@ -113,10 +113,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var succeedingQuery = callNumberBrowseQueryProvider.get(request, context, true);
     var responses = getBrowseAround(request, precedingQuery, succeedingQuery);
 
-    log.info("browseAround:: responses[0].getResponse().getHits(): {}",
-      responses[0].getResponse().getHits().getTotalHits());
-    log.info("browseAround:: responses[1].getResponse().getHits(): {}",
-      responses[1].getResponse().getHits().getTotalHits());
     if (isBlank(request.getRefinedCondition()) && !isAnchorPresent(responses[1].getResponse(), context)) {
       var anchors = getAnchors(callNumber);
       anchors.remove(initialAnchor);
@@ -269,8 +265,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var precedingRecordsCount = request.getPrecedingRecordsCount();
     var desiredCount = isBrowsingForward ? request.getLimit() - precedingRecordsCount : precedingRecordsCount;
-    while (additionalRecords.size() < desiredCount
-           && query.from() <= searchConfig.getMaxBrowseRequestOffset()) {
+    var maxBrowseRequestOffset = 10000;
+    while (additionalRecords.size() < desiredCount && query.from() <= maxBrowseRequestOffset) {
       int size = query.size() < MAX_ADDITIONAL_REQUEST_SIZE ? query.size() * 2 : query.size();
       log.debug("additionalRequests:: browsingForward {} request offset {}, size {}",
         isBrowsingForward, offset, size);

@@ -18,6 +18,7 @@ _How does this change fulfill the purpose? Provide a high-level overview of the 
 
 ### Related Issues
 _List any Jira issues related to this pull request._
+[MSEARCH-XXX](https://folio-org.atlassian.net/browse/MSEARCH-XXX)
 
 ### Learning and Resources (if applicable)
 _Discuss any research conducted during the development of this pull request. Include links to relevant blog posts, patterns, libraries, or addons that were used to solve the problem._

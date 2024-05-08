@@ -64,11 +64,11 @@ class LccnInstanceProcessorTest {
       arguments("all empty fields", new Instance(), emptySet()),
       arguments("lccn identifier=null", instanceWithIdentifiers(lccn(null), lccn("  ")), emptySet()),
       arguments("lccn identifier='  n  79021425 '",
-        instanceWithIdentifiers(lccn("  n  79021425 ")), Set.of("79021425", "n79021425")),
+        instanceWithIdentifiers(lccn("  n  79021425 ")), Set.of("n79021425")),
       arguments("lccn identifier='79021425'",
         instanceWithIdentifiers(lccn("79021425"), lccn("79021425")), Set.of("79021425")),
       arguments("lccn identifier='N79021425'",
-        instanceWithIdentifiers(lccn("N79021425")), Set.of("79021425", "n79021425"))
+        instanceWithIdentifiers(lccn("N79021425")), Set.of("n79021425"))
     );
   }
 

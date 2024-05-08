@@ -16,6 +16,7 @@
 * Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
 * Facets: add support for instance classification facets ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
 * Return Unified List of Inventory Locations in a Consortium ([MSEARCH-681](https://folio-org.atlassian.net/browse/MSEARCH-681))
+* Remove ability to match on LCCN searches without a prefix ([MSEARCH-752](https://folio-org.atlassian.net/browse/MSEARCH-752))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

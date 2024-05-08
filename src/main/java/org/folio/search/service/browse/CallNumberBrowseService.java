@@ -143,7 +143,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var callNumberType = request.getRefinedCondition();
     var folioCallNumberTypes = folioCallNumberTypes();
-    log.info("browseAround:: total precedingResult records (before): {}", precedingResult.getRecords().size());
     precedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
       precedingResult.getRecords()));
     succeedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
@@ -263,13 +262,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     int offset = query.from() + query.size();
     query.size(ADDITIONAL_REQUEST_SIZE);
 
-    var precedingRecordsCount =
-      callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getPrecedingRecordsCount());
-    var desiredCount = isBrowsingForward
-      ? callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getLimit() - precedingRecordsCount)
-      : precedingRecordsCount;
-    var maxBrowseRequestOffset = 10000; //searchConfig.getMaxBrowseRequestOffset();
-    while (additionalRecords.size() < desiredCount && query.from() <= maxBrowseRequestOffset) {
+    var precedingRecordsCount = request.getPrecedingRecordsCount();
+    var desiredCount = isBrowsingForward ? request.getLimit() - precedingRecordsCount : precedingRecordsCount;
+    while (additionalRecords.size() < desiredCount && query.from() <= searchConfig.getMaxBrowseRequestOffset()) {
       int size = query.size() < MAX_ADDITIONAL_REQUEST_SIZE ? query.size() * 2 : query.size();
       log.debug("additionalRequests:: browsingForward {} request offset {}, size {}",
         isBrowsingForward, offset, size);

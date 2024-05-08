@@ -22,7 +22,7 @@ public class SearchQueryConfigurationProperties {
   /**
    * Provides range query limit multiplier as double.
    */
-  private double rangeQueryLimitMultiplier = 3d;
+  private double rangeQueryLimitMultiplier = 5d;
 
   /**
    * Defines if call-number browse optimization is enabled or not.

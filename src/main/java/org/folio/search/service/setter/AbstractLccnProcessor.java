@@ -1,16 +1,13 @@
 package org.folio.search.service.setter;
 
-import static org.folio.search.utils.SearchUtils.extractLccnNumericPart;
-import static org.folio.search.utils.SearchUtils.normalizeLccn;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.utils.SearchUtils;
 
 public abstract class AbstractLccnProcessor<T> extends AbstractIdentifierProcessor<T> {
 
@@ -23,7 +20,7 @@ public abstract class AbstractLccnProcessor<T> extends AbstractIdentifierProcess
   @Override
   public Set<String> getFieldValue(T entity) {
     return filterIdentifiersValue(getIdentifiers(entity)).stream()
-      .flatMap(value -> Stream.of(normalizeLccn(value), extractLccnNumericPart(value)))
+      .map(SearchUtils::normalizeLccn)
       .filter(Objects::nonNull)
       .collect(Collectors.toCollection(LinkedHashSet::new));
   }

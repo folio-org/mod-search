@@ -61,13 +61,13 @@ class LccnAuthorityProcessorTest {
       arguments("all empty fields", new Authority(), emptySet()),
       arguments("lccn identifier=null", authorityWithIdentifiers(lccn(null), lccn("  ")), emptySet()),
       arguments("lccn identifier='  nbc  79021425 '",
-        authorityWithIdentifiers(lccn("  nbc  79021425 ")), Set.of("nbc79021425", "79021425")),
+        authorityWithIdentifiers(lccn("  nbc  79021425 ")), Set.of("nbc79021425")),
       arguments("lccn identifier='79021425'",
         authorityWithIdentifiers(lccn("79021425"), lccn("79021425")), Set.of("79021425")),
       arguments("lccn identifier='N79021425'",
-        authorityWithIdentifiers(lccn("N79021425")), Set.of("n79021425", "79021425")),
+        authorityWithIdentifiers(lccn("N79021425")), Set.of("n79021425")),
       arguments("lccn identifier='*79021425*'",
-        authorityWithIdentifiers(lccn("*1425"), lccn("7902*")), Set.of("*1425", "1425", "7902*", "7902"))
+        authorityWithIdentifiers(lccn("*1425"), lccn("7902*")), Set.of("*1425", "7902*"))
     );
   }
 

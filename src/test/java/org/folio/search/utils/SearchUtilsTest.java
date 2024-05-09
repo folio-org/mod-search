@@ -8,7 +8,6 @@ import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.extractLccnNumericPart;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
@@ -98,14 +97,6 @@ class SearchUtilsTest {
   void getLccnNormalized_parameterized(String value, String expected) {
     var normalized = normalizeLccn(value);
     assertThat(normalized).isEqualTo(expected);
-  }
-
-  @DisplayName("LCCN value numeric part")
-  @CsvSource({"nbc 1234,1234", "nbc1234,1234", "  N  1234 ,1234", "*1234,1234", "1234*,1234"})
-  @ParameterizedTest(name = "[{index}] value={0}, expected={1}")
-  void extractLccnNumericPart_parameterized(String value, String expected) {
-    var numericPart = extractLccnNumericPart(value);
-    assertThat(numericPart).isEqualTo(expected);
   }
 
   @CsvSource({

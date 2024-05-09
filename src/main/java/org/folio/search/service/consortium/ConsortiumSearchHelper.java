@@ -102,8 +102,12 @@ public class ConsortiumSearchHelper {
     var subResources = subResourceExtractor.apply(resource);
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty() || contextTenantId.equals(centralTenantId.get())) {
+    if (centralTenantId.isEmpty()) {
       return subResources;
+    } else if (contextTenantId.equals(centralTenantId.get())) {
+      return subResources.stream()
+        .filter(InstanceSubResource::getShared)
+        .collect(Collectors.toSet());
     }
 
     var sharedFilter = getBrowseSharedFilter(context);

@@ -1,3 +1,8 @@
+## v3.2.6 2024-05-14
+### Bug fixes
+* Do additional search request on browse before getting backward succeeding in order to find preceding results ([MSEARCH-705](https://folio-org.atlassian.net/browse/MSEARCH-705))
+---
+
 ## v3.2.5 2024-05-10
 ### Bug fixes
 * Keep right context in resource-id thread ([MSEARCH-754](https://folio-org.atlassian.net/browse/MSEARCH-754))

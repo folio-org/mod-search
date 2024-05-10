@@ -1,3 +1,9 @@
+## v3.2.5 2024-05-10
+### Bug fixes
+* Keep right context in resource-id thread ([MSEARCH-754](https://folio-org.atlassian.net/browse/MSEARCH-754))
+
+---
+
 ## v3.2.4 2024-05-03
 ### Bug fixes
 * Fix title count when on central tenant ([MSEARCH-745](https://issues.folio.org/browse/MSEARCH-745))
@@ -12,7 +18,7 @@
 
 ## v3.2.2 2024-04-10
 ### Bug fixes
-* Do not delete kafka topics if tenant collection topic feature is enabled ([MSEARCH-725](https://issues.folio.org/browse/MSEARCH-725))
+* Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
 
 ---
 

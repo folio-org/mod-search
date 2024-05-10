@@ -21,6 +21,7 @@
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
 * Do additional search request on browse before getting backward succeeding in order to find preceding results ([MSEARCH-705](https://folio-org.atlassian.net/browse/MSEARCH-705))
+* Keep right context in resource-id thread ([MSEARCH-754](https://folio-org.atlassian.net/browse/MSEARCH-754))
 
 ### Tech Dept
 * Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))

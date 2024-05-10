@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -37,11 +36,6 @@ public class ConsortiumTenantExecutor {
       operation.run();
       return null;
     });
-  }
-
-  @Async
-  public void runAsync(Runnable operation) {
-    run(operation);
   }
 
 }

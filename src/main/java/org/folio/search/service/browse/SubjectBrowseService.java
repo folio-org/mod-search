@@ -43,6 +43,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context,
       termQuery(request.getTargetField(), context.getAnchor()), request.getResource());
     return searchSource().query(query)
+      .sort(fieldSort(request.getTargetField()))
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }

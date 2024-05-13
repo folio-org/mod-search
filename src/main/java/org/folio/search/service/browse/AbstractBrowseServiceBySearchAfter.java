@@ -4,11 +4,11 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.reverse;
-import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ArrayUtils;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
@@ -16,6 +16,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.opensearch.action.search.MultiSearchResponse.Item;
+import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -59,28 +60,32 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   @Override
-  protected BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context) {
-    log.debug("browseAround:: by [tenant: {}, query: {}]", request.getTenantId(), request.getQuery());
+  protected BrowseResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context) {
+    logBrowseRequest(request, "browseInOneDirection");
 
-    var succeedingQuery = getSearchQuery(request, context, true);
-    var precedingQuery = getSearchQuery(request, context, false);
-    var searchSources = context.isAnchorIncluded(true)
-      ? List.of(precedingQuery, succeedingQuery, getAnchorSearchQuery(request, context))
-      : List.of(precedingQuery, succeedingQuery);
-
-    log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
-      request.getTenantId(), collectionToLogMsg(searchSources, true));
-    var responses = searchRepository.msearch(request, searchSources).getResponses();
-    return createBrowseResult(responses, request, context);
+    return context.isAnchorIncluded(context.isBrowsingForward())
+           ? getSearchResultWithAnchor(request, context)
+           : getSearchResultWithoutAnchor(request, context);
   }
 
   @Override
-  protected BrowseResult<T> browseInOneDirection(BrowseRequest request, BrowseContext context) {
-    log.debug("browseInOneDirection:: by [tenant: {}, query: {}]", request.getTenantId(), request.getQuery());
+  protected BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context) {
+    logBrowseRequest(request, "browseAround");
+    var succeedingQuery = getSearchQuery(request, context, true);
+    var precedingQuery = getSearchQuery(request, context, false);
+    Item[] responses;
 
-    return context.isAnchorIncluded(context.isBrowsingForward())
-      ? getSearchResultWithAnchor(request, context)
-      : getSearchResultWithoutAnchor(request, context);
+    if (context.isAnchorIncluded(true)) {
+      var anchorResponse = processAnchorResponse(request, context, precedingQuery, succeedingQuery);
+      var searchSources = List.of(precedingQuery, succeedingQuery);
+      logMultiSearchRequest(request, searchSources.size());
+      responses = ArrayUtils.add(searchRepository.msearch(request, searchSources).getResponses(), anchorResponse);
+    } else {
+      var searchSources = List.of(precedingQuery, succeedingQuery);
+      logMultiSearchRequest(request, searchSources.size());
+      responses = searchRepository.msearch(request, searchSources).getResponses();
+    }
+    return createBrowseResult(responses, request, context);
   }
 
   /**
@@ -121,6 +126,37 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   protected abstract BrowseResult<T> mapToBrowseResult(BrowseContext context, SearchResult<R> searchResult,
                                                        boolean isAnchor);
 
+  private Item processAnchorResponse(BrowseRequest request, BrowseContext context, SearchSourceBuilder precedingQuery,
+                                     SearchSourceBuilder succeedingQuery) {
+    var anchorSearchQuery = getAnchorSearchQuery(request, context);
+    var anchorResponse = searchRepository.msearch(request, List.of(anchorSearchQuery)).getResponses()[0];
+    SearchResponse response = anchorResponse.getResponse();
+    if (response == null) {
+      throw new IllegalStateException("Failed to determine the browsing result");
+    }
+    var hits = response.getHits();
+    if (hits != null && hits.getHits().length != 0) {
+      updateSearchAfterValuesForQuery(precedingQuery, hits.getAt(0).getSortValues());
+      updateSearchAfterValuesForQuery(succeedingQuery, hits.getAt(hits.getHits().length - 1).getSortValues());
+    }
+    return anchorResponse;
+  }
+
+  private void updateSearchAfterValuesForQuery(SearchSourceBuilder query, Object[] sortValues) {
+    if (sortValues != null && ArrayUtils.isNotEmpty(sortValues)) {
+      safetyNullifySortValues(sortValues);
+      query.searchAfter(sortValues);
+    }
+  }
+
+  private void safetyNullifySortValues(Object[] sortValues) {
+    if (sortValues != null && sortValues.length > 1) {
+      for (int i = 1; i < sortValues.length; i++) {
+        sortValues[i] = null;
+      }
+    }
+  }
+
   private BrowseResult<T> createBrowseResult(Item[] responses, BrowseRequest request, BrowseContext context) {
     var precedingResult = documentConverter.convertToSearchResult(responses[0].getResponse(), browseResponseClass);
     var succeedingResult = documentConverter.convertToSearchResult(responses[1].getResponse(), browseResponseClass);
@@ -144,16 +180,16 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     var isAnchorHighlighted = isTrue(request.getHighlightMatch());
     if (!context.isAnchorIncluded(true)) {
       return isAnchorHighlighted
-        ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
-        : BrowseResult.empty();
+             ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
+             : BrowseResult.empty();
     }
 
     var anchorResult = documentConverter.convertToSearchResult(responses[2].getResponse(), browseResponseClass);
     browseResultPostProcessing(browseResponseClass, anchorResult);
 
     return isAnchorHighlighted && anchorResult.getTotalRecords() == 0
-      ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
-      : mapToBrowseResult(context, anchorResult, isAnchorHighlighted);
+           ? BrowseResult.of(1, singletonList(getEmptyBrowseItem(context)))
+           : mapToBrowseResult(context, anchorResult, isAnchorHighlighted);
   }
 
   private BrowseResult<T> getSearchResultWithAnchor(BrowseRequest request, BrowseContext context) {
@@ -190,5 +226,14 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
       .prev(getPrevBrowsingValue(records, context, isBrowsingForward))
       .next(getNextBrowsingValue(records, context, isBrowsingForward))
       .records(trim(records, context, isBrowsingForward));
+  }
+
+  private void logBrowseRequest(BrowseRequest request, String functionName) {
+    log.debug("{}:: by [tenant: {}, query: {}]", functionName, request.getTenantId(), request.getQuery());
+  }
+
+  private void logMultiSearchRequest(BrowseRequest request, int size) {
+    log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
+      request.getTenantId(), size);
   }
 }

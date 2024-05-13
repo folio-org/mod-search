@@ -2,11 +2,13 @@ package org.folio.search.service;
 
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.concurrent.Executor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.folio.search.converter.ResourceIdsJobMapper;
 import org.folio.search.domain.dto.ResourceIdsJob;
+import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
@@ -21,6 +23,7 @@ public class ResourceIdsJobService {
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsJobMapper resourceIdsJobMapper;
   private final ResourceIdService resourceIdService;
+  private final Executor streamIdsExecutor;
 
   public ResourceIdsJob getJobById(String id) {
     var jobEntity = consortiumTenantExecutor.execute(() -> jobRepository.getReferenceById(id));
@@ -35,10 +38,15 @@ public class ResourceIdsJobService {
     entity.setTemporaryTableName(generateTemporaryTableName());
 
     log.info("Attempts to create streamJob by [resourceIdsJob: {}]", entity);
-    var savedJob = consortiumTenantExecutor.execute(() -> jobRepository.save(entity));
+    var savedJob = consortiumTenantExecutor.execute(() -> saveAndRun(entity, tenantId));
 
-    consortiumTenantExecutor.runAsync(() -> resourceIdService.streamResourceIdsForJob(savedJob, tenantId));
     return resourceIdsJobMapper.convert(savedJob);
+  }
+
+  private ResourceIdsJobEntity saveAndRun(ResourceIdsJobEntity entity, String tenantId) {
+    var job = jobRepository.save(entity);
+    streamIdsExecutor.execute(() -> resourceIdService.streamResourceIdsForJob(job, tenantId));
+    return job;
   }
 
   private String generateTemporaryTableName() {

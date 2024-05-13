@@ -131,7 +131,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
     var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
-    var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
 
     var callNumberType = request.getRefinedCondition();
     var folioCallNumberTypes = folioCallNumberTypes();
@@ -139,6 +138,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       precedingResult.getRecords()));
     succeedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
       succeedingResult.getRecords()));
+
+    if (precedingResult.getRecords().size()
+        <= callNumberBrowseQueryProvider.getBrowsingQueryPageSize(request.getPrecedingRecordsCount())
+        && precedingResult.getTotalRecords() > 0) {
+      log.debug("browseAround::getPrecedingResult:: preceding result is empty: Do additional requests");
+      var additionalPrecedingRequestsResult = additionalRequests(request, context, precedingQuery,
+        folioCallNumberTypes, false);
+      precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
+        .stream().distinct().toList());
+    }
+
+    var backwardSucceedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, false);
     if (!backwardSucceedingResult.isEmpty()) {
       log.debug("browseAround:: backward succeeding result is not empty: Update preceding result");
       backwardSucceedingResult.setRecords(excludeIrrelevantResultItems(context, callNumberType, folioCallNumberTypes,
@@ -155,14 +166,6 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         .stream().distinct().toList());
     }
 
-    if (precedingResult.getRecords().size() < request.getPrecedingRecordsCount()
-        && precedingResult.getTotalRecords() > 0) {
-      log.debug("getPrecedingResult:: preceding result is empty: Do additional requests");
-      var additionalPrecedingRequestsResult = additionalRequests(request, context, precedingQuery,
-        folioCallNumberTypes, false);
-      precedingResult.setRecords(mergeSafelyToList(additionalPrecedingRequestsResult, precedingResult.getRecords())
-        .stream().distinct().toList());
-    }
     if (succeedingResult.getRecords().size() < request.getLimit() - request.getPrecedingRecordsCount()
         && succeedingResult.getTotalRecords() > 0) {
       log.debug("getSucceedingResult:: succeeding result is empty: Do additional requests");

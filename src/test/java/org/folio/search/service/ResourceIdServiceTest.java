@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
@@ -33,9 +31,7 @@ import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.SearchRepository;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,16 +61,8 @@ class ResourceIdServiceTest {
   private StreamIdsProperties properties;
   @Mock
   private ResourceIdsJobRepository jobRepository;
-  @Mock
-  private SystemUserScopedExecutionService executionService;
   @Spy
   private final ObjectMapper objectMapper = OBJECT_MAPPER;
-
-  @BeforeEach
-  void setUp() {
-    lenient().when(executionService.executeSystemUserScoped(any(), any()))
-      .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
-  }
 
   @Test
   void streamResourceIds() throws IOException {

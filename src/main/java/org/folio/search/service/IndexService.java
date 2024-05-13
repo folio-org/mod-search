@@ -24,6 +24,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -44,6 +45,7 @@ public class IndexService {
   private final SearchSettingsHelper settingsHelper;
   private final ResourceReindexClient resourceReindexClient;
   private final ResourceDescriptionService resourceDescriptionService;
+  private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
 
@@ -137,14 +139,17 @@ public class IndexService {
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
+    var resource = normalizeResourceName(resources.get(0));
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())
       && notConsortiumMemberTenant(tenantId)) {
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId, reindexRequest.getIndexSettings());
+        if (INSTANCE_RESOURCE.equals(resource)) {
+          consortiumInstanceService.deleteAll();
+        }
       });
     }
-    var resource = normalizeResourceName(resources.get(0));
     var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
     return resourceReindexClient.submitReindex(reindexUri);
   }

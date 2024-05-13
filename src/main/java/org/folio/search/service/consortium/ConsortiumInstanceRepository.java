@@ -28,6 +28,7 @@ public class ConsortiumInstanceRepository {
 
   private static final String SELECT_BY_ID_SQL = "SELECT * FROM %s WHERE instance_id IN (%s)";
   private static final String DELETE_BY_TENANT_AND_ID_SQL = "DELETE FROM %s WHERE tenant_id = ? AND instance_id = ?;";
+  private static final String DELETE_ALL_SQL = "DELETE FROM %s;";
   private static final String UPSERT_SQL = """
       INSERT INTO %s (tenant_id, instance_id, json, created_date, updated_date)
       VALUES (?, ?, ?::json, ?, ?)
@@ -110,6 +111,10 @@ public class ConsortiumInstanceRepository {
         .barcode(rs.getString("barcode")),
       searchQueryBuilder.getQueryArguments()
     );
+  }
+
+  public void deleteAll() {
+    jdbcTemplate.update(DELETE_ALL_SQL.formatted(getTableName()));
   }
 
   private ConsortiumInstance toConsortiumInstance(ResultSet rs) throws SQLException {

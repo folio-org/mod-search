@@ -42,6 +42,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
+import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -78,6 +79,8 @@ class IndexServiceTest {
   private ResourceDescriptionService resourceDescriptionService;
   @Mock
   private IndexNameProvider indexNameProvider;
+  @Mock
+  private ConsortiumInstanceService consortiumInstanceService;
 
   @Mock
   private TenantProvider tenantProvider;
@@ -257,6 +260,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verify(indexRepository).dropIndex(indexName);
+    verify(consortiumInstanceService).deleteAll();
   }
 
   @Test
@@ -273,6 +277,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(indexRepository);
+    verifyNoInteractions(consortiumInstanceService);
   }
 
   @Test
@@ -286,6 +291,7 @@ class IndexServiceTest {
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest());
     assertThat(actual).isEqualTo(expectedResponse);
+    verifyNoInteractions(consortiumInstanceService);
   }
 
   @Test

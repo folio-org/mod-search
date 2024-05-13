@@ -108,6 +108,10 @@ public class ConsortiumInstanceService {
     return consortiumTenantEventsMap.get(false);
   }
 
+  public void deleteAll() {
+    consortiumTenantExecutor.run(repository::deleteAll);
+  }
+
   public List<ResourceEvent> fetchInstances(Iterable<String> instanceIds) {
     List<ResourceEvent> resourceEvents = new ArrayList<>();
 

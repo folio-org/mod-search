@@ -168,6 +168,13 @@ class ConsortiumInstanceServiceTest {
   }
 
   @Test
+  void deleteAll_positive() {
+    service.deleteAll();
+    verify(repository).deleteAll();
+    verify(consortiumTenantExecutor).run(any());
+  }
+
+  @Test
   void fetchInstances_positive_shouldMergeInstancesById() {
     var instanceIds = List.of(randomId());
     when(repository.fetch(instanceIds)).thenReturn(List.of(

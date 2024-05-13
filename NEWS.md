@@ -1,25 +1,15 @@
 ## v3.2.6 2024-05-14
 ### Bug fixes
 * Do additional search request on browse before getting backward succeeding in order to find preceding results ([MSEARCH-705](https://folio-org.atlassian.net/browse/MSEARCH-705))
+
+### Tech Dept
+* Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
+
 ---
 
 ## v3.2.5 2024-05-10
 ### Bug fixes
 * Keep right context in resource-id thread ([MSEARCH-754](https://folio-org.atlassian.net/browse/MSEARCH-754))
-
----
-
-## v3.2.4 2024-05-03
-### Bug fixes
-* Fix title count when on central tenant ([MSEARCH-745](https://issues.folio.org/browse/MSEARCH-745))
-
----
-
-## v3.2.3 2024-04-23
-### Bug fixes
-* Instance search: make "all" search field option to search by full-text fields ([MSEARCH-606](https://issues.folio.org/browse/MSEARCH-606))
-
----
 
 ## v3.2.2 2024-04-10
 ### Bug fixes

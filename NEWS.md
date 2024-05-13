@@ -24,7 +24,7 @@
 * Keep right context in resource-id thread ([MSEARCH-754](https://folio-org.atlassian.net/browse/MSEARCH-754))
 
 ### Tech Dept
-* Description ([ISSUE_NUMBER](https://folio-org.atlassian.net/browse/ISSUE_NUMBER))
+* Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

@@ -128,6 +128,24 @@ class ConsortiumInstanceRepositoryIT {
 
   @Test
   @SneakyThrows
+  void testDeleteAll_positive() {
+    var instanceId1 = randomId();
+    var instanceId2 = randomId();
+    var consortiumInstance1 = consortiumInstance(0, instanceId1, instance(instanceId1));
+    var consortiumInstance2 = consortiumInstance(0, instanceId2, instance(instanceId2));
+    var consortiumInstance3 = consortiumInstance(1, instanceId1, instance(instanceId2));
+
+    repository.save(List.of(consortiumInstance1, consortiumInstance2, consortiumInstance3));
+    assertThat(getDbRecords()).hasSize(3);
+
+    repository.deleteAll();
+
+    assertThat(getDbRecords())
+      .isEmpty();
+  }
+
+  @Test
+  @SneakyThrows
   void testFetch_positive_instancesFetched() {
     var instanceId1 = randomId();
     var instanceId2 = randomId();

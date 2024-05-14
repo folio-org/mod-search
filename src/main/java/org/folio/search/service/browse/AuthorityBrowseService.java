@@ -86,6 +86,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
       .query(query)
       .from(0)
       .size(ctx.getLimit(ctx.isBrowsingForward()))
+      .sort(fieldSort(request.getTargetField()))
       .fetchSource(getIncludedSourceFields(request), null);
   }
 

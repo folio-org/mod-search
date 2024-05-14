@@ -46,6 +46,10 @@ public class ContributorBrowseService extends
     context.getFilters().forEach(boolQuery::filter);
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.getResource());
     return searchSource().query(query)
+      .sort(fieldSort(request.getTargetField()))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }

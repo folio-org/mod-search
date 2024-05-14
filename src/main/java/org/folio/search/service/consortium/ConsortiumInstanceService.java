@@ -109,6 +109,7 @@ public class ConsortiumInstanceService {
   }
 
   public void deleteAll() {
+    log.info("Truncate consortium instances table");
     consortiumTenantExecutor.run(repository::deleteAll);
   }
 

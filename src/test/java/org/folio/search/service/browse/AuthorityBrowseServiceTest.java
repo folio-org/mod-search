@@ -8,6 +8,7 @@ import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -81,6 +82,8 @@ class AuthorityBrowseServiceTest {
     authorityBrowseService.setSearchRepository(searchRepository);
     authorityBrowseService.setBrowseContextProvider(browseContextProvider);
     authorityBrowseService.setSearchResponsePostProcessors(searchResponsePostProcessors);
+    lenient().when(searchRepository.analyze(any(), any(), any(), any()))
+      .thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test

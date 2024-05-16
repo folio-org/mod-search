@@ -17,8 +17,10 @@ import org.folio.search.model.index.ContributorResource;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,9 +35,16 @@ class ContributorBrowseServiceTest {
 
   @Mock
   private ConsortiumSearchHelper consortiumSearchHelper;
+  @Mock
+  private SearchRepository searchRepository;
 
   @InjectMocks
   private ContributorBrowseService service;
+
+  @BeforeEach
+  void setUp() {
+    service.setSearchRepository(searchRepository);
+  }
 
   @Test
   void mapToBrowseResult_positive() {
@@ -79,6 +88,8 @@ class ContributorBrowseServiceTest {
     var browseContext = BrowseContext.builder().anchor("test").succeedingLimit(1).precedingLimit(1).build();
     var queryMock = disMaxQuery();
 
+    when(searchRepository.analyze(eq(browseContext.getAnchor()), eq(browseRequest.getTargetField()), any(), any()))
+      .thenReturn("test");
     when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any(), any()))
       .thenReturn(queryMock);
 

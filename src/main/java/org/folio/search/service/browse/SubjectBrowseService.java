@@ -1,6 +1,5 @@
 package org.folio.search.service.browse;
 
-import static java.util.Locale.ROOT;
 import static java.util.Objects.nonNull;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -61,7 +60,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     }
     query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {getAnchorValue(req, ctx)})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);

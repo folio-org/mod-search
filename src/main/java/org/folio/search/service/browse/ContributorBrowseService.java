@@ -1,6 +1,5 @@
 package org.folio.search.service.browse;
 
-import static java.util.Locale.ROOT;
 import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -68,7 +67,7 @@ public class ContributorBrowseService extends
     }
     query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT), null, null, null})
+      .searchAfter(new Object[] {getAnchorValue(req, ctx), null, null, null})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
       .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).missing(MISSING_LAST_PROP))

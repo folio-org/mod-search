@@ -75,6 +75,8 @@ class SubjectBrowseServiceTest {
       .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any(), any());
     lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).getInstances())
       .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
+    lenient().when(searchRepository.analyze(any(), any(), any(), any()))
+      .thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test

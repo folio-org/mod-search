@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
@@ -24,6 +25,8 @@ import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.action.search.SearchScrollRequest;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.AnalyzeRequest;
+import org.opensearch.client.indices.AnalyzeResponse;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.search.Scroll;
 import org.opensearch.search.SearchHit;
@@ -40,11 +43,23 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
-  private static final String OPERATION_TYPE = "searchApi";
+  private static final String SEARCH_OPERATION_TYPE = "searchApi";
+  private static final String ANALYZE_OPERATION_TYPE = "analyzeApi";
   private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
   private final IndexNameProvider indexNameProvider;
+
+  public String analyze(String text, String field, String resource, String tenantId) {
+    var index = indexNameProvider.getIndexName(resource, tenantId);
+    var analyzeRequest = AnalyzeRequest.withField(index, field, text);
+    var analyzeResponse = performExceptionalOperation(() -> client.indices().analyze(analyzeRequest, DEFAULT), index,
+      ANALYZE_OPERATION_TYPE);
+    return analyzeResponse.getTokens().stream()
+      .map(AnalyzeResponse.AnalyzeToken::getTerm)
+      .filter(Objects::nonNull)
+      .collect(Collectors.joining());
+  }
 
   /**
    * Executes request to elasticsearch and returns search result with related documents.
@@ -56,7 +71,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
   }
 
   /**
@@ -70,7 +85,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
   }
 
   /**
@@ -113,7 +128,7 @@ public class SearchRepository {
       .indices(index);
 
     var searchResponse = performExceptionalOperation(
-      () -> client.search(searchRequest, DEFAULT), index, OPERATION_TYPE);
+      () -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
     var scrollId = searchResponse.getScrollId();
     var searchHits = searchResponse.getHits().getHits();
 

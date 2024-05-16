@@ -88,6 +88,11 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
     return createBrowseResult(responses, request, context);
   }
 
+  protected String getAnchorValue(BrowseRequest request, BrowseContext ctx) {
+    return searchRepository.analyze(ctx.getAnchor(), request.getTargetField(), request.getResource(),
+      request.getTenantId());
+  }
+
   /**
    * Provides anchor search query for the given {@link BrowseRequest} and {@link BrowseContext} objects.
    *

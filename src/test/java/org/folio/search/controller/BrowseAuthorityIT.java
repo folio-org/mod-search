@@ -57,7 +57,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
                                    + "and isTitleHeadingRef==false "
                                    + "and tenantId==" + TENANT_ID + " "
                                    + "and shared==false "
-                                   + "and headingType==(\"Personal Name\")", "\"James Röllins\""))
+                                   + "and headingType==(\"Personal Name\")", "\"Ĵämes Röllins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -65,7 +65,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .totalRecords(2).prev(null).next(null)
       .items(List.of(
         authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0),
-        emptyAuthorityBrowseItem("James Röllins"),
+        emptyAuthorityBrowseItem("Ĵämes Röllins"),
         authorityBrowseItem("Zappa Frank", 23, "Personal Name", AUTHORIZED, 0)
       )));
   }
@@ -73,23 +73,23 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithDiacritics() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value})", "\"James Röllins\""))
+      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value})", "\"Ĵämes Röllins test\""))
       .param("limit", "3")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("Fantasy").next("James Röllins")
+      .totalRecords(17).prev("Harry Potter").next("Ĵämes Röllins test")
       .items(List.of(
-        authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-        authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null).isAnchor(true)
+        authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
+        emptyAuthorityBrowseItem("Ĵämes Röllins test")
       )));
   }
 
   @Test
   void browseByAuthority_browsingAroundWithPrecedingRecordsCount() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("headingRef < {value} or headingRef >= {value}", "\"James Röllins\""))
+      .param("query", prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Ĵämes Röllins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -98,7 +98,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .items(List.of(
         authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-        authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null).isAnchor(true),
+        authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null).isAnchor(true),
         authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
         authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
         authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
@@ -129,13 +129,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
 
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("Comic-Con").next("James Röllins")
+      .totalRecords(17).prev("Comic-Con").next("Ĵämes Röllins")
       .items(List.of(
         authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
         authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
         authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-        authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null))));
+        authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null))));
   }
 
   private static Stream<Arguments> authorityBrowsingDataProvider() {
@@ -157,13 +157,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0)))),
 
       arguments(aroundQuery, "harry", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("James Röllins")
+        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
         .items(List.of(
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("harry"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null)))),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null)))),
 
       arguments(aroundQuery, "a", 5, new AuthorityBrowseResult()
         .totalRecords(17).prev(null).next("Biomedical Symposium")
@@ -189,19 +189,19 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "harry", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("James Röllins")
+        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
         .items(List.of(
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("harry"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null)))),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null)))),
 
       arguments(aroundIncludingQuery, "music", 5, new AuthorityBrowseResult()
         .totalRecords(17).prev("Harry Potter").next("Novel")
         .items(List.of(
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
@@ -218,7 +218,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
@@ -236,7 +236,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
@@ -245,13 +245,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE, null)))),
 
       arguments(aroundIncludingQuery, "FC", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("James Röllins")
+        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
         .items(List.of(
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("FC"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null)))),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null)))),
 
       // browsing forward
       arguments(forwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
@@ -278,7 +278,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         .items(List.of(
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
-          authorityBrowseItem("James Röllins", 2, "Personal Name", REFERENCE, null),
+          authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
 
@@ -357,7 +357,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     return new Authority[]
       {
         authority(1).personalNameTitle("Brian K. Vaughan Title"),
-        authority(2).sftPersonalNameTitle(List.of("James Röllins")),
+        authority(2).sftPersonalNameTitle(List.of("Ĵämes Röllins")),
         authority(3).saftPersonalNameTitle(List.of("Brad Thor")),
         authority(4).corporateNameTitle("Disney"),
         authority(5).sftCorporateNameTitle(List.of("Blumberg Green Beauty")),

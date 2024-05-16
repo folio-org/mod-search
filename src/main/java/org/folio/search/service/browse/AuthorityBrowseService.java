@@ -1,6 +1,5 @@
 package org.folio.search.service.browse;
 
-import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
 import static org.folio.search.model.index.AuthRefType.REFERENCE;
@@ -67,7 +66,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
     ctx.getFilters().forEach(boolQuery::filter);
     var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
     return searchSource().query(query)
-      .searchAfter(new Object[] {ctx.getAnchor().toLowerCase(ROOT)})
+      .searchAfter(new Object[] {getAnchorValue(request, ctx)})
       .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .fetchSource(getIncludedSourceFields(request), null)

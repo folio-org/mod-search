@@ -1,0 +1,11 @@
+description: Batch Holding IDs DTO
+type: object
+properties:
+  ids:
+    description: Holding IDs
+    type: array
+    items:
+      type: string
+      format: uuid
+required:
+  - ids

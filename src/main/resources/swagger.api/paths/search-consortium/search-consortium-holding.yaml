@@ -1,5 +1,6 @@
 get:
   operationId: getConsortiumHolding
+  summary: Fetch consolidated holding by id
   description: Get holding by id (only for consortium environment)
   tags:
     - search-consortium
@@ -8,7 +9,7 @@ get:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
-      description: an instance holding
+      description: An instance holding
       content:
         application/json:
           schema:

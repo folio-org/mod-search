@@ -1,5 +1,6 @@
 get:
   operationId: getConsortiumItem
+  summary: Fetch consolidated item by id
   description: Get an item (only for consortium environment)
   tags:
     - search-consortium
@@ -8,7 +9,7 @@ get:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
-      description: an instance item
+      description: An instance item
       content:
         application/json:
           schema:

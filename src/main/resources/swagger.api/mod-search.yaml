@@ -83,46 +83,10 @@ paths:
     $ref: 'paths/search-consortium/search-consortium-batch-holdings.yaml'
 
   /search/consortium/holding/{id}:
-    get:
-      operationId: getConsortiumHolding
-      description: Get holding by id (only for consortium environment)
-      tags:
-        - search-consortium
-      parameters:
-        - $ref: 'parameters/record-id-param.yaml'
-        - $ref: 'parameters/x-okapi-tenant-header.yaml'
-      responses:
-        '200':
-          description: an instance holding
-          content:
-            application/json:
-              schema:
-                $ref: 'schemas/entity/consortiumHolding.yaml'
-        '400':
-          $ref: 'responses/badRequestResponse.yaml'
-        '500':
-          $ref: 'responses/internalServerErrorResponse.yaml'
+    $ref: 'paths/search-consortium/search-consortium-holding.yaml'
 
   /search/consortium/item/{id}:
-    get:
-      operationId: getConsortiumItem
-      description: Get an item (only for consortium environment)
-      tags:
-        - search-consortium
-      parameters:
-        - $ref: 'parameters/record-id-param.yaml'
-        - $ref: 'parameters/x-okapi-tenant-header.yaml'
-      responses:
-        '200':
-          description: an instance item
-          content:
-            application/json:
-              schema:
-                $ref: 'schemas/entity/consortiumItem.yaml'
-        '400':
-          $ref: 'responses/badRequestResponse.yaml'
-        '500':
-          $ref: 'responses/internalServerErrorResponse.yaml'
+    $ref: 'paths/search-consortium/search-consortium-item.yaml'
 
   /search/index/indices:
     $ref: 'paths/search-index/search-index-indices.yaml'

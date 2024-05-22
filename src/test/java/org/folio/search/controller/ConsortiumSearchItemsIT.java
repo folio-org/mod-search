@@ -5,6 +5,8 @@ import static org.folio.search.controller.SearchConsortiumController.REQUEST_NOT
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.consortiumItemSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.consortiumItemsSearchPath;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -14,7 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.model.Pair;
@@ -93,6 +98,51 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
       .andExpect(jsonPath("$.errors[0].message", is("instanceId filter is required")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void doGetConsortiumItem_returns200AndRecords() {
+    var items = getExpectedItems();
+    var expectedItem = items[0];
+    var result = doGet(consortiumItemSearchPath(expectedItem.getId()), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumItem.class);
+
+    assertThat(actual)
+      .isEqualTo(expectedItem);
+  }
+
+  @Test
+  void tryGetConsortiumItem_returns400_whenRequestedForNotCentralTenant() throws Exception {
+    tryGet(consortiumItemSearchPath(UUID.randomUUID().toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(REQUEST_NOT_ALLOWED_MSG)))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("x-okapi-tenant")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
+  }
+
+  @Test
+  void doGetConsortiumBatchItems_returns200AndRecords() {
+    var items = getExpectedItems();
+    var request = new BatchIdsDto()
+      .ids(Arrays.stream(items).map(ConsortiumItem::getId).map(UUID::fromString).toList());
+    var result = doPost(consortiumBatchItemsSearchPath(), CENTRAL_TENANT_ID, request);
+    var actual = parseResponse(result, ConsortiumItemCollection.class);
+
+    assertThat(actual.getTotalRecords()).isEqualTo(3);
+    assertThat(actual.getItems()).containsExactlyInAnyOrder(items);
+  }
+
+  @Test
+  void tryGetConsortiumBatchItems_returns400_whenRequestedForNotCentralTenant() throws Exception {
+    tryPost(consortiumBatchItemsSearchPath(), new BatchIdsDto().ids(List.of(UUID.randomUUID())))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(REQUEST_NOT_ALLOWED_MSG)))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("x-okapi-tenant")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
   }
 
   private ConsortiumItem[] getExpectedItems() {

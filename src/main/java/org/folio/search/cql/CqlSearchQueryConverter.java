@@ -68,9 +68,16 @@ public class CqlSearchQueryConverter {
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
   public SearchSourceBuilder convertForConsortia(String query, String resource) {
-    var sourceBuilder = convert(query, resource);
-    var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query(), resource);
+    return convertForConsortia(query, resource, false);
+  }
 
+  public SearchSourceBuilder convertForConsortia(String query, String resource, boolean consortiumConsolidated) {
+    var sourceBuilder = convert(query, resource);
+    if (consortiumConsolidated) {
+      return sourceBuilder;
+    }
+
+    var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query(), resource);
     return sourceBuilder.query(queryBuilder);
   }
 

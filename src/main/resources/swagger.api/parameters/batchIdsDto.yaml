@@ -1,8 +1,8 @@
-description: Batch Item IDs DTO
+description: Batch IDs DTO
 type: object
 properties:
   ids:
-    description: Item IDs
+    description: Entity IDs
     type: array
     items:
       type: string

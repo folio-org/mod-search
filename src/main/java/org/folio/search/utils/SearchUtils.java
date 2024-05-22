@@ -360,6 +360,13 @@ public class SearchUtils {
       .orElse(null);
   }
 
+  /**
+   * Build preference string to address similar requests to the same shard.
+   * */
+  public static String buildPreferenceKey(String tenantId, String resource, String query) {
+    return tenantId + "-" + resource + "-" + query;
+  }
+
   private static Object getMultilangValueObject(Object value) {
     return value instanceof MultilangValue v ? v.getMultilangValues() : value;
   }

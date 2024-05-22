@@ -10,7 +10,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../../parameters/batchHoldingIdsDto.yaml'
+          $ref: '../../parameters/batchIdsDto.yaml'
   responses:
     '200':
       description: List of holdings

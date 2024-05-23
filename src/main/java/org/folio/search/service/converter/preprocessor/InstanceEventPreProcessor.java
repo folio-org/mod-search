@@ -61,6 +61,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       return List.of(event);
     }
 
+    log.info("event: {}", event);
     var events = prepareClassificationEvents(event);
 
     log.info("preProcess::Finished instance event pre-processing");
@@ -101,9 +102,13 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
     var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
 
+    log.info("deletion events: ");
+    list.forEach(ev -> log.info("del-event: {}", ev));
     var list1 = entityAggList.stream()
       .map(entities -> toResourceCreateEvent(entities, tenant))
       .toList();
+    log.info("creation events: ");
+    list1.forEach(ev -> log.info("cr-event: {}", ev));
     return CollectionUtils.mergeSafelyToList(list, list1);
   }
 

@@ -106,6 +106,9 @@ folio:
       - name: search.consortium.instance
         numPartitions: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS:50}
         replicationFactor: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR:}
+      - name: search.bibframe
+        numPartitions: ${KAFKA_BIBFRAME_TOPIC_PARTITIONS:3}
+        replicationFactor: ${KAFKA_BIBFRAME_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -135,6 +138,10 @@ folio:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.location
         group-id: ${folio.environment}-mod-search-location-type-group
+      bibframe:
+        concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.bibframe
+        group-id: ${folio.environment}-mod-search-bibframe-group
   okapiUrl: ${okapi.url}
   logging:
     request:

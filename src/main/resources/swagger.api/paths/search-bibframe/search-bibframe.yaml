@@ -1,0 +1,25 @@
+get:
+  operationId: searchBibframe
+  summary: Search Bibframe
+  description: Get a list of bibframe records for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/bibframe-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+  responses:
+    '200':
+      description: 'Bibframe search result'
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/bibframeSearchResult.yaml'
+          examples:
+            searchResult:
+              $ref: '../../examples/result/bibframeSearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

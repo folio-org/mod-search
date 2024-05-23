@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,8 +59,16 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     DELETE FROM %s
     WHERE classification_type_id = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
     """;
+
+  private static final String PROCESS_SQL = """
+    SELECT *
+    FROM %s.process_classifications(
+      array[%s]::%s.classifications_type[],
+      array[%s]::%s.classifications_type[]
+    );""";
   private static final int BATCH_SIZE = 100;
-  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
+  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() {
+  };
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -128,6 +137,29 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
       instanceClassificationAggRowMapper(), getArgsForAggregatedByClassifications(classifications));
   }
 
+  @Override
+  public List<InstanceClassificationEntity> processClassificationsUpdates(
+    List<InstanceClassificationEntity> entitiesForCreate,
+    List<InstanceClassificationEntity> entitiesForDelete) {
+    return jdbcTemplate.query(
+      PROCESS_SQL.formatted(getSchemaName(),
+        getFormattedClassification(entitiesForCreate), getSchemaName(),
+        getFormattedClassification(entitiesForDelete), getSchemaName()
+      ), instanceClassificationRowMapper()
+    );
+  }
+
+  private String getFormattedClassification(List<InstanceClassificationEntity> entities) {
+    return entities.stream().map(e -> String.format("('%s', '%s', '%s', %b, '%s')",
+      e.number(),
+      e.typeId(),
+      e.instanceId(),
+      e.shared(),
+      e.tenantId()
+    )).collect(Collectors.joining(", "));
+  }
+
+
   @NotNull
   private Object[] getArgsForAggregatedByClassifications(List<InstanceClassificationEntity> classifications) {
     var args = new Object[classifications.size() * 2];
@@ -168,6 +200,10 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
       }
       return new InstanceClassificationEntityAgg(typeId, number, instanceSubResources);
     };
+  }
+
+  private String getSchemaName() {
+    return JdbcUtils.getSchemaName(context);
   }
 
   private String getTableName() {

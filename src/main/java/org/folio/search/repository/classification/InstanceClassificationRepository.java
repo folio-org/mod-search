@@ -12,4 +12,8 @@ public interface InstanceClassificationRepository {
 
   List<InstanceClassificationEntityAgg> fetchAggregatedByClassifications(
     List<InstanceClassificationEntity> classifications);
+
+  List<InstanceClassificationEntity> processClassificationsUpdates(
+    List<InstanceClassificationEntity> entitiesForCreate,
+    List<InstanceClassificationEntity> entitiesForDelete);
 }

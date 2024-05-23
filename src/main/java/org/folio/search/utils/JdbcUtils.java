@@ -20,4 +20,8 @@ public class JdbcUtils {
   public static String getGroupedParamPlaceholder(int size, int groupSize) {
     return String.join(",", nCopies(size, "(" + getParamPlaceholder(groupSize) + ")"));
   }
+
+  public static String getSchemaName(FolioExecutionContext context) {
+    return context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());
+  }
 }

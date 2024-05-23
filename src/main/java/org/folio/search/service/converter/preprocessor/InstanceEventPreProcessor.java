@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -91,14 +92,24 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     var entitiesForCreate = toEntities(classificationsForCreate, instanceId, tenant, shared);
     var entitiesForDelete = toEntities(classificationsForDelete, instanceId, tenant, shared);
-    instanceClassificationRepository.saveAll(entitiesForCreate);
-    instanceClassificationRepository.deleteAll(entitiesForDelete);
 
-    List<InstanceClassificationEntity> entitiesForFetch = new ArrayList<>();
-    entitiesForFetch.addAll(entitiesForCreate);
-    entitiesForFetch.addAll(entitiesForDelete);
+    List<InstanceClassificationEntityAgg> entityAggList =
+      instanceClassificationRepository.processClassificationsUpdates(entitiesForCreate, entitiesForDelete)
+      .stream().collect(Collectors.groupingBy(e -> new ImmutablePair<>(e.number(), e.typeId())))
+      .entrySet().stream()
+      .map(e -> new InstanceClassificationEntityAgg(
+        e.getKey().getLeft(),
+        e.getKey().getRight(),
+        e.getValue().stream()
+          .map(c -> InstanceSubResource.builder()
+            .instanceId(c.instanceId())
+            .typeId(c.typeId())
+            .tenantId(c.tenantId())
+            .shared(c.shared())
+            .build())
+          .collect(Collectors.toSet())
+      )).toList();
 
-    var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
     var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
 
     var list1 = entityAggList.stream()
@@ -116,8 +127,8 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       var classification = iterator.next();
       for (InstanceClassificationEntityAgg agg : entityAggList) {
         if (agg.number().equals(classification.number())
-            && agg.typeId() != null
-            && agg.typeId().equals(classification.typeId())) {
+          && agg.typeId() != null
+          && agg.typeId().equals(classification.typeId())) {
           iterator.remove();
         }
       }

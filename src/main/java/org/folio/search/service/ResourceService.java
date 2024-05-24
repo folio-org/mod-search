@@ -45,7 +45,6 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
-import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +67,6 @@ public class ResourceService {
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
-  private final InstanceEventPreProcessor instanceEventPreProcessor;
 
   /**
    * Saves list of resourceEvents to elasticsearch.
@@ -167,22 +165,11 @@ public class ResourceService {
     if (instanceEvents == null) {
       instanceEvents = Collections.emptyList();
     }
-    var list = instanceEvents.stream()
-      .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
-      .filter(Objects::nonNull)
-      .flatMap(List::stream)
-      .collect(toList());
 
-    var eventsToIndex = consortiumFunc.apply(instanceEvents);
-    if (eventsToIndex != null) {
-      list.addAll(eventsToIndex);
-    }
-    return list;
+    return consortiumFunc.apply(instanceEvents);
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    messageProducer.prepareAndSendContributorEvents(deleteEvents);
-    messageProducer.prepareAndSendSubjectEvents(deleteEvents);
     var list = preProcessEvents(deleteEvents, consortiumInstanceService::deleteInstances);
     return multiTenantSearchDocumentConverter.convert(list);
   }

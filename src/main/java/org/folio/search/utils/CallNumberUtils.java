@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;
@@ -23,6 +24,10 @@ import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.jetbrains.annotations.NotNull;
+import org.marc4j.callnum.CallNumber;
+import org.marc4j.callnum.DeweyCallNumber;
+import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.opensearch.index.query.TermQueryBuilder;
 import org.springframework.util.Assert;
 
@@ -37,6 +42,31 @@ public class CallNumberUtils {
   private static final String BROWSE_LOCATION_FILTER_KEY = "items.effectiveLocationId";
   private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final Pattern NORMALIZE_REGEX = Pattern.compile("[^a-z0-9]");
+
+  public static String calculateShelvingOrder(Item item) {
+    var callNumberComponents = item.getEffectiveCallNumberComponents();
+    if (callNumberComponents != null && isNotBlank(callNumberComponents.getCallNumber())) {
+      var fullCallNumber = Stream.of(callNumberComponents.getCallNumber(), item.getVolume(), item.getEnumeration(),
+            item.getChronology(), item.getCopyNumber(), callNumberComponents.getSuffix())
+          .filter(StringUtils::isNotBlank)
+          .map(StringUtils::trim)
+          .collect(joining(" "));
+
+      return getShelfKeyFromCallNumber(fullCallNumber).orElse(null);
+    }
+
+    return null;
+  }
+
+  public static Optional<String> getShelfKeyFromCallNumber(String callNumber) {
+    return Optional.ofNullable(callNumber)
+      .flatMap(cn -> getValidShelfKey(new LCCallNumber(cn))
+        .or(() -> getValidShelfKey(new NlmCallNumber(cn)))
+        .or(() -> getValidShelfKey(new DeweyCallNumber(cn))))
+      .or(() -> Optional.ofNullable(callNumber))
+      .map(String::trim)
+      .map(val -> val.toUpperCase(ROOT));
+  }
 
   /**
    * Normalizes incoming call-number by removing unsupported characters.
@@ -185,7 +215,7 @@ public class CallNumberUtils {
     var tenantFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
     var locationFilter = ConsortiumSearchHelper.getBrowseFilterValues(context, BROWSE_LOCATION_FILTER_KEY);
     if (browseItems == null || browseItems.isEmpty()
-      || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
+        || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
       return browseItems;
     }
 
@@ -200,6 +230,12 @@ public class CallNumberUtils {
       .toList();
   }
 
+  private static Optional<String> getValidShelfKey(CallNumber value) {
+    return Optional.of(value)
+      .filter(CallNumber::isValid)
+      .map(CallNumber::getShelfKey);
+  }
+
   @NotNull
   private static List<@Valid Item> getItemsFiltered(Optional<TermQueryBuilder> tenantFilter,
                                                     List<Object> locationFilter,
@@ -209,7 +245,7 @@ public class CallNumberUtils {
     return item.getInstance().getItems()
       .stream()
       .filter(i -> tenantIdMatch(tenantFilter, i) && callNumberTypeMatch(callNumberType, folioCallNumberTypes, i)
-        && locationMatch(locationFilter, i))
+                   && locationMatch(locationFilter, i))
       .toList();
   }
 
@@ -221,7 +257,7 @@ public class CallNumberUtils {
         .anyMatch(i -> {
           String fullCallNumber = getFullCallNumber(i);
           return r.getFullCallNumber() == null
-            || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
+                 || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
         });
     }
     return true;
@@ -241,10 +277,10 @@ public class CallNumberUtils {
     var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType.get());
     return itemCallNumberType.equals(requestCallNumberType)
-      || itemCallNumberTypeId != null
-      && itemCallNumberType.isEmpty()
-      && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
-      && !folioCallNumberTypes.contains(itemCallNumberTypeId);
+           || itemCallNumberTypeId != null
+              && itemCallNumberType.isEmpty()
+              && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
+              && !folioCallNumberTypes.contains(itemCallNumberTypeId);
   }
 
   private static boolean tenantIdMatch(Optional<TermQueryBuilder> tenantFilter, Item item) {

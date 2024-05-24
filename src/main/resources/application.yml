@@ -147,3 +147,7 @@ management:
   endpoint:
     loggers:
       enabled: true
+
+logging:
+  level:
+    org.apache.kafka.clients.consumer.*: warn

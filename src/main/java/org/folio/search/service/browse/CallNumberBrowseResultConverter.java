@@ -30,6 +30,8 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
+import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.opensearch.action.search.SearchResponse;
@@ -49,10 +51,12 @@ public class CallNumberBrowseResultConverter {
    *
    * @param resp              - Elasticsearch {@link SearchResponse} object
    * @param ctx               - {@link BrowseContext} value
+   * @param request           - initial request
    * @param isBrowsingForward - direction of browsing
    * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
    */
-  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, boolean isBrowsingForward) {
+  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, BrowseRequest request,
+                                                    boolean isBrowsingForward) {
     var searchResult = documentConverter.convertToSearchResult(resp, Instance.class, this::mapToBrowseItem);
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
@@ -60,11 +64,12 @@ public class CallNumberBrowseResultConverter {
       return browseResult;
     }
 
+    var typeId = CallNumberType.fromName(request.getRefinedCondition()).map(CallNumberType::getId).orElse(null);
     boolean includeIntermediateItems = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES);
     boolean removeIntermediateDuplicates = featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES);
     var items = isBrowsingForward ? browseItems : reverse(browseItems);
     var populatedItems = includeIntermediateItems
-                         ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates,
+                         ? populateItemsWithIntermediateResults(items, ctx, removeIntermediateDuplicates, typeId,
       isBrowsingForward)
                          : fillItemsWithFullCallNumbers(items, ctx, isBrowsingForward);
 
@@ -76,10 +81,13 @@ public class CallNumberBrowseResultConverter {
     return new CallNumberBrowseItem().totalRecords(1).instance(instance).shelfKey(shelfKey);
   }
 
-  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(
-    List<CallNumberBrowseItem> browseItems, BrowseContext ctx, boolean removeDuplicates, boolean isBrowsingForward) {
+  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(List<CallNumberBrowseItem> browseItems,
+                                                                                 BrowseContext ctx,
+                                                                                 boolean removeDuplicates,
+                                                                                 String typeId,
+                                                                                 boolean isBrowsingForward) {
     return browseItems.stream()
-      .map(item -> getCallNumberBrowseItemsBetween(item, removeDuplicates))
+      .map(item -> getCallNumberBrowseItemsBetween(item, typeId, removeDuplicates))
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
       .sorted(comparing(CallNumberBrowseItem::getShelfKey))
@@ -104,12 +112,14 @@ public class CallNumberBrowseResultConverter {
   }
 
   private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
-                                                                            boolean removeDuplicates) {
+                                                                            String typeId, boolean removeDuplicates) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));
 
     var callNumbersStream = toStreamSafe(browseItem.getInstance().getItems())
+      .filter(item -> typeId == null || item.getEffectiveCallNumberComponents() != null
+                                        && typeId.equals(item.getEffectiveCallNumberComponents().getTypeId()))
       .map(Item::getEffectiveShelvingOrder).distinct()
       .filter(StringUtils::isNotBlank)
       .map(StringUtils::toRootUpperCase)

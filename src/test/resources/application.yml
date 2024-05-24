@@ -129,3 +129,6 @@ folio:
 logging:
   level:
     org.apache.kafka.clients.consumer.*: warn
+    org.opensearch.client: TRACE
+    org.opensearch.client.sniffer: TRACE
+    tracer: TRACE

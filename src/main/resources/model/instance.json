@@ -710,7 +710,6 @@
       "sort_title", "sort_contributors",
       "callNumber",
       "typedCallNumber",
-      "itemEffectiveShelvingOrder",
       "callNumberType",
 
       "alternativeTitles.alternativeTitle",

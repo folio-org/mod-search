@@ -155,12 +155,33 @@ public class ResourceService {
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
     return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.saveInstances(fetchedInstances));
+
+    return multiTenantSearchDocumentConverter.convert(fetchedInstances);
+  }
+
+  private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents,
+                                               UnaryOperator<List<ResourceEvent>> consortiumFunc) {
+    if (instanceEvents == null) {
+      instanceEvents = Collections.emptyList();
+    }
+    var list = instanceEvents.stream()
+      .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
+      .filter(Objects::nonNull)
+      .flatMap(List::stream)
+      .collect(toList());
+
+    var eventsToIndex = consortiumFunc.apply(instanceEvents);
+    if (eventsToIndex != null) {
+      list.addAll(eventsToIndex);
+    }
+    return list;
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
     messageProducer.prepareAndSendContributorEvents(deleteEvents);
     messageProducer.prepareAndSendSubjectEvents(deleteEvents);
-    return multiTenantSearchDocumentConverter.convert(consortiumInstanceService.deleteInstances(deleteEvents));
+    var list = preProcessEvents(deleteEvents, consortiumInstanceService::deleteInstances);
+    return multiTenantSearchDocumentConverter.convert(list);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

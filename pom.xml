@@ -404,9 +404,9 @@
             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
           </sourceDirectories>
-          <failsOnError>false</failsOnError>
+          <failsOnError>true</failsOnError>
           <violationSeverity>warning</violationSeverity>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
           <logViolationsToConsole>true</logViolationsToConsole>
           <configLocation>checkstyle/checkstyle.xml</configLocation>
           <cacheFile>${basedir}/target/cachefile</cacheFile>

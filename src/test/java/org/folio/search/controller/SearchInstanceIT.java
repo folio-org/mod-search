@@ -303,8 +303,8 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.linkText all {value}", "links available"),
       arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
 
-      arguments("item.effectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
-      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE"),
+      arguments("item.effectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE SUFFIX 590000"),
+      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"", "TK 45105.88815 A58 42004 FT MEADE SUFFIX 590000"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "item000000000014"),

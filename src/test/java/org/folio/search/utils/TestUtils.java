@@ -23,7 +23,6 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -254,7 +253,7 @@ public class TestUtils {
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    return normalizeEffectiveShelvingOrder(callNumber);
+    return CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get();
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
@@ -262,7 +261,7 @@ public class TestUtils {
     return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
         .map(generator -> generator.apply(callNumber))
         .map(AbstractCallNumber::getShelfKey))
-      .orElse(normalizeEffectiveShelvingOrder(callNumber))
+      .orElse(CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get())
       .trim();
   }
 

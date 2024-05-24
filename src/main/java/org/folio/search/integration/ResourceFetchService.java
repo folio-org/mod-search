@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.LinkedHashMap;
@@ -17,10 +18,13 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
+import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
+import org.folio.search.utils.CallNumberUtils;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,7 @@ public class ResourceFetchService {
 
   private final InventoryViewClient inventoryClient;
   private final FolioExecutionContext context;
+  private final JsonConverter jsonConverter;
 
   /**
    * Fetches instances from inventory-storage module using CQL query.
@@ -57,8 +62,21 @@ public class ResourceFetchService {
       .map(ResultList::getResult)
       .flatMap(instanceViews -> instanceViews.stream()
         .map(InstanceView::toInstance)
+        .map(this::populateEffectiveShelvingOrder)
         .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
       .toList();
+  }
+
+  private Map<String, Object> populateEffectiveShelvingOrder(Map<String, Object> instanceMap) {
+    var o = instanceMap.get(INSTANCE_ITEM_FIELD_NAME);
+    if (o instanceof List<?> items) {
+      for (Object item : items) {
+        var converted = jsonConverter.convert(item, Item.class);
+        var shelvingOrder = CallNumberUtils.calculateShelvingOrder(converted);
+        ((Map) item).put("effectiveShelvingOrder", shelvingOrder);
+      }
+    }
+    return instanceMap;
   }
 
   private static ResourceEvent mapToResourceEvent(String tenantId, Map<String, Object> instanceMap,

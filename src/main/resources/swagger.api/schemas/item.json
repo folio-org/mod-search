@@ -90,6 +90,18 @@
       "type": "string",
       "description": "Call number type id"
     },
+    "volume": {
+      "type": "string"
+    },
+    "enumeration": {
+      "type": "string"
+    },
+    "chronology": {
+      "type": "string"
+    },
+    "copyNumber": {
+      "type": "string"
+    },
     "tags": {
       "description": "arbitrary tags associated with this item",
       "$ref": "tags.json"

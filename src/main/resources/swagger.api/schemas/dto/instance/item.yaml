@@ -65,6 +65,14 @@ properties:
   itemLevelCallNumberTypeId:
     type: string
     description: "Call number type id"
+  volume:
+    type: string
+  enumeration:
+    type: string
+  chronology:
+    type: string
+  copyNumber:
+    type: string
   tags:
     $ref: "../common/tags.yaml"
   electronicAccess:

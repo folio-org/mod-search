@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;
@@ -23,6 +24,10 @@ import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.jetbrains.annotations.NotNull;
+import org.marc4j.callnum.CallNumber;
+import org.marc4j.callnum.DeweyCallNumber;
+import org.marc4j.callnum.LCCallNumber;
+import org.marc4j.callnum.NlmCallNumber;
 import org.opensearch.index.query.TermQueryBuilder;
 import org.springframework.util.Assert;
 
@@ -37,6 +42,48 @@ public class CallNumberUtils {
   private static final String BROWSE_LOCATION_FILTER_KEY = "items.effectiveLocationId";
   private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final Pattern NORMALIZE_REGEX = Pattern.compile("[^a-z0-9]");
+
+
+  public static String calculateShelvingOrder(Item item) {
+    if (isNotBlank(item.getEffectiveCallNumberComponents().getCallNumber())) {
+      Optional<String> shelfKey
+        = getShelfKeyFromCallNumber(
+        Stream.of(
+            item.getEffectiveCallNumberComponents().getCallNumber(),
+            item.getVolume(),
+            item.getEnumeration(),
+            item.getChronology(),
+            item.getCopyNumber()
+          ).filter(StringUtils::isNotBlank)
+          .map(StringUtils::trim)
+          .collect(Collectors.joining(" "))
+      );
+      String suffixValue = item.getEffectiveCallNumberComponents().getSuffix();
+
+      String nonNullableSuffixValue = StringUtils.isBlank(suffixValue) ? "" : " " + suffixValue;
+
+      return shelfKey
+        .map(shelfKeyValue -> shelfKeyValue + nonNullableSuffixValue)
+        .orElse(nonNullableSuffixValue);
+    }
+
+    return null;
+  }
+
+  public static Optional<String> getShelfKeyFromCallNumber(String callNumber) {
+    return Optional.ofNullable(callNumber)
+      .flatMap(cn -> getValidShelfKey(new LCCallNumber(cn))
+        .or(() -> getValidShelfKey(new NlmCallNumber(cn)))
+        .or(() -> getValidShelfKey(new DeweyCallNumber(cn))))
+      .or(() -> Optional.ofNullable(callNumber))
+      .map(String::trim);
+  }
+
+  private static Optional<String> getValidShelfKey(CallNumber value) {
+    return Optional.of(value)
+      .filter(CallNumber::isValid)
+      .map(CallNumber::getShelfKey);
+  }
 
   /**
    * Normalizes incoming call-number by removing unsupported characters.

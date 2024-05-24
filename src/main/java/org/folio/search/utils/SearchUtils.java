@@ -92,6 +92,15 @@ public class SearchUtils {
       }
     }
     """;
+  public static final String INSTANCE_CLASSIFICATION_UPSERT_SCRIPT_ID = "instance_classification_upsert_script";
+  public static final String INSTANCE_CLASSIFICATION_UPSERT_SCRIPT = """
+    {
+      "script": {
+        "lang": "painless",
+        "source": "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
+      }
+    }
+    """;
   public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID = "instance_contributors_upsert_script";
   public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT = """
     {

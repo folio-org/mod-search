@@ -17,25 +17,24 @@ import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import one.util.streamex.StreamEx;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.search.model.index.ClassificationResource;
-import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -89,22 +88,14 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     var classificationsForCreate = subtract(newClassifications, oldClassifications);
     var classificationsForDelete = subtract(oldClassifications, newClassifications);
 
-    var entitiesForCreate = toEntities(classificationsForCreate, instanceId, tenant, shared);
-    var entitiesForDelete = toEntities(classificationsForDelete, instanceId, tenant, shared);
-    instanceClassificationRepository.saveAll(entitiesForCreate);
-    instanceClassificationRepository.deleteAll(entitiesForDelete);
+    var entitiesForCreate = toEntities(classificationsForCreate, instanceId, tenant, shared).stream()
+      .map(entity -> toResourceCreateEvent(entity, tenant));
+    var entitiesForDelete = toEntities(classificationsForDelete, instanceId, tenant, shared).stream()
+      .map(entity -> toResourceDeleteEvent(entity, tenant));
 
-    List<InstanceClassificationEntity> entitiesForFetch = new ArrayList<>();
-    entitiesForFetch.addAll(entitiesForCreate);
-    entitiesForFetch.addAll(entitiesForDelete);
-
-    var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
-    var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
-
-    var list1 = entityAggList.stream()
-      .map(entities -> toResourceCreateEvent(entities, tenant))
-      .toList();
-    return CollectionUtils.mergeSafelyToList(list, list1);
+    return StreamEx.of(entitiesForCreate.spliterator())
+      .append(entitiesForDelete)
+      .collect(Collectors.toList());
   }
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<InstanceClassificationEntity> entitiesForDelete,
@@ -129,23 +120,27 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
   }
 
   private ResourceEvent toResourceDeleteEvent(InstanceClassificationEntity source, String tenant) {
-    return getResourceEvent(tenant, source.number(), source.typeId(), null, ResourceEventType.DELETE);
+    return getResourceEvent(tenant, source, ResourceEventType.DELETE);
   }
 
-  private ResourceEvent toResourceCreateEvent(InstanceClassificationEntityAgg source, String tenant) {
-    return getResourceEvent(tenant, source.number(), source.typeId(), source.instances(), ResourceEventType.CREATE);
+  private ResourceEvent toResourceCreateEvent(InstanceClassificationEntity source, String tenant) {
+    return getResourceEvent(tenant, source, ResourceEventType.CREATE);
   }
 
-  private ResourceEvent getResourceEvent(String tenant, String number, String typeId,
-                                         Set<InstanceSubResource> instances, ResourceEventType eventType) {
-    var id = StringUtils.deleteWhitespace(number + "|" + typeId);
-    var resource = new ClassificationResource(id, typeId, number, instances);
+  private ResourceEvent getResourceEvent(String tenant, InstanceClassificationEntity entity,
+                                         ResourceEventType eventType) {
+    var id = StringUtils.deleteWhitespace(entity.number() + "|" + entity.typeId());
     return new ResourceEvent()
       .id(id)
       .tenant(tenant)
       .resourceName(INSTANCE_CLASSIFICATION_RESOURCE)
       .type(eventType)
-      ._new(jsonConverter.convertToMap(resource));
+      ._new(new LinkedHashMap<>(Map.of("number", entity.number(),
+        "typeId", entity.typeId(),
+        "instanceId", entity.instanceId(),
+        "tenantId", entity.tenantId(),
+        "shared", entity.shared()
+      )));
   }
 
   @NotNull

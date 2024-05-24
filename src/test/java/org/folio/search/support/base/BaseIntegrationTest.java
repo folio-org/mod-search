@@ -174,7 +174,7 @@ public abstract class BaseIntegrationTest {
 
   protected static long countIndexDocument(String resource, String tenantId) throws IOException {
     var searchRequest = new SearchRequest()
-      .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
+      .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
       .indices(getIndexName(resource, tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;

@@ -1,5 +1,7 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_UPSERT_SCRIPT;
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_UPSERT_SCRIPT_ID;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_UPSERT_SCRIPT;
@@ -18,7 +20,8 @@ public class ScriptService {
 
   private static final Map<String, String> SCRIPTS = Map.of(
     INSTANCE_SUBJECT_UPSERT_SCRIPT_ID, INSTANCE_SUBJECT_UPSERT_SCRIPT,
-    INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID, INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT
+    INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID, INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT,
+    INSTANCE_CLASSIFICATION_UPSERT_SCRIPT_ID, INSTANCE_CLASSIFICATION_UPSERT_SCRIPT
   );
 
   private final ScriptRepository scriptRepository;

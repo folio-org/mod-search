@@ -2,6 +2,9 @@
   "name": "instance_classification",
   "eventBodyJavaClass": "org.folio.search.model.index.ClassificationResource",
   "parent": "instance",
+  "indexingConfiguration": {
+    "resourceRepository": "instanceClassificationRepository"
+  },
   "fields": {
     "number": {
       "index": "keyword_lowercase",

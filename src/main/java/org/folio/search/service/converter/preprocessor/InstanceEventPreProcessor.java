@@ -98,8 +98,8 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       .stream().collect(Collectors.groupingBy(e -> new ImmutablePair<>(e.number(), e.typeId())))
       .entrySet().stream()
       .map(e -> new InstanceClassificationEntityAgg(
-        e.getKey().getRight(),
         e.getKey().getLeft(),
+        e.getKey().getRight(),
         e.getValue().stream()
           .map(c -> InstanceSubResource.builder()
             .instanceId(c.instanceId())

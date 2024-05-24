@@ -1,5 +1,6 @@
 package org.folio.search.cql;
 
+import static org.folio.search.utils.CallNumberUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class EffectiveShelvingOrderTermProcessor implements SearchTermProcessor 
 
   @Override
   public String getSearchTerm(String inputTerm) {
-    return normalizeEffectiveShelvingOrder(inputTerm);
+    return getShelfKeyFromCallNumber(inputTerm).orElse(inputTerm);
   }
 
   public String getSearchTerm(String inputTerm, String callNumberTypeName) {

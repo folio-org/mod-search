@@ -31,7 +31,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-//@Disabled
 @IntegrationTest
 class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
 
@@ -92,6 +91,8 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
     cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
       .totalRecords(4)
+      .prev("Z 3669 R360 41975")
+      .next("Z 3669 R360 41977")
       .items(Arrays.asList(
         cnBrowseItem(instance("instance #10"), "Z669.R360 1975", 3, true),
         cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
@@ -114,6 +115,7 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
+      .prev("3308 H970")
       .next("3308 H981")
       .totalRecords(18)
       .items(Arrays.asList(

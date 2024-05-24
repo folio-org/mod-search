@@ -27,6 +27,7 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
+import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.utils.TestUtils;
@@ -60,6 +61,8 @@ class CallNumberBrowseResultConverterTest {
   private SearchResponse searchResponse;
   @Mock
   private FeatureConfigServiceDecorator featureConfigService;
+  @Mock
+  private BrowseRequest request;
 
   @MethodSource("testDataProvider")
   @DisplayName("convert_positive_parameterized")
@@ -71,8 +74,9 @@ class CallNumberBrowseResultConverterTest {
     when(searchHits.getHits()).thenReturn(hits.toArray(SearchHit[]::new));
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(100, Relation.EQUAL_TO));
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(true);
+    when(request.getRefinedCondition()).thenReturn(null);
 
-    var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
+    var actual = resultConverter.convert(searchResponse, ctx, request, isBrowsingForward);
     TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
@@ -86,7 +90,7 @@ class CallNumberBrowseResultConverterTest {
     when(searchHits.getHits()).thenReturn(new SearchHit[0]);
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(0, Relation.EQUAL_TO));
 
-    var actual = resultConverter.convert(searchResponse, forwardContext(), true);
+    var actual = resultConverter.convert(searchResponse, forwardContext(), request, true);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
     verify(documentConverter)
@@ -99,7 +103,7 @@ class CallNumberBrowseResultConverterTest {
     when(searchHits.getHits()).thenReturn(new SearchHit[0]);
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(0, Relation.EQUAL_TO));
 
-    var actual = resultConverter.convert(searchResponse, backwardContext(), false);
+    var actual = resultConverter.convert(searchResponse, backwardContext(), request, false);
 
     assertThat(actual).isEqualTo(BrowseResult.empty());
     verify(documentConverter)
@@ -116,8 +120,9 @@ class CallNumberBrowseResultConverterTest {
     when(searchHits.getHits()).thenReturn(hits);
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(10, Relation.EQUAL_TO));
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
+    when(request.getRefinedCondition()).thenReturn(null);
 
-    var actual = resultConverter.convert(searchResponse, forwardContext(), true);
+    var actual = resultConverter.convert(searchResponse, forwardContext(), request, true);
     TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
@@ -137,8 +142,9 @@ class CallNumberBrowseResultConverterTest {
     when(searchHits.getHits()).thenReturn(hits);
     when(searchHits.getTotalHits()).thenReturn(new TotalHits(10, Relation.EQUAL_TO));
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
+    when(request.getRefinedCondition()).thenReturn(null);
 
-    var actual = resultConverter.convert(searchResponse, backwardContext(), false);
+    var actual = resultConverter.convert(searchResponse, backwardContext(), request, false);
     TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(

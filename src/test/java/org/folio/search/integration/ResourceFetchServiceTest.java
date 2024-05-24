@@ -16,6 +16,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Holding;
@@ -25,6 +26,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.InstanceFetchService;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +49,7 @@ class ResourceFetchServiceTest {
 
   @BeforeEach
   void setUp() {
+    resourceFetchService = new InstanceFetchService(context, instanceRepository, new JsonConverter(new ObjectMapper()));
     lenient().when(context.getTenantId()).thenReturn(TENANT_ID);
   }
 
@@ -71,7 +74,7 @@ class ResourceFetchServiceTest {
       resourceEvent(instanceId2, ResourceType.INSTANCE, UPDATE,
         mapOf("id", instanceId2, "title", "inst2",
           "isBoundWith", true,
-          "items", List.of(mapOf("id", "itemId")),
+          "items", List.of(mapOf("id", "itemId", "effectiveShelvingOrder", null)),
           "holdings", List.of(mapOf("id", "holdingId"))),
         mapOf("id", instanceId2, "title", "old"))
     ));

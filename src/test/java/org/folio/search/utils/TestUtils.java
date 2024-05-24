@@ -23,7 +23,6 @@ import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
-import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
@@ -220,7 +219,7 @@ public class TestUtils {
     var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType)).flatMap(
       item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
         .map(ItemEffectiveCallNumberComponents::getTypeId));
-    var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber, s))
+    var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber))
       .orElseGet(() -> getShelfKeyFromCallNumber(callNumber));
     var ins = new Instance().id(instance.getId()).title(instance.getTitle())
       .tenantId(instance.getTenantId()).shared(instance.getShared())
@@ -262,14 +261,14 @@ public class TestUtils {
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    return normalizeEffectiveShelvingOrder(callNumber);
+    return CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get();
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
     var callNumberType = CallNumberType.fromId(typeId);
     return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
         .map(generator -> generator.apply(callNumber)).map(AbstractCallNumber::getShelfKey))
-      .orElse(normalizeEffectiveShelvingOrder(callNumber)).trim();
+      .orElse(CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get()).trim();
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

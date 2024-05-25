@@ -130,6 +130,22 @@ public class KafkaMessageListener {
     indexResources(batch, resourceService::indexResources);
   }
 
+  @KafkaListener(
+    id = KafkaConstants.CLASSIFICATION_LISTENER_ID,
+    containerFactory = "standardListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['classifications'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['classifications'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['classifications'].topicPattern}")
+  public void handleClassificationEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing classifications events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+//      .map(subject -> subject.id(getResourceEventId(subject)))
+      .toList();
+
+    indexResources(batch, resourceService::indexResources);
+  }
+
   /**
    * Handles consortium instance events and indexes them using event body.
    *

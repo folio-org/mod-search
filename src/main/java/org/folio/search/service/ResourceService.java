@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.utils.KafkaUtils.getTenantTopicName;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
@@ -47,6 +49,7 @@ import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -69,6 +72,7 @@ public class ResourceService {
   private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
   private final InstanceEventPreProcessor instanceEventPreProcessor;
+  private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
   /**
    * Saves list of resourceEvents to elasticsearch.
@@ -171,13 +175,19 @@ public class ResourceService {
       .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
       .filter(Objects::nonNull)
       .flatMap(List::stream)
-      .collect(toList());
+      .collect(groupingBy(ResourceEvent::getTenant));
 
-    var eventsToIndex = consortiumFunc.apply(instanceEvents);
-    if (eventsToIndex != null) {
-      list.addAll(eventsToIndex);
-    }
-    return list;
+    list.forEach((tenantId, resourceEvents) -> {
+      var topicName = getTenantTopicName("search.instance-classification", tenantId);
+      resourceEvents.stream()
+        .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
+        .forEach(kafkaTemplate::send);
+    });
+
+    //    if (eventsToIndex != null) {
+//      list.addAll(eventsToIndex);
+//    }
+    return consortiumFunc.apply(instanceEvents);
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {

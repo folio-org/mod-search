@@ -155,11 +155,8 @@ public class ResourceService {
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
     var indexEvents = extractEventsForDataMove(resourceEvents);
     var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
-    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
-    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 
-    var list = preProcessEvents(fetchedInstances, consortiumInstanceService::saveInstances);
-    return multiTenantSearchDocumentConverter.convert(list);
+    return multiTenantSearchDocumentConverter.convert(fetchedInstances);
   }
 
   private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents,

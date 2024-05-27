@@ -7,17 +7,14 @@ import static org.folio.search.utils.SearchUtils.IS_BOUND_WITH_FIELD_NAME;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.folio.search.domain.dto.Item;
 import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ResultList;
-import org.folio.search.utils.CallNumberUtils;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,11 +54,6 @@ public interface InventoryViewClient {
      */
     public Map<String, Object> toInstance() {
       if (CollectionUtils.isNotEmpty(items)) {
-        for (Map<String, Object> item : items) {
-          var item1 = new ObjectMapper().convertValue(item, Item.class);
-          var s = CallNumberUtils.calculateShelvingOrder(item1);
-          item.put("effectiveShelvingOrder", s);
-        }
         instance.put(INSTANCE_ITEM_FIELD_NAME, items);
       }
 

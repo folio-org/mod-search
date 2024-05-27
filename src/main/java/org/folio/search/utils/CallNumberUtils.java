@@ -60,7 +60,7 @@ public class CallNumberUtils {
       );
       String suffixValue = item.getEffectiveCallNumberComponents().getSuffix();
 
-      String nonNullableSuffixValue = StringUtils.isBlank(suffixValue) ? "" : " " + suffixValue;
+      String nonNullableSuffixValue = StringUtils.isBlank(suffixValue) ? "" : " " + suffixValue.toUpperCase(ROOT);
 
       return shelfKey
         .map(shelfKeyValue -> shelfKeyValue + nonNullableSuffixValue)
@@ -76,7 +76,8 @@ public class CallNumberUtils {
         .or(() -> getValidShelfKey(new NlmCallNumber(cn)))
         .or(() -> getValidShelfKey(new DeweyCallNumber(cn))))
       .or(() -> Optional.ofNullable(callNumber))
-      .map(String::trim);
+      .map(String::trim)
+      .map(val -> val.toUpperCase(ROOT));
   }
 
   private static Optional<String> getValidShelfKey(CallNumber value) {

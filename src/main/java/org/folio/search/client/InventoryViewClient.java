@@ -56,12 +56,12 @@ public interface InventoryViewClient {
      * @return {@link Map} with fields for search indexing process.
      */
     public Map<String, Object> toInstance() {
-      for (Map<String, Object> item : items) {
-        var item1 = new ObjectMapper().convertValue(item, Item.class);
-        var s = CallNumberUtils.calculateShelvingOrder(item1);
-        item.put("effectiveShelvingOrder", s);
-      }
       if (CollectionUtils.isNotEmpty(items)) {
+        for (Map<String, Object> item : items) {
+          var item1 = new ObjectMapper().convertValue(item, Item.class);
+          var s = CallNumberUtils.calculateShelvingOrder(item1);
+          item.put("effectiveShelvingOrder", s);
+        }
         instance.put(INSTANCE_ITEM_FIELD_NAME, items);
       }
 

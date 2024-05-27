@@ -346,8 +346,7 @@
         },
         "effectiveShelvingOrder": {
           "index": "source",
-          "showInResponse": [ "search", "call-number-browse" ],
-          "processor": "itemEffectiveShelvingOrderProcessor"
+          "showInResponse": [ "search", "call-number-browse" ]
         },
         "tags": {
           "type": "object",

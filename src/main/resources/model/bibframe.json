@@ -140,7 +140,7 @@
     "isbn": {
       "type": "search",
       "processor": "bibframeIsbnProcessor",
-      "searchTermProcessor": "bibframeIsbnSearchTermProcessor",
+      "searchTermProcessor": "isbnSearchTermProcessor",
       "index": "standard",
       "indexPlainValue": false
     },

@@ -79,7 +79,7 @@
 * Clean up API documentation to enable checking of the request/response bodies samples([MSEARCH-546](https://issues.folio.org/browse/MSEARCH-546))
 
 ### Dependencies
-* Bump `spring-boot` from `3.2.3` to `3.3.0`
+* Bump `spring-boot` from `3.1.5` to `3.2.3`
 * Bump `folio-spring-support` from `7.2.0` to `8.1.0`
 * Bump `folio-service-tools` from `3.1.0` to `4.0.0`
 * Bump `folio-cql2pgjson` from `35.1.0` to `35.2.0`

@@ -13,13 +13,16 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Bibframe;
 import org.folio.search.domain.dto.BibframeInstancesInnerIdentifiersInner;
+import org.folio.search.service.lccn.LccnNormalizer;
 import org.folio.search.service.setter.FieldProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class BibframeLccnProcessor implements FieldProcessor<Bibframe, Set<String>> {
 
+  @Qualifier("lccnNormalizerStructureB")
   private final LccnNormalizer lccnNormalizer;
 
   @Override
@@ -31,7 +34,7 @@ public class BibframeLccnProcessor implements FieldProcessor<Bibframe, Set<Strin
       .filter(i -> LCCN.equals(i.getType()))
       .map(BibframeInstancesInnerIdentifiersInner::getValue)
       .filter(Objects::nonNull)
-      .map(lccnNormalizer::normalizeLccn)
+      .map(lccnNormalizer)
       .flatMap(Optional::stream)
       .collect(toCollection(LinkedHashSet::new));
   }

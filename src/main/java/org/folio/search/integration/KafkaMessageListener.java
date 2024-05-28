@@ -209,8 +209,7 @@ public class KafkaMessageListener {
       .map(bibframe -> bibframe.resourceName(BIBFRAME_RESOURCE).id(getResourceEventId(bibframe)))
       .toList();
 
-    folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-      resourceService::indexResources, KafkaMessageListener::logFailedEvent);
+    indexResources(batch, resourceService::indexResources);
   }
 
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {

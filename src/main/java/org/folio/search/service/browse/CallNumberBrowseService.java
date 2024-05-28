@@ -38,7 +38,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var isBrowsingForward = context.isBrowsingForward();
     var searchSource = callNumberBrowseQueryProvider.get(request, context, isBrowsingForward);
     var searchResponse = searchRepository.search(request, searchSource);
-    var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, isBrowsingForward);
+    var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, request, isBrowsingForward);
     var records = browseResult.getRecords();
     return new BrowseResult<CallNumberBrowseItem>()
       .records(trim(records, context, isBrowsingForward))
@@ -54,8 +54,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var multiSearchResponse = searchRepository.msearch(request, List.of(precedingQuery, succeedingQuery));
 
     var responses = multiSearchResponse.getResponses();
-    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, false);
-    var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, true);
+    var precedingResult = callNumberBrowseResultConverter.convert(responses[0].getResponse(), context, request, false);
+    var succeedingResult = callNumberBrowseResultConverter.convert(responses[1].getResponse(), context, request, true);
 
     if (precedingResult.getRecords().isEmpty() && precedingResult.getTotalRecords() > 0) {
       log.debug("browseAround:: preceding result are empty: Do additional requests");
@@ -103,7 +103,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
         log.debug("additionalPrecedingRequests:: response have no records");
         break;
       }
-      precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, false);
+      precedingResult = callNumberBrowseResultConverter.convert(searchResponse, context, request, false);
     }
     return precedingResult;
   }

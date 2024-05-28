@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.service.lccn.LccnNormalizer;
 import org.folio.search.service.setter.AbstractLccnProcessor;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +17,10 @@ public class LccnAuthorityProcessor extends AbstractLccnProcessor<Authority> {
    * Used by dependency injection.
    *
    * @param referenceDataService {@link ReferenceDataService} bean
+   * @param lccnNormalizer {@link LccnNormalizer} bean
    */
-  public LccnAuthorityProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService);
+  public LccnAuthorityProcessor(ReferenceDataService referenceDataService, LccnNormalizer lccnNormalizer) {
+    super(referenceDataService, lccnNormalizer);
   }
 
   @Override

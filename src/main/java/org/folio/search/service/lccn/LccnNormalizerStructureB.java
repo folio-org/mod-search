@@ -1,4 +1,4 @@
-package org.folio.search.service.setter.bibframe;
+package org.folio.search.service.lccn;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
@@ -6,9 +6,12 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * Class responsible for normalizing Structure B LCCN values.
+ */
 @Log4j2
 @Service
-public class LccnNormalizer {
+public class LccnNormalizerStructureB implements LccnNormalizer {
   private static final String NORMALIZED_LCCN_REGEX = "\\d{10}";
   private static final char HYPHEN = '-';
 
@@ -19,7 +22,7 @@ public class LccnNormalizer {
    * @param lccn LCCN to be normalized
    * @return Returns the normalized LCCN. If the given LCCN is invalid, returns an empty Optional
    */
-  public Optional<String> normalizeLccn(@NotNull final String lccn) {
+  public Optional<String> apply(@NotNull final String lccn) {
     var normalizedLccn = lccn;
 
     // Remove white spaces

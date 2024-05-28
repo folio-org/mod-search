@@ -7,7 +7,6 @@ import static org.folio.search.domain.dto.BibframeInstancesInnerIdentifiersInner
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -32,13 +31,8 @@ public class BibframeIsbnProcessor implements FieldProcessor<Bibframe, Set<Strin
       .filter(i -> ISBN.equals(i.getType()))
       .map(BibframeInstancesInnerIdentifiersInner::getValue)
       .filter(Objects::nonNull)
-      .map(this::normalizeIsbn)
+      .map(isbnProcessor::normalizeIsbn)
       .flatMap(Collection::stream)
       .collect(toCollection(LinkedHashSet::new));
   }
-
-  public List<String> normalizeIsbn(String value) {
-    return isbnProcessor.normalizeIsbn(value);
-  }
-
 }

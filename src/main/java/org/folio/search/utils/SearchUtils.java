@@ -330,20 +330,6 @@ public class SearchUtils {
   }
 
   /**
-   * Normalizes LCCN value.
-   *
-   * @param value LCCN value
-   * @return normalized LCCN value
-   */
-  public static String normalizeLccn(String value) {
-    if (StringUtils.isBlank(value)) {
-      return null;
-    }
-
-    return StringUtils.deleteWhitespace(value).toLowerCase();
-  }
-
-  /**
    * This method normalize the given string to an alphanumeric string.
    * If the input string is null or blank, this method returns null.
    * Non-alphanumeric characters in the input string are replaced with an empty string.

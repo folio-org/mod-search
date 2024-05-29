@@ -43,22 +43,16 @@ public class CallNumberUtils {
   private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final Pattern NORMALIZE_REGEX = Pattern.compile("[^a-z0-9]");
 
-
   public static String calculateShelvingOrder(Item item) {
-    if (isNotBlank(item.getEffectiveCallNumberComponents().getCallNumber())) {
-      Optional<String> shelfKey
-        = getShelfKeyFromCallNumber(
-        Stream.of(
-            item.getEffectiveCallNumberComponents().getCallNumber(),
-            item.getVolume(),
-            item.getEnumeration(),
-            item.getChronology(),
-            item.getCopyNumber()
-          ).filter(StringUtils::isNotBlank)
+    var callNumberComponents = item.getEffectiveCallNumberComponents();
+    if (callNumberComponents != null && isNotBlank(callNumberComponents.getCallNumber())) {
+      var fullCallNumber = Stream.of(callNumberComponents.getCallNumber(), item.getVolume(), item.getEnumeration(),
+            item.getChronology(), item.getCopyNumber())
+          .filter(StringUtils::isNotBlank)
           .map(StringUtils::trim)
-          .collect(Collectors.joining(" "))
-      );
-      String suffixValue = item.getEffectiveCallNumberComponents().getSuffix();
+          .collect(joining(" "));
+      Optional<String> shelfKey = getShelfKeyFromCallNumber(fullCallNumber);
+      String suffixValue = callNumberComponents.getSuffix();
 
       String nonNullableSuffixValue = StringUtils.isBlank(suffixValue) ? "" : " " + suffixValue.toUpperCase(ROOT);
 
@@ -78,12 +72,6 @@ public class CallNumberUtils {
       .or(() -> Optional.ofNullable(callNumber))
       .map(String::trim)
       .map(val -> val.toUpperCase(ROOT));
-  }
-
-  private static Optional<String> getValidShelfKey(CallNumber value) {
-    return Optional.of(value)
-      .filter(CallNumber::isValid)
-      .map(CallNumber::getShelfKey);
   }
 
   /**
@@ -233,7 +221,7 @@ public class CallNumberUtils {
     var tenantFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
     var locationFilter = ConsortiumSearchHelper.getBrowseFilterValues(context, BROWSE_LOCATION_FILTER_KEY);
     if (browseItems == null || browseItems.isEmpty()
-      || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
+        || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
       return browseItems;
     }
 
@@ -248,6 +236,12 @@ public class CallNumberUtils {
       .toList();
   }
 
+  private static Optional<String> getValidShelfKey(CallNumber value) {
+    return Optional.of(value)
+      .filter(CallNumber::isValid)
+      .map(CallNumber::getShelfKey);
+  }
+
   @NotNull
   private static List<@Valid Item> getItemsFiltered(Optional<TermQueryBuilder> tenantFilter,
                                                     List<Object> locationFilter,
@@ -257,7 +251,7 @@ public class CallNumberUtils {
     return item.getInstance().getItems()
       .stream()
       .filter(i -> tenantIdMatch(tenantFilter, i) && callNumberTypeMatch(callNumberType, folioCallNumberTypes, i)
-        && locationMatch(locationFilter, i))
+                   && locationMatch(locationFilter, i))
       .toList();
   }
 
@@ -269,7 +263,7 @@ public class CallNumberUtils {
         .anyMatch(i -> {
           String fullCallNumber = getFullCallNumber(i);
           return r.getFullCallNumber() == null
-            || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
+                 || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
         });
     }
     return true;
@@ -289,10 +283,10 @@ public class CallNumberUtils {
     var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
     var requestCallNumberType = CallNumberType.fromName(callNumberType.get());
     return itemCallNumberType.equals(requestCallNumberType)
-      || itemCallNumberTypeId != null
-      && itemCallNumberType.isEmpty()
-      && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
-      && !folioCallNumberTypes.contains(itemCallNumberTypeId);
+           || itemCallNumberTypeId != null
+              && itemCallNumberType.isEmpty()
+              && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
+              && !folioCallNumberTypes.contains(itemCallNumberTypeId);
   }
 
   private static boolean tenantIdMatch(Optional<TermQueryBuilder> tenantFilter, Item item) {

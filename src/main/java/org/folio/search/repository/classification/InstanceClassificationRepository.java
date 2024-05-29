@@ -12,4 +12,8 @@ public interface InstanceClassificationRepository {
 
   List<InstanceClassificationEntityAgg> fetchAggregatedByClassifications(
     List<InstanceClassificationEntity> classifications);
+
+  List<InstanceClassificationEntityAgg> fetchAggregatedChunk(
+    int limit, int offset);
+  int countDistinctClassifications();
 }

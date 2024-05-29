@@ -106,6 +106,9 @@ folio:
       - name: search.consortium.instance
         numPartitions: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS:50}
         replicationFactor: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR:}
+      - name: search.instance-classification
+        numPartitions: ${KAFKA_INSTANCE_CLASSIFICATION_TOPIC_PARTITIONS:50}
+        replicationFactor: ${KAFKA_INSTANCE_CLASSIFICATION_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -131,6 +134,10 @@ folio:
         concurrency: ${KAFKA_CLASSIFICATION_TYPE_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
         group-id: ${folio.environment}-mod-search-classification-type-group
+      classification:
+        concurrency: ${KAFKA_CLASSIFICATION_CONCURRENCY:4}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.instance-classification
+        group-id: ${folio.environment}-mod-search-instance-classification-group
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.location

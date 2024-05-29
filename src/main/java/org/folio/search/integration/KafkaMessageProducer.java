@@ -1,5 +1,25 @@
 package org.folio.search.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.folio.search.domain.dto.Contributor;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.ClassificationChunkEvent;
+import org.folio.search.model.event.ContributorResourceEvent;
+import org.folio.search.model.event.SubjectResourceEvent;
+import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.utils.CollectionUtils;
+import org.folio.search.utils.JsonConverter;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.function.Function;
+
 import static java.util.Collections.emptyList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
@@ -9,35 +29,8 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.KafkaUtils.getTenantTopicName;
-import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
-import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.event.ContributorResourceEvent;
-import org.folio.search.model.event.SubjectResourceEvent;
-import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.utils.CollectionUtils;
-import org.folio.search.utils.JsonConverter;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
+import static org.folio.search.utils.SearchConverterUtils.*;
+import static org.folio.search.utils.SearchUtils.*;
 
 @Log4j2
 @Component
@@ -47,8 +40,11 @@ public class KafkaMessageProducer {
   private static final String SUBJECTS_FIELD = "subjects";
   private static final String INSTANCE_CONTRIBUTOR_TOPIC_NAME = "search.instance-contributor";
   private static final String INSTANCE_SUBJECTS_TOPIC_NAME = "search.instance-subject";
-  private static final TypeReference<List<Contributor>> TYPE_REFERENCE = new TypeReference<>() { };
-  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
+  private static final String INSTANCE_CLASSIFICATION_TOPIC_NAME = "search.instance-classification";
+  private static final TypeReference<List<Contributor>> TYPE_REFERENCE = new TypeReference<>() {
+  };
+  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() {
+  };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   private final ConsortiumTenantService consortiumTenantService;
@@ -59,6 +55,18 @@ public class KafkaMessageProducer {
 
   public void prepareAndSendSubjectEvents(List<ResourceEvent> resourceEvents) {
     prepareAndSendEvents(resourceEvents, this::getSubjectsEvents);
+  }
+
+  public void sendClassificationChunkEvent(String tenantId, ClassificationChunkEvent classificationChunkEvent) {
+    var body = jsonConverter.convert(classificationChunkEvent, Map.class);
+    var resourceEvent = new ResourceEvent()
+      .type(CREATE)
+      .tenant(tenantId)
+      .id(classificationChunkEvent.id().toString())
+      .resourceName(INSTANCE_CLASSIFICATION_RESOURCE)
+      ._new(body);
+    kafkaTemplate.send(new ProducerRecord<>(getTenantTopicName(INSTANCE_CLASSIFICATION_TOPIC_NAME, tenantId),
+      resourceEvent));
   }
 
   private void prepareAndSendEvents(List<ResourceEvent> resourceEvents,

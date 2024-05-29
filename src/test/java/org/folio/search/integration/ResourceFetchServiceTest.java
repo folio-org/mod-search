@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
@@ -73,15 +74,13 @@ class ResourceFetchServiceTest {
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
-    assertThat(actual).isEqualTo(List.of(
+    assertThat(cleanUp(actual)).isEqualTo(List.of(
       resourceEvent(instanceId1, INSTANCE_RESOURCE,
-        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
-          "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of())),
+        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null)),
       resourceEvent(instanceId2, INSTANCE_RESOURCE, UPDATE,
         mapOf("id", instanceId2, "title", "inst2",
-          "holdings", List.of(mapOf("id", "holdingId", "electronicAccess", List.of(), "notes", List.of())),
-          "items", List.of(mapOf("id", "itemId", "notes", List.of())),
-          "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
+          "holdings", List.of(mapOf("id", "holdingId")),
+          "items", List.of(mapOf("id", "itemId")), "isBoundWith", true),
         mapOf("id", instanceId2, "title", "old"))
     ));
     verify(inventoryClient, times(1)).getInstances(any(), anyInt());
@@ -98,9 +97,8 @@ class ResourceFetchServiceTest {
       .thenReturn(asSinglePage(List.of(instanceView)));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
-    assertThat(actual).isEqualTo(List.of(resourceEvent(instanceId1, INSTANCE_RESOURCE,
-      mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
-        "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))));
+    assertThat(cleanUp(actual)).isEqualTo(List.of(resourceEvent(instanceId1, INSTANCE_RESOURCE,
+      mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null))));
   }
 
   @Test
@@ -115,10 +113,9 @@ class ResourceFetchServiceTest {
       .thenReturn(asSinglePage(List.of(instanceView)));
 
     var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
-    assertThat(actual).isEqualTo(List.of(
+    assertThat(cleanUp(actual)).isEqualTo(List.of(
       resourceEvent(invalidId, INSTANCE_RESOURCE,
-        mapOf("id", invalidId, "title", "inst1", "isBoundWith", null,
-          "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of()))
+        mapOf("id", invalidId, "title", "inst1", "isBoundWith", null))
     ));
   }
 
@@ -157,6 +154,36 @@ class ResourceFetchServiceTest {
 
     assertThat(actual).hasSize(51);
     verify(inventoryClient, times(2)).getInstances(any(), anyInt());
+  }
+
+  private List<ResourceEvent> cleanUp(List<ResourceEvent> actual) {
+    for (ResourceEvent event : actual) {
+      if (event.getNew() instanceof Map<?, ?> map) {
+        cleanMap(map);
+        if (map.get("items") instanceof List<?> list) {
+          for (Object o : list) {
+            if (o instanceof Map<?, ?> itemMap) {
+              cleanMap(itemMap);
+            }
+          }
+        }
+        if (map.get("holdings") instanceof List<?> list) {
+          for (Object o : list) {
+            if (o instanceof Map<?, ?> holdingMap) {
+              cleanMap(holdingMap);
+            }
+          }
+        }
+      }
+      if (event.getOld() instanceof Map<?, ?> map) {
+        map.entrySet().removeIf(entry -> entry.getValue() instanceof List<?> list && list.isEmpty());
+      }
+    }
+    return actual;
+  }
+
+  private void cleanMap(Map<?, ?> itemMap) {
+    itemMap.entrySet().removeIf(entry -> entry.getValue() instanceof List<?> itemList && itemList.isEmpty());
   }
 
   private static List<ResourceEvent> resourceEvents() {

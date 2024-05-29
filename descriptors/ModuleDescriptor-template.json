@@ -186,7 +186,7 @@
           ],
           "pathPattern": "/search/consortium/holding/{id}",
           "permissionsRequired": [
-            "consortium-search.items.collection.get"
+            "consortium-search.holdings.item.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -198,7 +198,7 @@
           ],
           "pathPattern": "/search/consortium/item/{id}",
           "permissionsRequired": [
-            "consortium-search.items.collection.get"
+            "consortium-search.items.item.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -695,6 +695,16 @@
       "permissionName": "consortium-search.items.collection.get",
       "displayName": "Consortium Search - fetch items records",
       "description": "Returns items records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.holdings.item.get",
+      "displayName": "Consortium Search - fetch holdings record",
+      "description": "Returns holdings record in consortium"
+    },
+    {
+      "permissionName": "consortium-search.items.item.get",
+      "displayName": "Consortium Search - fetch item record",
+      "description": "Returns item record in consortium"
     },
     {
       "permissionName": "consortium-search.locations.collection.get",

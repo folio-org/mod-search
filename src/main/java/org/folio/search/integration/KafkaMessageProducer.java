@@ -66,6 +66,7 @@ public class KafkaMessageProducer {
       .resourceName(INSTANCE_CLASSIFICATION_RESOURCE)
       ._new(body);
     kafkaTemplate.send(new ProducerRecord<>(getTenantTopicName(INSTANCE_CLASSIFICATION_TOPIC_NAME, tenantId),
+      classificationChunkEvent.id().toString(),
       resourceEvent));
   }
 

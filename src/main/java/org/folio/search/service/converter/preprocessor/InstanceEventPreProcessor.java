@@ -14,6 +14,7 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static org.folio.search.utils.SearchUtils.SOURCE_FOLIO;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,19 +57,52 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     if (log.isDebugEnabled()) {
       log.debug("preProcess::Starting instance event pre-processing [{}]", event);
     }
-    if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+    log.info("event: {}", event);
+
+    List<ResourceEvent> events;
+
+    if (isUpdateForInstanceSharing(event)) {
+      events = prepareClassificationEventsOnInstanceSharing(event);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
       log.info("preProcess::Finished instance event pre-processing. No additional events created for shadow instance.");
       return List.of(event);
+    } else {
+      events = prepareClassificationEvents(event);
     }
-
-    log.info("event: {}", event);
-    var events = prepareClassificationEvents(event);
 
     log.info("preProcess::Finished instance event pre-processing");
     if (log.isDebugEnabled()) {
       log.debug("preProcess::Finished instance event pre-processing. Events after: [{}], ", events);
     }
     return events;
+  }
+
+  private boolean isUpdateForInstanceSharing(ResourceEvent event) {
+    return event.getType() == ResourceEventType.UPDATE
+      && startsWith(getResourceSource(getNewAsMap(event)), SOURCE_CONSORTIUM_PREFIX)
+      && SOURCE_FOLIO.equals(getResourceSource(getOldAsMap(event)));
+  }
+
+  private List<ResourceEvent> prepareClassificationEventsOnInstanceSharing(ResourceEvent event) {
+    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+      return emptyList();
+    }
+
+    var classifications = getClassifications(getOldAsMap(event));
+
+    if (!classifications.equals(getClassifications(getNewAsMap(event)))) {
+      log.warn("Classifications are different on Update for instance sharing");
+      return emptyList();
+    }
+
+    var tenant = event.getTenant();
+    var instanceId = getResourceEventId(event);
+    var shared = isShared(tenant);
+
+    var entitiesForDelete = toEntities(classifications, instanceId, tenant, shared);
+    instanceClassificationRepository.deleteAll(entitiesForDelete);
+
+    return getResourceEventsForDeletion(entitiesForDelete, emptyList(), tenant);
   }
 
   private List<ResourceEvent> prepareClassificationEvents(ResourceEvent event) {

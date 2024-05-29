@@ -16,12 +16,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.client.ResourceReindexClient;
-import org.folio.search.domain.dto.FolioCreateIndexResponse;
-import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.domain.dto.IndexDynamicSettings;
-import org.folio.search.domain.dto.IndexSettings;
-import org.folio.search.domain.dto.ReindexJob;
-import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.*;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.repository.IndexNameProvider;
@@ -51,6 +46,7 @@ public class IndexService {
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
   private final LocationService locationService;
+  private final ClassificationService classificationService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -200,6 +196,18 @@ public class IndexService {
     if (indexRepository.indexExists(index)) {
       indexRepository.dropIndex(index);
     }
+  }
+
+  public ReindexJob reindexClassificationsRecords(String tenantId, ReindexClassificationsRequest request) {
+    log.info("reindexClassification:: Starting reindex");
+    var response = new ReindexJob().id(UUID.randomUUID().toString())
+      .jobStatus("Completed")
+      .submittedDate(new Date().toString());
+
+    classificationService.reindex(tenantId, request);
+    log.info("reindexClassification:: Reindex completed");
+
+    return response;
   }
 
   private FolioCreateIndexResponse doCreateIndex(String resourceName, String tenantId, String indexSettings) {

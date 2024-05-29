@@ -94,17 +94,19 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     instanceClassificationRepository.saveAll(entitiesForCreate);
     instanceClassificationRepository.deleteAll(entitiesForDelete);
 
-    List<InstanceClassificationEntity> entitiesForFetch = new ArrayList<>();
-    entitiesForFetch.addAll(entitiesForCreate);
-    entitiesForFetch.addAll(entitiesForDelete);
+    // TODO: refactor method when test is done
+//    List<InstanceClassificationEntity> entitiesForFetch = new ArrayList<>();
+//    entitiesForFetch.addAll(entitiesForCreate);
+//    entitiesForFetch.addAll(entitiesForDelete);
 
-    var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
-    var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
-
-    var list1 = entityAggList.stream()
-      .map(entities -> toResourceCreateEvent(entities, tenant))
-      .toList();
-    return CollectionUtils.mergeSafelyToList(list, list1);
+//    var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
+//    var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
+//
+//    var list1 = entityAggList.stream()
+//      .map(entities -> toResourceCreateEvent(entities, tenant))
+//      .toList();
+//     return CollectionUtils.mergeSafelyToList(list, list1);
+    return emptyList();
   }
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<InstanceClassificationEntity> entitiesForDelete,

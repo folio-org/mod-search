@@ -1,14 +1,8 @@
 package org.folio.search.repository.classification;
 
-import static org.folio.search.utils.JdbcUtils.getGroupedParamPlaceholder;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.sql.PreparedStatement;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,6 +14,13 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.folio.search.utils.JdbcUtils.getGroupedParamPlaceholder;
 
 @Log4j2
 @Repository
@@ -48,6 +49,20 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     WHERE (classification_number, classification_type_id) IN (%s)
     GROUP BY classification_number, classification_type_id;
     """;
+  private static final String SELECT_CHUNK = """
+    SELECT
+        classification_number,
+        classification_type_id,
+        json_agg(json_build_object(
+            'instanceId', instance_id,
+            'shared', shared,
+            'tenantId', tenant_id
+        )) AS instances
+    FROM %s
+    GROUP BY classification_number, classification_type_id
+    order by classification_number, classification_type_id
+    limit %d offset %d;
+    """;
   private static final String INSERT_SQL = """
     INSERT INTO %s (classification_type_id, classification_number, tenant_id, instance_id, shared)
     VALUES (?, ?, ?, ?, ?)
@@ -58,8 +73,14 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     DELETE FROM %s
     WHERE classification_type_id = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
     """;
+  private static final String COUNT_SQL = """
+    select count(*) from (
+    select distinct classification_number, classification_type_id
+    from %s) cnt;
+    """;
   private static final int BATCH_SIZE = 100;
-  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
+  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() {
+  };
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -126,6 +147,24 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     return jdbcTemplate.query(
       SELECT_ALL_BY_INSTANCE_ID_AGG.formatted(getTableName(), getGroupedParamPlaceholder(classifications.size(), 2)),
       instanceClassificationAggRowMapper(), getArgsForAggregatedByClassifications(classifications));
+  }
+
+  @Override
+  public List<InstanceClassificationEntityAgg> fetchAggregatedChunk(int limit, int offset) {
+    log.debug("fetchAggregatedChunk::instance classifications [limit: {}, offset: {}]", limit, offset);
+
+    return jdbcTemplate.query(
+      SELECT_CHUNK.formatted(getTableName(), limit, offset),
+      instanceClassificationAggRowMapper());
+  }
+
+  @Override
+  public int countDistinctClassifications() {
+    Integer count = jdbcTemplate.queryForObject(COUNT_SQL.formatted(getTableName()), Integer.class);
+    if (count == null) {
+      return 0;
+    }
+    return count;
   }
 
   @NotNull

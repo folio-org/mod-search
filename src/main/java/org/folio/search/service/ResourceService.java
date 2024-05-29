@@ -187,7 +187,7 @@ public class ResourceService {
     return multiTenantSearchDocumentConverter.convert(list);
   }
 
-  private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {
+  public FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {
     var eventsByRepository = eventsByResource.entrySet().stream().collect(groupingBy(
       entry -> getIndexingRepositoryName(entry.getKey()), flatMapping(entry -> entry.getValue().stream(), toList())));
 

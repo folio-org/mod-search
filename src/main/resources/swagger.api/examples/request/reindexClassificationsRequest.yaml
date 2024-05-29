@@ -1,0 +1,4 @@
+value:
+  recreateIndex: true
+  parallelism: 10
+  resourceName: classifications

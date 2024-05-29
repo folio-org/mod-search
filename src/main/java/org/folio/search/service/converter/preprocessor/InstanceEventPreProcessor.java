@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +80,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
   }
 
   private boolean isUpdateForInstanceSharing(ResourceEvent event) {
-    return event.getType() == ResourceEventType.UPDATE
+    return event.getType() == UPDATE
       && startsWith(getResourceSource(getNewAsMap(event)), SOURCE_CONSORTIUM_PREFIX)
       && SOURCE_FOLIO.equals(getResourceSource(getOldAsMap(event)));
   }
@@ -101,8 +103,9 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     var entitiesForDelete = toEntities(classifications, instanceId, tenant, shared);
     instanceClassificationRepository.deleteAll(entitiesForDelete);
+    var aggregatedEntities = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForDelete);
 
-    return getResourceEventsForDeletion(entitiesForDelete, emptyList(), tenant);
+    return getResourceEventsForUpdate(entitiesForDelete, aggregatedEntities, tenant);
   }
 
   private List<ResourceEvent> prepareClassificationEvents(ResourceEvent event) {
@@ -164,6 +167,30 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     return notFoundEntitiesForDelete.stream()
       .map(classification -> toResourceDeleteEvent(classification, tenant))
+      .toList();
+  }
+
+  private List<ResourceEvent> getResourceEventsForUpdate(List<InstanceClassificationEntity> entitiesForDelete,
+                                                         List<InstanceClassificationEntityAgg> aggregatedEntities,
+                                                         String tenant) {
+    for (var classification : entitiesForDelete) {
+      for (InstanceClassificationEntityAgg agg : aggregatedEntities) {
+        if (agg.number().equals(classification.number()) && Objects.equals(agg.typeId(), classification.typeId())) {
+          var subInstance = InstanceSubResource.builder()
+            .instanceId(classification.instanceId())
+            .shared(classification.shared())
+            .tenantId(tenant)
+            .typeId(classification.typeId())
+            .build();
+          agg.instances().remove(subInstance);
+          break;
+        }
+      }
+    }
+
+    return aggregatedEntities.stream()
+      .map(classification ->
+        getResourceEvent(tenant, classification.number(), classification.typeId(), classification.instances(), UPDATE))
       .toList();
   }
 

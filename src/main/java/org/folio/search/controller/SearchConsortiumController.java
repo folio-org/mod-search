@@ -1,5 +1,9 @@
 package org.folio.search.controller;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -97,20 +101,19 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   public ResponseEntity<ConsortiumHolding> getConsortiumHolding(UUID id, String tenantHeader) {
     var tenant = verifyAndGetTenant(tenantHeader);
     var holdingId = id.toString();
-    var query = "holdings.id=" + holdingId;
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
+    var searchRequest = idCqlRequest(tenant, INSTANCE_HOLDING_FIELD_NAME, holdingId);
 
-    var result = searchService.getConsortiumHolding(id.toString(), searchRequest);
+    var result = searchService.getConsortiumHolding(holdingId, searchRequest);
     return ResponseEntity.ok(result);
   }
 
   @Override
-  public ResponseEntity<ConsortiumItem> getConsortiumItem(UUID itemId, String tenantHeader) {
+  public ResponseEntity<ConsortiumItem> getConsortiumItem(UUID id, String tenantHeader) {
     var tenant = verifyAndGetTenant(tenantHeader);
-    var query = "items.id=" + itemId.toString();
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
+    var itemId = id.toString();
+    var searchRequest = idCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemId);
 
-    var result = searchService.getConsortiumItem(itemId.toString(), searchRequest);
+    var result = searchService.getConsortiumItem(itemId, searchRequest);
     return ResponseEntity.ok(result);
   }
 
@@ -119,11 +122,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
                                                                                   BatchIdsDto batchIdsDto) {
     var tenant = verifyAndGetTenant(tenantHeader);
     var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var query = batchIdsDto.getIds().stream()
-      .map(UUID::toString)
-      .map("holdings.id = %s"::formatted)
-      .collect(Collectors.joining(" or "));
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, holdingIds.size(), 0, true, false, true);
+    var searchRequest = idsCqlRequest(tenant, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
 
     var result = searchService.fetchConsortiumBatchHoldings(searchRequest, holdingIds);
     return ResponseEntity.ok(result);
@@ -139,11 +138,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
     var tenant = verifyAndGetTenant(tenantHeader);
     var itemIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var query = batchIdsDto.getIds().stream()
-      .map(UUID::toString)
-      .map("items.id = %s"::formatted)
-      .collect(Collectors.joining(" or "));
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenant, query, itemIds.size(), 0, true, false, true);
+    var searchRequest = idsCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemIds);
 
     var result = searchService.fetchConsortiumBatchItems(searchRequest, itemIds);
     return ResponseEntity.ok(result);
@@ -155,6 +150,19 @@ public class SearchConsortiumController implements SearchConsortiumApi {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantHeader);
     }
     return centralTenant.get();
+  }
+
+  private CqlSearchRequest<Instance> idCqlRequest(String tenant, String fieldName, String id) {
+    var query = fieldName + ".id=" + id;
+    return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
+  }
+
+  private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
+    var query = ids.stream()
+      .map((fieldName + ".id=%s")::formatted)
+      .collect(Collectors.joining(" or "));
+
+    return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
   }
 
 }

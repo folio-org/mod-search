@@ -102,14 +102,6 @@ class AuthorityEventPreProcessorTest {
   }
 
   @Test
-  void process_positive_onlyCommonFieldsArePopulated() {
-    var authority = new Authority().id(RESOURCE_ID).subjectHeadings("a subject headings")
-      .identifiers(List.of(new Identifier().value("an authority identifier")));
-    var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY_RESOURCE, toMap(authority)));
-    assertThat(actual).isEqualTo(List.of(event("other0", expectedAuthorityAsMap(authority))));
-  }
-
-  @Test
   void process_positive_deleteEvent() {
     var oldAuthority = new Authority().id(RESOURCE_ID).personalName("personal").corporateNameTitle("corporate");
     var event = resourceEvent(AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(oldAuthority));

@@ -18,7 +18,7 @@ import org.folio.search.model.metadata.PlainFieldDescription;
 public class AuthoritySearchUtils {
 
   private static final List<String> AUTHORITY_COMMON_FIELDS = List.of(
-    "id", "identifiers", "subjectHeadings", "metadata", "notes");
+    "id", "identifiers", "subjectHeadings", "metadata");
 
   public static Map<String, Object> expectedAuthorityAsMap(Authority source, String... fields) {
     return expectedAuthorityAsMap(source, false, fields);

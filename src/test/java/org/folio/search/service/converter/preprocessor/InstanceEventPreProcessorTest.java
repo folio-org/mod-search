@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.commons.collections4.SetUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -264,6 +265,91 @@ class InstanceEventPreProcessorTest {
     assertThat(deleteCaptor.getValue())
       .extracting(ENTITY_FIELD_EXTRACTORS)
       .containsExactlyInAnyOrder(tuple("t4", "n4", TENANT_ID, id, true));
+  }
+
+  @Test
+  void preProcess_featureIsDisabledOnInstanceSharing_shouldNotProcessClassifications() {
+    // Arrange
+    var newData = instance(randomId(), SOURCE_CONSORTIUM_PREFIX + "FOLIO", null);
+    var oldData = instance(randomId(),  "FOLIO", null);
+    var resourceEvent = resourceEvent(randomId(), INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    mockClassificationBrowseFeatureEnabled(Boolean.FALSE);
+
+    // Act
+    var resourceEvents = preProcessor.preProcess(resourceEvent);
+
+    // Assert
+    assertThat(resourceEvents)
+      .isEmpty();
+
+    verifyNoInteractions(instanceClassificationRepository);
+  }
+
+  @Test
+  void preProcess_differentClassificationsOnInstanceSharing_shouldNotProcessClassifications() {
+    // Arrange
+    var id = randomId();
+    var newData = instance(id, SOURCE_CONSORTIUM_PREFIX + "FOLIO", List.of(classification("n2", "t2")));
+    var oldData = instance(id,  "FOLIO", List.of(classification("n1", "t1")));
+    var resourceEvent = resourceEvent(randomId(), INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
+
+    // Act
+    var resourceEvents = preProcessor.preProcess(resourceEvent);
+
+    // Assert
+    assertThat(resourceEvents)
+      .isEmpty();
+
+    verifyNoInteractions(instanceClassificationRepository);
+  }
+
+  @Test
+  void preProcess_DeleteEntityAndUpdateIndexOnInstanceSharing_shouldProcessClassifications() {
+    // Arrange
+    var id = randomId();
+    var typeId = "type";
+    var number = "num";
+    var newData = instance(id, SOURCE_CONSORTIUM_PREFIX + "FOLIO", List.of(classification(number, typeId)));
+    var oldData = instance(id,  "FOLIO", List.of(classification(number, typeId)));
+    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
+    when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
+      .thenReturn(List.of(
+        new InstanceClassificationEntityAgg(typeId, number,
+          SetUtils.hashSet(
+            InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID).shared(false).build(),
+            InstanceSubResource.builder().instanceId(id).tenantId(TENANT_ID + "_central").shared(true).build()
+          )
+        )
+      ));
+    var classificationId = InstanceClassificationEntity.Id.builder()
+      .number(number)
+      .typeId(typeId)
+      .instanceId(id)
+      .tenantId(TENANT_ID)
+      .build();
+    var expectedDeletedClassificationEntity = new InstanceClassificationEntity(classificationId, false);
+
+    // Act
+    var resourceEvents = preProcessor.preProcess(resourceEvent);
+
+    // Assert
+    verify(instanceClassificationRepository).deleteAll(deleteCaptor.capture());
+    verify(instanceClassificationRepository).fetchAggregatedByClassifications(anyList());
+    var deletedClassifications = deleteCaptor.getValue();
+    assertThat(List.of(expectedDeletedClassificationEntity))
+      .isEqualTo(deletedClassifications);
+
+    assertThat(resourceEvents)
+      .hasSize(1)
+      .allSatisfy(event -> assertThat(event)
+        .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant, ResourceEvent::getType)
+        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID, UPDATE))
+      .extracting(ResourceEvent::getId)
+      .containsExactlyInAnyOrder("num|type");
+
+    verifyNoMoreInteractions(instanceClassificationRepository);
   }
 
   private void mockClassificationBrowseFeatureEnabled(Boolean isEnabled) {

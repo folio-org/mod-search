@@ -59,7 +59,6 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     if (log.isDebugEnabled()) {
       log.debug("preProcess::Starting instance event pre-processing [{}]", event);
     }
-    log.info("event: {}", event);
 
     List<ResourceEvent> events;
 
@@ -139,13 +138,9 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     var entityAggList = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForFetch);
     var list = getResourceEventsForDeletion(entitiesForDelete, entityAggList, tenant);
 
-    log.info("deletion events: ");
-    list.forEach(ev -> log.info("del-event: {}", ev));
     var list1 = entityAggList.stream()
       .map(entities -> toResourceCreateEvent(entities, tenant))
       .toList();
-    log.info("creation events: ");
-    list1.forEach(ev -> log.info("cr-event: {}", ev));
     return CollectionUtils.mergeSafelyToList(list, list1);
   }
 
@@ -176,13 +171,13 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     for (var classification : entitiesForDelete) {
       for (InstanceClassificationEntityAgg agg : aggregatedEntities) {
         if (agg.number().equals(classification.number()) && Objects.equals(agg.typeId(), classification.typeId())) {
-          var subInstance = InstanceSubResource.builder()
+          var subResource = InstanceSubResource.builder()
             .instanceId(classification.instanceId())
             .shared(classification.shared())
             .tenantId(tenant)
             .typeId(classification.typeId())
             .build();
-          agg.instances().remove(subInstance);
+          agg.instances().remove(subResource);
           break;
         }
       }

@@ -5,6 +5,8 @@ import static org.folio.search.controller.SearchConsortiumController.REQUEST_NOT
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.support.base.ApiEndpoints.consortiumBatchHoldingsSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.consortiumHoldingSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -14,7 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.model.Pair;
@@ -91,6 +96,51 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 
+  @Test
+  void doGetConsortiumHolding_returns200AndRecord() {
+    var holdings = getExpectedConsolidatedHoldings();
+    var expectedHolding = holdings[0];
+    var result = doGet(consortiumHoldingSearchPath(expectedHolding.getId()), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumHolding.class);
+
+    assertThat(actual)
+      .isEqualTo(expectedHolding);
+  }
+
+  @Test
+  void tryGetConsortiumHolding_returns400_whenRequestedForNotCentralTenant() throws Exception {
+    tryGet(consortiumHoldingSearchPath(UUID.randomUUID().toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(REQUEST_NOT_ALLOWED_MSG)))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("x-okapi-tenant")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
+  }
+
+  @Test
+  void doGetConsortiumBatchHoldings_returns200AndRecords() {
+    var holdings = getExpectedConsolidatedHoldings();
+    var request = new BatchIdsDto()
+      .ids(Arrays.stream(holdings).map(ConsortiumHolding::getId).map(UUID::fromString).toList());
+    var result = doPost(consortiumBatchHoldingsSearchPath(), CENTRAL_TENANT_ID, request);
+    var actual = parseResponse(result, ConsortiumHoldingCollection.class);
+
+    assertThat(actual.getTotalRecords()).isEqualTo(3);
+    assertThat(actual.getHoldings()).containsExactlyInAnyOrder(holdings);
+  }
+
+  @Test
+  void tryGetConsortiumBatchHoldings_returns400_whenRequestedForNotCentralTenant() throws Exception {
+    tryPost(consortiumBatchHoldingsSearchPath(), new BatchIdsDto().ids(List.of(UUID.randomUUID())))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(REQUEST_NOT_ALLOWED_MSG)))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("x-okapi-tenant")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
+  }
+
   private ConsortiumHolding[] getExpectedHoldings() {
     var instance = getSemanticWeb();
     return instance.getHoldings().stream()
@@ -103,6 +153,19 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
         .callNumber(holding.getCallNumber())
         .callNumberSuffix(holding.getCallNumberSuffix())
         .copyNumber(holding.getCopyNumber())
+        .permanentLocationId(holding.getPermanentLocationId())
+        .discoverySuppress(holding.getDiscoverySuppress() != null && holding.getDiscoverySuppress()))
+      .toArray(ConsortiumHolding[]::new);
+  }
+
+  private ConsortiumHolding[] getExpectedConsolidatedHoldings() {
+    var instance = getSemanticWeb();
+    return instance.getHoldings().stream()
+      .map(holding -> new ConsortiumHolding()
+        .id(holding.getId())
+        .hrid(holding.getHrid())
+        .tenantId(MEMBER_TENANT_ID)
+        .instanceId(instance.getId())
         .permanentLocationId(holding.getPermanentLocationId())
         .discoverySuppress(holding.getDiscoverySuppress() != null && holding.getDiscoverySuppress()))
       .toArray(ConsortiumHolding[]::new);

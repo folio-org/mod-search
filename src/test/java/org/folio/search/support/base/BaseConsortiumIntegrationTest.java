@@ -104,6 +104,25 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   }
 
   @SneakyThrows
+  public static ResultActions tryPost(String uri, Object body) {
+    return tryPost(uri, MEMBER_TENANT_ID, body);
+  }
+
+  @SneakyThrows
+  public static ResultActions tryPost(String uri, String tenantHeader, Object body) {
+    return mockMvc.perform(post(uri)
+      .content(asJsonString(body))
+      .headers(defaultHeaders(tenantHeader))
+      .accept("application/json;charset=UTF-8"));
+  }
+
+  @SneakyThrows
+  public static ResultActions doPost(String uri, String tenantHeader, Object body) {
+    return tryPost(uri, tenantHeader, body)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
   protected static ResultActions doSearchByInstances(String query) {
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, null);
   }

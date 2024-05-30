@@ -76,6 +76,18 @@ paths:
   /search/consortium/locations:
     $ref: 'paths/search-consortium/search-consortium-locations.yaml'
 
+  /search/consortium/batch/items:
+    $ref: 'paths/search-consortium/search-consortium-batch-items.yaml'
+
+  /search/consortium/batch/holdings:
+    $ref: 'paths/search-consortium/search-consortium-batch-holdings.yaml'
+
+  /search/consortium/holding/{id}:
+    $ref: 'paths/search-consortium/search-consortium-holding.yaml'
+
+  /search/consortium/item/{id}:
+    $ref: 'paths/search-consortium/search-consortium-item.yaml'
+
   /search/index/indices:
     $ref: 'paths/search-index/search-index-indices.yaml'
 
@@ -123,7 +135,5 @@ paths:
 
   /browse/config/{browseType}/{browseOptionId}:
     $ref: 'paths/browse-config/browse-type-browse-option-id.yaml'
-
-
 
 

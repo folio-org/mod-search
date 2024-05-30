@@ -1,0 +1,20 @@
+get:
+  operationId: getConsortiumItem
+  summary: Fetch consolidated item by id
+  description: Get an item (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/record-id-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: An instance item
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumItem.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

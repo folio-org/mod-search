@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
+import static org.folio.search.utils.SearchUtils.buildPreferenceKey;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class SearchService {
     }
     var resource = request.getResource();
     var requestTimeout = searchQueryConfiguration.getRequestTimeout();
-    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource)
+    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource,
+        request.getConsortiumConsolidated())
       .from(request.getOffset())
       .size(request.getLimit())
       .trackTotalHits(true)
@@ -74,10 +76,6 @@ public class SearchService {
     searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
 
     return searchResult;
-  }
-
-  private String buildPreferenceKey(String tenantId, String resource, String query) {
-    return tenantId + "-" + resource + "-" + query;
   }
 
   private <T> void searchResultPostProcessing(Class<?> resourceClass, boolean includeNumberOfTitles,

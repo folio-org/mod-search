@@ -1,13 +1,14 @@
 package org.folio.search.converter;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.Item;
-import org.springframework.stereotype.Component;
 
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConsortiumItemMapper {
 
-  public ConsortiumItem map(String instanceId, Item item) {
+  public static ConsortiumItem toConsortiumItem(String instanceId, Item item) {
     return new ConsortiumItem()
       .id(item.getId())
       .hrid(item.getHrid())

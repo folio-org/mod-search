@@ -3,17 +3,12 @@ package org.folio.search.service.consortium;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import org.folio.search.converter.ConsortiumHoldingMapper;
-import org.folio.search.converter.ConsortiumItemMapper;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -25,7 +20,6 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.service.SearchService;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,31 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ConsortiumInstanceSearchServiceTest {
 
-  private @Mock ConsortiumHoldingMapper holdingMapper;
-  private @Mock ConsortiumItemMapper itemMapper;
   private @Mock SearchService searchService;
   private @InjectMocks ConsortiumInstanceSearchService service;
-
-  @BeforeEach
-  void setUpMocks() {
-    lenient().doAnswer(invocationOnMock -> {
-      var instanceId = (String) invocationOnMock.getArgument(0);
-      var holding = (Holding) invocationOnMock.getArgument(1);
-      return new ConsortiumHolding()
-        .id(holding.getId())
-        .instanceId(instanceId)
-        .tenantId(holding.getTenantId());
-    }).when(holdingMapper).map(anyString(), any());
-    lenient().doAnswer(invocationOnMock -> {
-      var instanceId = (String) invocationOnMock.getArgument(0);
-      var item = (Item) invocationOnMock.getArgument(1);
-      return new ConsortiumItem()
-        .id(item.getId())
-        .instanceId(instanceId)
-        .tenantId(item.getTenantId())
-        .holdingsRecordId(item.getHoldingsRecordId());
-    }).when(itemMapper).map(anyString(), any());
-  }
 
   @Test
   void getConsortiumHolding_positive() {
@@ -200,6 +171,7 @@ class ConsortiumInstanceSearchServiceTest {
         return new ConsortiumHolding()
           .id(holding.getId())
           .instanceId(instance.getId())
+          .discoverySuppress(false)
           .tenantId(holding.getTenantId());
       }).toList())
       .totalRecords(2);

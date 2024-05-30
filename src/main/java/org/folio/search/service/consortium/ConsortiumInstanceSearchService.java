@@ -27,8 +27,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ConsortiumInstanceSearchService {
 
-  private final ConsortiumHoldingMapper holdingMapper;
-  private final ConsortiumItemMapper itemMapper;
   private final SearchService searchService;
 
   public ConsortiumHolding getConsortiumHolding(String id, CqlSearchRequest<Instance> searchRequest) {
@@ -47,7 +45,7 @@ public class ConsortiumInstanceSearchService {
       return new ConsortiumHolding();
     }
 
-    return holdingMapper.map(instance.getId(), holding);
+    return ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding);
   }
 
   public ConsortiumItem getConsortiumItem(String id, CqlSearchRequest<Instance> searchRequest) {
@@ -66,7 +64,7 @@ public class ConsortiumInstanceSearchService {
       return new ConsortiumItem();
     }
 
-    return itemMapper.map(instance.getId(), item);
+    return ConsortiumItemMapper.toConsortiumItem(instance.getId(), item);
   }
 
   public ConsortiumHoldingCollection fetchConsortiumBatchHoldings(CqlSearchRequest<Instance> searchRequest,
@@ -76,7 +74,7 @@ public class ConsortiumInstanceSearchService {
       .flatMap(instance ->
         instance.getHoldings().stream()
           .filter(holding -> ids.contains(holding.getId()))
-          .map(holding -> holdingMapper.map(instance.getId(), holding))
+          .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding))
       )
       .toList();
     return new ConsortiumHoldingCollection()
@@ -91,7 +89,7 @@ public class ConsortiumInstanceSearchService {
       .flatMap(instance ->
         instance.getItems().stream()
           .filter(item -> ids.contains(item.getId()))
-          .map(item -> itemMapper.map(instance.getId(), item))
+          .map(item -> ConsortiumItemMapper.toConsortiumItem(instance.getId(), item))
       )
       .toList();
 

@@ -1,13 +1,14 @@
 package org.folio.search.converter;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.Holding;
-import org.springframework.stereotype.Component;
 
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConsortiumHoldingMapper {
 
-  public ConsortiumHolding map(String instanceId, Holding holding) {
+  public static ConsortiumHolding toConsortiumHolding(String instanceId, Holding holding) {
     return new ConsortiumHolding()
       .id(holding.getId())
       .hrid(holding.getHrid())

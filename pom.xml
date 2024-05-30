@@ -49,7 +49,7 @@
     <jackson-bom.version>2.16.0</jackson-bom.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>7.4.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.6.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
@@ -59,7 +59,7 @@
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-    <checkstyle.version>10.16.0</checkstyle.version>
+    <checkstyle.version>10.17.0</checkstyle.version>
   </properties>
 
   <dependencies>

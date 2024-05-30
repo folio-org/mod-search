@@ -54,6 +54,11 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   private final Boolean includeNumberOfTitles;
 
   /**
+   * Doesn't affect non-consortium. true means include all records, false means filter for active affiliation.
+   */
+  private final Boolean consortiumConsolidated;
+
+  /**
    * Creates {@link CqlSearchRequest} object for given variables.
    *
    * @param resourceClass         -  resource class
@@ -64,14 +69,22 @@ public class CqlSearchRequest<T> implements ResourceRequest {
    * @param expandAll             - whether to return only response properties or entire record
    * @param <R>                   - generic type for {@link CqlSearchRequest} object.
    * @param includeNumberOfTitles - indicates whether the number of titles should be counted.
+   * @param consortiumConsolidated - indicates whether to return consortium consolidated records.
    * @return created {@link CqlSearchRequest} object
    */
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll,
-                                           Boolean includeNumberOfTitles) {
+                                           Boolean includeNumberOfTitles, Boolean consortiumConsolidated) {
     var resource = SearchUtils.getResourceName(resourceClass);
     return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll,
-      includeNumberOfTitles);
+      includeNumberOfTitles, consortiumConsolidated);
+  }
+
+  public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
+                                           Integer limit, Integer offset, Boolean expandAll,
+                                           Boolean includeNumberOfTitles) {
+    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, offset, expandAll,
+      includeNumberOfTitles, false);
   }
 
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,

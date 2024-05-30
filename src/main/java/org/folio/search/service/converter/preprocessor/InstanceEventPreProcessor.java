@@ -3,6 +3,7 @@ package org.folio.search.service.converter.preprocessor;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.CollectionUtils.subtract;
@@ -15,7 +16,6 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
-import static org.folio.search.utils.SearchUtils.SOURCE_FOLIO;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,9 +79,10 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
   }
 
   private boolean isUpdateForInstanceSharing(ResourceEvent event) {
+    var newSource = getResourceSource(getNewAsMap(event));
     return event.getType() == UPDATE
-      && startsWith(getResourceSource(getNewAsMap(event)), SOURCE_CONSORTIUM_PREFIX)
-      && SOURCE_FOLIO.equals(getResourceSource(getOldAsMap(event)));
+      && startsWith(newSource, SOURCE_CONSORTIUM_PREFIX)
+      && Objects.equals(getResourceSource(getOldAsMap(event)), removeStart(newSource, SOURCE_CONSORTIUM_PREFIX));
   }
 
   private List<ResourceEvent> prepareClassificationEventsOnInstanceSharing(ResourceEvent event) {

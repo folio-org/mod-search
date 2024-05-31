@@ -67,13 +67,34 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
+    var records = mergeSafelyToList(
+      trim(precedingResult.getRecords(), context, false),
+      trim(succeedingResult.getRecords(), context, true));
+
+    String prev = null;
+    var callNumberBrowseItemFirst = records.get(0);
+    precedingQuery.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()});
+    var precedingResponse = searchRepository.search(request, precedingQuery);
+    if (precedingResponse.getHits() != null
+        && precedingResponse.getHits().getTotalHits() != null
+        && precedingResponse.getHits().getTotalHits().value > 0) {
+      prev = callNumberBrowseItemFirst.getShelfKey();
+    }
+    String next = null;
+    var callNumberBrowseItemLast = records.get(records.size() - 1);
+    succeedingQuery.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()});
+    var succeedingResponse = searchRepository.search(request, succeedingQuery);
+    if (succeedingResponse.getHits() != null
+        && succeedingResponse.getHits().getTotalHits() != null
+        && succeedingResponse.getHits().getTotalHits().value > 0) {
+      next = callNumberBrowseItemLast.getShelfKey();
+    }
+
     return new BrowseResult<CallNumberBrowseItem>()
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
-      .prev(getPrevBrowsingValue(precedingResult.getRecords(), context, false))
-      .next(getNextBrowsingValue(succeedingResult.getRecords(), context, true))
-      .records(mergeSafelyToList(
-        trim(precedingResult.getRecords(), context, false),
-        trim(succeedingResult.getRecords(), context, true)));
+      .prev(prev)
+      .next(next)
+      .records(records);
 
   }
 

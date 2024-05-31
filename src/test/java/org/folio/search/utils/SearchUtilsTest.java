@@ -11,7 +11,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
-import static org.folio.search.utils.SearchUtils.normalizeLccn;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
@@ -89,14 +88,6 @@ class SearchUtilsTest {
   void getTotalPages_parameterized(long total, long expected) {
     var totalPages = getTotalPages(total, 20);
     assertThat(totalPages).isEqualTo(expected);
-  }
-
-  @DisplayName("LCCN value normalization")
-  @CsvSource({"n 1234,n1234", "  N  1234 ,n1234", "*1234,*1234", "1234*,1234*"})
-  @ParameterizedTest(name = "[{index}] value={0}, expected={1}")
-  void getLccnNormalized_parameterized(String value, String expected) {
-    var normalized = normalizeLccn(value);
-    assertThat(normalized).isEqualTo(expected);
   }
 
   @CsvSource({

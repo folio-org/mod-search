@@ -1,0 +1,170 @@
+{
+  "name": "bibframe",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.Bibframe",
+  "reindexSupported": true,
+  "languageSourcePaths": [ "$.languages" ],
+  "fieldTypes": {
+    "suppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
+    "visibleSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false,
+      "showInResponse": [ "search" ]
+    }
+  },
+  "fields": {
+    "id": {
+      "index": "whitespace"
+    },
+    "titles": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "contributors": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        },
+        "isCreator": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "languages": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "classifications": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "index": "whitespace"
+        },
+        "source": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "subjects": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "index": "keyword"
+        },
+        "titles": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "contributors": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            },
+            "isCreator": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "publications": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "index": "whitespace"
+            },
+            "date": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "editionStatements": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            }
+          }
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "isbn": {
+      "type": "search",
+      "processor": "bibframeIsbnProcessor",
+      "searchTermProcessor": "isbnSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
+    },
+    "lccn": {
+      "type": "search",
+      "index": "standard",
+      "processor": "bibframeLccnProcessor"
+    },
+    "title": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "bibframeTitleProcessor"
+    },
+    "sort_title": {
+      "searchTypes": "sort",
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "bibframeSortTitleProcessor"
+    },
+    "contributor": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "bibframeContributorProcessor"
+    }
+  },
+  "indexMappings": { }
+}

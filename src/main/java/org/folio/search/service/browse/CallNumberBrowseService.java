@@ -46,7 +46,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var callNumberBrowseItemFirst = browseItems.get(0);
     searchSource.sorts().clear();
     searchSource.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
-      .sort("itemEffectiveShelvingOrder", SortOrder.DESC);
+      .sort("itemEffectiveShelvingOrder", SortOrder.DESC)
+      .from(0)
+      .size(5);
     String prev = null;
     var precedingResponse = searchRepository.search(request, searchSource);
     if (precedingResponse.getHits() != null
@@ -57,7 +59,9 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     searchSource.sorts().clear();
     var callNumberBrowseItemLast = browseItems.get(browseItems.size() - 1);
     searchSource.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
-      .sort("itemEffectiveShelvingOrder", SortOrder.ASC);
+      .sort("itemEffectiveShelvingOrder", SortOrder.ASC)
+      .from(0)
+      .size(5);
     String next = null;
     var succedingResponse = searchRepository.search(request, searchSource);
     if (succedingResponse.getHits() != null
@@ -98,7 +102,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
 
     String prev = null;
     var callNumberBrowseItemFirst = records.get(0);
-    precedingQuery.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()});
+    precedingQuery.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
+      .from(0).size(5);
     var precedingResponse = searchRepository.search(request, precedingQuery);
     if (precedingResponse.getHits() != null
         && precedingResponse.getHits().getTotalHits() != null
@@ -107,7 +112,8 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     }
     String next = null;
     var callNumberBrowseItemLast = records.get(records.size() - 1);
-    succeedingQuery.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()});
+    succeedingQuery.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
+      .from(0).size(5);
     var succeedingResponse = searchRepository.search(request, succeedingQuery);
     if (succeedingResponse.getHits() != null
         && succeedingResponse.getHits().getTotalHits() != null

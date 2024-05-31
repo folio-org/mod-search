@@ -106,15 +106,6 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/bibframe",
-          "permissionsRequired": [
-            "search.bibframe.collection.get"
-          ]
-        },
-        {
-          "methods": [
-            "GET"
-          ],
           "pathPattern": "/search/{recordType}/facets",
           "permissionsRequired": [
             "search.facets.collection.get"
@@ -581,11 +572,6 @@
       "permissionName": "search.authorities.collection.get",
       "displayName": "Search - searches authorities by given query",
       "description": "Searches authorities by given query"
-    },
-    {
-      "permissionName": "search.bibframe.collection.get",
-      "displayName": "Search - searches bibframe by given query",
-      "description": "Searches bibframe by given query"
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",

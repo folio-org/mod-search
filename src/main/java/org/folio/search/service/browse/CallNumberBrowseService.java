@@ -19,6 +19,7 @@ import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.repository.SearchRepository;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -40,11 +41,35 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var searchResponse = searchRepository.search(request, searchSource);
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, request, isBrowsingForward);
     var records = browseResult.getRecords();
+    var browseItems = trim(records, context, isBrowsingForward);
+
+    var callNumberBrowseItemFirst = browseItems.get(0);
+    searchSource.sorts().clear();
+    searchSource.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
+      .sort("itemEffectiveShelvingOrder", SortOrder.DESC);
+    String prev = null;
+    var precedingResponse = searchRepository.search(request, searchSource);
+    if (precedingResponse.getHits() != null
+        && precedingResponse.getHits().getTotalHits() != null
+        && precedingResponse.getHits().getTotalHits().value > 0) {
+      prev = callNumberBrowseItemFirst.getShelfKey();
+    }
+    searchSource.sorts().clear();
+    var callNumberBrowseItemLast = browseItems.get(browseItems.size() - 1);
+    searchSource.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
+      .sort("itemEffectiveShelvingOrder", SortOrder.ASC);
+    String next = null;
+    var succedingResponse = searchRepository.search(request, searchSource);
+    if (succedingResponse.getHits() != null
+        && succedingResponse.getHits().getTotalHits() != null
+        && succedingResponse.getHits().getTotalHits().value > 0) {
+      next = callNumberBrowseItemLast.getShelfKey();
+    }
     return new BrowseResult<CallNumberBrowseItem>()
-      .records(trim(records, context, isBrowsingForward))
+      .records(browseItems)
       .totalRecords(browseResult.getTotalRecords())
-      .prev(getPrevBrowsingValue(records, context, isBrowsingForward))
-      .next(getNextBrowsingValue(records, context, isBrowsingForward));
+      .prev(prev)
+      .next(next);
   }
 
   @Override

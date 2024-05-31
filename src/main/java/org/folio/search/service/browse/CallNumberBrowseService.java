@@ -42,6 +42,11 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
     var browseResult = callNumberBrowseResultConverter.convert(searchResponse, context, request, isBrowsingForward);
     var records = browseResult.getRecords();
     var browseItems = trim(records, context, isBrowsingForward);
+    if (browseItems.isEmpty()) {
+      return new BrowseResult<CallNumberBrowseItem>()
+        .records(browseItems)
+        .totalRecords(browseResult.getTotalRecords());
+    }
 
     var callNumberBrowseItemFirst = browseItems.get(0);
     searchSource.sorts().clear();
@@ -96,12 +101,18 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       highlightMatchingCallNumber(context, callNumber, succeedingResult);
     }
 
-    var records = mergeSafelyToList(
+    var browseItems = mergeSafelyToList(
       trim(precedingResult.getRecords(), context, false),
       trim(succeedingResult.getRecords(), context, true));
 
+    if (browseItems.isEmpty()) {
+      return new BrowseResult<CallNumberBrowseItem>()
+        .records(browseItems)
+        .totalRecords(browseItems.size());
+    }
+
     String prev = null;
-    var callNumberBrowseItemFirst = records.get(0);
+    var callNumberBrowseItemFirst = browseItems.get(0);
     precedingQuery.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
       .from(0).size(5);
     var precedingResponse = searchRepository.search(request, precedingQuery);
@@ -111,7 +122,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       prev = callNumberBrowseItemFirst.getShelfKey();
     }
     String next = null;
-    var callNumberBrowseItemLast = records.get(records.size() - 1);
+    var callNumberBrowseItemLast = browseItems.get(browseItems.size() - 1);
     succeedingQuery.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
       .from(0).size(5);
     var succeedingResponse = searchRepository.search(request, succeedingQuery);
@@ -125,7 +136,7 @@ public class CallNumberBrowseService extends AbstractBrowseService<CallNumberBro
       .totalRecords(precedingResult.getTotalRecords() + succeedingResult.getTotalRecords())
       .prev(prev)
       .next(next)
-      .records(records);
+      .records(browseItems);
 
   }
 

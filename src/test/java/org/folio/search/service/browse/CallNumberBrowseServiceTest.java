@@ -35,6 +35,7 @@ import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,12 @@ class CallNumberBrowseServiceTest {
     lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList(ANCHOR));
+  }
+
+  @Test
+  void name() {
+    System.out.println(CallNumberUtils.getCallNumberAsLong("11.4", 2));
+    System.out.println(CallNumberUtils.getCallNumberAsLong("", 2));
   }
 
   @Test

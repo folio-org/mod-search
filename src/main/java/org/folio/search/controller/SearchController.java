@@ -3,8 +3,6 @@ package org.folio.search.controller;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
-import org.folio.search.domain.dto.Bibframe;
-import org.folio.search.domain.dto.BibframeSearchResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
@@ -48,25 +46,5 @@ public class SearchController implements SearchApi {
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
       .totalRecords(result.getTotalRecords()));
-  }
-
-  @Override
-  public ResponseEntity<BibframeSearchResult> searchBibframe(String tenant, String query, Integer limit,
-                                                             Integer offset) {
-    var searchRequest = CqlSearchRequest.of(
-      Bibframe.class, tenant, query, limit, offset, true);
-    var result = searchService.search(searchRequest);
-    return ResponseEntity.ok(new BibframeSearchResult()
-      .searchQuery(query)
-      .content(result.getRecords())
-      .pageNumber(divPlusOneIfRemainder(offset, limit))
-      .totalPages(divPlusOneIfRemainder(result.getTotalRecords(), limit))
-      .totalRecords(result.getTotalRecords())
-    );
-  }
-
-  private int divPlusOneIfRemainder(int one, int two) {
-    var modulo = one % two;
-    return one / two + (modulo > 0 ? 1 : 0);
   }
 }

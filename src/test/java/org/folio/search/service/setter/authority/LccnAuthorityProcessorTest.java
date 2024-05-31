@@ -16,15 +16,14 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
-import org.folio.search.service.lccn.DefaultLccnNormalizer;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,15 +31,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LccnAuthorityProcessorTest {
 
+  @InjectMocks
   private LccnAuthorityProcessor lccnProcessor;
   @Mock
   private ReferenceDataService referenceDataService;
-
-  @BeforeEach
-  void setup() {
-    var lccnNormalizer = new DefaultLccnNormalizer();
-    lccnProcessor = new LccnAuthorityProcessor(referenceDataService, lccnNormalizer);
-  }
 
   @MethodSource("lccnDataProvider")
   @DisplayName("getFieldValue_parameterized")

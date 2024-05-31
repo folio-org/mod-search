@@ -8,7 +8,6 @@ public final class KafkaConstants {
   public static final String CONSORTIUM_INSTANCE_LISTENER_ID = "mod-search-consortium-instance-listener";
   public static final String CLASSIFICATION_TYPE_LISTENER_ID = "mod-search-classification-type-listener";
   public static final String LOCATION_LISTENER_ID = "mod-search-location-listener";
-  public static final String BIBFRAME_LISTENER_ID = "mod-search-bibframe-listener";
 
   private KafkaConstants() {}
 }

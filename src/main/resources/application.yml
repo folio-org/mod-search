@@ -14,7 +14,7 @@ spring:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
     uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
-    compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
+    compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:false}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
@@ -152,3 +152,10 @@ management:
   endpoint:
     loggers:
       enabled: true
+
+logging:
+  level:
+    org.apache.kafka.clients.consumer.*: warn
+    org.opensearch.client: TRACE
+    org.opensearch.client.sniffer: TRACE
+    tracer: TRACE

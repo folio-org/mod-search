@@ -47,18 +47,12 @@ public class CallNumberUtils {
     var callNumberComponents = item.getEffectiveCallNumberComponents();
     if (callNumberComponents != null && isNotBlank(callNumberComponents.getCallNumber())) {
       var fullCallNumber = Stream.of(callNumberComponents.getCallNumber(), item.getVolume(), item.getEnumeration(),
-            item.getChronology(), item.getCopyNumber())
+            item.getChronology(), item.getCopyNumber(), callNumberComponents.getSuffix())
           .filter(StringUtils::isNotBlank)
           .map(StringUtils::trim)
           .collect(joining(" "));
-      Optional<String> shelfKey = getShelfKeyFromCallNumber(fullCallNumber);
-      String suffixValue = callNumberComponents.getSuffix();
 
-      String nonNullableSuffixValue = StringUtils.isBlank(suffixValue) ? "" : " " + suffixValue.toUpperCase(ROOT);
-
-      return shelfKey
-        .map(shelfKeyValue -> shelfKeyValue + nonNullableSuffixValue)
-        .orElse(nonNullableSuffixValue);
+      return getShelfKeyFromCallNumber(fullCallNumber).orElse(null);
     }
 
     return null;

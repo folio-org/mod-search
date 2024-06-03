@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
@@ -31,6 +32,9 @@ import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
+
+  static final String WRONG_SIZE_MSG =
+    "size must be between 0 and 1024";
 
   @BeforeAll
   static void prepare() {
@@ -143,6 +147,23 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("x-okapi-tenant")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
+  }
+
+  @Test
+  void tryGetConsortiumBatchItems_returns400_whenMoreIdsThanLimit() throws Exception {
+    var request = new BatchIdsDto()
+      .ids(
+        Stream.iterate(0, i -> i < 1025, i -> ++i)
+          .map(i -> UUID.randomUUID())
+          .toList()
+      );
+
+    tryPost(consortiumBatchItemsSearchPath(), request)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is(WRONG_SIZE_MSG)))
+      .andExpect(jsonPath("$.errors[0].type", is("MethodArgumentNotValidException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("ids")));
   }
 
   private ConsortiumItem[] getExpectedItems() {

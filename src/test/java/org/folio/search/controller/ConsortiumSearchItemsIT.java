@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   static final String WRONG_SIZE_MSG =
-    "size must be between 0 and 1024";
+    "size must be between 0 and 1000";
 
   @BeforeAll
   static void prepare() {
@@ -153,7 +153,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
   void tryGetConsortiumBatchItems_returns400_whenMoreIdsThanLimit() throws Exception {
     var request = new BatchIdsDto()
       .ids(
-        Stream.iterate(0, i -> i < 1025, i -> ++i)
+        Stream.iterate(0, i -> i < 1001, i -> ++i)
           .map(i -> UUID.randomUUID())
           .toList()
       );

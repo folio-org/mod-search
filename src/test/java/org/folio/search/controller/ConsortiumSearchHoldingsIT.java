@@ -147,7 +147,7 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
   void tryGetConsortiumBatchHoldings_returns400_whenMoreIdsThanLimit() throws Exception {
     var request = new BatchIdsDto()
       .ids(
-        Stream.iterate(0, i -> i < 1025, i -> ++i)
+        Stream.iterate(0, i -> i < 1001, i -> ++i)
           .map(i -> UUID.randomUUID())
           .toList()
       );

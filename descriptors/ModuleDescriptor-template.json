@@ -62,6 +62,21 @@
         },
         {
           "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/inventory/classifications/reindex",
+          "permissionsRequired": [
+            "search.index.inventory.reindex.post"
+          ],
+          "modulePermissions": [
+            "inventory-storage.instance.reindex.post",
+            "authority-storage.authority.reindex.post",
+            "user-tenants.collection.get",
+            "inventory-storage.locations.collection.get"
+          ]
+        },
+        {
+          "methods": [
             "PUT"
           ],
           "pathPattern": "/search/index/settings",

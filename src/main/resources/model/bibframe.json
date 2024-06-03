@@ -1,7 +1,6 @@
 {
   "name": "bibframe",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Bibframe",
-  "reindexSupported": true,
   "languageSourcePaths": [ "$.languages" ],
   "fieldTypes": {
     "suppress": {

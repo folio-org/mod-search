@@ -2,19 +2,6 @@
   "name": "bibframe",
   "eventBodyJavaClass": "org.folio.search.domain.dto.Bibframe",
   "languageSourcePaths": [ "$.languages" ],
-  "fieldTypes": {
-    "suppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool",
-      "default": false
-    },
-    "visibleSuppress": {
-      "searchTypes": [ "facet", "filter" ],
-      "index": "bool",
-      "default": false,
-      "showInResponse": [ "search" ]
-    }
-  },
   "fields": {
     "id": {
       "index": "whitespace"

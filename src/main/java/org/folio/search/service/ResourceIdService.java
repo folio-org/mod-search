@@ -66,6 +66,13 @@ public class ResourceIdService {
     log.debug("streamIdsFromDatabaseAsJson:: by [jobId: {}]", jobId);
 
     var job = jobRepository.getReferenceById(jobId);
+    log.info("****** [streamIdsFromDatabaseAsJson]:: jobRepository.getReferenceById(jobId) [jobId: {}]", jobId);
+    log.info("****** [streamIdsFromDatabaseAsJson]:: job [id: {}]", job.getId());
+    log.info("****** [streamIdsFromDatabaseAsJson]:: job [query: {}]", job.getQuery());
+    log.info("****** [streamIdsFromDatabaseAsJson]:: job [status: {}]", job.getStatus());
+    log.info("****** [streamIdsFromDatabaseAsJson]:: job [EntityType: {}]", job.getEntityType());
+    log.info("****** [streamIdsFromDatabaseAsJson]:: job [TempTableName: {}]", job.getTemporaryTableName());
+
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
         format("Completed async job with query=[%s] was not found.", job.getQuery()));

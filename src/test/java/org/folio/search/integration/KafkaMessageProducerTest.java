@@ -1,7 +1,12 @@
 package org.folio.search.integration;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+import static org.apache.logging.log4j.util.Strings.toRootLowerCase;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -13,12 +18,14 @@ import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
@@ -27,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,6 +45,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageProducerTest {
+
+  private static final ArgumentCaptor<ProducerRecord> CAPTOR = ArgumentCaptor.forClass(ProducerRecord.class);
 
   @InjectMocks
   private KafkaMessageProducer producer;
@@ -104,6 +114,34 @@ class KafkaMessageProducerTest {
   }
 
   @Test
+  void shouldSendDeleteOldSubjectEventOfMemberTenant_whenInstanceUpdatedWithSharing() {
+    var instanceId = randomId();
+    var name = "Medicine";
+    var oldContributorObject = subjectObject(name);
+    var newContributorObject = subjectObject(name);
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+      instanceObjectWithSubjects(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO"),
+      instanceObjectWithSubjects(instanceId, oldContributorObject, "FOLIO")
+    );
+    final var expectedOld = mapOf(
+      "authorityId", null,
+      "id", sha1Hex(toRootLowerCase(name + "|null")),
+      "value", name,
+      "instanceId", instanceId,
+      "shared", false
+    );
+
+    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate).send(CAPTOR.capture());
+    var record = (ResourceEvent) CAPTOR.getValue().value();
+    assertThat(List.of(record))
+      .extracting(ResourceEvent::getType, ResourceEvent::getNew)
+      .containsExactlyInAnyOrder(tuple(DELETE, null));
+    assertThat(record.getOld()).isEqualTo(expectedOld);
+  }
+
+  @Test
   void shouldSendTwoContributorEvents_whenContributorChanged() {
     var instanceId = randomId();
     var typeId = randomId();
@@ -113,9 +151,53 @@ class KafkaMessageProducerTest {
       instanceObjectWithContributors(instanceId, newContributorObject),
       instanceObjectWithContributors(instanceId, oldContributorObject)
     );
+
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate, times(2)).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
+  }
+
+  @Test
+  void shouldSendDeleteOldContributorEventOfMemberTenant_whenInstanceUpdatedWithSharing() {
+    var instanceId = randomId();
+    var typeId = randomId();
+    var oldContributorObject = contributorObject(typeId, "Skywalker, Luke");
+    var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+      instanceObjectWithContributors(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO"),
+      instanceObjectWithContributors(instanceId, oldContributorObject, "FOLIO")
+    );
+    final var expectedOld = ContributorResourceEvent.builder()
+      .id(sha1Hex(typeId + "|" + toRootLowerCase(oldContributorObject.get("name") + "|null")))
+      .typeId(typeId)
+      .nameTypeId(typeId)
+      .shared(false)
+      .name(oldContributorObject.get("name"))
+      .instanceId(instanceId)
+      .build();
+
+    producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
+
+    verify(kafkaTemplate).send(CAPTOR.capture());
+    var record = (ResourceEvent) CAPTOR.getValue().value();
+    assertThat(List.of(record))
+      .extracting(ResourceEvent::getType, ResourceEvent::getNew)
+      .containsExactlyInAnyOrder(tuple(DELETE, null));
+    assertThat((ContributorResourceEvent) record.getOld()).isEqualTo(expectedOld);
+  }
+
+  @Test
+  void shouldSendNoContributorEvents_whenInstanceWithConsortiumSourceCreated() {
+    var instanceId = randomId();
+    var typeId = randomId();
+    var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
+    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE,
+      instanceObjectWithContributors(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO")
+    );
+
+    producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
+
+    verifyNoInteractions(kafkaTemplate);
   }
 
   @Test
@@ -176,13 +258,25 @@ class KafkaMessageProducerTest {
   }
 
   @NotNull
+  private Map<String, String> instanceObjectWithContributors(String id,
+                                                             Map<String, String> contributorObject,
+                                                             String source) {
+    return mapOf(ID_FIELD, id, "contributors", List.of(contributorObject), SOURCE_FIELD, source);
+  }
+
+  @NotNull
   private Map<String, String> instanceObjectWithSubjects(String id, Map<String, String> subjectObject) {
     return mapOf(ID_FIELD, id, "subjects", List.of(subjectObject), SOURCE_FIELD, "FOLIO");
   }
 
   @NotNull
+  private Map<String, String> instanceObjectWithSubjects(String id, Map<String, String> subjectObject, String source) {
+    return mapOf(ID_FIELD, id, "subjects", List.of(subjectObject), SOURCE_FIELD, source);
+  }
+
+  @NotNull
   private Map<String, String> contributorObject(String typeId, String name) {
-    return mapOf("contributorNameTypeId", typeId, "name", name);
+    return mapOf("contributorNameTypeId", typeId, "name", name, "contributorTypeId", typeId);
   }
 
   @NotNull

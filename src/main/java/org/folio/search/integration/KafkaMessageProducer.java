@@ -76,13 +76,21 @@ public class KafkaMessageProducer {
   }
 
   private List<ProducerRecord<String, ResourceEvent>> getSubjectsEvents(ResourceEvent event) {
-    if (StringUtils.startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+    var tenantId = event.getTenant();
+    var shared = isSharedResource(tenantId);
+    var oldSubjects = extractSubjects(getOldAsMap(event), shared);
+    var newSubjects = extractSubjects(getNewAsMap(event), shared);
+
+    if (isUpdateEventForResourceSharing(event)) {
+      if (Boolean.TRUE.equals(shared)) {
+        log.warn("Update event for instance sharing is supposed to be for member tenant,"
+          + " but received for central: {}", tenantId);
+      }
+      return prepareSubjectsEvents(oldSubjects, List.of(), tenantId, DELETE);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
       return emptyList();
     }
 
-    var tenantId = event.getTenant();
-    var oldSubjects = extractSubjects(getOldAsMap(event), tenantId);
-    var newSubjects = extractSubjects(getNewAsMap(event), tenantId);
     List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
     producerRecords.addAll(prepareSubjectsEvents(newSubjects, oldSubjects, tenantId, CREATE));
     producerRecords.addAll(prepareSubjectsEvents(oldSubjects, newSubjects, tenantId, DELETE));
@@ -91,14 +99,14 @@ public class KafkaMessageProducer {
     return producerRecords;
   }
 
-  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap, String tenantId) {
+  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap, boolean shared) {
     var subjectsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
     var subjectResourceEvents = jsonConverter.convert(subjectsObject, TYPE_REFERENCE_SUBJECT);
     subjectResourceEvents.forEach(
       subjectResourceEvent -> {
         subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
         subjectResourceEvent.setValue(StringUtils.trim(subjectResourceEvent.getValue()));
-        subjectResourceEvent.setShared(isSharedResource(tenantId));
+        subjectResourceEvent.setShared(shared);
       });
     subjectResourceEvents.removeIf(subjectResourceEvent -> StringUtils.isBlank(subjectResourceEvent.getInstanceId()));
     return subjectResourceEvents;
@@ -134,26 +142,24 @@ public class KafkaMessageProducer {
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {
     var tenantId = event.getTenant();
     var instanceId = getResourceEventId(event);
-    if (StringUtils.isBlank(instanceId)) {
-      return emptyList();
-    }
-
     var shared = isSharedResource(tenantId);
-    if (isUpdateEventForResourceSharing(event)) {
-      var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, false);
-      if (Boolean.TRUE.equals(shared)) {
-        log.warn("Update event for instance sharing is supposed to be for member tenant,"
-          + " but received for central: {}", tenantId);
-      }
 
-      return prepareContributorEvents(new HashSet<>(oldContributors), DELETE, tenantId);
-
-    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+    if (StringUtils.isBlank(instanceId)) {
       return emptyList();
     }
 
     var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, shared);
     var newContributors = getContributorEvents(getNewAsMap(event), instanceId, shared);
+
+    if (isUpdateEventForResourceSharing(event)) {
+      if (Boolean.TRUE.equals(shared)) {
+        log.warn("Update event for instance sharing is supposed to be for member tenant,"
+          + " but received for central: {}", tenantId);
+      }
+      return prepareContributorEvents(new HashSet<>(oldContributors), DELETE, tenantId);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+      return emptyList();
+    }
 
     List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
     producerRecords.addAll(prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId));

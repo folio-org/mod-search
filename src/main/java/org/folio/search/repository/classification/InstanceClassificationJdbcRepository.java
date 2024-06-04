@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.PreparedStatement;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class InstanceClassificationJdbcRepository implements InstanceClassificat
     WHERE classification_type_id = ? AND classification_number = ? AND tenant_id = ? AND instance_id = ?;
     """;
   private static final int BATCH_SIZE = 100;
-  private static final TypeReference<Set<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
+  private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;

@@ -1,5 +1,9 @@
 package org.folio.search.service;
 
+import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
+
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -15,11 +19,6 @@ import org.folio.search.repository.classification.InstanceClassificationReposito
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
-import java.util.UUID;
-
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 
 @Log4j2
 @Service
@@ -46,7 +45,7 @@ public class ClassificationService {
     }
   }
 
-  public void processChunk(ResourceEvent value) {
+  public ResourceEvent processChunk(ResourceEvent value) {
     var chunkEvent = jsonConverter.convert(value.getNew(), ClassificationChunkEvent.class);
     var list = instanceClassificationRepository.fetchAggregatedChunk(chunkEvent.limit(), chunkEvent.offset())
       .stream()
@@ -54,6 +53,7 @@ public class ClassificationService {
       .toList();
     var converted = multiTenantSearchDocumentConverter.convert(list);
     resourceService.indexSearchDocuments(converted);
+    return value;
   }
 
   private ResourceEvent getResourceEvent(String tenant, String number, String typeId,

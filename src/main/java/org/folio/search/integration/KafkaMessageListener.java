@@ -1,7 +1,26 @@
 package org.folio.search.integration;
 
+import static org.apache.commons.collections4.MapUtils.getString;
+import static org.apache.commons.lang3.RegExUtils.replaceAll;
+import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
+import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.domain.dto.ResourceEventType.DELETE;
+import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
+import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -18,19 +37,6 @@ import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static org.apache.commons.collections4.MapUtils.getString;
-import static org.apache.commons.lang3.RegExUtils.replaceAll;
-import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
-import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
-import static org.folio.search.domain.dto.ResourceEventType.*;
-import static org.folio.search.utils.SearchConverterUtils.*;
-import static org.folio.search.utils.SearchUtils.*;
 
 /**
  * A Spring component for consuming events from messaging system.
@@ -199,10 +205,11 @@ public class KafkaMessageListener {
     groupId = "#{folioKafkaProperties.listener['classification'].groupId}",
     topicPattern = "#{folioKafkaProperties.listener['classification'].topicPattern}")
   public void handleClassificationChunk(String rawEvent) {
-    ResourceEvent resourceEvent = null;
+    ResourceEvent resourceEvent;
     try {
       resourceEvent = jacksonObjectMapper.readValue(rawEvent, ResourceEvent.class);
-      classificationService.processChunk(resourceEvent);
+      executionService.executeSystemUserScoped(resourceEvent.getTenant(),
+        () -> classificationService.processChunk(resourceEvent));
     } catch (JsonProcessingException e) {
       log.error("cannot parse the event: {}", rawEvent);
     }

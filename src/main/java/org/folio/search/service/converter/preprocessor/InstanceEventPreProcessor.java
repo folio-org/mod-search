@@ -3,7 +3,9 @@ package org.folio.search.service.converter.preprocessor;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -56,18 +59,53 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     if (log.isDebugEnabled()) {
       log.debug("preProcess::Starting instance event pre-processing [{}]", event);
     }
-    if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+
+    List<ResourceEvent> events;
+
+    if (isUpdateForInstanceSharing(event)) {
+      events = prepareClassificationEventsOnInstanceSharing(event);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
       log.info("preProcess::Finished instance event pre-processing. No additional events created for shadow instance.");
       return List.of(event);
+    } else {
+      events = prepareClassificationEvents(event);
     }
-
-    var events = prepareClassificationEvents(event);
 
     log.info("preProcess::Finished instance event pre-processing");
     if (log.isDebugEnabled()) {
       log.debug("preProcess::Finished instance event pre-processing. Events after: [{}], ", events);
     }
     return events;
+  }
+
+  private boolean isUpdateForInstanceSharing(ResourceEvent event) {
+    var newSource = getResourceSource(getNewAsMap(event));
+    return event.getType() == UPDATE
+      && startsWith(newSource, SOURCE_CONSORTIUM_PREFIX)
+      && Objects.equals(getResourceSource(getOldAsMap(event)), removeStart(newSource, SOURCE_CONSORTIUM_PREFIX));
+  }
+
+  private List<ResourceEvent> prepareClassificationEventsOnInstanceSharing(ResourceEvent event) {
+    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+      return emptyList();
+    }
+
+    var classifications = getClassifications(getOldAsMap(event));
+
+    if (!classifications.equals(getClassifications(getNewAsMap(event)))) {
+      log.warn("Classifications are different on Update for instance sharing");
+      return emptyList();
+    }
+
+    var tenant = event.getTenant();
+    var instanceId = getResourceEventId(event);
+    var shared = isShared(tenant);
+
+    var entitiesForDelete = toEntities(classifications, instanceId, tenant, shared);
+    instanceClassificationRepository.deleteAll(entitiesForDelete);
+    var aggregatedEntities = instanceClassificationRepository.fetchAggregatedByClassifications(entitiesForDelete);
+
+    return getResourceEventsForUpdate(entitiesForDelete, aggregatedEntities, tenant);
   }
 
   private List<ResourceEvent> prepareClassificationEvents(ResourceEvent event) {
@@ -125,6 +163,30 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     return notFoundEntitiesForDelete.stream()
       .map(classification -> toResourceDeleteEvent(classification, tenant))
+      .toList();
+  }
+
+  private List<ResourceEvent> getResourceEventsForUpdate(List<InstanceClassificationEntity> entitiesForDelete,
+                                                         List<InstanceClassificationEntityAgg> aggregatedEntities,
+                                                         String tenant) {
+    for (var classification : entitiesForDelete) {
+      for (InstanceClassificationEntityAgg agg : aggregatedEntities) {
+        if (agg.number().equals(classification.number()) && Objects.equals(agg.typeId(), classification.typeId())) {
+          var subResource = InstanceSubResource.builder()
+            .instanceId(classification.instanceId())
+            .shared(classification.shared())
+            .tenantId(tenant)
+            .typeId(classification.typeId())
+            .build();
+          agg.instances().remove(subResource);
+          break;
+        }
+      }
+    }
+
+    return aggregatedEntities.stream()
+      .map(classification ->
+        getResourceEvent(tenant, classification.number(), classification.typeId(), classification.instances(), UPDATE))
       .toList();
   }
 

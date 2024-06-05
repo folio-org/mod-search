@@ -88,7 +88,6 @@ public class SearchConsortiumController implements SearchConsortiumApi {
                                                                              Integer offset,
                                                                              String sortBy,
                                                                              SortOrder sortOrder) {
-    verifyAndGetTenant(tenantHeader);
     var result = locationService.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new

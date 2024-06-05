@@ -17,6 +17,7 @@ public class ConsortiumLocationService {
   public static final String ID = "id";
   public static final String TENANT_ID = "tenantId";
   private final ConsortiumLocationRepository repository;
+  private final ConsortiumTenantExecutor executor;
 
   public SearchResult<ConsortiumLocation> fetchLocations(String tenantHeader,
                                                          String tenantId,
@@ -29,7 +30,9 @@ public class ConsortiumLocationService {
       tenantId,
       sortBy);
     validateSortByValue(sortBy);
-    return repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    return executor.execute(
+      tenantHeader,
+      () -> repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder));
   }
 
   private void validateSortByValue(String sortBy) {

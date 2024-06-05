@@ -84,7 +84,7 @@ public class KafkaMessageProducer {
     if (isUpdateEventForResourceSharing(event)) {
       if (Boolean.TRUE.equals(shared)) {
         log.warn("Update event for instance sharing is supposed to be for member tenant,"
-          + " but received for central: {}", tenantId);
+          + " but received for central tenant: {}, eventId: {}", tenantId, event.getId());
       }
       return prepareSubjectsEvents(oldSubjects, List.of(), tenantId, DELETE);
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {

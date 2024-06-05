@@ -38,6 +38,7 @@ public class SearchUtils {
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
   public static final String LOCATION_RESOURCE = "location";
   public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
+  public static final String BIBFRAME_RESOURCE = "bibframe";
 
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";
@@ -326,20 +327,6 @@ public class SearchUtils {
       .filter(Objects::nonNull)
       .mapToInt(List::size)
       .sum();
-  }
-
-  /**
-   * Normalizes LCCN value.
-   *
-   * @param value LCCN value
-   * @return normalized LCCN value
-   */
-  public static String normalizeLccn(String value) {
-    if (StringUtils.isBlank(value)) {
-      return null;
-    }
-
-    return StringUtils.deleteWhitespace(value).toLowerCase();
   }
 
   /**

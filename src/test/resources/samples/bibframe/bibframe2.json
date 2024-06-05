@@ -1,0 +1,40 @@
+{
+  "id": "999999999999",
+  "titles": [
+    {
+      "value": "titleAbc xyz",
+      "type": "Main"
+    },
+    {
+      "value": "sub",
+      "type": "Sub"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "name one",
+      "type": "Family",
+      "isCreator": true
+    },
+    {
+      "name": "name two",
+      "type": "Meeting",
+      "isCreator": false
+    },
+    {
+      "name": "name three",
+      "type": "Organization",
+      "isCreator": true
+    },
+    {
+      "name": "name four",
+      "type": "Person",
+      "isCreator": false
+    },
+    {
+      "name": "common",
+      "type": "Family",
+      "isCreator": true
+    }
+  ]
+}

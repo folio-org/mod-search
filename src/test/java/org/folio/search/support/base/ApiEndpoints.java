@@ -77,6 +77,10 @@ public class ApiEndpoints {
     return "/browse/classification-numbers/" + optionType.getValue() + "/instances";
   }
 
+  public static String bibframeSearchPath() {
+    return "/search/bibframe";
+  }
+
   public static String authorityBrowsePath() {
     return "/browse/authorities";
   }

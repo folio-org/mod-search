@@ -3,7 +3,6 @@ package org.folio.search.service.converter.preprocessor;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.CollectionUtils.subtract;
@@ -11,6 +10,7 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
@@ -62,7 +62,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     List<ResourceEvent> events;
 
-    if (isUpdateForInstanceSharing(event)) {
+    if (isUpdateEventForResourceSharing(event)) {
       events = prepareClassificationEventsOnInstanceSharing(event);
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
       log.info("preProcess::Finished instance event pre-processing. No additional events created for shadow instance.");
@@ -76,13 +76,6 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       log.debug("preProcess::Finished instance event pre-processing. Events after: [{}], ", events);
     }
     return events;
-  }
-
-  private boolean isUpdateForInstanceSharing(ResourceEvent event) {
-    var newSource = getResourceSource(getNewAsMap(event));
-    return event.getType() == UPDATE
-      && startsWith(newSource, SOURCE_CONSORTIUM_PREFIX)
-      && Objects.equals(getResourceSource(getOldAsMap(event)), removeStart(newSource, SOURCE_CONSORTIUM_PREFIX));
   }
 
   private List<ResourceEvent> prepareClassificationEventsOnInstanceSharing(ResourceEvent event) {

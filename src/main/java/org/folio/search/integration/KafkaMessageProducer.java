@@ -1,5 +1,6 @@
 package org.folio.search.integration;
 
+import static com.github.jknack.handlebars.internal.lang3.StringUtils.startsWith;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
@@ -13,12 +14,14 @@ import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +69,6 @@ public class KafkaMessageProducer {
     if (isNotEmpty(resourceEvents)) {
       resourceEvents.stream()
         .filter(Objects::nonNull)
-        .filter(instance -> !StringUtils.startsWith(getResourceSource(instance), SOURCE_CONSORTIUM_PREFIX))
         .map(toEventsFunc)
         .flatMap(List::stream)
         .forEach(kafkaTemplate::send);
@@ -75,8 +77,20 @@ public class KafkaMessageProducer {
 
   private List<ProducerRecord<String, ResourceEvent>> getSubjectsEvents(ResourceEvent event) {
     var tenantId = event.getTenant();
-    var oldSubjects = extractSubjects(getOldAsMap(event), tenantId);
-    var newSubjects = extractSubjects(getNewAsMap(event), tenantId);
+    var shared = isSharedResource(tenantId);
+    var oldSubjects = extractSubjects(getOldAsMap(event), shared);
+    var newSubjects = extractSubjects(getNewAsMap(event), shared);
+
+    if (isUpdateEventForResourceSharing(event)) {
+      if (Boolean.TRUE.equals(shared)) {
+        log.warn("Update event for instance sharing is supposed to be for member tenant,"
+          + " but received for central tenant: {}, eventId: {}", tenantId, event.getId());
+      }
+      return prepareSubjectsEvents(oldSubjects, List.of(), tenantId, DELETE);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+      return emptyList();
+    }
+
     List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
     producerRecords.addAll(prepareSubjectsEvents(newSubjects, oldSubjects, tenantId, CREATE));
     producerRecords.addAll(prepareSubjectsEvents(oldSubjects, newSubjects, tenantId, DELETE));
@@ -85,28 +99,22 @@ public class KafkaMessageProducer {
     return producerRecords;
   }
 
-  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap, String tenantId) {
+  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap, boolean shared) {
     var subjectsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
     var subjectResourceEvents = jsonConverter.convert(subjectsObject, TYPE_REFERENCE_SUBJECT);
     subjectResourceEvents.forEach(
       subjectResourceEvent -> {
         subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
         subjectResourceEvent.setValue(StringUtils.trim(subjectResourceEvent.getValue()));
-        subjectResourceEvent.setShared(isSharedResource(objectMap, tenantId));
+        subjectResourceEvent.setShared(shared);
       });
     subjectResourceEvents.removeIf(subjectResourceEvent -> StringUtils.isBlank(subjectResourceEvent.getInstanceId()));
     return subjectResourceEvents;
   }
 
-  private boolean isSharedResource(Map<String, Object> objectMap, String tenantId) {
+  private boolean isSharedResource(String tenantId) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
-    if (centralTenant.isEmpty()) {
-      return false;
-    }
-
-    var resourceSource = getResourceSource(objectMap);
-    return StringUtils.startsWith(resourceSource, SOURCE_CONSORTIUM_PREFIX)
-      || centralTenant.get().equals(tenantId);
+    return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
   }
 
   private List<ProducerRecord<String, ResourceEvent>> prepareSubjectsEvents(List<SubjectResourceEvent> subjects,
@@ -134,11 +142,24 @@ public class KafkaMessageProducer {
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {
     var tenantId = event.getTenant();
     var instanceId = getResourceEventId(event);
+    var shared = isSharedResource(tenantId);
+
     if (StringUtils.isBlank(instanceId)) {
       return emptyList();
     }
-    var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, tenantId);
-    var newContributors = getContributorEvents(getNewAsMap(event), instanceId, tenantId);
+
+    var oldContributors = getContributorEvents(getOldAsMap(event), instanceId, shared);
+    var newContributors = getContributorEvents(getNewAsMap(event), instanceId, shared);
+
+    if (isUpdateEventForResourceSharing(event)) {
+      if (Boolean.TRUE.equals(shared)) {
+        log.warn("Update event for instance sharing is supposed to be for member tenant,"
+          + " but received for central: {}", tenantId);
+      }
+      return prepareContributorEvents(new HashSet<>(oldContributors), DELETE, tenantId);
+    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
+      return emptyList();
+    }
 
     List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
     producerRecords.addAll(prepareContributorEvents(subtract(newContributors, oldContributors), CREATE, tenantId));
@@ -149,8 +170,7 @@ public class KafkaMessageProducer {
   }
 
   private List<ContributorResourceEvent> getContributorEvents(Map<String, Object> objectMap, String instanceId,
-                                                              String tenantId) {
-    var shared = isSharedResource(objectMap, tenantId);
+                                                              boolean shared) {
     return extractContributors(objectMap).stream()
       .map(contributor -> toContributorEvent(contributor, instanceId, shared))
       .toList();

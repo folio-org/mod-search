@@ -1,10 +1,13 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.function.Supplier;
 import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;
@@ -27,6 +30,8 @@ public class ConsortiumLocationServiceTest {
   public static final String NAME = "name";
   @Mock
   private ConsortiumLocationRepository repository;
+  @Mock
+  private ConsortiumTenantExecutor executor;
 
   @InjectMocks
   private  ConsortiumLocationService service;
@@ -43,6 +48,8 @@ public class ConsortiumLocationServiceTest {
 
     when(repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
+    when(executor.execute(eq(tenantId), any(Supplier.class)))
+      .thenAnswer(invocation -> ((Supplier<ConsortiumLocation>) invocation.getArgument(1)).get());
 
     var actual = service.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
 
@@ -52,6 +59,7 @@ public class ConsortiumLocationServiceTest {
     assertThat(actual.getRecords().get(0).getName()).isEqualTo(LOCATION_NAME);
     assertThat(actual.getRecords().get(0).getId()).isEqualTo(ID);
     verify(repository).fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    verify(executor).execute(eq(tenantId), any(Supplier.class));
   }
 
   @NotNull

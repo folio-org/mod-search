@@ -38,6 +38,7 @@ public class SearchUtils {
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
   public static final String LOCATION_RESOURCE = "location";
   public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
+  public static final String BIBFRAME_RESOURCE = "bibframe";
 
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";
@@ -65,6 +66,7 @@ public class SearchUtils {
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
   public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
+  public static final String SOURCE_FOLIO = "FOLIO";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
@@ -103,7 +105,6 @@ public class SearchUtils {
     """;
   //CHECKSTYLE.OFF: LineLength
 
-  private static final Pattern LCCN_NUMERIC_PART_REGEX = Pattern.compile("([1-9]\\d+)");
   private static final Pattern NON_ALPHA_NUMERIC_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 
   /**
@@ -326,20 +327,6 @@ public class SearchUtils {
       .filter(Objects::nonNull)
       .mapToInt(List::size)
       .sum();
-  }
-
-  /**
-   * Normalizes LCCN value.
-   *
-   * @param value LCCN value
-   * @return normalized LCCN value
-   */
-  public static String normalizeLccn(String value) {
-    if (StringUtils.isBlank(value)) {
-      return null;
-    }
-
-    return StringUtils.deleteWhitespace(value).toLowerCase();
   }
 
   /**

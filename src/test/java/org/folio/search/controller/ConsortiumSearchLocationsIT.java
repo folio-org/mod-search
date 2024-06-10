@@ -16,6 +16,7 @@ import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.parseResponse;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
@@ -44,11 +45,17 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
   void doGetConsortiumLocations_returns200AndRecords() {
     List<Pair<String, String>> queryParams = List.of();
 
-    var result = doGet(consortiumLocationsSearchPath(queryParams), CENTRAL_TENANT_ID);
+    var result = doGet(consortiumLocationsSearchPath(queryParams), MEMBER_TENANT_ID);
     var actual = parseResponse(result, ConsortiumLocationCollection.class);
 
-    assertThat(actual.getLocations()).hasSize(7);
-    assertThat(actual.getTotalRecords()).isEqualTo(7);
+    assertThat(actual.getLocations()).hasSize(14);
+    assertThat(actual.getTotalRecords()).isEqualTo(14);
+    assertThat(actual.getLocations())
+      .filteredOn(location -> location.getTenantId().equals(MEMBER_TENANT_ID))
+      .hasSize(7);
+    assertThat(actual.getLocations())
+      .filteredOn(location -> location.getTenantId().equals(CENTRAL_TENANT_ID))
+      .hasSize(7);
     assertThat(actual.getLocations())
       .allSatisfy(location -> {
         assertThat(location.getId()).isNotBlank();
@@ -79,12 +86,15 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
   }
 
   private static void saveLocationRecords() {
-    getLocationsSampleAsMap().stream().map(
-      location -> kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, location, null))
-      .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), event));
+    getLocationsSampleAsMap().stream()
+      .flatMap(location -> Stream.of(
+        kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, location, null),
+        kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, location, null)))
+      .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(event.getTenant()), event));
+
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
-      assertThat(totalHits).isEqualTo(7);
+      assertThat(totalHits).isEqualTo(14);
     });
   }
 }

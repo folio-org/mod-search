@@ -115,6 +115,9 @@ paths:
   /search/config/features/{featureId}:
     $ref: 'paths/search-config/search-config-features-feature-id.yaml'
 
+  /search/bibframe:
+    $ref: 'paths/search-bibframe/search-bibframe.yaml'
+
   /browse/call-numbers/instances:
     $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
 

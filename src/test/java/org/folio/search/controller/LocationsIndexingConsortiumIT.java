@@ -18,6 +18,7 @@ import static org.folio.search.utils.TestUtils.toMap;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.LocationDto;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
@@ -102,6 +103,9 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
       .primaryServicePoint(UUID.fromString(id))
       .isActive(true)
       .servicePointIds(List.of(UUID.fromString(id)))
+      .metadata(new Metadata()
+        .createdDate("2021-03-01T00:00:00.000+00:00")
+        .updatedDate("2021-03-01T00:00:00.000+00:00"))
       .build();
   }
 

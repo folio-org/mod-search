@@ -66,10 +66,15 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
         ConsortiumLocation::getPrimaryServicePoint)
       .map(Tuple::toList)
       .matches(locations -> locations.stream().allMatch(obj -> StringUtils.isNotBlank(obj.toString())));
+    assertThat(actual.getLocations())
+      .map(ConsortiumLocation::getMetadata)
+      .filteredOn(metadata -> metadata.getCreatedDate() != null && metadata.getUpdatedDate() != null)
+        .hasSize(14);
 
     assertThat(actual.getLocations())
       .filteredOn(location -> "true".equals(location.getIsActive()) && isNotEmpty(location.getServicePointIds()))
-      .hasSize(6);
+      .filteredOn(location -> List.of(MEMBER_TENANT_ID, CENTRAL_TENANT_ID).contains(location.getTenantId()))
+      .hasSize(12);
   }
 
   @Test

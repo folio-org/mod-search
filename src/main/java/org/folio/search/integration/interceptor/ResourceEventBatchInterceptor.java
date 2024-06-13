@@ -22,7 +22,8 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
     "search.instance-contributor", SearchUtils.CONTRIBUTOR_RESOURCE,
     "search.instance-subject", SearchUtils.INSTANCE_SUBJECT_RESOURCE,
     "inventory.classification-type", SearchUtils.CLASSIFICATION_TYPE_RESOURCE,
-    "inventory.location", SearchUtils.LOCATION_RESOURCE
+    "inventory.location", SearchUtils.LOCATION_RESOURCE,
+    "inventory.campus", SearchUtils.CAMPUS_RESOURCE
   );
 
   @Override

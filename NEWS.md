@@ -20,6 +20,7 @@
 * Search consolidated items/holdings data in consortium ([MSEARCH-759](https://folio-org.atlassian.net/browse/MSEARCH-759))
 * Create bibframe index and process bibframe events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
 * Allow Unified List of Inventory Locations in a Consortium to be fetched by member tenants ([MSEARCH-660](https://folio-org.atlassian.net/browse/MSEARCH-660))
+* Implement Indexing of Campuses from Kafka ([MSEARCH-770](https://issues.folio.org/browse/MSEARCH-770))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

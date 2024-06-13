@@ -139,6 +139,10 @@ folio:
         concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.bibframe
         group-id: ${folio.environment}-mod-search-bibframe-group
+      campus:
+        concurrency: ${KAFKA_CAMPUS_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.campus
+        group-id: ${folio.environment}-mod-search-campus-type-group
   okapiUrl: ${okapi.url}
   logging:
     request:

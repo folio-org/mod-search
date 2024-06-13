@@ -212,6 +212,22 @@ public class KafkaMessageListener {
     indexResources(batch, resourceService::indexResources);
   }
 
+  @KafkaListener(
+    id = KafkaConstants.CAMPUS_LISTENER_ID,
+    containerFactory = "standardListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['campus'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['campus'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['campus'].topicPattern}")
+  public void handleCampusEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing campus events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .map(campus -> campus.id(getResourceEventId(campus) + "|" + campus.getTenant()))
+      .toList();
+
+    indexResources(batch, resourceService::indexResources);
+  }
+
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 

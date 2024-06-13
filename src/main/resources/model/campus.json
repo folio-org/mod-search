@@ -1,0 +1,27 @@
+{
+  "name": "campus",
+  "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.CampusDto",
+  "reindexSupported": true,
+  "fields": {
+    "id": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "tenantId": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ],
+      "isTenant": true
+    },
+    "name": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "code": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "institutionId": {
+      "index": "keyword_lowercase"
+    }
+  }
+}

@@ -168,7 +168,7 @@ class ResourceIdServiceTest {
   }
 
   @Test
-  void streamResourceIds_positive_NotSharedActiveAffiliation() throws IOException {
+  void streamResourceIds_positive_FilteredByMemberTenant() throws IOException {
     String query = "shared==\"false\"";
     CqlResourceIdsRequest request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, query, INSTANCE_ID_PATH);
     var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
@@ -195,13 +195,13 @@ class ResourceIdServiceTest {
       invocation.<Consumer<List<String>>>getArgument(2).accept(emptyList());
       return null;
     }).when(searchRepository).streamResourceIds(eq(request), eq(expectedSearchSource), any());
-    when(queryConverter.convertForConsortia(query, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(query, RESOURCE_NAME, CENTRAL_TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
     resourceIdService.streamResourceIdsAsJson(request, outputStream);
 
-    verify(queryConverter, times(0)).convertForConsortia(any(), any(), any());
+    verify(queryConverter, times(1)).convertForConsortia(any(), any(), any());
   }
 
   @Test

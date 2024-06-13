@@ -66,13 +66,6 @@ public class ResourceIdService {
     log.debug("streamIdsFromDatabaseAsJson:: by [jobId: {}]", jobId);
 
     var job = jobRepository.getReferenceById(jobId);
-    log.info("****** [streamIdsFromDatabaseAsJson]:: jobRepository.getReferenceById(jobId) [jobId: {}]", jobId);
-    log.info("****** [streamIdsFromDatabaseAsJson]:: job [id: {}]", job.getId());
-    log.info("****** [streamIdsFromDatabaseAsJson]:: job [query: {}]", job.getQuery());
-    log.info("****** [streamIdsFromDatabaseAsJson]:: job [status: {}]", job.getStatus());
-    log.info("****** [streamIdsFromDatabaseAsJson]:: job [EntityType: {}]", job.getEntityType());
-    log.info("****** [streamIdsFromDatabaseAsJson]:: job [TempTableName: {}]", job.getTemporaryTableName());
-
     if (!job.getStatus().equals(StreamJobStatus.COMPLETED)) {
       throw new SearchServiceException(
         format("Completed async job with query=[%s] was not found.", job.getQuery()));
@@ -114,7 +107,6 @@ public class ResourceIdService {
       idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
-
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}, msg: {}", job.getId(), e.getMessage());
       idsTemporaryRepository.dropTableForIds(tableName);
@@ -147,7 +139,8 @@ public class ResourceIdService {
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
     log.info("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    var searchSource = queryConverter.convertForConsortia(request.getQuery(), request.getResource())
+    var searchSource = queryConverter
+      .convertForConsortia(request.getQuery(), request.getResource(), request.getTenantId())
       .size(streamIdsProperties.getScrollQuerySize())
       .fetchSource(new String[] {request.getSourceFieldPath()}, null)
       .sort(fieldSort("_doc"));

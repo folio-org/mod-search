@@ -42,6 +42,10 @@ public class ConsortiumSearchHelper {
 
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource) {
     var contextTenantId = folioExecutionContext.getTenantId();
+    return filterQueryForActiveAffiliation(query, resource, contextTenantId);
+  }
+
+  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource, String contextTenantId) {
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return query;

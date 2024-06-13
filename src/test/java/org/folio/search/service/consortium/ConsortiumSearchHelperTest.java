@@ -73,6 +73,22 @@ class ConsortiumSearchHelperTest {
   }
 
   @Test
+  void filterQueryForNotSharedActiveAffiliation_positive_NotSharedNotConsortiumTenant() {
+    var query = matchAllQuery();
+    var expected = boolQuery()
+      .minimumShouldMatch(1)
+      .should(termQuery(TENANT_ID_FIELD, TENANT_ID))
+      .should(termQuery(SHARED_FIELD, false));
+
+    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+
+    var actual = consortiumSearchHelper.filterQueryForNotSharedActiveAffiliation(query, TENANT_ID,
+      INSTANCE_SUBJECT_RESOURCE);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
   void filterQueryForActiveAffiliation_positive_basicConsortiumCentralTenant() {
     var query = matchAllQuery();
     var expected = boolQuery()

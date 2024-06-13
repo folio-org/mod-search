@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -13,6 +14,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
@@ -162,6 +165,43 @@ class ResourceIdServiceTest {
 
     var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
     assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
+  }
+
+  @Test
+  void streamResourceIds_positive_NotSharedActiveAffiliation() throws IOException {
+    String query = "shared==\"false\"";
+    CqlResourceIdsRequest request = CqlResourceIdsRequest.of(RESOURCE_NAME, TENANT_ID, query, INSTANCE_ID_PATH);
+    var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
+    doAnswer(invocation -> {
+      invocation.<Consumer<List<String>>>getArgument(2).accept(emptyList());
+      return null;
+    }).when(searchRepository).streamResourceIds(eq(request), eq(expectedSearchSource), any());
+    when(queryConverter.convertForConsortia(query, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+
+    var outputStream = new ByteArrayOutputStream();
+    resourceIdService.streamResourceIdsAsJson(request, outputStream);
+
+    var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
+    assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
+  }
+
+  @Test
+  void streamResourceIds_negative_NotSharedActiveAffiliation() {
+    String query = "shared==\"false\"";
+    CqlResourceIdsRequest request = CqlResourceIdsRequest.of(RESOURCE_NAME, CENTRAL_TENANT_ID, query, INSTANCE_ID_PATH);
+    var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
+    doAnswer(invocation -> {
+      invocation.<Consumer<List<String>>>getArgument(2).accept(emptyList());
+      return null;
+    }).when(searchRepository).streamResourceIds(eq(request), eq(expectedSearchSource), any());
+    when(queryConverter.convertForConsortia(query, RESOURCE_NAME)).thenReturn(searchSource());
+    when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
+
+    var outputStream = new ByteArrayOutputStream();
+    resourceIdService.streamResourceIdsAsJson(request, outputStream);
+
+    verify(queryConverter, times(0)).convertForConsortia(any(), any(), any());
   }
 
   @Test

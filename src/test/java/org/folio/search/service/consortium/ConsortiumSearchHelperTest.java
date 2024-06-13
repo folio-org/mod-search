@@ -82,7 +82,7 @@ class ConsortiumSearchHelperTest {
 
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterQueryForNotSharedActiveAffiliation(query, TENANT_ID,
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID,
       INSTANCE_SUBJECT_RESOURCE);
 
     assertThat(actual).isEqualTo(expected);

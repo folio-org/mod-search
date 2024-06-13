@@ -14,8 +14,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
@@ -69,7 +67,7 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds() throws IOException {
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
@@ -83,7 +81,7 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIdsAsText() {
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
@@ -128,7 +126,7 @@ class ResourceIdServiceTest {
     mockSearchRepositoryCall(List.of(RANDOM_ID));
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
     var request = request();
@@ -145,7 +143,7 @@ class ResourceIdServiceTest {
     mockSearchRepositoryCall(List.of(RANDOM_ID));
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     when(resourceIdService.createOutputStreamWriter(outputStream)).thenReturn(writer);
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     doThrow(new IOException("Failed to write string field")).when(writer).write(RANDOM_ID + '\n');
 
     var request = request();
@@ -157,7 +155,7 @@ class ResourceIdServiceTest {
   @Test
   void streamResourceIds_positive_emptyCollectionProvided() throws IOException {
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
@@ -187,7 +185,7 @@ class ResourceIdServiceTest {
   }
 
   @Test
-  void streamResourceIds_negative_NotSharedActiveAffiliation() {
+  void streamResourceIds_negative_NotSharedActiveAffiliation() throws IOException {
     String query = "shared==\"false\"";
     CqlResourceIdsRequest request = CqlResourceIdsRequest.of(RESOURCE_NAME, CENTRAL_TENANT_ID, query, INSTANCE_ID_PATH);
     var expectedSearchSource = searchSource().size(QUERY_SIZE).sort("_doc");
@@ -201,13 +199,14 @@ class ResourceIdServiceTest {
     var outputStream = new ByteArrayOutputStream();
     resourceIdService.streamResourceIdsAsJson(request, outputStream);
 
-    verify(queryConverter, times(1)).convertForConsortia(any(), any(), any());
+    var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
+    assertThat(actual).isEqualTo(new ResourceIds().ids(emptyList()).totalRecords(0));
   }
 
   @Test
   void streamResourceIdsInTextTextType_positive_emptyCollectionProvided() {
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();

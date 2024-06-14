@@ -7,15 +7,20 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
+import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
+import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryCampusTopic;
 import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.toMap;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.io.IOException;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.locationunit.CampusDto;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
@@ -24,7 +29,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.index.query.QueryBuilders;
 
+@Log4j2
 @IntegrationTest
 class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
@@ -61,6 +70,25 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), deleteEvent);
 
     awaitAssertCampusCount(0);
+  }
+
+  @Test
+  void shouldIndexAndUpdateCampus() {
+    var campusId = randomId();
+    var campus = CampusDto.builder().id(campusId)
+      .name("name")
+      .code("code")
+      .build();
+    var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createEvent);
+
+    awaitAssertCampusCount(1);
+
+    var campusUpdated = campus.withName("nameUpdated");
+    var updateEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, UPDATE, toMap(campusUpdated), toMap(campus));
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), updateEvent);
+
+    awaitAssertCampusCountAfterUpdate(1, campusUpdated);
   }
 
   @Test
@@ -108,4 +136,19 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     });
   }
 
+  public static void awaitAssertCampusCountAfterUpdate(int expected, CampusDto campusUpdated) {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
+      var idQuery = QueryBuilders.matchQuery("id", campusUpdated.getId());
+      var nameQuery = QueryBuilders.matchQuery("name", campusUpdated.getName());
+
+      var searchRequest = new SearchRequest()
+        .source(searchSource().query(boolQuery().must(idQuery).must(nameQuery))
+          .trackTotalHits(true).from(0).size(1))
+        .indices(getIndexName(CAMPUS_RESOURCE, CENTRAL_TENANT_ID));
+      var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
+      var hitCount = searchResponse.getHits().getTotalHits().value;
+
+      assertThat(hitCount).isEqualTo(expected);
+    });
+  }
 }

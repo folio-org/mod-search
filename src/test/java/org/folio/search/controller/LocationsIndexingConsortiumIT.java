@@ -16,6 +16,9 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.toMap;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.LocationDto;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
@@ -47,11 +50,7 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldIndexAndRemoveLocation() {
-    var locationId = randomId();
-    var location = LocationDto.builder().id(locationId)
-      .name("location name")
-      .code("CODE")
-      .build();
+    var location = location();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
     kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createEvent);
     awaitAssertLocationCount(1);
@@ -63,11 +62,7 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldIndexSameLocationFromDifferentTenantsAsSeparateDocs() {
-    var locationId = randomId();
-    var location = LocationDto.builder().id(locationId)
-      .name("location name")
-      .code("CODE")
-      .build();
+    var location = location();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(location), null);
     kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createCentralEvent);
@@ -77,11 +72,7 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldRemoveAllDocumentsByTenantIdOnDeleteAllEvent() {
-    var locationId = randomId();
-    var location = LocationDto.builder().id(locationId)
-      .name("location name")
-      .code("CODE")
-      .build();
+    var location = location();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(location), null);
     kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createCentralEvent);
@@ -98,6 +89,24 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
       var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
       assertThat(totalHits).isEqualTo(expected);
     });
+  }
+
+  private LocationDto location() {
+    var id = randomId();
+    return LocationDto.builder().id(id)
+      .name("location name")
+      .code("CODE")
+      .campusId(id)
+      .institutionId(id)
+      .description("desc")
+      .discoveryDisplayName("display name")
+      .primaryServicePoint(UUID.fromString(id))
+      .isActive(true)
+      .servicePointIds(List.of(UUID.fromString(id)))
+      .metadata(new Metadata()
+        .createdDate("2021-03-01T00:00:00.000+00:00")
+        .updatedDate("2021-03-01T00:00:00.000+00:00"))
+      .build();
   }
 
 }

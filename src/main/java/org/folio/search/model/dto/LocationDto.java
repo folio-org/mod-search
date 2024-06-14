@@ -7,6 +7,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.folio.search.domain.dto.Metadata;
 
 /**
  * Describes Location object that comes from external channels.
@@ -39,5 +40,7 @@ public class LocationDto {
   private UUID primaryServicePoint;
   @JsonProperty("servicePointIds")
   private List<UUID> servicePointIds;
+  @JsonProperty("metadata")
+  private Metadata metadata;
 
 }

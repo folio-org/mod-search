@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
@@ -17,6 +18,8 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
+import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
@@ -24,6 +27,7 @@ import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 
 @IntegrationTest
 class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
@@ -57,11 +61,20 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
       .filteredOn(location -> location.getTenantId().equals(CENTRAL_TENANT_ID))
       .hasSize(7);
     assertThat(actual.getLocations())
-      .allSatisfy(location -> {
-        assertThat(location.getId()).isNotBlank();
-        assertThat(location.getName()).isNotBlank();
-        assertThat(location.getTenantId()).isNotBlank();
-      });
+      .extracting(ConsortiumLocation::getId, ConsortiumLocation::getName, ConsortiumLocation::getTenantId,
+        ConsortiumLocation::getInstitutionId, ConsortiumLocation::getCampusId, ConsortiumLocation::getLibraryId,
+        ConsortiumLocation::getPrimaryServicePoint)
+      .map(Tuple::toList)
+      .matches(locations -> locations.stream().allMatch(obj -> StringUtils.isNotBlank(obj.toString())));
+    assertThat(actual.getLocations())
+      .map(ConsortiumLocation::getMetadata)
+      .filteredOn(metadata -> metadata.getCreatedDate() != null && metadata.getUpdatedDate() != null)
+        .hasSize(14);
+
+    assertThat(actual.getLocations())
+      .filteredOn(location -> "true".equals(location.getIsActive()) && isNotEmpty(location.getServicePointIds()))
+      .filteredOn(location -> List.of(MEMBER_TENANT_ID, CENTRAL_TENANT_ID).contains(location.getTenantId()))
+      .hasSize(12);
   }
 
   @Test

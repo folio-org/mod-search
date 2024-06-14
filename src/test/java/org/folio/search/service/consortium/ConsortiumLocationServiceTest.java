@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.SortOrder;
@@ -24,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class ConsortiumLocationServiceTest {
 
-  public static final String ID = "id";
+  public static final String ID = UUID.randomUUID().toString();
   public static final String LOCATION_NAME = "location name";
   public static final String CONSORTIUM_TENANT = "consortium";
   public static final String NAME = "name";
@@ -53,21 +54,23 @@ public class ConsortiumLocationServiceTest {
 
     var actual = service.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
 
-    assertThat(actual).isNotNull();
-    assertThat(actual.getRecords()).hasSize(1);
-    assertThat(actual.getRecords().get(0).getTenantId()).isEqualTo(CONSORTIUM_TENANT);
-    assertThat(actual.getRecords().get(0).getName()).isEqualTo(LOCATION_NAME);
-    assertThat(actual.getRecords().get(0).getId()).isEqualTo(ID);
+    assertThat(actual).isEqualTo(searchResult);
     verify(repository).fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
     verify(executor).execute(eq(tenantId), any(Supplier.class));
   }
 
   @NotNull
   private static SearchResult<ConsortiumLocation> prepareSearchResult() {
-    var location = new ConsortiumLocation();
-    location.setId(ID);
-    location.setName(LOCATION_NAME);
-    location.setTenantId(CONSORTIUM_TENANT);
+    var location = new ConsortiumLocation()
+      .id(ID)
+      .name(LOCATION_NAME)
+      .tenantId(CONSORTIUM_TENANT)
+      .description("desc")
+      .discoveryDisplayName("display-name")
+      .campusId(ID)
+      .libraryId(ID)
+      .institutionId(ID)
+      .servicePointIds(List.of(UUID.fromString(ID)));
 
     var searchResult = new SearchResult<ConsortiumLocation>();
     searchResult.records(List.of(location));

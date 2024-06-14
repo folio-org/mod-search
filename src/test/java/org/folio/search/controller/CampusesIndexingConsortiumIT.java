@@ -20,6 +20,7 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.io.IOException;
+import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.locationunit.CampusDto;
@@ -56,11 +57,7 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldIndexAndRemoveCampus() {
-    var campusId = randomId();
-    var campus = CampusDto.builder().id(campusId)
-      .name("name")
-      .code("code")
-      .build();
+    var campus = campus();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createEvent);
 
@@ -74,11 +71,7 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldIndexAndUpdateCampus() {
-    var campusId = randomId();
-    var campus = CampusDto.builder().id(campusId)
-      .name("name")
-      .code("code")
-      .build();
+    var campus = campus();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createEvent);
 
@@ -93,12 +86,7 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldIndexSameCampusFromDifferentTenantsAsSeparateDocs() {
-    var campusId = randomId();
-    var campus = CampusDto.builder().id(campusId)
-      .name("name")
-      .code("code")
-      .build();
-
+    var campus = campus();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(campus), null);
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createCentralEvent);
@@ -109,14 +97,9 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void shouldRemoveAllDocumentsByTenantIdOnDeleteAllEvent() {
-    var campusId = randomId();
-    var campus = CampusDto.builder().id(campusId)
-      .name("name")
-      .code("code")
-      .build();
+    var campus = campus();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(campus), null);
-
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createCentralEvent);
     kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createMemberEvent);
 
@@ -126,6 +109,13 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
 
     awaitAssertCampusCount(1);
+  }
+
+  private static CampusDto campus() {
+    return CampusDto.builder().id(randomId())
+      .name("name")
+      .code("code")
+      .build();
   }
 
   public static void awaitAssertCampusCount(int expected) {
@@ -146,7 +136,7 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
           .trackTotalHits(true).from(0).size(1))
         .indices(getIndexName(CAMPUS_RESOURCE, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      var hitCount = searchResponse.getHits().getTotalHits().value;
+      var hitCount = Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
 
       assertThat(hitCount).isEqualTo(expected);
     });

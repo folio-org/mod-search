@@ -20,23 +20,62 @@
       "index": "keyword_lowercase",
       "showInResponse": [ "search" ]
     },
+    "description": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "discoveryDisplayName": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
     "isActive": {
-      "index": "bool"
+      "index": "bool",
+      "showInResponse": [ "search" ]
     },
     "institutionId": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
     },
     "campusId": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
     },
     "libraryId": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
     },
     "primaryServicePoint": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
     },
     "servicePointIds": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "createdByUserId": {
+          "index": "keyword_lowercase"
+        },
+        "createdByUsername": {
+          "index": "keyword_lowercase"
+        },
+        "updatedDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "updatedByUserId": {
+          "index": "keyword_lowercase"
+        },
+        "updatedByUsername": {
+          "index": "keyword_lowercase"
+        }
+      }
     }
   }
 }

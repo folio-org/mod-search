@@ -121,6 +121,9 @@ paths:
   /search/bibframe:
     $ref: 'paths/search-bibframe/search-bibframe.yaml'
 
+  /search/bibframe/authorities:
+    $ref: 'paths/search-bibframe/search-bibframe-authorities.yaml'
+
   /browse/call-numbers/instances:
     $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
 

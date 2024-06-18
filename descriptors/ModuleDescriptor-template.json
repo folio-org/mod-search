@@ -115,6 +115,15 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/bibframe/authorities",
+          "permissionsRequired": [
+            "search.bibframe.authority.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/{recordType}/facets",
           "permissionsRequired": [
             "search.facets.collection.get"

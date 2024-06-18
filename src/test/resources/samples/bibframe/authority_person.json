@@ -1,0 +1,11 @@
+{
+  "id": "123456654322",
+  "label": "person-label",
+  "type": "PERSON",
+  "identifiers": [
+    {
+      "value": "n 0123456789",
+      "type": "LCCN"
+    }
+  ]
+}

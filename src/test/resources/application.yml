@@ -113,6 +113,9 @@ folio:
       - name: search.bibframe
         numPartitions: 1
         replicationFactor: 1
+      - name: search.bibframe-authorities
+        numPartitions: 1
+        replicationFactor: 1
       - name: inventory.campus
         numPartitions: 1
         replicationFactor: 1
@@ -152,8 +155,8 @@ folio:
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
         group-id: ${folio.environment}-mod-search-location-type-group
       bibframe:
-        concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_BIBFRAME_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.bibframe}
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.(bibframe|bibframe-authorities)
         group-id: ${folio.environment}-mod-search-bibframe-group
   okapiUrl: ${okapi.url}
   logging:

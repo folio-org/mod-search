@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,10 +18,8 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -33,8 +30,6 @@ public class MultiTenantSearchDocumentConverter {
   private final SearchDocumentConverter searchDocumentConverter;
   private final ResourceDescriptionService resourceDescriptionService;
   private final Map<String, EventPreProcessor> eventPreProcessorBeans;
-  private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final FolioExecutionContext folioExecutionContext;
 
   /**
    * Converts {@link ResourceEvent} objects to a list with {@link SearchDocumentBody} objects.
@@ -57,19 +52,12 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> entry) {
-    var convert = (Supplier<List<SearchDocumentBody>>) () ->
-      entry.getValue().stream()
-        .flatMap(this::populateResourceEvents)
-        .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
-        .map(searchDocumentConverter::convert)
-        .flatMap(Optional::stream)
-        .toList();
-
-    if (entry.getKey().equals(folioExecutionContext.getTenantId())) {
-      return convert.get();
-    } else {
-      return consortiumTenantExecutor.execute(entry.getKey(), convert);
-    }
+    return entry.getValue().stream()
+      .flatMap(this::populateResourceEvents)
+      .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
+      .map(searchDocumentConverter::convert)
+      .flatMap(Optional::stream)
+      .toList();
   }
 
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {

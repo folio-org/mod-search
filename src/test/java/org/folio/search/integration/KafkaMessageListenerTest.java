@@ -48,9 +48,9 @@ import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.JsonConverter;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,12 +80,14 @@ class KafkaMessageListenerTest {
   @Mock
   private ConfigSynchronizationService configSynchronizationService;
   @Mock
-  private SystemUserScopedExecutionService executionService;
+  private TenantScopedExecutionService executionService;
 
   @BeforeEach
   void setUp() {
     lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
       .when(executionService).executeSystemUserScoped(any(), any());
+    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+      .when(executionService).executeTenantScoped(any(), any());
   }
 
   @Test

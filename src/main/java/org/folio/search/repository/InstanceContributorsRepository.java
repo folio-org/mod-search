@@ -100,11 +100,12 @@ public class InstanceContributorsRepository extends AbstractResourceRepository {
   }
 
   private Map<String, Object> prepareDocumentBody(Map<String, Object> payload, Set<Map<String, Object>> instances) {
-    payload.put("contributorNameTypeId", payload.remove("nameTypeId"));
-    payload.put("instances", instances);
-    payload.remove(INSTANCE_ID);
-    payload.remove(TYPE_ID);
-    return payload;
+    var newPayload = new HashMap<>(payload);
+    newPayload.put("contributorNameTypeId", newPayload.remove("nameTypeId"));
+    newPayload.put("instances", instances);
+    newPayload.remove(INSTANCE_ID);
+    newPayload.remove(TYPE_ID);
+    return newPayload;
   }
 
   private Map<String, Object> getPayload(SearchDocumentBody doc) {

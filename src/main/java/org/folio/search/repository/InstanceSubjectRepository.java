@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_UPSERT_SCRIPT_ID;
+import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
 import static org.opensearch.script.ScriptType.STORED;
 
 import java.util.EnumMap;
@@ -41,7 +42,6 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
   @Override
   public FolioIndexOperationResponse indexResources(List<SearchDocumentBody> documentBodies) {
     var bulkRequest = new BulkRequest();
-
     var docsById = documentBodies.stream().collect(groupingBy(SearchDocumentBody::getId));
     for (var entry : docsById.entrySet()) {
       var documents = entry.getValue();
@@ -103,9 +103,11 @@ public class InstanceSubjectRepository extends AbstractResourceRepository {
 
   private Map<String, Object> prepareDocumentBody(Map<String, Object> payload,
                                                   Map<IndexActionType, Set<Map<String, Object>>> instances) {
-    payload.put("instances", subtract(instances.get(INDEX), instances.get(DELETE)));
-    payload.remove(INSTANCE_ID);
-    return payload;
+    var newPayload = new HashMap<>(payload);
+    newPayload.put("instances", subtract(instances.get(INDEX), instances.get(DELETE)));
+    newPayload.remove(INSTANCE_ID);
+    newPayload.remove(SHARED_FIELD_NAME);
+    return newPayload;
   }
 
   private Map<String, Object> getPayload(SearchDocumentBody doc) {

@@ -1,10 +1,8 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -91,18 +89,6 @@ class LanguageConfigServiceDecoratorTest extends DecoratorBaseTest {
     assertThat(actual).isEqualTo(expected);
     verify(service).getAllLanguageCodes();
     verify(consortiumTenantExecutor).execute(any());
-  }
-
-  @Test
-  void getAllLanguagesForTenant() {
-    var expected = Set.of("test");
-    when(service.getAllLanguagesForTenant(TENANT_ID)).thenReturn(expected);
-
-    var actual = decorator.getAllLanguagesForTenant(TENANT_ID);
-
-    assertThat(actual).isEqualTo(expected);
-    verify(service).getAllLanguagesForTenant(TENANT_ID);
-    verifyNoInteractions(consortiumTenantExecutor);
   }
 
 }

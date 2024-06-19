@@ -1,21 +1,16 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.languageConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Callable;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ValidationException;
@@ -23,7 +18,6 @@ import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.SearchUtils;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +39,7 @@ class LanguageConfigServiceTest {
   @Mock
   private LocalSearchFieldProvider searchFieldProvider;
   @Mock
-  private SystemUserScopedExecutionService executionService;
+  private TenantScopedExecutionService executionService;
   @Mock
   private SearchConfigurationProperties searchConfigurationProperties;
 
@@ -124,13 +118,4 @@ class LanguageConfigServiceTest {
     assertThrows(ValidationException.class, () -> configService.update(UNSUPPORTED_LANGUAGE_CODE, languageConfig));
   }
 
-  @Test
-  void getAllLanguagesForTenant_positive() {
-    var entities = List.of(new LanguageConfigEntity("eng", null), new LanguageConfigEntity("kor", "nori"));
-    when(configRepository.findAll()).thenReturn(entities);
-    when(executionService.executeSystemUserScoped(eq(TENANT_ID), any()))
-      .then(inv -> inv.<Callable<Set<String>>>getArgument(1).call());
-    var actual = configService.getAllLanguagesForTenant(TENANT_ID);
-    assertThat(actual, is(Set.of("eng", "kor")));
-  }
 }

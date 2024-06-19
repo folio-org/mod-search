@@ -113,6 +113,9 @@ folio:
       - name: search.bibframe
         numPartitions: 1
         replicationFactor: 1
+      - name: inventory.campus
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2
@@ -140,7 +143,7 @@ folio:
         group-id: ${folio.environment}-mod-search-classification-type-group
       location:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.location
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus)
         group-id: ${folio.environment}-mod-search-location-type-group
       bibframe:
         concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}

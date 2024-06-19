@@ -3,6 +3,7 @@ package org.folio.search.service.consortium;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -37,8 +38,10 @@ import org.opensearch.index.query.TermQueryBuilder;
 class ConsortiumSearchHelperTest {
 
   private static final String SUBRESOURCE_PREFIX = "instances.";
-  private static final String TENANT_ID_FIELD = SUBRESOURCE_PREFIX + "tenantId";
-  private static final String SHARED_FIELD = SUBRESOURCE_PREFIX + "shared";
+  private static final String TENANT_ID_FIELD_NAME = "tenantId";
+  private static final String TENANT_ID_FIELD = SUBRESOURCE_PREFIX + TENANT_ID_FIELD_NAME;
+  private static final String SHARED_FIELD_NAME = "shared";
+  private static final String SHARED_FIELD = SUBRESOURCE_PREFIX + SHARED_FIELD_NAME;
 
   @Mock
   private FolioExecutionContext context;
@@ -73,16 +76,30 @@ class ConsortiumSearchHelperTest {
   }
 
   @Test
-  void filterQueryActiveAffiliation_positive_filteredByMemberTenant() {
+  void filterQueryActiveAffiliation_filteredByMemberTenant() {
     var query = matchAllQuery();
     var expected = boolQuery()
       .minimumShouldMatch(1)
-      .should(termQuery(TENANT_ID_FIELD, TENANT_ID))
-      .should(termQuery(SHARED_FIELD, true));
+      .should(termQuery(TENANT_ID_FIELD_NAME, TENANT_ID))
+      .should(termQuery(SHARED_FIELD_NAME, true));
 
     when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE_RESOURCE, TENANT_ID);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void filterQueryActiveAffiliation_notFilteredByMemberTenant() {
+    var query = matchAllQuery();
+    var expected = boolQuery()
+      .minimumShouldMatch(1)
+      .should(termQuery(SHARED_FIELD_NAME, true));
+
+    when(tenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE_RESOURCE, CENTRAL_TENANT_ID);
 
     assertThat(actual).isEqualTo(expected);
   }

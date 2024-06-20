@@ -4,10 +4,12 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.SearchUtils.buildPreferenceKey;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
@@ -20,6 +22,7 @@ import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -76,6 +79,26 @@ public class SearchService {
     searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
 
     return searchResult;
+  }
+
+  public <T> SearchResult<T>  search(CqlSearchRequest<T> request, Set<String> ids) {
+    log.info("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+
+    var resource = request.getResource();
+    var requestTimeout = searchQueryConfiguration.getRequestTimeout();
+    var termsQuery = termsQuery("holdings.id", ids);
+
+    var queryBuilder = new SearchSourceBuilder()
+      .from(request.getOffset())
+      .size(request.getLimit())
+      .trackTotalHits(true)
+      .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
+    queryBuilder.query(termsQuery);
+    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource, request.getQuery());
+    var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
+
+    var searchResponse = searchRepository.search(request, queryBuilder, preference);
+    return documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
   }
 
   private <T> void searchResultPostProcessing(Class<?> resourceClass, boolean includeNumberOfTitles,

@@ -69,7 +69,7 @@ public class ConsortiumInstanceSearchService {
 
   public ConsortiumHoldingCollection fetchConsortiumBatchHoldings(CqlSearchRequest<Instance> searchRequest,
                                                                   Set<String> ids) {
-    var result = searchService.search(searchRequest);
+    var result = searchService.search(searchRequest, ids);
     var consortiumHoldings = result.getRecords().stream()
       .flatMap(instance ->
         instance.getHoldings().stream()

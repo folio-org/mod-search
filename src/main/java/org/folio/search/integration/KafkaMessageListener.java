@@ -214,7 +214,10 @@ public class KafkaMessageListener {
 
     for (var entry : batchByTenant.entrySet()) {
       folioMessageBatchProcessor.consumeBatchWithFallback(entry.getValue(), KAFKA_RETRY_TEMPLATE_NAME,
-        executionService.executeSystemUserScoped(entry.getKey(), () -> indexConsumer),
+        events -> executionService.executeSystemUserScoped(entry.getKey(), () -> {
+          indexConsumer.accept(events);
+          return null;
+        }),
         KafkaMessageListener::logFailedEvent);
     }
   }

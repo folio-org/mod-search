@@ -26,7 +26,7 @@ public class ConsortiumTenantExecutor {
     if (originalTenantId.equals(tenantId)) {
       return operation.get();
     } else {
-      return scopedExecutionService.executeTenantScoped(tenantId, operation::get);
+      return scopedExecutionService.executeSystemUserScoped(tenantId, operation::get);
     }
   }
 

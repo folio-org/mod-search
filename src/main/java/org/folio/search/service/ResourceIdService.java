@@ -107,6 +107,7 @@ public class ResourceIdService {
       idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
+
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}, msg: {}", job.getId(), e.getMessage());
       idsTemporaryRepository.dropTableForIds(tableName);

@@ -77,8 +77,12 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterQueryActiveAffiliation_filteredByMemberTenant() {
-    var query = matchAllQuery();
+    var query = boolQuery()
+      .filter(termQuery("staffSuppress", false))
+      .filter(termQuery(SHARED_FIELD_NAME, false));
     var expected = boolQuery()
+      .filter(termQuery("staffSuppress", false))
+      .filter(termQuery(SHARED_FIELD_NAME, false))
       .minimumShouldMatch(1)
       .should(termQuery(TENANT_ID_FIELD_NAME, TENANT_ID))
       .should(termQuery(SHARED_FIELD_NAME, true));
@@ -92,8 +96,12 @@ class ConsortiumSearchHelperTest {
 
   @Test
   void filterQueryActiveAffiliation_notFilteredByMemberTenant() {
-    var query = matchAllQuery();
+    var query = boolQuery()
+      .filter(termQuery("staffSuppress", false))
+      .filter(termQuery(SHARED_FIELD_NAME, false));
     var expected = boolQuery()
+      .filter(termQuery("staffSuppress", false))
+      .filter(termQuery(SHARED_FIELD_NAME, false))
       .minimumShouldMatch(1)
       .should(termQuery(SHARED_FIELD_NAME, true));
 

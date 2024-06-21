@@ -119,9 +119,9 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
-    var tenant = verifyAndGetTenant(tenantHeader);
+    //var tenant = verifyAndGetTenant(tenantHeader);
     var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
+    var searchRequest = idsCqlRequest(tenantHeader, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
 
     var result = searchService.fetchConsortiumBatchHoldings(searchRequest, holdingIds);
     return ResponseEntity.ok(result);

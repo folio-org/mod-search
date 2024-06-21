@@ -1,5 +1,6 @@
 package org.folio.search.service;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -26,16 +27,19 @@ import org.springframework.stereotype.Service;
 @Primary
 public class TenantScopedExecutionService extends SystemUserScopedExecutionService {
 
-  private final ExecutionContextBuilder contextBuilder;
+  private final FolioExecutionContext executionContext;
+  private final TenantScopedExecutionContextBuilder contextBuilder;
 
   public TenantScopedExecutionService(FolioExecutionContext executionContext,
                                       ExecutionContextBuilder contextBuilder) {
     super(executionContext, contextBuilder);
-    this.contextBuilder = contextBuilder;
+    this.executionContext = executionContext;
+    this.contextBuilder = (TenantScopedExecutionContextBuilder) contextBuilder;
   }
 
   public <T> T executeTenantScoped(String tenantId, Callable<T> action) {
-    try (var fex = new FolioExecutionContextSetter(contextBuilder.buildContext(tenantId))) {
+    Map<String, Collection<String>> headers = executionContext == null ? emptyMap() : executionContext.getAllHeaders();
+    try (var fex = new FolioExecutionContextSetter(contextBuilder.buildContext(tenantId, headers))) {
       log.info("Executing tenant scoped action [tenant={}]", tenantId);
       return action.call();
     } catch (Exception e) {
@@ -48,42 +52,21 @@ public class TenantScopedExecutionService extends SystemUserScopedExecutionServi
   @Component
   protected static class TenantScopedExecutionContextBuilder extends ExecutionContextBuilder {
 
-    private final FolioExecutionContext executionContext;
+    private final FolioModuleMetadata moduleMetadata;
 
     TenantScopedExecutionContextBuilder(FolioEnvironment folioEnvironment,
-                                        FolioModuleMetadata moduleMetadata,
-                                        FolioExecutionContext executionContext) {
+                                        FolioModuleMetadata moduleMetadata) {
       super(folioEnvironment, moduleMetadata);
-      this.executionContext = executionContext;
+      this.moduleMetadata = moduleMetadata;
     }
 
-    @Override
-    public FolioExecutionContext buildContext(String tenantId) {
-      return buildContextWithTenant(tenantId);
-    }
-
-    private FolioExecutionContext buildContextWithTenant(String tenantId) {
-      Map<String, Collection<String>> headers = new HashMap<>();
+    public FolioExecutionContext buildContext(String tenantId, Map<String, Collection<String>> headers) {
+      Map<String, Collection<String>> newHeaders = new HashMap<>(headers);
       if (isNotBlank(tenantId)) {
-        headers.put(XOkapiHeaders.TENANT, singleton(tenantId));
+        newHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));
       }
-      var okapiUrl = executionContext.getOkapiUrl();
-      if (isNotBlank(okapiUrl)) {
-        headers.put(XOkapiHeaders.URL, singleton(okapiUrl));
-      }
-      var token = executionContext.getToken();
-      if (isNotBlank(token)) {
-        headers.put(XOkapiHeaders.TOKEN, singleton(token));
-      }
-      var userId = executionContext.getUserId() == null ? "" : executionContext.getUserId().toString();
-      if (isNotBlank(userId)) {
-        headers.put(XOkapiHeaders.USER_ID, singleton(userId));
-      }
-      var requestId = executionContext.getRequestId();
-      if (isNotBlank(requestId)) {
-        headers.put(XOkapiHeaders.REQUEST_ID, singleton(requestId));
-      }
-      return new DefaultFolioExecutionContext(executionContext.getFolioModuleMetadata(), headers);
+      return new DefaultFolioExecutionContext(moduleMetadata, newHeaders);
     }
+
   }
 }

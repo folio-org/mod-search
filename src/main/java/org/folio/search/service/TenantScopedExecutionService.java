@@ -39,8 +39,6 @@ public class TenantScopedExecutionService extends SystemUserScopedExecutionServi
 
   public <T> T executeTenantScoped(String tenantId, Callable<T> action) {
     Map<String, Collection<String>> headers = executionContext == null ? emptyMap() : executionContext.getAllHeaders();
-    log.info("Context: {}", executionContext);
-    log.info("Headers: {}", headers);
     try (var fex = new FolioExecutionContextSetter(contextBuilder.buildContext(tenantId, headers))) {
       log.info("Executing tenant scoped action [tenant={}]", tenantId);
       return action.call();
@@ -63,7 +61,6 @@ public class TenantScopedExecutionService extends SystemUserScopedExecutionServi
     }
 
     public FolioExecutionContext buildContext(String tenantId, Map<String, Collection<String>> headers) {
-      log.info("Tenant scoped execution context [tenant={}, headers={}]", tenantId, headers);
       Map<String, Collection<String>> newHeaders = headers == null ? new HashMap<>() : new HashMap<>(headers);
       if (isNotBlank(tenantId)) {
         newHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));

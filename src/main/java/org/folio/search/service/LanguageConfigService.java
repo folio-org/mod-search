@@ -29,7 +29,6 @@ public class LanguageConfigService {
 
   private final LanguageConfigRepository configRepository;
   private final LocalSearchFieldProvider searchFieldProvider;
-  private final TenantScopedExecutionService executionService;
   private final SearchConfigurationProperties searchConfiguration;
 
   /**

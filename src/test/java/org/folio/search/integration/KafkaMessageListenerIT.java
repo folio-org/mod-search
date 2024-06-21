@@ -39,14 +39,13 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.config.properties.FolioEnvironment;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.extension.EnableKafka;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
@@ -100,7 +99,7 @@ class KafkaMessageListenerIT {
   @MockBean
   private ResourceService resourceService;
   @MockBean
-  private TenantScopedExecutionService executionService;
+  private SystemUserScopedExecutionService executionService;
   @MockBean
   private ConfigSynchronizationService configSynchronizationService;
 
@@ -119,8 +118,6 @@ class KafkaMessageListenerIT {
   void setUp() {
     lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
       .when(executionService).executeSystemUserScoped(any(), any());
-    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
-      .when(executionService).executeTenantScoped(any(), any());
   }
 
   @Test
@@ -274,7 +271,7 @@ class KafkaMessageListenerIT {
   @Import({
     KafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
-    RetryTemplateConfiguration.class, TenantScopedExecutionService.class, FolioEnvironment.class
+    RetryTemplateConfiguration.class
   })
   static class KafkaListenerTestConfiguration {
 

@@ -18,6 +18,7 @@ import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.utils.SearchUtils;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,7 @@ class LanguageConfigServiceTest {
   @Mock
   private LocalSearchFieldProvider searchFieldProvider;
   @Mock
-  private TenantScopedExecutionService executionService;
+  private SystemUserScopedExecutionService executionService;
   @Mock
   private SearchConfigurationProperties searchConfigurationProperties;
 

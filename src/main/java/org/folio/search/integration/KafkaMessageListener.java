@@ -30,9 +30,9 @@ import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.KafkaConstants;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -47,7 +47,7 @@ public class KafkaMessageListener {
 
   private final ResourceService resourceService;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
-  private final TenantScopedExecutionService executionService;
+  private final SystemUserScopedExecutionService executionService;
   private final ConfigSynchronizationService configSynchronizationService;
 
   /**
@@ -154,7 +154,7 @@ public class KafkaMessageListener {
     for (Map.Entry<String, List<ConsortiumInstanceEvent>> entry : batchByTenant.entrySet()) {
       log.info("Consortium instance tenant [{}]", entry.getKey());
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        consortiumInstances -> executionService.executeTenantScoped(entry.getKey(),
+        consortiumInstances -> executionService.executeSystemUserScoped(entry.getKey(),
           () -> resourceService.indexConsortiumInstances(consortiumInstances)),
         KafkaMessageListener::logFailedConsortiumEvent);
     }
@@ -214,7 +214,7 @@ public class KafkaMessageListener {
 
     for (var entry : batchByTenant.entrySet()) {
       folioMessageBatchProcessor.consumeBatchWithFallback(entry.getValue(), KAFKA_RETRY_TEMPLATE_NAME,
-        executionService.executeTenantScoped(entry.getKey(), () -> indexConsumer),
+        executionService.executeSystemUserScoped(entry.getKey(), () -> indexConsumer),
         KafkaMessageListener::logFailedEvent);
     }
   }

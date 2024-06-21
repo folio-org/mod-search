@@ -12,8 +12,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import org.folio.search.service.TenantScopedExecutionService;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ class ConsortiumTenantExecutorTest {
   @Mock
   private TenantProvider tenantProvider;
   @Mock
-  private TenantScopedExecutionService scopedExecutionService;
+  private SystemUserScopedExecutionService scopedExecutionService;
   @Spy
   @InjectMocks
   private ConsortiumTenantExecutor consortiumTenantExecutor;
@@ -57,13 +57,13 @@ class ConsortiumTenantExecutorTest {
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
     doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
-      .when(scopedExecutionService).executeTenantScoped(eq(CENTRAL_TENANT_ID), any());
+      .when(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
 
     var actual = consortiumTenantExecutor.execute(operation);
 
     assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
     verify(operation).get();
-    verify(scopedExecutionService).executeTenantScoped(eq(CENTRAL_TENANT_ID), any());
+    verify(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
   }
 
   @Test
@@ -72,13 +72,13 @@ class ConsortiumTenantExecutorTest {
 
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
     doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
-      .when(scopedExecutionService).executeTenantScoped(eq(CENTRAL_TENANT_ID), any());
+      .when(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
 
     var actual = consortiumTenantExecutor.execute(TENANT_ID, operation);
 
     assertThat(actual).isEqualTo(OPERATION_RESPONSE_MOCK);
     verify(operation).get();
-    verify(scopedExecutionService).executeTenantScoped(eq(CENTRAL_TENANT_ID), any());
+    verify(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
   }
 
   @Test

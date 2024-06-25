@@ -1037,6 +1037,11 @@
         "name": "REINDEX_LOCATION_BATCH_SIZE",
         "value": "1000",
         "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
+      },
+      {
+        "name": "REINDEX_CAMPUS_BATCH_SIZE",
+        "value": "1000",
+        "description": "Defines number of campuses to retrieve per inventory http request on campus reindex process"
       }
     ]
   }

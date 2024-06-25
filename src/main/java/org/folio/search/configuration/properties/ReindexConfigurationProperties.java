@@ -17,4 +17,9 @@ public class ReindexConfigurationProperties {
    * Defines number of locations to retrieve per inventory http request on locations reindex process.
    */
   private Integer locationBatchSize = 1_000;
+
+  /**
+   * Defines number of campus to retrieve per inventory http request on campuses reindex process.
+   */
+  private Integer campusBatchSize = 1_000;
 }

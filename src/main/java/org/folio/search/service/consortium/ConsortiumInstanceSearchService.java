@@ -118,11 +118,11 @@ public class ConsortiumInstanceSearchService {
     var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, true);
     var termsQuery = termsQuery(targetField, ids);
 
-//    if (ids.size() < 10_000L) {
-//      var searchSourceBuilder = getConsortiumBatchQueryBuilder(targetField, termsQuery, "", ids.size());
-//      var response = searchRepository.search(request, searchSourceBuilder);
-//      return List.of(documentConverter.convertToSearchResult(response, request.getResourceClass()));
-//    }
+    //if (ids.size() < 10_000L) {
+    //  var searchSourceBuilder = getConsortiumBatchQueryBuilder(targetField, termsQuery, "", ids.size());
+    //  var response = searchRepository.search(request, searchSourceBuilder);
+    //  return List.of(documentConverter.convertToSearchResult(response, request.getResourceClass()));
+    //}
 
     var searchSourceBuilder = getConsortiumBatchQueryBuilder(targetField, termsQuery, "", 2);
     var response = searchRepository.search(request, searchSourceBuilder);

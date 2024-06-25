@@ -42,6 +42,11 @@ public class SearchConfigurationProperties {
   private long maxBrowseRequestOffset = 500L;
 
   /**
+   * Provides the maximum number of IDs for performing search with batch requests.
+   */
+  private long maxSearchBatchRequestIdsCount = 20_000L;
+
+  /**
    * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
   private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();

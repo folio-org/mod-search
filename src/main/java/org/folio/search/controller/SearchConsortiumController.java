@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
+import com.google.common.collect.Sets;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -119,11 +120,16 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
-    //var tenant = verifyAndGetTenant(tenantHeader);
-    var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenantHeader, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
+    var tenant = verifyAndGetTenant(tenantHeader);
+    if (batchIdsDto.getIds().isEmpty()) {
+      return ResponseEntity
+        .ok(new ConsortiumHoldingCollection());
+    }
 
-    var result = searchService.fetchConsortiumBatchHoldings(searchRequest, holdingIds);
+    //var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
+    //var searchRequest = idsCqlRequest(tenantHeader, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
+
+    var result = searchService.fetchConsortiumBatchHoldings(tenant, Sets.newHashSet(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 

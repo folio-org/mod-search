@@ -61,6 +61,7 @@ folio:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
     max-browse-request-offset: ${MAX_BROWSE_REQUEST_OFFSET:500}
+    max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:20000}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}

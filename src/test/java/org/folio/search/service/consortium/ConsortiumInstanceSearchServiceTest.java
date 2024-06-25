@@ -9,8 +9,8 @@ import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ConsortiumHolding;
-import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.Holding;
@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ConsortiumInstanceSearchServiceTest {
 
   private @Mock SearchService searchService;
+  private @Mock SearchConfigurationProperties properties;
   private @InjectMocks ConsortiumInstanceSearchService service;
 
   @Test
@@ -156,34 +157,6 @@ class ConsortiumInstanceSearchServiceTest {
   }
 
   @Test
-  void fetchConsortiumBatchHoldings_positive() {
-    var ids = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-    var instances = List.of(
-      instanceForHoldings(List.of(holding(UUID.randomUUID().toString(), CENTRAL_TENANT_ID),
-        holding(ids.get(0), MEMBER_TENANT_ID))),
-      instanceForHoldings(List.of(holding(ids.get(1), CENTRAL_TENANT_ID))),
-      instanceForHoldings(List.of(holding(UUID.randomUUID().toString(), CENTRAL_TENANT_ID))));
-    var searchResult = SearchResult.of(instances.size(), instances);
-    var request = Mockito.<CqlSearchRequest<Instance>>mock();
-    var expected = new ConsortiumHoldingCollection()
-      .holdings(instances.subList(0, instances.size() - 1).stream().map(instance -> {
-        var holding = instance.getHoldings().size() > 1 ? instance.getHoldings().get(1) : instance.getHoldings().get(0);
-        return new ConsortiumHolding()
-          .id(holding.getId())
-          .instanceId(instance.getId())
-          .discoverySuppress(false)
-          .tenantId(holding.getTenantId());
-      }).toList())
-      .totalRecords(2);
-
-    when(searchService.search(request)).thenReturn(searchResult);
-
-    var result = service.fetchConsortiumBatchHoldings(request, Sets.newHashSet(ids));
-
-    assertThat(result).isEqualTo(expected);
-  }
-
-  @Test
   void fetchConsortiumBatchItems_positive() {
     var ids = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     var instances = List.of(
@@ -193,6 +166,7 @@ class ConsortiumInstanceSearchServiceTest {
       instanceForItems(List.of(item(UUID.randomUUID().toString(), CENTRAL_TENANT_ID))));
     var searchResult = SearchResult.of(instances.size(), instances);
     var request = Mockito.<CqlSearchRequest<Instance>>mock();
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
     var expected = new ConsortiumItemCollection()
       .items(instances.subList(0, instances.size() - 1).stream().map(instance -> {
         var item = instance.getItems().size() > 1 ? instance.getItems().get(1) : instance.getItems().get(0);

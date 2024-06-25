@@ -19,6 +19,31 @@
     "code": {
       "index": "keyword_lowercase",
       "showInResponse": [ "search" ]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "createdByUserId": {
+          "index": "keyword_lowercase"
+        },
+        "createdByUsername": {
+          "index": "keyword_lowercase"
+        },
+        "updatedDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "updatedByUserId": {
+          "index": "keyword_lowercase"
+        },
+        "updatedByUsername": {
+          "index": "keyword_lowercase"
+        }
+      }
     }
   }
 }

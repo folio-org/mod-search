@@ -40,6 +40,7 @@ public class TestConstants {
   public static final String BIBFRAME_TOPIC = "search.bibframe";
   public static final String CAMPUS_TOPIC = "inventory.campus";
   public static final String INSTITUTION_TOPIC = "inventory.institution";
+  public static final String LIBRARY_TOPIC = "inventory.library";
 
   public static final String LOCAL_CN_TYPE = "6fd29f52-5c9c-44d0-b529-e9c5eb3a0aba";
   public static final String FOLIO_CN_TYPE = "6e4d7565-b277-4dfa-8b7d-fbf306d9d0cd";
@@ -132,6 +133,10 @@ public class TestConstants {
 
   public static String inventoryInstitutionTopic(String tenantId) {
     return getTopicName(tenantId, INSTITUTION_TOPIC);
+  }
+
+  public static String inventoryLibraryTopic(String tenantId) {
+    return getTopicName(tenantId, LIBRARY_TOPIC);
   }
 
   public static String indexName(String tenantId) {

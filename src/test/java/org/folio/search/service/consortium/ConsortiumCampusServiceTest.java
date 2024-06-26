@@ -73,11 +73,9 @@ public class ConsortiumCampusServiceTest {
     var limit = 10;
     var offset = 0;
 
-    Assertions.assertThrows(IllegalArgumentException.class, () -> {
-      var actual = service.fetchCampuses(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder);
-
-      assertThat(actual).isEqualTo(null);
-    });
+    Assertions.assertThrows(IllegalArgumentException.class, () ->
+      service.fetchCampuses(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder)
+    );
   }
 
   @NotNull

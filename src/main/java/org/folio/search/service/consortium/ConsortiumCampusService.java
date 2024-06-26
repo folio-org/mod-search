@@ -1,5 +1,6 @@
 package org.folio.search.service.consortium;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ConsortiumCampus;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ConsortiumCampusService {
 
-  public static final String ID = "id";
-  public static final String NAME = "name";
-  public static final String TENANT_ID = "tenantId";
+  private static final Set<String> VALID_SORT_BY = Set.of("id", "name", "tenantId");
   private final ConsortiumCampusRepository repository;
   private final ConsortiumTenantExecutor executor;
 
@@ -38,7 +37,7 @@ public class ConsortiumCampusService {
   }
 
   private void validateSortByValue(String sortBy) {
-    if (!(NAME.equals(sortBy) || ID.equals(sortBy)  || TENANT_ID.equals(sortBy))) {
+    if (!VALID_SORT_BY.contains(sortBy)) {
       throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
     }
   }

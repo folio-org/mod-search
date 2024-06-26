@@ -3,12 +3,16 @@ package org.folio.search.service.consortium;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -18,7 +22,9 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +32,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +41,8 @@ class ConsortiumInstanceSearchServiceTest {
 
   private @Mock SearchService searchService;
   private @Mock SearchConfigurationProperties properties;
+  private @Mock SearchRepository searchRepository;
+  private @Mock ElasticsearchDocumentConverter documentConverter;
   private @InjectMocks ConsortiumInstanceSearchService service;
 
   @Test
@@ -158,29 +168,30 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchItems_positive() {
-    var ids = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    var ids = List.of(UUID.randomUUID(), UUID.randomUUID());
     var instances = List.of(
       instanceForItems(List.of(item(UUID.randomUUID().toString(), CENTRAL_TENANT_ID),
-        item(ids.get(0), MEMBER_TENANT_ID))),
-      instanceForItems(List.of(item(ids.get(1), CENTRAL_TENANT_ID))),
+        item(ids.get(0).toString(), MEMBER_TENANT_ID))),
+      instanceForItems(List.of(item(ids.get(1).toString(), CENTRAL_TENANT_ID))),
       instanceForItems(List.of(item(UUID.randomUUID().toString(), CENTRAL_TENANT_ID))));
-    var searchResult = SearchResult.of(instances.size(), instances);
-    var request = Mockito.<CqlSearchRequest<Instance>>mock();
+    var expectedConsortiumItems = instances.subList(0, instances.size() - 1).stream().map(instance -> {
+      var item = instance.getItems().size() > 1 ? instance.getItems().get(1) : instance.getItems().get(0);
+      return new ConsortiumItem()
+        .id(item.getId())
+        .instanceId(instance.getId())
+        .tenantId(item.getTenantId())
+        .holdingsRecordId(item.getHoldingsRecordId());
+    }).toList();
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(mock(SearchResponse.class));
+    when(documentConverter.convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any(BiFunction.class)))
+      .thenReturn(SearchResult.of(2, expectedConsortiumItems));
     var expected = new ConsortiumItemCollection()
-      .items(instances.subList(0, instances.size() - 1).stream().map(instance -> {
-        var item = instance.getItems().size() > 1 ? instance.getItems().get(1) : instance.getItems().get(0);
-        return new ConsortiumItem()
-          .id(item.getId())
-          .instanceId(instance.getId())
-          .tenantId(item.getTenantId())
-          .holdingsRecordId(item.getHoldingsRecordId());
-      }).toList())
+      .items(expectedConsortiumItems)
       .totalRecords(2);
 
-    when(searchService.search(request)).thenReturn(searchResult);
-
-    var result = service.fetchConsortiumBatchItems(request, Sets.newHashSet(ids));
+    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Sets.newHashSet(ids));
 
     assertThat(result).isEqualTo(expected);
   }

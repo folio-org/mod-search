@@ -47,6 +47,11 @@ public class SearchConfigurationProperties {
   private long maxSearchBatchRequestIdsCount = 20_000L;
 
   /**
+   * Provides the size parameter for querying consortium records (holdings or items).
+   */
+  private int searchConsortiumRecordsPageSize = 5_000;
+
+  /**
    * Provides map with global features configuration. Can be overwritten by tenant configuration.
    */
   private Map<TenantConfiguredFeature, Boolean> searchFeatures = emptyMap();

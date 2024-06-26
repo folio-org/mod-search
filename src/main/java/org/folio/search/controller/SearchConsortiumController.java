@@ -4,9 +4,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
 import com.google.common.collect.Sets;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BatchIdsDto;
@@ -142,10 +140,10 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     }
 
     var tenant = verifyAndGetTenant(tenantHeader);
-    var itemIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemIds);
+    //var itemIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
+    //var searchRequest = idsCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemIds);
 
-    var result = searchService.fetchConsortiumBatchItems(searchRequest, itemIds);
+    var result = searchService.fetchConsortiumBatchItems(tenant, Sets.newHashSet(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 
@@ -162,12 +160,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
   }
 
-  private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
-    var query = ids.stream()
-      .map((fieldName + ".id=%s")::formatted)
-      .collect(Collectors.joining(" or "));
-
-    return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
-  }
+  //private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
+  //  var query = ids.stream()
+  //    .map((fieldName + ".id=%s")::formatted)
+  //    .collect(Collectors.joining(" or "));
+  //
+  //  return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
+  //}
 
 }

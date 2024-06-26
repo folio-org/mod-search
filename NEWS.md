@@ -19,6 +19,7 @@
 * Remove ability to match on LCCN searches without a prefix ([MSEARCH-752](https://folio-org.atlassian.net/browse/MSEARCH-752))
 * Search consolidated items/holdings data in consortium ([MSEARCH-759](https://folio-org.atlassian.net/browse/MSEARCH-759))
 * Create bibframe index and process bibframe events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
+* Create bibframe authority index and process bibframe authority events ([MSEARCH-784](https://folio-org.atlassian.net/browse/MSEARCH-784))
 * Allow Unified List of Inventory Locations in a Consortium to be fetched by member tenants ([MSEARCH-660](https://folio-org.atlassian.net/browse/MSEARCH-660))
 * Implement Indexing of Campuses from Kafka ([MSEARCH-770](https://issues.folio.org/browse/MSEARCH-770))
 * Extend response with additional Location fields for Inventory Locations in a Consortium endpoint ([MSEARCH-775](https://folio-org.atlassian.net/browse/MSEARCH-775))

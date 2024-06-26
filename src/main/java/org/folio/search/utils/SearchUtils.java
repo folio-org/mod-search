@@ -39,6 +39,7 @@ public class SearchUtils {
   public static final String LOCATION_RESOURCE = "location";
   public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
   public static final String BIBFRAME_RESOURCE = "bibframe";
+  public static final String BIBFRAME_AUTHORITY_RESOURCE = "bibframe-authority";
   public static final String CAMPUS_RESOURCE = "campus";
   public static final String INSTITUTION_RESOURCE = "institution";
   public static final String LIBRARY_RESOURCE = "library";

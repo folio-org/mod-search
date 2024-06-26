@@ -137,7 +137,7 @@ folio:
         group-id: ${folio.environment}-mod-search-location-type-group
       bibframe:
         concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.bibframe
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.(bibframe|bibframe-authorities)
         group-id: ${folio.environment}-mod-search-bibframe-group
   okapiUrl: ${okapi.url}
   logging:

@@ -414,14 +414,15 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 
 ### Search API
 
-| METHOD | URL                           | DESCRIPTION                                                                          |
-|:-------|:------------------------------|:-------------------------------------------------------------------------------------|
-| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records                   |
-| GET    | `/search/authorities`         | Search by authority records                                                          |
-| GET    | `/search/bibframe`            | Search linked data graph resource descriptions                                       |
-| GET    | `/search/{recordType}/facets` | Get facets where recordType could be: instances, authorities, contributors, subjects |
-| GET    | ~~`/search/instances/ids`~~   | (DEPRECATED) Stream instance ids as JSON or plain text                               |
-| GET    | ~~`/search/holdings/ids`~~    | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
+| METHOD | URL                                       | DESCRIPTION                                                                          |
+|:-------|:------------------------------------------|:-------------------------------------------------------------------------------------|
+| GET    | `/search/instances`                       | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/authorities`                     | Search by authority records                                                          |
+| GET    | `/search/bibframe`                        | Search linked data graph resource descriptions                                       |
+| GET    | `/search/bibframe/authorities`            | Search linked data graph authority resource descriptions                             |
+| GET    | `/search/{recordType}/facets`             | Get facets where recordType could be: instances, authorities, contributors, subjects |
+| GET    | ~~`/search/instances/ids`~~               | (DEPRECATED) Stream instance ids as JSON or plain text                               |
+| GET    | ~~`/search/holdings/ids`~~                | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 

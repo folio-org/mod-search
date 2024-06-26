@@ -89,6 +89,10 @@ public class ApiEndpoints {
     return "/search/bibframe";
   }
 
+  public static String bibframeAuthoritySearchPath() {
+    return "/search/bibframe/authorities";
+  }
+
   public static String authorityBrowsePath() {
     return "/browse/authorities";
   }

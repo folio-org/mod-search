@@ -193,6 +193,18 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/consortium/campuses",
+          "permissionsRequired": [
+            "consortium-search.campuses.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/consortium/holding/{id}",
           "permissionsRequired": [
             "consortium-search.holdings.item.get"
@@ -724,6 +736,11 @@
       "permissionName": "consortium-search.locations.collection.get",
       "displayName": "Consortium Search - fetch locations records",
       "description": "Returns location records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.campuses.collection.get",
+      "displayName": "Consortium Search - fetch campuses records",
+      "description": "Returns campus records in consortium"
     }
   ],
   "launchDescriptor": {

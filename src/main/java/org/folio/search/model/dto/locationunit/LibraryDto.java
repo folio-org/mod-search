@@ -9,14 +9,14 @@ import lombok.extern.jackson.Jacksonized;
 import org.folio.search.domain.dto.Metadata;
 
 /**
- * Describes Institution object that comes from external channels.
+ * Describes Campus object that comes from external channels.
  */
 @Data
 @With
 @Builder
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class InstitutionDto {
+public class LibraryDto {
 
   @JsonProperty("id")
   private String id;
@@ -24,6 +24,8 @@ public class InstitutionDto {
   private String name;
   @JsonProperty("code")
   private String code;
+  @JsonProperty("campusId")
+  private String campusId;
   @JsonProperty("metadata")
   private Metadata metadata;
 

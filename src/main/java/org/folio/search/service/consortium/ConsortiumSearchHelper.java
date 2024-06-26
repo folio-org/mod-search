@@ -42,6 +42,15 @@ public class ConsortiumSearchHelper {
 
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource) {
     var contextTenantId = folioExecutionContext.getTenantId();
+    return filterQueryForActiveAffiliation(query, resource, contextTenantId);
+  }
+
+  /**
+   * Modifies query to support both 'shared' filter and Active Affiliation.
+   * Active Affiliation have precedence over 'shared' filter so in case of member tenant
+   * modified query will have member 'tenantId' filter with shared=true).
+   */
+  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource, String contextTenantId) {
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return query;

@@ -16,7 +16,7 @@ import org.folio.search.domain.dto.Metadata;
 @Builder
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class CampusDto {
+public class LibraryDto {
 
   @JsonProperty("id")
   private String id;
@@ -24,8 +24,8 @@ public class CampusDto {
   private String name;
   @JsonProperty("code")
   private String code;
-  @JsonProperty("institutionId")
-  private String institutionId;
+  @JsonProperty("campusId")
+  private String campusId;
   @JsonProperty("metadata")
   private Metadata metadata;
 

@@ -133,7 +133,7 @@ folio:
         group-id: ${folio.environment}-mod-search-classification-type-group
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution)
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
         group-id: ${folio.environment}-mod-search-location-type-group
       bibframe:
         concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}

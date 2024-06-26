@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BatchIdsDto;
+import org.folio.search.domain.dto.ConsortiumCampusCollection;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -21,6 +22,7 @@ import org.folio.search.model.service.ConsortiumSearchContext;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchConsortiumApi;
+import org.folio.search.service.consortium.ConsortiumCampusService;
 import org.folio.search.service.consortium.ConsortiumInstanceSearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumLocationService;
@@ -45,6 +47,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   private final ConsortiumInstanceService instanceService;
   private final ConsortiumLocationService locationService;
   private final ConsortiumInstanceSearchService searchService;
+  private final ConsortiumCampusService campusService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
@@ -93,6 +96,21 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     return ResponseEntity.ok(new
       ConsortiumLocationCollection()
       .locations(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumCampusCollection> getConsortiumCampuses(String tenantHeader,
+                                                                          String tenantId,
+                                                                          Integer limit,
+                                                                          Integer offset,
+                                                                          String sortBy,
+                                                                          SortOrder sortOrder) {
+    var result = campusService.fetchCampuses(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumCampusCollection()
+      .campuses(result.getRecords())
       .totalRecords(result.getTotalRecords()));
   }
 

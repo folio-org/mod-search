@@ -1,0 +1,13 @@
+in: query
+name: sortBy
+description: |
+  Defines a field to sort by.
+  Possible values:
+    - id
+    - tenantId
+    - institutionId
+    - name
+required: false
+schema:
+  type: string
+  default: name

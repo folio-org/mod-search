@@ -19,10 +19,13 @@
 * Remove ability to match on LCCN searches without a prefix ([MSEARCH-752](https://folio-org.atlassian.net/browse/MSEARCH-752))
 * Search consolidated items/holdings data in consortium ([MSEARCH-759](https://folio-org.atlassian.net/browse/MSEARCH-759))
 * Create bibframe index and process bibframe events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
+* Create bibframe authority index and process bibframe authority events ([MSEARCH-784](https://folio-org.atlassian.net/browse/MSEARCH-784))
 * Allow Unified List of Inventory Locations in a Consortium to be fetched by member tenants ([MSEARCH-660](https://folio-org.atlassian.net/browse/MSEARCH-660))
 * Implement Indexing of Campuses from Kafka ([MSEARCH-770](https://issues.folio.org/browse/MSEARCH-770))
 * Extend response with additional Location fields for Inventory Locations in a Consortium endpoint ([MSEARCH-775](https://folio-org.atlassian.net/browse/MSEARCH-775))
 * Implement Indexing of Institutions from Kafka ([MSEARCH-771](https://issues.folio.org/browse/MSEARCH-771))
+* Implement Indexing of Libraries from Kafka ([MSEARCH-769](https://issues.folio.org/browse/MSEARCH-769))
+* Return Unified List of Inventory Campuses in a Consortium ([MSEARCH-773](https://issues.folio.org/browse/MSEARCH-773))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
@@ -31,6 +34,7 @@
 * Browse: Duplicate results in exact match with diacritics ([MSEARCH-751](https://folio-org.atlassian.net/browse/MSEARCH-751))
 * Classification browse: Fix instances count for Shared Facet ([MSEARCH-761](https://folio-org.atlassian.net/browse/MSEARCH-761))
 * Subjects/Contributors browse: Fix instances count for Shared Facet ([MSEARCH-782](https://folio-org.atlassian.net/browse/MSEARCH-782))
+* Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

@@ -1,0 +1,35 @@
+{
+  "name": "bibframe-authority",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.BibframeAuthority",
+  "reindexSupported": false,
+  "fields": {
+    "id": {
+      "index": "keyword"
+    },
+    "label": {
+      "index": "standard"
+    },
+    "type": {
+      "index": "keyword"
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "lccn": {
+      "type": "search",
+      "index": "keyword",
+      "processor": "bibframeAuthorityLccnProcessor"
+    }
+  },
+  "indexMappings": { }
+}

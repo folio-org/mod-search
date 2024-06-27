@@ -1,0 +1,25 @@
+description: "Bibframe authority search dto, contains Authority and Identifiers"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of an Authority"
+    type: "string"
+  label:
+    description: "Value of Label"
+    type: "string"
+  type:
+    type: "string"
+  identifiers:
+    type: "array"
+    description: "Authority identifier array"
+    items:
+      properties:
+        value:
+          type: "string"
+          description: "Value of Identifier"
+        type:
+          type: "string"
+          enum:
+            - "LCCN"
+required:
+  - "id"

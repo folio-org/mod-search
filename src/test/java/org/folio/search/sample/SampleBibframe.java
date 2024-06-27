@@ -16,11 +16,25 @@ public class SampleBibframe {
   private static final Map<String, Object> BIBFRAME_2_AS_MAP =
     readJsonFromFile("/samples/bibframe/bibframe2.json", MAP_TYPE_REFERENCE);
 
+  private static final Map<String, Object> BIBFRAME_AUTHORITY_CONCEPT_AS_MAP =
+    readJsonFromFile("/samples/bibframe/authority_concept.json", MAP_TYPE_REFERENCE);
+
+  private static final Map<String, Object> BIBFRAME_AUTHORITY_PERSON_AS_MAP =
+    readJsonFromFile("/samples/bibframe/authority_person.json", MAP_TYPE_REFERENCE);
+
   public static Map<String, Object> getBibframeSampleAsMap() {
     return BIBFRAME_AS_MAP;
   }
 
   public static Map<String, Object> getBibframe2SampleAsMap() {
     return BIBFRAME_2_AS_MAP;
+  }
+
+  public static Map<String, Object> getBibframeAuthorityConceptSampleAsMap() {
+    return BIBFRAME_AUTHORITY_CONCEPT_AS_MAP;
+  }
+
+  public static Map<String, Object> getBibframeAuthorityPersonSampleAsMap() {
+    return BIBFRAME_AUTHORITY_PERSON_AS_MAP;
   }
 }

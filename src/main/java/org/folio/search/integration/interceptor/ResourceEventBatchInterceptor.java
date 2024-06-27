@@ -13,17 +13,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResourceEventBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
 
-  private static final Map<String, String> TOPIC_TO_RESOURCE_MAP = Map.of(
-    "inventory.instance", SearchUtils.INSTANCE_RESOURCE,
-    "inventory.holdings-record", SearchUtils.INSTANCE_RESOURCE,
-    "inventory.item", SearchUtils.INSTANCE_RESOURCE,
-    "inventory.bound-with", SearchUtils.INSTANCE_RESOURCE,
-    "authorities.authority", SearchUtils.AUTHORITY_RESOURCE,
-    "search.instance-contributor", SearchUtils.CONTRIBUTOR_RESOURCE,
-    "search.instance-subject", SearchUtils.INSTANCE_SUBJECT_RESOURCE,
-    "inventory.classification-type", SearchUtils.CLASSIFICATION_TYPE_RESOURCE,
-    "inventory.location", SearchUtils.LOCATION_RESOURCE,
-    "inventory.campus", SearchUtils.CAMPUS_RESOURCE
+  private static final Map<String, String> TOPIC_TO_RESOURCE_MAP = Map.ofEntries(
+    Map.entry("inventory.instance", SearchUtils.INSTANCE_RESOURCE),
+    Map.entry("inventory.holdings-record", SearchUtils.INSTANCE_RESOURCE),
+    Map.entry("inventory.item", SearchUtils.INSTANCE_RESOURCE),
+    Map.entry("inventory.bound-with", SearchUtils.INSTANCE_RESOURCE),
+    Map.entry("authorities.authority", SearchUtils.AUTHORITY_RESOURCE),
+    Map.entry("search.instance-contributor", SearchUtils.CONTRIBUTOR_RESOURCE),
+    Map.entry("search.instance-subject", SearchUtils.INSTANCE_SUBJECT_RESOURCE),
+    Map.entry("inventory.classification-type", SearchUtils.CLASSIFICATION_TYPE_RESOURCE),
+    Map.entry("inventory.location", SearchUtils.LOCATION_RESOURCE),
+    Map.entry("inventory.campus", SearchUtils.CAMPUS_RESOURCE),
+    Map.entry("inventory.institution", SearchUtils.INSTITUTION_RESOURCE),
+    Map.entry("inventory.library", SearchUtils.LIBRARY_RESOURCE),
+    Map.entry("search.bibframe", SearchUtils.BIBFRAME_RESOURCE),
+    Map.entry("search.bibframe-authorities", SearchUtils.BIBFRAME_AUTHORITY_RESOURCE)
   );
 
   @Override

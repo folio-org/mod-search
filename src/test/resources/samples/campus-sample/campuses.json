@@ -1,0 +1,92 @@
+[
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe21",
+    "name": "My campus 1",
+    "code": "MC1",
+    "campusId": "62cf76b7-cca5-4d33-9217-edf42ce1a848",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.306+00:00",
+      "updatedDate": "2024-06-25T05:28:41.306+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe22",
+    "name": "My campus 2",
+    "code": "MC2",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe23",
+    "name": "My campus 3",
+    "code": "MC3",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe24",
+    "name": "My campus 4",
+    "code": "MC4",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe25",
+    "name": "My campus 5",
+    "code": "MC5",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe26",
+    "name": "My campus 6",
+    "code": "MC6",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe27",
+    "name": "My campus 7",
+    "code": "MC7",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe28",
+    "name": "My campus 8",
+    "code": "MC8",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe29",
+    "name": "My campus 9",
+    "code": "MC9",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  }
+]

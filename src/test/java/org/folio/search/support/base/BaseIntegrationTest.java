@@ -5,10 +5,12 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
+import static org.folio.search.support.base.ApiEndpoints.bibframeAuthoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.bibframeSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.bibframeAuthorityTopic;
 import static org.folio.search.utils.TestConstants.bibframeTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -40,6 +42,7 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Bibframe;
+import org.folio.search.domain.dto.BibframeAuthority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -162,6 +165,11 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static ResultActions doSearchByBibframe(String query) {
     return doSearch(bibframeSearchPath(), TENANT_ID, query, null, null, null);
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByBibframeAuthority(String query) {
+    return doSearch(bibframeAuthoritySearchPath(), TENANT_ID, query, null, null, null);
   }
 
   @SneakyThrows
@@ -289,6 +297,11 @@ public abstract class BaseIntegrationTest {
     if (type.equals(Bibframe.class)) {
       setUpTenant(tenant, bibframeSearchPath(), postInitAction, asList(records), expectedCount,
         bibframe -> kafkaTemplate.send(bibframeTopic(tenant), resourceEvent(null, null, bibframe)));
+    }
+
+    if (type.equals(BibframeAuthority.class)) {
+      setUpTenant(tenant, bibframeAuthoritySearchPath(), postInitAction, asList(records), expectedCount,
+        bibAuth -> kafkaTemplate.send(bibframeAuthorityTopic(tenant), resourceEvent(null, null, bibAuth)));
     }
   }
 

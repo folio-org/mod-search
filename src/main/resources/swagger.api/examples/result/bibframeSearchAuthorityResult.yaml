@@ -1,0 +1,12 @@
+value:
+  searchQuery: "query string"
+  content:
+    - id: "1"
+      label: "Label Value"
+      type: "Person"
+      identifiers:
+        - value: "sh85121033"
+          type: "LCCN"
+  pageNumber: 0
+  totalPages: 3
+  totalRecords: 27

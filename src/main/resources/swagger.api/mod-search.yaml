@@ -76,6 +76,9 @@ paths:
   /search/consortium/locations:
     $ref: 'paths/search-consortium/search-consortium-locations.yaml'
 
+  /search/consortium/campuses:
+    $ref: 'paths/search-consortium/search-consortium-campuses.yaml'
+
   /search/consortium/batch/items:
     $ref: 'paths/search-consortium/search-consortium-batch-items.yaml'
 
@@ -117,6 +120,9 @@ paths:
 
   /search/bibframe:
     $ref: 'paths/search-bibframe/search-bibframe.yaml'
+
+  /search/bibframe/authorities:
+    $ref: 'paths/search-bibframe/search-bibframe-authorities.yaml'
 
   /browse/call-numbers/instances:
     $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'

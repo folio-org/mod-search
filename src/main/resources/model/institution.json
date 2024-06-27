@@ -1,6 +1,6 @@
 {
-  "name": "campus",
-  "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.CampusDto",
+  "name": "institution",
+  "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.InstitutionDto",
   "reindexSupported": false,
   "fields": {
     "id": {
@@ -19,9 +19,6 @@
     "code": {
       "index": "keyword_lowercase",
       "showInResponse": [ "search" ]
-    },
-    "institutionId": {
-      "index": "keyword_lowercase"
     },
     "metadata": {
       "type": "object",

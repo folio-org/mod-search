@@ -115,6 +115,15 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/bibframe/authorities",
+          "permissionsRequired": [
+            "search.bibframe.authority.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/{recordType}/facets",
           "permissionsRequired": [
             "search.facets.collection.get"
@@ -184,6 +193,18 @@
           "pathPattern": "/search/consortium/locations",
           "permissionsRequired": [
             "consortium-search.locations.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/campuses",
+          "permissionsRequired": [
+            "consortium-search.campuses.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -724,6 +745,11 @@
       "permissionName": "consortium-search.locations.collection.get",
       "displayName": "Consortium Search - fetch locations records",
       "description": "Returns location records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.campuses.collection.get",
+      "displayName": "Consortium Search - fetch campuses records",
+      "description": "Returns campus records in consortium"
     }
   ],
   "launchDescriptor": {

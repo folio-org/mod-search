@@ -1,0 +1,15 @@
+{
+  "id": "123456654321",
+  "label": "concept-label",
+  "type": "CONCEPT",
+  "identifiers": [
+    {
+      "value": "sh 0123456789",
+      "type": "LCCN"
+    },
+    {
+      "value": "sh 9876543210",
+      "type": "LCCN"
+    }
+  ]
+}

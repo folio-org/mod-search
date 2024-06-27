@@ -46,6 +46,7 @@ folio:
   environment: folio-test
   search-config:
     initial-languages: eng,fre,ita,spa,ger
+    max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
     search-features:
       search-all-fields: false
       browse-cn-intermediate-values: true

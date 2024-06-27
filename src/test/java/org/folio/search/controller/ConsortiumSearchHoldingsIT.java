@@ -1,7 +1,7 @@
 package org.folio.search.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.controller.ConsortiumSearchItemsIT.WRONG_SIZE_MSG;
+import static org.folio.search.controller.ConsortiumSearchItemsIT.WRONG_SIZE_MSG_TEMPLATE;
 import static org.folio.search.controller.SearchConsortiumController.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
@@ -147,17 +147,18 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
   void tryGetConsortiumBatchHoldings_returns400_whenMoreIdsThanLimit() throws Exception {
     var request = new BatchIdsDto()
       .ids(
-        Stream.iterate(0, i -> i < 1001, i -> ++i)
+        Stream.iterate(0, i -> i < 501, i -> ++i)
           .map(i -> UUID.randomUUID())
           .toList()
       );
 
-    tryPost(consortiumBatchHoldingsSearchPath(), request)
+    tryPost(consortiumBatchHoldingsSearchPath(), CENTRAL_TENANT_ID, request)
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors[0].message", is(WRONG_SIZE_MSG)))
-      .andExpect(jsonPath("$.errors[0].type", is("MethodArgumentNotValidException")))
+      .andExpect(jsonPath("$.errors[0].message", is(WRONG_SIZE_MSG_TEMPLATE.formatted(500))))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("ids")));
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("size")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(request.getIds().size() + "")));
   }
 
   private ConsortiumHolding[] getExpectedHoldings() {

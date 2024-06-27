@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
-  static final String WRONG_SIZE_MSG =
-    "size must be between 0 and 1000";
+  static final String WRONG_SIZE_MSG_TEMPLATE = "IDs array size exceeds the maximum allowed limit %s";
 
   @BeforeAll
   static void prepare() {
@@ -153,17 +152,18 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
   void tryGetConsortiumBatchItems_returns400_whenMoreIdsThanLimit() throws Exception {
     var request = new BatchIdsDto()
       .ids(
-        Stream.iterate(0, i -> i < 1001, i -> ++i)
+        Stream.iterate(0, i -> i < 501, i -> ++i)
           .map(i -> UUID.randomUUID())
           .toList()
       );
 
-    tryPost(consortiumBatchItemsSearchPath(), request)
+    tryPost(consortiumBatchItemsSearchPath(), CENTRAL_TENANT_ID, request)
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors[0].message", is(WRONG_SIZE_MSG)))
-      .andExpect(jsonPath("$.errors[0].type", is("MethodArgumentNotValidException")))
+      .andExpect(jsonPath("$.errors[0].message", is(WRONG_SIZE_MSG_TEMPLATE.formatted(500))))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("ids")));
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("size")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(request.getIds().size() + "")));
   }
 
   private ConsortiumItem[] getExpectedItems() {

@@ -1,6 +1,7 @@
 package org.folio.search.service.consortium;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.folio.search.service.SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -44,12 +45,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ConsortiumInstanceSearchService {
-
-  /**
-   * default maximum number of allowed clauses in a (Lucene) boolean query which is defined by opensearch's
-   * "indices.query.bool.max_clause_count" setting
-   */
-  //private static final int DEFAULT_SEARCH_MAX_CLAUSE_COUNT = 10;
 
   private final SearchService searchService;
   private final SearchRepository searchRepository;
@@ -100,17 +95,6 @@ public class ConsortiumInstanceSearchService {
     var ids = holdingIds.stream().map(UUID::toString).collect(Collectors.toSet());
     var targetField = INSTANCE_HOLDING_FIELD_NAME + ".id";
 
-    //if (ids.size() < DEFAULT_SEARCH_MAX_CLAUSE_COUNT) {
-    //  var searchRequest = idsCqlRequest(tenant, targetField, ids);
-    //  var result = searchService.search(searchRequest);
-    //  var consortiumHoldings = result.getRecords().stream()
-    //    .map(instance -> mapToConsortiumHolding(instance, ids))
-    //    .toList();
-    //  return new ConsortiumHoldingCollection()
-    //    .holdings(consortiumHoldings)
-    //    .totalRecords(consortiumHoldings.size());
-    //}
-
     var searchRecords = getConsortiumBatchResults(tenant, ids, targetField, this::mapToConsortiumHolding);
 
     if (searchRecords.isEmpty()) {
@@ -124,14 +108,6 @@ public class ConsortiumInstanceSearchService {
 
   public ConsortiumItemCollection fetchConsortiumBatchItems(String tenant, Set<UUID> itemIds) {
     validateIdsCount(itemIds.size());
-    //var result = searchService.search(searchRequest);
-    //var consortiumItems = result.getRecords().stream()
-    //  .flatMap(instance ->
-    //    instance.getItems().stream()
-    //      .filter(item -> ids.contains(item.getId()))
-    //      .map(item -> ConsortiumItemMapper.toConsortiumItem(instance.getId(), item))
-    //  )
-    //  .toList();
 
     var ids = itemIds.stream().map(UUID::toString).collect(Collectors.toSet());
     var targetField = INSTANCE_ITEM_FIELD_NAME + ".id";
@@ -148,39 +124,34 @@ public class ConsortiumInstanceSearchService {
   }
 
   private <T> List<SearchResult<T>> getConsortiumBatchResults(String tenant, Set<String> ids, String targetField,
-                                                              BiFunction<Instance, Set<String>, T> recordMapper) {
-    //if (ids.size() < DEFAULT_SEARCH_MAX_CLAUSE_COUNT) {
-    //  var searchRequest = idsCqlRequest(tenant, targetField, ids);
-    //  var searchResult = searchService.search(searchRequest);
-    //  var consortiumHoldings = searchResult.getRecords().stream()
-    //    .map(instance -> mapToConsortiumHolding(instance, ids))
-    //    .toList();
-    //  return new ConsortiumHoldingCollection()
-    //    .holdings(consortiumHoldings)
-    //    .totalRecords(searchResult.getTotalRecords());
-    //}
-
+                                                              BiFunction<Instance, Set<String>, List<T>> recordMapper) {
     var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, true);
     var termsQuery = termsQuery(targetField, ids);
 
-    //DEFAULT_MAX_SEARCH_RESULT_WINDOW
-    if (ids.size() < 10) {
-      var searchSourceBuilder = getConsortiumBatchQueryBuilder(targetField, termsQuery, ids.size());
+    if (ids.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+      var searchSourceBuilder = queryBuilder(termsQuery, ids.size());
       var response = searchRepository.search(request, searchSourceBuilder);
       var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
         (hits, item) -> recordMapper.apply(item, ids));
-      return List.of(searchResult);
+      var records = searchResult.getRecords().stream()
+        .flatMap(List::stream)
+        .toList();
+      return List.of(SearchResult.of(records.size(), records));
     }
 
-    var searchSourceBuilder = getConsortiumBatchQueryBuilder(targetField, termsQuery,
-      properties.getSearchConsortiumRecordsPageSize());
+    var searchSourceBuilder = queryBuilder(termsQuery, properties.getSearchConsortiumRecordsPageSize())
+      .sort(fieldSort(targetField).order(ASC))
+      .searchAfter(new Object[]{""});
     var response = searchRepository.search(request, searchSourceBuilder);
     List<SearchResult<T>> searchRecords = new ArrayList<>();
 
     while (response.getHits() != null && response.getHits().getHits().length > 0) {
       var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
         (hits, item) -> recordMapper.apply(item, ids));
-      searchRecords.add(searchResult);
+      var records = searchResult.getRecords().stream()
+        .flatMap(List::stream)
+        .toList();
+      searchRecords.add(SearchResult.of(records.size(), records));
       var searchAfterValue = response.getHits()
         .getAt(response.getHits().getHits().length - 1).getSortValues()[0];
       searchSourceBuilder.searchAfter(new Object[]{searchAfterValue});
@@ -190,58 +161,27 @@ public class ConsortiumInstanceSearchService {
     return searchRecords;
   }
 
-  private ConsortiumHolding mapToConsortiumHolding(Instance instance, Set<String> ids) {
-    var consortiumHolding = instance.getHoldings().stream()
+  private List<ConsortiumHolding> mapToConsortiumHolding(Instance instance, Set<String> ids) {
+    return instance.getHoldings().stream()
       .filter(holding -> ids.contains(holding.getId()))
       .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding))
-      .findFirst()
-      .orElse(null);
-
-    if (consortiumHolding == null) {
-      log.warn("No holding was found in instance with id: {}, returned for the query to fetch holdings"
-        + " by batch holdings IDs", instance.getId());
-    }
-
-    return consortiumHolding;
+      .toList();
   }
 
-  private ConsortiumItem mapToConsortiumItem(Instance instance, Set<String> ids) {
-    var consortiumItem = instance.getItems().stream()
+  private List<ConsortiumItem> mapToConsortiumItem(Instance instance, Set<String> ids) {
+    return instance.getItems().stream()
       .filter(item -> ids.contains(item.getId()))
       .map(holding -> ConsortiumItemMapper.toConsortiumItem(instance.getId(), holding))
-      .findFirst()
-      .orElse(null);
-
-    if (consortiumItem == null) {
-      log.warn("No Item was found in instance with id: {}, returned for the query to fetch items"
-        + " by batch items IDs", instance.getId());
-    }
-
-    return consortiumItem;
+      .toList();
   }
 
-  private SearchSourceBuilder getConsortiumBatchQueryBuilder(String targetField,
-                                                             QueryBuilder filterQuery,
-                                                             int size) {
-    var builder = new SearchSourceBuilder()
+  private SearchSourceBuilder queryBuilder(QueryBuilder filterQuery, int size) {
+    return new SearchSourceBuilder()
       .query(boolQuery().filter(filterQuery))
       .size(size)
       .from(0)
       .trackTotalHits(true);
-
-    if (targetField != null) {
-      builder.sort(fieldSort(targetField).order(ASC));
-    }
-
-    return builder;
   }
-
-  //private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
-  //  var query = ids.stream()
-  //    .map((fieldName + "=%s")::formatted)
-  //    .collect(Collectors.joining(" or "));
-  //  return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
-  //}
 
   private void validateIdsCount(long count) {
     var idsLimit = properties.getMaxSearchBatchRequestIdsCount();

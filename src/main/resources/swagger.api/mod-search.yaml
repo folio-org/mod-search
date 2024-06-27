@@ -79,6 +79,9 @@ paths:
   /search/consortium/campuses:
     $ref: 'paths/search-consortium/search-consortium-campuses.yaml'
 
+  /search/consortium/libraries:
+    $ref: 'paths/search-consortium/search-consortium-libraries.yaml'
+
   /search/consortium/batch/items:
     $ref: 'paths/search-consortium/search-consortium-batch-items.yaml'
 

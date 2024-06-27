@@ -55,8 +55,8 @@ public class ConsortiumLibraryRepository {
     var sourceBuilder = new SearchSourceBuilder();
     Optional.ofNullable(tenantId)
       .ifPresent(id -> sourceBuilder
-        .query(QueryBuilders
-          .termQuery(TENANT_ID_FIELD_NAME, id)));
+        .query(QueryBuilders.boolQuery()
+          .filter(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, id))));
 
     return sourceBuilder
       .from(offset)

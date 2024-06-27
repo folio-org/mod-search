@@ -6,7 +6,7 @@ get:
     - search-consortium
   parameters:
     - $ref: '../../parameters/tenant-id-query-param.yaml'
-    - $ref: '../../parameters/consortium-libraries-limit-param.yaml'
+    - $ref: '../../parameters/consortium-location-unit-limit-param.yaml'
     - $ref: '../../parameters/offset-param.yaml'
     - $ref: '../../parameters/sort-by-library-name-param.yaml'
     - $ref: '../../parameters/sort-order-param.yaml'

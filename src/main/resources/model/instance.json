@@ -191,6 +191,10 @@
         "dateOfPublication": {
           "index": "source",
           "showInResponse": [ "search", "call-number-browse" ]
+        },
+        "place": {
+          "index": "standard",
+          "showInResponse": [ "search" ]
         }
       }
     },

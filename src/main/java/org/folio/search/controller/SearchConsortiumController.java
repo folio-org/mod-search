@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
+import org.folio.search.domain.dto.ConsortiumLibraryCollection;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SortOrder;
@@ -25,6 +26,7 @@ import org.folio.search.rest.resource.SearchConsortiumApi;
 import org.folio.search.service.consortium.ConsortiumCampusService;
 import org.folio.search.service.consortium.ConsortiumInstanceSearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumLibraryService;
 import org.folio.search.service.consortium.ConsortiumLocationService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -48,6 +50,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   private final ConsortiumLocationService locationService;
   private final ConsortiumInstanceSearchService searchService;
   private final ConsortiumCampusService campusService;
+  private final ConsortiumLibraryService libraryService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
@@ -111,6 +114,21 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     return ResponseEntity.ok(new
       ConsortiumCampusCollection()
       .campuses(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumLibraryCollection> getConsortiumLibraries(String tenantHeader,
+                                                                           String tenantId,
+                                                                           Integer limit,
+                                                                           Integer offset,
+                                                                           String sortBy,
+                                                                           SortOrder sortOrder) {
+    var result = libraryService.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumLibraryCollection()
+      .libraries(result.getRecords())
       .totalRecords(result.getTotalRecords()));
   }
 

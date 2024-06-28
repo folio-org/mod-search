@@ -1,6 +1,6 @@
 {
-  "name": "bibframe-authority",
-  "eventBodyJavaClass": "org.folio.search.domain.dto.BibframeAuthority",
+  "name": "linked-data-authority",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataAuthority",
   "reindexSupported": false,
   "fields": {
     "id": {
@@ -28,7 +28,7 @@
     "lccn": {
       "type": "search",
       "index": "keyword",
-      "processor": "bibframeAuthorityLccnProcessor"
+      "processor": "linkedDataAuthorityLccnProcessor"
     }
   },
   "indexMappings": { }

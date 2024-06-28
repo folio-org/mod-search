@@ -1,24 +1,24 @@
 get:
-  operationId: searchBibframeAuthorities
-  summary: Search Bibframe Authorities
-  description: Get a list of bibframe authorities records for CQL query
+  operationId: searchLinkedDataAuthorities
+  summary: Search Linked Data Authorities
+  description: Get a list of linked data authorities records for CQL query
   tags:
     - search
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
     - $ref: '../../parameters/cql-query.yaml'
-    - $ref: '../../parameters/bibframe-limit-param.yaml'
+    - $ref: '../../parameters/linked-data-limit-param.yaml'
     - $ref: '../../parameters/offset-param.yaml'
   responses:
     '200':
-      description: 'Bibframe authorities search result'
+      description: 'Linked data authorities search result'
       content:
         application/json:
           schema:
-            $ref: '../../schemas/response/bibframeSearchAuthorityResult.yaml'
+            $ref: '../../schemas/response/linkedDataAuthoritySearchResult.yaml'
           examples:
             searchResult:
-              $ref: '../../examples/result/bibframeSearchAuthorityResult.yaml'
+              $ref: '../../examples/result/linkedDataSearchAuthorityResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

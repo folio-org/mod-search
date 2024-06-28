@@ -8,15 +8,13 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.BIBFRAME_AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.BIBFRAME_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.bibframeAuthorityTopic;
-import static org.folio.search.utils.TestConstants.bibframeTopic;
 import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
@@ -25,6 +23,8 @@ import static org.folio.search.utils.TestConstants.inventoryContributorTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
+import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataWorkTopic;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -46,8 +46,8 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Bibframe;
-import org.folio.search.domain.dto.BibframeAuthority;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
@@ -292,59 +292,62 @@ class KafkaMessageListenerTest {
   }
 
   @Test
-  void handleBibframeEvent_positive() {
-    var payload = toMap(new Bibframe().id(RESOURCE_ID));
+  void handleLinkedDataWorkEvent_positive() {
+    var payload = toMap(new LinkedDataWork().id(RESOURCE_ID));
 
-    messageListener.handleBibframeEvents(List.of(new ConsumerRecord<>(
-      bibframeTopic(TENANT_ID), 0, 0, RESOURCE_ID, resourceEvent(null, BIBFRAME_RESOURCE, CREATE, payload, null))));
+    var consumerRecord = new ConsumerRecord<>(linkedDataWorkTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_WORK_RESOURCE, CREATE, payload, null));
+    messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
-    var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, BIBFRAME_RESOURCE, CREATE, payload, null));
+    var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, LINKED_DATA_WORK_RESOURCE, CREATE, payload, null));
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
-  void handleBibframeEvent_negative_logFailedEvent() {
-    var payload = toMap(new Bibframe().id(RESOURCE_ID));
-    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, BIBFRAME_RESOURCE, UPDATE, payload, null));
+  void handleLinkedDataWorkEvent_negative_logFailedEvent() {
+    var payload = toMap(new LinkedDataWork().id(RESOURCE_ID));
+    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_WORK_RESOURCE, UPDATE, payload, null));
 
     doAnswer(inv -> {
       inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
-    messageListener.handleBibframeEvents(List.of(new ConsumerRecord<>(
-      bibframeTopic(TENANT_ID), 0, 0, RESOURCE_ID, resourceEvent(null, BIBFRAME_RESOURCE, UPDATE, payload, null))));
+    var consumerRecord = new ConsumerRecord<>(linkedDataWorkTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_WORK_RESOURCE, UPDATE, payload, null));
+    messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
-  void handleBibframeAuthorityEvent_positive() {
-    var payload = toMap(new BibframeAuthority().id(RESOURCE_ID));
+  void handleLinkedDataAuthorityEvent_positive() {
+    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
 
-    messageListener.handleBibframeEvents(List.of(new ConsumerRecord<>(
-      bibframeAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, BIBFRAME_AUTHORITY_RESOURCE, CREATE, payload, null))));
+    messageListener.handleLinkedDataEvents(List.of(new ConsumerRecord<>(
+      linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_AUTHORITY_RESOURCE, CREATE, payload, null))));
 
-    var expectedEvents = singletonList(resourceEvent(RESOURCE_ID, BIBFRAME_AUTHORITY_RESOURCE, CREATE, payload, null));
+    var expectedEvents = singletonList(
+      resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY_RESOURCE, CREATE, payload, null));
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
-  void handleBibframeAuthorityEvent_negative_logFailedEvent() {
-    var payload = toMap(new BibframeAuthority().id(RESOURCE_ID));
-    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, BIBFRAME_AUTHORITY_RESOURCE, UPDATE, payload, null));
+  void handleLinkedDataAuthorityEvent_negative_logFailedEvent() {
+    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
+    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY_RESOURCE, UPDATE, payload, null));
 
     doAnswer(inv -> {
       inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
-    messageListener.handleBibframeEvents(List.of(new ConsumerRecord<>(
-      bibframeAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, BIBFRAME_AUTHORITY_RESOURCE, UPDATE, payload, null))));
+    messageListener.handleLinkedDataEvents(List.of(new ConsumerRecord<>(
+      linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_AUTHORITY_RESOURCE, UPDATE, payload, null))));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }

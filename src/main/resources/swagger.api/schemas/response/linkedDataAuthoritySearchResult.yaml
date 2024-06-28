@@ -1,4 +1,4 @@
-description: "Bibframe authority search result response"
+description: "Linked data authority search result response"
 type: "object"
 properties:
   searchQuery:
@@ -6,9 +6,9 @@ properties:
     description: "Initial search query"
   content:
     type: "array"
-    description: "List of bibframe authority records found"
+    description: "List of linked data authority records found"
     items:
-      $ref: "../../schemas/dto/bibframe/bibframeAuthority.yaml"
+      $ref: "../../schemas/dto/linked-data/linkedDataAuthority.yaml"
   pageNumber:
     type: "integer"
     description: "Current results page number, 0 by default"

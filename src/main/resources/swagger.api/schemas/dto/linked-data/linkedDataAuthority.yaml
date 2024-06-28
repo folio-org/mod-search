@@ -1,4 +1,4 @@
-description: "Bibframe authority search dto, contains Authority and Identifiers"
+description: "Linked data authority search dto, contains Authority and Identifiers"
 type: "object"
 properties:
   id:
@@ -11,7 +11,7 @@ properties:
     type: "string"
   identifiers:
     type: "array"
-    description: "Authority identifier array"
+    description: "Linked data authority identifier array"
     items:
       properties:
         value:

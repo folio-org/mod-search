@@ -111,10 +111,10 @@ folio:
       - name: inventory.location
         numPartitions: 1
         replicationFactor: 1
-      - name: search.bibframe
+      - name: linked-data.work
         numPartitions: 1
         replicationFactor: 1
-      - name: search.bibframe-authorities
+      - name: linked-data.authority
         numPartitions: 1
         replicationFactor: 1
       - name: inventory.campus
@@ -155,10 +155,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
         group-id: ${folio.environment}-mod-search-location-type-group
-      bibframe:
+      linked-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.(bibframe|bibframe-authorities)
-        group-id: ${folio.environment}-mod-search-bibframe-group
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(work|authority)
+        group-id: ${folio.environment}-mod-search-linked-data-group
   okapiUrl: ${okapi.url}
   logging:
     request:

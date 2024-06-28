@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.Classification;
@@ -164,7 +163,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
         .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
           .classificationTypeId(String.valueOf(pair.getSecond())))
-        .collect(Collectors.toList()))
+        .toList())
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());

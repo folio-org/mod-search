@@ -220,7 +220,7 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchHoldings_positive_exceedsSearchResultWindow() {
-    var ids = IntStream.range(1, 10002).mapToObj(i -> UUID.randomUUID()).collect(Collectors.toList());
+    var ids = IntStream.range(1, 10002).mapToObj(i -> UUID.randomUUID()).toList();
     var instancesHoldings = List.of(
       List.of(holding(UUID.randomUUID().toString(), CENTRAL_TENANT_ID),
         holding(ids.get(0).toString(), MEMBER_TENANT_ID)),
@@ -298,7 +298,7 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchItems_positive_exceedsSearchResultWindow() {
-    var ids = IntStream.range(1, 10002).mapToObj(i -> UUID.randomUUID()).collect(Collectors.toList());
+    var ids = IntStream.range(1, 10002).mapToObj(i -> UUID.randomUUID()).toList();
     var instancesItems = List.of(
       List.of(item(UUID.randomUUID().toString(), CENTRAL_TENANT_ID),
         item(ids.get(0).toString(), MEMBER_TENANT_ID)),

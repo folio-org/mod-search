@@ -872,6 +872,7 @@ Special API that provide consolidated access to records in consortium environmen
 | GET    | `/search/consortium/items`     | Returns consolidated items     |
 | GET    | `/search/consortium/locations` | Returns consolidated locations |
 | GET    | `/search/consortium/campuses`  | Returns consolidated campuses  |
+| GET    | `/search/consortium/libraries` | Returns consolidated libraries |
 
 ## Additional Information
 

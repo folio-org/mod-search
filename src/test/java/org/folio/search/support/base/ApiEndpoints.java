@@ -41,6 +41,14 @@ public class ApiEndpoints {
     return addQueryParams(consortiumCampusesSearchPath(), queryParams);
   }
 
+  public static String consortiumLibrariesSearchPath() {
+    return "/search/consortium/libraries";
+  }
+
+  public static String consortiumLibrariesSearchPath(List<Pair<String, String>> queryParams) {
+    return addQueryParams(consortiumLibrariesSearchPath(), queryParams);
+  }
+
   public static String consortiumItemsSearchPath() {
     return "/search/consortium/items";
   }

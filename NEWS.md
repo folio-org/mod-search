@@ -27,6 +27,7 @@
 * Implement Indexing of Libraries from Kafka ([MSEARCH-769](https://issues.folio.org/browse/MSEARCH-769))
 * Return Unified List of Inventory Campuses in a Consortium ([MSEARCH-773](https://issues.folio.org/browse/MSEARCH-773))
 * Increase batch IDs limit for search consolidated items/holdings in consortium ([MSEARCH-785](https://folio-org.atlassian.net/browse/MSEARCH-785))
+* Return Unified List of Inventory Libraries in a Consortium ([MSEARCH-772](https://issues.folio.org/browse/MSEARCH-772))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

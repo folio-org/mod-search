@@ -193,8 +193,7 @@
           "showInResponse": [ "search", "call-number-browse" ]
         },
         "place": {
-          "index": "standard",
-          "showInResponse": [ "search" ]
+          "index": "standard"
         }
       }
     },

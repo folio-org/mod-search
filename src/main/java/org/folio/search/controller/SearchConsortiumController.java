@@ -3,7 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
-import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -160,7 +160,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
         .ok(new ConsortiumHoldingCollection());
     }
 
-    var result = searchService.fetchConsortiumBatchHoldings(tenant, Sets.newHashSet(batchIdsDto.getIds()));
+    var result = searchService.fetchConsortiumBatchHoldings(tenant, new HashSet<>(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 
@@ -174,7 +174,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
     var tenant = verifyAndGetTenant(tenantHeader);
 
-    var result = searchService.fetchConsortiumBatchItems(tenant, Sets.newHashSet(batchIdsDto.getIds()));
+    var result = searchService.fetchConsortiumBatchItems(tenant, new HashSet<>(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 

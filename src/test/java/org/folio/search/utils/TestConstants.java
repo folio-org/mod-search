@@ -37,8 +37,8 @@ public class TestConstants {
   public static final String INVENTORY_BOUND_WITH_TOPIC = "inventory.bound-with";
   public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
   public static final String CONSORTIUM_INSTANCE_TOPIC = "search.consortium.instance";
-  public static final String BIBFRAME_TOPIC = "search.bibframe";
-  public static final String BIBFRAME_AUTHORITY_TOPIC = "search.bibframe-authorities";
+  public static final String LINKED_DATA_TOPIC = "linked-data.work";
+  public static final String LINKED_DATA_AUTHORITY_TOPIC = "linked-data.authority";
   public static final String CAMPUS_TOPIC = "inventory.campus";
   public static final String INSTITUTION_TOPIC = "inventory.institution";
   public static final String LIBRARY_TOPIC = "inventory.library";
@@ -124,12 +124,12 @@ public class TestConstants {
     return getTopicName(tenantId, INVENTORY_BOUND_WITH_TOPIC);
   }
 
-  public static String bibframeTopic(String tenantId) {
-    return getTopicName(tenantId, BIBFRAME_TOPIC);
+  public static String linkedDataWorkTopic(String tenantId) {
+    return getTopicName(tenantId, LINKED_DATA_TOPIC);
   }
 
-  public static String bibframeAuthorityTopic(String tenantId) {
-    return getTopicName(tenantId, BIBFRAME_AUTHORITY_TOPIC);
+  public static String linkedDataAuthorityTopic(String tenantId) {
+    return getTopicName(tenantId, LINKED_DATA_AUTHORITY_TOPIC);
   }
 
   public static String inventoryCampusTopic(String tenantId) {

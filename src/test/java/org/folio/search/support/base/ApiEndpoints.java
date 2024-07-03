@@ -93,12 +93,12 @@ public class ApiEndpoints {
     return "/browse/classification-numbers/" + optionType.getValue() + "/instances";
   }
 
-  public static String bibframeSearchPath() {
-    return "/search/bibframe";
+  public static String linkedDataSearchPath() {
+    return "/search/linked-data/works";
   }
 
-  public static String bibframeAuthoritySearchPath() {
-    return "/search/bibframe/authorities";
+  public static String linkedDataAuthoritySearchPath() {
+    return "/search/linked-data/authorities";
   }
 
   public static String authorityBrowsePath() {

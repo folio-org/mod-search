@@ -3,8 +3,8 @@ package org.folio.search.controller;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.BibframeAuthority;
-import org.folio.search.sample.SampleBibframe;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.sample.SampleLinkedData;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -14,12 +14,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchBibframeAuthorityIT extends BaseIntegrationTest {
+class SearchLinkedDataAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(BibframeAuthority.class, 2,
-      SampleBibframe.getBibframeAuthorityConceptSampleAsMap(), SampleBibframe.getBibframeAuthorityPersonSampleAsMap()
+    setUpTenant(LinkedDataAuthority.class, 2,
+      SampleLinkedData.getAuthorityConceptSampleAsMap(), SampleLinkedData.getAuthorityPersonSampleAsMap()
     );
   }
 
@@ -28,7 +28,7 @@ class SearchBibframeAuthorityIT extends BaseIntegrationTest {
     removeTenant();
   }
 
-  @DisplayName("search by authority bibframe (all  authorities are found)")
+  @DisplayName("search by linked data authority (all authorities are found)")
   @ParameterizedTest(name = "[{0}] {2}")
   @CsvSource({
     " 1, 2, label any \"*\"",
@@ -51,8 +51,8 @@ class SearchBibframeAuthorityIT extends BaseIntegrationTest {
     "18, 1, lccn any \"*0123456789\" AND type = \"PERSON\"",
     "19, 1, lccn any \"*0123456789\" AND type = \"CONCEPT\""
   })
-  void searchByBibframe_parameterized_singleResult(int index, int size, String query) throws Throwable {
-    doSearchByBibframeAuthority(query)
+  void searchByLinkedDataAuthority_parameterized_singleResult(int index, int size, String query) throws Throwable {
+    doSearchByLinkedDataAuthority(query)
       .andExpect(jsonPath("$.totalRecords", is(size)));
   }
 }

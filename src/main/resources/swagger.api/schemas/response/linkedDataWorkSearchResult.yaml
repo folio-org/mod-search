@@ -1,4 +1,4 @@
-description: "Bibframe search result response"
+description: "Linked data search result response"
 type: "object"
 properties:
   searchQuery:
@@ -6,9 +6,9 @@ properties:
     description: "Initial search query"
   content:
     type: "array"
-    description: "List of bibframe records found"
+    description: "List of linked data records found"
     items:
-      $ref: "../../schemas/dto/bibframe/bibframe.yaml"
+      $ref: "../../schemas/dto/linked-data/linkedDataWork.yaml"
   pageNumber:
     type: "integer"
     description: "Current results page number, 0 by default"

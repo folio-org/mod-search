@@ -137,10 +137,10 @@ folio:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
         group-id: ${folio.environment}-mod-search-location-type-group
-      bibframe:
-        concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.(bibframe|bibframe-authorities)
-        group-id: ${folio.environment}-mod-search-bibframe-group
+      linked-data:
+        concurrency: ${KAFKA_LINKED_DATA_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(work|authority)
+        group-id: ${folio.environment}-mod-search-linked-data-group
   okapiUrl: ${okapi.url}
   logging:
     request:

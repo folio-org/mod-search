@@ -2,12 +2,12 @@ package org.folio.search.controller;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static org.folio.search.sample.SampleBibframe.getBibframe2SampleAsMap;
-import static org.folio.search.sample.SampleBibframe.getBibframeSampleAsMap;
+import static org.folio.search.sample.SampleLinkedData.getWork2SampleAsMap;
+import static org.folio.search.sample.SampleLinkedData.getWorkSampleAsMap;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.Bibframe;
+import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -17,11 +17,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchBibframeIT extends BaseIntegrationTest {
+class SearchLinkedDataWorkIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Bibframe.class, 2, getBibframeSampleAsMap(), getBibframe2SampleAsMap());
+    setUpTenant(LinkedDataWork.class, 2, getWorkSampleAsMap(), getWork2SampleAsMap());
   }
 
   @AfterAll
@@ -29,7 +29,7 @@ class SearchBibframeIT extends BaseIntegrationTest {
     removeTenant();
   }
 
-  @DisplayName("search by bibframe (all 2 bibframe are found)")
+  @DisplayName("search by linked data works (all 2 works are found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
     "1, cql.allRecords = 1",
@@ -54,15 +54,15 @@ class SearchBibframeIT extends BaseIntegrationTest {
     "20, title all \"titleAbc\" sortBy title/sort.ascending",
     "21, title all \"titleAbc\" sortBy title/sort.descending",
   })
-  void searchByBibframe_parameterized_allResults(int index, String query) throws Throwable {
+  void searchByLinkedDataWork_parameterized_allResults(int index, String query) throws Throwable {
     var asc = query.contains("titleAbc def") || query.contains("sortBy") && !query.contains("descending");
-    doSearchByBibframe(query)
+    doSearchByLinkedDataWork(query)
       .andExpect(jsonPath("$.totalRecords", is(2)))
       .andExpect(jsonPath("$.content[0].titles[0].value", is(asc ? "titleAbc def" : "titleAbc xyz")))
       .andExpect(jsonPath("$.content[1].titles[0].value", is(asc ? "titleAbc xyz" : "titleAbc def")));
   }
 
-  @DisplayName("search by bibframe (single bibframe is found)")
+  @DisplayName("search by linked data work (single work is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
     "1, title any \"def\"",
@@ -91,8 +91,8 @@ class SearchBibframeIT extends BaseIntegrationTest {
     "24, contributor any Person",
     "25, contributor all Family"
   })
-  void searchByBibframe_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByBibframe(query)
+  void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
+    doSearchByLinkedDataWork(query)
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath(toId(toWork()), is("123456123456")))
       .andExpect(jsonPath(toTitleValue(toWork(), 0), is("titleAbc def")))
@@ -152,7 +152,7 @@ class SearchBibframeIT extends BaseIntegrationTest {
       ;
   }
 
-  @DisplayName("search by bibframe (nothing is found)")
+  @DisplayName("search by liked data work (nothing is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
     "1, title ==/string \"titleAbc\"",
@@ -186,8 +186,8 @@ class SearchBibframeIT extends BaseIntegrationTest {
     "29, contributor = \"comm\"",
     "30, contributor <> \"common\"",
   })
-  void searchByBibframe_parameterized_zeroResults(int index, String query) throws Throwable {
-    doSearchByBibframe(query)
+  void searchByLinkedDataWork_parameterized_zeroResults(int index, String query) throws Throwable {
+    doSearchByLinkedDataWork(query)
       .andExpect(jsonPath("$.totalRecords", is(0)));
   }
 

@@ -1,11 +1,23 @@
 description: Batch IDs DTO
 type: object
 properties:
-  ids:
-    description: Entity IDs
+  identifierType:
+    description: Type of entity identifier
+    type: "string"
+    enum:
+      - "id"
+      - "hrid"
+      - "accessionNumber"
+      - "formerIds"
+      - "barcode"
+      - "holdingsRecordId"
+      - "instanceHrid"
+      - "itemBarcode"
+  identifierValues:
+    description: Entity identifier values
     type: array
     items:
       type: string
-      format: uuid
 required:
-  - ids
+  - identifierType
+  - identifierValues

@@ -1,7 +1,10 @@
 package org.folio.search.service.consortium;
 
+import static java.lang.String.format;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.folio.search.service.SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW;
+import static org.folio.search.utils.IdentifierUtils.getHoldingIdentifierValue;
+import static org.folio.search.utils.IdentifierUtils.getItemIdentifierValue;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -13,14 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.converter.ConsortiumHoldingMapper;
 import org.folio.search.converter.ConsortiumItemMapper;
+import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -89,13 +92,21 @@ public class ConsortiumInstanceSearchService {
     return ConsortiumItemMapper.toConsortiumItem(instance.getId(), item);
   }
 
-  public ConsortiumHoldingCollection fetchConsortiumBatchHoldings(String tenant, Set<UUID> holdingIds) {
-    validateIdsCount(holdingIds.size());
+  public ConsortiumHoldingCollection fetchConsortiumBatchHoldings(String tenant, Set<String> identifierValues,
+                                                                  BatchIdsDto.IdentifierTypeEnum identifierType) {
+    validateIdsCount(identifierValues.size());
 
-    var ids = holdingIds.stream().map(UUID::toString).collect(Collectors.toSet());
-    var targetField = INSTANCE_HOLDING_FIELD_NAME + ".id";
+    String targetField;
 
-    var searchRecords = getConsortiumBatchResults(tenant, ids, targetField, this::mapToConsortiumHolding);
+    if (identifierType == BatchIdsDto.IdentifierTypeEnum.ITEMBARCODE) {
+      targetField = "items.barcode";
+    } else if (identifierType == BatchIdsDto.IdentifierTypeEnum.INSTANCEHRID) {
+      targetField = "hrid";
+    } else {
+      targetField = format("%s.%s", INSTANCE_HOLDING_FIELD_NAME, identifierType.getValue());
+    }
+    var searchRecords = getConsortiumBatchResults(tenant, identifierType, identifierValues, targetField,
+      this::mapToConsortiumHolding);
 
     if (searchRecords.isEmpty()) {
       return new ConsortiumHoldingCollection();
@@ -106,13 +117,14 @@ public class ConsortiumInstanceSearchService {
       .totalRecords(searchRecords.iterator().next().getTotalRecords());
   }
 
-  public ConsortiumItemCollection fetchConsortiumBatchItems(String tenant, Set<UUID> itemIds) {
-    validateIdsCount(itemIds.size());
+  public ConsortiumItemCollection fetchConsortiumBatchItems(String tenant, Set<String> identifierValues,
+                                                            BatchIdsDto.IdentifierTypeEnum identifierType) {
+    validateIdsCount(identifierValues.size());
 
-    var ids = itemIds.stream().map(UUID::toString).collect(Collectors.toSet());
-    var targetField = INSTANCE_ITEM_FIELD_NAME + ".id";
+    var targetField = format("%s.%s", INSTANCE_ITEM_FIELD_NAME, identifierType.getValue());
 
-    var searchRecords = getConsortiumBatchResults(tenant, ids, targetField, this::mapToConsortiumItem);
+    var searchRecords = getConsortiumBatchResults(tenant, identifierType, identifierValues, targetField,
+      this::mapToConsortiumItem);
 
     if (searchRecords.isEmpty()) {
       return new ConsortiumItemCollection();
@@ -123,16 +135,17 @@ public class ConsortiumInstanceSearchService {
       .totalRecords(searchRecords.iterator().next().getTotalRecords());
   }
 
-  private <T> List<SearchResult<T>> getConsortiumBatchResults(String tenant, Set<String> ids, String targetField,
-                                                              BiFunction<Instance, Set<String>, List<T>> recordMapper) {
+  private <T> List<SearchResult<T>> getConsortiumBatchResults(String tenant,
+       BatchIdsDto.IdentifierTypeEnum identifierType, Set<String> identifierValues, String targetField,
+       Mapper<Instance, BatchIdsDto.IdentifierTypeEnum, Set<String>, List<T>> recordMapper) {
     var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, true);
-    var termsQuery = termsQuery(targetField, ids);
+    var termsQuery = termsQuery(targetField, identifierValues);
 
-    if (ids.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
-      var searchSourceBuilder = queryBuilder(termsQuery, ids.size());
+    if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+      var searchSourceBuilder = queryBuilder(termsQuery, identifierValues.size());
       var response = searchRepository.search(request, searchSourceBuilder);
       var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
-        (hits, item) -> recordMapper.apply(item, ids));
+        (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
       var records = searchResult.getRecords().stream()
         .flatMap(List::stream)
         .toList();
@@ -147,7 +160,7 @@ public class ConsortiumInstanceSearchService {
 
     while (response.getHits() != null && response.getHits().getHits().length > 0) {
       var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
-        (hits, item) -> recordMapper.apply(item, ids));
+        (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
       var records = searchResult.getRecords().stream()
         .flatMap(List::stream)
         .toList();
@@ -161,16 +174,33 @@ public class ConsortiumInstanceSearchService {
     return searchRecords;
   }
 
-  private List<ConsortiumHolding> mapToConsortiumHolding(Instance instance, Set<String> ids) {
-    return instance.getHoldings().stream()
-      .filter(holding -> ids.contains(holding.getId()))
-      .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding))
-      .toList();
+  private List<ConsortiumHolding> mapToConsortiumHolding(Instance instance,
+     BatchIdsDto.IdentifierTypeEnum identifierType, Set<String> identifierValues) {
+    if (identifierType == BatchIdsDto.IdentifierTypeEnum.ITEMBARCODE) {
+      return new ArrayList<>(instance.getItems().stream()
+        .filter(item -> identifierValues.contains(item.getBarcode()))
+        .flatMap(item -> instance.getHoldings().stream()
+          .filter(holding -> item.getHoldingsRecordId().equals(holding.getId()))
+        )
+        .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding))
+        .collect(Collectors.toSet()));
+    } else if (identifierType == BatchIdsDto.IdentifierTypeEnum.INSTANCEHRID) {
+      return instance.getHoldings()
+        .stream()
+        .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding)).toList();
+    } else {
+      return instance.getHoldings().stream()
+        .filter(holding ->
+          CollectionUtils.containsAny(identifierValues, getHoldingIdentifierValue(identifierType, holding)))
+        .map(holding -> ConsortiumHoldingMapper.toConsortiumHolding(instance.getId(), holding))
+        .toList();
+    }
   }
 
-  private List<ConsortiumItem> mapToConsortiumItem(Instance instance, Set<String> ids) {
+  private List<ConsortiumItem> mapToConsortiumItem(Instance instance, BatchIdsDto.IdentifierTypeEnum identifierType,
+     Set<String> identifierValues) {
     return instance.getItems().stream()
-      .filter(item -> ids.contains(item.getId()))
+      .filter(item -> CollectionUtils.containsAny(identifierValues, getItemIdentifierValue(identifierType, item)))
       .map(holding -> ConsortiumItemMapper.toConsortiumItem(instance.getId(), holding))
       .toList();
   }
@@ -189,5 +219,10 @@ public class ConsortiumInstanceSearchService {
       throw new RequestValidationException("IDs array size exceeds the maximum allowed limit %s".formatted(idsLimit),
         "size", Long.toString(count));
     }
+  }
+
+  @FunctionalInterface
+  public interface Mapper<T, U, V, R> {
+    R apply(T t, U u, V v);
   }
 }

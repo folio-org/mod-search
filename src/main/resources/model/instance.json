@@ -283,10 +283,11 @@
           "index": "keyword_lowercase"
         },
         "accessionNumber": {
-          "index": "source"
+          "index": "keyword_lowercase"
         },
         "formerIds": {
-          "index": "source"
+          "searchTypes": [ "facet", "filter" ],
+          "index": "keyword_lowercase"
         },
         "itemIdentifier": {
           "index": "source"

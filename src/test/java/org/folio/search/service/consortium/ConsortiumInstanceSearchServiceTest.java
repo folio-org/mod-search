@@ -22,6 +22,7 @@ import org.apache.lucene.search.TotalHits;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.converter.ConsortiumHoldingMapper;
 import org.folio.search.converter.ConsortiumItemMapper;
+import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
@@ -185,7 +186,9 @@ class ConsortiumInstanceSearchServiceTest {
 
     var ex =
       assertThrows(RequestValidationException.class,
-        () -> service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, ids));
+        () -> service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID,
+          Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+          BatchIdsDto.IdentifierTypeEnum.ID));
 
     assertThat(ex.getMessage()).isEqualTo("IDs array size exceeds the maximum allowed limit %s"
       .formatted(properties.getMaxSearchBatchRequestIdsCount()));
@@ -213,7 +216,9 @@ class ConsortiumInstanceSearchServiceTest {
       .holdings(expectedConsortiumHoldings)
       .totalRecords(2);
 
-    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, Sets.newHashSet(ids));
+    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID,
+      Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+      BatchIdsDto.IdentifierTypeEnum.ID);
 
     assertThat(result).isEqualTo(expected);
   }
@@ -248,7 +253,9 @@ class ConsortiumInstanceSearchServiceTest {
       .holdings(expectedConsortiumHoldings)
       .totalRecords(2);
 
-    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, Sets.newHashSet(ids));
+    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID,
+      Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+      BatchIdsDto.IdentifierTypeEnum.ID);
 
     assertThat(result).isEqualTo(expected);
     verify(searchRepository, times(2))
@@ -263,7 +270,9 @@ class ConsortiumInstanceSearchServiceTest {
     var ids = IntStream.range(1, 12).mapToObj(i -> UUID.randomUUID()).collect(Collectors.toSet());
 
     var ex =
-      assertThrows(RequestValidationException.class, () -> service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, ids));
+      assertThrows(RequestValidationException.class, () -> service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID,
+        Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+        BatchIdsDto.IdentifierTypeEnum.ID));
 
     assertThat(ex.getMessage()).isEqualTo("IDs array size exceeds the maximum allowed limit %s"
       .formatted(properties.getMaxSearchBatchRequestIdsCount()));
@@ -291,7 +300,9 @@ class ConsortiumInstanceSearchServiceTest {
       .items(expectedConsortiumItems)
       .totalRecords(2);
 
-    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Sets.newHashSet(ids));
+    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID,
+      Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+      BatchIdsDto.IdentifierTypeEnum.ID);
 
     assertThat(result).isEqualTo(expected);
   }
@@ -326,7 +337,9 @@ class ConsortiumInstanceSearchServiceTest {
       .items(expectedConsortiumItems)
       .totalRecords(2);
 
-    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Sets.newHashSet(ids));
+    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID,
+      Sets.newHashSet(ids).stream().map(UUID::toString).collect(Collectors.toSet()),
+      BatchIdsDto.IdentifierTypeEnum.ID);
 
     assertThat(result).isEqualTo(expected);
     verify(searchRepository, times(2))

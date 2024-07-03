@@ -278,6 +278,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 | REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
+| MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                  | 20_000                                                        | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

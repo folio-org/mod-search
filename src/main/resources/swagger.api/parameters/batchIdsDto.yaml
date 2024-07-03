@@ -4,7 +4,6 @@ properties:
   ids:
     description: Entity IDs
     type: array
-    maxItems: 1000
     items:
       type: string
       format: uuid

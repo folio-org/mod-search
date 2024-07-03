@@ -3,9 +3,8 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BatchIdsDto;
@@ -156,10 +155,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
     var tenant = verifyAndGetTenant(tenantHeader);
-    var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
+    if (batchIdsDto.getIds().isEmpty()) {
+      return ResponseEntity
+        .ok(new ConsortiumHoldingCollection());
+    }
 
-    var result = searchService.fetchConsortiumBatchHoldings(searchRequest, holdingIds);
+    var result = searchService.fetchConsortiumBatchHoldings(tenant, new HashSet<>(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 
@@ -172,10 +173,8 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     }
 
     var tenant = verifyAndGetTenant(tenantHeader);
-    var itemIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemIds);
 
-    var result = searchService.fetchConsortiumBatchItems(searchRequest, itemIds);
+    var result = searchService.fetchConsortiumBatchItems(tenant, new HashSet<>(batchIdsDto.getIds()));
     return ResponseEntity.ok(result);
   }
 
@@ -191,13 +190,4 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     var query = fieldName + ".id=" + id;
     return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
   }
-
-  private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
-    var query = ids.stream()
-      .map((fieldName + ".id=%s")::formatted)
-      .collect(Collectors.joining(" or "));
-
-    return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
-  }
-
 }

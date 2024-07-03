@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
@@ -215,7 +214,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
         .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
           .classificationTypeId(String.valueOf(pair.getSecond())))
-        .collect(Collectors.toList()))
+        .toList())
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());

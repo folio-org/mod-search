@@ -193,6 +193,12 @@ description: |
         <td>Matches instances that have Publisher of Ukraine publisher</td>
     </tr>
     <tr>
+        <td>publication.place</td>
+        <td>term</td>
+        <td>publication.place==&quot;Ukraine&quot;</td>
+        <td>Matches instances that have `Ukraine` publication place</td>
+    </tr>
+    <tr>
         <td>instanceTags</td>
         <td>term</td>
         <td>instanceTags==&quot;important&quot;</td>

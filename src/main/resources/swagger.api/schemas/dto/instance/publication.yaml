@@ -6,3 +6,6 @@ properties:
   dateOfPublication:
     description: "Date (year YYYY) of publication, distribution, etc."
     type: string
+  place:
+    description: "Place of publication, distribution, etc."
+    type: string

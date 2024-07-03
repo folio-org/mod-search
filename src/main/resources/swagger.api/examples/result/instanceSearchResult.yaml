@@ -12,6 +12,7 @@ value:
       publication:
         - publisher: "Duncker und Humblot"
           dateOfPublication: "1976"
+          place: Karlsruhe
       staffSuppress: false
       discoverySuppress: false
       isBoundWith: false

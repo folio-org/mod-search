@@ -106,18 +106,18 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/bibframe",
+          "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
-            "search.bibframe.collection.get"
+            "search.linked-data.work.collection.get"
           ]
         },
         {
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/bibframe/authorities",
+          "pathPattern": "/search/linked-data/authorities",
           "permissionsRequired": [
-            "search.bibframe.authority.collection.get"
+            "search.linked-data.authority.collection.get"
           ]
         },
         {
@@ -616,9 +616,14 @@
       "description": "Searches authorities by given query"
     },
     {
-      "permissionName": "search.bibframe.collection.get",
-      "displayName": "Search - searches bibframe by given query",
-      "description": "Searches bibframe by given query"
+      "permissionName": "search.linked-data.work.collection.get",
+      "displayName": "Search - searches linked data works by given query",
+      "description": "Searches linked data works by given query"
+    },
+    {
+      "permissionName": "search.linked-data.authority.collection.get",
+      "displayName": "Search - searches linked data authorities by given query",
+      "description": "Searches linked data authorities by given query"
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",

@@ -1,4 +1,4 @@
-description: "Bibframe search dto, contains Work and linked Instances"
+description: "Linked data work search dto, contains Work and linked Instances"
 type: "object"
 properties:
   id:

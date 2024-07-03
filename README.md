@@ -244,7 +244,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR        | -                                                          | Replication factor for `search.instance-contributor` topic.                                                                                                                           |
 | KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY              | 2                                                          | Custom number of kafka concurrent threads for consortium.instance message consuming.                                                                                                  |
 | KAFKA_LOCATION_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for inventory.location, inventory.campus, inventory.institution and inventory.library message consuming.                                    |
-| KAFKA_BIBFRAME_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for bibframe message consuming.                                                                                                             |
+| KAFKA_LINKED_DATA_CONCURRENCY                      | 1                                                          | Custom number of kafka concurrent threads for linked data message consuming.                                                                                                          |
 | KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS         | 50                                                         | Amount of partitions for `search.consortium.instance` topic.                                                                                                                          |
 | KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR | -                                                          | Replication factor for `search.consortium.instance` topic.                                                                                                                            |
 | KAFKA_SUBJECTS_CONCURRENCY                         | 2                                                          | Custom number of kafka concurrent threads for subject message consuming.                                                                                                              |
@@ -415,15 +415,15 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 
 ### Search API
 
-| METHOD | URL                                       | DESCRIPTION                                                                          |
-|:-------|:------------------------------------------|:-------------------------------------------------------------------------------------|
-| GET    | `/search/instances`                       | Search by instances and to this instance items and holding-records                   |
-| GET    | `/search/authorities`                     | Search by authority records                                                          |
-| GET    | `/search/bibframe`                        | Search linked data graph resource descriptions                                       |
-| GET    | `/search/bibframe/authorities`            | Search linked data graph authority resource descriptions                             |
-| GET    | `/search/{recordType}/facets`             | Get facets where recordType could be: instances, authorities, contributors, subjects |
-| GET    | ~~`/search/instances/ids`~~               | (DEPRECATED) Stream instance ids as JSON or plain text                               |
-| GET    | ~~`/search/holdings/ids`~~                | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
+| METHOD | URL                               | DESCRIPTION                                                                          |
+|:-------|:----------------------------------|:-------------------------------------------------------------------------------------|
+| GET    | `/search/instances`               | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/authorities`             | Search by authority records                                                          |
+| GET    | `/search/linked-data/works`       | Search linked data graph work resource descriptions                                  |
+| GET    | `/search/linked-data/authorities` | Search linked data graph authority resource descriptions                             |
+| GET    | `/search/{recordType}/facets`     | Get facets where recordType could be: instances, authorities, contributors, subjects |
+| GET    | ~~`/search/instances/ids`~~       | (DEPRECATED) Stream instance ids as JSON or plain text                               |
+| GET    | ~~`/search/holdings/ids`~~        | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 

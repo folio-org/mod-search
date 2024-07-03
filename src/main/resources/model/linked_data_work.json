@@ -1,6 +1,6 @@
 {
-  "name": "bibframe",
-  "eventBodyJavaClass": "org.folio.search.domain.dto.Bibframe",
+  "name": "linked-data-work",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataWork",
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
@@ -125,7 +125,7 @@
   "searchFields": {
     "isbn": {
       "type": "search",
-      "processor": "bibframeIsbnProcessor",
+      "processor": "linkedDataWorkIsbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
       "index": "standard",
       "indexPlainValue": false
@@ -133,23 +133,23 @@
     "lccn": {
       "type": "search",
       "index": "standard",
-      "processor": "bibframeLccnProcessor"
+      "processor": "linkedDataWorkLccnProcessor"
     },
     "title": {
       "type": "search",
       "index": "multilang",
-      "processor": "bibframeTitleProcessor"
+      "processor": "linkedDataWorkTitleProcessor"
     },
     "sort_title": {
       "searchTypes": "sort",
       "type": "search",
       "index": "keyword_lowercase",
-      "processor": "bibframeSortTitleProcessor"
+      "processor": "linkedDataWorkSortTitleProcessor"
     },
     "contributor": {
       "type": "search",
       "index": "multilang",
-      "processor": "bibframeContributorProcessor"
+      "processor": "linkedDataWorkContributorProcessor"
     }
   },
   "indexMappings": { }

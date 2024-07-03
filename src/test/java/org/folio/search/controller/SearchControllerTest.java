@@ -16,9 +16,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Bibframe;
-import org.folio.search.domain.dto.BibframeAuthority;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.service.SearchService;
@@ -86,8 +86,8 @@ class SearchControllerTest {
   @ValueSource(strings = {
     "/search/instances",
     "/search/authorities",
-    "/search/bibframe",
-    "/search/bibframe/authorities",
+    "/search/linked-data/works",
+    "/search/linked-data/authorities",
   })
   void search_offset_limit_10k(String searchPath) throws Exception {
 
@@ -137,10 +137,10 @@ class SearchControllerTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    "Instances           , 500 , /search/instances",
-    "Authorities         , 500 , /search/authorities",
-    "Bibframe            , 100 , /search/bibframe",
-    "BibframeAuthorities , 100 , /search/bibframe/authorities",
+    "Instances             , 500 , /search/instances",
+    "Authorities           , 500 , /search/authorities",
+    "LinkedDataWorks       , 100 , /search/linked-data/works",
+    "LinkedDataAuthorities , 100 , /search/linked-data/authorities",
   })
   void search_negative_invalidLimitParameter(String classMessagePart, int limit,  String searchPass) throws Exception {
     var expectedMessage = String.format("search%s.limit must be less than or equal to %s", classMessagePart, limit);
@@ -211,8 +211,8 @@ class SearchControllerTest {
     return Stream.of(
       Arguments.of(Instance.class, "/search/instances", false, 100, "$.instances"),
       Arguments.of(Authority.class, "/search/authorities", false, 100, "$.authorities"),
-      Arguments.of(Bibframe.class, "/search/bibframe", true, 10, "$.content"),
-      Arguments.of(BibframeAuthority.class, "/search/bibframe/authorities", true, 10, "$.content")
+      Arguments.of(LinkedDataWork.class, "/search/linked-data/works", true, 10, "$.content"),
+      Arguments.of(LinkedDataAuthority.class, "/search/linked-data/authorities", true, 10, "$.content")
     );
   }
 }

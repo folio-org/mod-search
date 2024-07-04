@@ -211,6 +211,12 @@ description: |
         <td>Matches instances that have cl1 classification number</td>
     </tr>
     <tr>
+        <td>classifications.classificationTypeId</td>
+        <td>term</td>
+        <td>classifications.classificationTypeId == &quot;123&quot;</td>
+        <td>Matches instances that have classification type id 123</td>
+    </tr>
+    <tr>
         <td>electronicAccess</td>
         <td>full-text</td>
         <td>electronicAccess any &quot;resource&quot;</td>

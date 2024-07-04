@@ -1,12 +1,11 @@
 package org.folio.search.service.consortium;
 
-import static java.lang.String.format;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.folio.search.service.SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW;
 import static org.folio.search.utils.IdentifierUtils.getHoldingIdentifierValue;
+import static org.folio.search.utils.IdentifierUtils.getHoldingTargetField;
 import static org.folio.search.utils.IdentifierUtils.getItemIdentifierValue;
-import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+import static org.folio.search.utils.IdentifierUtils.getItemTargetField;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
@@ -96,17 +95,8 @@ public class ConsortiumInstanceSearchService {
                                                                   BatchIdsDto.IdentifierTypeEnum identifierType) {
     validateIdsCount(identifierValues.size());
 
-    String targetField;
-
-    if (identifierType == BatchIdsDto.IdentifierTypeEnum.ITEMBARCODE) {
-      targetField = "items.barcode";
-    } else if (identifierType == BatchIdsDto.IdentifierTypeEnum.INSTANCEHRID) {
-      targetField = "hrid";
-    } else {
-      targetField = format("%s.%s", INSTANCE_HOLDING_FIELD_NAME, identifierType.getValue());
-    }
-    var searchRecords = getConsortiumBatchResults(tenant, identifierType, identifierValues, targetField,
-      this::mapToConsortiumHolding);
+    var searchRecords = getConsortiumBatchResults(tenant,
+      identifierType, identifierValues, getHoldingTargetField(identifierType), this::mapToConsortiumHolding);
 
     if (searchRecords.isEmpty()) {
       return new ConsortiumHoldingCollection();
@@ -121,10 +111,8 @@ public class ConsortiumInstanceSearchService {
                                                             BatchIdsDto.IdentifierTypeEnum identifierType) {
     validateIdsCount(identifierValues.size());
 
-    var targetField = format("%s.%s", INSTANCE_ITEM_FIELD_NAME, identifierType.getValue());
-
-    var searchRecords = getConsortiumBatchResults(tenant, identifierType, identifierValues, targetField,
-      this::mapToConsortiumItem);
+    var searchRecords = getConsortiumBatchResults(tenant,
+      identifierType, identifierValues, getItemTargetField(identifierType), this::mapToConsortiumItem);
 
     if (searchRecords.isEmpty()) {
       return new ConsortiumItemCollection();

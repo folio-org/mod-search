@@ -17,7 +17,6 @@ import static org.folio.search.utils.TestUtils.parseResponse;
 
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.assertj.core.groups.Tuple;
 import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.domain.dto.ConsortiumInstitutionCollection;

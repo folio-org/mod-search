@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
-
 import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;

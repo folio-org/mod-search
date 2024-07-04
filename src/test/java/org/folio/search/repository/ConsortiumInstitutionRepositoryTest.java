@@ -14,7 +14,6 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;

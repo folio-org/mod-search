@@ -2,11 +2,9 @@ package org.folio.search.sample;
 
 import static org.folio.search.utils.TestUtils.readJsonFromFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

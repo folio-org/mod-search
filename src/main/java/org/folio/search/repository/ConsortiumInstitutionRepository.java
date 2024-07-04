@@ -6,7 +6,8 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;
@@ -20,9 +21,6 @@ import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.springframework.stereotype.Repository;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Repository

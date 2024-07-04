@@ -5,10 +5,8 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
 import java.util.HashSet;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
 import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumCampusCollection;
 import org.folio.search.domain.dto.ConsortiumHolding;

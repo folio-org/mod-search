@@ -1,15 +1,13 @@
 package org.folio.search.service.consortium;
 
 import java.util.Set;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;
 import org.folio.search.repository.ConsortiumInstitutionRepository;
 import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service

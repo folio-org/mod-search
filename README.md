@@ -538,8 +538,8 @@ does not produce any values, so the following search options will return an empt
 | `metadata.updatedDate`                 |   term    | `metadata.updatedDate > "2020-12-12"`                                | Matches instances that were updated after  `2020-12-12`                                                                                           |
 | `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                                |
 | `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                               |
-| `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher
-| `publication.place`                    |   term    | `publication.place=="Ukraine"`                                       | Matches instances that have `Ukraine` publication place
+| `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                                      |
+| `publication.place`                    |   term    | `publication.place=="Ukraine"`                                       | Matches instances that have `Ukraine` publication place                                                                                           |
 | `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                                       |
 | `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                           |
 | `electronicAccess`                     | full-text | `electronicAccess any "resource"`                                    | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                                            |
@@ -867,13 +867,14 @@ can't receive ids by query.
 ### Consortium Search API
 Special API that provide consolidated access to records in consortium environment. Works only for central tenant.
 
-| METHOD | URL                            | DESCRIPTION                    |
-|:-------|:-------------------------------|:-------------------------------|
-| GET    | `/search/consortium/holdings`  | Returns consolidated holdings  |
-| GET    | `/search/consortium/items`     | Returns consolidated items     |
-| GET    | `/search/consortium/locations` | Returns consolidated locations |
-| GET    | `/search/consortium/campuses`  | Returns consolidated campuses  |
-| GET    | `/search/consortium/libraries` | Returns consolidated libraries |
+| METHOD | URL                               | DESCRIPTION                    |
+|:-------|:----------------------------------|:-------------------------------|
+| GET    | `/search/consortium/holdings`     | Returns consolidated holdings  |
+| GET    | `/search/consortium/items`        | Returns consolidated items     |
+| GET    | `/search/consortium/locations`    | Returns consolidated locations |
+| GET    | `/search/consortium/campuses`     | Returns consolidated campuses  |
+| GET    | `/search/consortium/libraries`    | Returns consolidated libraries |
+| GET    | `/search/consortium/institutions` | Returns consolidated libraries |
 
 ## Additional Information
 

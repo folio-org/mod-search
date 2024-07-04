@@ -5,12 +5,15 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
 import java.util.HashSet;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
 import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumCampusCollection;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.ConsortiumInstitutionCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.ConsortiumLibraryCollection;
@@ -25,6 +28,7 @@ import org.folio.search.rest.resource.SearchConsortiumApi;
 import org.folio.search.service.consortium.ConsortiumCampusService;
 import org.folio.search.service.consortium.ConsortiumInstanceSearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumInstitutionService;
 import org.folio.search.service.consortium.ConsortiumLibraryService;
 import org.folio.search.service.consortium.ConsortiumLocationService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
@@ -50,6 +54,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   private final ConsortiumInstanceSearchService searchService;
   private final ConsortiumCampusService campusService;
   private final ConsortiumLibraryService libraryService;
+  private final ConsortiumInstitutionService institutionService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
@@ -128,6 +133,21 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     return ResponseEntity.ok(new
       ConsortiumLibraryCollection()
       .libraries(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumInstitutionCollection> getConsortiumInstitutions(String tenantHeader,
+                                                                                   String tenantId,
+                                                                                   Integer limit,
+                                                                                   Integer offset,
+                                                                                   String sortBy,
+                                                                                   SortOrder sortOrder) {
+    var result = institutionService.fetchInstitutions(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumInstitutionCollection()
+      .institutions(result.getRecords())
       .totalRecords(result.getTotalRecords()));
   }
 

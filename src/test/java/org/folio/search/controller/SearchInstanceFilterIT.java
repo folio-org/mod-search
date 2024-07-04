@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Holding;
@@ -85,6 +86,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static final String[] HOLDINGS_TYPES = array(
     "eb003b9d-86f2-4bdf-9f8e-28851122617d",
     "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2");
+
+  private static final String[] CLASSIFICATION_TYPE_IDS = array(
+    "5af5cb9d-063f-48ea-8148-7da3ecaafd7d",
+    "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d");
 
   @BeforeAll
   static void prepare() {
@@ -305,7 +310,11 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
       arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
-        List.of(IDS[2], IDS[3]))
+        List.of(IDS[2], IDS[3])),
+      arguments(format("(classifications.classificationTypeId==%s) sortby title", CLASSIFICATION_TYPE_IDS[0]),
+        List.of(IDS[0])),
+      arguments(format("(classifications.classificationTypeId==(%s or %s)) sortby title",
+        CLASSIFICATION_TYPE_IDS[0], CLASSIFICATION_TYPE_IDS[1]), List.of(IDS[0], IDS[1]))
     );
   }
 
@@ -486,7 +495,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         new Holding().id(randomId())
           .holdingsTypeId(HOLDINGS_TYPES[0])
           .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
-          .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))));
+          .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))))
+      .addClassificationsItem(new Classification()
+        .classificationTypeId(CLASSIFICATION_TYPE_IDS[0])
+        .classificationNumber("QA76.73.C15"));
 
     instances[1]
       .tenantId(TENANT_ID)
@@ -510,7 +522,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
         .holdingsTypeId(HOLDINGS_TYPES[1])
         .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
-        .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))));
+        .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))))
+      .addClassificationsItem(new Classification()
+        .classificationTypeId(CLASSIFICATION_TYPE_IDS[1])
+        .classificationNumber("TK5105.88815"));
 
     instances[2]
       .tenantId(TENANT_ID)

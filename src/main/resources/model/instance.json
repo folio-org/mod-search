@@ -211,6 +211,10 @@
       "properties": {
         "classificationNumber": {
           "index": "keyword_lowercase"
+        },
+        "classificationTypeId": {
+          "searchTypes": [ "filter" ],
+          "index": "keyword_lowercase"
         }
       }
     },

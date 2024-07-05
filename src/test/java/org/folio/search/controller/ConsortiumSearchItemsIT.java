@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.controller.SearchConsortiumController.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.Pair.pair;
@@ -18,17 +19,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
+import org.folio.search.domain.dto.Item;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @IntegrationTest
 class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
@@ -125,21 +131,37 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is(MEMBER_TENANT_ID)));
   }
 
-  @Test
-  void doGetConsortiumBatchItems_returns200AndRecords() {
-    var items = getExpectedItems();
+  @ParameterizedTest
+  @EnumSource(value = BatchIdsDto.IdentifierTypeEnum.class,
+    names = {"ID", "HRID", "BARCODE", "ACCESSIONNUMBER", "FORMERIDS", "HOLDINGSRECORDID"},
+    mode = EnumSource.Mode.INCLUDE)
+  void doGetConsortiumBatchItems_returns200AndRecords(BatchIdsDto.IdentifierTypeEnum identifierType) {
+    var instance = getSemanticWeb();
+    var items = instance.getItems();
     var request = new BatchIdsDto()
-      .ids(Arrays.stream(items).map(ConsortiumItem::getId).map(UUID::fromString).toList());
+      .identifierType(identifierType)
+      .identifierValues(items.stream()
+        .map(item -> getConsortiumItemIdentifierValue(identifierType, item))
+        .filter(Objects::nonNull)
+        .toList());
     var result = doPost(consortiumBatchItemsSearchPath(), CENTRAL_TENANT_ID, request);
     var actual = parseResponse(result, ConsortiumItemCollection.class);
 
-    assertThat(actual.getTotalRecords()).isEqualTo(3);
-    assertThat(actual.getItems()).containsExactlyInAnyOrder(items);
+    var ids = items.stream()
+      .filter(item -> Objects.nonNull(getConsortiumItemIdentifierValue(identifierType, item)))
+      .map(Item::getId).toList();
+
+    var expected = Arrays.stream(getExpectedItems()).filter(item -> ids.contains(item.getId())).toList();
+
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getItems()).containsExactlyInAnyOrder(expected.toArray(new ConsortiumItem[0]));
   }
 
   @Test
   void tryGetConsortiumBatchItems_returns400_whenRequestedForNotCentralTenant() throws Exception {
-    tryPost(consortiumBatchItemsSearchPath(), new BatchIdsDto().ids(List.of(UUID.randomUUID())))
+    tryPost(consortiumBatchItemsSearchPath(), new BatchIdsDto()
+      .identifierType(BatchIdsDto.IdentifierTypeEnum.ID)
+      .identifierValues(List.of(UUID.randomUUID().toString())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].message", is(REQUEST_NOT_ALLOWED_MSG)))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
@@ -151,9 +173,10 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
   @Test
   void tryGetConsortiumBatchItems_returns400_whenMoreIdsThanLimit() throws Exception {
     var request = new BatchIdsDto()
-      .ids(
+      .identifierType(BatchIdsDto.IdentifierTypeEnum.ID)
+      .identifierValues(
         Stream.iterate(0, i -> i < 501, i -> ++i)
-          .map(i -> UUID.randomUUID())
+          .map(i -> UUID.randomUUID().toString())
           .toList()
       );
 
@@ -163,7 +186,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("size")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(request.getIds().size() + "")));
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(request.getIdentifierValues().size() + "")));
   }
 
   private ConsortiumItem[] getExpectedItems() {
@@ -178,5 +201,24 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
         .barcode(item.getBarcode())
       )
       .toArray(ConsortiumItem[]::new);
+  }
+
+  private String getConsortiumItemIdentifierValue(BatchIdsDto.IdentifierTypeEnum identifierName, Item item) {
+    if (identifierName == BatchIdsDto.IdentifierTypeEnum.ID) {
+      return item.getId();
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.HRID) {
+      return item.getHrid();
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.BARCODE) {
+      return item.getBarcode();
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.HOLDINGSRECORDID) {
+      return item.getHoldingsRecordId();
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.ACCESSIONNUMBER) {
+      return item.getAccessionNumber();
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.FORMERIDS) {
+      return CollectionUtils.isNotEmpty(item.getFormerIds()) ? item.getFormerIds().get(0) : null;
+    } else {
+      throw new UnsupportedOperationException(
+        format("Item identifier type %s isn't supported", identifierName.getValue()));
+    }
   }
 }

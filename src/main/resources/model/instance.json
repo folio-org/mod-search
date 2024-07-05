@@ -286,7 +286,6 @@
           "index": "keyword_lowercase"
         },
         "formerIds": {
-          "searchTypes": [ "facet", "filter" ],
           "index": "keyword_lowercase"
         },
         "itemIdentifier": {

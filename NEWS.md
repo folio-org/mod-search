@@ -6,9 +6,10 @@
 * Provides `indices v0.7`
 * Provides `search v1.3`
 * Requires `locations v3.0`
-* Provides `consortium-search v1.1`
+* Provides `consortium-search v1.2`
 
 ### Features
+* Extension of mod-search consortium items/holdings API ([MSEARCH-788](https://issues.folio.org/browse/MSEARCH-788))
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
 * Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
 * Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))

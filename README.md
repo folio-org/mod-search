@@ -243,8 +243,8 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS                | 50                                                         | Amount of partitions for `search.instance-contributor` topic.                                                                                                                         |
 | KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR        | -                                                          | Replication factor for `search.instance-contributor` topic.                                                                                                                           |
 | KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY              | 2                                                          | Custom number of kafka concurrent threads for consortium.instance message consuming.                                                                                                  |
-| KAFKA_LOCATION_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for inventory.location, inventory.campus, inventory.institution message consuming.                                                          |
-| KAFKA_BIBFRAME_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for bibframe message consuming.                                                                                                             |
+| KAFKA_LOCATION_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for inventory.location, inventory.campus, inventory.institution and inventory.library message consuming.                                    |
+| KAFKA_LINKED_DATA_CONCURRENCY                      | 1                                                          | Custom number of kafka concurrent threads for linked data message consuming.                                                                                                          |
 | KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS         | 50                                                         | Amount of partitions for `search.consortium.instance` topic.                                                                                                                          |
 | KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR | -                                                          | Replication factor for `search.consortium.instance` topic.                                                                                                                            |
 | KAFKA_SUBJECTS_CONCURRENCY                         | 2                                                          | Custom number of kafka concurrent threads for subject message consuming.                                                                                                              |
@@ -278,6 +278,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 | REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
+| MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                  | 20_000                                                        | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -414,14 +415,15 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 
 ### Search API
 
-| METHOD | URL                           | DESCRIPTION                                                                          |
-|:-------|:------------------------------|:-------------------------------------------------------------------------------------|
-| GET    | `/search/instances`           | Search by instances and to this instance items and holding-records                   |
-| GET    | `/search/authorities`         | Search by authority records                                                          |
-| GET    | `/search/bibframe`            | Search linked data graph resource descriptions                                       |
-| GET    | `/search/{recordType}/facets` | Get facets where recordType could be: instances, authorities, contributors, subjects |
-| GET    | ~~`/search/instances/ids`~~   | (DEPRECATED) Stream instance ids as JSON or plain text                               |
-| GET    | ~~`/search/holdings/ids`~~    | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
+| METHOD | URL                               | DESCRIPTION                                                                          |
+|:-------|:----------------------------------|:-------------------------------------------------------------------------------------|
+| GET    | `/search/instances`               | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/authorities`             | Search by authority records                                                          |
+| GET    | `/search/linked-data/works`       | Search linked data graph work resource descriptions                                  |
+| GET    | `/search/linked-data/authorities` | Search linked data graph authority resource descriptions                             |
+| GET    | `/search/{recordType}/facets`     | Get facets where recordType could be: instances, authorities, contributors, subjects |
+| GET    | ~~`/search/instances/ids`~~       | (DEPRECATED) Stream instance ids as JSON or plain text                               |
+| GET    | ~~`/search/holdings/ids`~~        | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 
@@ -537,8 +539,10 @@ does not produce any values, so the following search options will return an empt
 | `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                                |
 | `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                               |
 | `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                                      |
+| `publication.place`                    |   term    | `publication.place=="Ukraine"`                                       | Matches instances that have `Ukraine` publication place                                                                                           |
 | `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                                       |
 | `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                           |
+| `classifications.classificationTypeId` |   term    | `classifications.classificationTypeId=="123"`                        | Matches instances that have classification type id `123`                                                                                          |
 | `electronicAccess`                     | full-text | `electronicAccess any "resource"`                                    | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                                            |
 | `electronicAccess.uri`                 |   term    | `electronicAccess.uri="http://folio.org*"`                           | Search by electronic access URI                                                                                                                   |
 | `electronicAccess.linkText`            | full-text | `electronicAccess.linkText="Folio website"`                          | Search by electronic access link text                                                                                                             |
@@ -869,6 +873,8 @@ Special API that provide consolidated access to records in consortium environmen
 | GET    | `/search/consortium/holdings`  | Returns consolidated holdings  |
 | GET    | `/search/consortium/items`     | Returns consolidated items     |
 | GET    | `/search/consortium/locations` | Returns consolidated locations |
+| GET    | `/search/consortium/campuses`  | Returns consolidated campuses  |
+| GET    | `/search/consortium/libraries` | Returns consolidated libraries |
 
 ## Additional Information
 

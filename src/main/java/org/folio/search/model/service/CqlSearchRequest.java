@@ -61,7 +61,7 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Creates {@link CqlSearchRequest} object for given variables.
    *
-   * @param resourceClass         -  resource class
+   * @param resourceClass         - resource class
    * @param tenantId              - tenant id
    * @param query                 - CQL query
    * @param limit                 - search result records limit

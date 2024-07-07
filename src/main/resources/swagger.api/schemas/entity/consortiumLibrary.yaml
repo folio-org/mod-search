@@ -1,0 +1,16 @@
+type: object
+properties:
+  id:
+    description: Library ID
+    type: string
+  tenantId:
+    description: Tenant ID of the Library
+    type: string
+  name:
+    description: Library name
+    type: string
+  campusId:
+    description: The UUID of the campus, the second-level location unit, this (shelf) library belongs to.
+    type: string
+  metadata:
+    $ref: "../dto/common/metadata.yaml"

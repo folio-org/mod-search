@@ -40,6 +40,8 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "Antoniou matthew",
     "HD1691 .I5 1967",
     "Cambridge, Mass.",
+    "MIT Press",
+    "c2004",
 
     // holding field values
     "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
@@ -76,7 +78,9 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
     "HD1691 .I5 1967",
     "Cambridge, Mass.",
     "2020-12-08T15:47:13.625+00:00",
-    "2020-12-08T15:47:13.625+0000"
+    "2020-12-08T15:47:13.625+0000",
+    "MIT Press",
+    "c2004"
   })
   @ParameterizedTest(name = "[{index}] cql.allInstances='{query}', query=''{0}''")
   void canSearchByInstanceFieldValues_positive(String cqlQuery) throws Throwable {

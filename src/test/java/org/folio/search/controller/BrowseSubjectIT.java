@@ -16,7 +16,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Subject;
@@ -275,7 +274,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           } else {
             return new Subject().value(String.valueOf(val));
           }
-        }).collect(Collectors.toList()))
+        }).toList())
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());

@@ -193,6 +193,12 @@ description: |
         <td>Matches instances that have Publisher of Ukraine publisher</td>
     </tr>
     <tr>
+        <td>publication.place</td>
+        <td>term</td>
+        <td>publication.place==&quot;Ukraine&quot;</td>
+        <td>Matches instances that have `Ukraine` publication place</td>
+    </tr>
+    <tr>
         <td>instanceTags</td>
         <td>term</td>
         <td>instanceTags==&quot;important&quot;</td>
@@ -203,6 +209,12 @@ description: |
         <td>term</td>
         <td>classifications.classificationNumber==&quot;cl1&quot;</td>
         <td>Matches instances that have cl1 classification number</td>
+    </tr>
+    <tr>
+        <td>classifications.classificationTypeId</td>
+        <td>term</td>
+        <td>classifications.classificationTypeId == &quot;123&quot;</td>
+        <td>Matches instances that have classification type id 123</td>
     </tr>
     <tr>
         <td>electronicAccess</td>

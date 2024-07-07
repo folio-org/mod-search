@@ -6,9 +6,10 @@
 * Provides `indices v0.7`
 * Provides `search v1.3`
 * Requires `locations v3.0`
-* Provides `consortium-search v1.1`
+* Provides `consortium-search v1.2`
 
 ### Features
+* Extension of mod-search consortium items/holdings API ([MSEARCH-788](https://issues.folio.org/browse/MSEARCH-788))
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
 * Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
 * Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
@@ -18,11 +19,18 @@
 * Return Unified List of Inventory Locations in a Consortium ([MSEARCH-681](https://folio-org.atlassian.net/browse/MSEARCH-681))
 * Remove ability to match on LCCN searches without a prefix ([MSEARCH-752](https://folio-org.atlassian.net/browse/MSEARCH-752))
 * Search consolidated items/holdings data in consortium ([MSEARCH-759](https://folio-org.atlassian.net/browse/MSEARCH-759))
-* Create bibframe index and process bibframe events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
+* Create linked data work index and process linked data work events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
+* Create linked data authority index and process linked data authority events ([MSEARCH-784](https://folio-org.atlassian.net/browse/MSEARCH-784))
 * Allow Unified List of Inventory Locations in a Consortium to be fetched by member tenants ([MSEARCH-660](https://folio-org.atlassian.net/browse/MSEARCH-660))
 * Implement Indexing of Campuses from Kafka ([MSEARCH-770](https://issues.folio.org/browse/MSEARCH-770))
 * Extend response with additional Location fields for Inventory Locations in a Consortium endpoint ([MSEARCH-775](https://folio-org.atlassian.net/browse/MSEARCH-775))
 * Implement Indexing of Institutions from Kafka ([MSEARCH-771](https://issues.folio.org/browse/MSEARCH-771))
+* Implement Indexing of Libraries from Kafka ([MSEARCH-769](https://issues.folio.org/browse/MSEARCH-769))
+* Return Unified List of Inventory Campuses in a Consortium ([MSEARCH-773](https://issues.folio.org/browse/MSEARCH-773))
+* Increase batch IDs limit for search consolidated items/holdings in consortium ([MSEARCH-785](https://folio-org.atlassian.net/browse/MSEARCH-785))
+* Return Unified List of Inventory Libraries in a Consortium ([MSEARCH-772](https://issues.folio.org/browse/MSEARCH-772))
+* Index, search Instance place of publication field ([MSEARCH-755](https://folio-org.atlassian.net/browse/MSEARCH-755))
+* Instance search: add support to filter search result by classification type ([MSEARCH-777](https://folio-org.atlassian.net/browse/MSEARCH-777))
 * Implement Reindexing of Campuses ([MSEARCH-767](https://issues.folio.org/browse/MSEARCH-767))
 
 ### Bug fixes
@@ -32,6 +40,7 @@
 * Browse: Duplicate results in exact match with diacritics ([MSEARCH-751](https://folio-org.atlassian.net/browse/MSEARCH-751))
 * Classification browse: Fix instances count for Shared Facet ([MSEARCH-761](https://folio-org.atlassian.net/browse/MSEARCH-761))
 * Subjects/Contributors browse: Fix instances count for Shared Facet ([MSEARCH-782](https://folio-org.atlassian.net/browse/MSEARCH-782))
+* Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.With;
 import lombok.extern.jackson.Jacksonized;
+import org.folio.search.domain.dto.Metadata;
 
 /**
  * Describes Campus object that comes from external channels.
@@ -25,5 +26,7 @@ public class CampusDto {
   private String code;
   @JsonProperty("institutionId")
   private String institutionId;
+  @JsonProperty("metadata")
+  private Metadata metadata;
 
 }

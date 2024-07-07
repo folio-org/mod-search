@@ -106,9 +106,18 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/bibframe",
+          "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
-            "search.bibframe.collection.get"
+            "search.linked-data.work.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/linked-data/authorities",
+          "permissionsRequired": [
+            "search.linked-data.authority.collection.get"
           ]
         },
         {
@@ -151,7 +160,7 @@
     },
     {
       "id": "consortium-search",
-      "version": "1.1",
+      "version": "1.2",
       "handlers": [
         {
           "methods": [
@@ -184,6 +193,30 @@
           "pathPattern": "/search/consortium/locations",
           "permissionsRequired": [
             "consortium-search.locations.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/campuses",
+          "permissionsRequired": [
+            "consortium-search.campuses.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/consortium/libraries",
+          "permissionsRequired": [
+            "consortium-search.libraries.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -583,9 +616,14 @@
       "description": "Searches authorities by given query"
     },
     {
-      "permissionName": "search.bibframe.collection.get",
-      "displayName": "Search - searches bibframe by given query",
-      "description": "Searches bibframe by given query"
+      "permissionName": "search.linked-data.work.collection.get",
+      "displayName": "Search - searches linked data works by given query",
+      "description": "Searches linked data works by given query"
+    },
+    {
+      "permissionName": "search.linked-data.authority.collection.get",
+      "displayName": "Search - searches linked data authorities by given query",
+      "description": "Searches linked data authorities by given query"
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",
@@ -724,6 +762,16 @@
       "permissionName": "consortium-search.locations.collection.get",
       "displayName": "Consortium Search - fetch locations records",
       "description": "Returns location records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.campuses.collection.get",
+      "displayName": "Consortium Search - fetch campuses records",
+      "description": "Returns campus records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.libraries.collection.get",
+      "displayName": "Consortium Search - fetch libraries records",
+      "description": "Returns library records in consortium"
     }
   ],
   "launchDescriptor": {
@@ -1037,6 +1085,11 @@
         "name": "REINDEX_LOCATION_BATCH_SIZE",
         "value": "1000",
         "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
+      },
+      {
+        "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT,",
+        "value": "20_000",
+        "description": "Defines maximum batch request IDs count for searching consolidated items/holdings in consortium"
       },
       {
         "name": "REINDEX_CAMPUS_BATCH_SIZE",

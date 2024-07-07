@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -15,8 +14,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.service.SearchService;
@@ -24,7 +26,11 @@ import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,54 +57,46 @@ class SearchControllerTest {
       .thenReturn(TENANT_ID);
   }
 
-  @Test
-  void search_positive_authorities() throws Exception {
-    var cqlQuery = "cql.allRecords=1";
-    var expectedSearchRequest = searchServiceRequest(Authority.class, cqlQuery);
+  @ParameterizedTest
+  @MethodSource("provideSearchPaths")
+  void search_positive(Class<?> requestClass,
+                       String searchPass,
+                       boolean expandAll,
+                       int limit,
+                       String jsonDataPath) throws Exception {
 
-    when(searchService.search(expectedSearchRequest)).thenReturn(searchResult());
+    var cqlQuery = "title all \"test-query\"";
+    var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
+    when(searchService.search(expectedSearchRequest))
+      .thenReturn(searchResult());
 
-    var requestBuilder = get(authoritySearchPath())
+    var requestBuilder = get(searchPass)
       .queryParam("query", cqlQuery)
-      .queryParam("limit", "100")
+      .queryParam("limit", String.valueOf(limit))
       .contentType(APPLICATION_JSON)
       .header(XOkapiHeaders.TENANT, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath("$.authorities", is(emptyList())));
+      .andExpect(jsonPath(jsonDataPath, is(emptyList())));
   }
 
-  @Test
-  void search_positive() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "/search/instances",
+    "/search/authorities",
+    "/search/linked-data/works",
+    "/search/linked-data/authorities",
+  })
+  void search_offset_limit_10k(String searchPath) throws Exception {
 
     var cqlQuery = "title all \"test-query\"";
 
     when(searchService.search(searchServiceRequest(Instance.class, cqlQuery)))
       .thenReturn(searchResult());
 
-    var requestBuilder = get("/search/instances")
-      .queryParam("query", cqlQuery)
-      .queryParam("limit", "100")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath("$.instances", is(emptyList())));
-  }
-
-  @Test
-  void search_offset_limit_10k() throws Exception {
-
-    var cqlQuery = "title all \"test-query\"";
-
-    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery)))
-      .thenReturn(searchResult());
-
-    var requestBuilder = get("/search/instances")
+    var requestBuilder = get(searchPath)
       .queryParam("query", cqlQuery)
       .queryParam("limit", "100")
       .queryParam("offset", "10000")
@@ -109,18 +107,22 @@ class SearchControllerTest {
       .andExpect(status().isBadRequest());
   }
 
-  @Test
-  void search_negative_indexNotFound() throws Exception {
+  @ParameterizedTest
+  @MethodSource("provideSearchPaths")
+  void search_negative_indexNotFound(Class<?> requestClass,
+                                     String searchPass,
+                                     boolean expandAll,
+                                     int limit) throws Exception {
     var cqlQuery = "title all \"test-query\"";
     var openSearchException = new OpenSearchException("Elasticsearch exception ["
       + "type=index_not_found_exception, "
       + "reason=no such index [instance_test-tenant]]");
     openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
-
-    when(searchService.search(searchServiceRequest(Instance.class, cqlQuery))).thenThrow(
+    var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
+    when(searchService.search(expectedSearchRequest)).thenThrow(
       new SearchOperationException("error", openSearchException));
 
-    var requestBuilder = get("/search/instances")
+    var requestBuilder = get(searchPass)
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
       .header(XOkapiHeaders.TENANT, TENANT_ID);
@@ -133,9 +135,16 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.errors[0].code", is("elasticsearch_error")));
   }
 
-  @Test
-  void search_negative_invalidLimitParameter() throws Exception {
-    var requestBuilder = get("/search/instances")
+  @ParameterizedTest
+  @CsvSource(value = {
+    "Instances             , 500 , /search/instances",
+    "Authorities           , 500 , /search/authorities",
+    "LinkedDataWorks       , 100 , /search/linked-data/works",
+    "LinkedDataAuthorities , 100 , /search/linked-data/authorities",
+  })
+  void search_negative_invalidLimitParameter(String classMessagePart, int limit,  String searchPass) throws Exception {
+    var expectedMessage = String.format("search%s.limit must be less than or equal to %s", classMessagePart, limit);
+    var requestBuilder = get(searchPass)
       .queryParam("query", "title all \"test-query\"")
       .queryParam("limit", "100000")
       .contentType(APPLICATION_JSON)
@@ -144,19 +153,23 @@ class SearchControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("searchInstances.limit must be less than or equal to 500")))
+      .andExpect(jsonPath("$.errors[0].message", is(expectedMessage)))
       .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 
-  @Test
-  void search_negative_invalidCqlQuery() throws Exception {
+  @ParameterizedTest
+  @MethodSource("provideSearchPaths")
+  void search_negative_invalidCqlQuery(Class<?> requestClass,
+                                       String searchPass,
+                                       boolean expandAll,
+                                       int limit) throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
     var exceptionMessage = String.format("Failed to parse CQL query [query: '%s']", cqlQuery);
     when(searchService.search(expectedSearchRequest)).thenThrow(new SearchServiceException(exceptionMessage));
 
-    var requestBuilder = get("/search/instances")
+    var requestBuilder = get(searchPass)
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
       .header(XOkapiHeaders.TENANT, TENANT_ID);
@@ -169,15 +182,19 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.errors[0].code", is("service_error")));
   }
 
-  @Test
-  void search_negative_unsupportedCqlQueryModifier() throws Exception {
+  @ParameterizedTest
+  @MethodSource("provideSearchPaths")
+  void search_negative_unsupportedCqlQueryModifier(Class<?> requestClass,
+                                                   String searchPass,
+                                                   boolean expandAll,
+                                                   int limit) throws Exception {
     var cqlQuery = "title all \"test-query\" and";
-    var expectedSearchRequest = searchServiceRequest(Instance.class, cqlQuery);
+    var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
     var exceptionMessage = "Failed to parse CQL query. Comparator 'within' is not supported.";
     when(searchService.search(expectedSearchRequest)).thenThrow(
       new UnsupportedOperationException(exceptionMessage));
 
-    var requestBuilder = get("/search/instances")
+    var requestBuilder = get(searchPass)
       .queryParam("query", cqlQuery)
       .contentType(APPLICATION_JSON)
       .header(XOkapiHeaders.TENANT, TENANT_ID);
@@ -190,4 +207,12 @@ class SearchControllerTest {
       .andExpect(jsonPath("$.errors[0].code", is("service_error")));
   }
 
+  private static Stream<Arguments> provideSearchPaths() {
+    return Stream.of(
+      Arguments.of(Instance.class, "/search/instances", false, 100, "$.instances"),
+      Arguments.of(Authority.class, "/search/authorities", false, 100, "$.authorities"),
+      Arguments.of(LinkedDataWork.class, "/search/linked-data/works", true, 10, "$.content"),
+      Arguments.of(LinkedDataAuthority.class, "/search/linked-data/authorities", true, 10, "$.content")
+    );
+  }
 }

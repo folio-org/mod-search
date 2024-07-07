@@ -5,12 +5,14 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
-import static org.folio.search.support.base.ApiEndpoints.bibframeSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
+import static org.folio.search.support.base.ApiEndpoints.linkedDataSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.bibframeTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataWorkTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -39,9 +41,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Bibframe;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.support.api.InventoryApi;
@@ -160,8 +163,13 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByBibframe(String query) {
-    return doSearch(bibframeSearchPath(), TENANT_ID, query, null, null, null);
+  protected static ResultActions doSearchByLinkedDataWork(String query) {
+    return doSearch(linkedDataSearchPath(), TENANT_ID, query, null, null, null);
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByLinkedDataAuthority(String query) {
+    return doSearch(linkedDataAuthoritySearchPath(), TENANT_ID, query, null, null, null);
   }
 
   @SneakyThrows
@@ -257,13 +265,15 @@ public abstract class BaseIntegrationTest {
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> { }, rawRecords.length, rawRecords);
+    setUpTenant(type, tenant, () -> {
+    }, rawRecords.length, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, () -> { }, expectedCount, rawRecords);
+    setUpTenant(type, TENANT_ID, () -> {
+    }, expectedCount, rawRecords);
   }
 
   @SafeVarargs
@@ -286,9 +296,14 @@ public abstract class BaseIntegrationTest {
         authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, authority)));
     }
 
-    if (type.equals(Bibframe.class)) {
-      setUpTenant(tenant, bibframeSearchPath(), postInitAction, asList(records), expectedCount,
-        bibframe -> kafkaTemplate.send(bibframeTopic(tenant), resourceEvent(null, null, bibframe)));
+    if (type.equals(LinkedDataWork.class)) {
+      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount,
+        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, null, ldWork)));
+    }
+
+    if (type.equals(LinkedDataAuthority.class)) {
+      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount,
+        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant), resourceEvent(null, null, ldAuthority)));
     }
   }
 

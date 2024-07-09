@@ -3,10 +3,12 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.CAMPUS;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
@@ -47,6 +49,7 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
+import org.folio.search.service.locationunit.CampusService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,6 +87,8 @@ class IndexServiceTest {
   private ConsortiumInstanceService consortiumInstanceService;
   @Mock
   private LocationService locationService;
+  @Mock
+  private CampusService campusService;
 
   @Mock
   private TenantProvider tenantProvider;
@@ -265,6 +270,7 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(indexName);
     verify(consortiumInstanceService).deleteAll();
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -283,6 +289,7 @@ class IndexServiceTest {
     verifyNoInteractions(indexRepository);
     verifyNoInteractions(consortiumInstanceService);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -298,6 +305,7 @@ class IndexServiceTest {
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
     verifyNoInteractions(consortiumInstanceService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -313,6 +321,7 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -341,6 +350,7 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(instanceIndexName);
     verify(indexRepository).dropIndex(secondaryIndexName);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -357,6 +367,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -373,6 +384,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -394,6 +406,7 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(reindexResponse);
     verifyNoInteractions(locationService);
+    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -428,6 +441,41 @@ class IndexServiceTest {
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(locationService).reindex(TENANT_ID);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
+  @Test
+  void reindexInventory_positive_campuses() {
+    when(resourceDescriptionService.find(CAMPUS_RESOURCE))
+      .thenReturn(Optional.of(resourceDescription(CAMPUS_RESOURCE)));
+
+    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(CAMPUS));
+
+    assertThat(actual.getId()).isNotBlank();
+    assertThat(actual.getSubmittedDate()).isNotBlank();
+    assertThat(actual.getJobStatus()).isEqualTo("Completed");
+    verify(campusService).reindex(TENANT_ID);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
+  @Test
+  void reindexInventory_positive_campusesAndRecreateIndex() {
+    var indexName = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
+
+    when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(CAMPUS_RESOURCE)));
+    when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+
+    var reindexRequest = new ReindexRequest().resourceName(CAMPUS).recreateIndex(true);
+    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
+
+    assertThat(actual.getId()).isNotBlank();
+    assertThat(actual.getSubmittedDate()).isNotBlank();
+    assertThat(actual.getJobStatus()).isEqualTo("Completed");
+    verify(campusService).reindex(TENANT_ID);
     verifyNoInteractions(resourceReindexClient);
   }
 

@@ -172,27 +172,31 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
-    var tenant = verifyAndGetTenant(tenantHeader);
-    if (batchIdsDto.getIds().isEmpty()) {
-      return ResponseEntity
-        .ok(new ConsortiumHoldingCollection());
+
+    if (batchIdsDto.getIdentifierValues().isEmpty()) {
+      return ResponseEntity.ok(new ConsortiumHoldingCollection());
     }
 
-    var result = searchService.fetchConsortiumBatchHoldings(tenant, new HashSet<>(batchIdsDto.getIds()));
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var identifierType = batchIdsDto.getIdentifierType();
+    var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());
+
+    var result = searchService.fetchConsortiumBatchHoldings(tenant, identifierValues, identifierType);
     return ResponseEntity.ok(result);
   }
 
   @Override
   public ResponseEntity<ConsortiumItemCollection> fetchConsortiumBatchItems(String tenantHeader,
                                                                             BatchIdsDto batchIdsDto) {
-    if (batchIdsDto.getIds().isEmpty()) {
-      return ResponseEntity
-        .ok(new ConsortiumItemCollection());
+    if (batchIdsDto.getIdentifierValues().isEmpty()) {
+      return ResponseEntity.ok(new ConsortiumItemCollection());
     }
 
     var tenant = verifyAndGetTenant(tenantHeader);
+    var identifierType = batchIdsDto.getIdentifierType();
+    var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());
 
-    var result = searchService.fetchConsortiumBatchItems(tenant, new HashSet<>(batchIdsDto.getIds()));
+    var result = searchService.fetchConsortiumBatchItems(tenant, identifierValues, identifierType);
     return ResponseEntity.ok(result);
   }
 

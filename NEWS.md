@@ -6,9 +6,10 @@
 * Provides `indices v0.7`
 * Provides `search v1.3`
 * Requires `locations v3.0`
-* Provides `consortium-search v1.1`
+* Provides `consortium-search v1.2`
 
 ### Features
+* Extension of mod-search consortium items/holdings API ([MSEARCH-788](https://issues.folio.org/browse/MSEARCH-788))
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
 * Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
 * Modify diacritics handling in search, browse and sorting ([MSEARCH-690](https://issues.folio.org/browse/MSEARCH-690))
@@ -30,6 +31,7 @@
 * Return Unified List of Inventory Institutions in a Consortium ([MSEARCH-774](https://issues.folio.org/browse/MSEARCH-774))
 * Increase batch IDs limit for search consolidated items/holdings in consortium ([MSEARCH-785](https://folio-org.atlassian.net/browse/MSEARCH-785))
 * Index, search Instance place of publication field ([MSEARCH-755](https://folio-org.atlassian.net/browse/MSEARCH-755))
+* Instance search: add support to filter search result by classification type ([MSEARCH-777](https://folio-org.atlassian.net/browse/MSEARCH-777))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

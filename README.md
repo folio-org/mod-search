@@ -868,13 +868,14 @@ can't receive ids by query.
 ### Consortium Search API
 Special API that provide consolidated access to records in consortium environment. Works only for central tenant.
 
-| METHOD | URL                            | DESCRIPTION                    |
-|:-------|:-------------------------------|:-------------------------------|
-| GET    | `/search/consortium/holdings`  | Returns consolidated holdings  |
-| GET    | `/search/consortium/items`     | Returns consolidated items     |
-| GET    | `/search/consortium/locations` | Returns consolidated locations |
-| GET    | `/search/consortium/campuses`  | Returns consolidated campuses  |
-| GET    | `/search/consortium/libraries` | Returns consolidated libraries |
+| METHOD | URL                               | DESCRIPTION                    |
+|:-------|:----------------------------------|:-------------------------------|
+| GET    | `/search/consortium/holdings`     | Returns consolidated holdings  |
+| GET    | `/search/consortium/items`        | Returns consolidated items     |
+| GET    | `/search/consortium/locations`    | Returns consolidated locations |
+| GET    | `/search/consortium/campuses`     | Returns consolidated campuses  |
+| GET    | `/search/consortium/libraries`    | Returns consolidated libraries |
+| GET    | `/search/consortium/institutions` | Returns consolidated libraries |
 
 ## Additional Information
 

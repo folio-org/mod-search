@@ -1,0 +1,24 @@
+get:
+  operationId: getConsortiumInstitutions
+  summary: Get Consortium Institutions
+  description: Get a list of institutions (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/tenant-id-query-param.yaml'
+    - $ref: '../../parameters/consortium-location-unit-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/sort-by-institution-name-param.yaml'
+    - $ref: '../../parameters/sort-order-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: List of institutions
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/consortiumInstitutionCollection.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

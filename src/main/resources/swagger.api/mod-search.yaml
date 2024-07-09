@@ -82,6 +82,9 @@ paths:
   /search/consortium/libraries:
     $ref: 'paths/search-consortium/search-consortium-libraries.yaml'
 
+  /search/consortium/institutions:
+    $ref: 'paths/search-consortium/search-consortium-institutions.yaml'
+
   /search/consortium/batch/items:
     $ref: 'paths/search-consortium/search-consortium-batch-items.yaml'
 

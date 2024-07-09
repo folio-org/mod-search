@@ -1,0 +1,83 @@
+[
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf1",
+    "name": "My institution 1",
+    "code": "MI1",
+    "metadata": {
+      "createdDate": "2024-07-03T16:31:45.444+00:00",
+      "updatedDate": "2024-07-03T16:31:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf2",
+    "name": "My institution 2",
+    "code": "MI2",
+    "metadata": {
+      "createdDate": "2024-07-03T16:32:45.444+00:00",
+      "updatedDate": "2024-07-03T16:32:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf3",
+    "name": "My institution 3",
+    "code": "MI3",
+    "metadata": {
+      "createdDate": "2024-07-03T16:33:45.444+00:00",
+      "updatedDate": "2024-07-03T16:33:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf4",
+    "name": "My institution 4",
+    "code": "MI4",
+    "metadata": {
+      "createdDate": "2024-07-03T16:34:45.444+00:00",
+      "updatedDate": "2024-07-03T16:34:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf5",
+    "name": "My institution 5",
+    "code": "MI5",
+    "metadata": {
+      "createdDate": "2024-07-03T16:35:45.444+00:00",
+      "updatedDate": "2024-07-03T16:35:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf6",
+    "name": "My institution 6",
+    "code": "MI6",
+    "metadata": {
+      "createdDate": "2024-07-03T16:36:45.444+00:00",
+      "updatedDate": "2024-07-03T16:36:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf7",
+    "name": "My institution 7",
+    "code": "MI7",
+    "metadata": {
+      "createdDate": "2024-07-03T16:37:45.444+00:00",
+      "updatedDate": "2024-07-03T16:37:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf8",
+    "name": "My institution 8",
+    "code": "MI8",
+    "metadata": {
+      "createdDate": "2024-07-03T16:38:45.444+00:00",
+      "updatedDate": "2024-07-03T16:38:45.444+00:00"
+    }
+  },
+  {
+    "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf9",
+    "name": "My institution 9",
+    "code": "MI9",
+    "metadata": {
+      "createdDate": "2024-07-03T16:39:45.444+00:00",
+      "updatedDate": "2024-07-03T16:39:45.444+00:00"
+    }
+  }
+]

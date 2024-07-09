@@ -1,0 +1,13 @@
+type: object
+properties:
+  id:
+    description: Institution ID
+    type: string
+  tenantId:
+    description: Tenant ID of the Institution
+    type: string
+  name:
+    description: Institution name
+    type: string
+  metadata:
+    $ref: "../dto/common/metadata.yaml"

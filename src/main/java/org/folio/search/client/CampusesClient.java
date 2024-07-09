@@ -9,7 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient("campuses")
+@FeignClient("location-units/campuses")
 public interface CampusesClient {
 
   /**
@@ -22,5 +22,5 @@ public interface CampusesClient {
   @GetMapping(produces = APPLICATION_JSON_VALUE)
   CampusesResult getCampuses(@RequestParam("offset") int offset, @RequestParam("limit") int limit);
 
-  record CampusesResult(List<Map<String, Object>> campuses, int totalRecords) { }
+  record CampusesResult(List<Map<String, Object>> loccamps, int totalRecords) { }
 }

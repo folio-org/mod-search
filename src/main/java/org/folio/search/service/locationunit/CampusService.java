@@ -31,7 +31,7 @@ public class CampusService {
       var campusResponse = client.getCampuses(processed, properties.getCampusBatchSize());
       total = campusResponse.totalRecords();
 
-      var campuses = campusResponse.campuses();
+      var campuses = campusResponse.loccamps();
       processed += campuses.size();
       indexCampuses(tenantId, campuses);
 

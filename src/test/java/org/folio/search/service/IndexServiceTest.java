@@ -3,7 +3,6 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.CAMPUS;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -413,6 +412,8 @@ class IndexServiceTest {
   void reindexInventory_positive_locations() {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(LOCATION_RESOURCE, CAMPUS_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
@@ -420,19 +421,29 @@ class IndexServiceTest {
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(locationService).reindex(TENANT_ID);
+    verify(campusService).reindex(TENANT_ID);
     verifyNoInteractions(resourceReindexClient);
   }
 
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
-    var indexName = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var campusIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(CAMPUS_RESOURCE)));
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(LOCATION_RESOURCE, CAMPUS_RESOURCE));
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+    when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
+    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(campusIndex)));
 
     var reindexRequest = new ReindexRequest().resourceName(LOCATION).recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
@@ -441,40 +452,6 @@ class IndexServiceTest {
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(locationService).reindex(TENANT_ID);
-    verifyNoInteractions(resourceReindexClient);
-  }
-
-  @Test
-  void reindexInventory_positive_campuses() {
-    when(resourceDescriptionService.find(CAMPUS_RESOURCE))
-      .thenReturn(Optional.of(resourceDescription(CAMPUS_RESOURCE)));
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(CAMPUS));
-
-    assertThat(actual.getId()).isNotBlank();
-    assertThat(actual.getSubmittedDate()).isNotBlank();
-    assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(campusService).reindex(TENANT_ID);
-    verifyNoInteractions(resourceReindexClient);
-  }
-
-  @Test
-  void reindexInventory_positive_campusesAndRecreateIndex() {
-    var indexName = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
-
-    when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
-      Optional.of(resourceDescription(CAMPUS_RESOURCE)));
-    when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
-
-    var reindexRequest = new ReindexRequest().resourceName(CAMPUS).recreateIndex(true);
-    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
-
-    assertThat(actual.getId()).isNotBlank();
-    assertThat(actual.getSubmittedDate()).isNotBlank();
-    assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(campusService).reindex(TENANT_ID);
     verifyNoInteractions(resourceReindexClient);
   }

@@ -157,11 +157,11 @@ public class IndexService {
       });
     }
 
-    return switch (resource) {
-      case LOCATION_RESOURCE -> reindexInventoryLocations(tenantId);
-      case CAMPUS_RESOURCE -> reindexInventoryCampuses(tenantId);
-      default -> reindexInventoryAsync(resource);
-    };
+    if (LOCATION_RESOURCE.equals(resource)) {
+      return reindexInventoryLocations(tenantId, resources);
+    } else {
+      return reindexInventoryAsync(resource);
+    }
   }
 
   /**
@@ -176,9 +176,17 @@ public class IndexService {
   }
 
   /**
-   * Runs synchronous locations reindex in mod-search.
+   * Runs synchronous locations and location-units reindex in mod-search.
    */
-  public ReindexJob reindexInventoryLocations(String tenantId) {
+  public ReindexJob reindexInventoryLocations(String tenantId, List<String> resources) {
+    resources.forEach(resourceName -> {
+      if (CAMPUS_RESOURCE.equals(resourceName)) {
+        log.info("reindexCampuses:: Starting reindex");
+        campusService.reindex(tenantId);
+        log.info("reindexCampuses:: Reindex completed");
+      }
+    });
+
     log.info("reindexLocations:: Starting reindex");
     var response = new ReindexJob().id(UUID.randomUUID().toString())
       .jobStatus("Completed")
@@ -186,21 +194,6 @@ public class IndexService {
 
     locationService.reindex(tenantId);
     log.info("reindexLocations:: Reindex completed");
-
-    return response;
-  }
-
-  /**
-   * Runs synchronous campuses reindex in mod-search.
-   */
-  public ReindexJob reindexInventoryCampuses(String tenantId) {
-    log.info("reindexCampuses:: Starting reindex");
-    var response = new ReindexJob().id(UUID.randomUUID().toString())
-      .jobStatus("Completed")
-      .submittedDate(new Date().toString());
-
-    campusService.reindex(tenantId);
-    log.info("reindexCampuses:: Reindex completed");
 
     return response;
   }

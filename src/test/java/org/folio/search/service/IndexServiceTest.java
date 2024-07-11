@@ -3,7 +3,6 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LIBRARY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;

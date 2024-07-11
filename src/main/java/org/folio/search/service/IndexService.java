@@ -2,6 +2,7 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
@@ -30,6 +31,7 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
+import org.folio.search.service.locationunit.LibraryService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,7 @@ public class IndexService {
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
   private final LocationService locationService;
+  private final LibraryService libraryService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -154,11 +157,11 @@ public class IndexService {
       });
     }
 
-    if (LOCATION_RESOURCE.equals(resource)) {
-      return reindexInventoryLocations(tenantId);
-    } else {
-      return reindexInventoryAsync(resource);
-    }
+    return switch (resource) {
+      case LOCATION_RESOURCE -> reindexInventoryLocations(tenantId);
+      case LIBRARY_RESOURCE -> reindexInventoryLibraries(tenantId);
+      default -> reindexInventoryAsync(resource);
+    };
   }
 
   /**
@@ -183,6 +186,21 @@ public class IndexService {
 
     locationService.reindex(tenantId);
     log.info("reindexLocations:: Reindex completed");
+
+    return response;
+  }
+
+  /**
+   * Runs synchronous libraries reindex in mod-search.
+   */
+  public ReindexJob reindexInventoryLibraries(String tenantId) {
+    log.info("reindexLibraries:: Starting reindex");
+    var response = new ReindexJob().id(UUID.randomUUID().toString())
+      .jobStatus("Completed")
+      .submittedDate(new Date().toString());
+
+    libraryService.reindex(tenantId);
+    log.info("reindexLibraries:: Reindex completed");
 
     return response;
   }

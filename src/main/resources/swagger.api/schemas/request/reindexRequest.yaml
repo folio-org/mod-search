@@ -13,6 +13,7 @@ properties:
       - instance
       - authority
       - location
+      - library
   indexSettings:
     description: Index settings to apply for index
     $ref: "../../schemas/entity/indexSettings.yaml"

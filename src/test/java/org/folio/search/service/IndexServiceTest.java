@@ -428,18 +428,21 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
     var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
-    var campusIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var campusIndex = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
     when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(CAMPUS_RESOURCE)));
+
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
       .thenReturn(List.of(LOCATION_RESOURCE, CAMPUS_RESOURCE));
+
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
     when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+
     when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
     when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))

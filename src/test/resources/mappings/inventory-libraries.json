@@ -1,0 +1,41 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/location-units/libraries?offset=0&limit=2"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "loclibs": [
+            {
+              "id": "5d78803e-ca04-4b4a-aeae-2c63b924518b",
+              "name": "Datalogisk Institut",
+              "code": "DI",
+              "campusId": "62cf76b7-cca5-4d33-9217-edf42ce1a848",
+              "metadata": {
+                "createdDate": "2024-07-11T04:39:17.671+00:00",
+                "updatedDate": "2024-07-11T04:39:17.671+00:00"
+              }
+            },
+            {
+              "id": "c2549bb4-19c7-4fcc-8b52-39e612fb7dbe",
+              "name": "Online",
+              "code": "E",
+              "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+              "metadata": {
+                "createdDate": "2024-07-11T04:39:17.674+00:00",
+                "updatedDate": "2024-07-11T04:39:17.674+00:00"
+              }
+            }
+          ],
+          "totalRecords": 2
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

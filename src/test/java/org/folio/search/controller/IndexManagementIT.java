@@ -6,6 +6,7 @@ import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
+import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -89,6 +90,8 @@ class IndexManagementIT extends BaseIntegrationTest {
       .contentType(MediaType.APPLICATION_JSON);
 
     assertThat(countDefaultIndexDocument(LOCATION_RESOURCE)).isZero();
+    assertThat(countDefaultIndexDocument(LIBRARY_RESOURCE)).isZero();
+
     mockMvc.perform(request)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id", notNullValue()))
@@ -96,8 +99,11 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.submittedDate", notNullValue()));
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countDefaultIndexDocument(SearchUtils.LOCATION_RESOURCE);
-      assertThat(counted).isEqualTo(3);
+      var countedLocations = countDefaultIndexDocument(SearchUtils.LOCATION_RESOURCE);
+      var countedLibraries = countDefaultIndexDocument(SearchUtils.LIBRARY_RESOURCE);
+
+      assertThat(countedLocations).isEqualTo(3);
+      assertThat(countedLibraries).isEqualTo(2);
     });
   }
 

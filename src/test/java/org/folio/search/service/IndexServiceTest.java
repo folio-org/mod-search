@@ -413,6 +413,8 @@ class IndexServiceTest {
   void reindexInventory_positive_locations() {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(LOCATION_RESOURCE, LIBRARY_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
@@ -420,19 +422,32 @@ class IndexServiceTest {
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(locationService).reindex(TENANT_ID);
+    verify(libraryService).reindex(TENANT_ID);
     verifyNoInteractions(resourceReindexClient);
   }
 
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
-    var indexName = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var libraryIndex = getIndexName(LIBRARY_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.find(LIBRARY_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(LIBRARY_RESOURCE)));
+
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(LOCATION_RESOURCE, LIBRARY_RESOURCE));
+
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+    when(mappingsHelper.getMappings(LIBRARY_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(LIBRARY_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+
+    when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
+    when(indexRepository.createIndex(libraryIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(libraryIndex)));
 
     var reindexRequest = new ReindexRequest().resourceName(LOCATION).recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
@@ -441,40 +456,6 @@ class IndexServiceTest {
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(locationService).reindex(TENANT_ID);
-    verifyNoInteractions(resourceReindexClient);
-  }
-
-  @Test
-  void reindexInventory_positive_libraries() {
-    when(resourceDescriptionService.find(LIBRARY_RESOURCE))
-      .thenReturn(Optional.of(resourceDescription(LIBRARY_RESOURCE)));
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LIBRARY));
-
-    assertThat(actual.getId()).isNotBlank();
-    assertThat(actual.getSubmittedDate()).isNotBlank();
-    assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(libraryService).reindex(TENANT_ID);
-    verifyNoInteractions(resourceReindexClient);
-  }
-
-  @Test
-  void reindexInventory_positive_librariesAndRecreateIndex() {
-    var indexName = getIndexName(LIBRARY_RESOURCE, TENANT_ID);
-
-    when(resourceDescriptionService.find(LIBRARY_RESOURCE)).thenReturn(
-      Optional.of(resourceDescription(LIBRARY_RESOURCE)));
-    when(mappingsHelper.getMappings(LIBRARY_RESOURCE)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(LIBRARY_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
-
-    var reindexRequest = new ReindexRequest().resourceName(LIBRARY).recreateIndex(true);
-    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
-
-    assertThat(actual.getId()).isNotBlank();
-    assertThat(actual.getSubmittedDate()).isNotBlank();
-    assertThat(actual.getJobStatus()).isEqualTo("Completed");
     verify(libraryService).reindex(TENANT_ID);
     verifyNoInteractions(resourceReindexClient);
   }

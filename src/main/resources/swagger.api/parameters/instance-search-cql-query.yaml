@@ -194,9 +194,9 @@ description: |
     </tr>
     <tr>
         <td>publication.place</td>
-        <td>term</td>
-        <td>publication.place==&quot;Ukraine&quot;</td>
-        <td>Matches instances that have `Ukraine` publication place</td>
+        <td>full-text</td>
+        <td>publication.place all &quot;Ukraine&quot;</td>
+        <td>Matches instances that have `Ukraine` in publication place</td>
     </tr>
     <tr>
         <td>instanceTags</td>

@@ -21,6 +21,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
@@ -48,7 +49,6 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
-import org.folio.search.service.locationunit.CampusService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,8 +86,6 @@ class IndexServiceTest {
   private ConsortiumInstanceService consortiumInstanceService;
   @Mock
   private LocationService locationService;
-  @Mock
-  private CampusService campusService;
 
   @Mock
   private TenantProvider tenantProvider;
@@ -269,7 +267,6 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(indexName);
     verify(consortiumInstanceService).deleteAll();
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -288,7 +285,6 @@ class IndexServiceTest {
     verifyNoInteractions(indexRepository);
     verifyNoInteractions(consortiumInstanceService);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -304,7 +300,6 @@ class IndexServiceTest {
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
     verifyNoInteractions(consortiumInstanceService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -320,7 +315,6 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -349,7 +343,6 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(instanceIndexName);
     verify(indexRepository).dropIndex(secondaryIndexName);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -366,7 +359,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -383,7 +375,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -405,7 +396,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(reindexResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(campusService);
   }
 
   @Test
@@ -413,15 +403,15 @@ class IndexServiceTest {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(LOCATION_RESOURCE, CAMPUS_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
-    verify(campusService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 
@@ -436,7 +426,7 @@ class IndexServiceTest {
       Optional.of(resourceDescription(CAMPUS_RESOURCE)));
 
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(LOCATION_RESOURCE, CAMPUS_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE));
 
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
@@ -454,8 +444,8 @@ class IndexServiceTest {
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
-    verify(campusService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 

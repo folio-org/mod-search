@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
-import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
@@ -31,7 +30,6 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
-import org.folio.search.service.locationunit.CampusService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.master.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
@@ -53,7 +51,6 @@ public class IndexService {
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
   private final LocationService locationService;
-  private final CampusService campusService;
 
   /**
    * Creates index for resource with pre-defined settings and mappings.
@@ -179,20 +176,12 @@ public class IndexService {
    * Runs synchronous locations and location-units reindex in mod-search.
    */
   public ReindexJob reindexInventoryLocations(String tenantId, List<String> resources) {
-    resources.forEach(resourceName -> {
-      if (CAMPUS_RESOURCE.equals(resourceName)) {
-        log.info("reindexCampuses:: Starting reindex");
-        campusService.reindex(tenantId);
-        log.info("reindexCampuses:: Reindex completed");
-      }
-    });
-
     log.info("reindexLocations:: Starting reindex");
     var response = new ReindexJob().id(UUID.randomUUID().toString())
       .jobStatus("Completed")
       .submittedDate(new Date().toString());
 
-    locationService.reindex(tenantId);
+    resources.forEach(resourceName -> locationService.reindex(tenantId, resourceName));
     log.info("reindexLocations:: Reindex completed");
 
     return response;

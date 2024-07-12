@@ -1,7 +1,6 @@
 {
   "name": "campus",
   "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.CampusDto",
-  "reindexSupported": true,
   "parent": "location",
   "fields": {
     "id": {

@@ -76,7 +76,6 @@ folio:
       data-format: ${INDEXING_DATA_FORMAT:smile}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
-    campus-batch-size: ${REINDEX_CAMPUS_BATCH_SIZE:1000}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

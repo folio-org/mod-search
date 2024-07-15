@@ -208,7 +208,7 @@ public class IndexService {
     var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
+    log.info("Attempts to create index [indexName: {}, mappings: {}, settings: {}]",
       index, mappings, indexSettings);
     return indexRepository.createIndex(index, indexSettings, mappings);
   }

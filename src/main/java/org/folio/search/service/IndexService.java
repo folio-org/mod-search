@@ -155,7 +155,7 @@ public class IndexService {
     }
 
     if (LOCATION_RESOURCE.equals(resource)) {
-      return reindexInventoryLocations(tenantId);
+      return reindexInventoryLocations(tenantId, resources);
     } else {
       return reindexInventoryAsync(resource);
     }
@@ -173,15 +173,15 @@ public class IndexService {
   }
 
   /**
-   * Runs synchronous locations reindex in mod-search.
+   * Runs synchronous locations and location-units reindex in mod-search.
    */
-  public ReindexJob reindexInventoryLocations(String tenantId) {
+  public ReindexJob reindexInventoryLocations(String tenantId, List<String> resources) {
     log.info("reindexLocations:: Starting reindex");
     var response = new ReindexJob().id(UUID.randomUUID().toString())
       .jobStatus("Completed")
       .submittedDate(new Date().toString());
 
-    locationService.reindex(tenantId);
+    resources.forEach(resourceName -> locationService.reindex(tenantId, resourceName));
     log.info("reindexLocations:: Reindex completed");
 
     return response;

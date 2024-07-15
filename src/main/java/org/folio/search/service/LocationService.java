@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 
 import java.util.List;
 import java.util.Map;
@@ -23,37 +22,43 @@ public class LocationService {
   private final LocationsClient client;
   private final ResourceService resourceService;
 
-  public void reindex(String tenantId) {
+  public void reindex(String tenantId, String resourceName) {
     int processed = 0;
     int total;
     do {
-      var locationResponse = client.getLocations(processed, properties.getLocationBatchSize());
-      total = locationResponse.totalRecords();
-      var locations = locationResponse.locations();
+      var uri = LocationsClient.DocumentType.valueOf(resourceName.toUpperCase()).getUri();
+      var locationDataResponse = client.getLocationsData(uri, processed, properties.getLocationBatchSize());
+      total = locationDataResponse.getTotalRecords();
+
+      var locations = locationDataResponse.getResult();
       processed += locations.size();
-      indexLocations(tenantId, locations);
-      log.info("reindex:: Successfully indexed {} of {} locations", processed, total);
+      indexLocationData(tenantId, resourceName, locations);
+
+      log.info("reindexLocations-{}:: Successfully indexed {} of {} location documents", resourceName,
+        processed, total);
     } while (processed < total);
   }
 
-  private void indexLocations(String tenantId, List<Map<String, Object>> locations) {
-    var events = locations.stream()
-      .map(location -> toResourceEvent(tenantId, location))
+  private void indexLocationData(String tenantId, String resourceName, List<Map<String, Object>> locationData) {
+    var events = locationData.stream()
+      .map(locationDataEntry -> toResourceEvent(tenantId, resourceName, locationDataEntry))
       .toList();
 
     var indexResult = resourceService.indexResources(events);
     if (FolioIndexOperationResponse.StatusEnum.ERROR.equals(indexResult.getStatus())) {
       var errorMessage = "Indexing failed: " + indexResult.getErrorMessage();
-      log.warn("reindex:: " + errorMessage);
+
+      log.warn("reindexLocations-{}:: {}", resourceName, errorMessage);
+
       throw new IllegalStateException(errorMessage);
     }
   }
 
-  private ResourceEvent toResourceEvent(String tenantId, Map<String, Object> location) {
+  private ResourceEvent toResourceEvent(String tenantId, String resourceName, Map<String, Object> locationData) {
     return new ResourceEvent()
-      .id(getString(location, ID_FIELD) + "|" + tenantId)
+      .id(getString(locationData, ID_FIELD) + "|" + tenantId)
       .tenant(tenantId)
-      .resourceName(LOCATION_RESOURCE)
-      ._new(location);
+      .resourceName(resourceName)
+      ._new(locationData);
   }
 }

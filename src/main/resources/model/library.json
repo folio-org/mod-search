@@ -1,7 +1,6 @@
 {
   "name": "library",
   "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.LibraryDto",
-  "reindexSupported": true,
   "parent": "location",
   "fields": {
     "id": {

@@ -7,6 +7,7 @@ import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATI
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
@@ -21,6 +22,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
@@ -48,7 +50,6 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
-import org.folio.search.service.locationunit.LibraryService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,8 +87,6 @@ class IndexServiceTest {
   private ConsortiumInstanceService consortiumInstanceService;
   @Mock
   private LocationService locationService;
-  @Mock
-  private LibraryService libraryService;
 
   @Mock
   private TenantProvider tenantProvider;
@@ -269,7 +268,6 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(indexName);
     verify(consortiumInstanceService).deleteAll();
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -288,7 +286,6 @@ class IndexServiceTest {
     verifyNoInteractions(indexRepository);
     verifyNoInteractions(consortiumInstanceService);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -304,7 +301,6 @@ class IndexServiceTest {
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
     verifyNoInteractions(consortiumInstanceService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -320,7 +316,6 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -349,7 +344,6 @@ class IndexServiceTest {
     verify(indexRepository).dropIndex(instanceIndexName);
     verify(indexRepository).dropIndex(secondaryIndexName);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -366,7 +360,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -383,7 +376,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -405,7 +397,6 @@ class IndexServiceTest {
 
     assertThat(actual).isEqualTo(reindexResponse);
     verifyNoInteractions(locationService);
-    verifyNoInteractions(libraryService);
   }
 
   @Test
@@ -413,39 +404,47 @@ class IndexServiceTest {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(LOCATION_RESOURCE, LIBRARY_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
-    verify(libraryService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LIBRARY_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
     var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var campusIndex = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
     var libraryIndex = getIndexName(LIBRARY_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(CAMPUS_RESOURCE)));
     when(resourceDescriptionService.find(LIBRARY_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LIBRARY_RESOURCE)));
 
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(LOCATION_RESOURCE, LIBRARY_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE));
 
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
     when(mappingsHelper.getMappings(LIBRARY_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LIBRARY_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
 
     when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
-    when(indexRepository.createIndex(libraryIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(campusIndex)));
+    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(libraryIndex)));
 
     var reindexRequest = new ReindexRequest().resourceName(LOCATION).recreateIndex(true);
@@ -454,8 +453,9 @@ class IndexServiceTest {
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
-    verify(libraryService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LIBRARY_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 

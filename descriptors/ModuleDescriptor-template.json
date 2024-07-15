@@ -58,6 +58,7 @@
             "authority-storage.authority.reindex.post",
             "user-tenants.collection.get",
             "inventory-storage.locations.collection.get",
+            "inventory-storage.location-units.campuses.collection.get",
             "inventory-storage.location-units.libraries.collection.get"
           ]
         },
@@ -529,6 +530,7 @@
             "inventory-storage.alternative-title-types.collection.get",
             "instance-authority-links.authorities.bulk.post",
             "inventory-storage.locations.collection.get",
+            "inventory-storage.location-units.campuses.collection.get",
             "inventory-storage.location-units.libraries.collection.get"
           ]
         },
@@ -1104,11 +1106,6 @@
         "name": "REINDEX_LOCATION_BATCH_SIZE",
         "value": "1000",
         "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
-      },
-      {
-        "name": "REINDEX_LIBRARY_BATCH_SIZE",
-        "value": "1000",
-        "description": "Defines number of libraries to retrieve per inventory http request on library reindex process"
       },
       {
         "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT,",

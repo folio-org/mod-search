@@ -46,6 +46,7 @@ folio:
   environment: folio-test
   search-config:
     initial-languages: eng,fre,ita,spa,ger
+    max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
     search-features:
       search-all-fields: false
       browse-cn-intermediate-values: true
@@ -110,10 +111,19 @@ folio:
       - name: inventory.location
         numPartitions: 1
         replicationFactor: 1
-      - name: search.bibframe
+      - name: linked-data.work
+        numPartitions: 1
+        replicationFactor: 1
+      - name: linked-data.authority
         numPartitions: 1
         replicationFactor: 1
       - name: inventory.campus
+        numPartitions: 1
+        replicationFactor: 1
+      - name: inventory.institution
+        numPartitions: 1
+        replicationFactor: 1
+      - name: inventory.library
         numPartitions: 1
         replicationFactor: 1
     listener:
@@ -143,12 +153,12 @@ folio:
         group-id: ${folio.environment}-mod-search-classification-type-group
       location:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus)
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
         group-id: ${folio.environment}-mod-search-location-type-group
-      bibframe:
-        concurrency: ${KAFKA_BIBFRAME_CONCURRENCY:1}
-        topic-pattern: ${KAFKA_BIBFRAME_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.bibframe}
-        group-id: ${folio.environment}-mod-search-bibframe-group
+      linked-data:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(work|authority)
+        group-id: ${folio.environment}-mod-search-linked-data-group
   okapiUrl: ${okapi.url}
   logging:
     request:

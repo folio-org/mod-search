@@ -3,16 +3,18 @@ package org.folio.search.controller;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BatchIdsDto;
+import org.folio.search.domain.dto.ConsortiumCampusCollection;
 import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
+import org.folio.search.domain.dto.ConsortiumInstitutionCollection;
 import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
+import org.folio.search.domain.dto.ConsortiumLibraryCollection;
 import org.folio.search.domain.dto.ConsortiumLocationCollection;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.SortOrder;
@@ -21,8 +23,11 @@ import org.folio.search.model.service.ConsortiumSearchContext;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchConsortiumApi;
+import org.folio.search.service.consortium.ConsortiumCampusService;
 import org.folio.search.service.consortium.ConsortiumInstanceSearchService;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
+import org.folio.search.service.consortium.ConsortiumInstitutionService;
+import org.folio.search.service.consortium.ConsortiumLibraryService;
 import org.folio.search.service.consortium.ConsortiumLocationService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -45,6 +50,9 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   private final ConsortiumInstanceService instanceService;
   private final ConsortiumLocationService locationService;
   private final ConsortiumInstanceSearchService searchService;
+  private final ConsortiumCampusService campusService;
+  private final ConsortiumLibraryService libraryService;
+  private final ConsortiumInstitutionService institutionService;
 
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> getConsortiumHoldings(String tenantHeader, String instanceId,
@@ -97,6 +105,51 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   }
 
   @Override
+  public ResponseEntity<ConsortiumCampusCollection> getConsortiumCampuses(String tenantHeader,
+                                                                          String tenantId,
+                                                                          Integer limit,
+                                                                          Integer offset,
+                                                                          String sortBy,
+                                                                          SortOrder sortOrder) {
+    var result = campusService.fetchCampuses(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumCampusCollection()
+      .campuses(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumLibraryCollection> getConsortiumLibraries(String tenantHeader,
+                                                                           String tenantId,
+                                                                           Integer limit,
+                                                                           Integer offset,
+                                                                           String sortBy,
+                                                                           SortOrder sortOrder) {
+    var result = libraryService.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumLibraryCollection()
+      .libraries(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ConsortiumInstitutionCollection> getConsortiumInstitutions(String tenantHeader,
+                                                                                   String tenantId,
+                                                                                   Integer limit,
+                                                                                   Integer offset,
+                                                                                   String sortBy,
+                                                                                   SortOrder sortOrder) {
+    var result = institutionService.fetchInstitutions(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+
+    return ResponseEntity.ok(new
+      ConsortiumInstitutionCollection()
+      .institutions(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
   public ResponseEntity<ConsortiumHolding> getConsortiumHolding(UUID id, String tenantHeader) {
     var tenant = verifyAndGetTenant(tenantHeader);
     var holdingId = id.toString();
@@ -119,27 +172,31 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
-    var tenant = verifyAndGetTenant(tenantHeader);
-    var holdingIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_HOLDING_FIELD_NAME, holdingIds);
 
-    var result = searchService.fetchConsortiumBatchHoldings(searchRequest, holdingIds);
+    if (batchIdsDto.getIdentifierValues().isEmpty()) {
+      return ResponseEntity.ok(new ConsortiumHoldingCollection());
+    }
+
+    var tenant = verifyAndGetTenant(tenantHeader);
+    var identifierType = batchIdsDto.getIdentifierType();
+    var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());
+
+    var result = searchService.fetchConsortiumBatchHoldings(tenant, identifierValues, identifierType);
     return ResponseEntity.ok(result);
   }
 
   @Override
   public ResponseEntity<ConsortiumItemCollection> fetchConsortiumBatchItems(String tenantHeader,
                                                                             BatchIdsDto batchIdsDto) {
-    if (batchIdsDto.getIds().isEmpty()) {
-      return ResponseEntity
-        .ok(new ConsortiumItemCollection());
+    if (batchIdsDto.getIdentifierValues().isEmpty()) {
+      return ResponseEntity.ok(new ConsortiumItemCollection());
     }
 
     var tenant = verifyAndGetTenant(tenantHeader);
-    var itemIds = batchIdsDto.getIds().stream().map(UUID::toString).collect(Collectors.toSet());
-    var searchRequest = idsCqlRequest(tenant, INSTANCE_ITEM_FIELD_NAME, itemIds);
+    var identifierType = batchIdsDto.getIdentifierType();
+    var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());
 
-    var result = searchService.fetchConsortiumBatchItems(searchRequest, itemIds);
+    var result = searchService.fetchConsortiumBatchItems(tenant, identifierValues, identifierType);
     return ResponseEntity.ok(result);
   }
 
@@ -155,13 +212,4 @@ public class SearchConsortiumController implements SearchConsortiumApi {
     var query = fieldName + ".id=" + id;
     return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
   }
-
-  private CqlSearchRequest<Instance> idsCqlRequest(String tenant, String fieldName, Set<String> ids) {
-    var query = ids.stream()
-      .map((fieldName + ".id=%s")::formatted)
-      .collect(Collectors.joining(" or "));
-
-    return CqlSearchRequest.of(Instance.class, tenant, query, ids.size(), 0, true, false, true);
-  }
-
 }

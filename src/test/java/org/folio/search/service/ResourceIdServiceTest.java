@@ -66,7 +66,7 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIds() throws IOException {
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
@@ -80,7 +80,7 @@ class ResourceIdServiceTest {
 
   @Test
   void streamResourceIdsAsText() {
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     mockSearchRepositoryCall(List.of(RANDOM_ID));
 
@@ -125,7 +125,7 @@ class ResourceIdServiceTest {
     mockSearchRepositoryCall(List.of(RANDOM_ID));
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     when(objectMapper.createGenerator(outputStream)).thenReturn(generator);
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     doThrow(new IOException("Failed to write string field")).when(generator).writeStringField("id", RANDOM_ID);
 
     var request = request();
@@ -142,7 +142,7 @@ class ResourceIdServiceTest {
     mockSearchRepositoryCall(List.of(RANDOM_ID));
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
     when(resourceIdService.createOutputStreamWriter(outputStream)).thenReturn(writer);
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     doThrow(new IOException("Failed to write string field")).when(writer).write(RANDOM_ID + '\n');
 
     var request = request();
@@ -154,7 +154,7 @@ class ResourceIdServiceTest {
   @Test
   void streamResourceIds_positive_emptyCollectionProvided() throws IOException {
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();
@@ -167,7 +167,7 @@ class ResourceIdServiceTest {
   @Test
   void streamResourceIdsInTextTextType_positive_emptyCollectionProvided() {
     mockSearchRepositoryCall(emptyList());
-    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME)).thenReturn(searchSource());
+    when(queryConverter.convertForConsortia(TEST_QUERY, RESOURCE_NAME, TENANT_ID)).thenReturn(searchSource());
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
 
     var outputStream = new ByteArrayOutputStream();

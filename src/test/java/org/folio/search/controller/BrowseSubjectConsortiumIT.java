@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
@@ -111,7 +110,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
           } else {
             return new Subject().value(String.valueOf(val));
           }
-        }).collect(Collectors.toList()))
+        }).toList())
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());

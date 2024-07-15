@@ -71,6 +71,22 @@ public class CqlSearchQueryConverter {
     return convertForConsortia(query, resource, false);
   }
 
+  /**
+   * Converts given CQL search query value to the elasticsearch {@link SearchSourceBuilder} object.
+   * Wraps base 'convert' and adds active affiliation tenantId filter in case of consortia mode
+   *
+   * @param query    cql query to parse
+   * @param resource resource name
+   * @param tenantId active affiliation member tenant name
+   * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
+   */
+  public SearchSourceBuilder convertForConsortia(String query, String resource, String tenantId) {
+    var sourceBuilder = convert(query, resource);
+    var queryBuilder = consortiumSearchHelper
+      .filterQueryForActiveAffiliation(sourceBuilder.query(), resource, tenantId);
+    return sourceBuilder.query(queryBuilder);
+  }
+
   public SearchSourceBuilder convertForConsortia(String query, String resource, boolean consortiumConsolidated) {
     var sourceBuilder = convert(query, resource);
     if (consortiumConsolidated) {

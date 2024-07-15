@@ -199,6 +199,18 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publisher all {value}", "mit"),
       arguments("publisher all {value}", "press"),
 
+      arguments("publication.place all {value}", "cambridge"),
+      arguments("publication.place all {value}", "Cambridge"),
+      arguments("publication.place all {value}", "mass"),
+      arguments("publication.place all {value}", "Mass."),
+      arguments("publication.place any {value}", "Cambridge mass"),
+      arguments("publication.place all {value}", "Cambridge mass"),
+      arguments("publication.place = {value}", "\"Cambridge, Mass.\""),
+      arguments("publication.place == {value}", "Cambridge"),
+      arguments("publication.place ==/string {value}", "\"Cambridge, Mass.\""),
+      arguments("publication.place = {value}", "Cambridge, Ma*"),
+      arguments("publication.place = {value}", "\"*mbridge, Mass.\""),
+
       arguments("contributors all {value}", "frank"),
       arguments("contributors all {value}", "Frank"),
       arguments("contributors all {value}", "grigoris"),

@@ -11,7 +11,6 @@ import static org.folio.search.model.types.ResourceType.CLASSIFICATION_TYPE;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
-import static org.folio.search.utils.SearchUtils.BIBFRAME_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -193,16 +192,16 @@ public class KafkaMessageListener {
   }
 
   @KafkaListener(
-    id = KafkaConstants.BIBFRAME_LISTENER_ID,
+    id = KafkaConstants.LINKED_DATA_LISTENER_ID,
     containerFactory = "standardListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['bibframe'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['bibframe'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['bibframe'].topicPattern}")
-  public void handleBibframeEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
-    log.info("Processing bibframe events from Kafka [number of events: {}]", consumerRecords.size());
+    groupId = "#{folioKafkaProperties.listener['linked-data'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['linked-data'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['linked-data'].topicPattern}")
+  public void handleLinkedDataEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing linked data events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(bibframe -> bibframe.resourceName(BIBFRAME_RESOURCE).id(getResourceEventId(bibframe)))
+      .map(ld -> ld.id(getResourceEventId(ld)))
       .toList();
 
     indexResources(batch, resourceService::indexResources);

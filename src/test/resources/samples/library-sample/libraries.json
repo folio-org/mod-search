@@ -1,0 +1,92 @@
+[
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe21",
+    "name": "My library 1",
+    "code": "ML1",
+    "campusId": "62cf76b7-cca5-4d33-9217-edf42ce1a848",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.306+00:00",
+      "updatedDate": "2024-06-25T05:28:41.306+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe22",
+    "name": "My library 2",
+    "code": "ML2",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe23",
+    "name": "My library 3",
+    "code": "ML3",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe24",
+    "name": "My library 4",
+    "code": "ML4",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe25",
+    "name": "My library 5",
+    "code": "ML5",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe26",
+    "name": "My library 6",
+    "code": "ML6",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe27",
+    "name": "My library 7",
+    "code": "ML7",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe28",
+    "name": "My library 8",
+    "code": "ML8",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  },
+  {
+    "id": "83891666-dcb6-4cd7-ad3a-f4b305abfe29",
+    "name": "My library 9",
+    "code": "ML9",
+    "campusId": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+    "metadata": {
+      "createdDate": "2024-06-25T05:28:41.312+00:00",
+      "updatedDate": "2024-06-25T05:28:41.312+00:00"
+    }
+  }
+]

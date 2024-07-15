@@ -1,0 +1,8 @@
+type: object
+properties:
+  campuses:
+    type: array
+    items:
+      $ref: './consortiumCampus.yaml'
+  totalRecords:
+    type: integer

@@ -1,0 +1,41 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/location-units/campuses?offset=0&limit=2"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "loccamps": [
+            {
+              "id": "62cf76b7-cca5-4d33-9217-edf42ce1a848",
+              "name": "City Campus",
+              "code": "CC",
+              "institutionId": "40ee00ca-a518-4b49-be01-0638d0a4ac57",
+              "metadata": {
+                "createdDate": "2024-07-11T04:39:17.611+00:00",
+                "updatedDate": "2024-07-11T04:39:17.611+00:00"
+              }
+            },
+            {
+              "id": "470ff1dd-937a-4195-bf9e-06bcfcd135df",
+              "name": "Online",
+              "code": "E",
+              "institutionId": "40ee00ca-a518-4b49-be01-0638d0a4ac57",
+              "metadata": {
+                "createdDate": "2024-07-11T04:39:17.608+00:00",
+                "updatedDate": "2024-07-11T04:39:17.608+00:00"
+              }
+            }
+          ],
+          "totalRecords": 2
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+description: "Linked data work search dto, contains Work and linked Instances"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of a Work"
+    type: "string"
+  titles:
+    type: "array"
+    description: "Title array"
+    items:
+      properties:
+        value:
+          type: "string"
+          description: "Value of Title"
+        type:
+          type: "string"
+          enum:
+            - "Main"
+            - "Sub"
+            - "Main Parallel"
+            - "Sub Parallel"
+            - "Main Variant"
+            - "Sub Variant"
+  contributors:
+    type: "array"
+    description: "Contributor array"
+    items:
+      properties:
+        name:
+          type: "string"
+          description: "Name of contributor"
+        type:
+          type: "string"
+          enum:
+            - "Family"
+            - "Jurisdiction"
+            - "Meeting"
+            - "Organization"
+            - "Person"
+        isCreator:
+          type: "boolean"
+          description: "A flag indicating whether the contributor is the creator"
+  languages:
+    type: "array"
+    description: "Language array"
+    items:
+      properties:
+        value:
+          type: "string"
+          description: "Language value"
+  classifications:
+    type: "array"
+    description: "List of classification items"
+    items:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+          description: "Classification number"
+        source:
+          type: "string"
+          description: "The source of the classification"
+  subjects:
+    type: "array"
+    description: "Subject array"
+    items:
+      properties:
+        value:
+          type: "string"
+          description: "Subject label"
+  instances:
+    type: "array"
+    description: "Instance array"
+    items:
+      properties:
+        id:
+          description: "The Linked Data ID of an Instance"
+          type: "string"
+        titles:
+          type: "array"
+          description: "Title array"
+          items:
+            properties:
+              value:
+                type: "string"
+                description: "Value of Title"
+              type:
+                type: "string"
+                enum:
+                  - "Main"
+                  - "Sub"
+                  - "Main Parallel"
+                  - "Sub Parallel"
+                  - "Main Variant"
+                  - "Sub Variant"
+        identifiers:
+          type: "array"
+          description: "Resource identifier array"
+          items:
+            properties:
+              value:
+                type: "string"
+                description: "Value of Identifier"
+              type:
+                type: "string"
+                enum:
+                  - "Ean"
+                  - "ISBN"
+                  - "LCCN"
+                  - "LocalId"
+                  - "UNKNOWN"
+        contributors:
+          type: "array"
+          description: "Contributor array"
+          items:
+            properties:
+              name:
+                type: "string"
+                description: "Name of contributor"
+              type:
+                type: "string"
+                enum:
+                  - "Family"
+                  - "Jurisdiction"
+                  - "Meeting"
+                  - "Organization"
+                  - "Person"
+              isCreator:
+                type: "boolean"
+                description: "A flag indicating whether the contributor is the creator"
+        publications:
+          type: "array"
+          description: "List of publication items"
+          items:
+            type: "object"
+            properties:
+              name:
+                type: "string"
+                description: "Name of publisher, distributor, etc."
+              date:
+                type: "string"
+                description: "Date (year YYYY) of publication, distribution, etc."
+        editionStatements:
+          type: "array"
+          description: "Edition statement array"
+          items:
+            properties:
+              value:
+                type: "string"
+                description: "Edition statement value"
+required:
+  - "id"

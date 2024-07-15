@@ -3,10 +3,12 @@ package org.folio.search.controller;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
-import org.folio.search.domain.dto.Bibframe;
-import org.folio.search.domain.dto.BibframeSearchResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataAuthoritySearchResult;
+import org.folio.search.domain.dto.LinkedDataWork;
+import org.folio.search.domain.dto.LinkedDataWorkSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.rest.resource.SearchApi;
 import org.folio.search.service.SearchService;
@@ -51,12 +53,31 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<BibframeSearchResult> searchBibframe(String tenant, String query, Integer limit,
-                                                             Integer offset) {
+  public ResponseEntity<LinkedDataWorkSearchResult> searchLinkedDataWorks(String tenantId,
+                                                                          String query,
+                                                                          Integer limit,
+                                                                          Integer offset) {
     var searchRequest = CqlSearchRequest.of(
-      Bibframe.class, tenant, query, limit, offset, true);
+      LinkedDataWork.class, tenantId, query, limit, offset, true);
     var result = searchService.search(searchRequest);
-    return ResponseEntity.ok(new BibframeSearchResult()
+    return ResponseEntity.ok(new LinkedDataWorkSearchResult()
+      .searchQuery(query)
+      .content(result.getRecords())
+      .pageNumber(divPlusOneIfRemainder(offset, limit))
+      .totalPages(divPlusOneIfRemainder(result.getTotalRecords(), limit))
+      .totalRecords(result.getTotalRecords())
+    );
+  }
+
+  @Override
+  public ResponseEntity<LinkedDataAuthoritySearchResult> searchLinkedDataAuthorities(String tenantId,
+                                                                                     String query,
+                                                                                     Integer limit,
+                                                                                     Integer offset) {
+    var searchRequest = CqlSearchRequest.of(
+      LinkedDataAuthority.class, tenantId, query, limit, offset, true);
+    var result = searchService.search(searchRequest);
+    return ResponseEntity.ok(new LinkedDataAuthoritySearchResult()
       .searchQuery(query)
       .content(result.getRecords())
       .pageNumber(divPlusOneIfRemainder(offset, limit))

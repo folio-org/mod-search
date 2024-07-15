@@ -33,6 +33,30 @@ public class ApiEndpoints {
     return addQueryParams(consortiumLocationsSearchPath(), queryParams);
   }
 
+  public static String consortiumCampusesSearchPath() {
+    return "/search/consortium/campuses";
+  }
+
+  public static String consortiumCampusesSearchPath(List<Pair<String, String>> queryParams) {
+    return addQueryParams(consortiumCampusesSearchPath(), queryParams);
+  }
+
+  public static String consortiumLibrariesSearchPath() {
+    return "/search/consortium/libraries";
+  }
+
+  public static String consortiumLibrariesSearchPath(List<Pair<String, String>> queryParams) {
+    return addQueryParams(consortiumLibrariesSearchPath(), queryParams);
+  }
+
+  public static String consortiumInstitutionsSearchPath() {
+    return "/search/consortium/institutions";
+  }
+
+  public static String consortiumInstitutionsSearchPath(List<Pair<String, String>> queryParams) {
+    return addQueryParams(consortiumInstitutionsSearchPath(), queryParams);
+  }
+
   public static String consortiumItemsSearchPath() {
     return "/search/consortium/items";
   }
@@ -77,8 +101,12 @@ public class ApiEndpoints {
     return "/browse/classification-numbers/" + optionType.getValue() + "/instances";
   }
 
-  public static String bibframeSearchPath() {
-    return "/search/bibframe";
+  public static String linkedDataSearchPath() {
+    return "/search/linked-data/works";
+  }
+
+  public static String linkedDataAuthoritySearchPath() {
+    return "/search/linked-data/authorities";
   }
 
   public static String authorityBrowsePath() {

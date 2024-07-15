@@ -140,7 +140,8 @@ public class ResourceIdService {
   private void streamResourceIds(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
     log.info("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    var searchSource = queryConverter.convertForConsortia(request.getQuery(), request.getResource())
+    var searchSource = queryConverter
+      .convertForConsortia(request.getQuery(), request.getResource(), request.getTenantId())
       .size(streamIdsProperties.getScrollQuerySize())
       .fetchSource(new String[] {request.getSourceFieldPath()}, null)
       .sort(fieldSort("_doc"));

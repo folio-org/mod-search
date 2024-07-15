@@ -191,6 +191,9 @@
         "dateOfPublication": {
           "index": "source",
           "showInResponse": [ "search", "call-number-browse" ]
+        },
+        "place": {
+          "index": "standard"
         }
       }
     },
@@ -207,6 +210,10 @@
       "type": "object",
       "properties": {
         "classificationNumber": {
+          "index": "keyword_lowercase"
+        },
+        "classificationTypeId": {
+          "searchTypes": [ "filter" ],
           "index": "keyword_lowercase"
         }
       }
@@ -280,10 +287,10 @@
           "index": "keyword_lowercase"
         },
         "accessionNumber": {
-          "index": "source"
+          "index": "keyword_lowercase"
         },
         "formerIds": {
-          "index": "source"
+          "index": "keyword_lowercase"
         },
         "itemIdentifier": {
           "index": "source"

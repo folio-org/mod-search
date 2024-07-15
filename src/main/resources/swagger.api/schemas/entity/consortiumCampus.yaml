@@ -1,0 +1,16 @@
+type: object
+properties:
+  id:
+    description: Campus ID
+    type: string
+  tenantId:
+    description: Tenant ID of the Campus
+    type: string
+  name:
+    description: Campus name
+    type: string
+  institutionId:
+    description: The UUID of the institution, the first-level location unit, this (shelf) campus belongs to.
+    type: string
+  metadata:
+    $ref: "../dto/common/metadata.yaml"

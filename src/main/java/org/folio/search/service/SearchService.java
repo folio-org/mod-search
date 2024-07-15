@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchService {
 
+  public static final int DEFAULT_MAX_SEARCH_RESULT_WINDOW = 10_000;
+
   private final SearchRepository searchRepository;
   private final SearchFieldProvider searchFieldProvider;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
@@ -47,7 +49,7 @@ public class SearchService {
   public <T> SearchResult<T>  search(CqlSearchRequest<T> request) {
     log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
 
-    if (request.getOffset() + request.getLimit() > 10_000L) {
+    if (request.getOffset() + request.getLimit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
       var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
       log.warn(validationException.getMessage());

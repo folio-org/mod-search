@@ -1,0 +1,25 @@
+get:
+  operationId: searchLinkedDataWorks
+  summary: Search Linked Data Works
+  description: Get a list of linked data records for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/linked-data-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+  responses:
+    '200':
+      description: 'Linked data works search result'
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/linkedDataWorkSearchResult.yaml'
+          examples:
+            searchResult:
+              $ref: '../../examples/result/linkedDataWorkSearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

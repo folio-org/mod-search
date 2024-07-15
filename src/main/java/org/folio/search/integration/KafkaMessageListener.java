@@ -18,7 +18,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -151,7 +150,7 @@ public class KafkaMessageListener {
 
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ConsortiumInstanceEvent::getTenant));
 
-    for (Map.Entry<String, List<ConsortiumInstanceEvent>> entry : batchByTenant.entrySet()) {
+    for (var entry : batchByTenant.entrySet()) {
       log.info("Consortium instance tenant [{}]", entry.getKey());
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
         consortiumInstances -> executionService.executeSystemUserScoped(entry.getKey(),

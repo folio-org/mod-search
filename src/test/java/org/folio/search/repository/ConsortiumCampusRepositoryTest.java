@@ -2,6 +2,7 @@ package org.folio.search.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.repository.ConsortiumCampusRepository.CAMPUS_INDEX;
+import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
+import java.util.List;
 import org.folio.search.domain.dto.ConsortiumCampus;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
@@ -28,7 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.index.query.TermQueryBuilder;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.sort.FieldSortBuilder;
 import org.opensearch.search.sort.SortOrder;
 
@@ -112,11 +115,11 @@ class ConsortiumCampusRepositoryTest {
         var sort = (FieldSortBuilder) source.sorts().get(0);
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.ASC);
-        assertThat(source.query()).isInstanceOf(TermQueryBuilder.class);
+        assertThat(source.query()).isInstanceOf(BoolQueryBuilder.class);
 
-        var query = (TermQueryBuilder) source.query();
-        assertThat(query.fieldName()).isEqualTo("tenantId");
-        assertThat(query.value()).isEqualTo(MEMBER_TENANT_ID);
+        var query = (BoolQueryBuilder) source.query();
+        assertThat(query.filter())
+          .isEqualTo(List.of(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, MEMBER_TENANT_ID)));
       });
   }
 

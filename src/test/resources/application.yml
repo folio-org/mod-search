@@ -60,7 +60,6 @@ folio:
       data-format: ${INDEXING_DATA_FORMAT:json}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
-    library-batch-size: ${REINDEX_LIBRARY_BATCH_SIZE:2}
   query:
     properties:
       request-timeout: 25s

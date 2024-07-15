@@ -133,7 +133,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(value = BatchIdsDto.IdentifierTypeEnum.class,
-    names = {"ID", "HRID", "BARCODE", "ACCESSIONNUMBER", "FORMERIDS", "HOLDINGSRECORDID"},
+    names = {"ID", "HRID", "BARCODE", "ACCESSION_NUMBER", "FORMER_IDS", "HOLDINGS_RECORD_ID"},
     mode = EnumSource.Mode.INCLUDE)
   void doGetConsortiumBatchItems_returns200AndRecords(BatchIdsDto.IdentifierTypeEnum identifierType) {
     var instance = getSemanticWeb();
@@ -210,11 +210,11 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
       return item.getHrid();
     } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.BARCODE) {
       return item.getBarcode();
-    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.HOLDINGSRECORDID) {
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.HOLDINGS_RECORD_ID) {
       return item.getHoldingsRecordId();
-    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.ACCESSIONNUMBER) {
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.ACCESSION_NUMBER) {
       return item.getAccessionNumber();
-    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.FORMERIDS) {
+    } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.FORMER_IDS) {
       return CollectionUtils.isNotEmpty(item.getFormerIds()) ? item.getFormerIds().get(0) : null;
     } else {
       throw new UnsupportedOperationException(

@@ -22,8 +22,8 @@ public class IdentifierUtils {
 
   public static String getHoldingTargetField(BatchIdsDto.IdentifierTypeEnum identifierType) {
     return switch (identifierType) {
-      case ITEMBARCODE -> "items.barcode";
-      case INSTANCEHRID -> "hrid";
+      case ITEM_BARCODE -> "items.barcode";
+      case INSTANCE_HRID -> "hrid";
       default -> format(VALUE_PATTERN, INSTANCE_HOLDING_FIELD_NAME, identifierType.getValue());
     };
   }
@@ -37,9 +37,10 @@ public class IdentifierUtils {
       case ID -> Objects.nonNull(item.getId()) ? Set.of(item.getId()) : Set.of();
       case HRID -> Objects.nonNull(item.getHrid()) ? Set.of(item.getHrid()) : Set.of();
       case BARCODE -> Objects.nonNull(item.getBarcode()) ? Set.of(item.getBarcode()) : Set.of();
-      case ACCESSIONNUMBER -> Objects.nonNull(item.getAccessionNumber()) ? Set.of(item.getAccessionNumber()) : Set.of();
-      case FORMERIDS -> new HashSet<>(item.getFormerIds());
-      case HOLDINGSRECORDID ->
+      case ACCESSION_NUMBER -> Objects.nonNull(item.getAccessionNumber())
+        ? Set.of(item.getAccessionNumber()) : Set.of();
+      case FORMER_IDS -> new HashSet<>(item.getFormerIds());
+      case HOLDINGS_RECORD_ID ->
         Objects.nonNull(item.getHoldingsRecordId()) ? Set.of(item.getHoldingsRecordId()) : Set.of();
       default -> Set.of();
     };

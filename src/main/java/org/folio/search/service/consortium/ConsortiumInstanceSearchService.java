@@ -169,7 +169,7 @@ public class ConsortiumInstanceSearchService {
   private List<ConsortiumHolding> mapToConsortiumHolding(Instance instance,
                                                          IdentifierTypeEnum identifierType,
                                                          Set<String> identifierValues) {
-    if (identifierType == IdentifierTypeEnum.ITEMBARCODE) {
+    if (identifierType == IdentifierTypeEnum.ITEM_BARCODE) {
       return instance.getItems().stream()
         .filter(item -> identifierValues.contains(item.getBarcode()))
         .flatMap(item -> instance.getHoldings().stream()
@@ -178,7 +178,7 @@ public class ConsortiumInstanceSearchService {
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .distinct()
         .toList();
-    } else if (identifierType == IdentifierTypeEnum.INSTANCEHRID) {
+    } else if (identifierType == IdentifierTypeEnum.INSTANCE_HRID) {
       return instance.getHoldings()
         .stream()
         .map(holding -> toConsortiumHolding(instance.getId(), holding))

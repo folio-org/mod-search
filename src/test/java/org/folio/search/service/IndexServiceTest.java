@@ -7,6 +7,7 @@ import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATI
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
@@ -20,6 +21,7 @@ import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
@@ -400,26 +402,41 @@ class IndexServiceTest {
   void reindexInventory_positive_locations() {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(CAMPUS_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
-    var indexName = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
+    var campusIndex = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
+    when(resourceDescriptionService.find(CAMPUS_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(CAMPUS_RESOURCE)));
+
+    when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
+      .thenReturn(List.of(CAMPUS_RESOURCE));
+
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+    when(mappingsHelper.getMappings(CAMPUS_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+
+    when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
+    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(campusIndex)));
 
     var reindexRequest = new ReindexRequest().resourceName(LOCATION).recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
@@ -427,7 +444,8 @@ class IndexServiceTest {
     assertThat(actual.getId()).isNotBlank();
     assertThat(actual.getSubmittedDate()).isNotBlank();
     assertThat(actual.getJobStatus()).isEqualTo("Completed");
-    verify(locationService).reindex(TENANT_ID);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 

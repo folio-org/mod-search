@@ -32,6 +32,7 @@
 * Increase batch IDs limit for search consolidated items/holdings in consortium ([MSEARCH-785](https://folio-org.atlassian.net/browse/MSEARCH-785))
 * Index, search Instance place of publication field ([MSEARCH-755](https://folio-org.atlassian.net/browse/MSEARCH-755))
 * Instance search: add support to filter search result by classification type ([MSEARCH-777](https://folio-org.atlassian.net/browse/MSEARCH-777))
+* Implement Reindexing of Campuses ([MSEARCH-767](https://issues.folio.org/browse/MSEARCH-767))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

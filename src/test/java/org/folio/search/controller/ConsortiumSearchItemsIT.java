@@ -133,7 +133,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(value = BatchIdsDto.IdentifierTypeEnum.class,
-    names = {"ID", "HRID", "BARCODE", "ACCESSIONNUMBER", "FORMERIDS", "HOLDINGSRECORDID"},
+    names = {"ID", "HRID", "BARCODE", "ACCESSION_NUMBER", "FORMER_IDS", "HOLDINGS_RECORD_ID"},
     mode = EnumSource.Mode.INCLUDE)
   void doGetConsortiumBatchItems_returns200AndRecords(BatchIdsDto.IdentifierTypeEnum identifierType) {
     var instance = getSemanticWeb();

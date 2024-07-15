@@ -93,10 +93,9 @@ public class KafkaConfiguration {
   @Bean
   public DefaultErrorHandler errorHandler() {
     var fixedBackOff = new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, 1);
-    return new DefaultErrorHandler((consumerRecord, exception) -> {
+    return new DefaultErrorHandler((consumerRecord, exception) ->
       log.error(() -> "Error occurred while processing record=[%s], topic=[%s]"
-        .formatted(consumerRecord.key(), consumerRecord.topic()), exception);
-    }, fixedBackOff);
+      .formatted(consumerRecord.key(), consumerRecord.topic()), exception), fixedBackOff);
   }
 
   @Bean

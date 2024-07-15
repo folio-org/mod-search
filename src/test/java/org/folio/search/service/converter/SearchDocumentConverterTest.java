@@ -2,7 +2,6 @@ package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
@@ -288,7 +287,6 @@ class SearchDocumentConverterTest {
       mapOf("id", "item#3", "effectiveShelvingOrder", "C5"),
       mapOf("id", "item#4"))));
 
-    when(languageConfigService.getAllLanguageCodes()).thenReturn(emptySet());
     when(descriptionService.get(RESOURCE_NAME)).thenReturn(
       resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
         "items", objectField(mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));

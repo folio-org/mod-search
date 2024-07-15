@@ -44,6 +44,7 @@ import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.extension.EnableKafka;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -275,8 +276,23 @@ class KafkaMessageListenerIT {
   static class KafkaListenerTestConfiguration {
 
     @Bean
+    FolioModuleMetadata folioModuleMetadata() {
+      return new FolioModuleMetadata() {
+        @Override
+        public String getModuleName() {
+          return "mod-search";
+        }
+
+        @Override
+        public String getDBSchemaName(String tenantId) {
+          return "public";
+        }
+      };
+    }
+
+    @Bean
     FolioExecutionContext folioExecutionContext() {
-      return new DefaultFolioExecutionContext(null, Map.of(TENANT, List.of(TENANT_ID)));
+      return new DefaultFolioExecutionContext(folioModuleMetadata(), Map.of(TENANT, List.of(TENANT_ID)));
     }
   }
 }

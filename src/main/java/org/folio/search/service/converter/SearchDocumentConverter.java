@@ -1,5 +1,6 @@
 package org.folio.search.service.converter;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.folio.search.model.types.IndexActionType.DELETE;
@@ -86,6 +87,9 @@ public class SearchDocumentConverter {
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
+    if (languageSource.isEmpty()) {
+      return emptyList();
+    }
     var supportedLanguages = languageConfigService.getAllLanguageCodes();
     return languageSource.stream()
       .map(sourcePath -> getMapValueByPath(sourcePath, resourceData))
@@ -102,7 +106,8 @@ public class SearchDocumentConverter {
   private ConversionContext buildConversionContext(ResourceEvent event) {
     var resourceDescription = descriptionService.get(event.getResourceName());
     var resourceData = getNewAsMap(event);
-    var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
+    var languageSourcePaths = resourceDescription.getLanguageSourcePaths();
+    var resourceLanguages = getResourceLanguages(languageSourcePaths, resourceData);
     return ConversionContext.of(event, resourceDescription, resourceLanguages, event.getTenant());
   }
 

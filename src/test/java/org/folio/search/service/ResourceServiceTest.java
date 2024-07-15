@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.KafkaMessageProducer;
@@ -102,6 +103,8 @@ class ResourceServiceTest {
       .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumInstanceService.deleteInstances(anyList()))
       .thenAnswer(invocation -> invocation.getArgument(0));
+    lenient().when(consortiumTenantExecutor.execute(any()))
+      .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
     lenient().when(consortiumTenantExecutor.execute(any(), any()))
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))

@@ -133,19 +133,14 @@ public class ResourceService {
       log.debug("Skip indexing consortium instances [{}]", invalidInstances);
     }
 
-    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
-      .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
-
     var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());
 
-    return consortiumTenantExecutor.execute(centralTenant, () -> {
-      var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
-      var indexDocuments = multiTenantSearchDocumentConverter.convert(resourceEvents);
-      var bulkIndexResponse = indexSearchDocuments(indexDocuments);
-      log.info("Records indexed to central index [requests: {}{}]",
-        getNumberOfRequests(indexDocuments), getErrorMessage(bulkIndexResponse));
-      return bulkIndexResponse;
-    });
+    var resourceEvents = consortiumInstanceService.fetchInstances(instanceIds);
+    var indexDocuments = multiTenantSearchDocumentConverter.convert(resourceEvents);
+    var bulkIndexResponse = indexSearchDocuments(indexDocuments);
+    log.info("Records indexed to central index [requests: {}{}]",
+      getNumberOfRequests(indexDocuments), getErrorMessage(bulkIndexResponse));
+    return bulkIndexResponse;
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
@@ -158,7 +153,8 @@ public class ResourceService {
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 
-    var list = preProcessEvents(fetchedInstances, consortiumInstanceService::saveInstances);
+    var list = consortiumTenantExecutor
+      .execute(() -> preProcessEvents(fetchedInstances, consortiumInstanceService::saveInstances));
     return multiTenantSearchDocumentConverter.convert(list);
   }
 
@@ -168,7 +164,7 @@ public class ResourceService {
       instanceEvents = Collections.emptyList();
     }
     var list = instanceEvents.stream()
-      .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
+      .map(instanceEventPreProcessor::preProcess)
       .filter(Objects::nonNull)
       .flatMap(List::stream)
       .collect(toList());
@@ -183,7 +179,8 @@ public class ResourceService {
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
     messageProducer.prepareAndSendContributorEvents(deleteEvents);
     messageProducer.prepareAndSendSubjectEvents(deleteEvents);
-    var list = preProcessEvents(deleteEvents, consortiumInstanceService::deleteInstances);
+    var list = consortiumTenantExecutor
+      .execute(() -> preProcessEvents(deleteEvents, consortiumInstanceService::deleteInstances));
     return multiTenantSearchDocumentConverter.convert(list);
   }
 
@@ -196,8 +193,11 @@ public class ResourceService {
     responses.add(primaryResourceRepository.indexResources(primaryResources));
     eventsByRepository.remove(PRIMARY_INDEXING_REPOSITORY_NAME);
 
-    eventsByRepository.forEach((repository, events) ->
-      responses.add(resourceRepositoryBeans.get(repository).indexResources(events)));
+    eventsByRepository.forEach((repository, events) -> {
+      var resourceRepository = resourceRepositoryBeans.get(repository);
+      var e = resourceRepository.indexResources(events);
+      responses.add(e);
+    });
 
     var errorMessage = responses.stream()
       .map(FolioIndexOperationResponse::getErrorMessage)

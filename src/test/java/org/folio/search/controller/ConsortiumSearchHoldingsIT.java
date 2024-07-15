@@ -154,7 +154,7 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
       .filter(holding -> holdingIds.contains(holding.getId()))
       .toList();
     var request = new BatchIdsDto()
-      .identifierType(BatchIdsDto.IdentifierTypeEnum.ITEMBARCODE)
+      .identifierType(BatchIdsDto.IdentifierTypeEnum.ITEM_BARCODE)
       .identifierValues(barcodes);
     var result = doPost(consortiumBatchHoldingsSearchPath(), CENTRAL_TENANT_ID, request);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);
@@ -169,7 +169,7 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
     var instanceHrid = instance.getHrid();
     var holdings = getExpectedConsolidatedHoldings();
     var request = new BatchIdsDto()
-      .identifierType(BatchIdsDto.IdentifierTypeEnum.INSTANCEHRID)
+      .identifierType(BatchIdsDto.IdentifierTypeEnum.INSTANCE_HRID)
       .identifierValues(List.of(instanceHrid));
     var result = doPost(consortiumBatchHoldingsSearchPath(), CENTRAL_TENANT_ID, request);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);

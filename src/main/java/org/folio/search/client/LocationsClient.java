@@ -32,7 +32,8 @@ public interface LocationsClient {
   enum DocumentType {
 
     LOCATION("http://locations"),
-    CAMPUS("http://location-units/campuses");
+    CAMPUS("http://location-units/campuses"),
+    LIBRARY("http://location-units/libraries");
 
     /**
      * Request URI for feign client.

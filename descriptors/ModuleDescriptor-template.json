@@ -58,7 +58,8 @@
             "authority-storage.authority.reindex.post",
             "user-tenants.collection.get",
             "inventory-storage.locations.collection.get",
-            "inventory-storage.location-units.campuses.collection.get"
+            "inventory-storage.location-units.campuses.collection.get",
+            "inventory-storage.location-units.libraries.collection.get"
           ]
         },
         {
@@ -529,7 +530,8 @@
             "inventory-storage.alternative-title-types.collection.get",
             "instance-authority-links.authorities.bulk.post",
             "inventory-storage.locations.collection.get",
-            "inventory-storage.location-units.campuses.collection.get"
+            "inventory-storage.location-units.campuses.collection.get",
+            "inventory-storage.location-units.libraries.collection.get"
           ]
         },
         {

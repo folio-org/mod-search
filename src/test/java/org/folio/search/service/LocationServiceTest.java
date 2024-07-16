@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperation
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -24,11 +25,13 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.LocationDto;
 import org.folio.search.model.dto.locationunit.CampusDto;
+import org.folio.search.model.dto.locationunit.LibraryDto;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -45,29 +48,30 @@ class LocationServiceTest {
   @InjectMocks
   private LocationService service;
 
-  @Test
-  void reindex_locations_positive() {
+  @ParameterizedTest
+  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE})
+  void reindex_locationsData_positive(String resourceName) {
     var batchSize = 3;
-    var locationsMockPart1 = locations(3);
-    var locationsMockPart2 = locations(2);
-    var locationsMock = Stream.concat(locationsMockPart1.stream(), locationsMockPart2.stream()).toList();
-    var localtionUri = LocationsClient.DocumentType.LOCATION.getUri();
+    var locationsDataMockPart1 = locationsData(resourceName, 3);
+    var locationsDataMockPart2 = locationsData(resourceName, 2);
+    var locationsDataMock = Stream.concat(locationsDataMockPart1.stream(), locationsDataMockPart2.stream()).toList();
+    var uri = LocationsClient.DocumentType.valueOf(resourceName.toUpperCase()).getUri();
 
     when(properties.getLocationBatchSize())
         .thenReturn(batchSize);
 
-    when(client.getLocationsData(localtionUri, 0, batchSize))
-      .thenReturn(documentsResult(locationsMockPart1, locationsMock.size()));
-    when(client.getLocationsData(localtionUri, batchSize, batchSize))
-      .thenReturn(documentsResult(locationsMockPart2, locationsMock.size()));
+    when(client.getLocationsData(uri, 0, batchSize))
+      .thenReturn(documentsResult(locationsDataMockPart1, locationsDataMock.size()));
+    when(client.getLocationsData(uri, batchSize, batchSize))
+      .thenReturn(documentsResult(locationsDataMockPart2, locationsDataMock.size()));
 
     when(resourceService.indexResources(any()))
       .thenReturn(getSuccessIndexOperationResponse());
 
-    service.reindex(TENANT_ID, LOCATION_RESOURCE);
+    service.reindex(TENANT_ID, resourceName);
 
-    log.info("reindex_locations_positive:\n[\n\tbatchSize: {}\n\tlocationsMock: {}\n]",
-      batchSize, locationsMock);
+    log.info("reindex_locationData_positive-{}:\n[\n\tbatchSize: {}\n\tmock: {}\n]",
+      resourceName, batchSize, locationsDataMock);
 
     var captor = ArgumentCaptor.<List<ResourceEvent>>captor();
     verify(resourceService, times(2)).indexResources(captor.capture());
@@ -77,138 +81,65 @@ class LocationServiceTest {
       .toList();
 
     assertThat(captured)
-      .hasSize(locationsMock.size())
+      .hasSize(locationsDataMock.size())
       .allMatch(resourceEvent -> resourceEvent.getTenant().equals(TENANT_ID))
-      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(LOCATION_RESOURCE))
+      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(resourceName))
       .extracting(ResourceEvent::getNew)
-      .containsAll(locationsMock);
+      .containsAll(locationsDataMock);
 
-    var expectedLocationsResourceIds = locationsMock.stream()
-      .map(location -> location.get(ID_FIELD) + "|" + TENANT_ID)
+    var expectedResourceIds = locationsDataMock.stream()
+      .map(document -> document.get(ID_FIELD) + "|" + TENANT_ID)
       .toList();
 
-    log.info("reindex_locations_positive:\n[\n\texpectedLocationsResourceIds: {}\n]",
-      expectedLocationsResourceIds);
+    log.info("reindex_locationData_positive-{}:\n[\n\texpectedResourceIds: {}\n]",
+      resourceName, expectedResourceIds);
 
     assertThat(captured)
       .extracting(ResourceEvent::getId)
-      .containsExactlyElementsOf(expectedLocationsResourceIds);
+      .containsExactlyElementsOf(expectedResourceIds);
   }
 
-  @Test
-  void reindex_campuses_positive() {
-    var batchSize = 4;
-    var campusesMockPart1 = campuses(4);
-    var campusesMockPart2 = campuses(3);
-    var campusesMock = Stream.concat(campusesMockPart1.stream(), campusesMockPart2.stream()).toList();
-    var campusesUri = LocationsClient.DocumentType.CAMPUS.getUri();
-
-    when(properties.getLocationBatchSize())
-      .thenReturn(batchSize);
-
-    when(client.getLocationsData(campusesUri, 0, batchSize))
-      .thenReturn(documentsResult(campusesMockPart1, campusesMock.size()));
-    when(client.getLocationsData(campusesUri, batchSize, batchSize))
-      .thenReturn(documentsResult(campusesMockPart2, campusesMock.size()));
-
-    when(resourceService.indexResources(any()))
-      .thenReturn(getSuccessIndexOperationResponse());
-
-    service.reindex(TENANT_ID, CAMPUS_RESOURCE);
-
-    log.info("reindex_campuses_positive:\n[\n\tbatchSize: {}\n\tcampusesMock: {}\n]",
-      batchSize, campusesMock);
-
-    var captor = ArgumentCaptor.<List<ResourceEvent>>captor();
-    verify(resourceService, times(2)).indexResources(captor.capture());
-
-    var captured = captor.getAllValues().stream()
-      .flatMap(Collection::stream)
-      .toList();
-
-    assertThat(captured)
-      .hasSize(campusesMock.size())
-      .allMatch(resourceEvent -> resourceEvent.getTenant().equals(TENANT_ID))
-      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(CAMPUS_RESOURCE))
-      .extracting(ResourceEvent::getNew)
-      .containsAll(campusesMock);
-
-    var expectedCampusResourceIds = campusesMock.stream()
-      .map(campus -> campus.get(ID_FIELD) + "|" + TENANT_ID)
-      .toList();
-
-    log.info("reindex_campuses_positive:\n[\n\texpectedCampusResourceIds: {}\n]",
-      expectedCampusResourceIds);
-
-    assertThat(captured)
-      .extracting(ResourceEvent::getId)
-      .containsExactlyElementsOf(expectedCampusResourceIds);
-  }
-
-  @Test
-  void reindex_locations_negative_indexingError() {
+  @ParameterizedTest
+  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE})
+  void reindex_locationsData_negative_indexingError(String resourceName) {
     var batchSize = 2;
-    var locationsMock = locations(2);
+    var locationsDataMock = locationsData(resourceName, 2);
     var error = "error";
 
-    var localtionUri = LocationsClient.DocumentType.LOCATION.getUri();
+    var uri = LocationsClient.DocumentType.valueOf(resourceName.toUpperCase()).getUri();
     when(properties.getLocationBatchSize())
       .thenReturn(batchSize);
-    when(client.getLocationsData(localtionUri, 0, batchSize))
-      .thenReturn(documentsResult(locationsMock, locationsMock.size()));
+    when(client.getLocationsData(uri, 0, batchSize))
+      .thenReturn(documentsResult(locationsDataMock, locationsDataMock.size()));
     when(resourceService.indexResources(any()))
       .thenReturn(getErrorIndexOperationResponse(error));
 
-    var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, LOCATION_RESOURCE));
+    var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, resourceName));
 
-    log.info("reindex_locations_negative_indexingError:\n[\n\tbatchSize: {}\n\tlocationsMock: {}\n\terror: {}\n]",
-      batchSize, locationsMock, ex.getMessage());
+    log.info("reindex_locationData_negative_indexingError-{}:\n[\n\tbatchSize: {}\n\tmock: {}\n\terror: {}\n]",
+      resourceName, batchSize, locationsDataMock, ex.getMessage());
 
     assertThat(ex.getMessage()).isEqualTo(String.format("Indexing failed: %s", error));
   }
 
-  @Test
-  void reindex_campuses_negative_indexingError() {
-    var batchSize = 4;
-    var campusesMock = campuses(4);
-    var error = "error";
-
-    var campusUri = LocationsClient.DocumentType.CAMPUS.getUri();
-    when(properties.getLocationBatchSize())
-      .thenReturn(batchSize);
-    when(client.getLocationsData(campusUri, 0, batchSize))
-      .thenReturn(documentsResult(campusesMock, campusesMock.size()));
-    when(resourceService.indexResources(any()))
-      .thenReturn(getErrorIndexOperationResponse(error));
-
-    var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, CAMPUS_RESOURCE));
-
-    log.info("reindex_campuses_negative_indexingError:\n[\n\tbatchSize: {}\n\tcampusesMock: {}\n\terror: {}\n]",
-      batchSize, campusesMock, ex.getMessage());
-
-    assertThat(ex.getMessage()).isEqualTo(String.format("Indexing failed: %s", error));
-  }
-
-  private List<Map<String, Object>> locations(int count) {
+  private List<Map<String, Object>> locationsData(String resourceName, int count) {
     return Stream.iterate(0, i -> i < count, i -> ++i)
-      .map(i ->
-        LocationDto.builder().id(randomId())
-          .name("Location name" + i)
-          .code("CODE" + i)
-          .build())
+      .map(i -> locationsDataDto(resourceName, i))
       .map(TestUtils::toMap)
       .toList();
   }
 
-  private List<Map<String, Object>> campuses(int count) {
-    return Stream.iterate(0, i -> i < count, i -> ++i)
-      .map(i ->
-        CampusDto.builder().id(randomId())
-          .name("Campus name" + i)
-          .code("CODE" + i)
-          .build())
-      .map(TestUtils::toMap)
-      .toList();
+  private Object locationsDataDto(String resourceName, int i) {
+    var name = String.format("%s name%d", resourceName, i);
+    var code = String.format("CODE%d", i);
+
+    return switch (resourceName) {
+      case LOCATION_RESOURCE -> LocationDto.builder().id(randomId()).name(name).code(code).build();
+      case CAMPUS_RESOURCE ->
+        CampusDto.builder().id(randomId()).name(name).code(code).institutionId(randomId()).build();
+      case LIBRARY_RESOURCE -> LibraryDto.builder().id(randomId()).name(name).code(code).campusId(randomId()).build();
+      default -> throw new IllegalStateException("Unsupported document type: " + resourceName);
+    };
   }
 
   private ResultList<Map<String, Object>> documentsResult(List<Map<String, Object>> documents, int totalCount) {

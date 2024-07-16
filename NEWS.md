@@ -33,6 +33,7 @@
 * Index, search Instance place of publication field ([MSEARCH-755](https://folio-org.atlassian.net/browse/MSEARCH-755))
 * Instance search: add support to filter search result by classification type ([MSEARCH-777](https://folio-org.atlassian.net/browse/MSEARCH-777))
 * Implement Reindexing of Campuses ([MSEARCH-767](https://issues.folio.org/browse/MSEARCH-767))
+* Implement Reindexing of Libraries ([MSEARCH-766](https://issues.folio.org/browse/MSEARCH-766))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

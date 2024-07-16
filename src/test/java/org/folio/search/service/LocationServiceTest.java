@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperation
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTITUTION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -25,6 +26,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.LocationDto;
 import org.folio.search.model.dto.locationunit.CampusDto;
+import org.folio.search.model.dto.locationunit.InstitutionDto;
 import org.folio.search.model.dto.locationunit.LibraryDto;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.utils.TestUtils;
@@ -49,7 +51,7 @@ class LocationServiceTest {
   private LocationService service;
 
   @ParameterizedTest
-  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE})
+  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE})
   void reindex_locationsData_positive(String resourceName) {
     var batchSize = 3;
     var locationsDataMockPart1 = locationsData(resourceName, 3);
@@ -100,7 +102,7 @@ class LocationServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE})
+  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE})
   void reindex_locationsData_negative_indexingError(String resourceName) {
     var batchSize = 2;
     var locationsDataMock = locationsData(resourceName, 2);
@@ -135,9 +137,9 @@ class LocationServiceTest {
 
     return switch (resourceName) {
       case LOCATION_RESOURCE -> LocationDto.builder().id(randomId()).name(name).code(code).build();
-      case CAMPUS_RESOURCE ->
-        CampusDto.builder().id(randomId()).name(name).code(code).institutionId(randomId()).build();
+      case CAMPUS_RESOURCE -> CampusDto.builder().id(randomId()).name(name).code(code).institutionId(randomId()).build();
       case LIBRARY_RESOURCE -> LibraryDto.builder().id(randomId()).name(name).code(code).campusId(randomId()).build();
+      case INSTITUTION_RESOURCE -> InstitutionDto.builder().id(randomId()).name(name).code(code).build();
       default -> throw new IllegalStateException("Unsupported document type: " + resourceName);
     };
   }

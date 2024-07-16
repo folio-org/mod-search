@@ -1,0 +1,30 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/location-units/institutions?offset=0&limit=1"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "locinsts": [
+            {
+              "id": "40ee00ca-a518-4b49-be01-0638d0a4ac57",
+              "name": "Main Institution 1",
+              "code": "MI1",
+              "metadata": {
+                "createdDate": "2024-07-16T17:32:43.214+00:00",
+                "updatedDate": "2024-07-16T17:32:43.214+00:00"
+              }
+            }
+          ],
+          "totalRecords": 1
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

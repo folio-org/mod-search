@@ -33,7 +33,8 @@ public interface LocationsClient {
 
     LOCATION("http://locations"),
     CAMPUS("http://location-units/campuses"),
-    LIBRARY("http://location-units/libraries");
+    LIBRARY("http://location-units/libraries"),
+    INSTITUTION("http://location-units/institutions");
 
     /**
      * Request URI for feign client.

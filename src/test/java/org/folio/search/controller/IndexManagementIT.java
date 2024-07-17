@@ -110,7 +110,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       assertThat(countedLocations).isEqualTo(3);
       assertThat(countedCampuses).isEqualTo(2);
       assertThat(countedLibraries).isEqualTo(2);
-      assertThat(countedInstitutions).isEqualTo(1);
+      assertThat(countedInstitutions).isEqualTo(2);
     });
   }
 

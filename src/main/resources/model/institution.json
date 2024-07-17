@@ -1,7 +1,7 @@
 {
   "name": "institution",
   "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.InstitutionDto",
-  "reindexSupported": false,
+  "parent": "location",
   "fields": {
     "id": {
       "index": "keyword_lowercase",

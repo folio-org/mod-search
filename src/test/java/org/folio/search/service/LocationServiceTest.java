@@ -132,14 +132,15 @@ class LocationServiceTest {
   }
 
   private Object locationsDataDto(String resourceName, int i) {
+    var id = randomId();
     var name = String.format("%s name%d", resourceName, i);
     var code = String.format("CODE%d", i);
 
     return switch (resourceName) {
-      case LOCATION_RESOURCE -> LocationDto.builder().id(randomId()).name(name).code(code).build();
-      case CAMPUS_RESOURCE -> CampusDto.builder().id(randomId()).name(name).code(code).institutionId(randomId()).build();
-      case LIBRARY_RESOURCE -> LibraryDto.builder().id(randomId()).name(name).code(code).campusId(randomId()).build();
-      case INSTITUTION_RESOURCE -> InstitutionDto.builder().id(randomId()).name(name).code(code).build();
+      case LOCATION_RESOURCE -> LocationDto.builder().id(id).name(name).code(code).build();
+      case CAMPUS_RESOURCE -> CampusDto.builder().id(id).name(name).code(code).institutionId(randomId()).build();
+      case LIBRARY_RESOURCE -> LibraryDto.builder().id(id).name(name).code(code).campusId(randomId()).build();
+      case INSTITUTION_RESOURCE -> InstitutionDto.builder().id(id).name(name).code(code).build();
       default -> throw new IllegalStateException("Unsupported document type: " + resourceName);
     };
   }

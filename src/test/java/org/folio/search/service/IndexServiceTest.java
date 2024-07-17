@@ -10,6 +10,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTITUTION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
@@ -404,7 +405,7 @@ class IndexServiceTest {
     when(resourceDescriptionService.find(LOCATION_RESOURCE))
       .thenReturn(Optional.of(resourceDescription(LOCATION_RESOURCE)));
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(LOCATION));
 
@@ -414,6 +415,7 @@ class IndexServiceTest {
     verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
     verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verify(locationService, atMostOnce()).reindex(TENANT_ID, LIBRARY_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, INSTITUTION_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 
@@ -422,6 +424,7 @@ class IndexServiceTest {
     var locationIndex = getIndexName(LOCATION_RESOURCE, TENANT_ID);
     var campusIndex = getIndexName(CAMPUS_RESOURCE, TENANT_ID);
     var libraryIndex = getIndexName(LIBRARY_RESOURCE, TENANT_ID);
+    var institutionIndex = getIndexName(INSTITUTION_RESOURCE, TENANT_ID);
 
     when(resourceDescriptionService.find(LOCATION_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LOCATION_RESOURCE)));
@@ -429,9 +432,11 @@ class IndexServiceTest {
       Optional.of(resourceDescription(CAMPUS_RESOURCE)));
     when(resourceDescriptionService.find(LIBRARY_RESOURCE)).thenReturn(
       Optional.of(resourceDescription(LIBRARY_RESOURCE)));
+    when(resourceDescriptionService.find(INSTITUTION_RESOURCE)).thenReturn(
+      Optional.of(resourceDescription(INSTITUTION_RESOURCE)));
 
     when(resourceDescriptionService.getSecondaryResourceNames(LOCATION_RESOURCE))
-      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE));
+      .thenReturn(List.of(CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE));
 
     when(mappingsHelper.getMappings(LOCATION_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LOCATION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
@@ -439,13 +444,17 @@ class IndexServiceTest {
     when(settingsHelper.getSettingsJson(CAMPUS_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
     when(mappingsHelper.getMappings(LIBRARY_RESOURCE)).thenReturn(EMPTY_OBJECT);
     when(settingsHelper.getSettingsJson(LIBRARY_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(INSTITUTION_RESOURCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(INSTITUTION_RESOURCE)).thenReturn(EMPTY_JSON_OBJECT);
 
     when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
     when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(campusIndex)));
-    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+    when(indexRepository.createIndex(libraryIndex, EMPTY_OBJECT, EMPTY_OBJECT))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(libraryIndex)));
+    when(indexRepository.createIndex(institutionIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(institutionIndex)));
 
     var reindexRequest = new ReindexRequest().resourceName(LOCATION).recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
@@ -456,6 +465,7 @@ class IndexServiceTest {
     verify(locationService, atMostOnce()).reindex(TENANT_ID, LOCATION_RESOURCE);
     verify(locationService, atMostOnce()).reindex(TENANT_ID, CAMPUS_RESOURCE);
     verify(locationService, atMostOnce()).reindex(TENANT_ID, LIBRARY_RESOURCE);
+    verify(locationService, atMostOnce()).reindex(TENANT_ID, INSTITUTION_RESOURCE);
     verifyNoInteractions(resourceReindexClient);
   }
 

@@ -1,0 +1,39 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/location-units/institutions?offset=0&limit=2"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "locinsts": [
+            {
+              "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf1",
+              "name": "My institution 1",
+              "code": "MI1",
+              "metadata": {
+                "createdDate": "2024-07-03T16:31:45.444+00:00",
+                "updatedDate": "2024-07-03T16:31:45.444+00:00"
+              }
+            },
+            {
+              "id": "52e92db5-34f4-4741-af40-e23c4d9d3bf2",
+              "name": "My institution 2",
+              "code": "MI2",
+              "metadata": {
+                "createdDate": "2024-07-03T16:32:45.444+00:00",
+                "updatedDate": "2024-07-03T16:32:45.444+00:00"
+              }
+            }
+          ],
+          "totalRecords": 1
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

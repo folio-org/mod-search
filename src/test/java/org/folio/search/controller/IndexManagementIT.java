@@ -7,6 +7,7 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
 import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
+import static org.folio.search.utils.SearchUtils.INSTITUTION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getResourceName;
@@ -25,7 +26,6 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -93,6 +93,7 @@ class IndexManagementIT extends BaseIntegrationTest {
     assertThat(countDefaultIndexDocument(LOCATION_RESOURCE)).isZero();
     assertThat(countDefaultIndexDocument(CAMPUS_RESOURCE)).isZero();
     assertThat(countDefaultIndexDocument(LIBRARY_RESOURCE)).isZero();
+    assertThat(countDefaultIndexDocument(INSTITUTION_RESOURCE)).isZero();
 
     mockMvc.perform(request)
       .andExpect(status().isOk())
@@ -101,13 +102,15 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.submittedDate", notNullValue()));
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var countedLocations = countDefaultIndexDocument(SearchUtils.LOCATION_RESOURCE);
-      var countedCampuses = countDefaultIndexDocument(SearchUtils.CAMPUS_RESOURCE);
-      var countedLibraries = countDefaultIndexDocument(SearchUtils.LIBRARY_RESOURCE);
+      var countedLocations = countDefaultIndexDocument(LOCATION_RESOURCE);
+      var countedCampuses = countDefaultIndexDocument(CAMPUS_RESOURCE);
+      var countedLibraries = countDefaultIndexDocument(LIBRARY_RESOURCE);
+      var countedInstitutions = countDefaultIndexDocument(INSTITUTION_RESOURCE);
 
       assertThat(countedLocations).isEqualTo(3);
       assertThat(countedCampuses).isEqualTo(2);
       assertThat(countedLibraries).isEqualTo(2);
+      assertThat(countedInstitutions).isEqualTo(2);
     });
   }
 

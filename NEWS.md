@@ -44,7 +44,6 @@
 * Classification browse: Fix instances count for Shared Facet ([MSEARCH-761](https://folio-org.atlassian.net/browse/MSEARCH-761))
 * Subjects/Contributors browse: Fix instances count for Shared Facet ([MSEARCH-782](https://folio-org.atlassian.net/browse/MSEARCH-782))
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
-* Retry on consumer don't define new context
 
 ### Tech Dept
 * Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

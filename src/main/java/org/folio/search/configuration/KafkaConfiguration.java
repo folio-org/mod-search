@@ -29,11 +29,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.kafka.listener.CompositeBatchInterceptor;
-import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.util.backoff.FixedBackOff;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at application startup for
@@ -58,7 +56,6 @@ public class KafkaConfiguration {
     BatchInterceptor<String, ResourceEvent>[] batchInterceptors) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
-    factory.setCommonErrorHandler(errorHandler());
     factory.setConsumerFactory(resourceEventConsumerFactory());
     factory.setRecordFilterStrategy(new CompositeRecordFilterStrategy<>(recordFilterStrategies));
     factory.setBatchInterceptor(new CompositeBatchInterceptor<>(batchInterceptors));
@@ -69,7 +66,6 @@ public class KafkaConfiguration {
   public ConcurrentKafkaListenerContainerFactory<String, ConsortiumInstanceEvent> consortiumListenerContainerFactory() {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ConsortiumInstanceEvent>();
     factory.setBatchListener(true);
-    factory.setCommonErrorHandler(errorHandler());
     factory.setConsumerFactory(consortiumEventConsumerFactory());
     return factory;
   }
@@ -88,14 +84,6 @@ public class KafkaConfiguration {
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
     return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
-  }
-
-  @Bean
-  public DefaultErrorHandler errorHandler() {
-    var fixedBackOff = new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, 1);
-    return new DefaultErrorHandler((consumerRecord, exception) ->
-      log.error(() -> "Error occurred while processing record=[%s], topic=[%s]"
-      .formatted(consumerRecord.key(), consumerRecord.topic()), exception), fixedBackOff);
   }
 
   @Bean

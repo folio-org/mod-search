@@ -55,19 +55,26 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   @Override
   public List<ResourceEvent> preProcess(ResourceEvent event) {
-    log.debug("preProcess::Starting instance event pre-processing");
+    log.info("preProcess::Starting instance event pre-processing");
+    if (log.isDebugEnabled()) {
+      log.debug("preProcess::Starting instance event pre-processing [{}]", event);
+    }
+
     List<ResourceEvent> events;
 
     if (isUpdateEventForResourceSharing(event)) {
       events = prepareClassificationEventsOnInstanceSharing(event);
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
-      log.debug("preProcess::Finished instance event pre-processing. No events created for shadow instance.");
+      log.info("preProcess::Finished instance event pre-processing. No additional events created for shadow instance.");
       return List.of(event);
     } else {
       events = prepareClassificationEvents(event);
     }
 
-    log.debug("preProcess::Finished instance event pre-processing");
+    log.info("preProcess::Finished instance event pre-processing");
+    if (log.isDebugEnabled()) {
+      log.debug("preProcess::Finished instance event pre-processing. Events after: [{}], ", events);
+    }
     return events;
   }
 

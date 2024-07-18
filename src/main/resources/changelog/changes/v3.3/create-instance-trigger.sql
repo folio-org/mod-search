@@ -58,6 +58,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- TODO: Implement trigger on delete
 DROP TRIGGER IF EXISTS instance_trigger ON instances CASCADE;
 CREATE TRIGGER instance_trigger
   AFTER INSERT OR UPDATE

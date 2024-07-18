@@ -267,4 +267,16 @@
     </preConditions>
     <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="instances"/>
+        <tableExists tableName="classifications"/>
+        <tableExists tableName="subjects"/>
+        <tableExists tableName="contributors"/>
+      </and>
+    </preConditions>
+    <sqlFile path="delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
 </databaseChangeLog>

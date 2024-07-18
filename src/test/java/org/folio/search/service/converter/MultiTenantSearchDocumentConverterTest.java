@@ -8,16 +8,23 @@ import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
@@ -26,8 +33,10 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,14 +56,20 @@ class MultiTenantSearchDocumentConverterTest {
   @Mock
   private SearchDocumentConverter searchDocumentConverter;
   @Mock
+  private ConsortiumTenantExecutor executionService;
+  @Mock
   private EventPreProcessor customEventPreProcessor;
   @Mock
   private Map<String, EventPreProcessor> eventPreProcessorBeans;
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
+  @Mock
+  private FolioExecutionContext folioExecutionContext;
 
   @Test
   void convert_positive() {
+    when(executionService.execute(anyString(), any()))
+      .thenAnswer(invocation -> invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
     var tenant1 = "tenant_one";
     var tenant2 = "tenant_two";
     var events = List.of(
@@ -74,6 +89,9 @@ class MultiTenantSearchDocumentConverterTest {
     assertThat(actual).isEqualTo(Map.of(RESOURCE_NAME, List.of(
       searchDocument(events.get(0), INDEX), searchDocument(events.get(1), DELETE),
       searchDocument(events.get(2), INDEX), searchDocument(events.get(3), DELETE))));
+
+    verify(executionService).execute(eq("tenant_one"), any());
+    verify(executionService).execute(eq("tenant_two"), any());
   }
 
   @Test
@@ -86,11 +104,14 @@ class MultiTenantSearchDocumentConverterTest {
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
     when(searchDocumentConverter.convert(events.get(1))).thenReturn(of(searchDocument(events.get(1), DELETE)));
+    when(folioExecutionContext.getTenantId()).thenReturn(tenant1);
 
     var actual = multiTenantConverter.convert(events);
 
     assertThat(actual).isEqualTo(Map.of(RESOURCE_NAME, List.of(
       searchDocument(events.get(0), INDEX), searchDocument(events.get(1), DELETE))));
+
+    verifyNoInteractions(executionService);
   }
 
   @Test
@@ -98,6 +119,8 @@ class MultiTenantSearchDocumentConverterTest {
     var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
     when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
     when(searchDocumentConverter.convert(event)).thenReturn(Optional.empty());
+    when(executionService.execute(eq(TENANT_ID), any())).thenAnswer(invocation ->
+      invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
 
     var actual = multiTenantConverter.convert(List.of(event));
     assertThat(actual).isEqualTo(emptyMap());
@@ -112,6 +135,8 @@ class MultiTenantSearchDocumentConverterTest {
     when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
     when(eventPreProcessorBeans.get(CUSTOM_PRE_PROCESSOR)).thenReturn(customEventPreProcessor);
     when(customEventPreProcessor.preProcess(event)).thenReturn(List.of(event));
+    when(executionService.execute(eq(TENANT_ID), any())).thenAnswer(invocation ->
+      invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
 
     var actual = multiTenantConverter.convert(List.of(event));
     assertThat(actual).isEqualTo(mapOf(RESOURCE_NAME, List.of(searchDocument(event, INDEX))));

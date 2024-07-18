@@ -16,8 +16,10 @@ import org.folio.search.converter.LanguageConfigConverter;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.exception.ValidationException;
+import org.folio.search.model.config.LanguageConfigEntity;
 import org.folio.search.repository.LanguageConfigRepository;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class LanguageConfigService {
 
   private final LanguageConfigRepository configRepository;
   private final LocalSearchFieldProvider searchFieldProvider;
+  private final SystemUserScopedExecutionService executionService;
   private final SearchConfigurationProperties searchConfiguration;
 
   /**
@@ -124,4 +127,16 @@ public class LanguageConfigService {
       .collect(Collectors.toSet());
   }
 
+  /**
+   * Returns all supported language codes for tenant.
+   *
+   * @param tenant tenant id as {@link String} object
+   * @return {@link Set} with language configuration codes.
+   */
+  public Set<String> getAllLanguagesForTenant(String tenant) {
+    return executionService.executeSystemUserScoped(tenant,
+      () -> configRepository.findAll().stream()
+        .map(LanguageConfigEntity::getCode)
+        .collect(Collectors.toSet()));
+  }
 }

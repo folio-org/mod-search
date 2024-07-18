@@ -60,6 +60,7 @@ public class ConsortiumInstanceService {
    * @return events that are not related to consortium tenants
    */
   public List<ResourceEvent> saveInstances(List<ResourceEvent> instanceEvents) {
+    log.info("Saving consortium instances to DB [size: {}]", instanceEvents.size());
     if (CollectionUtils.isEmpty(instanceEvents)) {
       return instanceEvents;
     }
@@ -74,9 +75,10 @@ public class ConsortiumInstanceService {
           jsonConverter.toJson(map)))
         .toList();
 
-      log.info("Saving consortium instances to DB [size: {}]", instanceEvents.size());
-      repository.save(instances);
-      prepareAndSendConsortiumInstanceEvents(instances, instance -> instance.id().instanceId());
+      consortiumTenantExecutor.run(() -> {
+        repository.save(instances);
+        prepareAndSendConsortiumInstanceEvents(instances, instance -> instance.id().instanceId());
+      });
     }
     return consortiumTenantEventsMap.get(false);
   }
@@ -98,8 +100,10 @@ public class ConsortiumInstanceService {
         .map(resourceEvent -> new ConsortiumInstanceId(resourceEvent.getTenant(), resourceEvent.getId()))
         .collect(Collectors.toSet());
 
-      repository.delete(instanceIds);
-      prepareAndSendConsortiumInstanceEvents(instanceIds, ConsortiumInstanceId::instanceId);
+      consortiumTenantExecutor.run(() -> {
+        repository.delete(instanceIds);
+        prepareAndSendConsortiumInstanceEvents(instanceIds, ConsortiumInstanceId::instanceId);
+      });
     }
     return consortiumTenantEventsMap.get(false);
   }

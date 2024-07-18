@@ -38,7 +38,6 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.model.client.CqlQueryParam;
-import org.folio.search.repository.IndexRepository;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -61,9 +60,6 @@ class RecordsIndexingIT extends BaseIntegrationTest {
 
   @Autowired
   private RestHighLevelClient restHighLevelClient;
-  @Autowired
-  private IndexRepository indexService;
-
 
   @BeforeAll
   static void prepare() {

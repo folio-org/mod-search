@@ -20,6 +20,7 @@ import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 import static org.folio.search.utils.SearchUtils.getPathForMultilangField;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -30,7 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;

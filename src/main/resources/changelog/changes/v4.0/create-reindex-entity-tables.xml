@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-793@@create-instance-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="instance"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance table</comment>
+
+    <createTable tableName="instance">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instance"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="shared" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_bound_with" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instance_json" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-holding-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="holding"/>
+      </not>
+      <not>
+        <indexExists indexName="idx_holding_instance_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create holding table</comment>
+
+    <createTable tableName="holding">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_holding"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_holding"/>
+      </column>
+      <column name="instance_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="holding_json" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="holding"
+                 indexName="idx_holding_instance_id">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-item-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="item"/>
+      </not>
+      <not>
+        <indexExists indexName="idx_item_holding_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create item table</comment>
+
+    <createTable tableName="item">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_item"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_item"/>
+      </column>
+      <column name="holding_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="item_json" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="item"
+                 indexName="idx_item_holding_id">
+      <column name="holding_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-classification-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="classification"/>
+      </not>
+    </preConditions>
+
+    <comment>Create classification table</comment>
+
+    <createTable tableName="classification">
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_classification"/>
+      </column>
+      <column name="number" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeId" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instances" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-subject-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="subject"/>
+      </not>
+    </preConditions>
+
+    <comment>Create subject table</comment>
+
+    <createTable tableName="subject">
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subject"/>
+      </column>
+      <column name="value" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="authorityId" type="VARCHAR(40)" defaultValue="">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instances" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-contributor-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="contributor"/>
+      </not>
+    </preConditions>
+
+    <comment>Create contributor table</comment>
+
+    <createTable tableName="contributor">
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_contributor"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="contributorNameTypeId" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="authorityId" type="VARCHAR(40)" defaultValue="">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instances" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-merge_ranges-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="merge_ranges"/>
+      </not>
+    </preConditions>
+
+    <comment>Create merge_ranges table</comment>
+
+    <createTable tableName="merge_ranges">
+      <column name="entity_type" type="VARCHAR(30)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+      </column>
+      <column name="lower" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+      </column>
+      <column name="upper" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+      </column>
+      <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-upload_ranges-table" author="Mukhiddin_Yusupov">
+    <preConditions>
+      <not>
+        <tableExists tableName="upload_ranges"/>
+      </not>
+    </preConditions>
+
+    <comment>Create upload_ranges table</comment>
+
+    <createTable tableName="upload_ranges">
+      <column name="entity_type" type="VARCHAR(30)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+      </column>
+      <column name="range_limit" type="integer">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+      </column>
+      <column name="range_offset" type="integer">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+      </column>
+      <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-instance_view" author="Mukhiddin_Yusupov">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="instance"/>
+        <tableExists tableName="holding"/>
+        <tableExists tableName="item"/>
+      </and>
+    </preConditions>
+    <sqlFile path="create-instance-view.sql" relativeToChangelogFile="true"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-instance_trigger" author="Mukhiddin_Yusupov">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="instance"/>
+        <tableExists tableName="classification"/>
+        <tableExists tableName="subject"/>
+        <tableExists tableName="contributor"/>
+      </and>
+    </preConditions>
+    <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="instance"/>
+        <tableExists tableName="classification"/>
+        <tableExists tableName="subject"/>
+        <tableExists tableName="contributor"/>
+      </and>
+    </preConditions>
+    <sqlFile path="delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
+</databaseChangeLog>

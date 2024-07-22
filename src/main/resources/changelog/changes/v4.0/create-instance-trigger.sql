@@ -43,7 +43,7 @@ BEGIN
   FOR i IN SELECT * FROM jsonb_array_elements(NEW.instance_json -> 'contributors') LOOP
     INSERT
     INTO contributor(id, name, contributorNameTypeId, authorityId, instances)
-    VALUES (encode(digest((i ->> 'name' || i ->> 'authorityId')::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
+    VALUES (encode(digest((i ->> 'name' || i ->> 'authorityId' || i ->> 'contributorNameTypeId')::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
             i ->> 'name' ,
             i ->> 'contributorNameTypeId',
             i ->> 'authorityId',

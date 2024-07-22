@@ -257,12 +257,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-testing</artifactId>
       <version>${folio-spring-support.version}</version>

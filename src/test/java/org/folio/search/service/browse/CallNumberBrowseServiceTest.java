@@ -22,7 +22,6 @@ import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
 import org.apache.lucene.search.TotalHits;
-import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
@@ -36,7 +35,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.utils.CallNumberUtils;
-import org.folio.spring.testing.type.UnitTest;
+import org.folio.spring.test.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -144,7 +143,6 @@ class CallNumberBrowseServiceTest {
 
     prepareMockForBrowsingAround(request, contextAroundIncluding(), precedingResult, succeedingResult);
     prepareMockForAdditionalRequest(request, contextAroundIncluding(), additionalPrecedingResult);
-    when(searchConfig.getMaxBrowseRequestOffset()).thenReturn(500L);
 
     var actual = callNumberBrowseService.browse(request);
 

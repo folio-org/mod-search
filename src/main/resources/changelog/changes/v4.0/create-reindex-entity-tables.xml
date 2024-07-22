@@ -177,16 +177,16 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-merge_ranges-table" author="Mukhiddin_Yusupov">
+  <changeSet id="MSEARCH-793@@create-merge_ranges-table-2" author="Mukhiddin_Yusupov">
     <preConditions>
       <not>
-        <tableExists tableName="merge_ranges"/>
+        <tableExists tableName="merge_ranges-2"/>
       </not>
     </preConditions>
 
     <comment>Create merge_ranges table</comment>
 
-    <createTable tableName="merge_ranges">
+    <createTable tableName="merge_ranges-2">
       <column name="entity_type" type="VARCHAR(30)">
         <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
       </column>
@@ -208,16 +208,16 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-upload_ranges-table" author="Mukhiddin_Yusupov">
+  <changeSet id="MSEARCH-793@@create-upload_ranges-table-2" author="Mukhiddin_Yusupov">
     <preConditions>
       <not>
-        <tableExists tableName="upload_ranges"/>
+        <tableExists tableName="upload_ranges-2"/>
       </not>
     </preConditions>
 
     <comment>Create upload_ranges table</comment>
 
-    <createTable tableName="upload_ranges">
+    <createTable tableName="upload_ranges-2">
       <column name="entity_type" type="VARCHAR(30)">
         <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
       </column>
@@ -239,7 +239,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-instance_view" author="Mukhiddin_Yusupov">
+  <changeSet id="MSEARCH-793@@create-instance_view-2" author="Mukhiddin_Yusupov">
     <preConditions onFail="MARK_RAN">
       <and>
         <tableExists tableName="instance"/>
@@ -250,7 +250,7 @@
     <sqlFile path="create-instance-view.sql" relativeToChangelogFile="true"/>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-instance_trigger" author="Mukhiddin_Yusupov">
+  <changeSet id="MSEARCH-793@@create-instance_trigger-2" author="Mukhiddin_Yusupov">
     <preConditions onFail="MARK_RAN">
       <and>
         <tableExists tableName="instance"/>
@@ -262,7 +262,7 @@
     <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
+  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger-2" author="Mukhiddin_Yusupov">
     <preConditions onFail="MARK_RAN">
       <and>
         <tableExists tableName="instance"/>

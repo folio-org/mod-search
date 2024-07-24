@@ -1,9 +1,12 @@
 package org.folio.search.service.consortium;
 
+import static org.folio.search.service.SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.SortOrder;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.SearchResult;
 import org.folio.search.repository.ConsortiumLocationRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class ConsortiumLocationService {
       tenantHeader,
       tenantId,
       sortBy);
+    validatePaginationParameters(limit, offset);
     validateSortByValue(sortBy);
     return executor.execute(
       tenantHeader,
@@ -37,9 +41,20 @@ public class ConsortiumLocationService {
 
   private void validateSortByValue(String sortBy) {
     if (!(NAME.equals(sortBy) || ID.equals(sortBy) || TENANT_ID.equals(sortBy))) {
-      throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
+      var validationException = new RequestValidationException("Invalid sortBy value is being used",
+        "sortBy", sortBy);
+      log.warn(validationException.getMessage());
+      throw validationException;
     }
   }
 
+  private void validatePaginationParameters(Integer limit, Integer offset) {
+    if (offset + limit > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+      var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
+        "offset + limit", String.valueOf(offset + limit));
+      log.warn(validationException.getMessage());
+      throw validationException;
+    }
+  }
 
 }

@@ -62,7 +62,7 @@ public class ConsortiumLocationServiceTest {
 
 
   @Test
-  void fetchCampuses_InvalidSortBy() {
+  void fetchLocations_InvalidSortBy() {
     var sortOrder = SortOrder.ASC;
     var limit = 10;
     var offset = 0;
@@ -73,7 +73,7 @@ public class ConsortiumLocationServiceTest {
   }
 
   @Test
-  void fetchCampuses_InvalidPaginationParameters() {
+  void fetchLocations_InvalidPaginationParameters() {
     var sortOrder = SortOrder.ASC;
     var limit = 1000;
     var offset = 9900;

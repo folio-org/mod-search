@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.ConsortiumLocation;
 import org.folio.search.domain.dto.SortOrder;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.SearchResult;
 import org.folio.search.repository.ConsortiumLocationRepository;
 import org.folio.spring.testing.type.UnitTest;
@@ -60,14 +61,13 @@ public class ConsortiumLocationServiceTest {
     verify(executor).execute(eq(tenantId), any(Supplier.class));
   }
 
-
   @Test
   void fetchLocations_InvalidSortBy() {
     var sortOrder = SortOrder.ASC;
     var limit = 10;
     var offset = 0;
 
-    Assertions.assertThrows(IllegalArgumentException.class, () ->
+    Assertions.assertThrows(RequestValidationException.class, () ->
       service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder)
     );
   }
@@ -78,7 +78,7 @@ public class ConsortiumLocationServiceTest {
     var limit = 1000;
     var offset = 9900;
 
-    Assertions.assertThrows(IllegalArgumentException.class, () ->
+    Assertions.assertThrows(RequestValidationException.class, () ->
       service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, NAME, sortOrder)
     );
   }

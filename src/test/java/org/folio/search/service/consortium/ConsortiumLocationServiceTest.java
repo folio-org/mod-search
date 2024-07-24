@@ -15,6 +15,7 @@ import org.folio.search.model.SearchResult;
 import org.folio.search.repository.ConsortiumLocationRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -57,6 +58,29 @@ public class ConsortiumLocationServiceTest {
     assertThat(actual).isEqualTo(searchResult);
     verify(repository).fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
     verify(executor).execute(eq(tenantId), any(Supplier.class));
+  }
+
+
+  @Test
+  void fetchCampuses_InvalidSortBy() {
+    var sortOrder = SortOrder.ASC;
+    var limit = 10;
+    var offset = 0;
+
+    Assertions.assertThrows(IllegalArgumentException.class, () ->
+      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder)
+    );
+  }
+
+  @Test
+  void fetchCampuses_InvalidPaginationParameters() {
+    var sortOrder = SortOrder.ASC;
+    var limit = 1000;
+    var offset = 9900;
+
+    Assertions.assertThrows(IllegalArgumentException.class, () ->
+      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, NAME, sortOrder)
+    );
   }
 
   @NotNull

@@ -16,6 +16,7 @@ public class ConsortiumLocationService {
   public static final String NAME = "name";
   public static final String ID = "id";
   public static final String TENANT_ID = "tenantId";
+  private static final int MAX_RESULT_WINDOW = 10000;
   private final ConsortiumLocationRepository repository;
   private final ConsortiumTenantExecutor executor;
 
@@ -29,6 +30,7 @@ public class ConsortiumLocationService {
       tenantHeader,
       tenantId,
       sortBy);
+    validatePaginationParameters(limit, offset);
     validateSortByValue(sortBy);
     return executor.execute(
       tenantHeader,
@@ -38,6 +40,13 @@ public class ConsortiumLocationService {
   private void validateSortByValue(String sortBy) {
     if (!(NAME.equals(sortBy) || ID.equals(sortBy) || TENANT_ID.equals(sortBy))) {
       throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
+    }
+  }
+
+  private void validatePaginationParameters(Integer limit, Integer offset) {
+    if (limit + offset > MAX_RESULT_WINDOW) {
+      throw new IllegalArgumentException("The combination of limit and offset exceeds " +
+        "the maximum result window of" + MAX_RESULT_WINDOW);
     }
   }
 

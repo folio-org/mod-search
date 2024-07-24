@@ -45,10 +45,9 @@ public class ConsortiumLocationService {
 
   private void validatePaginationParameters(Integer limit, Integer offset) {
     if (limit + offset > MAX_RESULT_WINDOW) {
-      throw new IllegalArgumentException("The combination of limit and offset exceeds " +
-        "the maximum result window of" + MAX_RESULT_WINDOW);
+      throw new IllegalArgumentException("The combination of limit and offset exceeds "
+        + "the maximum result window of" + MAX_RESULT_WINDOW);
     }
   }
-
 
 }

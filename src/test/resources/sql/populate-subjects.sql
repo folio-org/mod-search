@@ -1,0 +1,23 @@
+INSERT INTO subject (id, value, authority_id, instances)
+VALUES
+    ('1', 'Genre', 'b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6', '[{"instanceId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "tenantId": "member_tenant", "shared": false}]'),
+    ('2', 'Sci-Fi', 'dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59', '[{"instanceId": "b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "tenantId": "consortium", "shared": true}, {"instanceId": "9ec55e4f-6a76-427c-b47b-197046f44a54", "tenantId": "member_tenant", "shared": false}, {"instanceId": "aab8fff4-49c6-4578-979e-439b6ba3600a", "tenantId": "consortium", "shared": true}]'),
+    ('3', 'Drama', '652b293e-e742-456e-b9e9-6e98655d89e6', '[{"instanceId": "87c7e447-3f7d-40e1-8f30-833d46f4e4bb", "tenantId": "member_tenant", "shared": false}]'),
+    ('4', 'Comedy', '2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8', '[{"instanceId": "94944cb2-873a-42fa-bf90-2198ea1b9c1b", "tenantId": "consortium", "shared": true}]'),
+    ('5', 'Thriller', 'c00a8290-8e6f-4bb9-8530-c8575c8d54a8', '[{"instanceId": "b1df7614-1a81-4911-95b3-76b2796668d0", "tenantId": "member_tenant", "shared": false}]'),
+    ('6', 'Romance', 'cafc6429-8e7c-488c-be9d-ecc45e7659ec', '[{"instanceId": "a9d83347-8c0e-4e04-92ee-0edf5e8f98b3", "tenantId": "consortium", "shared": true}]'),
+    ('7', 'Horror', '72e2d771-2b05-41f2-afae-9e0b140b767d', '[{"instanceId": "d7cf934a-e0a3-43b5-9061-0b4a938b9883", "tenantId": "member_tenant", "shared": false}]'),
+    ('8', 'Action', NULL, '[{"instanceId": "141251sa-d29b-44aa-a5f2-5fa781f9c066", "tenantId": "consortium", "shared": true}]'),
+    ('9', 'Adventure', '0e80645b-0293-4daa-8a0a-2c1a43b26b5d', '[{"instanceId": "3ddd69b4-ed7d-482a-b4bd-63e9529a1d8c", "tenantId": "member_tenant", "shared": false}]'),
+    ('10', 'Mystery', '1310782d-bdce-4038-97a1-f4036542f97c', '[{"instanceId": "5076586c-0697-44dc-9b00-b0f566dbf67d", "tenantId": "consortium", "shared": true}]'),
+    ('11', 'Western', 'b0aa3a38-cd9c-46bd-9d88-d95eaa379c41', '[{"instanceId": "6b8b1d00-0ff7-4440-9441-741c945b9fad", "tenantId": "member_tenant", "shared": false}]'),
+    ('12', 'Animation', '84aac856-c4ab-426c-8302-9ab0e6a295c0', '[{"instanceId": "a5d16c0b-3089-49c3-a938-7fb156506102", "tenantId": "consortium", "shared": true}]'),
+    ('13', 'Musical', NULL, '[{"instanceId": "d557918a-394a-4b52-abd1-ff472c591415", "tenantId": "member_tenant", "shared": false}]'),
+    ('14', 'Film-Noir', '9c2c968d-c642-4403-a449-2ec40afcd736', '[{"instanceId": "fab25318-969f-4690-ad6a-a00361f2b77a", "tenantId": "consortium", "shared": true}]'),
+    ('15', 'Biography', '9f8febd1-e96c-46c4-a5f4-84a45cc499a2', '[{"instanceId": "05bc7c8d-ac2c-4c72-a6fd-32f2234a2260", "tenantId": "member_tenant", "shared": false}]'),
+    ('16', 'Children', '8751df7c-a588-4d86-8268-8c153bb98b16', '[{"instanceId": "831057d4-3714-4e48-aa34-7ac0547453e2", "tenantId": "consortium", "shared": true}]'),
+    ('17', 'Crime', NULL, '[{"instanceId": "9315038b-8e29-484d-bb21-713a6847bbcf", "tenantId": "member_tenant", "shared": false}, {"instanceId": "9ec55e4f-6a76-427c-b47b-197046f44a54", "tenantId": "member_tenant", "shared": false}]'),
+    ('18', 'Drama/Romance', NULL, '[{"instanceId": "3ced7086-fd8c-49da-9782-87a5f9ef2a59", "tenantId": "consortium", "shared": true}]'),
+    ('19', 'Fantasy', NULL, '[{"instanceId": "9ec55e4f-6a76-427c-b47b-197046f44a54", "tenantId": "member_tenant", "shared": false}]'),
+    ('20', 'Alternative History', NULL, '[{"instanceId": "aab8fff4-49c6-4578-979e-439b6ba3600a", "tenantId": "consortium", "shared": true}]'),
+    ('21', 'History', '79144653-7a98-4dfb-aa6a-13ad49e80952', '[{"instanceId": "aab8fff4-49c6-4578-979e-439b6ba3600a", "tenantId": "consortium", "shared": true}]');

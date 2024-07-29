@@ -55,7 +55,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.EVENT_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
@@ -78,7 +78,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.AUTHORITY_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['authorities'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['authorities'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['authorities'].topicPattern}")
@@ -100,7 +100,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.CONTRIBUTOR_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['contributors'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['contributors'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['contributors'].topicPattern}")
@@ -116,7 +116,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.SUBJECT_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['subjects'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['subjects'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['subjects'].topicPattern}")
@@ -158,7 +158,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.CLASSIFICATION_TYPE_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['classification-type'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['classification-type'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['classification-type'].topicPattern}")
@@ -181,7 +181,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.LOCATION_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['location'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['location'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['location'].topicPattern}")
@@ -197,7 +197,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.LINKED_DATA_LISTENER_ID,
-    containerFactory = "standardListenerContainerFactory",
+    containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['linked-data'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['linked-data'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['linked-data'].topicPattern}")

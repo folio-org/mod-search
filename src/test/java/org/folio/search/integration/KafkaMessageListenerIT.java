@@ -31,8 +31,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
+import org.folio.search.configuration.kafka.ConsortiumInstanceEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
@@ -70,7 +71,8 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableKafka
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
-@SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
+@SpringBootTest(
+  classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
   properties = {
     "ENV=kafka-listener-it",
     "folio.environment=${ENV:folio}",
@@ -268,7 +270,8 @@ class KafkaMessageListenerIT {
   @TestConfiguration
   @EnableRetry(proxyTargetClass = true)
   @Import({
-    KafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
+    ResourceEventKafkaConfiguration.class, ConsortiumInstanceEventKafkaConfiguration.class,
+    KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
     RetryTemplateConfiguration.class
   })

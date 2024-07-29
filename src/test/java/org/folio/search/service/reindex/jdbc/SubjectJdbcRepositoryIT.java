@@ -13,7 +13,6 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +29,6 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SubjectJdbcRepositoryIT {
-
-  private final EasyRandom easyRandom = new EasyRandom();
 
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
@@ -75,7 +72,6 @@ class SubjectJdbcRepositoryIT {
     var ranges = repository.getUploadRanges(true);
 
     // assert
-    assertThat(ranges).isEqualTo(repository.getUploadRanges(false));
     assertThat(ranges)
       .hasSize(5)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))

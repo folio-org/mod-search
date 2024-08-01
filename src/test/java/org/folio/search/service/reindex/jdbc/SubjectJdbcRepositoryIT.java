@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
@@ -38,7 +40,8 @@ class SubjectJdbcRepositoryIT {
   @BeforeEach
   void setUp() {
     properties = new ReindexConfigurationProperties();
-    repository = new SubjectJdbcRepository(jdbcTemplate, context, properties);
+    var jsonConverter = new JsonConverter(new ObjectMapper());
+    repository = new SubjectJdbcRepository(jdbcTemplate, jsonConverter, context, properties);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

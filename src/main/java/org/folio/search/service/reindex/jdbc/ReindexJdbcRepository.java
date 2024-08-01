@@ -13,10 +13,12 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,14 +35,17 @@ public abstract class ReindexJdbcRepository {
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
 
+  protected final JsonConverter jsonConverter;
+  protected final FolioExecutionContext context;
+
   private final JdbcTemplate jdbcTemplate;
-  private final FolioExecutionContext context;
   private final ReindexConfigurationProperties reindexConfig;
 
-  protected ReindexJdbcRepository(JdbcTemplate jdbcTemplate,
+  protected ReindexJdbcRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                   FolioExecutionContext context,
                                   ReindexConfigurationProperties reindexConfig) {
     this.jdbcTemplate = jdbcTemplate;
+    this.jsonConverter = jsonConverter;
     this.context = context;
     this.reindexConfig = reindexConfig;
   }
@@ -75,6 +80,17 @@ public abstract class ReindexJdbcRepository {
   }
 
   public abstract ReindexEntityType entityType();
+
+  public List<Map<String, Object>> fetchBy(int limit, int offset) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), limit, offset);
+  }
+
+  protected String getFetchBySql() {
+    return "SELECT * from %s LIMIT ? OFFSET ?".formatted(getFullTableName(context, entityTable()));
+  }
+
+  protected abstract RowMapper<Map<String, Object>> rowToMapMapper();
 
   protected abstract String entityTable();
 

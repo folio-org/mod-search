@@ -43,7 +43,7 @@ public abstract class KafkaConfiguration {
 
   public enum SearchTopic implements FolioKafkaTopic {
     CONSORTIUM_INSTANCE("search.consortium.instance"),
-    REINDEX_RANGE_INDEX("search.reindex.range.index");
+    REINDEX_RANGE_INDEX("search.reindex.range-index");
 
     private final String topicName;
 

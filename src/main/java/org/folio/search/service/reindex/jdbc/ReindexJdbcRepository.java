@@ -32,6 +32,8 @@ public abstract class ReindexJdbcRepository {
       DO UPDATE SET finished_at = EXCLUDED.finished_at;
     """;
 
+  private static final String UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL = "UPDATE %s SET finished_at = ? WHERE id = ?;";
+
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
 
@@ -84,6 +86,11 @@ public abstract class ReindexJdbcRepository {
   public List<Map<String, Object>> fetchBy(int limit, int offset) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), limit, offset);
+  }
+
+  public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
+    var sql = UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL.formatted(getFullTableName(context, entityTable()));
+    jdbcTemplate.update(sql, timestamp, id);
   }
 
   protected String getFetchBySql() {

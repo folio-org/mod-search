@@ -24,6 +24,7 @@ public class ReindexOrchestrationService {
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
+    rangeIndexService.updateFinishDate(event);
     return true;
   }
 }

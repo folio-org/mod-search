@@ -8,6 +8,8 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURC
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,11 @@ public class ReindexRangeIndexService {
         ._new(map)
         .tenant(rangeIndexEvent.getTenant()))
       .toList();
+  }
+
+  public void updateFinishDate(ReindexRangeIndexEvent event) {
+    var repository = repositories.get(event.getEntityType());
+    repository.setIndexRangeFinishDate(event.getId(), Timestamp.from(Instant.now()));
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

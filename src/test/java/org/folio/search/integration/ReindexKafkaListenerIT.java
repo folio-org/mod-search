@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import org.folio.search.configuration.kafka.ReindexRangeIndexEventKafkaConfiguration;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
@@ -62,7 +62,7 @@ class ReindexKafkaListenerIT {
   @MockBean
   private SystemUserScopedExecutionService systemUserScopedExecutionService;
   @MockBean
-  private ReindexService reindexService;
+  private ReindexOrchestrationService reindexService;
   @Autowired
   private KafkaTemplate<String, ReindexRangeIndexEvent> kafkaTemplate;
 

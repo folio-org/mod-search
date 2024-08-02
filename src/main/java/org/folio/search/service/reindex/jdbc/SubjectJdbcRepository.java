@@ -1,9 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
@@ -15,9 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class SubjectJdbcRepository extends ReindexJdbcRepository {
-
-  public static final TypeReference<List<Map<String, Object>>> VALUE_TYPE_REF = new TypeReference<>() { };
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   protected SubjectJdbcRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
                                   ReindexConfigurationProperties reindexConfigurationProperties) {

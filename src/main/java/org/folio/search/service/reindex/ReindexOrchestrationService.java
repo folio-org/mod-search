@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ReindexService {
+public class ReindexOrchestrationService {
 
   private final ReindexRangeIndexService rangeIndexService;
   private final PrimaryResourceRepository elasticRepository;

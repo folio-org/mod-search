@@ -210,14 +210,17 @@
     <comment>Create upload_ranges table</comment>
 
     <createTable tableName="upload_range">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_range"/>
+      </column>
       <column name="entity_type" type="VARCHAR(30)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="range_limit" type="integer">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="range_offset" type="integer">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
         <constraints nullable="false"/>

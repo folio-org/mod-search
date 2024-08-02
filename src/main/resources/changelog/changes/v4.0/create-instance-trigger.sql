@@ -7,7 +7,8 @@ BEGIN
   FOR i IN SELECT * FROM jsonb_array_elements(NEW.instance_json -> 'classifications') LOOP
     INSERT
     INTO classification(id, number, type_id, instances)
-    VALUES (encode(digest((i ->> 'classificationNumber' || i ->> 'classificationTypeId')::bytea, 'sha1'), 'hex'),
+
+    VALUES (encode(digest((concat_ws('|', coalesce(i ->> 'classificationNumber',''), coalesce(i ->> 'classificationTypeId','')))::bytea, 'sha1'), 'hex'),
             i ->> 'classificationNumber',
             i ->> 'classificationTypeId',
             jsonb_build_array(
@@ -25,7 +26,7 @@ BEGIN
   FOR i IN SELECT * FROM jsonb_array_elements(NEW.instance_json -> 'subjects') LOOP
     INSERT
     INTO subject(id, value, authority_id, instances)
-    VALUES (encode(digest((i ->> 'value' || i ->> 'authorityId')::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
+    VALUES (encode(digest((concat_ws('|', coalesce(i ->> 'value',''), coalesce(i ->> 'authorityId','')))::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
             i ->> 'value',
             i ->> 'authorityId',
             jsonb_build_array(
@@ -43,7 +44,7 @@ BEGIN
   FOR i IN SELECT * FROM jsonb_array_elements(NEW.instance_json -> 'contributors') LOOP
     INSERT
     INTO contributor(id, name, contributor_name_type_id, authority_id, instances)
-    VALUES (encode(digest((i ->> 'name' || i ->> 'authorityId' || i ->> 'contributorNameTypeId')::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
+    VALUES (encode(digest((concat_ws('|', coalesce(i ->> 'name',''), coalesce(i ->> 'contributorNameTypeId',''), coalesce(i ->> 'authorityId','')))::bytea, 'sha1'), 'hex'), -- requires pgcrypto enabled
             i ->> 'name' ,
             i ->> 'contributorNameTypeId',
             i ->> 'authorityId',

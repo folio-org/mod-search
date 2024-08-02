@@ -28,6 +28,7 @@ services:
       DB_HOST: ${DB_HOST}
       DB_DATABASE: ${DB_DATABASE}
       DB_PASSWORD: ${DB_PASSWORD}
+      OKAPI_URL: http://api-mock:8080
       JAVA_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
 
   api-mock:

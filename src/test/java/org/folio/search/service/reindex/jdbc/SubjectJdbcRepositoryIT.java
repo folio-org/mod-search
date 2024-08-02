@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
@@ -38,7 +41,8 @@ class SubjectJdbcRepositoryIT {
   @BeforeEach
   void setUp() {
     properties = new ReindexConfigurationProperties();
-    repository = new SubjectJdbcRepository(jdbcTemplate, context, properties);
+    var jsonConverter = new JsonConverter(new ObjectMapper());
+    repository = new SubjectJdbcRepository(jdbcTemplate, jsonConverter, context, properties);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -77,5 +81,19 @@ class SubjectJdbcRepositoryIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))
       .extracting(UploadRangeEntity::getLimit, UploadRangeEntity::getOffset)
       .containsExactly(tuple(5, 0), tuple(5, 5), tuple(5, 10), tuple(5, 15), tuple(1, 20));
+  }
+
+  @Test
+  @Sql("/sql/populate-subjects.sql")
+  void fetchBy_returnListOfMaps() {
+    // act
+    var ranges = repository.fetchBy(10, 19);
+
+    // assert
+    assertThat(ranges)
+      .hasSize(2)
+      .allMatch(map -> map.keySet().containsAll(List.of("id", "value", "authorityId", "instances")))
+      .extracting("value", "authorityId")
+      .containsExactly(tuple("Alternative History", null), tuple("History", "79144653-7a98-4dfb-aa6a-13ad49e80952"));
   }
 }

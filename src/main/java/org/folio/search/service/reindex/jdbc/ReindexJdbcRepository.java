@@ -36,6 +36,7 @@ public abstract class ReindexJdbcRepository {
 
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
+  private static final String SELECT_RECORD_SQL = "SELECT * from %s LIMIT ? OFFSET ?;";
 
   protected final JsonConverter jsonConverter;
   protected final FolioExecutionContext context;
@@ -94,7 +95,7 @@ public abstract class ReindexJdbcRepository {
   }
 
   protected String getFetchBySql() {
-    return "SELECT * from %s LIMIT ? OFFSET ?".formatted(getFullTableName(context, entityTable()));
+    return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
   }
 
   protected abstract RowMapper<Map<String, Object>> rowToMapMapper();

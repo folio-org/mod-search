@@ -27,15 +27,15 @@ public class ClassificationJdbcRepository extends ReindexJdbcRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> {
-      Map<String, Object> subject = new HashMap<>();
-      subject.put("id", rs.getString("id"));
-      subject.put("number", rs.getString("number"));
-      subject.put("typeId", rs.getString("type_id"));
+      Map<String, Object> classification = new HashMap<>();
+      classification.put("id", rs.getString("id"));
+      classification.put("number", rs.getString("number"));
+      classification.put("typeId", rs.getString("type_id"));
 
       var maps = jsonConverter.fromJsonToListOfMaps(rs.getString("instances"));
-      subject.put("instances", maps);
+      classification.put("instances", maps);
 
-      return subject;
+      return classification;
     };
   }
 

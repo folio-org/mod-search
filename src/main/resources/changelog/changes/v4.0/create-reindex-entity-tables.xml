@@ -211,7 +211,7 @@
 
     <createTable tableName="upload_range">
       <column name="id" type="UUID">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_ranges"/>
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_upload_range"/>
       </column>
       <column name="entity_type" type="VARCHAR(30)">
         <constraints nullable="false"/>

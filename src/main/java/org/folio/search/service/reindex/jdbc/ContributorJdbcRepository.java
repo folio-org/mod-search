@@ -27,16 +27,16 @@ public class ContributorJdbcRepository extends ReindexJdbcRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> {
-      Map<String, Object> subject = new HashMap<>();
-      subject.put("id", rs.getString("id"));
-      subject.put("name", rs.getString("name"));
-      subject.put("contributorNameTypeId", rs.getString("contributor_name_type_id"));
-      subject.put("authorityId", rs.getString("authority_id"));
+      Map<String, Object> contributor = new HashMap<>();
+      contributor.put("id", rs.getString("id"));
+      contributor.put("name", rs.getString("name"));
+      contributor.put("contributorNameTypeId", rs.getString("contributor_name_type_id"));
+      contributor.put("authorityId", rs.getString("authority_id"));
 
       var maps = jsonConverter.fromJsonToListOfMaps(rs.getString("instances"));
-      subject.put("instances", maps);
+      contributor.put("instances", maps);
 
-      return subject;
+      return contributor;
     };
   }
 

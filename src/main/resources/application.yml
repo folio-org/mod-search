@@ -111,7 +111,7 @@ folio:
         replicationFactor: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR:}
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
-        replicationFactor: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR:}
+        replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -146,7 +146,7 @@ folio:
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(work|authority)
         group-id: ${folio.environment}-mod-search-linked-data-group
       reindex-range-index:
-        concurrency: ${KAFKA_LINKED_DATA_CONCURRENCY:1}
+        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
   okapiUrl: ${okapi.url}

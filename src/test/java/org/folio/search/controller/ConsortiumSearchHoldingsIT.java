@@ -179,6 +179,21 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
   }
 
   @Test
+  void doGetConsortiumBatchHoldingsByInstanceId_returns200AndRecords() {
+    var instance = getSemanticWeb();
+    var instanceId = instance.getId();
+    var holdings = getExpectedConsolidatedHoldings();
+    var request = new BatchIdsDto()
+      .identifierType(BatchIdsDto.IdentifierTypeEnum.INSTANCE_ID)
+      .identifierValues(List.of(instanceId));
+    var result = doPost(consortiumBatchHoldingsSearchPath(), CENTRAL_TENANT_ID, request);
+    var actual = parseResponse(result, ConsortiumHoldingCollection.class);
+
+    assertThat(actual.getTotalRecords()).isEqualTo(holdings.length);
+    assertThat(actual.getHoldings()).containsExactlyInAnyOrder(holdings);
+  }
+
+  @Test
   void tryGetConsortiumBatchHoldings_returns400_whenRequestedForNotCentralTenant() throws Exception {
     tryPost(consortiumBatchHoldingsSearchPath(),
       new BatchIdsDto().identifierType(BatchIdsDto.IdentifierTypeEnum.ID)

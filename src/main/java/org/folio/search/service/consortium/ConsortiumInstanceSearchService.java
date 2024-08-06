@@ -178,7 +178,7 @@ public class ConsortiumInstanceSearchService {
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .distinct()
         .toList();
-    } else if (identifierType == IdentifierTypeEnum.INSTANCE_HRID) {
+    } else if (identifierType == IdentifierTypeEnum.INSTANCE_HRID || identifierType == IdentifierTypeEnum.INSTANCE_ID) {
       return instance.getHoldings()
         .stream()
         .map(holding -> toConsortiumHolding(instance.getId(), holding))

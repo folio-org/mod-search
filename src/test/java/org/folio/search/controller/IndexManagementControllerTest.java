@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,15 +23,19 @@ import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.reindex.ReindexRangeIndexService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -60,6 +65,8 @@ class IndexManagementControllerTest {
   private IndexService indexService;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private ReindexRangeIndexService reindexRangeService;
 
   @Test
   void createIndex_positive() throws Exception {
@@ -245,6 +252,19 @@ class IndexManagementControllerTest {
       .andExpect(jsonPath("$.errors[0].message", is("invalid value")))
       .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void getReindexStatus_positive() throws Exception {
+    var reindexId = UUID.randomUUID();
+    var reindexStatus = new ReindexStatusItem().reindexId(reindexId).entityType(ReindexEntityType.INSTANCE.name());
+    when(reindexRangeService.getReindexStatuses(reindexId)).thenReturn(List.of(reindexStatus));
+
+    mockMvc.perform(get("/search/index/reindex/{reindexId}/status", reindexId)
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("[0].reindexId", is(reindexId.toString())))
+      .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));
   }
 
   private static MockHttpServletRequestBuilder preparePostRequest(String endpoint, String requestBody) {

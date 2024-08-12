@@ -79,7 +79,7 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/index/reindex/status",
+          "pathPattern": "/search/index/reindex/{reindexId}/status",
           "permissionsRequired": [
             "search.index.reindex.status.get"
           ]

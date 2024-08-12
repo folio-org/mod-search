@@ -1,0 +1,24 @@
+get:
+  operationId: getReindexStatus
+  summary: Get Reindex Status
+  description: Get a list of statuses for each resource reindexing by reindex id
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/reindex-id-param.yaml'
+  responses:
+    '200':
+      description: 'Reindex statuses by entity type'
+      content:
+        application/json:
+          examples:
+            ReindexStatusResult:
+              $ref: '../../examples/result/ReindexStatusResult.yaml'
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/response/reindexStatusItem.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

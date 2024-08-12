@@ -1,0 +1,7 @@
+name: reindexId
+description: UUID of the reindex run
+in: path
+required: true
+schema:
+  type: string
+  format: uuid

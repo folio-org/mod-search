@@ -1,0 +1,36 @@
+value:
+  - reindexId: '180a92d3-6829-44ad-a81c-2cdd61650e4d'
+    entityType: 'instance'
+    status: 'Upload Completed'
+    totalMergeRanges: 3
+    processedMergeRanges: 3
+    totalUploadRanges: 2
+    processedUploadRanges: 2
+    startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+    endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+    startTimeUpload: '2024-04-01T01:37:36.15755006Z'
+    endTimeUpload: '2024-04-01T01:37:37.15755006Z'
+  - reindexId: '180a92d3-6829-44ad-a81c-2cdd61650e4d'
+    entityType: 'subject'
+    status: 'Merge In Progress'
+    totalMergeRanges: 3
+    processedMergeRanges: 2
+    startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+  - reindexId: '180a92d3-6829-44ad-a81c-2cdd61650e4d'
+    entityType: 'contributor'
+    status: 'Merge Completed'
+    totalMergeRanges: 3
+    processedMergeRanges: 3
+    startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+    endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+  - reindexId: '180a92d3-6829-44ad-a81c-2cdd61650e4d'
+    entityType: 'classification'
+    status: 'Upload Failed'
+    totalMergeRanges: 3
+    processedMergeRanges: 3
+    totalUploadRanges: 2
+    processedUploadRanges: 1
+    startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+    endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+    startTimeUpload: '2024-04-01T01:37:36.15755006Z'
+    endTimeUpload: '2024-04-01T01:37:37.15755006Z'

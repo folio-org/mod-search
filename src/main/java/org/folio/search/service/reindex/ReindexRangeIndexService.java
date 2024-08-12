@@ -14,12 +14,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import org.folio.search.converter.ReindexStatusMapper;
+import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
+import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +39,16 @@ public class ReindexRangeIndexService {
 
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
+  private final ReindexStatusRepository statusRepository;
+  private final ReindexStatusMapper reindexStatusMapper;
 
   public ReindexRangeIndexService(List<ReindexJdbcRepository> repositories,
-                                  FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer) {
+                                  FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
+                                  ReindexStatusRepository statusRepository, ReindexStatusMapper reindexStatusMapper) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
+    this.statusRepository = statusRepository;
+    this.reindexStatusMapper = reindexStatusMapper;
   }
 
   public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
@@ -65,6 +74,24 @@ public class ReindexRangeIndexService {
   public void updateFinishDate(ReindexRangeIndexEvent event) {
     var repository = repositories.get(event.getEntityType());
     repository.setIndexRangeFinishDate(event.getId(), Timestamp.from(Instant.now()));
+  }
+
+  public List<ReindexStatusItem> getReindexStatuses(UUID reindexId) {
+    var statuses = statusRepository.getReindexStatuses(reindexId);
+
+    return statuses.stream().map(reindexStatusMapper::convert).toList();
+  }
+
+  public void setReindexUploadFailed(UUID reindexId, ReindexEntityType entityType) {
+    statusRepository.setReindexUploadFailed(reindexId, entityType);
+  }
+
+  public void addProcessedMergeRanges(UUID reindexId, ReindexEntityType entityType, int processedMergeRanges) {
+    statusRepository.addReindexCounts(reindexId, entityType, processedMergeRanges, 0);
+  }
+
+  public void addProcessedUploadRanges(UUID reindexId, ReindexEntityType entityType, int processedUploadRanges) {
+    statusRepository.addReindexCounts(reindexId, entityType, 0, processedUploadRanges);
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

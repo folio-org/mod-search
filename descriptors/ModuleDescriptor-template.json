@@ -112,6 +112,9 @@
           "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
             "search.linked-data.work.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -121,6 +124,9 @@
           "pathPattern": "/search/linked-data/authorities",
           "permissionsRequired": [
             "search.linked-data.authority.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {

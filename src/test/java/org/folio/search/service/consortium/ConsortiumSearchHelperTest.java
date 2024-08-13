@@ -46,7 +46,7 @@ class ConsortiumSearchHelperTest {
   @Mock
   private FolioExecutionContext context;
   @Mock
-  private ConsortiumTenantService tenantService;
+  private UserTenantsService tenantService;
 
   @Spy
   @InjectMocks

@@ -1,0 +1,13 @@
+post:
+  operationId: reindexInstanceRecords
+  summary: Re-Index
+  description: Initiates the full reindex for the inventory instance records
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Full reindex operation has been started
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

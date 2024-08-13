@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ConsortiumTenantProvider implements TenantProvider {
 
-  private final ConsortiumTenantService consortiumTenantService;
+  private final UserTenantsService userTenantsService;
 
   @Override
   public String getTenant(String tenantId) {
-    return consortiumTenantService.getCentralTenant(tenantId)
+    return userTenantsService.getCentralTenant(tenantId)
       .orElse(tenantId);
   }
 }

@@ -8,7 +8,9 @@ public enum ReindexEntityType {
   INSTANCE("instance"),
   SUBJECT("subject"),
   CONTRIBUTOR("contributor"),
-  CLASSIFICATION("classification");
+  CLASSIFICATION("classification"),
+  ITEM("item"),
+  HOLDING("holding");
 
   private final String type;
 

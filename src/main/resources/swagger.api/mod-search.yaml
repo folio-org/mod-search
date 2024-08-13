@@ -112,6 +112,9 @@ paths:
   /search/index/inventory/reindex:
     $ref: 'paths/search-index/search-index-inventory-reindex.yaml'
 
+  /search/index/instance-records/reindex/full:
+    $ref: 'paths/reindex-instance-records/reindex-instance-records.yaml'
+
   /search/config/languages:
     $ref: 'paths/search-config/search-config-languages.yaml'
 

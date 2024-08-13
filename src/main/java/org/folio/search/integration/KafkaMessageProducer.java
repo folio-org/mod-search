@@ -36,7 +36,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.event.SubjectResourceEvent;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -54,7 +54,7 @@ public class KafkaMessageProducer {
   private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final UserTenantsService userTenantsService;
 
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
     prepareAndSendEvents(resourceEvents, this::getContributorEvents);
@@ -113,7 +113,7 @@ public class KafkaMessageProducer {
   }
 
   private boolean isSharedResource(String tenantId) {
-    var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
+    var centralTenant = userTenantsService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
   }
 

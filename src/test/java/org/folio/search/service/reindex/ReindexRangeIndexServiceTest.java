@@ -15,7 +15,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
+import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.testing.extension.Random;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
 import org.folio.spring.testing.type.UnitTest;
@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith({MockitoExtension.class, RandomParametersExtension.class})
 class ReindexRangeIndexServiceTest {
 
-  private @Mock ReindexJdbcRepository repository;
+  private @Mock UploadRangeRepository repository;
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private ReindexRangeIndexService service;
 

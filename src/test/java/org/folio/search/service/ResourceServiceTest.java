@@ -47,7 +47,7 @@ import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -81,7 +81,7 @@ class ResourceServiceTest {
   @Mock
   private TestRepository testRepository;
   @Mock
-  private ConsortiumTenantService consortiumTenantService;
+  private UserTenantsService userTenantsService;
   @Mock
   private ConsortiumTenantExecutor consortiumTenantExecutor;
   @Mock
@@ -97,7 +97,7 @@ class ResourceServiceTest {
 
   @BeforeEach
   public void setUp() {
-    lenient().when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.empty());
+    lenient().when(userTenantsService.getCentralTenant(any())).thenReturn(Optional.empty());
     lenient().when(consortiumInstanceService.saveInstances(anyList()))
       .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumInstanceService.deleteInstances(anyList()))

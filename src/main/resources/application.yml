@@ -77,6 +77,7 @@ folio:
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
+    merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:1000}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

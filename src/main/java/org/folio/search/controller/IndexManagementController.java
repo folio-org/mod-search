@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.reindex.ReindexService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,7 @@ public class IndexManagementController implements IndexManagementApi {
 
   private final IndexService indexService;
   private final ResourceService resourceService;
+  private final ReindexService reindexService;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -40,6 +42,13 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEvent> events) {
     return ResponseEntity.ok(resourceService.indexResources(events));
+  }
+
+  @Override
+  public ResponseEntity<Void> reindexInstanceRecords(String tenantId) {
+    log.info("Attempting to run full-reindex for instance records [tenant: {}]", tenantId);
+    reindexService.initFullReindex(tenantId);
+    return ResponseEntity.ok().build();
   }
 
   @Override

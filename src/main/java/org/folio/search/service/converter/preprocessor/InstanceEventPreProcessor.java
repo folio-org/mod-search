@@ -37,7 +37,7 @@ import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   private final JsonConverter jsonConverter;
   private final FeatureConfigService featureConfigService;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final UserTenantsService userTenantsService;
   private final InstanceClassificationRepository instanceClassificationRepository;
 
   @Override
@@ -229,7 +229,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
   }
 
   private boolean isShared(String tenantId) {
-    var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
+    var centralTenant = userTenantsService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
   }
 }

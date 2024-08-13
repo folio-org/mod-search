@@ -17,23 +17,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class ConsortiaServiceTest {
+class UserTenantsServiceTest {
 
   @Mock
   private UserTenantsClient userTenantsClient;
   @Mock
   private FolioExecutionContext context;
   @InjectMocks
-  private ConsortiumTenantService consortiumTenantService;
+  private UserTenantsService userTenantsService;
 
   @Test
   void getCentralTenant_positive() {
     var userTenants = new UserTenantsClient.UserTenants(Collections.singletonList(
-      new UserTenantsClient.UserTenant(CENTRAL_TENANT_ID)));
+      new UserTenantsClient.UserTenant(CENTRAL_TENANT_ID, "consortiaId")));
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
+    var actual = userTenantsService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isNotEmpty()
@@ -45,7 +45,7 @@ class ConsortiaServiceTest {
   void getCentralTenant_negative_emptyResponse() {
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(null);
 
-    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
+    var actual = userTenantsService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();
@@ -54,11 +54,11 @@ class ConsortiaServiceTest {
   @Test
   void getCentralTenant_negative_noCentralTenant() {
     var userTenants = new UserTenantsClient.UserTenants(Collections.singletonList(
-      new UserTenantsClient.UserTenant(null)));
+      new UserTenantsClient.UserTenant(null, "consortiaId")));
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
+    var actual = userTenantsService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();

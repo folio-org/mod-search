@@ -38,7 +38,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
@@ -76,7 +76,7 @@ class CqlSearchQueryConverterTest {
   @MockBean
   private FolioExecutionContext folioExecutionContext;
   @MockBean
-  private ConsortiumTenantService consortiumTenantService;
+  private UserTenantsService userTenantsService;
   @MockBean
   private ConsortiumSearchHelper consortiumSearchHelper;
 

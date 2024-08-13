@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ContributorResourceEvent;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +55,7 @@ class KafkaMessageProducerTest {
   @Mock
   private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   @Mock
-  private ConsortiumTenantService tenantService;
+  private UserTenantsService tenantService;
 
   @Test
   void shouldSendTwoSubjectEvents_whenSubjectChanged() {

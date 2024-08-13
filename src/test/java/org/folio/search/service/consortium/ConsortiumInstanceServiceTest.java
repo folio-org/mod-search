@@ -52,7 +52,7 @@ class ConsortiumInstanceServiceTest {
   private @Mock JsonConverter jsonConverter;
   private @Mock ConsortiumInstanceRepository repository;
   private @Mock ConsortiumTenantExecutor consortiumTenantExecutor;
-  private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock UserTenantsService userTenantsService;
   private @Mock FolioMessageProducer<ConsortiumInstanceEvent> producer;
   private @Mock FolioExecutionContext context;
   private @InjectMocks ConsortiumInstanceService service;
@@ -73,11 +73,11 @@ class ConsortiumInstanceServiceTest {
       invocationOnMock -> mapper.writeValueAsString(invocationOnMock.getArgument(0)));
 
     for (String normalTenant : NORMAL_TENANTS) {
-      lenient().when(consortiumTenantService.getCentralTenant(normalTenant)).thenReturn(Optional.empty());
+      lenient().when(userTenantsService.getCentralTenant(normalTenant)).thenReturn(Optional.empty());
     }
 
     for (String consortiumTenant : CONSORTIUM_TENANTS) {
-      lenient().when(consortiumTenantService.getCentralTenant(consortiumTenant))
+      lenient().when(userTenantsService.getCentralTenant(consortiumTenant))
         .thenReturn(Optional.of(CENTRAL_TENANT));
     }
 

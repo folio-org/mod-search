@@ -18,13 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ConsortiumTenantProviderTest {
 
   @Mock
-  private ConsortiumTenantService consortiumTenantService;
+  private UserTenantsService userTenantsService;
   @InjectMocks
   private ConsortiumTenantProvider consortiumTenantProvider;
 
   @Test
   void getTenant_positive() {
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+    when(userTenantsService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var actual = consortiumTenantProvider.getTenant(TENANT_ID);
 
@@ -34,7 +34,7 @@ class ConsortiumTenantProviderTest {
 
   @Test
   void getTenant_negative_emptyResponse() {
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
+    when(userTenantsService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
     var actual = consortiumTenantProvider.getTenant(TENANT_ID);
 

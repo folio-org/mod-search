@@ -43,7 +43,7 @@ import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -64,7 +64,7 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final UserTenantsService userTenantsService;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
@@ -124,7 +124,7 @@ public class ResourceService {
     }
 
     var validConsortiumInstances = consortiumInstances.stream()
-      .filter(event -> consortiumTenantService.getCentralTenant(event.getTenant()).isPresent())
+      .filter(event -> userTenantsService.getCentralTenant(event.getTenant()).isPresent())
       .distinct()
       .toList();
 
@@ -133,7 +133,7 @@ public class ResourceService {
       log.debug("Skip indexing consortium instances [{}]", invalidInstances);
     }
 
-    var centralTenant = consortiumTenantService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
+    var centralTenant = userTenantsService.getCentralTenant(validConsortiumInstances.get(0).getTenant())
       .orElseThrow(() -> new IllegalStateException("Central tenant must exist"));
 
     var instanceIds = validConsortiumInstances.stream().map(ConsortiumInstanceEvent::getInstanceId).collect(toSet());

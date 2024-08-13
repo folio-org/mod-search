@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "0.7",
+      "version": "0.8",
       "handlers": [
         {
           "methods": [
@@ -72,6 +72,19 @@
             "search.index.settings.item.put"
           ],
           "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/full",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.full.post"
+          ],
+          "modulePermissions": [
+            "inventory-storage.reindex-records.publish.post",
             "user-tenants.collection.get"
           ]
         }

@@ -40,7 +40,7 @@ import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +70,7 @@ class InstanceEventPreProcessorTest {
 
   private @Spy JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
   private @Mock FeatureConfigService featureConfigService;
-  private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock UserTenantsService userTenantsService;
   private @Mock InstanceClassificationRepository instanceClassificationRepository;
   private @InjectMocks InstanceEventPreProcessor preProcessor;
 
@@ -246,7 +246,7 @@ class InstanceEventPreProcessorTest {
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n4", "t4")));
     var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, eventType, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
-    when(consortiumTenantService.getCentralTenant(any())).then(invocation -> Optional.of(invocation.getArgument(0)));
+    when(userTenantsService.getCentralTenant(any())).then(invocation -> Optional.of(invocation.getArgument(0)));
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);

@@ -49,7 +49,7 @@ public class ConsortiumInstanceService {
   private final JsonConverter jsonConverter;
   private final ConsortiumInstanceRepository repository;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final UserTenantsService userTenantsService;
   private final FolioMessageProducer<ConsortiumInstanceEvent> producer;
   private final FolioExecutionContext context;
 
@@ -211,11 +211,11 @@ public class ConsortiumInstanceService {
   }
 
   private boolean isConsortiumTenant(String tenantId) {
-    return consortiumTenantService.getCentralTenant(tenantId).isPresent();
+    return userTenantsService.getCentralTenant(tenantId).isPresent();
   }
 
   private boolean isCentralTenant(String tenantId) {
-    var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
+    var centralTenant = userTenantsService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
   }
 

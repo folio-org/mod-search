@@ -31,18 +31,18 @@ import org.springframework.test.context.jdbc.Sql;
 @EnablePostgres
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SubjectJdbcRepositoryIT {
+class SubjectRepositoryIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
-  private SubjectJdbcRepository repository;
+  private SubjectRepository repository;
   private ReindexConfigurationProperties properties;
 
   @BeforeEach
   void setUp() {
     properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = new SubjectJdbcRepository(jdbcTemplate, jsonConverter, context, properties);
+    repository = new SubjectRepository(jdbcTemplate, jsonConverter, context, properties);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

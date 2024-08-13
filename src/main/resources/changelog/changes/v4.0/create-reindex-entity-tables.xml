@@ -179,24 +179,25 @@
     <comment>Create merge_ranges table</comment>
 
     <createTable tableName="merge_range">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_range"/>
+      </column>
       <column name="entity_type" type="VARCHAR(30)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="tenant_id" type="VARCHAR(100)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="lower" type="UUID">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="upper" type="UUID">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merge_ranges"/>
+        <constraints nullable="false"/>
       </column>
       <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
         <constraints nullable="false"/>
       </column>
-      <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
+      <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"/>
     </createTable>
   </changeSet>
 

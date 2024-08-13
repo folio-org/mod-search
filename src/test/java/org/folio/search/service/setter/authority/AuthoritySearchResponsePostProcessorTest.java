@@ -19,8 +19,8 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.AuthRefType;
 import org.folio.search.repository.SearchRepository;
-import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +44,7 @@ class AuthoritySearchResponsePostProcessorTest {
   private @Mock SearchFieldProvider searchFieldProvider;
   private @Mock FolioExecutionContext context;
   private @Mock MultiSearchResponse multiSearchResponse;
-  private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock UserTenantsService userTenantsService;
   private @Mock TenantProvider tenantProvider;
   private @InjectMocks AuthoritySearchResponsePostProcessor processor;
 
@@ -75,7 +75,7 @@ class AuthoritySearchResponsePostProcessorTest {
   void shouldSetNumberOfTitles_whenProcessAuthorizedAuthoritiesThatHaveInstanceReferences() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+    when(userTenantsService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
     mockSearchResponse(CENTRAL_TENANT_ID, 10, 11);
 
@@ -102,7 +102,7 @@ class AuthoritySearchResponsePostProcessorTest {
   void shouldSetNumberOfTitlesTo0_whenProcessAuthorizedAuthoritiesThatDoNotHaveInstanceReferences() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(userTenantsService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
     mockSearchResponse(TENANT_ID, 0, null);
 
@@ -140,7 +140,7 @@ class AuthoritySearchResponsePostProcessorTest {
   void shouldSetNumberOfTitles_whenCentralTenant() {
     when(context.getTenantId()).thenReturn(CENTRAL_TENANT_ID);
     when(tenantProvider.getTenant(CENTRAL_TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
-    when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+    when(userTenantsService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
     when(searchFieldProvider.getFields("instance", "authorityId")).thenReturn(List.of("f1", "f2"));
     mockSearchResponse(CENTRAL_TENANT_ID, 10, 11);
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,11 +12,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubjectJdbcRepository extends ReindexJdbcRepository {
+public class SubjectRepository extends UploadRangeRepository {
 
-  protected SubjectJdbcRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
-                                  ReindexConfigurationProperties reindexConfigurationProperties) {
-    super(jdbcTemplate, jsonConverter, context, reindexConfigurationProperties);
+  protected SubjectRepository(JdbcTemplate jdbcTemplate,
+                              JsonConverter jsonConverter,
+                              FolioExecutionContext context,
+                              ReindexConfigurationProperties reindexConfig) {
+    super(jdbcTemplate, jsonConverter, context, reindexConfig);
   }
 
   @Override
@@ -40,6 +43,6 @@ public class SubjectJdbcRepository extends ReindexJdbcRepository {
 
   @Override
   protected String entityTable() {
-    return "subject";
+    return ReindexConstants.SUBJECT_TABLE;
   }
 }

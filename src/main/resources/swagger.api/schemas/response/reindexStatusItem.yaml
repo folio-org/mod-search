@@ -1,10 +1,6 @@
 description: Reindex status item
 type: object
 properties:
-  reindexId:
-    type: string
-    format: uuid
-    description: Reindex id
   entityType:
     type: string
     description: Entity type for reindex status item

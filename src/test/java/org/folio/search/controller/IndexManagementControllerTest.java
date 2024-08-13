@@ -23,7 +23,6 @@ import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
@@ -256,14 +255,12 @@ class IndexManagementControllerTest {
 
   @Test
   void getReindexStatus_positive() throws Exception {
-    var reindexId = UUID.randomUUID();
-    var reindexStatus = new ReindexStatusItem().reindexId(reindexId).entityType(ReindexEntityType.INSTANCE.name());
-    when(reindexRangeService.getReindexStatuses(reindexId)).thenReturn(List.of(reindexStatus));
+    var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.INSTANCE.name());
+    when(reindexRangeService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
 
-    mockMvc.perform(get("/search/index/reindex/{reindexId}/status", reindexId)
+    mockMvc.perform(get("/search/index/reindex/status")
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("[0].reindexId", is(reindexId.toString())))
       .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));
   }
 

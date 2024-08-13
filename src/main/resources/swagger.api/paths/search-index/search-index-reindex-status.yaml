@@ -1,11 +1,11 @@
 get:
   operationId: getReindexStatus
   summary: Get Reindex Status
-  description: Get a list of statuses for each resource reindexing by reindex id
+  description: Get a list of statuses for each resource reindexing
   tags:
     - index-management
   parameters:
-    - $ref: '../../parameters/reindex-id-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
       description: 'Reindex statuses by entity type'

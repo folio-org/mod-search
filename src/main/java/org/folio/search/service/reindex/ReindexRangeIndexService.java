@@ -14,21 +14,26 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.folio.search.converter.ReindexStatusMapper;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReindexRangeIndexService {
+
+  static final String REQUEST_NOT_ALLOWED_MSG =
+    "The request not allowed for member tenant of consortium environment";
 
   private static final Map<ReindexEntityType, String> RESOURCE_NAME_MAP = Map.of(
     ReindexEntityType.INSTANCE, INSTANCE_RESOURCE,
@@ -41,14 +46,17 @@ public class ReindexRangeIndexService {
   private final FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private final ReindexStatusRepository statusRepository;
   private final ReindexStatusMapper reindexStatusMapper;
+  private final ConsortiumTenantService tenantService;
 
   public ReindexRangeIndexService(List<ReindexJdbcRepository> repositories,
                                   FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
-                                  ReindexStatusRepository statusRepository, ReindexStatusMapper reindexStatusMapper) {
+                                  ReindexStatusRepository statusRepository, ReindexStatusMapper reindexStatusMapper,
+                                  ConsortiumTenantService tenantService) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
     this.statusRepository = statusRepository;
     this.reindexStatusMapper = reindexStatusMapper;
+    this.tenantService = tenantService;
   }
 
   public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
@@ -76,22 +84,27 @@ public class ReindexRangeIndexService {
     repository.setIndexRangeFinishDate(event.getId(), Timestamp.from(Instant.now()));
   }
 
-  public List<ReindexStatusItem> getReindexStatuses(UUID reindexId) {
-    var statuses = statusRepository.getReindexStatuses(reindexId);
+  public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
+    var centralTenant = tenantService.getCentralTenant(tenantId);
+    if (centralTenant.isPresent() && !centralTenant.get().equals(tenantId)) {
+      throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantId);
+    }
+
+    var statuses = statusRepository.getReindexStatuses();
 
     return statuses.stream().map(reindexStatusMapper::convert).toList();
   }
 
-  public void setReindexUploadFailed(UUID reindexId, ReindexEntityType entityType) {
-    statusRepository.setReindexUploadFailed(reindexId, entityType);
+  public void setReindexUploadFailed(ReindexEntityType entityType) {
+    statusRepository.setReindexUploadFailed(entityType);
   }
 
-  public void addProcessedMergeRanges(UUID reindexId, ReindexEntityType entityType, int processedMergeRanges) {
-    statusRepository.addReindexCounts(reindexId, entityType, processedMergeRanges, 0);
+  public void addProcessedMergeRanges(ReindexEntityType entityType, int processedMergeRanges) {
+    statusRepository.addReindexCounts(entityType, processedMergeRanges, 0);
   }
 
-  public void addProcessedUploadRanges(UUID reindexId, ReindexEntityType entityType, int processedUploadRanges) {
-    statusRepository.addReindexCounts(reindexId, entityType, 0, processedUploadRanges);
+  public void addProcessedUploadRanges(ReindexEntityType entityType, int processedUploadRanges) {
+    statusRepository.addReindexCounts(entityType, 0, processedUploadRanges);
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

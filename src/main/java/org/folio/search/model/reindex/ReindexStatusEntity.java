@@ -1,7 +1,6 @@
 package org.folio.search.model.reindex;
 
 import java.sql.Timestamp;
-import java.util.UUID;
 import lombok.Data;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
@@ -10,7 +9,6 @@ import org.folio.search.model.types.ReindexStatus;
 public class ReindexStatusEntity {
 
   public static final String REINDEX_STATUS_TABLE = "reindex_status";
-  public static final String REINDEX_ID_COLUMN = "reindex_id";
   public static final String ENTITY_TYPE_COLUMN = "entity_type";
   public static final String STATUS_COLUMN = "status";
   public static final String TOTAL_MERGE_RANGES_COLUMN = "total_merge_ranges";
@@ -22,7 +20,6 @@ public class ReindexStatusEntity {
   public static final String START_TIME_UPLOAD_COLUMN = "start_time_upload";
   public static final String END_TIME_UPLOAD_COLUMN = "end_time_upload";
 
-  private final UUID reindexId;
   private final ReindexEntityType entityType;
   private ReindexStatus status;
   private int totalMergeRanges;

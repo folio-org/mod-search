@@ -61,7 +61,7 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
-    verify(rangeIndexService).addProcessedUploadRanges(event.getId(), event.getEntityType(), 1);
+    verify(rangeIndexService).addProcessedUploadRanges(event.getEntityType(), 1);
   }
 
   @Test
@@ -84,7 +84,7 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
-    verify(rangeIndexService).setReindexUploadFailed(event.getId(), event.getEntityType());
+    verify(rangeIndexService).setReindexUploadFailed(event.getEntityType());
   }
 
   private ReindexRangeIndexEvent reindexEvent() {

@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.CreateIndexRequest;
@@ -65,7 +64,7 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
-  public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(UUID reindexId) {
-    return ResponseEntity.ok(reindexRangeService.getReindexStatuses(reindexId));
+  public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(String tenantId) {
+    return ResponseEntity.ok(reindexRangeService.getReindexStatuses(tenantId));
   }
 }

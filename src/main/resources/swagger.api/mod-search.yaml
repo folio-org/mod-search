@@ -112,7 +112,7 @@ paths:
   /search/index/inventory/reindex:
     $ref: 'paths/search-index/search-index-inventory-reindex.yaml'
 
-  /search/index/reindex/{reindexId}/status:
+  /search/index/reindex/status:
     $ref: 'paths/search-index/search-index-reindex-status.yaml'
 
   /search/config/languages:

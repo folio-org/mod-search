@@ -239,9 +239,6 @@
     <comment>Create upload_ranges table</comment>
 
     <createTable tableName="reindex_status">
-      <column name="reindex_id" type="UUID">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_reindex_status"/>
-      </column>
       <column name="entity_type" type="VARCHAR(30)">
         <constraints nullable="false" primaryKey="true" primaryKeyName="pk_reindex_status"/>
       </column>

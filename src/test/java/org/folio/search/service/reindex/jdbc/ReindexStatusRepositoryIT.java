@@ -14,7 +14,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
-import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.spring.FolioExecutionContext;
@@ -37,8 +36,6 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReindexStatusRepositoryIT {
-
-  private static final UUID REINDEX_ID = UUID.fromString("180a92d3-6829-44ad-a81c-2cdd61650e4d");
 
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
@@ -64,7 +61,7 @@ class ReindexStatusRepositoryIT {
   @Test
   void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
     // act
-    var statuses = repository.getReindexStatuses(REINDEX_ID);
+    var statuses = repository.getReindexStatuses();
 
     // assert
     assertThat(statuses).isEmpty();
@@ -74,13 +71,12 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void getUploadRanges_returnList() {
     // act
-    var statuses = repository.getReindexStatuses(REINDEX_ID);
+    var statuses = repository.getReindexStatuses();
 
     // assert
     assertThat(statuses)
       .hasSize(4)
-      .are(new Condition<>(status -> REINDEX_ID.equals(status.getReindexId())
-        && status.getTotalMergeRanges() == 3
+      .are(new Condition<>(status -> status.getTotalMergeRanges() == 3
         && "2024-04-01 01:37:34.15755".equals(status.getStartTimeMerge().toString())
         && "2024-04-01 01:37:35.15755".equals(status.getEndTimeMerge().toString()), "common properties match"))
       .extracting(ReindexStatusEntity::getEntityType, ReindexStatusEntity::getStatus,
@@ -99,10 +95,10 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void setReindexUploadFailed() {
     // act
-    repository.setReindexUploadFailed(REINDEX_ID, SUBJECT);
+    repository.setReindexUploadFailed(SUBJECT);
 
     // assert
-    var statuses = repository.getReindexStatuses(REINDEX_ID);
+    var statuses = repository.getReindexStatuses();
     assertThat(statuses)
       .hasSize(4)
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
@@ -114,10 +110,10 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void addReindexCounts_shouldChangeStatus() {
     // act
-    repository.addReindexCounts(REINDEX_ID, SUBJECT, 0, 1);
+    repository.addReindexCounts(SUBJECT, 0, 1);
 
     // assert
-    var statuses = repository.getReindexStatuses(REINDEX_ID);
+    var statuses = repository.getReindexStatuses();
     assertThat(statuses)
       .hasSize(4)
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))

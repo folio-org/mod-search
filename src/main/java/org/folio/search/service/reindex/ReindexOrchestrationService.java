@@ -23,11 +23,11 @@ public class ReindexOrchestrationService {
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
     rangeIndexService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-      rangeIndexService.setReindexUploadFailed(event.getId(), event.getEntityType());
+      rangeIndexService.setReindexUploadFailed(event.getEntityType());
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
 
-    rangeIndexService.addProcessedUploadRanges(event.getId(), event.getEntityType(), documents.size());
+    rangeIndexService.addProcessedUploadRanges(event.getEntityType(), documents.size());
     return true;
   }
 }

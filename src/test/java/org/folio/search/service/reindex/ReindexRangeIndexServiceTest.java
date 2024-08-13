@@ -1,29 +1,37 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.service.reindex.ReindexRangeIndexService.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.folio.search.converter.ReindexStatusMapper;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.extension.Random;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,13 +47,14 @@ class ReindexRangeIndexServiceTest {
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private @Mock ReindexStatusRepository statusRepository;
   private @Mock ReindexStatusMapper reindexStatusMapper;
+  private @Mock ConsortiumTenantService tenantService;
   private ReindexRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
     service = new ReindexRangeIndexService(List.of(repository), indexRangeEventProducer, statusRepository,
-      reindexStatusMapper);
+      reindexStatusMapper, tenantService);
   }
 
   @Test
@@ -97,47 +106,56 @@ class ReindexRangeIndexServiceTest {
 
   @Test
   void getReindexStatuses() {
-    var reindexId = UUID.randomUUID();
-    var statusEntities = List.of(new ReindexStatusEntity(reindexId, ReindexEntityType.INSTANCE));
-    var expected = List.of(new ReindexStatusItem().reindexId(reindexId));
+    var statusEntities = List.of(new ReindexStatusEntity(ReindexEntityType.INSTANCE));
+    var expected = List.of(new ReindexStatusItem());
 
-    when(statusRepository.getReindexStatuses(reindexId)).thenReturn(statusEntities);
+    when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
     when(reindexStatusMapper.convert(statusEntities.get(0))).thenReturn(expected.get(0));
 
-    var actual = service.getReindexStatuses(reindexId);
+    var actual = service.getReindexStatuses(TENANT_ID);
 
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
+  void getReindexStatuses_negative_consortiumMemberTenant() {
+    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+
+    var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
+
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_MSG);
+    assertThat(ex.getKey()).isEqualTo(XOkapiHeaders.TENANT);
+    assertThat(ex.getValue()).isEqualTo(TENANT_ID);
+    verifyNoInteractions(statusRepository);
+    verifyNoInteractions(reindexStatusMapper);
+  }
+
+  @Test
   void setReindexUploadFailed() {
-    var reindexId = UUID.randomUUID();
     var entityType = ReindexEntityType.INSTANCE;
 
-    service.setReindexUploadFailed(reindexId, entityType);
+    service.setReindexUploadFailed(entityType);
 
-    verify(statusRepository).setReindexUploadFailed(reindexId, entityType);
+    verify(statusRepository).setReindexUploadFailed(entityType);
   }
 
   @Test
   void addProcessedMergeRanges() {
-    var reindexId = UUID.randomUUID();
     var entityType = ReindexEntityType.INSTANCE;
     var ranges = 5;
 
-    service.addProcessedMergeRanges(reindexId, entityType, ranges);
+    service.addProcessedMergeRanges(entityType, ranges);
 
-    verify(statusRepository).addReindexCounts(reindexId, entityType, ranges, 0);
+    verify(statusRepository).addReindexCounts(entityType, ranges, 0);
   }
 
   @Test
   void addProcessedUploadRanges() {
-    var reindexId = UUID.randomUUID();
     var entityType = ReindexEntityType.INSTANCE;
     var ranges = 5;
 
-    service.addProcessedUploadRanges(reindexId, entityType, ranges);
+    service.addProcessedUploadRanges(entityType, ranges);
 
-    verify(statusRepository).addReindexCounts(reindexId, entityType, 0, ranges);
+    verify(statusRepository).addReindexCounts(entityType, 0, ranges);
   }
 }

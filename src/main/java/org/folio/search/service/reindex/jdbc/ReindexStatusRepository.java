@@ -4,7 +4,6 @@ import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_MERGE_
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_UPLOAD_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_UPLOAD_RANGES_COLUMN;
-import static org.folio.search.model.reindex.ReindexStatusEntity.REINDEX_ID_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.REINDEX_STATUS_TABLE;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_MERGE_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_UPLOAD_COLUMN;
@@ -16,7 +15,6 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.types.ReindexEntityType;
@@ -30,49 +28,47 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ReindexStatusRepository {
 
-  private static final String SELECT_REINDEX_STATUS_BY_REINDEX_ID_SQL = "SELECT * FROM %s WHERE reindex_id = ?;";
+  private static final String SELECT_REINDEX_STATUS_BY_REINDEX_ID_SQL = "SELECT * FROM %s;";
   private static final String UPDATE_REINDEX_STATUS_SQL = """
     UPDATE %s
     SET status = ?, %s = ?
-    WHERE reindex_id = ? AND entity_type = ?;
+    WHERE entity_type = ?;
     """;
   private static final String UPDATE_REINDEX_COUNTS_SQL = """
     UPDATE %s
     SET processed_merge_ranges = processed_merge_ranges + ?,
     processed_upload_ranges = processed_upload_ranges + ?
-    WHERE reindex_id = ? AND entity_type = ?;
+    WHERE entity_type = ?;
     """;
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
 
 
-  public List<ReindexStatusEntity> getReindexStatuses(UUID reindexId) {
+  public List<ReindexStatusEntity> getReindexStatuses() {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = SELECT_REINDEX_STATUS_BY_REINDEX_ID_SQL.formatted(fullTableName);
-    return jdbcTemplate.query(sql, reindexStatusRowMapper(), reindexId);
+    return jdbcTemplate.query(sql, reindexStatusRowMapper());
   }
 
-  public void setReindexUploadFailed(UUID reindexId, ReindexEntityType entityType) {
+  public void setReindexUploadFailed(ReindexEntityType entityType) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_REINDEX_STATUS_SQL.formatted(fullTableName, END_TIME_UPLOAD_COLUMN);
 
-    jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), reindexId,
-      entityType.name());
+    jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
   }
 
-  public void addReindexCounts(UUID reindexId, ReindexEntityType entityType, int processedMergeRanges,
+  public void addReindexCounts(ReindexEntityType entityType, int processedMergeRanges,
                                int processedUploadRanges) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_REINDEX_COUNTS_SQL.formatted(fullTableName);
 
-    jdbcTemplate.update(sql, processedMergeRanges, processedUploadRanges, reindexId, entityType.name());
+    jdbcTemplate.update(sql, processedMergeRanges, processedUploadRanges, entityType.name());
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
     return (rs, rowNum) -> {
       var reindexStatus = new ReindexStatusEntity(
-        UUID.fromString(rs.getString(REINDEX_ID_COLUMN)),
         ReindexEntityType.valueOf(rs.getString(ReindexStatusEntity.ENTITY_TYPE_COLUMN))
       );
       reindexStatus.setStatus(ReindexStatus.valueOf(rs.getString(STATUS_COLUMN)));

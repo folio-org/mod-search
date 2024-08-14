@@ -40,6 +40,12 @@ public class ConsortiumTenantsService {
     }
   }
 
+  public boolean isMemberTenantInConsortium(String tenantId) {
+    return userTenantsService.getCentralTenant(tenantId)
+      .map(centralTenantId -> !centralTenantId.equals(tenantId))
+      .orElse(false);
+  }
+
   private List<String> getTenantsList(List<ConsortiumTenantsClient.ConsortiumTenant> consortiumTenants) {
     return consortiumTenants.stream()
       .filter(consortiumTenant -> !consortiumTenant.isCentral())

@@ -5,6 +5,7 @@ import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTI
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
 import org.folio.search.service.consortium.ConsortiumTenantsService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
@@ -33,6 +34,10 @@ public class ReindexService {
 
   public void initFullReindex(String tenantId) {
     log.info("submit full reindex process");
+
+    if (consortiumService.isMemberTenantInConsortium(tenantId)) {
+      throw new RequestValidationException("Not allowed to run reindex from member tenant", "tenantId", tenantId);
+    }
 
     mergeRangeService.deleteAllRangeRecords();
     statusService.recreateStatusRecords();

@@ -9,5 +9,7 @@ post:
   responses:
     '200':
       description: Full reindex operation has been started
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

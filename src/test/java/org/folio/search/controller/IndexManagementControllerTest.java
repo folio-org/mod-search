@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -9,6 +10,7 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -63,6 +65,14 @@ class IndexManagementControllerTest {
   private ResourceService resourceService;
   @MockBean
   private ReindexService reindexService;
+
+  @Test
+  void runFullReindex_positive() throws Exception {
+    doNothing().when(reindexService).initFullReindex(TENANT_ID);
+
+    mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
 
   @Test
   void createIndex_positive() throws Exception {

@@ -23,7 +23,6 @@ public class ReindexOrchestrationService {
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
     rangeIndexService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-      // TODO MSEARCH-797 - update status as failed indicating upload has failed
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
     return true;

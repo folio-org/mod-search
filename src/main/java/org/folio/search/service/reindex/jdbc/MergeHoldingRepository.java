@@ -18,7 +18,7 @@ public class MergeHoldingRepository extends MergeRangeRepository {
 
   @Override
   public ReindexEntityType entityType() {
-    return null;
+    return ReindexEntityType.HOLDING;
   }
 
   @Override

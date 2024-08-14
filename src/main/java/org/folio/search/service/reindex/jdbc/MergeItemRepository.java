@@ -18,7 +18,7 @@ public class MergeItemRepository extends MergeRangeRepository {
 
   @Override
   public ReindexEntityType entityType() {
-    return null;
+    return ReindexEntityType.ITEM;
   }
 
   @Override

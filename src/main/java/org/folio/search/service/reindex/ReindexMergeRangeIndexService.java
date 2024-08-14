@@ -25,8 +25,8 @@ import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @Log4j2
+@Service
 public class ReindexMergeRangeIndexService {
 
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;

@@ -24,6 +24,7 @@ public class IdentifierUtils {
     return switch (identifierType) {
       case ITEM_BARCODE -> "items.barcode";
       case INSTANCE_HRID -> "hrid";
+      case INSTANCE_ID -> "id";
       default -> format(VALUE_PATTERN, INSTANCE_HOLDING_FIELD_NAME, identifierType.getValue());
     };
   }

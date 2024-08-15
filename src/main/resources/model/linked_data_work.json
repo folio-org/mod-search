@@ -1,6 +1,7 @@
 {
   "name": "linked-data-work",
   "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataWork",
+  "reindexSupported": true,
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {

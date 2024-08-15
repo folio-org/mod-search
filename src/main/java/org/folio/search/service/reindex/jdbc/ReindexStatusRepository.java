@@ -38,7 +38,7 @@ public class ReindexStatusRepository {
 
   public void truncate() {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    String sql = "TRUNCATE TABLE %s;".formatted(getFullTableName(context, fullTableName));
+    String sql = "TRUNCATE TABLE %s;".formatted(fullTableName);
     jdbcTemplate.execute(sql);
   }
 

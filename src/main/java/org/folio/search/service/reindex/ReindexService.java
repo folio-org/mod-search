@@ -36,7 +36,8 @@ public class ReindexService {
     log.info("submit full reindex process");
 
     if (consortiumService.isMemberTenantInConsortium(tenantId)) {
-      throw new RequestValidationException("Not allowed to run reindex from member tenant", "tenantId", tenantId);
+      throw new RequestValidationException(
+        "Not allowed to run reindex from member tenant of consortium environment", "tenantId", tenantId);
     }
 
     mergeRangeService.deleteAllRangeRecords();
@@ -64,7 +65,7 @@ public class ReindexService {
   }
 
   private void publishRecordsRange() {
-    MERGE_RANGE_ENTITY_TYPES.forEach(entityType -> {
+    for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
       var count = mergeRangeService.fetchRangeEntitiesCount(entityType);
       statusService.updateMergeRangesStarted(entityType, count);
@@ -78,6 +79,6 @@ public class ReindexService {
           return;
         }
       }
-    });
+    }
   }
 }

@@ -3,7 +3,7 @@ package org.folio.search.model.reindex;
 import java.sql.Timestamp;
 import java.util.UUID;
 import lombok.Data;
-import org.folio.search.model.types.InventoryRecordType;
+import org.folio.search.model.types.ReindexEntityType;
 
 @Data
 public class MergeRangeEntity {
@@ -17,7 +17,7 @@ public class MergeRangeEntity {
   public static final String FINISHED_AT_COLUMN = "finished_at";
 
   private final UUID id;
-  private final InventoryRecordType entityType;
+  private final ReindexEntityType entityType;
   private final String tenantId;
   private final UUID lowerId;
   private final UUID upperId;

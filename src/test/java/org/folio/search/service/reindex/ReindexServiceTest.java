@@ -20,7 +20,6 @@ import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
-import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantsService;
@@ -63,7 +62,7 @@ class ReindexServiceTest {
     var member = "member";
     var id = UUID.randomUUID();
     var rangeEntity =
-      new MergeRangeEntity(id, InventoryRecordType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+      new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
 
     when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
@@ -90,7 +89,7 @@ class ReindexServiceTest {
     var member = "member";
     var id = UUID.randomUUID();
     var rangeEntity =
-      new MergeRangeEntity(id, InventoryRecordType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+      new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
 
     when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));

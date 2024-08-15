@@ -8,21 +8,21 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MergeHoldingRepository extends MergeRangeRepository {
+public class ItemRepository extends MergeRangeRepository {
 
-  protected MergeHoldingRepository(JdbcTemplate jdbcTemplate,
-                                   JsonConverter jsonConverter,
-                                   FolioExecutionContext context) {
+  protected ItemRepository(JdbcTemplate jdbcTemplate,
+                           JsonConverter jsonConverter,
+                           FolioExecutionContext context) {
     super(jdbcTemplate, jsonConverter, context);
   }
 
   @Override
   public ReindexEntityType entityType() {
-    return ReindexEntityType.HOLDING;
+    return ReindexEntityType.ITEM;
   }
 
   @Override
   protected String entityTable() {
-    return ReindexConstants.HOLDING_TABLE;
+    return ReindexConstants.ITEM_TABLE;
   }
 }

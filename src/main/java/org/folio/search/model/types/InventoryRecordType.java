@@ -10,5 +10,5 @@ public enum InventoryRecordType {
   ITEM("item"),
   HOLDING("holding");
 
-  private final String value;
+  private final String type;
 }

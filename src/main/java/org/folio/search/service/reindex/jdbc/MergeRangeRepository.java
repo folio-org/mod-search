@@ -6,7 +6,6 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.util.List;
 import java.util.UUID;
 import org.folio.search.model.reindex.MergeRangeEntity;
-import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -31,7 +30,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     super(jdbcTemplate, jsonConverter, context);
   }
 
-  public void truncateMergeRangeTable() {
+  public void truncateMergeRanges() {
     String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, MERGE_RANGE_TABLE));
     jdbcTemplate.execute(sql);
   }
@@ -42,7 +41,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     jdbcTemplate.batchUpdate(INSERT_MERGE_RANGE_SQL.formatted(fullTableName), mergeRanges, BATCH_OPERATION_SIZE,
       (statement, entity) -> {
         statement.setObject(1, entity.getId());
-        statement.setString(2, entity.getEntityType().name());
+        statement.setString(2, entity.getEntityType().getType());
         statement.setString(3, entity.getTenantId());
         statement.setObject(4, entity.getLowerId());
         statement.setObject(5, entity.getUpperId());
@@ -63,7 +62,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return (rs, rowNum) ->
       new MergeRangeEntity(
         rs.getObject(MergeRangeEntity.ID_COLUMN, UUID.class),
-        InventoryRecordType.valueOf(rs.getString(MergeRangeEntity.ENTITY_TYPE_COLUMN)),
+        ReindexEntityType.fromValue(rs.getString(MergeRangeEntity.ENTITY_TYPE_COLUMN)),
         rs.getString(MergeRangeEntity.TENANT_ID_COLUMN),
         rs.getObject(MergeRangeEntity.RANGE_LOWER_COLUMN, UUID.class),
         rs.getObject(MergeRangeEntity.RANGE_UPPER_COLUMN, UUID.class),

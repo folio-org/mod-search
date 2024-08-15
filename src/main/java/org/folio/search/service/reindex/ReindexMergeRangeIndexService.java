@@ -44,7 +44,7 @@ public class ReindexMergeRangeIndexService {
   @Transactional
   public void deleteAllRangeRecords() {
     MERGE_RANGE_ENTITY_TYPES.stream().map(repositories::get).forEach(MergeRangeRepository::truncate);
-    repositories.get(ReindexEntityType.INSTANCE).truncateMergeRangeTable();
+    repositories.get(ReindexEntityType.INSTANCE).truncateMergeRanges();
   }
 
   public void createMergeRanges(String tenantId) {
@@ -78,10 +78,10 @@ public class ReindexMergeRangeIndexService {
         recordType, recordsCount, tenantId);
       return Collections.emptyList();
     }
+
     var lowerId = recordIds.get(0);
     var upperId = recordIds.get(recordIds.size() - 1);
-    ranges.add(
-      new MergeRangeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
+    ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
     for (int i = 1; i < pages; i++) {
       int offset = i * rangeSize;
       int limit = Math.min(rangeSize, recordsCount - offset);
@@ -89,10 +89,23 @@ public class ReindexMergeRangeIndexService {
       recordIds = inventoryService.fetchInventoryRecordIds(recordType, query, offset, limit);
       lowerId = recordIds.get(0);
       upperId = recordIds.get(recordIds.size() - 1);
-      ranges.add(
-        new MergeRangeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
+      ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
     }
 
     return ranges;
+  }
+
+  private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, UUID lowerId,
+                                       UUID upperId, Timestamp createdAt) {
+    ReindexEntityType entityType;
+    if (recordType == InventoryRecordType.INSTANCE) {
+      entityType = ReindexEntityType.INSTANCE;
+    } else if (recordType == InventoryRecordType.HOLDING) {
+      entityType = ReindexEntityType.HOLDING;
+    } else {
+      entityType = ReindexEntityType.ITEM;
+    }
+
+    return new MergeRangeEntity(id, entityType, tenantId, lowerId, upperId, createdAt);
   }
 }

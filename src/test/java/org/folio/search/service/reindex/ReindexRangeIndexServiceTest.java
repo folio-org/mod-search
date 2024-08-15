@@ -23,6 +23,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
@@ -106,7 +107,7 @@ class ReindexRangeIndexServiceTest {
 
   @Test
   void getReindexStatuses() {
-    var statusEntities = List.of(new ReindexStatusEntity(ReindexEntityType.INSTANCE));
+    var statusEntities = List.of(new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_COMPLETED));
     var expected = List.of(new ReindexStatusItem());
 
     when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);

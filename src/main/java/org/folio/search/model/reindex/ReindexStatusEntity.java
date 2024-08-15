@@ -21,7 +21,7 @@ public class ReindexStatusEntity {
   public static final String END_TIME_UPLOAD_COLUMN = "end_time_upload";
 
   private final ReindexEntityType entityType;
-  private ReindexStatus status;
+  private final ReindexStatus status;
   private int totalMergeRanges;
   private int processedMergeRanges;
   private int totalUploadRanges;

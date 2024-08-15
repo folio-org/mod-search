@@ -69,9 +69,9 @@ public class ReindexStatusRepository {
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
     return (rs, rowNum) -> {
       var reindexStatus = new ReindexStatusEntity(
-        ReindexEntityType.valueOf(rs.getString(ReindexStatusEntity.ENTITY_TYPE_COLUMN))
+        ReindexEntityType.valueOf(rs.getString(ReindexStatusEntity.ENTITY_TYPE_COLUMN)),
+        ReindexStatus.valueOf(rs.getString(STATUS_COLUMN))
       );
-      reindexStatus.setStatus(ReindexStatus.valueOf(rs.getString(STATUS_COLUMN)));
       reindexStatus.setTotalMergeRanges(rs.getInt(TOTAL_MERGE_RANGES_COLUMN));
       reindexStatus.setProcessedMergeRanges(rs.getInt(PROCESSED_MERGE_RANGES_COLUMN));
       reindexStatus.setTotalUploadRanges(rs.getInt(TOTAL_UPLOAD_RANGES_COLUMN));

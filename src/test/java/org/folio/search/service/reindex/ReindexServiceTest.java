@@ -102,6 +102,6 @@ class ReindexServiceTest {
     verify(statusService)
       .updateMergeRangesStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
-    verify(statusService).updateMergeRangesFailed(any(ReindexEntityType.class));
+    verify(statusService).updateMergeRangesFailed();
   }
 }

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.integration.InventoryService;
 import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.client.CqlQueryParam;
@@ -30,14 +31,17 @@ public class ReindexMergeRangeIndexService {
 
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
+  private final ReindexStatusService statusService;
   private final ReindexConfigurationProperties reindexConfig;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
+                                       ReindexStatusService statusService,
                                        ReindexConfigurationProperties reindexConfig) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
+    this.statusService = statusService;
     this.reindexConfig = reindexConfig;
   }
 
@@ -49,13 +53,18 @@ public class ReindexMergeRangeIndexService {
 
   public void createMergeRanges(String tenantId) {
     var repository = repositories.get(ReindexEntityType.INSTANCE);
-    for (var recordType : InventoryRecordType.values()) {
-      var recordsCount = inventoryService.fetchInventoryRecordCount(recordType);
-      var rangeSize = reindexConfig.getMergeRangeSize();
-      var ranges = constructRecordMergeRanges(recordsCount, rangeSize, recordType, tenantId);
+    try {
+      for (var recordType : InventoryRecordType.values()) {
+        var recordsCount = inventoryService.fetchInventoryRecordCount(recordType);
+        var rangeSize = reindexConfig.getMergeRangeSize();
+        var ranges = constructRecordMergeRanges(recordsCount, rangeSize, recordType, tenantId);
 
-      log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
-      repository.saveMergeRanges(ranges);
+        log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
+        repository.saveMergeRanges(ranges);
+      }
+    } catch (FolioIntegrationException e) {
+      log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e);
+      statusService.updateMergeRangesFailed();
     }
   }
 
@@ -97,15 +106,16 @@ public class ReindexMergeRangeIndexService {
 
   private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, UUID lowerId,
                                        UUID upperId, Timestamp createdAt) {
-    ReindexEntityType entityType;
-    if (recordType == InventoryRecordType.INSTANCE) {
-      entityType = ReindexEntityType.INSTANCE;
-    } else if (recordType == InventoryRecordType.HOLDING) {
-      entityType = ReindexEntityType.HOLDING;
-    } else {
-      entityType = ReindexEntityType.ITEM;
-    }
+    return new MergeRangeEntity(id, asEntityType(recordType), tenantId, lowerId, upperId, createdAt);
+  }
 
-    return new MergeRangeEntity(id, entityType, tenantId, lowerId, upperId, createdAt);
+  private ReindexEntityType asEntityType(InventoryRecordType recordType) {
+    if (recordType == InventoryRecordType.INSTANCE) {
+      return ReindexEntityType.INSTANCE;
+    } else if (recordType == InventoryRecordType.HOLDING) {
+      return ReindexEntityType.HOLDING;
+    } else {
+      return ReindexEntityType.ITEM;
+    }
   }
 }

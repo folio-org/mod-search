@@ -36,7 +36,7 @@ public class InventoryService {
         case HOLDING -> fetchHoldings(cqlQuery, offset, limit);
       };
     } catch (Exception e) {
-      log.warn("Failed to fetch Inventory records for {}", recordType);
+      log.warn("Failed to fetch Inventory records for {} : {}", recordType, e.getMessage());
       throw new FolioIntegrationException("Failed to fetch inventory records for %s".formatted(recordType.name()), e);
     }
   }

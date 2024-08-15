@@ -27,10 +27,16 @@ public class ReindexStatusRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
-  private static final String UPDATE_STATUS_SQL = """
+  private static final String UPDATE_SQL = """
     UPDATE %s
     SET %s
     WHERE entity_type = ?;
+    """;
+
+  private static final String UPDATE_FOR_ENTITIES_SQL = """
+    UPDATE %s
+    SET %s
+    WHERE entity_type in ?;
     """;
 
   private final FolioExecutionContext context;
@@ -44,7 +50,7 @@ public class ReindexStatusRepository {
 
   public void setMergeReindexStarted(ReindexEntityType entityType, int totalMergeRanges) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_STATUS_SQL.formatted(
+    var sql = UPDATE_SQL.formatted(
       fullTableName, "%s = ?, %s = ?".formatted(TOTAL_MERGE_RANGES_COLUMN, START_TIME_MERGE_COLUMN));
 
     jdbcTemplate.update(sql, totalMergeRanges, Timestamp.from(Instant.now()), entityType.name());
@@ -52,16 +58,16 @@ public class ReindexStatusRepository {
 
   public void setReindexUploadFailed(ReindexEntityType entityType) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_STATUS_SQL.formatted(fullTableName, "%s = ?".formatted(END_TIME_UPLOAD_COLUMN));
+    var sql = UPDATE_SQL.formatted(fullTableName, "%s = ?".formatted(END_TIME_UPLOAD_COLUMN));
 
     jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
   }
 
-  public void setReindexMergeFailed(ReindexEntityType entityType) {
+  public void setReindexMergeFailed(List<ReindexEntityType> entityTypes) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_STATUS_SQL.formatted(fullTableName, "%s = ?".formatted(END_TIME_MERGE_COLUMN));
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, "%s = ?".formatted(END_TIME_MERGE_COLUMN));
 
-    jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
+    jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()), entityTypes);
   }
 
   public void saveReindexStatusRecords(List<ReindexStatusEntity> statusRecords) {

@@ -75,7 +75,7 @@ public class ReindexService {
           inventoryService.publishReindexRecordsRange(rangeEntity);
         } catch (FolioIntegrationException e) {
           log.error("Failed to publish records range entity [rangeEntity: {}]. Exception: {}", rangeEntity, e);
-          statusService.updateMergeRangesFailed(entityType);
+          statusService.updateMergeRangesFailed();
           return;
         }
       }

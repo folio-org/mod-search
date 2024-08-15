@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -62,10 +61,6 @@ public class ReindexMergeRangeIndexService {
 
   public List<MergeRangeEntity> fetchMergeRanges(ReindexEntityType entityType) {
     return repositories.get(entityType).getMergeRanges();
-  }
-
-  public int fetchRangeEntitiesCount(ReindexEntityType entityType) {
-    return Optional.ofNullable(repositories.get(entityType).countRangeEntities()).orElse(0);
   }
 
   private List<MergeRangeEntity> constructRecordMergeRanges(int recordsCount,

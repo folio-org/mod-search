@@ -22,7 +22,6 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     """;
 
   private static final String SELECT_MERGE_RANGES_BY_ENTITY_TYPE = "SELECT * FROM %s WHERE entity_type = ?;";
-  private static final String COUNT_SQL_BY_ENTITY_TYPE = "SELECT COUNT(*) FROM %s WHERE entity_type = ?;";
 
   private static final int BATCH_OPERATION_SIZE = 100;
 
@@ -56,12 +55,6 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     var sql = SELECT_MERGE_RANGES_BY_ENTITY_TYPE.formatted(fullTableName);
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
-  }
-
-  public Integer countRangeEntities() {
-    var fullTableName = getFullTableName(context, entityTable());
-    var sql = COUNT_SQL_BY_ENTITY_TYPE.formatted(fullTableName);
-    return jdbcTemplate.queryForObject(sql, Integer.class);
   }
 
   public abstract ReindexEntityType entityType();

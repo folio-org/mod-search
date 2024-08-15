@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
+import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantsService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class ReindexService {
     }
 
     mergeRangeService.deleteAllRangeRecords();
-    statusService.recreateStatusRecords();
+    statusService.recreateStatusRecords(ReindexStatus.MERGE_IN_PROGRESS);
 
     CompletableFuture.runAsync(() -> {
       mergeRangeService.createMergeRanges(tenantId);
@@ -67,8 +68,7 @@ public class ReindexService {
   private void publishRecordsRange() {
     for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
-      var count = mergeRangeService.fetchRangeEntitiesCount(entityType);
-      statusService.updateMergeRangesStarted(entityType, count);
+      statusService.updateMergeRangesStarted(entityType, rangeEntities.size());
 
       for (var rangeEntity : rangeEntities) {
         try {

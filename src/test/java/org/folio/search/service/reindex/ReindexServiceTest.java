@@ -22,6 +22,7 @@ import org.folio.search.integration.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantsService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
@@ -63,25 +64,22 @@ class ReindexServiceTest {
     var id = UUID.randomUUID();
     var rangeEntity =
       new MergeRangeEntity(id, InventoryRecordType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
-    var rangeEntitiesCount = 10;
 
     when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
-    when(mergeRangeService.fetchRangeEntitiesCount(any(ReindexEntityType.class))).thenReturn(rangeEntitiesCount);
     final var expectedCallsCount = MERGE_RANGE_ENTITY_TYPES.size();
 
     reindexService.initFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(mergeRangeService).deleteAllRangeRecords();
-    verify(statusService).recreateStatusRecords();
+    verify(statusService).recreateStatusRecords(ReindexStatus.MERGE_IN_PROGRESS);
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(executionService).executeAsyncSystemUserScoped(eq(member), any(Runnable.class));
     verify(statusService, times(expectedCallsCount))
-      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(rangeEntitiesCount));
+      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
-    verify(mergeRangeService, times(expectedCallsCount)).fetchRangeEntitiesCount(any(ReindexEntityType.class));
     verify(inventoryService, times(expectedCallsCount)).publishReindexRecordsRange(rangeEntity);
     verifyNoMoreInteractions(mergeRangeService);
   }
@@ -93,21 +91,18 @@ class ReindexServiceTest {
     var id = UUID.randomUUID();
     var rangeEntity =
       new MergeRangeEntity(id, InventoryRecordType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
-    var rangeEntitiesCount = 10;
 
     when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
-    when(mergeRangeService.fetchRangeEntitiesCount(any(ReindexEntityType.class))).thenReturn(rangeEntitiesCount);
     doThrow(FolioIntegrationException.class).when(inventoryService).publishReindexRecordsRange(rangeEntity);
 
     reindexService.initFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(statusService)
-      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(rangeEntitiesCount));
+      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
-    verify(mergeRangeService).fetchRangeEntitiesCount(any(ReindexEntityType.class));
     verify(statusService).updateMergeRangesFailed(any(ReindexEntityType.class));
   }
 }

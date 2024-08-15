@@ -29,7 +29,7 @@ public class ReindexStatusRepository {
 
   private static final String UPDATE_STATUS_SQL = """
     UPDATE %s
-    SET status = ?, %s
+    SET %s
     WHERE entity_type = ?;
     """;
 
@@ -47,8 +47,7 @@ public class ReindexStatusRepository {
     var sql = UPDATE_STATUS_SQL.formatted(
       fullTableName, "%s = ?, %s = ?".formatted(TOTAL_MERGE_RANGES_COLUMN, START_TIME_MERGE_COLUMN));
 
-    jdbcTemplate.update(sql, ReindexStatus.MERGE_IN_PROGRESS.name(), totalMergeRanges, Timestamp.from(Instant.now()),
-      entityType.name());
+    jdbcTemplate.update(sql, totalMergeRanges, Timestamp.from(Instant.now()), entityType.name());
   }
 
   public void setReindexUploadFailed(ReindexEntityType entityType) {

@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -258,7 +259,7 @@ class IndexManagementControllerTest {
     var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.INSTANCE.name());
     when(reindexRangeService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
 
-    mockMvc.perform(get("/search/index/reindex/status")
+    mockMvc.perform(get(reindexInstanceRecordsStatus())
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk())
       .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));

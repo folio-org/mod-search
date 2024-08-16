@@ -82,11 +82,7 @@ class IndexManagementIT extends BaseIntegrationTest {
 
   @Test
   void runReindex_positive_authority() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName(AUTHORITY)))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request = getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(AUTHORITY)));
 
     mockMvc.perform(request)
       .andExpect(status().isOk())
@@ -97,11 +93,7 @@ class IndexManagementIT extends BaseIntegrationTest {
 
   @Test
   void runReindex_positive_locations() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName(LOCATION)))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request = getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(LOCATION)));
 
     assertThat(countDefaultIndexDocument(LOCATION_RESOURCE)).isZero();
     assertThat(countDefaultIndexDocument(CAMPUS_RESOURCE)).isZero();
@@ -131,11 +123,8 @@ class IndexManagementIT extends BaseIntegrationTest {
   @EnumSource(value = ResourceNameEnum.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
   void runReindex_shouldRecreate_linkedDataResourcesIndexes(ResourceNameEnum resourceNameEnum) throws Exception {
     var resourceName = resourceNameEnum.getValue();
-    var request = post(ApiEndpoints.reindexPath())
-      .content(asJsonString(new ReindexRequest().resourceName(resourceNameEnum).recreateIndex(true)))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request =
+      getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(resourceNameEnum).recreateIndex(true)));
     var indexIdBeforeReindex = getIndexId(resourceName);
 
     mockMvc.perform(request)
@@ -165,11 +154,7 @@ class IndexManagementIT extends BaseIntegrationTest {
   @Test
   void runReindex_negative_instanceSubject() throws Exception {
     var resource = "instance_subject";
-    var request = post(ApiEndpoints.reindexPath())
-      .content(reindexRequestJson(resource))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request = getReindexRequestBuilder(reindexRequestJson(resource));
 
     mockMvc.perform(request)
       .andExpect(status().isBadRequest())
@@ -182,11 +167,7 @@ class IndexManagementIT extends BaseIntegrationTest {
   @Test
   void runReindex_negative_contributor() throws Exception {
     var resource = "contributor";
-    var request = post(ApiEndpoints.reindexPath())
-      .content(reindexRequestJson(resource))
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request = getReindexRequestBuilder(reindexRequestJson(resource));
 
     mockMvc.perform(request)
       .andExpect(status().isBadRequest())
@@ -242,11 +223,7 @@ class IndexManagementIT extends BaseIntegrationTest {
   private static Stream<Arguments> requestBuilderDataProvider() {
     return Stream.of(
       arguments(
-        post(ApiEndpoints.reindexPath())
-          .content(asJsonString(new ReindexRequest().resourceName(LINKED_DATA_WORK)))
-          .headers(defaultHeaders())
-          .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-          .contentType(MediaType.APPLICATION_JSON)
+        getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(LINKED_DATA_WORK)))
       ),
       arguments(
         post(ApiEndpoints.reindexPath())
@@ -256,13 +233,17 @@ class IndexManagementIT extends BaseIntegrationTest {
           .contentType(MediaType.APPLICATION_JSON)
       ),
       arguments(
-        post(ApiEndpoints.reindexPath())
-          .content(asJsonString(new ReindexRequest().resourceName(AUTHORITY).recreateIndex(true)))
-          .headers(defaultHeaders())
-          .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-          .contentType(MediaType.APPLICATION_JSON)
+        getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(AUTHORITY).recreateIndex(true)))
       )
     );
+  }
+
+  private static RequestBuilder getReindexRequestBuilder(String content) {
+    return post(ApiEndpoints.reindexPath())
+      .content(content)
+      .headers(defaultHeaders())
+      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
+      .contentType(MediaType.APPLICATION_JSON);
   }
 
 }

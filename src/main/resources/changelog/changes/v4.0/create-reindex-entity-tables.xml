@@ -298,4 +298,11 @@
     </preConditions>
     <sqlFile path="update-reindex-status-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
+
+  <changeSet id="MSEARCH-794@@create-reindex_status-trigger-fix" author="Mukhiddin_Yusupov">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="reindex_status"/>
+    </preConditions>
+    <sqlFile path="update-reindex-status-trigger-fix.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
 </databaseChangeLog>

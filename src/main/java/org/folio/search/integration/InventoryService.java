@@ -90,7 +90,7 @@ public class InventoryService {
     var to = rangeEntity.getUpperId().toString();
     var recordsRange = new InventoryReindexRecordsClient.ReindexRecords(
       rangeEntity.getId().toString(),
-      rangeEntity.getEntityType().name(),
+      rangeEntity.getEntityType().getType(),
       new InventoryReindexRecordsClient.ReindexRecordsRange(from, to));
 
     try {

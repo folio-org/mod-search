@@ -82,7 +82,8 @@ public class ReindexMergeRangeIndexService {
 
     List<MergeRangeEntity> ranges = new ArrayList<>();
     int pages = (int) Math.ceil((double) recordsCount / rangeSize);
-    var recordIds = inventoryService.fetchInventoryRecordIds(recordType, null, 0, rangeSize);
+    var query = CqlQuery.sortBy(new CqlQuery("cql.allRecords=1"), CqlQueryParam.ID);
+    var recordIds = inventoryService.fetchInventoryRecordIds(recordType, query, 0, rangeSize);
     if (CollectionUtils.isEmpty(recordIds)) {
       log.warn("There are no records to create merge ranges: [recordType: {}, recordsCount: {}, tenant: {}]",
         recordType, recordsCount, tenantId);
@@ -95,8 +96,9 @@ public class ReindexMergeRangeIndexService {
     for (int i = 1; i < pages; i++) {
       int offset = i * rangeSize;
       int limit = Math.min(rangeSize, recordsCount - offset);
-      var query = CqlQuery.greaterThan(CqlQueryParam.ID, lowerId.toString());
-      recordIds = inventoryService.fetchInventoryRecordIds(recordType, query, offset, limit);
+      query = CqlQuery.greaterThan(CqlQueryParam.ID, lowerId.toString());
+      recordIds =
+        inventoryService.fetchInventoryRecordIds(recordType, CqlQuery.sortBy(query, CqlQueryParam.ID), offset, limit);
       lowerId = recordIds.get(0);
       upperId = recordIds.get(recordIds.size() - 1);
       ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));

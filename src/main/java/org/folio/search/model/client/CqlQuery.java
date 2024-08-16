@@ -25,6 +25,10 @@ public record CqlQuery(String query) {
     return fromTemplate("%s>(%s)", param.getCqlParam(), value);
   }
 
+  public static CqlQuery sortBy(CqlQuery cqlQuery, CqlQueryParam param) {
+    return fromTemplate("%s sortBy %s", cqlQuery.query, param.getCqlParam());
+  }
+
   private static CqlQuery fromTemplate(String format, Object... args) {
     return new CqlQuery(String.format(format, args));
   }

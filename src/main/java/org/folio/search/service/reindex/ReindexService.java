@@ -2,6 +2,7 @@ package org.folio.search.service.reindex;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
@@ -43,15 +44,11 @@ public class ReindexService {
     mergeRangeService.deleteAllRangeRecords();
     statusService.recreateStatusRecords(ReindexStatus.MERGE_IN_PROGRESS);
 
-    mergeRangeService.createMergeRanges(tenantId);
-    processForConsortium(tenantId);
-    publishRecordsRange();
-
-    //CompletableFuture.runAsync(() -> {
-    //  mergeRangeService.createMergeRanges(tenantId);
-    //  processForConsortium(tenantId);
-    //})
-    //  .thenRun(this::publishRecordsRange);
+    CompletableFuture.runAsync(() -> {
+      mergeRangeService.createMergeRanges(tenantId);
+      processForConsortium(tenantId);
+    })
+      .thenRun(this::publishRecordsRange);
 
     log.info("full reindex process submitted");
   }
@@ -64,7 +61,8 @@ public class ReindexService {
           mergeRangeService.createMergeRanges(memberTenant));
       }
     } catch (FolioIntegrationException e) {
-      log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e);
+      log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
+      statusService.updateMergeRangesFailed();
     }
   }
 
@@ -77,7 +75,8 @@ public class ReindexService {
         try {
           inventoryService.publishReindexRecordsRange(rangeEntity);
         } catch (FolioIntegrationException e) {
-          log.error("Failed to publish records range entity [rangeEntity: {}]. Exception: {}", rangeEntity, e);
+          log.error("Failed to publish records range entity [rangeEntity: {}]. Exception: {}",
+            rangeEntity, e.getMessage());
           statusService.updateMergeRangesFailed();
           return;
         }

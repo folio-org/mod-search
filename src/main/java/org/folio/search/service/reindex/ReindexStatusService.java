@@ -29,8 +29,12 @@ public class ReindexStatusService {
     statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);
   }
 
+  public void updateMergeRangesFailed(List<ReindexEntityType> entityTypes) {
+    statusRepository.setReindexMergeFailed(entityTypes);
+  }
+
   public void updateMergeRangesFailed() {
-    statusRepository.setReindexMergeFailed(ReindexConstants.MERGE_RANGE_ENTITY_TYPES);
+    updateMergeRangesFailed(ReindexConstants.MERGE_RANGE_ENTITY_TYPES);
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(ReindexStatus status) {

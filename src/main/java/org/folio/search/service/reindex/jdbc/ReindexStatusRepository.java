@@ -10,6 +10,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.types.ReindexEntityType;
@@ -64,10 +65,13 @@ public class ReindexStatusRepository {
   }
 
   public void setReindexMergeFailed(List<ReindexEntityType> entityTypes) {
+    var inTypes = entityTypes.stream()
+      .map(ReindexEntityType::name)
+      .collect(Collectors.joining(",", "(", ")"));
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, "%s = ?".formatted(END_TIME_MERGE_COLUMN));
 
-    jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()), entityTypes);
+    jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()), inTypes);
   }
 
   public void saveReindexStatusRecords(List<ReindexStatusEntity> statusRecords) {

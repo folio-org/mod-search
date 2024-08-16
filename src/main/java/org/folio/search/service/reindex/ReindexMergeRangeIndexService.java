@@ -53,19 +53,20 @@ public class ReindexMergeRangeIndexService {
 
   public void createMergeRanges(String tenantId) {
     var repository = repositories.get(ReindexEntityType.INSTANCE);
-    try {
-      for (var recordType : InventoryRecordType.values()) {
+    for (var recordType : InventoryRecordType.values()) {
+      try {
         var recordsCount = inventoryService.fetchInventoryRecordCount(recordType);
         var rangeSize = reindexConfig.getMergeRangeSize();
         var ranges = constructRecordMergeRanges(recordsCount, rangeSize, recordType, tenantId);
 
         log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
         repository.saveMergeRanges(ranges);
+      } catch (FolioIntegrationException e) {
+        log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
+        statusService.updateMergeRangesFailed(List.of(asEntityType(recordType)));
       }
-    } catch (FolioIntegrationException e) {
-      log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e);
-      statusService.updateMergeRangesFailed();
     }
+
   }
 
   public List<MergeRangeEntity> fetchMergeRanges(ReindexEntityType entityType) {

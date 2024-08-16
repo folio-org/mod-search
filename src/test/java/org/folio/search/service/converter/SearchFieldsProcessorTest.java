@@ -7,8 +7,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -128,7 +128,7 @@ class SearchFieldsProcessorTest {
   @Test
   void getSearchFields_positive_rawMapResource() {
     var desc = description(null, mapOf(FIELD, searchField("mapFieldProcessor", "keyword")));
-    var ctx = ConversionContext.of(resourceEvent(RESOURCE_NAME, emptyMap()), desc, emptyList(), TENANT_ID);
+    var ctx = ConversionContext.of(resourceEvent(UNKNOWN, emptyMap()), desc, emptyList(), TENANT_ID);
     var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(mapOf(FIELD, "map_field"));
   }
@@ -147,7 +147,7 @@ class SearchFieldsProcessorTest {
   })
   void getSearchFields_negative_parameterized(String processorName, String type) {
     var desc = description(null, mapOf(FIELD, searchField(processorName, "keyword")));
-    var ctx = ConversionContext.of(resourceEvent(RESOURCE_NAME, mapOf("type", type)), desc, emptyList(), TENANT_ID);
+    var ctx = ConversionContext.of(resourceEvent(UNKNOWN, mapOf("type", type)), desc, emptyList(), TENANT_ID);
     var actual = searchFieldsProcessor.getSearchFields(ctx);
     assertThat(actual).isEqualTo(emptyMap());
   }
@@ -156,7 +156,7 @@ class SearchFieldsProcessorTest {
     var resourceDescription = new ResourceDescription();
     resourceDescription.setEventBodyJavaClass(clazz);
     resourceDescription.setSearchFields(searchFields);
-    resourceDescription.setName(RESOURCE_NAME);
+    resourceDescription.setName(UNKNOWN);
     return resourceDescription;
   }
 
@@ -201,20 +201,14 @@ class SearchFieldsProcessorTest {
     FieldProcessor<Map<String, Object>, Object> emptyValueProcessor() {
       return value -> {
         var type = MapUtils.getString(value, "type");
-        switch (type) {
-          case "array":
-            return new String[] { };
-          case "list":
-            return emptyList();
-          case "map":
-            return emptyMap();
-          case "set":
-            return emptySet();
-          case "string":
-            return "";
-          default:
-            return null;
-        }
+        return switch (type) {
+          case "array" -> new String[] { };
+          case "list" -> emptyList();
+          case "map" -> emptyMap();
+          case "set" -> emptySet();
+          case "string" -> "";
+          default -> null;
+        };
       };
     }
   }

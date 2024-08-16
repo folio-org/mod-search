@@ -42,7 +42,7 @@ public class ConsortiumSearchContext {
       }
     }
     if (sortBy != null && !ALLOWED_SORT_FIELDS.get(resourceType).contains(sortBy)) {
-      throw new RequestValidationException(SORT_NOT_ALLOWED_MSG.formatted(resourceType.getValue()), "sortBy", sortBy);
+      throw new RequestValidationException(SORT_NOT_ALLOWED_MSG.formatted(resourceType.getName()), "sortBy", sortBy);
     }
     if (sortBy != null && (filters.isEmpty())) {
       throw new RequestValidationException(FILTER_REQUIRED_MSG, null, null);

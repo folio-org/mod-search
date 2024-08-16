@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.authority;
 
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,7 +41,7 @@ public abstract class AbstractAuthorityProcessor implements FieldProcessor<Map<S
       return Optional.empty();
     }
 
-    return searchFieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, entry.getKey())
+    return searchFieldProvider.getPlainFieldByPath(AUTHORITY, entry.getKey())
       .filter(AuthorityFieldDescription.class::isInstance)
       .map(AuthorityFieldDescription.class::cast);
   }

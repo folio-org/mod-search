@@ -17,9 +17,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.exception.SearchOperationException;
@@ -27,22 +24,10 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
+import org.folio.search.model.types.ResourceType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
-
-  public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
-  public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
-  public static final String INSTANCE_CLASSIFICATION_RESOURCE = "instance_classification";
-  public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
-  public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
-  public static final String LOCATION_RESOURCE = "location";
-  public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
-  public static final String LINKED_DATA_WORK_RESOURCE = "linked-data-work";
-  public static final String LINKED_DATA_AUTHORITY_RESOURCE = "linked-data-authority";
-  public static final String CAMPUS_RESOURCE = "campus";
-  public static final String INSTITUTION_RESOURCE = "institution";
-  public static final String LIBRARY_RESOURCE = "library";
 
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";
@@ -147,6 +132,10 @@ public class SearchUtils {
    */
   public static String getIndexName(ResourceEvent event) {
     return getIndexName(event.getResourceName(), event.getTenant());
+  }
+
+  public static String getIndexName(ResourceType resource, String tenantId) {
+    return getIndexName(resource.getName(), tenantId);
   }
 
   /**

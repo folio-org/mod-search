@@ -16,7 +16,6 @@ import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
 import static org.folio.search.utils.SearchUtils.INSTANCE_CONTRIBUTORS_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -36,6 +35,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
 import org.folio.search.model.event.SubjectResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
@@ -84,7 +84,7 @@ public class KafkaMessageProducer {
     if (isUpdateEventForResourceSharing(event)) {
       if (Boolean.TRUE.equals(shared)) {
         log.warn("Update event for instance sharing is supposed to be for member tenant,"
-          + " but received for central tenant: {}, eventId: {}", tenantId, event.getId());
+                 + " but received for central tenant: {}, eventId: {}", tenantId, event.getId());
       }
       return prepareSubjectsEvents(oldSubjects, List.of(), tenantId, DELETE);
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
@@ -134,7 +134,7 @@ public class KafkaMessageProducer {
     var id = sha1Hex(stringForId); //NOSONAR
     subject.setId(id);
     var resourceEvent = new ResourceEvent().type(type).tenant(tenantId).id(id)
-      .resourceName(INSTANCE_SUBJECT_RESOURCE);
+      .resourceName(ResourceType.INSTANCE_SUBJECT.getName());
     var body = jsonConverter.convert(subject, Map.class);
     return type == CREATE ? resourceEvent._new(body) : resourceEvent.old(body);
   }
@@ -154,7 +154,7 @@ public class KafkaMessageProducer {
     if (isUpdateEventForResourceSharing(event)) {
       if (Boolean.TRUE.equals(shared)) {
         log.warn("Update event for instance sharing is supposed to be for member tenant,"
-          + " but received for central: {}", tenantId);
+                 + " but received for central: {}", tenantId);
       }
       return prepareContributorEvents(new HashSet<>(oldContributors), DELETE, tenantId);
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
@@ -213,7 +213,7 @@ public class KafkaMessageProducer {
 
   private String getContributorId(Contributor contributor) {
     return sha1Hex(contributor.getContributorNameTypeId() //NOSONAR
-      + "|" + toRootLowerCase(contributor.getName())
-      + "|" + contributor.getAuthorityId());
+                   + "|" + toRootLowerCase(contributor.getName())
+                   + "|" + contributor.getAuthorityId());
   }
 }

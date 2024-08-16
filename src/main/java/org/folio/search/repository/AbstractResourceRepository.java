@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.types.ResourceType;
 import org.opensearch.action.DocWriteRequest;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkRequest;
@@ -46,7 +47,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   }
 
   @Override
-  public FolioIndexOperationResponse deleteResourceByTenantId(String resource, String tenantId) {
+  public FolioIndexOperationResponse deleteResourceByTenantId(ResourceType resource, String tenantId) {
     var indexName = indexNameProvider.getIndexName(resource, tenantId);
     var request = new DeleteByQueryRequest(indexName);
     request.setQuery(termQuery(TENANT_ID_FIELD_NAME, tenantId));

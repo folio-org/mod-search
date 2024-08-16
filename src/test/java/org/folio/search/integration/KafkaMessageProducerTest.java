@@ -9,7 +9,6 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 import static org.folio.search.utils.SearchUtils.SOURCE_FIELD;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -26,6 +25,7 @@ import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ContributorResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
@@ -62,7 +62,7 @@ class KafkaMessageProducerTest {
     var instanceId = randomId();
     var oldSubjectObject = subjectObject("Medicine");
     var newSubjectObject = subjectObject("Anthropology");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithSubjects(instanceId, newSubjectObject),
       instanceObjectWithSubjects(instanceId, oldSubjectObject)
     );
@@ -77,7 +77,7 @@ class KafkaMessageProducerTest {
     var name = "Medicine";
     var oldContributorObject = subjectObject(name);
     var newContributorObject = subjectObject(name);
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithSubjects(instanceId, newContributorObject),
       instanceObjectWithSubjects(instanceId, oldContributorObject)
     );
@@ -93,7 +93,7 @@ class KafkaMessageProducerTest {
     var newContributorObject = subjectObject(name);
     Map<String, String> instanceObject = instanceObjectWithSubjects(instanceId, newContributorObject);
     instanceObject.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + instanceObject.get(SOURCE_FIELD));
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, instanceObject, null);
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, CREATE, instanceObject, null);
     producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
@@ -104,7 +104,7 @@ class KafkaMessageProducerTest {
   void shouldSendNoSubjectEvents_whenInstanceIdIsBlank(String instanceId) {
     var oldSubjectObject = subjectObject("Medicine");
     var newSubjectObject = subjectObject("Anthropology");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithSubjects(instanceId, newSubjectObject),
       instanceObjectWithSubjects(instanceId, oldSubjectObject)
     );
@@ -119,7 +119,7 @@ class KafkaMessageProducerTest {
     var name = "Medicine";
     var oldContributorObject = subjectObject(name);
     var newContributorObject = subjectObject(name);
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithSubjects(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO"),
       instanceObjectWithSubjects(instanceId, oldContributorObject, "FOLIO")
     );
@@ -147,7 +147,7 @@ class KafkaMessageProducerTest {
     var typeId = randomId();
     var oldContributorObject = contributorObject(typeId, "Vader, Dart");
     var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithContributors(instanceId, newContributorObject),
       instanceObjectWithContributors(instanceId, oldContributorObject)
     );
@@ -163,7 +163,7 @@ class KafkaMessageProducerTest {
     var typeId = randomId();
     var oldContributorObject = contributorObject(typeId, "Skywalker, Luke");
     var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithContributors(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO"),
       instanceObjectWithContributors(instanceId, oldContributorObject, "FOLIO")
     );
@@ -191,7 +191,7 @@ class KafkaMessageProducerTest {
     var instanceId = randomId();
     var typeId = randomId();
     var newContributorObject = contributorObject(typeId, "Skywalker, Luke");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE,
       instanceObjectWithContributors(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO")
     );
 
@@ -207,7 +207,7 @@ class KafkaMessageProducerTest {
     var name = "Vader, Dart";
     var oldContributorObject = contributorObject(typeId, name);
     var newContributorObject = contributorObject(typeId, name);
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithContributors(instanceId, newContributorObject),
       instanceObjectWithContributors(instanceId, oldContributorObject)
     );
@@ -224,7 +224,7 @@ class KafkaMessageProducerTest {
     var oldContributorObject = contributorObject(typeId, name);
     var newContributorObject = contributorObject(typeId, name);
     newContributorObject.put("contributorTypeText", "text");
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, UPDATE,
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
       instanceObjectWithContributors(instanceId, newContributorObject),
       instanceObjectWithContributors(instanceId, oldContributorObject)
     );
@@ -236,7 +236,7 @@ class KafkaMessageProducerTest {
   @Test
   void prepareAndSendContributorEvents_positive_instancesWithoutContributors() {
     var instanceId = randomId();
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, mapOf("id", instanceId), null);
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, CREATE, mapOf("id", instanceId), null);
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
@@ -246,7 +246,7 @@ class KafkaMessageProducerTest {
   void prepareAndSendContributorEvents_positive_contributorWithoutTypeNameId() {
     var instanceId = randomId();
     var instanceObject = instanceObjectWithContributors(instanceId, mapOf("name", "John Smith"));
-    var resourceEvent = resourceEvent(instanceId, INSTANCE_RESOURCE, CREATE, instanceObject, null);
+    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, CREATE, instanceObject, null);
     producer.prepareAndSendContributorEvents(singletonList(resourceEvent));
 
     verify(kafkaTemplate).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());

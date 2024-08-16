@@ -139,6 +139,10 @@ folio:
         concurrency: 2
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)
         group-id: ${folio.environment}-mod-search-events-group
+      instances:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
+        group-id: ${folio.environment}-mod-search-inventory-group
       authorities:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)authorities\.authority

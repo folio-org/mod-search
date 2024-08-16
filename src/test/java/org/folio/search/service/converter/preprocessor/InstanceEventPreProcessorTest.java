@@ -6,12 +6,12 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 import static org.folio.search.utils.SearchUtils.SOURCE_FIELD;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -80,7 +80,7 @@ class InstanceEventPreProcessorTest {
   void preProcess_ShadowInstance_ShouldNotProcessClassifications() {
     // Arrange
     var data = instance(randomId(), SOURCE_CONSORTIUM_PREFIX + "SOURCE", emptyList());
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, data);
+    var resourceEvent = resourceEvent(INSTANCE, data);
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);
@@ -97,7 +97,7 @@ class InstanceEventPreProcessorTest {
   void preProcess_FeatureIsDisabled_ShouldNotProcessClassifications() {
     // Arrange
     var data = instance(emptyList());
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, data);
+    var resourceEvent = resourceEvent(INSTANCE, data);
     mockClassificationBrowseFeatureEnabled(Boolean.FALSE);
 
     // Act
@@ -115,7 +115,7 @@ class InstanceEventPreProcessorTest {
     // Arrange
     var newData = instance(List.of(classification("n1", "t1"), classification("n2", "t2")));
     var oldData = instance(List.of(classification("n2", "t2"), classification("n1", "t1")));
-    var resourceEvent = resourceEvent(randomId(), INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    var resourceEvent = resourceEvent(randomId(), INSTANCE, UPDATE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
 
     // Act
@@ -133,7 +133,7 @@ class InstanceEventPreProcessorTest {
     // Arrange
     var id = randomId();
     var newData = instance(id, List.of(classification("n1", "t1"), classification("n2", "t2")));
-    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, CREATE, newData, null);
+    var resourceEvent = resourceEvent(id, INSTANCE, CREATE, newData, null);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
     when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
       .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
@@ -149,7 +149,7 @@ class InstanceEventPreProcessorTest {
       .hasSize(2)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant, ResourceEvent::getType)
-        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID, CREATE))
+        .containsExactly(INSTANCE_CLASSIFICATION.getName(), TENANT_ID, CREATE))
       .extracting(ResourceEvent::getId)
       .containsExactlyInAnyOrder("n1|t1", "n2|t2");
 
@@ -168,7 +168,7 @@ class InstanceEventPreProcessorTest {
     // Arrange
     var id = randomId();
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n2", "t2")));
-    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, DELETE, null, oldData);
+    var resourceEvent = resourceEvent(id, INSTANCE, DELETE, null, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
     when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
       .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
@@ -182,7 +182,7 @@ class InstanceEventPreProcessorTest {
       .hasSize(2)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
-        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
+        .containsExactly(INSTANCE_CLASSIFICATION.getName(), TENANT_ID))
       .extracting(ResourceEvent::getId, ResourceEvent::getType)
       .containsExactlyInAnyOrder(tuple("n1|t1", CREATE), tuple("n2|t2", DELETE));
 
@@ -202,7 +202,7 @@ class InstanceEventPreProcessorTest {
     var id = randomId();
     var newData = instance(id, List.of(classification("n1", "t1"), classification("n3", "t3")));
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n4", "t4")));
-    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, DELETE, newData, oldData);
+    var resourceEvent = resourceEvent(id, INSTANCE, DELETE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
     when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
       .thenReturn(List.of(new InstanceClassificationEntityAgg("t1", "n1",
@@ -218,7 +218,7 @@ class InstanceEventPreProcessorTest {
       .hasSize(3)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant)
-        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID))
+        .containsExactly(INSTANCE_CLASSIFICATION.getName(), TENANT_ID))
       .extracting(ResourceEvent::getId, ResourceEvent::getType)
       .containsExactlyInAnyOrder(tuple("n1|t1", CREATE), tuple("n3|t3", CREATE), tuple("n4|t4", DELETE));
 
@@ -243,7 +243,7 @@ class InstanceEventPreProcessorTest {
     var id = randomId();
     var newData = instance(id, List.of(classification("n1", "t1"), classification("n3", "t3")));
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n4", "t4")));
-    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, eventType, newData, oldData);
+    var resourceEvent = resourceEvent(id, INSTANCE, eventType, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
     when(consortiumTenantProvider.isCentralTenant(anyString())).thenReturn(true);
 
@@ -270,8 +270,8 @@ class InstanceEventPreProcessorTest {
   void preProcess_featureIsDisabledOnInstanceSharing_shouldNotProcessClassifications() {
     // Arrange
     var newData = instance(randomId(), SOURCE_CONSORTIUM_PREFIX + "FOLIO", null);
-    var oldData = instance(randomId(),  "FOLIO", null);
-    var resourceEvent = resourceEvent(randomId(), INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    var oldData = instance(randomId(), "FOLIO", null);
+    var resourceEvent = resourceEvent(randomId(), INSTANCE, UPDATE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.FALSE);
 
     // Act
@@ -289,8 +289,8 @@ class InstanceEventPreProcessorTest {
     // Arrange
     var id = randomId();
     var newData = instance(id, SOURCE_CONSORTIUM_PREFIX + "FOLIO", List.of(classification("n2", "t2")));
-    var oldData = instance(id,  "FOLIO", List.of(classification("n1", "t1")));
-    var resourceEvent = resourceEvent(randomId(), INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    var oldData = instance(id, "FOLIO", List.of(classification("n1", "t1")));
+    var resourceEvent = resourceEvent(randomId(), INSTANCE, UPDATE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
 
     // Act
@@ -310,8 +310,8 @@ class InstanceEventPreProcessorTest {
     var typeId = "type";
     var number = "num";
     var newData = instance(id, SOURCE_CONSORTIUM_PREFIX + "FOLIO", List.of(classification(number, typeId)));
-    var oldData = instance(id,  "FOLIO", List.of(classification(number, typeId)));
-    var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, UPDATE, newData, oldData);
+    var oldData = instance(id, "FOLIO", List.of(classification(number, typeId)));
+    var resourceEvent = resourceEvent(id, INSTANCE, UPDATE, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
     when(instanceClassificationRepository.fetchAggregatedByClassifications(anyList()))
       .thenReturn(List.of(
@@ -344,7 +344,7 @@ class InstanceEventPreProcessorTest {
       .hasSize(1)
       .allSatisfy(event -> assertThat(event)
         .extracting(ResourceEvent::getResourceName, ResourceEvent::getTenant, ResourceEvent::getType)
-        .containsExactly(INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID, UPDATE))
+        .containsExactly(INSTANCE_CLASSIFICATION.getName(), TENANT_ID, UPDATE))
       .extracting(ResourceEvent::getId)
       .containsExactlyInAnyOrder("num|type");
 

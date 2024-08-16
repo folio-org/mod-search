@@ -39,6 +39,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.metadata.LocalFileProvider;
@@ -140,7 +141,7 @@ class KafkaMessageListenerIT {
 
   @Test
   void handleInstanceEvents_positive_boundWithEvent() {
-    var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
+    var boundWithEvent = resourceEvent(null, ResourceType.INSTANCE, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
     var expectedEvent = instanceEvent()._new(boundWithEvent.getNew());
     resourceKafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
@@ -260,11 +261,11 @@ class KafkaMessageListenerIT {
   }
 
   private static ResourceEvent instanceEvent(String instanceId) {
-    return resourceEvent(instanceId, null, mapOf("id", instanceId));
+    return resourceEvent(instanceId, ResourceType.INSTANCE, mapOf("id", instanceId));
   }
 
   private static ResourceEvent authorityEvent(String id) {
-    return resourceEvent(id, null, mapOf("id", id)).id(id);
+    return resourceEvent(id, ResourceType.AUTHORITY, mapOf("id", id)).id(id);
   }
 
   @TestConfiguration

@@ -1,19 +1,41 @@
 package org.folio.search.model.types;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
 public enum ResourceType {
 
-  INSTANCE("instance"),
-  HOLDINGS("holdings"),
-  ITEM("item"),
   AUTHORITY("authority"),
-  CLASSIFICATION_TYPE("classification-type");
+  BOUND_WITH("bound_with"),
+  CAMPUS("campus"),
+  CLASSIFICATION_TYPE("classification-type"),
+  HOLDINGS("holdings"),
+  INSTANCE("instance"),
+  INSTANCE_CONTRIBUTOR("contributor"),
+  INSTANCE_CLASSIFICATION("instance_classification"),
+  INSTANCE_SUBJECT("instance_subject"),
+  INSTITUTION("institution"),
+  ITEM("item"),
+  LIBRARY("library"),
+  LINKED_DATA_AUTHORITY("linked-data-authority"),
+  LINKED_DATA_WORK("linked-data-work"),
+  LOCATION("location"),
+  UNKNOWN("unknown");
 
-  private final String value;
+  @JsonValue
+  private final String name;
 
-  ResourceType(String value) {
-    this.value = value;
+  ResourceType(String name) {
+    this.name = name;
+  }
+
+  public static ResourceType byName(String resourceName) {
+    for (ResourceType resourceType : values()) {
+      if (resourceType.name.equals(resourceName)) {
+        return resourceType;
+      }
+    }
+    return UNKNOWN;
   }
 }

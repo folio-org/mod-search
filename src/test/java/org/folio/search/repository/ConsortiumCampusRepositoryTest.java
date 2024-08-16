@@ -1,7 +1,7 @@
 package org.folio.search.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.repository.ConsortiumCampusRepository.CAMPUS_INDEX;
+import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -53,7 +53,7 @@ class ConsortiumCampusRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    lenient().when(indexNameProvider.getIndexName(CAMPUS_INDEX, TENANT_ID)).thenReturn(INDEX_NAME);
+    lenient().when(indexNameProvider.getIndexName(CAMPUS, TENANT_ID)).thenReturn(INDEX_NAME);
   }
 
   @Test

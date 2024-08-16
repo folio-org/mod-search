@@ -28,8 +28,8 @@ import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.Pair;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,7 +51,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   static void prepare() {
     setUpTenant(instances());
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var counted = countIndexDocument(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID);
+      var counted = countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID);
       assertThat(counted).isEqualTo(17);
     });
   }

@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 import java.util.Set;
+import org.folio.search.model.types.ResourceType;
 import org.opensearch.index.query.QueryBuilder;
 
 public interface TermQueryBuilder {
@@ -17,7 +18,7 @@ public interface TermQueryBuilder {
    * @param fields   resource fields name as {@code array} of {@link String} objects
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
+  default QueryBuilder getQuery(Object term, ResourceType resource, List<String> modifiers, String... fields) {
     throw unsupportedException(fields);
   }
 
@@ -30,7 +31,7 @@ public interface TermQueryBuilder {
    * @param modifiers search term modifiers
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
+  default QueryBuilder getFulltextQuery(Object term, String fieldName, ResourceType resource, List<String> modifiers) {
     throw unsupportedException(fieldName);
   }
 
@@ -43,7 +44,7 @@ public interface TermQueryBuilder {
    * @param fieldIndex field index mappings as {@link String} object
    * @return Elasticsearch {@link QueryBuilder} object
    */
-  default QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
+  default QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
     throw unsupportedException(fieldName);
   }
 

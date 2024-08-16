@@ -10,7 +10,6 @@ import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
@@ -273,7 +272,7 @@ class ConfigIT extends BaseIntegrationTest {
     kafkaTemplate.send(inventoryClassificationTopic(), typeId1.toString(), new ResourceEvent()
       .type(ResourceEventType.DELETE)
       .tenant(TENANT_ID)
-      .resourceName(ResourceType.CLASSIFICATION_TYPE.getValue())
+      .resourceName(ResourceType.CLASSIFICATION_TYPE.getName())
       .old(mapOf(ID_FIELD, typeId1.toString()))
     );
 
@@ -301,7 +300,7 @@ class ConfigIT extends BaseIntegrationTest {
     assertThat(referenceDataCache.get(cacheKey)).isNotNull();
 
     kafkaTemplate.send(inventoryClassificationTopic(), randomId(), new ResourceEvent()
-      .resourceName(ResourceType.CLASSIFICATION_TYPE.getValue())
+      .resourceName(ResourceType.CLASSIFICATION_TYPE.getName())
     );
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS)
@@ -312,7 +311,7 @@ class ConfigIT extends BaseIntegrationTest {
   private Map<String, Object> getIndexedInstanceById(String id) {
     final var searchRequest = new SearchRequest()
       .source(new SearchSourceBuilder().query(matchQuery("id", id)))
-      .indices(getIndexName(INSTANCE_RESOURCE, TENANT_ID));
+      .indices(getIndexName(ResourceType.INSTANCE, TENANT_ID));
 
     await().until(() -> elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT)
                           .getHits().getTotalHits().value > 0);

@@ -119,6 +119,10 @@ folio:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${folio.environment}-mod-search-events-group
+      instances:
+        concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
+        group-id: ${folio.environment}-mod-search-inventory-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}

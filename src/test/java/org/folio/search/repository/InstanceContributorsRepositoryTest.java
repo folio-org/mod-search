@@ -5,7 +5,6 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.model.types.IndexingDataFormat.SMILE;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -27,6 +26,7 @@ import java.util.Set;
 import lombok.SneakyThrows;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SmileConverter;
 import org.folio.spring.testing.type.UnitTest;
@@ -159,7 +159,7 @@ class InstanceContributorsRepositoryTest {
     var authorityId = randomId();
     var body = mapOf("id", id, "instanceId", instanceId, "name", "test", "nameTypeId", randomId(),
       "typeId", typeId, "authorityId", authorityId, "shared", true);
-    var event = resourceEvent(id, CONTRIBUTOR_RESOURCE, CREATE, body, null);
+    var event = resourceEvent(id, ResourceType.INSTANCE_CONTRIBUTOR, CREATE, body, null);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, INDEX);
   }
 

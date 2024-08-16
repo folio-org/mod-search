@@ -8,10 +8,10 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.client.CqlQueryParam.HOLDINGS_ID;
 import static org.folio.search.model.client.CqlQueryParam.ID;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -131,11 +131,11 @@ class RecordsIndexingIT extends BaseIntegrationTest {
     var authorityId = randomId();
     var authority = new Authority().id(authorityId).personalName("personal name")
       .corporateName("corporate name").uniformTitle("uniform title");
-    var resourceEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, toMap(authority));
+    var resourceEvent = resourceEvent(authorityId, AUTHORITY, toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
     assertCountByQuery(authoritySearchPath(), ID, List.of(authorityId), 3);
 
-    var deleteEvent = resourceEvent(authorityId, AUTHORITY_RESOURCE, null).type(DELETE).old(toMap(authority));
+    var deleteEvent = resourceEvent(authorityId, AUTHORITY, null).type(DELETE).old(toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
     assertCountByQuery(authoritySearchPath(), ID, List.of(authorityId), 0);
   }
@@ -172,7 +172,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("resourceName")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("invalid-resource")));
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknown")));
   }
 
   private static Item item(int i) {
@@ -227,7 +227,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
   }
 
   private boolean isInstanceSubjectExistsById(String subjectId) throws IOException {
-    var indexName = getIndexName(INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+    var indexName = getIndexName(INSTANCE_SUBJECT, TENANT_ID);
     var request = new GetRequest(indexName, subjectId);
     var documentById = restHighLevelClient.get(request, RequestOptions.DEFAULT);
     return documentById.isExists() && !documentById.isSourceEmpty();

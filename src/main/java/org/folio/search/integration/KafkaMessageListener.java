@@ -12,7 +12,6 @@ import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.List;
@@ -250,7 +249,7 @@ public class KafkaMessageListener {
   }
 
   private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    return consumerRecord.topic().endsWith("inventory." + INSTANCE_RESOURCE);
+    return consumerRecord.topic().endsWith("inventory.instance");
   }
 
   private static void logFailedEvent(ResourceEvent event, Exception e) {

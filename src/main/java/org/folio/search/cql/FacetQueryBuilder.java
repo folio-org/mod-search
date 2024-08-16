@@ -26,6 +26,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.Pair;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.CqlFacetRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
@@ -74,7 +75,7 @@ public class FacetQueryBuilder {
            : getTermsAggs(facet.getAggregationName(), facet, filterAndFacetTerms.getSecond());
   }
 
-  private void validateFacetField(Facet facet, String resource) {
+  private void validateFacetField(Facet facet, ResourceType resource) {
     var facetField = facet.getField();
     var facetFieldDescription = findFirst(searchFieldProvider.getFields(resource, facetField))
       .flatMap(fieldName -> getPlainFieldByPath(resource, fieldName))
@@ -86,12 +87,12 @@ public class FacetQueryBuilder {
     }
   }
 
-  private Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String fieldName) {
+  private Optional<PlainFieldDescription> getPlainFieldByPath(ResourceType resource, String fieldName) {
     return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
       .filter(fieldDescription -> fieldDescription.hasType(SearchType.FACET));
   }
 
-  private Facet getFacetFieldAndLimitAsPair(String resource, String facet) {
+  private Facet getFacetFieldAndLimitAsPair(ResourceType resource, String facet) {
     if (facet == null) {
       throw new RequestValidationException("Facet name cannot be null", FACET_KEY, null);
     }

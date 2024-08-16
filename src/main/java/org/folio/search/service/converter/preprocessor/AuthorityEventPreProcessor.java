@@ -4,11 +4,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.StreamSupport.stream;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.utils.CollectionUtils.toMap;
 import static org.folio.search.utils.SearchConverterUtils.copyEntityFields;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   @PostConstruct
   public void init() {
     log.debug("init:: PostConstruct stated");
-    var fields = resourceDescriptionService.get(AUTHORITY_RESOURCE);
+    var fields = resourceDescriptionService.get(AUTHORITY);
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
     for (var entry : fields.getFields().entrySet()) {

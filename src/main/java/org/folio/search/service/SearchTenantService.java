@@ -153,7 +153,7 @@ public class SearchTenantService extends TenantService {
   protected void afterTenantDeletion(TenantAttributes tenantAttributes) {
     var tenantId = context.getTenantId();
     callNumberBrowseRangeService.evictRangeCache(tenantId);
-    resourceDescriptionService.getResourceNames().forEach(name -> {
+    resourceDescriptionService.getResourceTypes().forEach(name -> {
       log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, tenantId);
       indexService.dropIndex(name, tenantId);
     });
@@ -163,7 +163,7 @@ public class SearchTenantService extends TenantService {
 
   private void createIndexesAndReindex(TenantAttributes tenantAttributes) {
     scriptService.saveScripts();
-    var resourceNames = resourceDescriptionService.getResourceNames();
+    var resourceNames = resourceDescriptionService.getResourceTypes();
     resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
     Stream.ofNullable(tenantAttributes.getParameters())
       .flatMap(Collection::stream)
@@ -172,7 +172,7 @@ public class SearchTenantService extends TenantService {
       .ifPresent(parameter -> resourceNames.forEach(resource -> {
         if (resourceDescriptionService.get(resource).isReindexSupported()) {
           indexService.reindexInventory(context.getTenantId(),
-            new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource)));
+            new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource.getName())));
         }
       }));
   }

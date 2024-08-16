@@ -3,9 +3,9 @@ package org.folio.search.service.browse;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
 import static org.folio.search.model.index.AuthRefType.REFERENCE;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
@@ -41,6 +41,43 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   private final ConsortiumSearchHelper consortiumSearchHelper;
 
   @Override
+  protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext ctx) {
+    log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, filters.size: {}]",
+      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true));
+
+    var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), ctx.getAnchor()));
+    ctx.getFilters().forEach(boolQuery::filter);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY);
+    return searchSource()
+      .query(query)
+      .from(0)
+      .size(ctx.getLimit(ctx.isBrowsingForward()))
+      .sort(fieldSort(request.getTargetField()))
+      .fetchSource(getIncludedSourceFields(request), null);
+  }
+
+  @Override
+  protected SearchSourceBuilder getSearchQuery(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
+    log.debug("getSearchQuery:: by [browseRequest.field: {}, filters.size: {}, isBrowsingForward: {}]",
+      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true), isBrowsingForward);
+
+    var boolQuery = boolQuery().filter(FILTER_QUERY);
+    ctx.getFilters().forEach(boolQuery::filter);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY);
+    return searchSource().query(query)
+      .searchAfter(new Object[] {getAnchorValue(request, ctx)})
+      .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
+      .size(ctx.getLimit(isBrowsingForward) + 1)
+      .fetchSource(getIncludedSourceFields(request), null)
+      .from(0);
+  }
+
+  @Override
+  protected AuthorityBrowseItem getEmptyBrowseItem(BrowseContext ctx) {
+    return new AuthorityBrowseItem().isAnchor(true).headingRef(ctx.getAnchor());
+  }
+
+  @Override
   protected BrowseResult<AuthorityBrowseItem> mapToBrowseResult(BrowseContext context, SearchResult<Authority> result,
                                                                 boolean isAnchor) {
     log.debug("mapToBrowseResult:: by [records.size: {}, isAnchor: {}]",
@@ -53,48 +90,13 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   }
 
   @Override
-  protected AuthorityBrowseItem getEmptyBrowseItem(BrowseContext ctx) {
-    return new AuthorityBrowseItem().isAnchor(true).headingRef(ctx.getAnchor());
-  }
-
-  @Override
-  protected SearchSourceBuilder getSearchQuery(BrowseRequest request, BrowseContext ctx, boolean isBrowsingForward) {
-    log.debug("getSearchQuery:: by [browseRequest.field: {}, filters.size: {}, isBrowsingForward: {}]",
-      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true), isBrowsingForward);
-
-    var boolQuery = boolQuery().filter(FILTER_QUERY);
-    ctx.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
-    return searchSource().query(query)
-      .searchAfter(new Object[] {getAnchorValue(request, ctx)})
-      .sort(fieldSort(request.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .size(ctx.getLimit(isBrowsingForward) + 1)
-      .fetchSource(getIncludedSourceFields(request), null)
-      .from(0);
-  }
-
-  @Override
-  protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext ctx) {
-    log.debug("getAnchorSearchQuery:: by [browseRequest.field: {}, filters.size: {}]",
-      request.getTargetField(), collectionToLogMsg(ctx.getFilters(), true));
-
-    var boolQuery = boolQuery().filter(FILTER_QUERY).must(termQuery(request.getTargetField(), ctx.getAnchor()));
-    ctx.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(boolQuery, AUTHORITY_RESOURCE);
-    return searchSource()
-      .query(query)
-      .from(0)
-      .size(ctx.getLimit(ctx.isBrowsingForward()))
-      .sort(fieldSort(request.getTargetField()))
-      .fetchSource(getIncludedSourceFields(request), null);
-  }
-
-  @Override
   protected String getValueForBrowsing(AuthorityBrowseItem browseItem) {
     return browseItem.getHeadingRef();
   }
 
   private String[] getIncludedSourceFields(BrowseRequest request) {
-    return isFalse(request.getExpandAll()) ? searchFieldProvider.getSourceFields(request.getResource(), BROWSE) : null;
+    return isFalse(request.getExpandAll())
+           ? searchFieldProvider.getSourceFields(request.getResource(), BROWSE)
+           : null;
   }
 }

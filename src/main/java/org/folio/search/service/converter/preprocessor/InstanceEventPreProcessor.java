@@ -14,7 +14,6 @@ import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResour
 import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.index.ClassificationResource;
 import org.folio.search.model.index.InstanceSubResource;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
@@ -198,7 +198,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
     return new ResourceEvent()
       .id(id)
       .tenant(tenant)
-      .resourceName(INSTANCE_CLASSIFICATION_RESOURCE)
+      .resourceName(ResourceType.INSTANCE_CLASSIFICATION.getName())
       .type(eventType)
       ._new(jsonConverter.convertToMap(resource));
   }

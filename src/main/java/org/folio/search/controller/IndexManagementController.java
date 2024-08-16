@@ -13,6 +13,7 @@ import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
@@ -40,7 +41,7 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
-    return ResponseEntity.ok(indexService.createIndex(request.getResourceName(), tenantId));
+    return ResponseEntity.ok(indexService.createIndex(ResourceType.byName(request.getResourceName()), tenantId));
   }
 
   @Override
@@ -70,13 +71,13 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<FolioIndexOperationResponse> updateIndexDynamicSettings(
     String tenantId, UpdateIndexDynamicSettingsRequest request) {
-    return ResponseEntity.ok(indexService.updateIndexSettings(request.getResourceName(), tenantId,
+    return ResponseEntity.ok(indexService.updateIndexSettings(ResourceType.byName(request.getResourceName()), tenantId,
       request.getIndexSettings()));
   }
 
   @Override
   public ResponseEntity<FolioIndexOperationResponse> updateMappings(String tenantId, UpdateMappingsRequest request) {
-    return ResponseEntity.ok(indexService.updateMappings(request.getResourceName(), tenantId));
+    return ResponseEntity.ok(indexService.updateMappings(ResourceType.byName(request.getResourceName()), tenantId));
   }
 
   @Override

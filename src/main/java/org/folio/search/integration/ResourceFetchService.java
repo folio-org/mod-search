@@ -5,9 +5,9 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,7 +64,7 @@ public class ResourceFetchService {
   private static ResourceEvent mapToResourceEvent(String tenantId, Map<String, Object> instanceMap,
                                                   Map<String, List<ResourceEvent>> eventsById) {
     var id = getResourceEventId(instanceMap);
-    var resourceEvent = new ResourceEvent().id(id).resourceName(INSTANCE_RESOURCE)._new(instanceMap).tenant(tenantId);
+    var resourceEvent = new ResourceEvent().id(id).resourceName(INSTANCE.getName())._new(instanceMap).tenant(tenantId);
     var lastElement = findLast(eventsById.get(id));
     if (lastElement.isEmpty()) {
       log.warn("Source event by id not found after fetching, returning fetched value [instanceId: {}]", id);

@@ -3,11 +3,7 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTITUTION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,11 +25,12 @@ import org.folio.search.model.dto.locationunit.CampusDto;
 import org.folio.search.model.dto.locationunit.InstitutionDto;
 import org.folio.search.model.dto.locationunit.LibraryDto;
 import org.folio.search.model.service.ResultList;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -47,20 +44,21 @@ class LocationServiceTest {
   private @Mock ReindexConfigurationProperties properties;
   private @Mock LocationsClient client;
   private @Mock ResourceService resourceService;
-  @InjectMocks
-  private LocationService service;
+  private @InjectMocks LocationService service;
 
   @ParameterizedTest
-  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE})
-  void reindex_locationsData_positive(String resourceName) {
+  @EnumSource(value = ResourceType.class,
+              names = {"LOCATION", "CAMPUS", "LIBRARY", "INSTITUTION"},
+              mode = EnumSource.Mode.INCLUDE)
+  void reindex_locationsData_positive(ResourceType resource) {
     var batchSize = 3;
-    var locationsDataMockPart1 = locationsData(resourceName, 3);
-    var locationsDataMockPart2 = locationsData(resourceName, 2);
+    var locationsDataMockPart1 = locationsData(resource, 3);
+    var locationsDataMockPart2 = locationsData(resource, 2);
     var locationsDataMock = Stream.concat(locationsDataMockPart1.stream(), locationsDataMockPart2.stream()).toList();
-    var uri = LocationsClient.DocumentType.valueOf(resourceName.toUpperCase()).getUri();
+    var uri = LocationsClient.DocumentType.valueOf(resource.getName().toUpperCase()).getUri();
 
     when(properties.getLocationBatchSize())
-        .thenReturn(batchSize);
+      .thenReturn(batchSize);
 
     when(client.getLocationsData(uri, 0, batchSize))
       .thenReturn(documentsResult(locationsDataMockPart1, locationsDataMock.size()));
@@ -70,10 +68,10 @@ class LocationServiceTest {
     when(resourceService.indexResources(any()))
       .thenReturn(getSuccessIndexOperationResponse());
 
-    service.reindex(TENANT_ID, resourceName);
+    service.reindex(TENANT_ID, resource);
 
     log.info("reindex_locationData_positive-{}:\n[\n\tbatchSize: {}\n\tmock: {}\n]",
-      resourceName, batchSize, locationsDataMock);
+      resource, batchSize, locationsDataMock);
 
     var captor = ArgumentCaptor.<List<ResourceEvent>>captor();
     verify(resourceService, times(2)).indexResources(captor.capture());
@@ -85,7 +83,7 @@ class LocationServiceTest {
     assertThat(captured)
       .hasSize(locationsDataMock.size())
       .allMatch(resourceEvent -> resourceEvent.getTenant().equals(TENANT_ID))
-      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(resourceName))
+      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(resource.getName()))
       .extracting(ResourceEvent::getNew)
       .containsAll(locationsDataMock);
 
@@ -94,7 +92,7 @@ class LocationServiceTest {
       .toList();
 
     log.info("reindex_locationData_positive-{}:\n[\n\texpectedResourceIds: {}\n]",
-      resourceName, expectedResourceIds);
+      resource, expectedResourceIds);
 
     assertThat(captured)
       .extracting(ResourceEvent::getId)
@@ -102,13 +100,15 @@ class LocationServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {LOCATION_RESOURCE, CAMPUS_RESOURCE, LIBRARY_RESOURCE, INSTITUTION_RESOURCE})
-  void reindex_locationsData_negative_indexingError(String resourceName) {
+  @EnumSource(value = ResourceType.class,
+              names = {"LOCATION", "CAMPUS", "LIBRARY", "INSTITUTION"},
+              mode = EnumSource.Mode.INCLUDE)
+  void reindex_locationsData_negative_indexingError(ResourceType resource) {
     var batchSize = 2;
-    var locationsDataMock = locationsData(resourceName, 2);
+    var locationsDataMock = locationsData(resource, 2);
     var error = "error";
 
-    var uri = LocationsClient.DocumentType.valueOf(resourceName.toUpperCase()).getUri();
+    var uri = LocationsClient.DocumentType.valueOf(resource.getName().toUpperCase()).getUri();
     when(properties.getLocationBatchSize())
       .thenReturn(batchSize);
     when(client.getLocationsData(uri, 0, batchSize))
@@ -116,32 +116,32 @@ class LocationServiceTest {
     when(resourceService.indexResources(any()))
       .thenReturn(getErrorIndexOperationResponse(error));
 
-    var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, resourceName));
+    var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, resource));
 
     log.info("reindex_locationData_negative_indexingError-{}:\n[\n\tbatchSize: {}\n\tmock: {}\n\terror: {}\n]",
-      resourceName, batchSize, locationsDataMock, ex.getMessage());
+      resource, batchSize, locationsDataMock, ex.getMessage());
 
     assertThat(ex.getMessage()).isEqualTo(String.format("Indexing failed: %s", error));
   }
 
-  private List<Map<String, Object>> locationsData(String resourceName, int count) {
+  private List<Map<String, Object>> locationsData(ResourceType resourceName, int count) {
     return Stream.iterate(0, i -> i < count, i -> ++i)
       .map(i -> locationsDataDto(resourceName, i))
       .map(TestUtils::toMap)
       .toList();
   }
 
-  private Object locationsDataDto(String resourceName, int i) {
+  private Object locationsDataDto(ResourceType resourceType, int i) {
     var id = randomId();
-    var name = String.format("%s name%d", resourceName, i);
+    var name = String.format("%s name%d", resourceType.getName(), i);
     var code = String.format("CODE%d", i);
 
-    return switch (resourceName) {
-      case LOCATION_RESOURCE -> LocationDto.builder().id(id).name(name).code(code).build();
-      case CAMPUS_RESOURCE -> CampusDto.builder().id(id).name(name).code(code).institutionId(randomId()).build();
-      case LIBRARY_RESOURCE -> LibraryDto.builder().id(id).name(name).code(code).campusId(randomId()).build();
-      case INSTITUTION_RESOURCE -> InstitutionDto.builder().id(id).name(name).code(code).build();
-      default -> throw new IllegalStateException("Unsupported document type: " + resourceName);
+    return switch (resourceType) {
+      case LOCATION -> LocationDto.builder().id(id).name(name).code(code).build();
+      case CAMPUS -> CampusDto.builder().id(id).name(name).code(code).institutionId(randomId()).build();
+      case LIBRARY -> LibraryDto.builder().id(id).name(name).code(code).campusId(randomId()).build();
+      case INSTITUTION -> InstitutionDto.builder().id(id).name(name).code(code).build();
+      default -> throw new IllegalStateException("Unsupported document type: " + resourceType);
     };
   }
 

@@ -37,8 +37,8 @@ import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.Pair;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,7 +73,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
-        .indices(getIndexName(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, CENTRAL_TENANT_ID));
+        .indices(getIndexName(ResourceType.INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(17);
     });

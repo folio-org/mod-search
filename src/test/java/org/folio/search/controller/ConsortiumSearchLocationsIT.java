@@ -7,9 +7,9 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.sample.SampleLocations.getLocationsSampleAsMap;
 import static org.folio.search.support.base.ApiEndpoints.consortiumLocationsSearchPath;
-import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryLocationTopic;
@@ -69,7 +69,7 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getLocations())
       .map(ConsortiumLocation::getMetadata)
       .filteredOn(metadata -> metadata.getCreatedDate() != null && metadata.getUpdatedDate() != null)
-        .hasSize(14);
+      .hasSize(14);
 
     assertThat(actual.getLocations())
       .filteredOn(location -> "true".equals(location.getIsActive()) && isNotEmpty(location.getServicePointIds()))
@@ -106,7 +106,7 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
       .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(LOCATION, CENTRAL_TENANT_ID);
       assertThat(totalHits).isEqualTo(14);
     });
   }

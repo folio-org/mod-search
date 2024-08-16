@@ -8,7 +8,6 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
@@ -31,6 +30,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Log4j2
@@ -54,14 +54,14 @@ public class InventoryApi {
 
     var instanceEvent = kafkaResourceEvent(tenantId, CREATE, instance, null);
     kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
-        .whenComplete((stringResourceEventSendResult, throwable) -> {
-          if (throwable != null) {
-            log.error("Failed sending instance resource event", throwable);
-          } else {
-            var topic = stringResourceEventSendResult.getRecordMetadata().topic();
-            log.info("Succeeded sending instance resource event to topic: {}", topic);
-          }
-        });
+      .whenComplete((stringResourceEventSendResult, throwable) -> {
+        if (throwable != null) {
+          log.error("Failed sending instance resource event", throwable);
+        } else {
+          var topic = stringResourceEventSendResult.getRecordMetadata().topic();
+          log.info("Succeeded sending instance resource event to topic: {}", topic);
+        }
+      });
     createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
     createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
   }
@@ -84,7 +84,7 @@ public class InventoryApi {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
     kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
-      resourceEvent(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
+      resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE));
   }
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
@@ -111,14 +111,6 @@ public class InventoryApi {
     kafkaTemplate.send(inventoryItemTopic(tenant), item.getInstanceId(), resourceEvent);
   }
 
-  @SuppressWarnings("unchecked")
-  private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
-    var resourcesByKey = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
-    if (CollectionUtils.isNotEmpty(resourcesByKey)) {
-      resourcesByKey.forEach(consumer);
-    }
-  }
-
   public static Optional<Map<String, Object>> getInventoryView(String tenant, String id) {
     var instance = INSTANCE_STORE.getOrDefault(tenant, emptyMap()).get(id);
 
@@ -135,6 +127,14 @@ public class InventoryApi {
     return Optional.ofNullable(instance)
       .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))
       .map(inst -> putField(inst, INSTANCE_ITEM_FIELD_NAME, items));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
+    var resourcesByKey = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
+    if (CollectionUtils.isNotEmpty(resourcesByKey)) {
+      resourcesByKey.forEach(consumer);
+    }
   }
 
   private static Map<String, Object> putField(Map<String, Object> instance, String key, Object subResources) {

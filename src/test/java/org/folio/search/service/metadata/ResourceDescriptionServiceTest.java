@@ -3,8 +3,10 @@ package org.folio.search.service.metadata;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.objectField;
@@ -42,7 +44,6 @@ import org.springframework.context.annotation.Import;
 class ResourceDescriptionServiceTest {
 
   private static final String FIELD = "field";
-  private static final String SECONDARY_RESOURCE_NAME = "secondary";
 
   @Autowired
   private ResourceDescriptionService descriptionService;
@@ -52,32 +53,32 @@ class ResourceDescriptionServiceTest {
   @BeforeEach
   void setUp() {
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(
-      resourceDescription(), secondaryResourceDescription(SECONDARY_RESOURCE_NAME, RESOURCE_NAME)));
+      resourceDescription(), secondaryResourceDescription(INSTANCE_SUBJECT, INSTANCE)));
     descriptionService.init();
   }
 
   @Test
   void get_positive() {
-    var actual = descriptionService.get(RESOURCE_NAME);
+    var actual = descriptionService.get(INSTANCE);
     assertThat(actual).isEqualTo(resourceDescription());
   }
 
   @Test
   void get_negative() {
-    assertThatThrownBy(() -> descriptionService.get("not_existing_resource"))
+    assertThatThrownBy(() -> descriptionService.get(UNKNOWN))
       .isInstanceOf(ResourceDescriptionException.class)
-      .hasMessage("Resource description not found [resourceName: not_existing_resource]");
+      .hasMessage("Resource description not found [resourceType: unknown]");
   }
 
   @Test
   void find_positive() {
-    var actual = descriptionService.find(RESOURCE_NAME);
+    var actual = descriptionService.find(INSTANCE);
     assertThat(actual).isEqualTo(Optional.of(resourceDescription()));
   }
 
   @Test
   void find_negative() {
-    var actual = descriptionService.find("unknown");
+    var actual = descriptionService.find(UNKNOWN);
     assertThat(actual).isEmpty();
   }
 
@@ -85,13 +86,13 @@ class ResourceDescriptionServiceTest {
   void findAll_positive() {
     var actual = descriptionService.findAll();
     assertThat(actual).containsExactlyInAnyOrder(
-      resourceDescription(), secondaryResourceDescription(SECONDARY_RESOURCE_NAME, RESOURCE_NAME));
+      resourceDescription(), secondaryResourceDescription(INSTANCE_SUBJECT, INSTANCE));
   }
 
   @Test
-  void getResourceNames_positive() {
-    var actual = descriptionService.getResourceNames();
-    assertThat(actual).containsExactly(RESOURCE_NAME, SECONDARY_RESOURCE_NAME);
+  void getResourceTypes_positive() {
+    var actual = descriptionService.getResourceTypes();
+    assertThat(actual).containsExactly(INSTANCE, INSTANCE_SUBJECT);
   }
 
   @Test
@@ -99,7 +100,7 @@ class ResourceDescriptionServiceTest {
     var resourceDescription = resourceDescription(null, Map.of(FIELD, searchField("testProcessor")));
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     descriptionService.init();
-    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields()).containsKey(FIELD);
+    assertThat(descriptionService.get(INSTANCE).getSearchFields()).containsKey(FIELD);
   }
 
   @Test
@@ -108,7 +109,7 @@ class ResourceDescriptionServiceTest {
     var resourceDescription = resourceDescription(TestEntityClass.class, searchFields);
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     descriptionService.init();
-    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields()).containsKey(FIELD);
+    assertThat(descriptionService.get(INSTANCE).getSearchFields()).containsKey(FIELD);
   }
 
   @Test
@@ -118,7 +119,7 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.init())
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Found error(s) in resource description(s):\n"
-        + "test-resource: ('Field processor not found [field: 'field', processorName: 'unknownProcessor']')");
+        + "instance: ('Field processor not found [field: 'field', processorName: 'unknownProcessor']')");
   }
 
   @Test
@@ -129,7 +130,7 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.init())
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Found error(s) in resource description(s):\n"
-        + "test-resource: ("
+        + "instance: ("
         + "'Generic class for field processor not found [field: 'field1', processorName: 'unresolvedGenerics']', "
         + "'Generic class for field processor not found [field: 'field2', processorName: 'unresolvedGenerics']')");
   }
@@ -142,7 +143,7 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.init())
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Found error(s) in resource description(s):\n"
-        + "test-resource: ("
+        + "instance: ("
         + "'Generic class for field processor not found [field: 'field1', processorName: 'unresolvedGenerics']', "
         + "'Generic class for field processor not found [field: 'field2', processorName: 'unresolvedGenerics']')");
   }
@@ -154,7 +155,7 @@ class ResourceDescriptionServiceTest {
     assertThatThrownBy(() -> descriptionService.init())
       .isInstanceOf(ResourceDescriptionException.class)
       .hasMessage("Found error(s) in resource description(s):\n"
-        + "test-resource: ('Invalid generic type in field processor, "
+        + "instance: ('Invalid generic type in field processor, "
         + "must be instance of 'org.folio.search.service.metadata.ResourceDescriptionServiceTest$TestEntityClass'"
         + ", resolved value was 'java.util.Map' [field: 'field', processorName: 'testProcessor']')");
   }
@@ -166,13 +167,13 @@ class ResourceDescriptionServiceTest {
     var resourceDescription = resourceDescription(TestEntityClass.class, mapOf(FIELD, testProcessor));
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
     descriptionService.init();
-    assertThat(descriptionService.get(RESOURCE_NAME).getSearchFields()).containsKey(FIELD);
+    assertThat(descriptionService.get(INSTANCE).getSearchFields()).containsKey(FIELD);
   }
 
   @Test
-  void getSecondaryResourceNames_positive() {
-    var actual = descriptionService.getSecondaryResourceNames(RESOURCE_NAME);
-    assertThat(actual).isEqualTo(List.of(SECONDARY_RESOURCE_NAME));
+  void getSecondaryResourceTypes_positive() {
+    var actual = descriptionService.getSecondaryResourceTypes(INSTANCE);
+    assertThat(actual).isEqualTo(List.of(INSTANCE_SUBJECT));
   }
 
   private static Map<String, FieldDescription> resourceDescriptionFields() {

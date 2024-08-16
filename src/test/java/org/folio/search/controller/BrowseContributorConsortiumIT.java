@@ -32,8 +32,8 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +74,7 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
     inventoryApi.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var counted = countIndexDocument(SearchUtils.CONTRIBUTOR_RESOURCE, CENTRAL_TENANT_ID);
+      var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID);
       assertThat(counted).isEqualTo(12);
     });
   }
@@ -98,7 +98,7 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
   void browseByContributor_shared() {
     var request = get(instanceContributorBrowsePath()).param("query",
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-        + "and instances.shared==true").param("limit", "5");
+      + "and instances.shared==true").param("limit", "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
@@ -119,7 +119,7 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
   void browseByContributor_local() {
     var request = get(instanceContributorBrowsePath()).param("query",
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-        + "and instances.shared==false").param("limit", "5");
+      + "and instances.shared==false").param("limit", "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
@@ -131,7 +131,6 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual).isEqualTo(expected);
   }
-
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(

@@ -1,7 +1,7 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -57,7 +57,7 @@ class FacetServiceTest {
     var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)
       .query(boolQuery().must(matchQuery));
 
-    when(cqlSearchQueryConverter.convertForConsortia(QUERY, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
+    when(cqlSearchQueryConverter.convertForConsortia(QUERY, UNKNOWN)).thenReturn(searchSource().query(boolQuery));
     when(facetQueryBuilder.getFacetAggregations(request, boolQuery)).thenReturn(List.of(sourceAggregation));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);
@@ -77,12 +77,12 @@ class FacetServiceTest {
     String query = "%s==(\"%s\") and %s==(\"%s\")".formatted(filterToKeep1, uuid, filterToKeep2, tenant);
     var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()))
       .must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()));
-    var request = defaultFacetServiceRequest(RESOURCE_NAME, query, "holdings.tenantId:6");
+    var request = defaultFacetServiceRequest(UNKNOWN, query, "holdings.tenantId:6");
     var sourceAggregation = AggregationBuilders.terms("source").field("source").size(Integer.MAX_VALUE);
     var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)
       .query(boolQuery);
 
-    when(cqlSearchQueryConverter.convertForConsortia(query, RESOURCE_NAME)).thenReturn(searchSource().query(boolQuery));
+    when(cqlSearchQueryConverter.convertForConsortia(query, UNKNOWN)).thenReturn(searchSource().query(boolQuery));
     when(facetQueryBuilder.getFacetAggregations(request, boolQuery)).thenReturn(List.of(sourceAggregation));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);
@@ -101,7 +101,7 @@ class FacetServiceTest {
     searchSource.sorts().clear();
     var cqlQuerySearchSource = searchSource().query(query).sort("title_sort");
 
-    when(cqlSearchQueryConverter.convertForConsortia(QUERY, RESOURCE_NAME)).thenReturn(cqlQuerySearchSource);
+    when(cqlSearchQueryConverter.convertForConsortia(QUERY, UNKNOWN)).thenReturn(cqlQuerySearchSource);
     when(facetQueryBuilder.getFacetAggregations(request, query)).thenReturn(List.of(sourceAgg));
     when(searchRepository.search(request, searchSource)).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregations);
@@ -112,6 +112,6 @@ class FacetServiceTest {
   }
 
   private static CqlFacetRequest facetRequest(String... facetNames) {
-    return defaultFacetServiceRequest(RESOURCE_NAME, QUERY, facetNames);
+    return defaultFacetServiceRequest(UNKNOWN, QUERY, facetNames);
   }
 }

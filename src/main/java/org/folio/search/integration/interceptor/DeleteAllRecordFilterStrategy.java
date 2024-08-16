@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,8 @@ public class DeleteAllRecordFilterStrategy implements RecordFilterStrategy<Strin
   public boolean filter(ConsumerRecord<String, ResourceEvent> consumerRecord) {
     var resourceEvent = consumerRecord.value();
     if (ResourceEventType.DELETE_ALL == resourceEvent.getType()) {
-      primaryResourceRepository.deleteResourceByTenantId(resourceEvent.getResourceName(), resourceEvent.getTenant());
+      var resourceType = ResourceType.byName(resourceEvent.getResourceName());
+      primaryResourceRepository.deleteResourceByTenantId(resourceType, resourceEvent.getTenant());
       return true;
     }
     return false;

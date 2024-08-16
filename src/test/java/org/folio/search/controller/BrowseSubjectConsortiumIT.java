@@ -7,6 +7,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
@@ -36,7 +37,6 @@ import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -71,7 +71,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
-        .indices(getIndexName(SearchUtils.INSTANCE_SUBJECT_RESOURCE, CENTRAL_TENANT_ID));
+        .indices(getIndexName(INSTANCE_SUBJECT, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(23);
       System.out.println("Resulted subjects");
@@ -84,6 +84,59 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
   @AfterAll
   static void cleanUp() {
     removeTenant();
+  }
+
+  @Test
+  void browseBySubject_browsingAround_shared() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", "("
+                      + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
+                      + "and instances.shared==true")
+      .param("limit", "5")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(10).prev("Music").next(null)
+      .items(List.of(
+        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
+        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
+        subjectBrowseItem(1, "Rules", true),
+        subjectBrowseItem(1, "Text"),
+        subjectBrowseItem(1, "United States"))));
+  }
+
+  @Test
+  void browseBySubject_browsingAround_local() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", "("
+                      + prepareQuery("value < {value} or value >= {value}", "\"Science\"") + ") "
+                      + "and instances.shared==false")
+      .param("limit", "5")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(15).prev("Philosophy").next("Science--Philosophy")
+      .items(List.of(
+        subjectBrowseItem(1, "Philosophy"),
+        subjectBrowseItem(1, "Religion"),
+        subjectBrowseItem(1, "Science", true),
+        subjectBrowseItem(1, "Science--Methodology"),
+        subjectBrowseItem(1, "Science--Philosophy"))));
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForSubjects_parameterized")
+  void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
   }
 
   private static Instance[] instancesCentral() {
@@ -139,58 +192,5 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 15),
           facetItem(CENTRAL_TENANT_ID, 10))))
     );
-  }
-
-  @Test
-  void browseBySubject_browsingAround_shared() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", "("
-        + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
-        + "and instances.shared==true")
-      .param("limit", "5")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(10).prev("Music").next(null)
-      .items(List.of(
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
-        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
-        subjectBrowseItem(1, "Rules", true),
-        subjectBrowseItem(1, "Text"),
-        subjectBrowseItem(1, "United States"))));
-  }
-
-  @Test
-  void browseBySubject_browsingAround_local() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", "("
-        + prepareQuery("value < {value} or value >= {value}", "\"Science\"") + ") "
-        + "and instances.shared==false")
-      .param("limit", "5")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(15).prev("Philosophy").next("Science--Philosophy")
-      .items(List.of(
-        subjectBrowseItem(1, "Philosophy"),
-        subjectBrowseItem(1, "Religion"),
-        subjectBrowseItem(1, "Science", true),
-        subjectBrowseItem(1, "Science--Methodology"),
-        subjectBrowseItem(1, "Science--Philosophy"))));
-  }
-
-  @MethodSource("facetQueriesProvider")
-  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
-  @DisplayName("getFacetsForSubjects_parameterized")
-  void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
-
-    expected.forEach((facetName, expectedFacet) -> {
-      var actualFacet = actual.getFacets().get(facetName);
-
-      assertThat(actualFacet).isNotNull();
-      assertThat(actualFacet.getValues())
-        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
-    });
   }
 }

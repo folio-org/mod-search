@@ -37,6 +37,7 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
 import org.folio.search.model.types.IndexActionType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
@@ -189,7 +190,8 @@ public class ResourceService {
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {
     var eventsByRepository = eventsByResource.entrySet().stream().collect(groupingBy(
-      entry -> getIndexingRepositoryName(entry.getKey()), flatMapping(entry -> entry.getValue().stream(), toList())));
+      entry -> getIndexingRepositoryName(ResourceType.byName(entry.getKey())),
+      flatMapping(entry -> entry.getValue().stream(), toList())));
 
     var responses = new ArrayList<FolioIndexOperationResponse>();
     var primaryResources = eventsByRepository.get(PRIMARY_INDEXING_REPOSITORY_NAME);
@@ -269,7 +271,7 @@ public class ResourceService {
     return resultMap;
   }
 
-  private String getIndexingRepositoryName(String resourceName) {
+  private String getIndexingRepositoryName(ResourceType resourceName) {
     return resourceDescriptionService.find(resourceName)
       .map(ResourceDescription::getIndexingConfiguration)
       .map(ResourceIndexingConfiguration::getResourceRepository)

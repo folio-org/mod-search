@@ -7,7 +7,6 @@ import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -34,6 +33,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +89,7 @@ class CallNumberBrowseServiceTest {
   @BeforeEach
   void setUp() {
     callNumberBrowseService.setBrowseContextProvider(browseContextProvider);
-    lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList(ANCHOR));
   }
@@ -185,7 +185,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_around_highlightMatchWithSuffix(String callNumber) {
     var request = request(String.format("callNumber >= %s or callNumber < %s", callNumber, callNumber), true);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, callNumber));
     lenient().when(shelvingOrderProcessor.getSearchTerms(callNumber)).thenReturn(newArrayList(callNumber));
 
@@ -264,7 +264,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_multipleAnchors() {
     var request = request("callNumber >= B or callNumber < B", true);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("A", "B"));
     when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn("A");
@@ -446,7 +446,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true, 2, 5);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(ANCHOR);
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("B"));
@@ -558,7 +558,7 @@ class CallNumberBrowseServiceTest {
 
   private static BrowseRequest request(String query, String browsingField, boolean highlightMatch,
                                        String callNumberType, int precedingCount, int limit) {
-    return BrowseRequest.builder().tenantId(TENANT_ID).resource(RESOURCE_NAME)
+    return BrowseRequest.builder().tenantId(TENANT_ID).resource(ResourceType.INSTANCE)
       .query(query)
       .highlightMatch(highlightMatch)
       .expandAll(false)

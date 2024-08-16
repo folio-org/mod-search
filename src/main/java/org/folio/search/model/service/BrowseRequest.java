@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.types.ResourceType;
 
 @Data
 @Builder
@@ -14,7 +15,7 @@ public class BrowseRequest implements ResourceRequest {
   /**
    * Resource name.
    */
-  private final String resource;
+  private final ResourceType resource;
 
   /**
    * Request tenant id.
@@ -66,14 +67,14 @@ public class BrowseRequest implements ResourceRequest {
    */
   private final Integer precedingRecordsCount;
 
-  public static BrowseRequest of(String resource, String tenantId, String query, Integer limit, String targetField,
-                                 String subField, Boolean expandAll, Boolean highlightMatch,
+  public static BrowseRequest of(ResourceType resource, String tenantId, String query, Integer limit,
+                                 String targetField, String subField, Boolean expandAll, Boolean highlightMatch,
                                  Integer precedingRecordsCount) {
     return new BrowseRequest(resource, tenantId, null, query, limit, targetField, subField, null, expandAll,
       highlightMatch, precedingRecordsCount);
   }
 
-  public static BrowseRequest of(String resource, String tenantId, BrowseOptionType optionType, String query,
+  public static BrowseRequest of(ResourceType resource, String tenantId, BrowseOptionType optionType, String query,
                                  Integer limit, String targetField, String subField, Boolean expandAll,
                                  Boolean highlightMatch, Integer precedingRecordsCount) {
     return new BrowseRequest(resource, tenantId, optionType, query, limit, targetField, subField, null, expandAll,

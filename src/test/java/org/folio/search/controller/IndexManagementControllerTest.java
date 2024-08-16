@@ -29,6 +29,7 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -50,9 +51,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @Import(ApiExceptionHandler.class)
 class IndexManagementControllerTest {
 
-  private static final String RESOURCE_NAME = "test-resource";
+  private static final ResourceType RESOURCE = ResourceType.INSTANCE;
   private static final String TENANT_ID = "test-tenant";
-  public static final String INDEX_NAME = RESOURCE_NAME + "_" + TENANT_ID;
+  public static final String INDEX_NAME = RESOURCE.getName() + "_" + TENANT_ID;
 
   @Autowired
   private MockMvc mockMvc;
@@ -63,7 +64,7 @@ class IndexManagementControllerTest {
 
   @Test
   void createIndex_positive() throws Exception {
-    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID))
+    when(indexService.createIndex(RESOURCE, TENANT_ID))
       .thenReturn(getSuccessFolioCreateIndexResponse(List.of(INDEX_NAME)));
 
     mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
@@ -74,12 +75,13 @@ class IndexManagementControllerTest {
 
   @Test
   void createIndex_negative_indexAlreadyExists() throws Exception {
-    var openSearchException = new OpenSearchException("Elasticsearch exception "
-      + "[type=resource_already_exists_exception, "
-      + "reason=index [instance_test-tenant/um_SBtCaRLKUOBbdmFZeKQ] already exists]");
+    var openSearchException =
+      new OpenSearchException("Elasticsearch exception "
+                              + "[type=resource_already_exists_exception, "
+                              + "reason=index [instance_test-tenant/um_SBtCaRLKUOBbdmFZeKQ] already exists]");
     openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
 
-    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
+    when(indexService.createIndex(RESOURCE, TENANT_ID)).thenThrow(
       new SearchOperationException("error", openSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
@@ -95,7 +97,7 @@ class IndexManagementControllerTest {
     var errorMessage = "Elasticsearch exception [type=unknown_error, reason=mappings not found]";
     var openSearchException = new OpenSearchException(errorMessage);
 
-    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
+    when(indexService.createIndex(RESOURCE, TENANT_ID)).thenThrow(
       new SearchOperationException("i/o error", openSearchException));
 
     mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
@@ -109,7 +111,7 @@ class IndexManagementControllerTest {
   @Test
   void createIndex_negative_unknownErrorInSearchOperationException() throws Exception {
     var errorMessage = "i/o error";
-    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(
+    when(indexService.createIndex(RESOURCE, TENANT_ID)).thenThrow(
       new SearchOperationException(errorMessage, new IOException(errorMessage)));
 
     mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
@@ -134,7 +136,7 @@ class IndexManagementControllerTest {
 
   @Test
   void createIndex_negative_nullPointerException() throws Exception {
-    when(indexService.createIndex(RESOURCE_NAME, TENANT_ID)).thenThrow(new NullPointerException());
+    when(indexService.createIndex(RESOURCE, TENANT_ID)).thenThrow(new NullPointerException());
     mockMvc.perform(preparePostRequest(createIndicesPath(), asJsonString(createIndexRequest())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -144,7 +146,7 @@ class IndexManagementControllerTest {
 
   @Test
   void updateMappings_positive() throws Exception {
-    when(indexService.updateMappings(RESOURCE_NAME, TENANT_ID)).thenReturn(getSuccessIndexOperationResponse());
+    when(indexService.updateMappings(RESOURCE, TENANT_ID)).thenReturn(getSuccessIndexOperationResponse());
     mockMvc.perform(preparePostRequest("/search/index/mappings", asJsonString(updateMappingsRequest())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
@@ -154,7 +156,7 @@ class IndexManagementControllerTest {
   void indexResources_positive() throws Exception {
     var instanceData = OBJECT_MAPPER.createObjectNode();
     instanceData.put("id", randomId());
-    var resourceBody = resourceEvent(RESOURCE_NAME, mapOf("id", randomId()));
+    var resourceBody = resourceEvent(ResourceType.INSTANCE, mapOf("id", randomId()));
 
     when(resourceService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
 
@@ -165,7 +167,7 @@ class IndexManagementControllerTest {
 
   @Test
   void updateIndexSettings_positive() throws Exception {
-    when(indexService.updateIndexSettings(RESOURCE_NAME, TENANT_ID, createIndexDynamicSettings()))
+    when(indexService.updateIndexSettings(RESOURCE, TENANT_ID, createIndexDynamicSettings()))
       .thenReturn(getSuccessIndexOperationResponse());
     mockMvc.perform(preparePutRequest("/search/index/settings", asJsonString(updateIndexSettingsRequest())))
       .andExpect(status().isOk())
@@ -262,16 +264,16 @@ class IndexManagementControllerTest {
   }
 
   private static CreateIndexRequest createIndexRequest() {
-    return new CreateIndexRequest().resourceName(RESOURCE_NAME);
+    return new CreateIndexRequest().resourceName(RESOURCE.getName());
   }
 
   private static UpdateMappingsRequest updateMappingsRequest() {
-    return new UpdateMappingsRequest().resourceName(RESOURCE_NAME);
+    return new UpdateMappingsRequest().resourceName(RESOURCE.getName());
   }
 
   private static UpdateIndexDynamicSettingsRequest updateIndexSettingsRequest() {
-    return new UpdateIndexDynamicSettingsRequest().resourceName(RESOURCE_NAME)
-        .indexSettings(createIndexDynamicSettings());
+    return new UpdateIndexDynamicSettingsRequest().resourceName(RESOURCE.getName())
+      .indexSettings(createIndexDynamicSettings());
   }
 
   private static IndexDynamicSettings createIndexDynamicSettings() {

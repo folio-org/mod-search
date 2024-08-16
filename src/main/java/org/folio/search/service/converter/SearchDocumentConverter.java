@@ -27,6 +27,7 @@ import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.IndexingDataFormat;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.SearchConverterUtils;
@@ -100,7 +101,7 @@ public class SearchDocumentConverter {
   }
 
   private ConversionContext buildConversionContext(ResourceEvent event) {
-    var resourceDescription = descriptionService.get(event.getResourceName());
+    var resourceDescription = descriptionService.get(ResourceType.byName(event.getResourceName()));
     var resourceData = getNewAsMap(event);
     var resourceLanguages = getResourceLanguages(resourceDescription.getLanguageSourcePaths(), resourceData);
     return ConversionContext.of(event, resourceDescription, resourceLanguages, event.getTenant());

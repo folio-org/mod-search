@@ -1,15 +1,15 @@
 package org.folio.search.controller;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.TYPED_CALL_NUMBER_BROWSING_FIELD;
@@ -57,7 +57,7 @@ public class BrowseController implements BrowseApi {
                                                                  Boolean highlightMatch, Integer precedingRecordsCount,
                                                                  Integer limit) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
-      .resource(AUTHORITY_RESOURCE).targetField(AUTHORITY_BROWSING_FIELD).build();
+      .resource(AUTHORITY).targetField(AUTHORITY_BROWSING_FIELD).build();
     var browseResult = authorityBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new AuthorityBrowseResult()
       .items(browseResult.getRecords())
@@ -73,7 +73,7 @@ public class BrowseController implements BrowseApi {
                                                                             Integer precedingRecordsCount,
                                                                             CallNumberType callNumberType) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_RESOURCE)
+      .resource(INSTANCE)
       .targetField(SHELVING_ORDER_BROWSING_FIELD)
       .subField(callNumberType == null ? CALL_NUMBER_BROWSING_FIELD : TYPED_CALL_NUMBER_BROWSING_FIELD)
       .refinedCondition(callNumberType != null ? callNumberType.getValue() : null)
@@ -93,7 +93,7 @@ public class BrowseController implements BrowseApi {
     Boolean highlightMatch, Integer precedingRecordsCount) {
 
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_CLASSIFICATION_RESOURCE)
+      .resource(INSTANCE_CLASSIFICATION)
       .browseOptionType(browseOptionId)
       .targetField(CLASSIFICATION_NUMBER_BROWSING_FIELD)
       .build();
@@ -107,7 +107,7 @@ public class BrowseController implements BrowseApi {
                                                                               Integer limit, Boolean highlightMatch,
                                                                               Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
-      .resource(CONTRIBUTOR_RESOURCE).targetField(CONTRIBUTOR_BROWSING_FIELD).build();
+      .resource(INSTANCE_CONTRIBUTOR).targetField(CONTRIBUTOR_BROWSING_FIELD).build();
 
     var browseResult = contributorBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new ContributorBrowseResult()
@@ -122,7 +122,7 @@ public class BrowseController implements BrowseApi {
                                                                       Integer limit, Boolean highlightMatch,
                                                                       Integer precedingRecordsCount) {
     var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_SUBJECT_RESOURCE).targetField(SUBJECT_BROWSING_FIELD).build();
+      .resource(INSTANCE_SUBJECT).targetField(SUBJECT_BROWSING_FIELD).build();
 
     var browseResult = subjectBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new SubjectBrowseResult()

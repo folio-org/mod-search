@@ -2,11 +2,7 @@ package org.folio.search.service.reindex;
 
 import static java.util.function.Function.identity;
 import static org.apache.commons.collections4.MapUtils.getString;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -19,6 +15,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
@@ -27,10 +24,10 @@ import org.springframework.stereotype.Service;
 public class ReindexRangeIndexService {
 
   private static final Map<ReindexEntityType, String> RESOURCE_NAME_MAP = Map.of(
-    ReindexEntityType.INSTANCE, INSTANCE_RESOURCE,
-    ReindexEntityType.SUBJECT, INSTANCE_SUBJECT_RESOURCE,
-    ReindexEntityType.CLASSIFICATION, INSTANCE_CLASSIFICATION_RESOURCE,
-    ReindexEntityType.CONTRIBUTOR, CONTRIBUTOR_RESOURCE
+    ReindexEntityType.INSTANCE, ResourceType.INSTANCE.getName(),
+    ReindexEntityType.SUBJECT, ResourceType.INSTANCE_SUBJECT.getName(),
+    ReindexEntityType.CLASSIFICATION, ResourceType.INSTANCE_CLASSIFICATION.getName(),
+    ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR.getName()
   );
 
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;

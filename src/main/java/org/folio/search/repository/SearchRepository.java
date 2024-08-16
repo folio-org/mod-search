@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.opensearch.action.search.ClearScrollRequest;
 import org.opensearch.action.search.MultiSearchRequest;
 import org.opensearch.action.search.MultiSearchResponse;
@@ -50,7 +51,7 @@ public class SearchRepository {
   private final RetryTemplate retryTemplate;
   private final IndexNameProvider indexNameProvider;
 
-  public String analyze(String text, String field, String resource, String tenantId) {
+  public String analyze(String text, String field, ResourceType resource, String tenantId) {
     var index = indexNameProvider.getIndexName(resource, tenantId);
     var analyzeRequest = AnalyzeRequest.withField(index, field, text);
     var analyzeResponse = performExceptionalOperation(() -> client.indices().analyze(analyzeRequest, DEFAULT), index,

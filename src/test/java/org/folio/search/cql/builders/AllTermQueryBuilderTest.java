@@ -2,8 +2,8 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.multilangField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
@@ -34,7 +34,7 @@ class AllTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    var actual = queryBuilder.getQuery("value1 value2", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
+    var actual = queryBuilder.getQuery("value1 value2", UNKNOWN, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
     assertThat(actual).isEqualTo(boolQuery()
       .must(getMultiMatchQuery("value1", "f1.*", "f2"))
       .must(getMultiMatchQuery("value2", "f1.*", "f2")));
@@ -42,28 +42,28 @@ class AllTermQueryBuilderTest {
 
   @Test
   void getFulltextQuery_positive_multilangField() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(multilangField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, "field")).thenReturn(Optional.of(multilangField()));
+    var actual = queryBuilder.getFulltextQuery("val", "field", UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(getMultiMatchQuery("val", "field.*"));
   }
 
   @Test
   void getFulltextQuery_positive_standardField() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, "field")).thenReturn(Optional.of(standardField()));
+    var actual = queryBuilder.getFulltextQuery("val", "field", UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(getMultiMatchQuery("val", "field"));
   }
 
   @Test
   void getFulltextQuery_positive_standardFieldWithObject() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(standardField()));
-    var actual = queryBuilder.getFulltextQuery(1234, "field", RESOURCE_NAME, emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, "field")).thenReturn(Optional.of(standardField()));
+    var actual = queryBuilder.getFulltextQuery(1234, "field", UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(getMultiMatchQuery(1234, "field"));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field", RESOURCE_NAME, null);
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", UNKNOWN, null);
     assertThat(actual).isEqualTo(matchQuery("field", "termValue").operator(AND));
   }
 

@@ -1,5 +1,6 @@
 package org.folio.search.repository;
 
+import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.search.sort.SortOrder.ASC;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ConsortiumCampusRepository {
 
-  public static final String CAMPUS_INDEX = "campus";
   private static final String OPERATION_TYPE = "searchApi";
   private final IndexNameProvider indexNameProvider;
   private final ElasticsearchDocumentConverter documentConverter;
@@ -35,11 +35,11 @@ public class ConsortiumCampusRepository {
   private final RestHighLevelClient client;
 
   public SearchResult<ConsortiumCampus> fetchCampuses(String tenantHeader,
-                                                     String tenantId,
-                                                     Integer limit,
-                                                     Integer offset,
-                                                     String sortBy,
-                                                     SortOrder sortOrder) {
+                                                      String tenantId,
+                                                      Integer limit,
+                                                      Integer offset,
+                                                      String sortBy,
+                                                      SortOrder sortOrder) {
 
     var sourceBuilder = getSearchSourceBuilder(tenantId, limit, offset, sortBy, sortOrder);
     var response = search(sourceBuilder, tenantHeader);
@@ -67,7 +67,7 @@ public class ConsortiumCampusRepository {
   }
 
   private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {
-    var index = indexNameProvider.getIndexName(CAMPUS_INDEX, tenantHeader);
+    var index = indexNameProvider.getIndexName(CAMPUS, tenantHeader);
     var searchRequest = new SearchRequest(index);
 
     searchRequest.source(sourceBuilder);

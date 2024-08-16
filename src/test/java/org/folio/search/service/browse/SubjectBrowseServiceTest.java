@@ -1,6 +1,7 @@
 package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -51,7 +52,6 @@ import org.opensearch.search.sort.SortOrder;
 @ExtendWith(MockitoExtension.class)
 class SubjectBrowseServiceTest {
 
-  private static final String INSTANCE_SUBJECT = "instance_subject";
   private static final String TARGET_FIELD = "value";
 
   @InjectMocks

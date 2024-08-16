@@ -4,6 +4,9 @@ import static java.util.Arrays.asList;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
@@ -47,6 +50,7 @@ import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.search.support.extension.EnableElasticSearch;
@@ -188,20 +192,20 @@ public abstract class BaseIntegrationTest {
     return attemptSearch(path, tenantId, query, limit, offset, expandAll).andExpect(status().isOk());
   }
 
-  protected static long countIndexDocument(String resource, String tenantId) throws IOException {
+  protected static long countIndexDocument(ResourceType resource, String tenantId) throws IOException {
     var searchRequest = new SearchRequest()
       .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-      .indices(getIndexName(resource, tenantId));
+      .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;
   }
 
-  protected static long countDefaultIndexDocument(String resource) throws IOException {
+  protected static long countDefaultIndexDocument(ResourceType resource) throws IOException {
     return countIndexDocument(resource, TENANT_ID);
   }
 
-  protected static void cleanUpIndex(String resource, String tenantId) throws IOException {
-    var request = new DeleteByQueryRequest(getIndexName(resource, tenantId));
+  protected static void cleanUpIndex(ResourceType resource, String tenantId) throws IOException {
+    var request = new DeleteByQueryRequest(getIndexName(resource.getName(), tenantId));
     request.setQuery(matchAllQuery());
     elasticClient.deleteByQuery(request, DEFAULT);
   }
@@ -233,7 +237,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
     setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount,
-      record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, null, record)));
+      record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, AUTHORITY, record)));
   }
 
   @SafeVarargs
@@ -257,7 +261,7 @@ public abstract class BaseIntegrationTest {
 
       if (type.equals(Authority.class)) {
         saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, record)));
+          record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, record)));
       }
     }
   }
@@ -293,17 +297,18 @@ public abstract class BaseIntegrationTest {
 
     if (type.equals(Authority.class)) {
       setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount,
-        authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, authority)));
+        authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, authority)));
     }
 
     if (type.equals(LinkedDataWork.class)) {
       setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount,
-        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, null, ldWork)));
+        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, LINKED_DATA_WORK, ldWork)));
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
       setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount,
-        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant), resourceEvent(null, null, ldAuthority)));
+        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
+          resourceEvent(null, LINKED_DATA_AUTHORITY, ldAuthority)));
     }
   }
 

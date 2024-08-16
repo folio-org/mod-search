@@ -6,8 +6,8 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.model.types.IndexingDataFormat.SMILE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -173,7 +173,7 @@ class InstanceSubjectRepositoryTest {
     var subject = "test";
     var authorityId = randomId();
     var body = mapOf("value", subject, "instanceId", RESOURCE_ID, "authorityId", authorityId, "shared", true);
-    var event = resourceEvent(getDocumentId(subject, authorityId), INSTANCE_SUBJECT_RESOURCE, CREATE, body, null);
+    var event = resourceEvent(getDocumentId(subject, authorityId), INSTANCE_SUBJECT, CREATE, body, null);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, INDEX);
   }
 
@@ -186,7 +186,7 @@ class InstanceSubjectRepositoryTest {
   private SearchDocumentBody subjectDocumentBodyToDelete(String subject, String instanceId) {
     var body = mapOf("value", subject, "instanceId", instanceId);
     var event =
-      resourceEvent(getDocumentId(subject, null), INSTANCE_SUBJECT_RESOURCE, ResourceEventType.DELETE, null, body);
+      resourceEvent(getDocumentId(subject, null), INSTANCE_SUBJECT, ResourceEventType.DELETE, null, body);
     return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(body)), SMILE, event, DELETE);
   }
 

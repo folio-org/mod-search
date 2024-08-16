@@ -19,6 +19,7 @@ import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.QueryBuilder;
@@ -71,7 +72,7 @@ public class CqlTermQueryConverter {
    * @param resource - resource name as {@link String} value
    * @return created Elasticsearch {@link QueryBuilder} object
    */
-  public QueryBuilder getQuery(CQLTermNode termNode, String resource) {
+  public QueryBuilder getQuery(CQLTermNode termNode, ResourceType resource) {
     if (isMatchAllQuery(termNode.toCQL())) {
       return matchAllQuery();
     }

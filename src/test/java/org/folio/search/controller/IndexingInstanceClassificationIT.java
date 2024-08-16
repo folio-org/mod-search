@@ -22,8 +22,8 @@ import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.client.CqlQueryParam;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +49,6 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
   static void cleanUp() {
     removeTenant();
   }
-
 
   @Test
   void shouldIndexInstanceClassification_createNewDocument() {
@@ -113,7 +112,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
   private SearchResponse fetchAllInstanceClassifications(String tenantId) {
     var searchRequest = new SearchRequest()
       .source(searchSource().query(matchAllQuery()))
-      .indices(getIndexName(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, tenantId));
+      .indices(getIndexName(ResourceType.INSTANCE_CLASSIFICATION, tenantId));
     return restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
   }
 }

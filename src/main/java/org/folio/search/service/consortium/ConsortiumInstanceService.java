@@ -1,7 +1,6 @@
 package org.folio.search.service.consortium;
 
 import static org.apache.commons.collections4.IterableUtils.toList;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.service.ConsortiumSearchContext;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.FolioExecutionContext;
@@ -125,7 +125,7 @@ public class ConsortiumInstanceService {
     for (var missedId : missedIds) {
       resourceEvents.add(new ResourceEvent().id(missedId.toString())
         .type(ResourceEventType.DELETE)
-        .resourceName(INSTANCE_RESOURCE)
+        .resourceName(ResourceType.INSTANCE.getName())
         .old(Map.of(ID_KEY, missedId))
         .tenant(context.getTenantId()));
     }
@@ -187,7 +187,7 @@ public class ConsortiumInstanceService {
     }
     return new ResourceEvent().id(mergedInstance.get(ID_KEY).toString())
       .type(ResourceEventType.UPDATE)
-      .resourceName(INSTANCE_RESOURCE)
+      .resourceName(ResourceType.INSTANCE.getName())
       ._new(new HashMap<>(mergedInstance))
       .tenant(context.getTenantId());
   }

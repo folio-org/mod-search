@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.ResponseGroupType;
 
 /**
@@ -27,7 +28,7 @@ public interface SearchFieldProvider {
    * @param searchType search type as {@link String}
    * @return list of fields.
    */
-  List<String> getFields(String resource, String searchType);
+  List<String> getFields(ResourceType resource, String searchType);
 
   /**
    * Provides plain field description for given path.
@@ -36,7 +37,7 @@ public interface SearchFieldProvider {
    * @param path     path to field as {@link String}
    * @return {@link Optional} of resource field description by path, it would be empty if plain field by path not found
    */
-  Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path);
+  Optional<PlainFieldDescription> getPlainFieldByPath(ResourceType resource, String path);
 
   /**
    * Provides list of fields of source fields for resource and response group type.
@@ -45,7 +46,7 @@ public interface SearchFieldProvider {
    * @param groupType - response group type as {@link ResponseGroupType} object
    * @return array of fields.
    */
-  String[] getSourceFields(String resource, ResponseGroupType groupType);
+  String[] getSourceFields(ResourceType resource, ResponseGroupType groupType);
 
   /**
    * Checks if given language is supported.
@@ -61,7 +62,7 @@ public interface SearchFieldProvider {
    * @param path         path to the field as {@link String} object
    * @return true if field by path is multi-language, false - otherwise
    */
-  boolean isMultilangField(String resourceName, String path);
+  boolean isMultilangField(ResourceType resourceName, String path);
 
   /**
    * Checks if field by path is full-text or not.
@@ -70,7 +71,7 @@ public interface SearchFieldProvider {
    * @param path         path to the field as {@link String} object
    * @return true if field by path is full-text, false - otherwise
    */
-  boolean isFullTextField(String resourceName, String path);
+  boolean isFullTextField(ResourceType resourceName, String path);
 
   /**
    * Apply resource field modifiers for field.
@@ -79,5 +80,5 @@ public interface SearchFieldProvider {
    * @param resource resource name as {@link String} object
    * @return modified field
    */
-  String getModifiedField(String field, String resource);
+  String getModifiedField(String field, ResourceType resource);
 }

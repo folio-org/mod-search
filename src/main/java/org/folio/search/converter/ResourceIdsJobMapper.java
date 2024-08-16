@@ -10,6 +10,6 @@ public interface ResourceIdsJobMapper {
 
   ResourceIdsJobEntity convert(ResourceIdsJob job);
 
-  @Mapping(target = "createdDate", dateFormat = "yyyy-MM-dd HH:mm")
+  @Mapping(target = "createdDate", source = "createdDate", dateFormat = "yyyy-MM-dd HH:mm")
   ResourceIdsJob convert(ResourceIdsJobEntity entity);
 }

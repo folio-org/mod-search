@@ -20,8 +20,9 @@ public interface InventoryItemClient {
                                                           @RequestParam("limit") int limit);
 
   @GetMapping(path = "/items", produces = APPLICATION_JSON_VALUE)
-  InventoryRecordDtoCollection<InventoryItemDto> getItems(
-    @RequestParam("limit") int limit, @RequestParam("totalRecords") String totalRecords);
+  InventoryRecordDtoCollection<InventoryItemDto> getItems(@RequestParam("offset") int offset,
+                                                          @RequestParam("limit") int limit,
+                                                          @RequestParam("totalRecords") String totalRecords);
 
   record InventoryItemDto(String id) {}
 }

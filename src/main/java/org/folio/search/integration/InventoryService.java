@@ -2,6 +2,7 @@ package org.folio.search.integration;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
@@ -61,9 +62,9 @@ public class InventoryService {
 
     try {
       var result = switch (recordType) {
-        case INSTANCE -> inventoryInstanceClient.getInstances(0, TotalRecordsType.EXACT.getValue());
-        case ITEM -> inventoryItemClient.getItems(0, TotalRecordsType.EXACT.getValue());
-        case HOLDING -> inventoryHoldingClient.getHoldings(0, TotalRecordsType.EXACT.getValue());
+        case INSTANCE -> inventoryInstanceClient.getInstances(0, 0, TotalRecordsType.EXACT.getValue());
+        case ITEM -> inventoryItemClient.getItems(0, 0, TotalRecordsType.EXACT.getValue());
+        case HOLDING -> inventoryHoldingClient.getHoldings(0, 0, TotalRecordsType.EXACT.getValue());
       };
 
       if (result == null) {
@@ -102,7 +103,9 @@ public class InventoryService {
   }
 
   private List<UUID> fetchInstances(CqlQuery cqlQuery, int offset, int limit) {
-    var result = inventoryInstanceClient.getInstances(cqlQuery, offset, limit);
+    var result = Optional.ofNullable(cqlQuery)
+      .map(query -> inventoryInstanceClient.getInstances(query, offset, limit))
+      .orElseGet(() -> inventoryInstanceClient.getInstances(offset, limit, TotalRecordsType.AUTO.getValue()));
 
     if (result == null) {
       log.warn("Failed to retrieve Inventory Instances, [query: {}, offset: {}, limit: {}]", cqlQuery, offset, limit);
@@ -116,7 +119,9 @@ public class InventoryService {
   }
 
   private List<UUID> fetchItems(CqlQuery cqlQuery, int offset, int limit) {
-    var result = inventoryItemClient.getItems(cqlQuery, offset, limit);
+    var result = Optional.ofNullable(cqlQuery)
+      .map(query -> inventoryItemClient.getItems(query, offset, limit))
+      .orElseGet(() -> inventoryItemClient.getItems(offset, limit, TotalRecordsType.AUTO.getValue()));
 
     if (result == null) {
       log.warn("Failed to retrieve Inventory Items, [query: {}, offset: {}, limit: {}]", cqlQuery, offset, limit);
@@ -130,7 +135,9 @@ public class InventoryService {
   }
 
   private List<UUID> fetchHoldings(CqlQuery cqlQuery, int offset, int limit) {
-    var result = inventoryHoldingClient.getHoldings(cqlQuery, offset, limit);
+    var result = Optional.ofNullable(cqlQuery)
+      .map(query -> inventoryHoldingClient.getHoldings(query, offset, limit))
+      .orElseGet(() -> inventoryHoldingClient.getHoldings(offset, limit, TotalRecordsType.AUTO.getValue()));
 
     if (result == null) {
       log.warn("Failed to retrieve Inventory Holdings, [query: {}, offset: {}, limit: {}]", cqlQuery, offset, limit);

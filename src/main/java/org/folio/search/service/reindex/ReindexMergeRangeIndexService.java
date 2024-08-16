@@ -94,11 +94,11 @@ public class ReindexMergeRangeIndexService {
     var upperId = recordIds.get(recordIds.size() - 1);
     ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
     for (int i = 1; i < pages; i++) {
-      int offset = i * rangeSize;
-      int limit = Math.min(rangeSize, recordsCount - offset);
+      //int offset = i * rangeSize;
+      //int limit = Math.min(rangeSize, recordsCount - offset);
       query = CqlQuery.greaterThan(CqlQueryParam.ID, lowerId.toString());
       recordIds =
-        inventoryService.fetchInventoryRecordIds(recordType, CqlQuery.sortBy(query, CqlQueryParam.ID), offset, limit);
+        inventoryService.fetchInventoryRecordIds(recordType, CqlQuery.sortBy(query, CqlQueryParam.ID), 0, rangeSize);
       lowerId = recordIds.get(0);
       upperId = recordIds.get(recordIds.size() - 1);
       ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));

@@ -61,9 +61,9 @@ public class InventoryService {
 
     try {
       var result = switch (recordType) {
-        case INSTANCE -> inventoryInstanceClient.getInstances(0, TotalRecordsType.EXACT);
-        case ITEM -> inventoryItemClient.getItems(0, TotalRecordsType.EXACT);
-        case HOLDING -> inventoryHoldingClient.getHoldings(0, TotalRecordsType.EXACT);
+        case INSTANCE -> inventoryInstanceClient.getInstances(0, TotalRecordsType.EXACT.getValue());
+        case ITEM -> inventoryItemClient.getItems(0, TotalRecordsType.EXACT.getValue());
+        case HOLDING -> inventoryHoldingClient.getHoldings(0, TotalRecordsType.EXACT.getValue());
       };
 
       if (result == null) {

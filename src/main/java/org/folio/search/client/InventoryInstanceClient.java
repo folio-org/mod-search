@@ -21,7 +21,7 @@ public interface InventoryInstanceClient {
 
   @GetMapping(path = "/instances", produces = APPLICATION_JSON_VALUE)
   InventoryRecordDtoCollection<InventoryInstanceDto> getInstances(
-    @RequestParam("limit") int limit, @RequestParam("totalRecords") TotalRecordsType totalRecordsType);
+    @RequestParam("limit") int limit, @RequestParam("totalRecords") String totalRecords);
 
   record InventoryInstanceDto(String id) {}
 }

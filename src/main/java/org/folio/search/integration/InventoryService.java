@@ -71,7 +71,7 @@ public class InventoryService {
         return 0;
       }
 
-      return result.getTotalRecords();
+      return result.totalRecords();
     } catch (Exception e) {
       log.warn("Failed to fetch Inventory record counts for {}", recordType);
       throw new FolioIntegrationException(
@@ -109,7 +109,7 @@ public class InventoryService {
       return Collections.emptyList();
     }
 
-    return result.getResult().stream()
+    return result.records().stream()
       .map(InventoryInstanceClient.InventoryInstanceDto::id)
       .map(UUID::fromString)
       .toList();
@@ -123,7 +123,7 @@ public class InventoryService {
       return Collections.emptyList();
     }
 
-    return result.getResult().stream()
+    return result.records().stream()
       .map(InventoryItemClient.InventoryItemDto::id)
       .map(UUID::fromString)
       .toList();
@@ -137,7 +137,7 @@ public class InventoryService {
       return Collections.emptyList();
     }
 
-    return result.getResult().stream()
+    return result.records().stream()
       .map(InventoryHoldingClient.InventoryHoldingDto::id)
       .map(UUID::fromString)
       .toList();

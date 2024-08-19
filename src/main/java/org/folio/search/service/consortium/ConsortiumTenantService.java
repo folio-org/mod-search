@@ -82,18 +82,6 @@ public class ConsortiumTenantService {
     }
   }
 
-  public boolean isMemberTenantInConsortium(String tenantId) {
-    return getCentralTenant(tenantId)
-      .map(centralTenantId -> !centralTenantId.equals(tenantId))
-      .orElse(false);
-  }
-
-  public boolean isCentralTenant(String tenantId) {
-    return getCentralTenant(tenantId)
-      .map(centralTenantId -> centralTenantId.equals(tenantId))
-      .orElse(false);
-  }
-
   private List<String> getTenantsList(List<ConsortiumTenantsClient.ConsortiumTenant> consortiumTenants) {
     return consortiumTenants.stream()
       .filter(consortiumTenant -> !consortiumTenant.isCentral())

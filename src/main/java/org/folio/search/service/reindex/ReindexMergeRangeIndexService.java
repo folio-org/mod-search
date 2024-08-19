@@ -4,20 +4,15 @@ import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTI
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.integration.InventoryService;
-import org.folio.search.model.client.CqlQuery;
-import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -80,29 +75,11 @@ public class ReindexMergeRangeIndexService {
     log.info("Constructing Merge Ranges: [recordType: {}, recordsCount: {}, tenant: {}]",
       recordType, recordsCount, tenantId);
 
-    List<MergeRangeEntity> ranges = new ArrayList<>();
-    int pages = (int) Math.ceil((double) recordsCount / rangeSize);
-    var query = CqlQuery.sortBy(new CqlQuery("cql.allRecords=1"), CqlQueryParam.ID);
-    var recordIds = inventoryService.fetchInventoryRecordIds(recordType, query, 0, rangeSize);
-    if (CollectionUtils.isEmpty(recordIds)) {
-      log.warn("There are no records to create merge ranges: [recordType: {}, recordsCount: {}, tenant: {}]",
-        recordType, recordsCount, tenantId);
-      return Collections.emptyList();
-    }
-
-    var lowerId = recordIds.get(0);
-    var upperId = recordIds.get(recordIds.size() - 1);
-    ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
-    for (int i = 1; i < pages; i++) {
-      query = CqlQuery.greaterThan(CqlQueryParam.ID, lowerId.toString());
-      recordIds =
-        inventoryService.fetchInventoryRecordIds(recordType, CqlQuery.sortBy(query, CqlQueryParam.ID), 0, rangeSize);
-      lowerId = recordIds.get(0);
-      upperId = recordIds.get(recordIds.size() - 1);
-      ranges.add(mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now())));
-    }
-
-    return ranges;
+    var rangesCount = (int) Math.ceil((double) recordsCount / rangeSize);
+    return RangeGenerator.createRanges(rangesCount).stream()
+      .map(range -> mergeEntity(UUID.randomUUID(), recordType, tenantId, range.lowerBound(), range.upperBound(),
+        Timestamp.from(Instant.now())))
+      .toList();
   }
 
   private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, UUID lowerId,

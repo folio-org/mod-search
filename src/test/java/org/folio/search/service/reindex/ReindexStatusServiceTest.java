@@ -17,7 +17,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
@@ -40,7 +40,7 @@ class ReindexStatusServiceTest {
   private ReindexStatusMapper reindexStatusMapper;
 
   @Mock
-  private ConsortiumTenantService consortiumTenantService;
+  private ConsortiumTenantProvider consortiumTenantProvider;
 
   @InjectMocks
   private ReindexStatusService service;
@@ -72,7 +72,7 @@ class ReindexStatusServiceTest {
 
   @Test
   void getReindexStatuses_negative_consortiumMemberTenant() {
-    when(consortiumTenantService.isMemberTenantInConsortium(TENANT_ID)).thenReturn(true);
+    when(consortiumTenantProvider.isMemberTenant(TENANT_ID)).thenReturn(true);
 
     var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
 

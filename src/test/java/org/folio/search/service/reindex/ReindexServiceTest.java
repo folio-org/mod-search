@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang3.ThreadUtils;
@@ -53,9 +55,9 @@ class ReindexServiceTest {
 
   @Test
   void initFullReindex_negative_shouldFailForEcsMemberTenant() {
-    when(consortiumService.isMemberTenantInConsortium(any(String.class))).thenReturn(true);
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
-    assertThrows(RequestValidationException.class, () -> reindexService.initFullReindex("member"),
+    assertThrows(RequestValidationException.class, () -> reindexService.initFullReindex(TENANT_ID),
       "Not allowed to run reindex from member tenant of consortium environment");
   }
 
@@ -67,7 +69,7 @@ class ReindexServiceTest {
     var rangeEntity =
       new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
 
-    when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
     doAnswer(invocation -> {
@@ -98,7 +100,7 @@ class ReindexServiceTest {
     var rangeEntity =
       new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
 
-    when(consortiumService.isMemberTenantInConsortium(tenant)).thenReturn(false);
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
     doThrow(FolioIntegrationException.class).when(inventoryService).publishReindexRecordsRange(rangeEntity);

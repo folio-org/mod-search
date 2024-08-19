@@ -40,7 +40,8 @@ public class ReindexService {
   public CompletableFuture<Void> initFullReindex(String tenantId) {
     log.info("submit full reindex process");
 
-    if (consortiumService.isMemberTenantInConsortium(tenantId)) {
+    var central = consortiumService.getCentralTenant(tenantId);
+    if (central.isPresent() && !central.get().equals(tenantId)) {
       throw new RequestValidationException(
         "Not allowed to run reindex from member tenant of consortium environment", "tenantId", tenantId);
     }

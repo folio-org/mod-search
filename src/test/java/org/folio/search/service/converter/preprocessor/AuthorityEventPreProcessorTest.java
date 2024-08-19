@@ -27,7 +27,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
@@ -47,12 +47,12 @@ class AuthorityEventPreProcessorTest {
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
   @Mock
-  private ConsortiumTenantService consortiumTenantService;
+  private ConsortiumTenantProvider consortiumTenantProvider;
 
   @BeforeEach
   void setUp() {
     when(resourceDescriptionService.get(AUTHORITY_RESOURCE)).thenReturn(authorityResourceDescription());
-    lenient().when(consortiumTenantService.isCentralTenant(TENANT_ID)).thenReturn(false);
+    lenient().when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(false);
     eventPreProcessor.init();
   }
 
@@ -129,7 +129,7 @@ class AuthorityEventPreProcessorTest {
     var newAuthority = new Authority().id(RESOURCE_ID).personalNameTitle("personal");
     var event = resourceEvent(AUTHORITY_RESOURCE, toMap(newAuthority)).type(CREATE);
 
-    when(consortiumTenantService.isCentralTenant(TENANT_ID)).thenReturn(true);
+    when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(true);
 
     var actual = eventPreProcessor.preProcess(event);
     assertThat(actual).isEqualTo(List.of(

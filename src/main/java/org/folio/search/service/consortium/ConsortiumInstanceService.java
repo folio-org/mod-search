@@ -49,7 +49,7 @@ public class ConsortiumInstanceService {
   private final JsonConverter jsonConverter;
   private final ConsortiumInstanceRepository repository;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
   private final FolioMessageProducer<ConsortiumInstanceEvent> producer;
   private final FolioExecutionContext context;
 
@@ -141,7 +141,7 @@ public class ConsortiumInstanceService {
         // if more than one instance returned then holdings/items merging required
         for (var instance : entry.getValue()) {
           var instanceMap = jsonConverter.fromJsonToMap(instance.instance());
-          if (consortiumTenantService.isCentralTenant(instance.id().tenantId())) {
+          if (consortiumTenantProvider.isCentralTenant(instance.id().tenantId())) {
             mergedInstance = instanceMap;
           }
           addListItems(mergedHoldings, instanceMap, HOLDINGS_KEY);
@@ -198,7 +198,7 @@ public class ConsortiumInstanceService {
     SearchConverterUtils.setMapValueByPath(TENANT_ID_KEY, tenant, instance);
     SearchConverterUtils.setMapValueByPath(HOLDINGS_TENANT_ID_KEY, tenant, instance);
     SearchConverterUtils.setMapValueByPath(ITEMS_TENANT_ID_KEY, tenant, instance);
-    if (consortiumTenantService.isCentralTenant(tenant)) {
+    if (consortiumTenantProvider.isCentralTenant(tenant)) {
       SearchConverterUtils.setMapValueByPath(SHARED_KEY, true, instance);
     }
     return instance;
@@ -207,11 +207,7 @@ public class ConsortiumInstanceService {
   @NotNull
   private Map<Boolean, List<ResourceEvent>> groupEventsByConsortiumTenant(List<ResourceEvent> instanceEvents) {
     return instanceEvents.stream()
-      .collect(Collectors.groupingBy(resourceEvent -> isConsortiumTenant(resourceEvent.getTenant())));
-  }
-
-  private boolean isConsortiumTenant(String tenantId) {
-    return consortiumTenantService.getCentralTenant(tenantId).isPresent();
+      .collect(Collectors.groupingBy(event -> consortiumTenantProvider.isConsortiumTenant(event.getTenant())));
   }
 
   private <T> void prepareAndSendConsortiumInstanceEvents(Collection<T> values,

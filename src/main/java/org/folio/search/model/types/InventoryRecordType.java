@@ -1,14 +1,32 @@
 package org.folio.search.model.types;
 
-import lombok.AllArgsConstructor;
+import java.util.Locale;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public enum InventoryRecordType {
-  INSTANCE("instance"),
-  ITEM("item"),
-  HOLDING("holding");
+  INSTANCE("instance", "http://instance-storage/instances"),
+  ITEM("item", "http://item-storage/items"),
+  HOLDING("holding", "http://holdings-storage/holdings");
 
-  private final String type;
+
+  /**
+   * record name.
+   */
+  private final String recordName;
+
+  /**
+   * Request path for the record.
+   */
+  private final String path;
+
+  InventoryRecordType(String recordName, String path) {
+    this.recordName = recordName;
+    this.path = path;
+  }
+
+  @Override
+  public String toString() {
+    return name().toLowerCase(Locale.ROOT);
+  }
 }

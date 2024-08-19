@@ -9,7 +9,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.stereotype.Service;
@@ -23,18 +23,18 @@ public class ReindexStatusService {
 
   private final ReindexStatusRepository statusRepository;
   private final ReindexStatusMapper reindexStatusMapper;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
 
   public ReindexStatusService(ReindexStatusRepository statusRepository,
                               ReindexStatusMapper reindexStatusMapper,
-                              ConsortiumTenantService consortiumTenantService) {
+                              ConsortiumTenantProvider consortiumTenantProvider) {
     this.statusRepository = statusRepository;
     this.reindexStatusMapper = reindexStatusMapper;
-    this.consortiumTenantService = consortiumTenantService;
+    this.consortiumTenantProvider = consortiumTenantProvider;
   }
 
   public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
-    if (consortiumTenantService.isMemberTenantInConsortium(tenantId)) {
+    if (consortiumTenantProvider.isMemberTenant(tenantId)) {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantId);
     }
 

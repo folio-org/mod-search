@@ -102,7 +102,7 @@ class ReindexStatusRepositoryIT {
 
     assertThat(statuses)
       .hasSize(4)
-      .filteredOn(reindexStatus -> CLASSIFICATION.equals(reindexStatus.getEntityType()))
+      .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
       .anyMatch(reindexStatus -> UPLOAD_FAILED.equals(reindexStatus.getStatus())
         && reindexStatus.getEndTimeUpload() != null);
   }

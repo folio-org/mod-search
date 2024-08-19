@@ -3,14 +3,25 @@ package org.folio.search.service.reindex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
+import static org.folio.search.service.reindex.ReindexStatusService.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.assertj.core.api.Condition;
+import org.folio.search.converter.ReindexStatusMapper;
+import org.folio.search.domain.dto.ReindexStatusItem;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.reindex.ReindexStatusEntity;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +36,12 @@ class ReindexStatusServiceTest {
   @Mock
   private ReindexStatusRepository statusRepository;
 
+  @Mock
+  private ReindexStatusMapper reindexStatusMapper;
+
+  @Mock
+  private ConsortiumTenantService consortiumTenantService;
+
   @InjectMocks
   private ReindexStatusService service;
 
@@ -38,6 +55,32 @@ class ReindexStatusServiceTest {
 
     //assert
     verify(statusRepository).setReindexUploadFailed(entityType);
+  }
+
+  @Test
+  void getReindexStatuses() {
+    var statusEntities = List.of(new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_COMPLETED));
+    var expected = List.of(new ReindexStatusItem());
+
+    when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
+    when(reindexStatusMapper.convert(statusEntities.get(0))).thenReturn(expected.get(0));
+
+    var actual = service.getReindexStatuses(TENANT_ID);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void getReindexStatuses_negative_consortiumMemberTenant() {
+    when(consortiumTenantService.isMemberTenantInConsortium(TENANT_ID)).thenReturn(true);
+
+    var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
+
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_MSG);
+    assertThat(ex.getKey()).isEqualTo(XOkapiHeaders.TENANT);
+    assertThat(ex.getValue()).isEqualTo(TENANT_ID);
+    verifyNoInteractions(statusRepository);
+    verifyNoInteractions(reindexStatusMapper);
   }
 
   @Test

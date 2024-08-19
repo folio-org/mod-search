@@ -55,6 +55,8 @@ public class ReindexStatusRepository {
     WHERE entity_type = ?;
     """;
 
+  private static final String QUERY_TWO_COLUMNS_PLACEHOLDER = "%s = ?, %s = ?";
+
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
 
@@ -68,7 +70,7 @@ public class ReindexStatusRepository {
   public void setReindexUploadFailed(ReindexEntityType entityType) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_SQL.formatted(
-      fullTableName, "%s = ?, %s = ?".formatted(STATUS_COLUMN, END_TIME_UPLOAD_COLUMN));
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_UPLOAD_COLUMN));
 
     jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
   }
@@ -90,7 +92,7 @@ public class ReindexStatusRepository {
   public void setMergeReindexStarted(ReindexEntityType entityType, int totalMergeRanges) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_SQL.formatted(
-      fullTableName, "%s = ?, %s = ?".formatted(TOTAL_MERGE_RANGES_COLUMN, START_TIME_MERGE_COLUMN));
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(TOTAL_MERGE_RANGES_COLUMN, START_TIME_MERGE_COLUMN));
 
     jdbcTemplate.update(sql, totalMergeRanges, Timestamp.from(Instant.now()), entityType.name());
   }
@@ -101,7 +103,7 @@ public class ReindexStatusRepository {
       .collect(Collectors.joining(","));
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
-      fullTableName, "%s = ?, %s = ?".formatted(STATUS_COLUMN, END_TIME_MERGE_COLUMN), inTypes);
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_MERGE_COLUMN), inTypes);
 
     jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()));
   }

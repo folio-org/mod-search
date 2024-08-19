@@ -38,7 +38,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
-import org.folio.search.service.reindex.ReindexUploadRangeIndexService;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -69,9 +69,9 @@ class IndexManagementControllerTest {
   @MockBean
   private ResourceService resourceService;
   @MockBean
-  private ReindexUploadRangeIndexService reindexRangeService;
-  @MockBean
   private ReindexService reindexService;
+  @MockBean
+  private ReindexStatusService reindexStatusService;
 
   @Test
   void runFullReindex_positive() throws Exception {
@@ -270,7 +270,7 @@ class IndexManagementControllerTest {
   @Test
   void getReindexStatus_positive() throws Exception {
     var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.INSTANCE.name());
-    when(reindexRangeService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
+    when(reindexStatusService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
 
     mockMvc.perform(get(reindexInstanceRecordsStatus())
         .header(XOkapiHeaders.TENANT, TENANT_ID))

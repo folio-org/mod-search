@@ -13,6 +13,8 @@ properties:
       - instance
       - authority
       - location
+      - linked-data-work
+      - linked-data-authority
   indexSettings:
     description: Index settings to apply for index
     $ref: "../../schemas/entity/indexSettings.yaml"

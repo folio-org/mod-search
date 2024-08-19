@@ -63,6 +63,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -194,6 +195,11 @@ public abstract class BaseIntegrationTest {
       .indices(getIndexName(resource, tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;
+  }
+
+  protected static String getIndexId(String resource) throws IOException {
+    var getIndexResponse = elasticClient.indices().get(new GetIndexRequest(getIndexName(resource, TENANT_ID)), DEFAULT);
+    return getIndexResponse.getSetting(getIndexResponse.getIndices()[0], "index.uuid");
   }
 
   protected static long countDefaultIndexDocument(String resource) throws IOException {

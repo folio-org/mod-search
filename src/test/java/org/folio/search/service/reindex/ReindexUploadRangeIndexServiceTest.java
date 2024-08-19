@@ -1,7 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.service.reindex.ReindexRangeIndexService.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.service.reindex.ReindexUploadRangeIndexService.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,19 +40,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith({MockitoExtension.class, RandomParametersExtension.class})
-class ReindexRangeIndexServiceTest {
+class ReindexUploadRangeIndexServiceTest {
 
   private @Mock UploadRangeRepository repository;
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private @Mock ReindexStatusRepository statusRepository;
   private @Mock ReindexStatusMapper reindexStatusMapper;
   private @Mock ConsortiumTenantService consortiumTenantService;
-  private ReindexRangeIndexService service;
+  private ReindexUploadRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexRangeIndexService(List.of(repository), indexRangeEventProducer, statusRepository,
+    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusRepository,
       reindexStatusMapper, consortiumTenantService);
   }
 
@@ -127,34 +127,5 @@ class ReindexRangeIndexServiceTest {
     assertThat(ex.getValue()).isEqualTo(TENANT_ID);
     verifyNoInteractions(statusRepository);
     verifyNoInteractions(reindexStatusMapper);
-  }
-
-  @Test
-  void setReindexUploadFailed() {
-    var entityType = ReindexEntityType.INSTANCE;
-
-    service.setReindexUploadFailed(entityType);
-
-    verify(statusRepository).setReindexUploadFailed(entityType);
-  }
-
-  @Test
-  void addProcessedMergeRanges() {
-    var entityType = ReindexEntityType.INSTANCE;
-    var ranges = 5;
-
-    service.addProcessedMergeRanges(entityType, ranges);
-
-    verify(statusRepository).addReindexCounts(entityType, ranges, 0);
-  }
-
-  @Test
-  void addProcessedUploadRanges() {
-    var entityType = ReindexEntityType.INSTANCE;
-    var ranges = 5;
-
-    service.addProcessedUploadRanges(entityType, ranges);
-
-    verify(statusRepository).addReindexCounts(entityType, 0, ranges);
   }
 }

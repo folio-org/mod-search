@@ -37,8 +37,8 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.reindex.ReindexRangeIndexService;
 import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexUploadRangeIndexService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -69,7 +69,7 @@ class IndexManagementControllerTest {
   @MockBean
   private ResourceService resourceService;
   @MockBean
-  private ReindexRangeIndexService reindexRangeService;
+  private ReindexUploadRangeIndexService reindexRangeService;
   @MockBean
   private ReindexService reindexService;
 

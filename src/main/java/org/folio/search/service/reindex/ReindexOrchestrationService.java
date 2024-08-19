@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReindexOrchestrationService {
 
-  private final ReindexRangeIndexService rangeIndexService;
+  private final ReindexUploadRangeIndexService rangeIndexService;
+  private final ReindexStatusService reindexStatusService;
   private final PrimaryResourceRepository elasticRepository;
   private final MultiTenantSearchDocumentConverter documentConverter;
 
@@ -23,11 +24,11 @@ public class ReindexOrchestrationService {
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
     rangeIndexService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-      rangeIndexService.setReindexUploadFailed(event.getEntityType());
+      reindexStatusService.updateReindexUploadFailed(event.getEntityType());
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
 
-    rangeIndexService.addProcessedUploadRanges(event.getEntityType(), documents.size());
+    reindexStatusService.addProcessedUploadRanges(event.getEntityType(), documents.size());
     return true;
   }
 }

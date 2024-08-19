@@ -56,7 +56,7 @@ public class ReindexService {
       .handle((unused, throwable) -> {
         if (throwable != null) {
           log.error("full reindex process failed: {}", throwable.getMessage());
-          statusService.updateMergeRangesFailed();
+          statusService.updateReindexMergeFailed();
         }
         return unused;
       });
@@ -74,14 +74,14 @@ public class ReindexService {
       }
     } catch (FolioIntegrationException e) {
       log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
-      statusService.updateMergeRangesFailed();
+      statusService.updateReindexMergeFailed();
     }
   }
 
   private void publishRecordsRange() {
     for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
-      statusService.updateMergeRangesStarted(entityType, rangeEntities.size());
+      statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
 
       for (var rangeEntity : rangeEntities) {
         try {
@@ -89,7 +89,7 @@ public class ReindexService {
         } catch (FolioIntegrationException e) {
           log.error("Failed to publish records range entity [rangeEntity: {}]. Exception: {}",
             rangeEntity, e.getMessage());
-          statusService.updateMergeRangesFailed();
+          statusService.updateReindexMergeFailed();
           return;
         }
       }

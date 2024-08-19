@@ -57,13 +57,13 @@ public class ReindexMergeRangeIndexService {
       try {
         var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
         var rangeSize = reindexConfig.getMergeRangeSize();
-        var ranges = constructRecordMergeRanges(recordsCount, rangeSize, recordType, tenantId);
+        var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
 
         log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
         repository.saveMergeRanges(ranges);
       } catch (FolioIntegrationException e) {
         log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
-        statusService.updateMergeRangesFailed(List.of(asEntityType(recordType)));
+        statusService.updateReindexMergeFailed(List.of(asEntityType(recordType)));
       }
     }
 
@@ -73,7 +73,7 @@ public class ReindexMergeRangeIndexService {
     return repositories.get(entityType).getMergeRanges();
   }
 
-  private List<MergeRangeEntity> constructRecordMergeRanges(int recordsCount,
+  private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,
                                                             int rangeSize,
                                                             InventoryRecordType recordType,
                                                             String tenantId) {

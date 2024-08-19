@@ -15,8 +15,8 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.reindex.ReindexRangeIndexService;
 import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexUploadRangeIndexService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexManagementController implements IndexManagementApi {
 
   private final IndexService indexService;
-  private final ReindexRangeIndexService reindexRangeService;
+  private final ReindexUploadRangeIndexService reindexRangeService;
   private final ResourceService resourceService;
   private final ReindexService reindexService;
 

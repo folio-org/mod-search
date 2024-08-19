@@ -84,7 +84,7 @@ class ReindexServiceTest {
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(executionService).executeAsyncSystemUserScoped(eq(member), any(Runnable.class));
     verify(statusService, times(expectedCallsCount))
-      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(1));
+      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
     verify(inventoryService, times(expectedCallsCount)).publishReindexRecordsRange(rangeEntity);
     verifyNoMoreInteractions(mergeRangeService);
@@ -111,8 +111,8 @@ class ReindexServiceTest {
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(statusService)
-      .updateMergeRangesStarted(any(ReindexEntityType.class), eq(1));
+      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
-    verify(statusService).updateMergeRangesFailed();
+    verify(statusService).updateReindexMergeFailed();
   }
 }

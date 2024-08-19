@@ -26,7 +26,7 @@ import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReindexRangeIndexService {
+public class ReindexUploadRangeIndexService {
 
   static final String REQUEST_NOT_ALLOWED_MSG =
     "The request not allowed for member tenant of consortium environment";
@@ -37,11 +37,11 @@ public class ReindexRangeIndexService {
   private final ReindexStatusMapper reindexStatusMapper;
   private final ConsortiumTenantService consortiumTenantService;
 
-  public ReindexRangeIndexService(List<UploadRangeRepository> repositories,
-                                  FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
-                                  ReindexStatusRepository statusRepository,
-                                  ReindexStatusMapper reindexStatusMapper,
-                                  ConsortiumTenantService consortiumTenantService) {
+  public ReindexUploadRangeIndexService(List<UploadRangeRepository> repositories,
+                                        FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
+                                        ReindexStatusRepository statusRepository,
+                                        ReindexStatusMapper reindexStatusMapper,
+                                        ConsortiumTenantService consortiumTenantService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(UploadRangeRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
@@ -83,18 +83,6 @@ public class ReindexRangeIndexService {
     var statuses = statusRepository.getReindexStatuses();
 
     return statuses.stream().map(reindexStatusMapper::convert).toList();
-  }
-
-  public void setReindexUploadFailed(ReindexEntityType entityType) {
-    statusRepository.setReindexUploadFailed(entityType);
-  }
-
-  public void addProcessedMergeRanges(ReindexEntityType entityType, int processedMergeRanges) {
-    statusRepository.addReindexCounts(entityType, processedMergeRanges, 0);
-  }
-
-  public void addProcessedUploadRanges(ReindexEntityType entityType, int processedUploadRanges) {
-    statusRepository.addReindexCounts(entityType, 0, processedUploadRanges);
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

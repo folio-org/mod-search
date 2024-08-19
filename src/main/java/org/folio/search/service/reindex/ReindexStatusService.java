@@ -26,16 +26,28 @@ public class ReindexStatusService {
     statusRepository.saveReindexStatusRecords(statusRecords);
   }
 
-  public void updateMergeRangesStarted(ReindexEntityType entityType, int totalMergeRanges) {
-    statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);
+  public void addProcessedMergeRanges(ReindexEntityType entityType, int processedMergeRanges) {
+    statusRepository.addReindexCounts(entityType, processedMergeRanges, 0);
   }
 
-  public void updateMergeRangesFailed(List<ReindexEntityType> entityTypes) {
+  public void addProcessedUploadRanges(ReindexEntityType entityType, int processedUploadRanges) {
+    statusRepository.addReindexCounts(entityType, 0, processedUploadRanges);
+  }
+
+  public void updateReindexMergeFailed(List<ReindexEntityType> entityTypes) {
     statusRepository.setMergeReindexFailed(entityTypes);
   }
 
-  public void updateMergeRangesFailed() {
-    updateMergeRangesFailed(MERGE_RANGE_ENTITY_TYPES);
+  public void updateReindexMergeFailed() {
+    updateReindexMergeFailed(MERGE_RANGE_ENTITY_TYPES);
+  }
+
+  public void updateReindexUploadFailed(ReindexEntityType entityType) {
+    statusRepository.setReindexUploadFailed(entityType);
+  }
+
+  public void updateReindexMergeStarted(ReindexEntityType entityType, int totalMergeRanges) {
+    statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,

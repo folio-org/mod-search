@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
-import java.util.Arrays;
+import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
+
 import java.util.List;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.types.ReindexEntityType;
@@ -19,8 +20,8 @@ public class ReindexStatusService {
   }
 
   @Transactional
-  public void recreateStatusRecords(ReindexStatus status) {
-    var statusRecords = constructNewStatusRecords(status);
+  public void recreateMergeStatusRecords() {
+    var statusRecords = constructNewStatusRecords(MERGE_RANGE_ENTITY_TYPES, ReindexStatus.MERGE_IN_PROGRESS);
     statusRepository.truncate();
     statusRepository.saveReindexStatusRecords(statusRecords);
   }
@@ -34,11 +35,12 @@ public class ReindexStatusService {
   }
 
   public void updateMergeRangesFailed() {
-    updateMergeRangesFailed(ReindexConstants.MERGE_RANGE_ENTITY_TYPES);
+    updateMergeRangesFailed(MERGE_RANGE_ENTITY_TYPES);
   }
 
-  private List<ReindexStatusEntity> constructNewStatusRecords(ReindexStatus status) {
-    return Arrays.stream(ReindexEntityType.values())
+  private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
+                                                              ReindexStatus status) {
+    return entityTypes.stream()
       .map(entityType -> new ReindexStatusEntity(entityType, status))
       .toList();
   }

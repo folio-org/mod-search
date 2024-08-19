@@ -2,11 +2,12 @@ package org.folio.search.service.reindex;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
-import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantsService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
@@ -20,19 +21,23 @@ public class ReindexService {
   private final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexStatusService statusService;
   private final InventoryService inventoryService;
+  private final ExecutorService reindexExecutor;
 
   public ReindexService(ConsortiumTenantsService consortiumService,
                         SystemUserScopedExecutionService executionService,
                         ReindexMergeRangeIndexService mergeRangeService,
-                        ReindexStatusService statusService, InventoryService inventoryService) {
+                        ReindexStatusService statusService,
+                        InventoryService inventoryService,
+                        ExecutorService reindexExecutor) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
     this.statusService = statusService;
     this.inventoryService = inventoryService;
+    this.reindexExecutor = reindexExecutor;
   }
 
-  public void initFullReindex(String tenantId) {
+  public CompletableFuture<Void> initFullReindex(String tenantId) {
     log.info("submit full reindex process");
 
     if (consortiumService.isMemberTenantInConsortium(tenantId)) {
@@ -41,18 +46,22 @@ public class ReindexService {
     }
 
     mergeRangeService.deleteAllRangeRecords();
-    statusService.recreateStatusRecords(ReindexStatus.MERGE_IN_PROGRESS);
+    statusService.recreateMergeStatusRecords();
 
-    mergeRangeService.createMergeRanges(tenantId);
-    publishRecordsRange();
-
-    //CompletableFuture.runAsync(() -> {
-    //  mergeRangeService.createMergeRanges(tenantId);
-    //  processForConsortium(tenantId);
-    //})
-    //  .thenRun(this::publishRecordsRange);
+    var future = CompletableFuture.runAsync(() -> {
+      mergeRangeService.createMergeRanges(tenantId);
+      processForConsortium(tenantId);
+    }, reindexExecutor)
+      .thenRun(this::publishRecordsRange)
+      .handle((unused, throwable) -> {
+        if (throwable != null) {
+          statusService.updateMergeRangesFailed();
+        }
+        return unused;
+      });
 
     log.info("full reindex process submitted");
+    return future;
   }
 
   private void processForConsortium(String tenantId) {

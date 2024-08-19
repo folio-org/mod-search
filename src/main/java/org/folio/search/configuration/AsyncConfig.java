@@ -3,6 +3,7 @@ package org.folio.search.configuration;
 import java.util.concurrent.Executor;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.configuration.properties.StreamIdsProperties;
+import org.folio.search.service.FolioExecutor;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,11 @@ public class AsyncConfig {
     executor.setTaskDecorator(FolioExecutionScopeExecutionContextManager::getRunnableWithCurrentFolioContext);
     executor.initialize();
     return executor;
+  }
+
+  @Bean("reindexExecutor")
+  public FolioExecutor remappingExecutor() {
+    return new FolioExecutor(0, 1);
   }
 }
 

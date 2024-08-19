@@ -8,6 +8,7 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
@@ -15,6 +16,7 @@ import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexRangeIndexService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexManagementController implements IndexManagementApi {
 
   private final IndexService indexService;
+  private final ReindexRangeIndexService reindexRangeService;
   private final ResourceService resourceService;
   private final ReindexService reindexService;
 
@@ -67,5 +70,10 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<FolioIndexOperationResponse> updateMappings(String tenantId, UpdateMappingsRequest request) {
     return ResponseEntity.ok(indexService.updateMappings(request.getResourceName(), tenantId));
+  }
+
+  @Override
+  public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(String tenantId) {
+    return ResponseEntity.ok(reindexRangeService.getReindexStatuses(tenantId));
   }
 }

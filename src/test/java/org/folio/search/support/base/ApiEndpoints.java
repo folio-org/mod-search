@@ -174,6 +174,10 @@ public class ApiEndpoints {
     return "/search/index/settings";
   }
 
+  public static String reindexInstanceRecordsStatus() {
+    return "/search/index/instance-records/reindex/status";
+  }
+
   public static String reindexFullPath() {
     return "/search/index/instance-records/reindex/full";
   }

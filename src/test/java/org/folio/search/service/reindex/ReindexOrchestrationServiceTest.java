@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
@@ -15,6 +16,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.testing.type.UnitTest;
@@ -41,10 +43,10 @@ class ReindexOrchestrationServiceTest {
   @Test
   void process_shouldProcessSuccessfully() {
     // Arrange
-    ReindexRangeIndexEvent event = new ReindexRangeIndexEvent();
-    ResourceEvent resourceEvent = new ResourceEvent();
-    FolioIndexOperationResponse folioIndexOperationResponse =
-      new FolioIndexOperationResponse().status(FolioIndexOperationResponse.StatusEnum.SUCCESS);
+    var event = reindexEvent();
+    var resourceEvent = new ResourceEvent();
+    var folioIndexOperationResponse = new FolioIndexOperationResponse()
+      .status(FolioIndexOperationResponse.StatusEnum.SUCCESS);
 
     when(rangeIndexService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
     when(documentConverter.convert(List.of(resourceEvent))).thenReturn(Map.of("key", List.of(SearchDocumentBody.of(null,
@@ -59,14 +61,15 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
+    verify(rangeIndexService).addProcessedUploadRanges(event.getEntityType(), 1);
   }
 
   @Test
   void process_shouldThrowReindexException_whenElasticSearchReportsError() {
     // Arrange
-    ReindexRangeIndexEvent event = new ReindexRangeIndexEvent();
-    ResourceEvent resourceEvent = new ResourceEvent();
-    FolioIndexOperationResponse folioIndexOperationResponse = new FolioIndexOperationResponse()
+    var event = reindexEvent();
+    var resourceEvent = new ResourceEvent();
+    var folioIndexOperationResponse = new FolioIndexOperationResponse()
       .status(FolioIndexOperationResponse.StatusEnum.ERROR)
       .errorMessage("Error occurred during indexing.");
 
@@ -81,5 +84,13 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
+    verify(rangeIndexService).setReindexUploadFailed(event.getEntityType());
+  }
+
+  private ReindexRangeIndexEvent reindexEvent() {
+    var event = new ReindexRangeIndexEvent();
+    event.setId(UUID.randomUUID());
+    event.setEntityType(ReindexEntityType.INSTANCE);
+    return event;
   }
 }

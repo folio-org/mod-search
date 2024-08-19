@@ -77,6 +77,15 @@
         },
         {
           "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/status",
+          "permissionsRequired": [
+            "search.index.reindex.status.get"
+          ]
+        },
+        {
+          "methods": [
             "POST"
           ],
           "pathPattern": "/search/index/instance-records/reindex/full",
@@ -713,6 +722,11 @@
       "permissionName": "search.index.inventory.reindex.post",
       "displayName": "Search - starts inventory reindex operation",
       "description": "Starts inventory reindex operation"
+    },
+    {
+      "permissionName": "search.index.reindex.status.get",
+      "displayName": "Search - returns reindex status for entities",
+      "description": "Returns reindex status for entities"
     },
     {
       "permissionName": "search.facets.collection.get",

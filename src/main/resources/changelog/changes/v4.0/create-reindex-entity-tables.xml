@@ -237,7 +237,7 @@
       </not>
     </preConditions>
 
-    <comment>Create upload_ranges table</comment>
+    <comment>Create reindex_status table</comment>
 
     <createTable tableName="reindex_status">
       <column name="entity_type" type="VARCHAR(30)">

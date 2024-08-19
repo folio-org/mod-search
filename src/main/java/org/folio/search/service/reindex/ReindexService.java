@@ -55,6 +55,7 @@ public class ReindexService {
       .thenRun(this::publishRecordsRange)
       .handle((unused, throwable) -> {
         if (throwable != null) {
+          log.error("full reindex process failed: {}", throwable.getMessage());
           statusService.updateMergeRangesFailed();
         }
         return unused;

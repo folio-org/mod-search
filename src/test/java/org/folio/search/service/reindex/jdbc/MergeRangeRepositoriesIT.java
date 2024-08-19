@@ -132,6 +132,9 @@ class MergeRangeRepositoriesIT {
 
     // assert
     var ranges = instanceRepository.getMergeRanges();
-    assertThat(ranges).isEqualTo(instanceRanges);
+
+    assertThat(ranges)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields(MergeRangeEntity.CREATED_AT_COLUMN)
+      .isEqualTo(instanceRanges);
   }
 }

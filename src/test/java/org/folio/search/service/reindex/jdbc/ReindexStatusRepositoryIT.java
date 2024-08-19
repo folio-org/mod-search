@@ -99,9 +99,10 @@ class ReindexStatusRepositoryIT {
 
     // assert
     var statuses = repository.getReindexStatuses();
+
     assertThat(statuses)
       .hasSize(4)
-      .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
+      .filteredOn(reindexStatus -> CLASSIFICATION.equals(reindexStatus.getEntityType()))
       .anyMatch(reindexStatus -> UPLOAD_FAILED.equals(reindexStatus.getStatus())
         && reindexStatus.getEndTimeUpload() != null);
   }

@@ -68,7 +68,7 @@ public class ReindexStatusRepository {
   public void setReindexUploadFailed(ReindexEntityType entityType) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_SQL.formatted(
-      fullTableName, "%s = ?, %s = ?".formatted(STATUS_COLUMN, START_TIME_MERGE_COLUMN));
+      fullTableName, "%s = ?, %s = ?".formatted(STATUS_COLUMN, END_TIME_UPLOAD_COLUMN));
 
     jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
   }

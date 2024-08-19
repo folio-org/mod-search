@@ -50,6 +50,7 @@ spring:
       - tenant-features
       - search-preference
       - user-tenants
+      - consortium-tenants-cache
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:

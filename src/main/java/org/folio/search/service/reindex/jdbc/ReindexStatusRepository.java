@@ -9,9 +9,6 @@ import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_UPLO
 import static org.folio.search.model.reindex.ReindexStatusEntity.STATUS_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_UPLOAD_RANGES_COLUMN;
-import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_MERGE_COLUMN;
-import static org.folio.search.model.reindex.ReindexStatusEntity.STATUS_COLUMN;
-import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_MERGE_RANGES_COLUMN;
 import static org.folio.search.service.reindex.ReindexConstants.REINDEX_STATUS_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
@@ -50,11 +47,7 @@ public class ReindexStatusRepository {
     """;
 
   private static final String SELECT_REINDEX_STATUS_BY_REINDEX_ID_SQL = "SELECT * FROM %s;";
-  private static final String UPDATE_REINDEX_STATUS_SQL = """
-    UPDATE %s
-    SET status = ?, %s = ?
-    WHERE entity_type = ?;
-    """;
+
   private static final String UPDATE_REINDEX_COUNTS_SQL = """
     UPDATE %s
     SET processed_merge_ranges = processed_merge_ranges + ?,
@@ -74,7 +67,8 @@ public class ReindexStatusRepository {
 
   public void setReindexUploadFailed(ReindexEntityType entityType) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_REINDEX_STATUS_SQL.formatted(fullTableName, END_TIME_UPLOAD_COLUMN);
+    var sql = UPDATE_SQL.formatted(
+      fullTableName, "%s = ?, %s = ?".formatted(STATUS_COLUMN, START_TIME_MERGE_COLUMN));
 
     jdbcTemplate.update(sql, ReindexStatus.UPLOAD_FAILED.name(), Timestamp.from(Instant.now()), entityType.name());
   }
@@ -87,23 +81,6 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, processedMergeRanges, processedUploadRanges, entityType.name());
   }
 
-  private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
-    return (rs, rowNum) -> {
-      var reindexStatus = new ReindexStatusEntity(
-        ReindexEntityType.valueOf(rs.getString(ReindexStatusEntity.ENTITY_TYPE_COLUMN)),
-        ReindexStatus.valueOf(rs.getString(STATUS_COLUMN))
-      );
-      reindexStatus.setTotalMergeRanges(rs.getInt(TOTAL_MERGE_RANGES_COLUMN));
-      reindexStatus.setProcessedMergeRanges(rs.getInt(PROCESSED_MERGE_RANGES_COLUMN));
-      reindexStatus.setTotalUploadRanges(rs.getInt(TOTAL_UPLOAD_RANGES_COLUMN));
-      reindexStatus.setProcessedUploadRanges(rs.getInt(PROCESSED_UPLOAD_RANGES_COLUMN));
-      reindexStatus.setStartTimeMerge(rs.getTimestamp(START_TIME_MERGE_COLUMN));
-      reindexStatus.setEndTimeMerge(rs.getTimestamp(END_TIME_MERGE_COLUMN));
-      reindexStatus.setStartTimeUpload(rs.getTimestamp(START_TIME_UPLOAD_COLUMN));
-      reindexStatus.setEndTimeUpload(rs.getTimestamp(END_TIME_UPLOAD_COLUMN));
-      return reindexStatus;
-    };
-  }
   public void truncate() {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     String sql = "TRUNCATE TABLE %s;".formatted(fullTableName);
@@ -118,7 +95,7 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, totalMergeRanges, Timestamp.from(Instant.now()), entityType.name());
   }
 
-  public void setReindexMergeFailed(List<ReindexEntityType> entityTypes) {
+  public void setMergeReindexFailed(List<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));
@@ -146,4 +123,21 @@ public class ReindexStatusRepository {
       });
   }
 
+  private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
+    return (rs, rowNum) -> {
+      var reindexStatus = new ReindexStatusEntity(
+        ReindexEntityType.valueOf(rs.getString(ReindexStatusEntity.ENTITY_TYPE_COLUMN)),
+        ReindexStatus.valueOf(rs.getString(STATUS_COLUMN))
+      );
+      reindexStatus.setTotalMergeRanges(rs.getInt(TOTAL_MERGE_RANGES_COLUMN));
+      reindexStatus.setProcessedMergeRanges(rs.getInt(PROCESSED_MERGE_RANGES_COLUMN));
+      reindexStatus.setTotalUploadRanges(rs.getInt(TOTAL_UPLOAD_RANGES_COLUMN));
+      reindexStatus.setProcessedUploadRanges(rs.getInt(PROCESSED_UPLOAD_RANGES_COLUMN));
+      reindexStatus.setStartTimeMerge(rs.getTimestamp(START_TIME_MERGE_COLUMN));
+      reindexStatus.setEndTimeMerge(rs.getTimestamp(END_TIME_MERGE_COLUMN));
+      reindexStatus.setStartTimeUpload(rs.getTimestamp(START_TIME_UPLOAD_COLUMN));
+      reindexStatus.setEndTimeUpload(rs.getTimestamp(END_TIME_UPLOAD_COLUMN));
+      return reindexStatus;
+    };
+  }
 }

@@ -23,11 +23,10 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.search.model.types.ReindexStatus;
-import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
+import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.extension.Random;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
@@ -49,7 +48,7 @@ class ReindexRangeIndexServiceTest {
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private @Mock ReindexStatusRepository statusRepository;
   private @Mock ReindexStatusMapper reindexStatusMapper;
-  private @Mock ConsortiumTenantService tenantService;
+  private @Mock UserTenantsService tenantService;
   private ReindexRangeIndexService service;
 
   @BeforeEach

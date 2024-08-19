@@ -55,7 +55,7 @@ public class ReindexMergeRangeIndexService {
     var repository = repositories.get(ReindexEntityType.INSTANCE);
     for (var recordType : InventoryRecordType.values()) {
       try {
-        var recordsCount = inventoryService.fetchInventoryRecordCount(recordType);
+        var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
         var rangeSize = reindexConfig.getMergeRangeSize();
         var ranges = constructRecordMergeRanges(recordsCount, rangeSize, recordType, tenantId);
 

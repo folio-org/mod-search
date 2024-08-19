@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
-import org.folio.search.service.consortium.ConsortiumTenantsService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +16,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReindexService {
 
-  private final ConsortiumTenantsService consortiumService;
+  private final ConsortiumTenantService consortiumService;
   private final SystemUserScopedExecutionService executionService;
   private final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexStatusService statusService;
   private final InventoryService inventoryService;
   private final ExecutorService reindexExecutor;
 
-  public ReindexService(ConsortiumTenantsService consortiumService,
+  public ReindexService(ConsortiumTenantService consortiumService,
                         SystemUserScopedExecutionService executionService,
                         ReindexMergeRangeIndexService mergeRangeService,
                         ReindexStatusService statusService,

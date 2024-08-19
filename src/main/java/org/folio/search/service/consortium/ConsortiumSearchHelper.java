@@ -38,7 +38,7 @@ public class ConsortiumSearchHelper {
   private static final String BROWSE_TENANT_FILTER_KEY = "instances.tenantId";
 
   private final FolioExecutionContext folioExecutionContext;
-  private final UserTenantsService userTenantsService;
+  private final ConsortiumTenantService consortiumTenantService;
 
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource) {
     var contextTenantId = folioExecutionContext.getTenantId();
@@ -51,7 +51,7 @@ public class ConsortiumSearchHelper {
    * modified query will have member 'tenantId' filter with shared=true).
    */
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource, String contextTenantId) {
-    var centralTenantId = userTenantsService.getCentralTenant(contextTenantId);
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return query;
     }
@@ -76,7 +76,7 @@ public class ConsortiumSearchHelper {
                                                             String resource) {
     logger.debug("Filtering browse query for {}", resource);
     var contextTenantId = folioExecutionContext.getTenantId();
-    var centralTenantId = userTenantsService.getCentralTenant(contextTenantId);
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     var sharedFilter = getBrowseSharedFilter(browseContext);
     if (centralTenantId.isEmpty()) {
       sharedFilter.ifPresent(filter -> browseContext.getFilters().remove(filter));
@@ -110,7 +110,7 @@ public class ConsortiumSearchHelper {
 
     var subResources = subResourceExtractor.apply(resource);
     var contextTenantId = folioExecutionContext.getTenantId();
-    var centralTenantId = userTenantsService.getCentralTenant(contextTenantId);
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return subResources;
     } else if (contextTenantId.equals(centralTenantId.get())) {

@@ -6,6 +6,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import org.folio.search.client.ConsortiumTenantsClient;
 import org.folio.search.client.UserTenantsClient;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
@@ -17,14 +18,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class UserTenantsServiceTest {
+class ConsortiumTenantServiceTest {
 
   @Mock
   private UserTenantsClient userTenantsClient;
   @Mock
+  private ConsortiumTenantsClient consortiumTenantsClient;
+  @Mock
   private FolioExecutionContext context;
   @InjectMocks
-  private UserTenantsService userTenantsService;
+  private ConsortiumTenantService consortiumTenantService;
 
   @Test
   void getCentralTenant_positive() {
@@ -33,7 +36,7 @@ class UserTenantsServiceTest {
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = userTenantsService.getCentralTenant(TENANT_ID);
+    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isNotEmpty()
@@ -45,7 +48,7 @@ class UserTenantsServiceTest {
   void getCentralTenant_negative_emptyResponse() {
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(null);
 
-    var actual = userTenantsService.getCentralTenant(TENANT_ID);
+    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();
@@ -58,7 +61,7 @@ class UserTenantsServiceTest {
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
-    var actual = userTenantsService.getCentralTenant(TENANT_ID);
+    var actual = consortiumTenantService.getCentralTenant(TENANT_ID);
 
     assertThat(actual)
       .isEmpty();

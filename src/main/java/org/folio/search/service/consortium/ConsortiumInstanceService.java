@@ -49,7 +49,7 @@ public class ConsortiumInstanceService {
   private final JsonConverter jsonConverter;
   private final ConsortiumInstanceRepository repository;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final UserTenantsService userTenantsService;
+  private final ConsortiumTenantService consortiumTenantService;
   private final FolioMessageProducer<ConsortiumInstanceEvent> producer;
   private final FolioExecutionContext context;
 
@@ -141,7 +141,7 @@ public class ConsortiumInstanceService {
         // if more than one instance returned then holdings/items merging required
         for (var instance : entry.getValue()) {
           var instanceMap = jsonConverter.fromJsonToMap(instance.instance());
-          if (isCentralTenant(instance.id().tenantId())) {
+          if (consortiumTenantService.isCentralTenant(instance.id().tenantId())) {
             mergedInstance = instanceMap;
           }
           addListItems(mergedHoldings, instanceMap, HOLDINGS_KEY);
@@ -198,7 +198,7 @@ public class ConsortiumInstanceService {
     SearchConverterUtils.setMapValueByPath(TENANT_ID_KEY, tenant, instance);
     SearchConverterUtils.setMapValueByPath(HOLDINGS_TENANT_ID_KEY, tenant, instance);
     SearchConverterUtils.setMapValueByPath(ITEMS_TENANT_ID_KEY, tenant, instance);
-    if (isCentralTenant(tenant)) {
+    if (consortiumTenantService.isCentralTenant(tenant)) {
       SearchConverterUtils.setMapValueByPath(SHARED_KEY, true, instance);
     }
     return instance;
@@ -211,12 +211,7 @@ public class ConsortiumInstanceService {
   }
 
   private boolean isConsortiumTenant(String tenantId) {
-    return userTenantsService.getCentralTenant(tenantId).isPresent();
-  }
-
-  private boolean isCentralTenant(String tenantId) {
-    var centralTenant = userTenantsService.getCentralTenant(tenantId);
-    return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
+    return consortiumTenantService.getCentralTenant(tenantId).isPresent();
   }
 
   private <T> void prepareAndSendConsortiumInstanceEvents(Collection<T> values,

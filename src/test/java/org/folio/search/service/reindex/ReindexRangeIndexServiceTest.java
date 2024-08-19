@@ -3,7 +3,6 @@ package org.folio.search.service.reindex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.service.reindex.ReindexRangeIndexService.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -12,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.folio.search.converter.ReindexStatusMapper;
@@ -24,7 +22,7 @@ import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
-import org.folio.search.service.consortium.UserTenantsService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -48,14 +46,14 @@ class ReindexRangeIndexServiceTest {
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private @Mock ReindexStatusRepository statusRepository;
   private @Mock ReindexStatusMapper reindexStatusMapper;
-  private @Mock UserTenantsService tenantService;
+  private @Mock ConsortiumTenantService consortiumTenantService;
   private ReindexRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
     service = new ReindexRangeIndexService(List.of(repository), indexRangeEventProducer, statusRepository,
-      reindexStatusMapper, tenantService);
+      reindexStatusMapper, consortiumTenantService);
   }
 
   @Test
@@ -120,7 +118,7 @@ class ReindexRangeIndexServiceTest {
 
   @Test
   void getReindexStatuses_negative_consortiumMemberTenant() {
-    when(tenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+    when(consortiumTenantService.isMemberTenantInConsortium(TENANT_ID)).thenReturn(true);
 
     var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
 

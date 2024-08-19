@@ -53,7 +53,7 @@ public class InventoryService {
     }
   }
 
-  public int fetchInventoryRecordCount(InventoryRecordType recordType) {
+  public int fetchInventoryRecordsCount(InventoryRecordType recordType) {
     if (recordType == null) {
       log.warn("No Inventory Record Type was provided to fetch Inventory Count");
       return 0;
@@ -67,7 +67,7 @@ public class InventoryService {
       };
 
       if (result == null) {
-        log.warn("Failed to retrieve Inventory Instances count");
+        log.warn("Failed to retrieve Inventory Records count");
         return 0;
       }
 
@@ -82,7 +82,7 @@ public class InventoryService {
   public void publishReindexRecordsRange(MergeRangeEntity rangeEntity) {
     if (rangeEntity == null
       || ObjectUtils.anyNull(rangeEntity.getId(), rangeEntity.getLowerId(), rangeEntity.getUpperId())) {
-      log.warn("invalid Range Entity: [rangeEntity: {}]", rangeEntity);
+      log.warn("Invalid Range Entity: [rangeEntity: {}]", rangeEntity);
       return;
     }
 

@@ -14,8 +14,8 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.repository.SearchRepository;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
-import org.folio.search.service.consortium.UserTenantsService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.search.utils.SearchUtils;
@@ -32,7 +32,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
   private final SearchFieldProvider searchFieldProvider;
   private final FolioExecutionContext context;
   private final TenantProvider tenantProvider;
-  private final UserTenantsService userTenantsService;
+  private final ConsortiumTenantService consortiumTenantService;
 
   @Override
   public Class<Authority> getGeneric() {
@@ -93,7 +93,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
       .trackTotalHits(true);
 
     var contextTenantId = context.getTenantId();
-    var centralTenantId = userTenantsService.getCentralTenant(contextTenantId);
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return searchSource;
     }

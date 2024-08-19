@@ -18,7 +18,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.consortium.UserTenantsService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -35,19 +35,19 @@ public class ReindexRangeIndexService {
   private final FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private final ReindexStatusRepository statusRepository;
   private final ReindexStatusMapper reindexStatusMapper;
-  private final UserTenantsService userTenantsService;
+  private final ConsortiumTenantService consortiumTenantService;
 
   public ReindexRangeIndexService(List<UploadRangeRepository> repositories,
                                   FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
                                   ReindexStatusRepository statusRepository,
                                   ReindexStatusMapper reindexStatusMapper,
-                                  UserTenantsService userTenantsService) {
+                                  ConsortiumTenantService consortiumTenantService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(UploadRangeRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
     this.statusRepository = statusRepository;
     this.reindexStatusMapper = reindexStatusMapper;
-    this.userTenantsService = userTenantsService;
+    this.consortiumTenantService = consortiumTenantService;
   }
 
   public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
@@ -76,8 +76,7 @@ public class ReindexRangeIndexService {
   }
 
   public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
-    var centralTenant = userTenantsService.getCentralTenant(tenantId);
-    if (centralTenant.isPresent() && !centralTenant.get().equals(tenantId)) {
+    if (consortiumTenantService.isMemberTenantInConsortium(tenantId)) {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantId);
     }
 

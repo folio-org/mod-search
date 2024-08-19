@@ -23,7 +23,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.consortium.ConsortiumTenantsService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReindexServiceTest {
 
   @Mock
-  private ConsortiumTenantsService consortiumService;
+  private ConsortiumTenantService consortiumService;
   @Mock
   private SystemUserScopedExecutionService executionService;
   @Mock

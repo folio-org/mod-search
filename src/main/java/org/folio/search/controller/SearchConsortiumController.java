@@ -29,7 +29,7 @@ import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumInstitutionService;
 import org.folio.search.service.consortium.ConsortiumLibraryService;
 import org.folio.search.service.consortium.ConsortiumLocationService;
-import org.folio.search.service.consortium.UserTenantsService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -46,7 +46,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   static final String REQUEST_NOT_ALLOWED_MSG =
     "The request allowed only for central tenant of consortium environment";
 
-  private final UserTenantsService userTenantsService;
+  private final ConsortiumTenantService consortiumTenantService;
   private final ConsortiumInstanceService instanceService;
   private final ConsortiumLocationService locationService;
   private final ConsortiumInstanceSearchService searchService;
@@ -201,7 +201,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   }
 
   private String verifyAndGetTenant(String tenantHeader) {
-    var centralTenant = userTenantsService.getCentralTenant(tenantHeader);
+    var centralTenant = consortiumTenantService.getCentralTenant(tenantHeader);
     if (centralTenant.isEmpty() || !centralTenant.get().equals(tenantHeader)) {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantHeader);
     }

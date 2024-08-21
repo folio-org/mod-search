@@ -16,7 +16,7 @@ $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS reindex_status_updated_trigger ON reindex_status CASCADE;
 CREATE TRIGGER reindex_status_updated_trigger
-  BEFORE UPDATE
+  BEFORE UPDATE OF processed_merge_ranges, processed_upload_ranges
   ON reindex_status
   FOR EACH ROW
   EXECUTE FUNCTION update_reindex_status_trigger();

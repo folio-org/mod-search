@@ -246,7 +246,7 @@
       <column name="status" type="VARCHAR(20)">
         <constraints nullable="false"/>
       </column>
-      <column name="total_merge_ranges" type="int eger"/>
+      <column name="total_merge_ranges" type="integer"/>
       <column name="processed_merge_ranges" type="integer"/>
       <column name="total_upload_ranges" type="integer"/>
       <column name="processed_upload_ranges" type="integer"/>
@@ -297,12 +297,5 @@
       <tableExists tableName="reindex_status"/>
     </preConditions>
     <sqlFile path="update-reindex-status-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
-  </changeSet>
-
-  <changeSet id="MSEARCH-794@@create-reindex_status-trigger-fix" author="Mukhiddin_Yusupov">
-    <preConditions onFail="MARK_RAN">
-      <tableExists tableName="reindex_status"/>
-    </preConditions>
-    <sqlFile path="update-reindex-status-trigger-fix.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 </databaseChangeLog>

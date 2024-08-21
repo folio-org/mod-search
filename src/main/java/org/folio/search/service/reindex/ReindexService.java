@@ -79,8 +79,9 @@ public class ReindexService {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     var memberTenants = consortiumService.getConsortiumTenants(tenantId);
     for (var memberTenant : memberTenants) {
-      executionService.executeAsyncSystemUserScoped(memberTenant, () ->
-        mergeRangeEntities.addAll(mergeRangeService.createMergeRanges(memberTenant)));
+      mergeRangeEntities.addAll(
+        executionService.executeSystemUserScoped(memberTenant, () -> mergeRangeService.createMergeRanges(memberTenant))
+      );
     }
     return mergeRangeEntities;
   }
@@ -92,7 +93,10 @@ public class ReindexService {
         log.info("Publishing {} {} range entities", rangeEntities.size(), entityType);
         statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
         for (var rangeEntity : rangeEntities) {
-          inventoryService.publishReindexRecordsRange(rangeEntity);
+          executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+            inventoryService.publishReindexRecordsRange(rangeEntity);
+            return null;
+          });
         }
       }
     }

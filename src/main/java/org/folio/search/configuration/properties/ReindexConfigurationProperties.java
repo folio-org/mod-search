@@ -19,4 +19,6 @@ public class ReindexConfigurationProperties {
   private Integer locationBatchSize = 1_000;
 
   private Integer uploadRangeSize = 1_000;
+
+  private Integer mergeRangeSize = 1_000;
 }

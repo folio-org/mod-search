@@ -6,6 +6,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import org.folio.search.client.ConsortiumTenantsClient;
 import org.folio.search.client.UserTenantsClient;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
@@ -17,10 +18,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class ConsortiaServiceTest {
+class ConsortiumTenantServiceTest {
 
   @Mock
   private UserTenantsClient userTenantsClient;
+  @Mock
+  private ConsortiumTenantsClient consortiumTenantsClient;
   @Mock
   private FolioExecutionContext context;
   @InjectMocks
@@ -29,7 +32,7 @@ class ConsortiaServiceTest {
   @Test
   void getCentralTenant_positive() {
     var userTenants = new UserTenantsClient.UserTenants(Collections.singletonList(
-      new UserTenantsClient.UserTenant(CENTRAL_TENANT_ID)));
+      new UserTenantsClient.UserTenant(CENTRAL_TENANT_ID, "consortiaId")));
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 
@@ -54,7 +57,7 @@ class ConsortiaServiceTest {
   @Test
   void getCentralTenant_negative_noCentralTenant() {
     var userTenants = new UserTenantsClient.UserTenants(Collections.singletonList(
-      new UserTenantsClient.UserTenant(null)));
+      new UserTenantsClient.UserTenant(null, "consortiaId")));
 
     when(userTenantsClient.getUserTenants(TENANT_ID)).thenReturn(userTenants);
 

@@ -5,6 +5,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class InstanceJdbcRepository extends ReindexJdbcRepository {
+public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL = """
     SELECT i.instance_json
@@ -27,10 +28,10 @@ public class InstanceJdbcRepository extends ReindexJdbcRepository {
         GROUP BY i.id LIMIT ? OFFSET ?;
     """;
 
-  protected InstanceJdbcRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
-                                   FolioExecutionContext context,
-                                   ReindexConfigurationProperties reindexConfigurationProperties) {
-    super(jdbcTemplate, jsonConverter, context, reindexConfigurationProperties);
+  protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
+                                     FolioExecutionContext context,
+                                     ReindexConfigurationProperties reindexConfig) {
+    super(jdbcTemplate, jsonConverter, context, reindexConfig);
   }
 
   @Override
@@ -52,6 +53,6 @@ public class InstanceJdbcRepository extends ReindexJdbcRepository {
 
   @Override
   protected String entityTable() {
-    return "instance";
+    return ReindexConstants.INSTANCE_TABLE;
   }
 }

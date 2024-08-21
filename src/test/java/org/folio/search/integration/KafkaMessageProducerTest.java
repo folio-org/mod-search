@@ -55,7 +55,7 @@ class KafkaMessageProducerTest {
   @Mock
   private KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   @Mock
-  private ConsortiumTenantService tenantService;
+  private ConsortiumTenantService consortiumTenantService;
 
   @Test
   void shouldSendTwoSubjectEvents_whenSubjectChanged() {

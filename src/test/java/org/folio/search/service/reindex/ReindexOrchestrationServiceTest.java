@@ -31,7 +31,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReindexOrchestrationServiceTest {
 
   @Mock
-  private ReindexRangeIndexService rangeIndexService;
+  private ReindexUploadRangeIndexService rangeIndexService;
+  @Mock
+  private ReindexStatusService reindexStatusService;
   @Mock
   private PrimaryResourceRepository elasticRepository;
   @Mock
@@ -61,7 +63,7 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
-    verify(rangeIndexService).addProcessedUploadRanges(event.getEntityType(), 1);
+    verify(reindexStatusService).addProcessedUploadRanges(event.getEntityType(), 1);
   }
 
   @Test
@@ -84,7 +86,7 @@ class ReindexOrchestrationServiceTest {
     verify(rangeIndexService).fetchRecordRange(event);
     verify(documentConverter).convert(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
-    verify(rangeIndexService).setReindexUploadFailed(event.getEntityType());
+    verify(reindexStatusService).updateReindexUploadFailed(event.getEntityType());
   }
 
   private ReindexRangeIndexEvent reindexEvent() {

@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -24,6 +25,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
@@ -35,7 +37,8 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.reindex.ReindexRangeIndexService;
+import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -66,7 +69,17 @@ class IndexManagementControllerTest {
   @MockBean
   private ResourceService resourceService;
   @MockBean
-  private ReindexRangeIndexService reindexRangeService;
+  private ReindexService reindexService;
+  @MockBean
+  private ReindexStatusService reindexStatusService;
+
+  @Test
+  void runFullReindex_positive() throws Exception {
+    when(reindexService.initFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
 
   @Test
   void createIndex_positive() throws Exception {
@@ -257,7 +270,7 @@ class IndexManagementControllerTest {
   @Test
   void getReindexStatus_positive() throws Exception {
     var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.INSTANCE.name());
-    when(reindexRangeService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
+    when(reindexStatusService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
 
     mockMvc.perform(get(reindexInstanceRecordsStatus())
         .header(XOkapiHeaders.TENANT, TENANT_ID))

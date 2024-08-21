@@ -15,5 +15,5 @@ public interface UserTenantsClient {
 
   record UserTenants(List<UserTenant> userTenants) { }
 
-  record UserTenant(String centralTenantId) { }
+  record UserTenant(String centralTenantId, String consortiumId) { }
 }

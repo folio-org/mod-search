@@ -13,7 +13,8 @@ public enum ErrorCode {
   ELASTICSEARCH_ERROR("elasticsearch_error"),
   VALIDATION_ERROR("validation_error"),
   NOT_FOUND_ERROR("not_found_error"),
-  CONSTRAINT_VIOLATION("constraint_violation_error");
+  CONSTRAINT_VIOLATION("constraint_violation_error"),
+  INTEGRATION_ERROR("integration-error");
 
   @JsonValue
   private final String value;

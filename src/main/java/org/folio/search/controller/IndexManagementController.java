@@ -15,7 +15,8 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
-import org.folio.search.service.reindex.ReindexRangeIndexService;
+import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexManagementController implements IndexManagementApi {
 
   private final IndexService indexService;
-  private final ReindexRangeIndexService reindexRangeService;
   private final ResourceService resourceService;
+  private final ReindexService reindexService;
+  private final ReindexStatusService reindexStatusService;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -43,6 +45,13 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEvent> events) {
     return ResponseEntity.ok(resourceService.indexResources(events));
+  }
+
+  @Override
+  public ResponseEntity<Void> reindexInstanceRecords(String tenantId) {
+    log.info("Attempting to run full-reindex for instance records [tenant: {}]", tenantId);
+    reindexService.initFullReindex(tenantId);
+    return ResponseEntity.ok().build();
   }
 
   @Override
@@ -65,6 +74,6 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(String tenantId) {
-    return ResponseEntity.ok(reindexRangeService.getReindexStatuses(tenantId));
+    return ResponseEntity.ok(reindexStatusService.getReindexStatuses(tenantId));
   }
 }

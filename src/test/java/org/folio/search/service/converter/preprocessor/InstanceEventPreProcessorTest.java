@@ -18,8 +18,8 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.collections4.SetUtils;
@@ -40,7 +39,7 @@ import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +69,7 @@ class InstanceEventPreProcessorTest {
 
   private @Spy JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
   private @Mock FeatureConfigService featureConfigService;
-  private @Mock ConsortiumTenantService consortiumTenantService;
+  private @Mock ConsortiumTenantProvider consortiumTenantProvider;
   private @Mock InstanceClassificationRepository instanceClassificationRepository;
   private @InjectMocks InstanceEventPreProcessor preProcessor;
 
@@ -246,7 +245,7 @@ class InstanceEventPreProcessorTest {
     var oldData = instance(id, List.of(classification("n1", "t1"), classification("n4", "t4")));
     var resourceEvent = resourceEvent(id, INSTANCE_RESOURCE, eventType, newData, oldData);
     mockClassificationBrowseFeatureEnabled(Boolean.TRUE);
-    when(consortiumTenantService.getCentralTenant(any())).then(invocation -> Optional.of(invocation.getArgument(0)));
+    when(consortiumTenantProvider.isCentralTenant(anyString())).thenReturn(true);
 
     // Act
     var resourceEvents = preProcessor.preProcess(resourceEvent);

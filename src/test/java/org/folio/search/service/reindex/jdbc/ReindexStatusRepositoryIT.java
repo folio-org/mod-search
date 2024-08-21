@@ -99,6 +99,7 @@ class ReindexStatusRepositoryIT {
 
     // assert
     var statuses = repository.getReindexStatuses();
+
     assertThat(statuses)
       .hasSize(4)
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))

@@ -1,0 +1,130 @@
+package org.folio.search.service.reindex;
+
+import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import org.apache.commons.lang3.ThreadUtils;
+import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.exception.RequestValidationException;
+import org.folio.search.integration.InventoryService;
+import org.folio.search.model.reindex.MergeRangeEntity;
+import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@UnitTest
+@ExtendWith(MockitoExtension.class)
+class ReindexServiceTest {
+
+  @Mock
+  private ConsortiumTenantService consortiumService;
+  @Mock
+  private SystemUserScopedExecutionService executionService;
+  @Mock
+  private ReindexMergeRangeIndexService mergeRangeService;
+  @Mock
+  private ReindexStatusService statusService;
+  @Mock
+  private InventoryService inventoryService;
+  @Mock
+  private ExecutorService reindexExecutor;
+  @InjectMocks
+  private ReindexService reindexService;
+
+  @Test
+  void initFullReindex_negative_shouldFailForEcsMemberTenant() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
+
+    assertThrows(RequestValidationException.class, () -> reindexService.initFullReindex(TENANT_ID),
+      "Not allowed to run reindex from member tenant of consortium environment");
+  }
+
+  @Test
+  void initFullReindex_positive() throws InterruptedException {
+    var tenant = "central";
+    var member = "member";
+    var id = UUID.randomUUID();
+    var rangeEntity =
+      new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
+    when(executionService.executeSystemUserScoped(anyString(), any())).thenReturn(List.of());
+    when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
+    when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
+    doAnswer(invocation -> {
+      ((Runnable) invocation.getArgument(0)).run();
+      return null;
+    }).when(reindexExecutor).execute(any());
+    final var expectedCallsCount = MERGE_RANGE_ENTITY_TYPES.size();
+
+    reindexService.initFullReindex(tenant);
+    ThreadUtils.sleep(Duration.ofSeconds(1));
+
+    verify(mergeRangeService).deleteAllRangeRecords();
+    verify(statusService).recreateMergeStatusRecords();
+    verify(mergeRangeService).createMergeRanges(tenant);
+    verify(mergeRangeService).saveMergeRanges(anyList());
+    verify(executionService).executeSystemUserScoped(eq(member), any(Callable.class));
+    verify(executionService, times(expectedCallsCount)).executeSystemUserScoped(eq(tenant), any(Callable.class));
+    verify(statusService, times(expectedCallsCount))
+      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
+    verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
+    verifyNoMoreInteractions(mergeRangeService);
+  }
+
+  @Test
+  void initFullReindex_negative_abortMergeAndSetFailedStatusWhenPublishingRangesFailed() throws InterruptedException {
+    var tenant = "central";
+    var member = "member";
+    var id = UUID.randomUUID();
+    var rangeEntity =
+      new MergeRangeEntity(id, ReindexEntityType.INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
+    when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
+    when(executionService.executeSystemUserScoped(anyString(), any()))
+      .thenReturn(List.of()) // when creating ranges for one member tenant
+      .thenThrow(FolioIntegrationException.class); // when publishing ranges
+    when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
+
+    doAnswer(invocation -> {
+      ((Runnable) invocation.getArgument(0)).run();
+      return null;
+    }).when(reindexExecutor).execute(any());
+
+    reindexService.initFullReindex(tenant);
+    ThreadUtils.sleep(Duration.ofSeconds(1));
+
+    verify(mergeRangeService).saveMergeRanges(anyList());
+    verify(statusService)
+      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
+    verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
+    verify(statusService).updateReindexMergeFailed();
+  }
+}

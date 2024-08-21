@@ -8,7 +8,6 @@ import org.folio.search.model.types.ReindexStatus;
 @Data
 public class ReindexStatusEntity {
 
-  public static final String REINDEX_STATUS_TABLE = "reindex_status";
   public static final String ENTITY_TYPE_COLUMN = "entity_type";
   public static final String STATUS_COLUMN = "status";
   public static final String TOTAL_MERGE_RANGES_COLUMN = "total_merge_ranges";
@@ -30,5 +29,4 @@ public class ReindexStatusEntity {
   private Timestamp endTimeMerge;
   private Timestamp startTimeUpload;
   private Timestamp endTimeUpload;
-
 }

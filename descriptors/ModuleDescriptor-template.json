@@ -83,6 +83,22 @@
           "permissionsRequired": [
             "search.index.reindex.status.get"
           ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/full",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.full.post"
+          ],
+          "modulePermissions": [
+            "inventory-storage.reindex-records.publish.post",
+            "inventory-storage.instances.collection.get",
+            "inventory-storage.items.collection.get",
+            "inventory-storage.holdings.collection.get",
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -631,6 +647,11 @@
       "permissionName": "search.index.settings.item.put",
       "displayName": "Search - updates settings for the index",
       "description": "Updates settings for the index"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.full.post",
+      "displayName": "Search - starts inventory instance records full reindex operation",
+      "description": "Starts inventory instance records reindex operation"
     },
     {
       "permissionName": "search.instances.collection.get",

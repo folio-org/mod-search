@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.integration.InventoryService;
@@ -53,9 +54,10 @@ public class ReindexMergeRangeIndexService {
         var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
         var rangeSize = reindexConfig.getMergeRangeSize();
         var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
-
-        log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
-        repository.saveMergeRanges(ranges);
+        if (CollectionUtils.isNotEmpty(ranges)) {
+          log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
+          repository.saveMergeRanges(ranges);
+        }
       } catch (FolioIntegrationException e) {
         log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
         statusService.updateReindexMergeFailed(List.of(asEntityType(recordType)));

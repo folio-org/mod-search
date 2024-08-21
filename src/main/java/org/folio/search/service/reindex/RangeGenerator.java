@@ -8,6 +8,10 @@ import java.util.UUID;
 public class RangeGenerator {
 
   public static List<Range> createRanges(int count) {
+    if (count <= 0) {
+      return List.of();
+    }
+
     List<Range> ranges = new ArrayList<>();
     var max = new BigInteger("ffffffffffffffffffffffffffffffff", 16);
     var partitionCount = new BigInteger(String.valueOf(count));

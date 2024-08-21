@@ -2,12 +2,16 @@ package org.folio.search.service.reindex;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.exception.FolioIntegrationException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.InventoryService;
+import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.stereotype.Service;
@@ -50,8 +54,13 @@ public class ReindexService {
     statusService.recreateMergeStatusRecords();
 
     var future = CompletableFuture.runAsync(() -> {
-      mergeRangeService.createMergeRanges(tenantId);
-      processForConsortium(tenantId);
+      var rangesForAllTenants = Stream.of(
+          mergeRangeService.createMergeRanges(tenantId),
+          processForConsortium(tenantId)
+        )
+        .flatMap(List::stream)
+        .toList();
+      mergeRangeService.saveMergeRanges(rangesForAllTenants);
     }, reindexExecutor)
       .thenRun(this::publishRecordsRange)
       .handle((unused, throwable) -> {
@@ -66,32 +75,24 @@ public class ReindexService {
     return future;
   }
 
-  private void processForConsortium(String tenantId) {
-    try {
-      var memberTenants = consortiumService.getConsortiumTenants(tenantId);
-      for (var memberTenant : memberTenants) {
-        executionService.executeAsyncSystemUserScoped(memberTenant, () ->
-          mergeRangeService.createMergeRanges(memberTenant));
-      }
-    } catch (FolioIntegrationException e) {
-      log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
-      statusService.updateReindexMergeFailed();
+  private List<MergeRangeEntity> processForConsortium(String tenantId) {
+    List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
+    var memberTenants = consortiumService.getConsortiumTenants(tenantId);
+    for (var memberTenant : memberTenants) {
+      executionService.executeAsyncSystemUserScoped(memberTenant, () ->
+        mergeRangeEntities.addAll(mergeRangeService.createMergeRanges(memberTenant)));
     }
+    return mergeRangeEntities;
   }
 
   private void publishRecordsRange() {
     for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
-      statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
-
-      for (var rangeEntity : rangeEntities) {
-        try {
+      if (CollectionUtils.isNotEmpty(rangeEntities)) {
+        log.info("Publishing {} {} range entities", rangeEntities.size(), entityType);
+        statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
+        for (var rangeEntity : rangeEntities) {
           inventoryService.publishReindexRecordsRange(rangeEntity);
-        } catch (FolioIntegrationException e) {
-          log.error("Failed to publish records range entity [rangeEntity: {}]. Exception: {}",
-            rangeEntity, e.getMessage());
-          statusService.updateReindexMergeFailed();
-          return;
         }
       }
     }

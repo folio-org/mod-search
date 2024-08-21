@@ -4,6 +4,7 @@ import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTI
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.integration.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
@@ -27,17 +27,14 @@ public class ReindexMergeRangeIndexService {
 
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
-  private final ReindexStatusService statusService;
   private final ReindexConfigurationProperties reindexConfig;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
-                                       ReindexStatusService statusService,
                                        ReindexConfigurationProperties reindexConfig) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
-    this.statusService = statusService;
     this.reindexConfig = reindexConfig;
   }
 
@@ -47,23 +44,22 @@ public class ReindexMergeRangeIndexService {
     repositories.get(ReindexEntityType.INSTANCE).truncateMergeRanges();
   }
 
-  public void createMergeRanges(String tenantId) {
-    var repository = repositories.get(ReindexEntityType.INSTANCE);
+  public void saveMergeRanges(List<MergeRangeEntity> ranges) {
+    repositories.values().iterator().next().saveMergeRanges(ranges);
+  }
+
+  public List<MergeRangeEntity> createMergeRanges(String tenantId) {
+    List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     for (var recordType : InventoryRecordType.values()) {
-      try {
-        var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
-        var rangeSize = reindexConfig.getMergeRangeSize();
-        var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
-        if (CollectionUtils.isNotEmpty(ranges)) {
-          log.info("Creating [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
-          repository.saveMergeRanges(ranges);
-        }
-      } catch (FolioIntegrationException e) {
-        log.warn("Skip creating merge ranges for [tenant: {}]. Exception: {}", tenantId, e.getMessage());
-        statusService.updateReindexMergeFailed(List.of(asEntityType(recordType)));
+      var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
+      var rangeSize = reindexConfig.getMergeRangeSize();
+      var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
+      if (CollectionUtils.isNotEmpty(ranges)) {
+        log.info("Constructed [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
+        mergeRangeEntities.addAll(ranges);
       }
     }
-
+    return mergeRangeEntities;
   }
 
   public List<MergeRangeEntity> fetchMergeRanges(ReindexEntityType entityType) {

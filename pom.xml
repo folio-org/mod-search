@@ -39,7 +39,7 @@
     <folio-isbn-utils.version>1.7.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.2.2</folio-cql2pgjson.version>
     <opensearch.version>2.16.0</opensearch.version>
-    <mapstruct.version>1.5.5.Final</mapstruct.version>
+    <mapstruct.version>1.6.0</mapstruct.version>
     <apache-commons-io.version>2.16.1</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
@@ -49,15 +49,15 @@
     <jackson-bom.version>2.16.0</jackson-bom.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>7.7.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.8.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.3.1</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>3.4.0</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.4.0</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <checkstyle.version>10.17.0</checkstyle.version>
   </properties>

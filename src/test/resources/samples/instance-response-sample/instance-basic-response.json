@@ -26,6 +26,11 @@
           "dateOfPublication": "c2004"
         }
       ],
+      "dates": {
+        "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+        "date1": "199u",
+        "date2": "2022"
+      },
       "staffSuppress": false,
       "discoverySuppress": false,
       "isBoundWith": true,

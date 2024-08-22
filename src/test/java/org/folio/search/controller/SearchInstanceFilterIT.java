@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Classification;
+import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Holding;
@@ -90,6 +91,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static final String[] CLASSIFICATION_TYPE_IDS = array(
     "5af5cb9d-063f-48ea-8148-7da3ecaafd7d",
     "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d");
+
+  private static final String[] DATES = array(
+    "2021", "1998", "2020", "1978", "2023", "2022");
 
   @BeforeAll
   static void prepare() {
@@ -201,6 +205,16 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[1], IDS[2], IDS[4])),
       arguments(format("(item.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
         List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
+
+      arguments("(sort_date1=*) sortby date1", List.of(IDS[3], IDS[1], IDS[2], IDS[0], IDS[4])),
+      arguments("(sort_date1==20*) sortby title", List.of(IDS[0], IDS[2], IDS[4])),
+      arguments("(sort_date1==20*) sortby date1", List.of(IDS[2], IDS[0], IDS[4])),
+      arguments(format("(sort_date1>=%s and sort_date1<%s) sortby title", DATES[1], DATES[5]),
+        List.of(IDS[0], IDS[1], IDS[2])),
+      arguments(format("(sort_date1>=%s and sort_date1<%s) sortby date1", DATES[1], DATES[5]),
+        List.of(IDS[1], IDS[2], IDS[0])),
+      arguments(format("(sort_date1>=%s and dates.date2==%s) sortby title", DATES[0], DATES[4]),
+        List.of(IDS[4])),
 
       arguments("(item.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(item.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),
@@ -484,6 +498,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(tags("text", "science"))
       .statisticalCodeIds(singletonList("b5968c9e-cddc-4576-99e3-8e60aed8b0dd"))
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
+      .dates(new Dates().date1(DATES[0]))
       .items(List.of(
         new Item().id(randomId())
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
@@ -511,6 +526,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceFormatIds(List.of(FORMATS[1]))
       .tags(tags("future"))
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
+      .dates(new Dates().date1(DATES[1]))
       .items(List.of(
         new Item().id(randomId())
           .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
@@ -537,6 +553,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceFormatIds(List.of(FORMATS[2]))
       .tags(tags("future", "science"))
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
+      .dates(new Dates().date1(DATES[2]))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
           .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
@@ -555,6 +572,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .instanceFormatIds(List.of(FORMATS))
       .tags(tags("casual", "cooking"))
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
+      .dates(new Dates().date1(DATES[3]))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
@@ -577,6 +595,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .statusId(STATUSES[1])
       .instanceFormatIds(List.of(FORMATS[1]))
       .tags(tags("cooking"))
+      .dates(new Dates().date1(DATES[4]).date2(DATES[4]))
       .items(List.of(
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),
         new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))

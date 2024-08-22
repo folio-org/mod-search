@@ -1,0 +1,13 @@
+type: object
+description: "Instance Dates"
+additionalProperties: false
+properties:
+  dateTypeId:
+    type: string
+    description: "Date type ID"
+  date1:
+    type: string
+    description: "Date1 value"
+  date2:
+    type: string
+    description: "Date2 value"

@@ -127,6 +127,23 @@
         }
       }
     },
+    "dates": {
+      "type": "object",
+      "properties": {
+        "dateTypeId": {
+          "index": "source",
+          "showInResponse": [ "search"]
+        },
+        "date1": {
+          "index": "keyword_lowercase",
+          "showInResponse": [ "search" ]
+        },
+        "date2": {
+          "index": "keyword_lowercase",
+          "showInResponse": [ "search" ]
+        }
+      }
+    },
     "instanceTypeId": {
       "searchTypes": [ "facet", "filter" ],
       "index": "keyword_lowercase"
@@ -552,6 +569,12 @@
       "index": "keyword_lowercase",
       "processor": "sortTitleProcessor"
     },
+    "sort_date1": {
+      "searchTypes": [ "filter", "sort" ],
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "date1FieldProcessor"
+    },
     "sort_contributors": {
       "searchTypes": "sort",
       "type": "search",
@@ -730,6 +753,7 @@
       "allHoldings", "plain_allHoldings",
 
       "sort_title", "sort_contributors",
+      "sort_date1",
       "callNumber",
       "typedCallNumber",
       "itemEffectiveShelvingOrder",

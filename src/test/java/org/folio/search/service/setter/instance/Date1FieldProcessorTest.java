@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @UnitTest
-public class Date1FieldProcessorTest {
+class Date1FieldProcessorTest {
 
   private final Date1FieldProcessor date1FieldProcessor = new Date1FieldProcessor();
 

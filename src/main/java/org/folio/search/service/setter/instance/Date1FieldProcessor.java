@@ -24,7 +24,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, String> {
   }
 
   public String normalizeDate1(String value) {
-    String date1 = value.replaceAll(ALPHA_U, ZERO);
+    String date1 = value.replace(ALPHA_U, ZERO);
     var matcher = FOUR_DIGIT_REGEX.matcher(date1);
     if (matcher.find()) {
       return matcher.group();

@@ -559,6 +559,9 @@ does not produce any values, so the following search options will return an empt
 | `oclc`                                 |   term    | `oclc="1234*"`                                                       | Matches instances that have an OCLC identifier with the given value                                                                               |
 | `lccn`                                 |   term    | `lccn = "LCCN"`                                                      | Matches instances with the given lccn                                                                                                             |
 | `normalizedClassificationNumber`       |   term    | `normalizedClassificationNumber == "LCCN"`                           | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
+| `dates.date1`                          |   term    | `dates.date1="199*"`                                                 | Matches instances with the given Date1 (supports leading, trailing  and internal wildcards)                                                       |
+| `dates.date2`                          |   term    | `dates.date2="199*"`                                                 | Matches instances with the given Date2 (supports leading, trailing  and internal wildcards)                                                       |
+| `sort_date1`                           |   term    | `sort_date1=199u`                                                    | Matches instances with the given Date1 (normalizes  alpha 'u' characters, supports leading, trailing  and internal wildcards)                     |
 
 ##### Holdings search options
 
@@ -784,6 +787,7 @@ In case where options are similar, secondary sort is used
 | `contributors`      |   term    | relevancy      | Sort instances by contributors |
 | `items.status.name` |   term    | `title`        | Sort instances by status       |
 | `item.status.name`  |   term    | `title`        | Sort instances by status       |
+| `sort_date1`        |   term    | relevancy      | Sort instances by sort_date1   |
 
 ##### Authority sort options
 

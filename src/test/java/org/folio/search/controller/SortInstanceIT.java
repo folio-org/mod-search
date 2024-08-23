@@ -43,7 +43,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByDate1_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("date1", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(allRecordsSortedBy("normalizedDate1", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("19u5")))
       .andExpect(jsonPath("instances[1].dates.date1", is("199u")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
@@ -53,7 +53,7 @@ class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByDate1_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("date1", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(allRecordsSortedBy("normalizedDate1", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("2021")))
       .andExpect(jsonPath("instances[1].dates.date1", is("2001")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))

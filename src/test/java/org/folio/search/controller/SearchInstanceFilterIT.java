@@ -206,12 +206,12 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(item.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
         List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
 
-      arguments(format("(sort_date1<%s) sortby date1", DATES[2]), List.of(IDS[3], IDS[1])),
-      arguments(format("(sort_date1>=%s and sort_date1<%s) sortby title", DATES[1], DATES[5]),
+      arguments(format("(normalizedDate1<%s) sortby normalizedDate1", DATES[2]), List.of(IDS[3], IDS[1])),
+      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby title", DATES[1], DATES[5]),
         List.of(IDS[0], IDS[1], IDS[2])),
-      arguments(format("(sort_date1>=%s and sort_date1<%s) sortby date1", DATES[1], DATES[5]),
+      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby normalizedDate1", DATES[1], DATES[5]),
         List.of(IDS[1], IDS[2], IDS[0])),
-      arguments(format("(sort_date1>=%s) sortby title", DATES[0]), List.of(IDS[0], IDS[4])),
+      arguments(format("(normalizedDate1>=%s) sortby title", DATES[0]), List.of(IDS[0], IDS[4])),
 
       arguments("(item.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(item.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),

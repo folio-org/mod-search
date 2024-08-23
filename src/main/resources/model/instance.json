@@ -569,11 +569,15 @@
       "index": "keyword_lowercase",
       "processor": "sortTitleProcessor"
     },
-    "sort_date1": {
+    "normalizedDate1": {
       "searchTypes": [ "filter", "sort" ],
       "type": "search",
       "index": "short",
-      "processor": "date1FieldProcessor"
+      "processor": "date1FieldProcessor",
+      "sort": {
+        "fieldName": "normalizedDate1",
+        "type": "single"
+      }
     },
     "sort_contributors": {
       "searchTypes": "sort",
@@ -753,7 +757,7 @@
       "allHoldings", "plain_allHoldings",
 
       "sort_title", "sort_contributors",
-      "sort_date1",
+      "normalizedDate1",
       "callNumber",
       "typedCallNumber",
       "itemEffectiveShelvingOrder",

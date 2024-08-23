@@ -541,7 +541,7 @@ does not produce any values, so the following search options will return an empt
 | `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                                |
 | `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                               |
 | `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                                      |
-| `publication.place`                    | full-text   | `publication.place all "Ukraine"`                                       | Matches instances that have `Ukraine` in publication place                                                                                           |
+| `publication.place`                    | full-text   | `publication.place all "Ukraine"`                                    | Matches instances that have `Ukraine` in publication place                                                                                        |
 | `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                                       |
 | `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                           |
 | `classifications.classificationTypeId` |   term    | `classifications.classificationTypeId=="123"`                        | Matches instances that have classification type id `123`                                                                                          |
@@ -561,7 +561,7 @@ does not produce any values, so the following search options will return an empt
 | `normalizedClassificationNumber`       |   term    | `normalizedClassificationNumber == "LCCN"`                           | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
 | `dates.date1`                          |   term    | `dates.date1="199*"`                                                 | Matches instances with the given Date1 (supports leading, trailing  and internal wildcards)                                                       |
 | `dates.date2`                          |   term    | `dates.date2="199*"`                                                 | Matches instances with the given Date2 (supports leading, trailing  and internal wildcards)                                                       |
-| `sort_date1`                           |   term    | `sort_date1=1990`                                                    | Matches instances with the given Date1 (normalizes  alpha 'u' characters, supports leading, trailing  and internal wildcards)                     |
+| `normalizedDate1`                      |   term    | `normalizedDate1>=1990`                                              | Matches instances with the given Date1 (normalizes  alpha 'u' characters)                                                                         |
 
 ##### Holdings search options
 
@@ -781,13 +781,13 @@ In case where options are similar, secondary sort is used
 
 ##### Instance sort options
 
-| Option              |   Type    | Secondary sort | Description                    |
-|:--------------------|:---------:|:---------------|:-------------------------------|
-| `title`             | full text | relevancy      | Sort instances by title        |
-| `contributors`      |   term    | relevancy      | Sort instances by contributors |
-| `items.status.name` |   term    | `title`        | Sort instances by status       |
-| `item.status.name`  |   term    | `title`        | Sort instances by status       |
-| `sort_date1`        |   term    | relevancy      | Sort instances by sort_date1   |
+| Option              |   Type    | Secondary sort | Description                        |
+|:--------------------|:---------:|:---------------|:-----------------------------------|
+| `title`             | full text | relevancy      | Sort instances by title            |
+| `contributors`      |   term    | relevancy      | Sort instances by contributors     |
+| `items.status.name` |   term    | `title`        | Sort instances by status           |
+| `item.status.name`  |   term    | `title`        | Sort instances by status           |
+| `normalizedDate1`   |   term    | relevancy      | Sort instances by normalizedDate1  |
 
 ##### Authority sort options
 

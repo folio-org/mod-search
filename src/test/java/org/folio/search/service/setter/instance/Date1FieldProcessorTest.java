@@ -28,6 +28,8 @@ class Date1FieldProcessorTest {
   private static Stream<Arguments> date1DataProvider() {
     return Stream.of(
       arguments(instance("1999"), Short.valueOf("1999")),
+      arguments(instance("0999"), Short.valueOf("999")),
+      arguments(instance("uuu9"), Short.valueOf("9")),
       arguments(instance("199u"), Short.valueOf("1990")),
       arguments(instance("20u2"), Short.valueOf("2002")),
       arguments(instance("20uu"), Short.valueOf("2000")),

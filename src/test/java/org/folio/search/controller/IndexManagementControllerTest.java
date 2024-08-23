@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
+import static org.folio.search.support.base.ApiEndpoints.reindexUploadPath;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -11,6 +12,8 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -31,6 +34,7 @@ import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
+import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
@@ -74,10 +78,20 @@ class IndexManagementControllerTest {
   private ReindexStatusService reindexStatusService;
 
   @Test
-  void runFullReindex_positive() throws Exception {
-    when(reindexService.initFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+  void submitReindexFull_positive() throws Exception {
+    when(reindexService.submitFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexUpload_positive() throws Exception {
+    when(reindexService.submitUploadReindex(eq(TENANT_ID), anyList())).thenReturn(new CompletableFuture<>());
+    var requestBody = new ReindexUploadDto().addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE);
+
+    mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk());
   }
 

@@ -24,12 +24,15 @@ public class ReindexUploadRangeIndexService {
 
   private final Map<ReindexEntityType, UploadRangeRepository> repositories;
   private final FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
+  private final ReindexStatusService statusService;
 
   public ReindexUploadRangeIndexService(List<UploadRangeRepository> repositories,
-                                        FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer) {
+                                        FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
+                                        ReindexStatusService statusService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(UploadRangeRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
+    this.statusService = statusService;
   }
 
   public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
@@ -37,6 +40,7 @@ public class ReindexUploadRangeIndexService {
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
     var uploadRanges = repository.getUploadRanges(true);
+    statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
     indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
   }
 

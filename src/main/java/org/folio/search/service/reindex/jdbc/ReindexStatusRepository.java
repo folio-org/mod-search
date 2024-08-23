@@ -15,6 +15,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.reindex.ReindexStatusEntity;
@@ -89,6 +90,12 @@ public class ReindexStatusRepository {
     jdbcTemplate.execute(sql);
   }
 
+  public void delete(ReindexEntityType entityType) {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    String sql = "DELETE FROM %s WHERE entity_type = ?;".formatted(fullTableName);
+    jdbcTemplate.update(sql, entityType.name());
+  }
+
   public void setMergeReindexStarted(ReindexEntityType entityType, int totalMergeRanges) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPDATE_SQL.formatted(
@@ -97,7 +104,15 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, totalMergeRanges, Timestamp.from(Instant.now()), entityType.name());
   }
 
-  public void setMergeReindexFailed(List<ReindexEntityType> entityTypes) {
+  public void setUploadReindexStarted(ReindexEntityType entityType, int totalUploadRanges) {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPDATE_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(TOTAL_UPLOAD_RANGES_COLUMN, START_TIME_UPLOAD_COLUMN));
+
+    jdbcTemplate.update(sql, totalUploadRanges, Timestamp.from(Instant.now()), entityType.name());
+  }
+
+  public void setMergeReindexFailed(Set<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));

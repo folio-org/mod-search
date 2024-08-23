@@ -182,6 +182,10 @@ public class ApiEndpoints {
     return "/search/index/instance-records/reindex/full";
   }
 
+  public static String reindexUploadPath() {
+    return "/search/index/instance-records/reindex/upload";
+  }
+
   public static String allRecordsSortedBy(String sort, CqlSort order) {
     return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
   }

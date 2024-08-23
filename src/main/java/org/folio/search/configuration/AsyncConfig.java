@@ -29,9 +29,14 @@ public class AsyncConfig {
     return executor;
   }
 
-  @Bean("reindexExecutor")
-  public FolioExecutor remappingExecutor() {
+  @Bean("reindexFullExecutor")
+  public FolioExecutor reindexFullExecutor() {
     return new FolioExecutor(0, 1);
+  }
+
+  @Bean("reindexUploadExecutor")
+  public FolioExecutor reindexUploadExecutor() {
+    return new FolioExecutor(2, 4);
   }
 }
 

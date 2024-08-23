@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex;
 
 import java.util.Collection;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -53,7 +52,7 @@ public class ReindexOrchestrationService {
     } catch (Exception ex) {
       log.warn("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
         event.getRangeId(), ex);
-      reindexStatusService.updateReindexMergeFailed(List.of(entityType));
+      reindexStatusService.updateReindexMergeFailed();
     } finally {
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}]", event.getRangeId());
       mergeRangeService.updateFinishDate(entityType, event.getRangeId());

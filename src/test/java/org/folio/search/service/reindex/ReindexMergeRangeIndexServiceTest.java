@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.model.types.ReindexEntityType.HOLDING;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
@@ -27,7 +26,7 @@ import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
-import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
+import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +51,7 @@ class ReindexMergeRangeIndexServiceTest {
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(INSTANCE);
-    service = new ReindexMergeRangeIndexService(List.of(instanceRepository), inventoryService, config);
+    service = new ReindexMergeRangeIndexService(List.of(repository), inventoryService, config);
   }
 
   @Test
@@ -60,7 +59,7 @@ class ReindexMergeRangeIndexServiceTest {
     // given
     when(holdingRepository.entityType()).thenReturn(HOLDING);
     when(itemRepository.entityType()).thenReturn(ITEM);
-    service = new ReindexMergeRangeIndexService(List.of(instanceRepository, holdingRepository, itemRepository),
+    service = new ReindexMergeRangeIndexService(List.of(repository, holdingRepository, itemRepository),
       inventoryService, config);
 
     // act

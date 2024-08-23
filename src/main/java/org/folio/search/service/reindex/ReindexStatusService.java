@@ -3,10 +3,10 @@ package org.folio.search.service.reindex;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
 import java.util.List;
-import lombok.extern.log4j.Log4j2;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.converter.ReindexStatusMapper;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.exception.RequestValidationException;

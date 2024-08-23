@@ -1,27 +1,21 @@
 package org.folio.search.service.reindex;
 
-import static org.folio.search.model.types.ReindexEntityType.CLASSIFICATION;
-import static org.folio.search.model.types.ReindexEntityType.CONTRIBUTOR;
 import static org.folio.search.model.types.ReindexEntityType.HOLDING;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
-import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 
 import java.util.Map;
 import java.util.Set;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
 
 public final class ReindexConstants {
 
   public static final Map<ReindexEntityType, String> RESOURCE_NAME_MAP = Map.of(
-    INSTANCE, INSTANCE_RESOURCE,
-    SUBJECT, INSTANCE_SUBJECT_RESOURCE,
-    CLASSIFICATION, INSTANCE_CLASSIFICATION_RESOURCE,
-    CONTRIBUTOR, CONTRIBUTOR_RESOURCE
+    ReindexEntityType.INSTANCE, ResourceType.INSTANCE.getName(),
+    ReindexEntityType.SUBJECT, ResourceType.INSTANCE_SUBJECT.getName(),
+    ReindexEntityType.CLASSIFICATION, ResourceType.INSTANCE_CLASSIFICATION.getName(),
+    ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR.getName()
   );
 
   public static final String CLASSIFICATION_TABLE = "classification";
@@ -36,6 +30,6 @@ public final class ReindexConstants {
 
   public static final Set<ReindexEntityType> MERGE_RANGE_ENTITY_TYPES = Set.of(INSTANCE, ITEM, HOLDING);
 
-  private ReindexConstants() {}
+  private ReindexConstants() { }
 
 }

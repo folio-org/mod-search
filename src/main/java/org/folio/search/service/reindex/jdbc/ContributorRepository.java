@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex.jdbc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
@@ -23,6 +24,16 @@ public class ContributorRepository extends UploadRangeRepository {
   @Override
   public ReindexEntityType entityType() {
     return ReindexEntityType.CONTRIBUTOR;
+  }
+
+  @Override
+  public void upsert(List<Map<String, Object>> records) {
+
+  }
+
+  @Override
+  public void delete(List<String> ids) {
+
   }
 
   @Override

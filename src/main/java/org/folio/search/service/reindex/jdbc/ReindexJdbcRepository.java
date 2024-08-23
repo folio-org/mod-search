@@ -44,6 +44,13 @@ public abstract class ReindexJdbcRepository {
     jdbcTemplate.update(sql, timestamp, id);
   }
 
+  public abstract void upsert(List<Map<String, Object>> records);
+
+  public abstract void delete(List<String> ids);
+
+  protected String getFetchBySql() {
+    return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
+  }
 
   public abstract ReindexEntityType entityType();
 

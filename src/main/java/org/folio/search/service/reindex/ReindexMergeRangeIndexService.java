@@ -50,9 +50,9 @@ public class ReindexMergeRangeIndexService {
 
   public List<MergeRangeEntity> createMergeRanges(String tenantId) {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
+    var rangeSize = reindexConfig.getMergeRangeSize();
     for (var recordType : InventoryRecordType.values()) {
       var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
-      var rangeSize = reindexConfig.getMergeRangeSize();
       var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
       if (CollectionUtils.isNotEmpty(ranges)) {
         log.info("Constructed [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);

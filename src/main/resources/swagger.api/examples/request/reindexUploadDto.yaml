@@ -1,0 +1,8 @@
+{
+  "entityTypes": [
+    "instance",
+    "subject",
+    "contributor",
+    "classification"
+  ]
+}

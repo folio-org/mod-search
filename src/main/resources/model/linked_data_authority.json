@@ -1,7 +1,7 @@
 {
   "name": "linked-data-authority",
   "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataAuthority",
-  "reindexSupported": false,
+  "reindexSupported": true,
   "fields": {
     "id": {
       "index": "keyword"

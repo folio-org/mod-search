@@ -149,6 +149,9 @@
           "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
             "search.linked-data.work.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -158,6 +161,9 @@
           "pathPattern": "/search/linked-data/authorities",
           "permissionsRequired": [
             "search.linked-data.authority.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -849,6 +855,20 @@
       "description": "Returns institution records in consortium"
     }
   ],
+  "metadata": {
+    "user": {
+      "type": "system",
+      "permissions": [
+        "inventory-storage.inventory-view.instances.collection.get",
+        "inventory-storage.identifier-types.collection.get",
+        "inventory-storage.alternative-title-types.collection.get",
+        "inventory-storage.call-number-types.collection.get",
+        "inventory-storage.classification-types.collection.get",
+        "users.collection.get",
+        "user-tenants.collection.get"
+      ]
+    }
+  },
   "launchDescriptor": {
     "dockerImage": "@artifactId@:@version@",
     "dockerPull": false,

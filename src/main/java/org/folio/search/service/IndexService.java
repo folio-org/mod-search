@@ -2,6 +2,8 @@ package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
@@ -156,6 +158,8 @@ public class IndexService {
 
     if (LOCATION_RESOURCE.equals(resource)) {
       return reindexInventoryLocations(tenantId, resources);
+    } else if (isLinkedDataResource(resource)) {
+      return new ReindexJob();
     } else {
       return reindexInventoryAsync(resource);
     }
@@ -287,5 +291,9 @@ public class IndexService {
 
   private static String normalizeResourceName(String url) {
     return url.replace("_", "-");
+  }
+
+  private boolean isLinkedDataResource(String resource) {
+    return LINKED_DATA_WORK_RESOURCE.equals(resource) || LINKED_DATA_AUTHORITY_RESOURCE.equals(resource);
   }
 }

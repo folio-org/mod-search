@@ -9,6 +9,7 @@
 * Provides `consortium-search v1.2`
 
 ### Features
+* Implement indices recreation of linked-data-work and linked-data-authority ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))
 * Extension of mod-search consortium items/holdings API ([MSEARCH-788](https://issues.folio.org/browse/MSEARCH-788))
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
 * Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))

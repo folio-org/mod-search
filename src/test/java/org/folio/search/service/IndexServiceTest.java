@@ -3,6 +3,8 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_AUTHORITY;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LOCATION;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -18,10 +20,13 @@ import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.EMPTY_JSON_OBJECT;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doReturn;
@@ -58,6 +63,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -469,6 +475,48 @@ class IndexServiceTest {
     verifyNoInteractions(resourceReindexClient);
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ReindexRequest.ResourceNameEnum.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
+  void reindexInventory_shouldRecreate_linkedDataResourcesIndexes(ReindexRequest.ResourceNameEnum resourceNameEnum) {
+    var resourceName = resourceNameEnum.getValue();
+    var linkedDataResourceIndex = getIndexName(resourceName, TENANT_ID);
+    when(resourceDescriptionService.find(resourceName)).thenReturn(
+      Optional.of(resourceDescription(resourceName)));
+    when(resourceDescriptionService.getSecondaryResourceNames(resourceName))
+      .thenReturn(List.of());
+    when(indexRepository.indexExists(linkedDataResourceIndex)).thenReturn(true);
+    when(mappingsHelper.getMappings(resourceName)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(resourceName)).thenReturn(EMPTY_JSON_OBJECT);
+
+    var reindexRequest = new ReindexRequest().resourceName(resourceNameEnum).recreateIndex(true);
+    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
+
+    assertNotNull(actual);
+    verify(indexRepository).dropIndex(linkedDataResourceIndex);
+    verify(indexRepository).createIndex(linkedDataResourceIndex, EMPTY_JSON_OBJECT.toString(), EMPTY_OBJECT);
+    verifyNoInteractions(consortiumInstanceService);
+    verifyNoInteractions(locationService);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
+  @ParameterizedTest
+  @MethodSource("tenantIdAndReindexRequestDataProvider")
+  void reindexInventory_shouldNotRecreate_linkedDataResourcesIndexes(String tenantId, ReindexRequest reindexRequest) {
+    var resourceName = reindexRequest.getResourceName().getValue();
+    when(resourceDescriptionService.find(resourceName)).thenReturn(
+      Optional.of(resourceDescription(resourceName)));
+    when(resourceDescriptionService.getSecondaryResourceNames(resourceName))
+      .thenReturn(List.of());
+
+    var actual = indexService.reindexInventory(tenantId, reindexRequest);
+
+    assertNotNull(actual);
+    verifyNoInteractions(indexRepository);
+    verifyNoInteractions(consortiumInstanceService);
+    verifyNoInteractions(locationService);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
   @Test
   void shouldDropIndexWhenExists() {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
@@ -523,6 +571,27 @@ class IndexServiceTest {
       Arguments.of(1, null),
       Arguments.of(null, -1),
       Arguments.of(null, 0)
+    );
+  }
+
+  private static Stream<Arguments> tenantIdAndReindexRequestDataProvider() {
+    return Stream.of(
+      arguments(
+        TENANT_ID,
+        new ReindexRequest().resourceName(LINKED_DATA_WORK)
+      ),
+      arguments(
+        TENANT_ID,
+        new ReindexRequest().resourceName(LINKED_DATA_AUTHORITY)
+      ),
+      arguments(
+        MEMBER_TENANT_ID,
+        new ReindexRequest().resourceName(LINKED_DATA_WORK).recreateIndex(true)
+      ),
+      arguments(
+        MEMBER_TENANT_ID,
+        new ReindexRequest().resourceName(LINKED_DATA_AUTHORITY).recreateIndex(true)
+      )
     );
   }
 }

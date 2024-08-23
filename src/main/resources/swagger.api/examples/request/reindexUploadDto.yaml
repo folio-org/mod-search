@@ -1,8 +1,6 @@
-{
-  "entityTypes": [
-    "instance",
-    "subject",
-    "contributor",
-    "classification"
-  ]
-}
+value:
+  entityTypes:
+    - instance
+    - subject
+    - contributor
+    - classification

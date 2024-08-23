@@ -1,9 +1,9 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
-import static org.folio.search.service.reindex.ReindexStatusService.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -93,21 +93,21 @@ class ReindexStatusServiceTest {
   }
 
   @Test
-  void updateReindexMergeFailedForStatuses() {
-    // act
-    service.updateReindexMergeFailed(List.of(INSTANCE));
-
-    // assert
-    verify(statusRepository).setMergeReindexFailed(List.of(INSTANCE));
-  }
-
-  @Test
   void updateReindexMergeStarted() {
     // act
     service.updateReindexMergeStarted(INSTANCE, 1000);
 
     // assert
     verify(statusRepository).setMergeReindexStarted(INSTANCE, 1000);
+  }
+
+  @Test
+  void updateReindexUploadStarted() {
+    // act
+    service.updateReindexUploadStarted(INSTANCE, 1000);
+
+    // assert
+    verify(statusRepository).setUploadReindexStarted(INSTANCE, 1000);
   }
 
   @Test

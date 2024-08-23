@@ -1,0 +1,23 @@
+post:
+  operationId: reindexUploadInstanceRecords
+  summary: Upload Re-Index
+  description: Initiates reindex upload for inventory instance records
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    content:
+      application/json:
+        examples:
+          reindexRequest:
+            $ref: '../../examples/request/reindexUploadDto.yaml'
+        schema:
+          $ref: '../../schemas/request/reindexUploadDto.yaml'
+  responses:
+    '200':
+      description: Full reindex operation has been started
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

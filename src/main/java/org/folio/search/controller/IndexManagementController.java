@@ -9,6 +9,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
+import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
@@ -50,7 +51,13 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<Void> reindexInstanceRecords(String tenantId) {
     log.info("Attempting to run full-reindex for instance records [tenant: {}]", tenantId);
-    reindexService.initFullReindex(tenantId);
+    reindexService.submitFullReindex(tenantId);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> reindexUploadInstanceRecords(String tenantId, ReindexUploadDto reindexUploadDto) {
+    reindexService.submitUploadReindex(tenantId, reindexUploadDto.getEntityTypes());
     return ResponseEntity.ok().build();
   }
 

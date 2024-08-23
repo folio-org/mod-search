@@ -33,12 +33,13 @@ class ReindexUploadRangeIndexServiceTest {
 
   private @Mock UploadRangeRepository repository;
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
+  private @Mock ReindexStatusService statusService;
   private ReindexUploadRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer);
+    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusService);
   }
 
   @Test
@@ -50,6 +51,7 @@ class ReindexUploadRangeIndexServiceTest {
     service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE);
 
     // assert
+    verify(statusService).updateReindexUploadStarted(ReindexEntityType.INSTANCE, 1);
     ArgumentCaptor<List<ReindexRangeIndexEvent>> captor = ArgumentCaptor.captor();
     verify(indexRangeEventProducer).sendMessages(captor.capture());
     List<ReindexRangeIndexEvent> events = captor.getValue();

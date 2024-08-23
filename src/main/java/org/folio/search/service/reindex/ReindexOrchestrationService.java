@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReindexOrchestrationService {
 
-  private final ReindexUploadRangeIndexService uploadRangeIndexService;
-  private final ReindexMergeRangeIndexService mergeRangeIndexService;
+  private final ReindexUploadRangeIndexService uploadRangeService;
+  private final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexStatusService reindexStatusService;
   private final PrimaryResourceRepository elasticRepository;
   private final MultiTenantSearchDocumentConverter documentConverter;
@@ -26,10 +26,10 @@ public class ReindexOrchestrationService {
   public boolean process(ReindexRangeIndexEvent event) {
     log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, offset: {}, limit: {}, ts: {}]",
       event.getId(), event.getTenant(), event.getEntityType(), event.getOffset(), event.getLimit(), event.getTs());
-    var resourceEvents = uploadRangeIndexService.fetchRecordRange(event);
+    var resourceEvents = uploadRangeService.fetchRecordRange(event);
     var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
-    uploadRangeIndexService.updateFinishDate(event);
+    uploadRangeService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
       log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
         event.getId(), folioIndexOperationResponse.getErrorMessage());
@@ -48,7 +48,7 @@ public class ReindexOrchestrationService {
     var entityType = event.getRecordType().getEntityType();
 
     try {
-      mergeRangeIndexService.saveEntities(event);
+      mergeRangeService.saveEntities(event);
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
     } catch (Exception ex) {
       log.warn("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
@@ -56,7 +56,7 @@ public class ReindexOrchestrationService {
       reindexStatusService.updateReindexMergeFailed(List.of(entityType));
     } finally {
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}]", event.getRangeId());
-      mergeRangeIndexService.updateFinishDate(entityType, event.getRangeId());
+      mergeRangeService.updateFinishDate(entityType, event.getRangeId());
     }
 
     return true;

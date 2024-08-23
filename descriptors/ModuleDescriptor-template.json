@@ -99,6 +99,18 @@
             "inventory-storage.holdings.collection.get",
             "user-tenants.collection.get"
           ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/upload",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.upload.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
         }
       ]
     },
@@ -652,6 +664,11 @@
       "permissionName": "search.index.instance-records.reindex.full.post",
       "displayName": "Search - starts inventory instance records full reindex operation",
       "description": "Starts inventory instance records reindex operation"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.upload.post",
+      "displayName": "Search - starts inventory instance records reindex upload operation",
+      "description": "Starts inventory instance records reindex upload operation"
     },
     {
       "permissionName": "search.instances.collection.get",

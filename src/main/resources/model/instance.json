@@ -135,11 +135,11 @@
           "showInResponse": [ "search"]
         },
         "date1": {
-          "index": "keyword_lowercase",
+          "index": "source",
           "showInResponse": [ "search" ]
         },
         "date2": {
-          "index": "keyword_lowercase",
+          "index": "source",
           "showInResponse": [ "search" ]
         }
       }
@@ -572,7 +572,7 @@
     "sort_date1": {
       "searchTypes": [ "filter", "sort" ],
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "short",
       "processor": "date1FieldProcessor"
     },
     "sort_contributors": {

@@ -8,27 +8,27 @@ import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Date1FieldProcessor implements FieldProcessor<Instance, String> {
+public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
 
-  private static final Pattern FOUR_DIGIT_REGEX = Pattern.compile("^\\d{4}$");
+  private static final Pattern NUMERIC_REGEX = Pattern.compile("^\\d{1,4}$");
   private static final String ZERO = "0";
   private static final String ALPHA_U = "u";
 
   @Override
-  public String getFieldValue(Instance instance) {
+  public Short getFieldValue(Instance instance) {
     Dates dates = instance.getDates();
     if (dates != null && StringUtils.isNotEmpty(dates.getDate1())) {
       return normalizeDate1(dates.getDate1());
     }
-    return ZERO;
+    return 0;
   }
 
-  public String normalizeDate1(String value) {
+  public Short normalizeDate1(String value) {
     String date1 = value.replace(ALPHA_U, ZERO);
-    var matcher = FOUR_DIGIT_REGEX.matcher(date1);
+    var matcher = NUMERIC_REGEX.matcher(date1);
     if (matcher.find()) {
-      return matcher.group();
+      return Short.valueOf(matcher.group());
     }
-    return ZERO;
+    return 0;
   }
 }

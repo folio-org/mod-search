@@ -561,7 +561,7 @@ does not produce any values, so the following search options will return an empt
 | `normalizedClassificationNumber`       |   term    | `normalizedClassificationNumber == "LCCN"`                           | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
 | `dates.date1`                          |   term    | `dates.date1="199*"`                                                 | Matches instances with the given Date1 (supports leading, trailing  and internal wildcards)                                                       |
 | `dates.date2`                          |   term    | `dates.date2="199*"`                                                 | Matches instances with the given Date2 (supports leading, trailing  and internal wildcards)                                                       |
-| `sort_date1`                           |   term    | `sort_date1=199u`                                                    | Matches instances with the given Date1 (normalizes  alpha 'u' characters, supports leading, trailing  and internal wildcards)                     |
+| `sort_date1`                           |   term    | `sort_date1=1990`                                                    | Matches instances with the given Date1 (normalizes  alpha 'u' characters, supports leading, trailing  and internal wildcards)                     |
 
 ##### Holdings search options
 

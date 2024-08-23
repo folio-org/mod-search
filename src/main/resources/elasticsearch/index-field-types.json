@@ -14,6 +14,11 @@
       "type": "long"
     }
   },
+  "short": {
+    "mapping": {
+      "type": "short"
+    }
+  },
   "keyword_uppercase": {
     "mapping": {
       "type": "keyword",

@@ -20,21 +20,23 @@ class Date1FieldProcessorTest {
   @MethodSource("date1DataProvider")
   @DisplayName("getFieldValue_parameterized")
   @ParameterizedTest(name = "[{index}] instance with {0}, expected={1}")
-  void getFieldValue_parameterized(Instance eventBody, String expected) {
+  void getFieldValue_parameterized(Instance eventBody, Short expected) {
     var actual = date1FieldProcessor.getFieldValue(eventBody);
     assertThat(actual).isEqualTo(expected);
   }
 
   private static Stream<Arguments> date1DataProvider() {
     return Stream.of(
-      arguments(instance("1999"), "1999"),
-      arguments(instance("199u"), "1990"),
-      arguments(instance("20u2"), "2002"),
-      arguments(instance("20uu"), "2000"),
-      arguments(instance("19999"), "0"),
-      arguments(instance("199"), "0"),
-      arguments(instance("19k5"), "0"),
-      arguments(new Instance(), "0")
+      arguments(instance("1999"), Short.valueOf("1999")),
+      arguments(instance("199u"), Short.valueOf("1990")),
+      arguments(instance("20u2"), Short.valueOf("2002")),
+      arguments(instance("20uu"), Short.valueOf("2000")),
+      arguments(instance("199"), Short.valueOf("199")),
+      arguments(instance("1u9"), Short.valueOf("109")),
+      arguments(instance("1"), Short.valueOf("1")),
+      arguments(instance("19999"), Short.valueOf("0")),
+      arguments(instance("19k5"), Short.valueOf("0")),
+      arguments(new Instance(), Short.valueOf("0"))
     );
   }
 

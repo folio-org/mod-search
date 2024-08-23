@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReindexOrchestrationService {
 
-  private final ReindexUploadRangeIndexService rangeIndexService;
+  private final ReindexUploadRangeIndexService uploadRangeService;
   private final ReindexStatusService reindexStatusService;
   private final PrimaryResourceRepository elasticRepository;
   private final MultiTenantSearchDocumentConverter documentConverter;
 
   public boolean process(ReindexRangeIndexEvent event) {
-    var resourceEvents = rangeIndexService.fetchRecordRange(event);
+    var resourceEvents = uploadRangeService.fetchRecordRange(event);
     var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
-    rangeIndexService.updateFinishDate(event);
+    uploadRangeService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
       reindexStatusService.updateReindexUploadFailed(event.getEntityType());
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());

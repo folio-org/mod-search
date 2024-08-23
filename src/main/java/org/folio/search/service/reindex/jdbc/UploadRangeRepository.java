@@ -57,13 +57,8 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
       : uploadRanges;
   }
 
-  public void truncateUploadRangeTable() {
-    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
-    jdbcTemplate.execute(sql);
-  }
-
   public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
-    var sql = UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL.formatted(getFullTableName(context, entityTable()));
+    var sql = UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
     jdbcTemplate.update(sql, timestamp, id);
   }
 

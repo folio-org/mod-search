@@ -57,6 +57,16 @@ public class InstanceJdbcRepository extends ReindexJdbcRepository {
     return ReindexEntityType.INSTANCE;
   }
 
+  @Override
+  public void upsert(List<Map<String, Object>> records) {
+
+  }
+
+  @Override
+  public void delete(List<String> ids) {
+
+  }
+
   public List<Map<String, Object>> fetchByIds(List<String> ids) {
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();

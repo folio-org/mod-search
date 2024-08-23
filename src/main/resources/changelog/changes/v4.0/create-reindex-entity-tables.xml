@@ -246,7 +246,7 @@
       <column name="status" type="VARCHAR(20)">
         <constraints nullable="false"/>
       </column>
-      <column name="total_merge_ranges" type="int eger"/>
+      <column name="total_merge_ranges" type="integer"/>
       <column name="processed_merge_ranges" type="integer"/>
       <column name="total_upload_ranges" type="integer"/>
       <column name="processed_upload_ranges" type="integer"/>

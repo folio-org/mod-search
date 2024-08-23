@@ -151,6 +151,10 @@ folio:
         concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
+      reindex-records:
+        concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
+        group-id: ${folio.environment}-mod-search-reindex-records-group
   okapiUrl: ${okapi.url}
   logging:
     request:

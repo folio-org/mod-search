@@ -23,8 +23,8 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       || jsonb_build_object('holdings', jsonb_agg(h.holding_json || jsonb_build_object('tenantId', h.tenant_id)))
       || jsonb_build_object('items', jsonb_agg(it.item_json || jsonb_build_object('tenantId', it.tenant_id))) as json
         FROM %s i
-        JOIN %s h on h.instance_id = i.id
-        JOIN %s it on it.holding_id = h.id
+        LEFT JOIN %s h on h.instance_id = i.id
+        LEFT JOIN %s it on it.holding_id = h.id
         GROUP BY i.id LIMIT ? OFFSET ?;
     """;
 

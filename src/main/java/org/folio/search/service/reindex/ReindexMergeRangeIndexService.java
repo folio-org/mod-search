@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.InventoryService;
+import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -64,6 +65,20 @@ public class ReindexMergeRangeIndexService {
 
   public List<MergeRangeEntity> fetchMergeRanges(ReindexEntityType entityType) {
     return repositories.get(entityType).getMergeRanges();
+  }
+
+  public void updateFinishDate(ReindexEntityType entityType, String rangeId) {
+    var repository = repositories.get(entityType);
+    repository.setIndexRangeFinishDate(UUID.fromString(rangeId), Timestamp.from(Instant.now()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void saveEntities(ReindexRecordsEvent event) {
+    var entities = event.getRecords().stream()
+      .map(entity -> (Map<String, Object>) entity)
+      .toList();
+
+    repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,

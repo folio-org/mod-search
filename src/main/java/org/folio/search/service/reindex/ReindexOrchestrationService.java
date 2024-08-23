@@ -31,10 +31,13 @@ public class ReindexOrchestrationService {
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
     uploadRangeIndexService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
+      log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
+        event.getId(), folioIndexOperationResponse.getErrorMessage());
       reindexStatusService.updateReindexUploadFailed(event.getEntityType());
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
 
+    log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
     reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
     return true;
   }
@@ -48,8 +51,11 @@ public class ReindexOrchestrationService {
       mergeRangeIndexService.saveEntities(event);
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
     } catch (Exception ex) {
+      log.warn("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
+        event.getRangeId(), ex);
       reindexStatusService.updateReindexMergeFailed(List.of(entityType));
     } finally {
+      log.info("process:: ReindexRecordsEvent processed [rangeId: {}]", event.getRangeId());
       mergeRangeIndexService.updateFinishDate(entityType, event.getRangeId());
     }
 

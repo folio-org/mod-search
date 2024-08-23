@@ -56,7 +56,8 @@ public class ReindexMergeRangeIndexService {
       var rangeSize = reindexConfig.getMergeRangeSize();
       var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
       if (CollectionUtils.isNotEmpty(ranges)) {
-        log.info("Constructed [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
+        log.info("createMergeRanges:: constructed [tenantId: {}, entityType: {}, count: {}]",
+          tenantId, recordType, ranges.size());
         mergeRangeEntities.addAll(ranges);
       }
     }
@@ -85,8 +86,8 @@ public class ReindexMergeRangeIndexService {
                                                             int rangeSize,
                                                             InventoryRecordType recordType,
                                                             String tenantId) {
-    log.info("Constructing Merge Ranges: [recordType: {}, recordsCount: {}, tenant: {}]",
-      recordType, recordsCount, tenantId);
+    log.info("constructMergeRangeRecords:: [tenantId: {}, recordType: {}, recordsCount: {}, rangeSize: {}]",
+      tenantId, recordType, recordsCount, rangeSize);
 
     var rangesCount = (int) Math.ceil((double) recordsCount / rangeSize);
     return RangeGenerator.createRanges(rangesCount).stream()

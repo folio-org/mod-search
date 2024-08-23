@@ -42,10 +42,11 @@ public class ReindexService {
   }
 
   public CompletableFuture<Void> initFullReindex(String tenantId) {
-    log.info("submit full reindex process");
+    log.info("initFullReindex:: for [tenantId: {}]", tenantId);
 
     var central = consortiumService.getCentralTenant(tenantId);
     if (central.isPresent() && !central.get().equals(tenantId)) {
+      log.info("initFullReindex:: could not be started for consortium member tenant [tenantId: {}]", tenantId);
       throw new RequestValidationException(
         "Not allowed to run reindex from member tenant of consortium environment", "tenantId", tenantId);
     }
@@ -62,16 +63,16 @@ public class ReindexService {
         .toList();
       mergeRangeService.saveMergeRanges(rangesForAllTenants);
     }, reindexExecutor)
-      .thenRun(this::publishRecordsRange)
+      .thenRun(() -> publishRecordsRange(tenantId))
       .handle((unused, throwable) -> {
         if (throwable != null) {
-          log.error("full reindex process failed: {}", throwable.getMessage());
+          log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
           statusService.updateReindexMergeFailed();
         }
         return unused;
       });
 
-    log.info("full reindex process submitted");
+    log.info("initFullReindex:: submitted [tenantId: {}]", tenantId);
     return future;
   }
 
@@ -86,11 +87,12 @@ public class ReindexService {
     return mergeRangeEntities;
   }
 
-  private void publishRecordsRange() {
+  private void publishRecordsRange(String tenantId) {
     for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
       if (CollectionUtils.isNotEmpty(rangeEntities)) {
-        log.info("Publishing {} {} range entities", rangeEntities.size(), entityType);
+        log.info("publishRecordsRange:: publishing merge ranges [tenant: {}, entityType: {}, count: {}]",
+          tenantId, entityType, rangeEntities.size());
         statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
         for (var rangeEntity : rangeEntities) {
           executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {

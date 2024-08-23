@@ -3,6 +3,7 @@ package org.folio.search.service.reindex;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
 import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.converter.ReindexStatusMapper;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.exception.RequestValidationException;
@@ -15,6 +16,7 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Log4j2
 @Service
 public class ReindexStatusService {
 
@@ -45,6 +47,7 @@ public class ReindexStatusService {
 
   @Transactional
   public void recreateMergeStatusRecords() {
+    log.info("recreateMergeStatusRecords:: recreating status records for reindex merge.");
     var statusRecords = constructNewStatusRecords(MERGE_RANGE_ENTITY_TYPES, ReindexStatus.MERGE_IN_PROGRESS);
     statusRepository.truncate();
     statusRepository.saveReindexStatusRecords(statusRecords);
@@ -59,6 +62,7 @@ public class ReindexStatusService {
   }
 
   public void updateReindexMergeFailed(List<ReindexEntityType> entityTypes) {
+    log.info("updateReindexMergeFailed:: for [entityTypes: {}]", entityTypes);
     statusRepository.setMergeReindexFailed(entityTypes);
   }
 
@@ -67,10 +71,12 @@ public class ReindexStatusService {
   }
 
   public void updateReindexUploadFailed(ReindexEntityType entityType) {
+    log.info("updateReindexUploadFailed:: for [entityType: {}]", entityType);
     statusRepository.setReindexUploadFailed(entityType);
   }
 
   public void updateReindexMergeStarted(ReindexEntityType entityType, int totalMergeRanges) {
+    log.info("updateReindexMergeStarted:: for [entityType: {}, totalMergeRanges: {}]", entityType, totalMergeRanges);
     statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);
   }
 

@@ -131,6 +131,9 @@ folio:
       - name: search.reindex.range-index
         numPartitions: 1
         replicationFactor: 1
+      - name: inventory.reindex-records
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2
@@ -168,6 +171,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
+      reindex-records:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
+        group-id: ${folio.environment}-mod-search-reindex-records-group
   okapiUrl: ${okapi.url}
   logging:
     request:

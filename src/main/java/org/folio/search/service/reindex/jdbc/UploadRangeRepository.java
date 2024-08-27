@@ -32,9 +32,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
       DO UPDATE SET finished_at = EXCLUDED.finished_at;
     """;
   private static final String SELECT_RECORD_SQL = "SELECT * from %s LIMIT ? OFFSET ?;";
-  private static final String UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL = "UPDATE %s SET finished_at = ? WHERE id = ?;";
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
-  private static final int BATCH_OPERATION_SIZE = 100;
 
   private final ReindexConfigurationProperties reindexConfig;
 
@@ -50,19 +48,22 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
   public List<UploadRangeEntity> getUploadRanges(boolean populateIfNotExist) {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     var sql = SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL.formatted(fullTableName);
-    var uploadRanges = jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().name());
+    var uploadRanges = jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().getType());
 
     return populateIfNotExist && uploadRanges.isEmpty()
       ? prepareAndSaveUploadRanges()
       : uploadRanges;
   }
 
-  public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
-    var sql = UPDATE_FINISHED_AT_UPLOAD_RANGE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
-    jdbcTemplate.update(sql, timestamp, id);
+  public void truncateUploadRangeTable() {
+    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
+    jdbcTemplate.execute(sql);
   }
 
-  public abstract ReindexEntityType entityType();
+  @Override
+  protected String rangeTable() {
+    return UPLOAD_RANGE_TABLE;
+  }
 
   public List<Map<String, Object>> fetchBy(int limit, int offset) {
     var sql = getFetchBySql();
@@ -79,7 +80,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     return (rs, rowNum) -> {
       var uploadRange = new UploadRangeEntity(
         UUID.fromString(rs.getString(ID_COLUMN)),
-        ReindexEntityType.valueOf(rs.getString(ENTITY_TYPE_COLUMN)),
+        ReindexEntityType.fromValue(rs.getString(ENTITY_TYPE_COLUMN)),
         rs.getInt(RANGE_LIMIT_COLUMN),
         rs.getInt(RANGE_OFFSET_COLUMN),
         rs.getTimestamp(CREATED_AT_COLUMN)
@@ -110,7 +111,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     jdbcTemplate.batchUpdate(UPSERT_UPLOAD_RANGE_SQL.formatted(fullTableName), uploadRanges, BATCH_OPERATION_SIZE,
       (statement, entity) -> {
         statement.setObject(1, entity.getId());
-        statement.setString(2, entity.getEntityType().name());
+        statement.setString(2, entity.getEntityType().getType());
         statement.setInt(3, entity.getLimit());
         statement.setInt(4, entity.getOffset());
         statement.setTimestamp(5, entity.getCreatedAt());

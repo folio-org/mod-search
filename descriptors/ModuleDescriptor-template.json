@@ -985,6 +985,26 @@
         "description": "Replication factor for `search.instance-subject` topic."
       },
       {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming."
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS",
+        "value": "16",
+        "description": "Amount of partitions for `search.reindex.range-index` topic."
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.reindex.range-index` topic."
+      },
+      {
+        "name": "KAFKA_REINDEX_RECORDS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for `inventory.reindex-records` message consuming."
+      },
+      {
         "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
         "value": "200",
         "description": "Maximum number of records returned in a single call to poll()."

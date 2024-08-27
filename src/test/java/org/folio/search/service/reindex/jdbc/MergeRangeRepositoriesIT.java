@@ -8,11 +8,15 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Condition;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -37,16 +41,20 @@ class MergeRangeRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
+  private @MockBean ConsortiumTenantProvider tenantProvider;
+  private @MockBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
   private MergeInstanceRepository instanceRepository;
+  private UploadInstanceRepository uploadInstanceRepository;
 
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new ObjectMapper());
     holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context);
     itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context);
-    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context);
+    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider);
+    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -136,5 +144,51 @@ class MergeRangeRepositoriesIT {
     assertThat(ranges)
       .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt")
       .isEqualTo(instanceRanges);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void saveEntities() {
+    var mainInstanceId = UUID.randomUUID();
+    var holdingId1 = UUID.randomUUID();
+    var holdingId2 = UUID.randomUUID();
+    // given
+    when(tenantProvider.isCentralTenant(TENANT_ID)).thenReturn(true);
+    var instances = List.of(Map.<String, Object>of("id", mainInstanceId, "isBoundWith", true),
+      Map.<String, Object>of("id", UUID.randomUUID(), "isBoundWith", false));
+    var holdings = List.of(Map.<String, Object>of("id", holdingId1, "instanceId", mainInstanceId),
+      Map.<String, Object>of("id", holdingId2, "instanceId", mainInstanceId));
+    var items = List.of(Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId1),
+      Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId2));
+
+    // act
+    instanceRepository.saveEntities(TENANT_ID, instances);
+    holdingRepository.saveEntities(TENANT_ID, holdings);
+    itemRepository.saveEntities(TENANT_ID, items);
+
+    // assert
+    var instanceCount = instanceRepository.countEntities();
+    var holdingCount = holdingRepository.countEntities();
+    var itemCount = itemRepository.countEntities();
+
+    assertThat(List.of(instanceCount, holdingCount, itemCount)).allMatch(count -> count == 2);
+
+    var actual = uploadInstanceRepository.fetchBy(5, 0);
+    assertThat(actual)
+      .hasSize(2);
+    var mainInstance = actual.stream().filter(map -> map.get("id").equals(mainInstanceId.toString())).findFirst().get();
+    var instanceItems = (List<Map<String, Object>>) mainInstance.get("items");
+    assertThat(instanceItems)
+      .hasSize(2);
+    assertThat(extractMapValues(instanceItems)).contains(holdingId1.toString(), holdingId2.toString());
+    var instanceHoldings = (List<Map<String, Object>>) mainInstance.get("holdings");
+    assertThat(instanceHoldings)
+      .hasSize(2);
+    assertThat(extractMapValues(instanceHoldings))
+      .contains(mainInstanceId.toString(), holdingId1.toString(), holdingId2.toString());
+  }
+
+  private List<String> extractMapValues(List<Map<String, Object>> maps) {
+    return maps.stream().map(Map::values).flatMap(Collection::stream).map(String::valueOf).toList();
   }
 }

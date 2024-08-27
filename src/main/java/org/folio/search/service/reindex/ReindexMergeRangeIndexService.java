@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.InventoryService;
+import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -55,7 +56,8 @@ public class ReindexMergeRangeIndexService {
       var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
       var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
       if (CollectionUtils.isNotEmpty(ranges)) {
-        log.info("Constructed [{} {}] ranges for [tenant: {}]", ranges.size(), recordType, tenantId);
+        log.info("createMergeRanges:: constructed [tenantId: {}, entityType: {}, count: {}]",
+          tenantId, recordType, ranges.size());
         mergeRangeEntities.addAll(ranges);
       }
     }
@@ -66,12 +68,26 @@ public class ReindexMergeRangeIndexService {
     return repositories.get(entityType).getMergeRanges();
   }
 
+  public void updateFinishDate(ReindexEntityType entityType, String rangeId) {
+    var repository = repositories.get(entityType);
+    repository.setIndexRangeFinishDate(UUID.fromString(rangeId), Timestamp.from(Instant.now()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void saveEntities(ReindexRecordsEvent event) {
+    var entities = event.getRecords().stream()
+      .map(entity -> (Map<String, Object>) entity)
+      .toList();
+
+    repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
+  }
+
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,
                                                             int rangeSize,
                                                             InventoryRecordType recordType,
                                                             String tenantId) {
-    log.info("Constructing Merge Ranges: [recordType: {}, recordsCount: {}, tenant: {}]",
-      recordType, recordsCount, tenantId);
+    log.info("constructMergeRangeRecords:: [tenantId: {}, recordType: {}, recordsCount: {}, rangeSize: {}]",
+      tenantId, recordType, recordsCount, rangeSize);
 
     var rangesCount = (int) Math.ceil((double) recordsCount / rangeSize);
     return RangeGenerator.createRanges(rangesCount).stream()

@@ -10,6 +10,7 @@ public final class KafkaConstants {
   public static final String LOCATION_LISTENER_ID = "mod-search-location-listener";
   public static final String LINKED_DATA_LISTENER_ID = "mod-search-linked-data-listener";
   public static final String REINDEX_RANGE_INDEX_LISTENER_ID = "mod-search-reindex-index-listener";
+  public static final String REINDEX_RECORDS_LISTENER_ID = "mod-search-reindex-records-listener";
 
   private KafkaConstants() {}
 }

@@ -7,23 +7,31 @@ import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.InventoryService;
+import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
-import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
+import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,7 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ReindexMergeRangeIndexServiceTest {
 
-  private @Mock MergeInstanceRepository instanceRepository;
+  private @Mock MergeRangeRepository repository;
   private @Mock ItemRepository itemRepository;
   private @Mock HoldingRepository holdingRepository;
   private @Mock InventoryService inventoryService;
@@ -42,8 +50,8 @@ class ReindexMergeRangeIndexServiceTest {
 
   @BeforeEach
   void setUp() {
-    when(instanceRepository.entityType()).thenReturn(INSTANCE);
-    service = new ReindexMergeRangeIndexService(List.of(instanceRepository), inventoryService, config);
+    when(repository.entityType()).thenReturn(INSTANCE);
+    service = new ReindexMergeRangeIndexService(List.of(repository), inventoryService, config);
   }
 
   @Test
@@ -51,15 +59,15 @@ class ReindexMergeRangeIndexServiceTest {
     // given
     when(holdingRepository.entityType()).thenReturn(HOLDING);
     when(itemRepository.entityType()).thenReturn(ITEM);
-    service = new ReindexMergeRangeIndexService(List.of(instanceRepository, holdingRepository, itemRepository),
+    service = new ReindexMergeRangeIndexService(List.of(repository, holdingRepository, itemRepository),
       inventoryService, config);
 
     // act
     service.deleteAllRangeRecords();
 
     // assert
-    verify(instanceRepository).truncateMergeRanges();
-    verify(instanceRepository).truncate();
+    verify(repository).truncateMergeRanges();
+    verify(repository).truncate();
     verify(holdingRepository).truncate();
     verify(itemRepository).truncate();
   }
@@ -70,7 +78,7 @@ class ReindexMergeRangeIndexServiceTest {
     service.saveMergeRanges(List.of());
 
     // assert
-    verify(instanceRepository).saveMergeRanges(Mockito.anyList());
+    verify(repository).saveMergeRanges(Mockito.anyList());
   }
 
   @Test
@@ -92,5 +100,32 @@ class ReindexMergeRangeIndexServiceTest {
       .are(new Condition<>(range -> range.getUpperId() != null, "upper id"))
       .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
       .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDING, TENANT_ID), tuple(ITEM, TENANT_ID));
+  }
+
+  @Test
+  void updateFinishDate() {
+    var testStartTime = Timestamp.from(Instant.now());
+    var rangeId = UUID.randomUUID();
+    var captor = ArgumentCaptor.<Timestamp>captor();
+
+    service.updateFinishDate(ReindexEntityType.INSTANCE, rangeId.toString());
+
+    verify(repository).setIndexRangeFinishDate(eq(rangeId), captor.capture());
+
+    var timestamp = captor.getValue();
+    assertThat(timestamp).isAfter(testStartTime);
+  }
+
+  @Test
+  void saveEntities() {
+    var entities = Map.<String, Object>of("id", UUID.randomUUID());
+    var event = new ReindexRecordsEvent();
+    event.setTenant(TENANT_ID);
+    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecords(List.of(entities));
+
+    service.saveEntities(event);
+
+    verify(repository).saveEntities(TENANT_ID, List.of(entities));
   }
 }

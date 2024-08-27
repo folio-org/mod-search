@@ -4,6 +4,7 @@ import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABL
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
@@ -21,8 +22,6 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     """;
 
   private static final String SELECT_MERGE_RANGES_BY_ENTITY_TYPE = "SELECT * FROM %s WHERE entity_type = ?;";
-
-  private static final int BATCH_OPERATION_SIZE = 100;
 
   protected MergeRangeRepository(JdbcTemplate jdbcTemplate,
                                  JsonConverter jsonConverter,
@@ -56,11 +55,16 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
   }
 
-  public abstract ReindexEntityType entityType();
+  @Override
+  protected String rangeTable() {
+    return MERGE_RANGE_TABLE;
+  }
+
+  public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
 
   private RowMapper<MergeRangeEntity> mergeRangeEntityRowMapper() {
-    return (rs, rowNum) ->
-      new MergeRangeEntity(
+    return (rs, rowNum) -> {
+      var mergeRange = new MergeRangeEntity(
         rs.getObject(MergeRangeEntity.ID_COLUMN, UUID.class),
         ReindexEntityType.fromValue(rs.getString(MergeRangeEntity.ENTITY_TYPE_COLUMN)),
         rs.getString(MergeRangeEntity.TENANT_ID_COLUMN),
@@ -68,5 +72,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
         rs.getObject(MergeRangeEntity.RANGE_UPPER_COLUMN, UUID.class),
         rs.getTimestamp(MergeRangeEntity.CREATED_AT_COLUMN)
       );
+      mergeRange.setFinishedAt(rs.getTimestamp(MergeRangeEntity.FINISHED_AT_COLUMN));
+      return mergeRange;
+    };
   }
 }

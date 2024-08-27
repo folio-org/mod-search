@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.ParameterizedMessage;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
+import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -30,6 +31,16 @@ public class ReindexRangeIndexEventKafkaConfiguration extends KafkaConfiguration
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent>();
     var deserializer = new JsonDeserializer<>(ReindexRangeIndexEvent.class, false);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
+    factory.setCommonErrorHandler(commonErrorHandler);
+    return factory;
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent> reindexRecordsListenerContainerFactory(
+    CommonErrorHandler commonErrorHandler) {
+    var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent>();
+    var deserializer = new JsonDeserializer<>(ReindexRecordsEvent.class, false);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
     factory.setCommonErrorHandler(commonErrorHandler);
     return factory;

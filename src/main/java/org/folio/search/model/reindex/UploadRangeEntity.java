@@ -8,7 +8,6 @@ import org.folio.search.model.types.ReindexEntityType;
 @Data
 public class UploadRangeEntity {
 
-  public static final String UPLOAD_RANGE_TABLE = "upload_range";
   public static final String ID_COLUMN = "id";
   public static final String ENTITY_TYPE_COLUMN = "entity_type";
   public static final String RANGE_LIMIT_COLUMN = "range_limit";

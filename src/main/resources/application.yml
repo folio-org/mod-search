@@ -50,6 +50,7 @@ spring:
       - tenant-features
       - search-preference
       - user-tenants
+      - consortium-tenants-cache
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:
@@ -77,6 +78,7 @@ folio:
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
+    merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:1000}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
@@ -153,6 +155,10 @@ folio:
         concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
+      reindex-records:
+        concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
+        group-id: ${folio.environment}-mod-search-reindex-records-group
   okapiUrl: ${okapi.url}
   logging:
     request:

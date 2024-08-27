@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "0.7",
+      "version": "0.8",
       "handlers": [
         {
           "methods": [
@@ -70,6 +70,43 @@
           "pathPattern": "/search/index/settings",
           "permissionsRequired": [
             "search.index.settings.item.put"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/status",
+          "permissionsRequired": [
+            "search.index.reindex.status.get"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/full",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.full.post"
+          ],
+          "modulePermissions": [
+            "inventory-storage.reindex-records.publish.post",
+            "inventory-storage.instances.collection.get",
+            "inventory-storage.items.collection.get",
+            "inventory-storage.holdings.collection.get",
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/upload",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.upload.post"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -624,6 +661,16 @@
       "description": "Updates settings for the index"
     },
     {
+      "permissionName": "search.index.instance-records.reindex.full.post",
+      "displayName": "Search - starts inventory instance records full reindex operation",
+      "description": "Starts inventory instance records reindex operation"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.upload.post",
+      "displayName": "Search - starts inventory instance records reindex upload operation",
+      "description": "Starts inventory instance records reindex upload operation"
+    },
+    {
       "permissionName": "search.instances.collection.get",
       "displayName": "Search - searches instances by given query",
       "description": "Searches instances by given query"
@@ -692,6 +739,11 @@
       "permissionName": "search.index.inventory.reindex.post",
       "displayName": "Search - starts inventory reindex operation",
       "description": "Starts inventory reindex operation"
+    },
+    {
+      "permissionName": "search.index.reindex.status.get",
+      "displayName": "Search - returns reindex status for entities",
+      "description": "Returns reindex status for entities"
     },
     {
       "permissionName": "search.facets.collection.get",
@@ -931,6 +983,26 @@
         "name": "KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR",
         "value": "",
         "description": "Replication factor for `search.instance-subject` topic."
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming."
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS",
+        "value": "16",
+        "description": "Amount of partitions for `search.reindex.range-index` topic."
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR",
+        "value": "",
+        "description": "Replication factor for `search.reindex.range-index` topic."
+      },
+      {
+        "name": "KAFKA_REINDEX_RECORDS_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for `inventory.reindex-records` message consuming."
       },
       {
         "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",

@@ -112,6 +112,15 @@ paths:
   /search/index/inventory/reindex:
     $ref: 'paths/search-index/search-index-inventory-reindex.yaml'
 
+  /search/index/instance-records/reindex/status:
+    $ref: 'paths/search-index/search-index-reindex-status.yaml'
+
+  /search/index/instance-records/reindex/full:
+    $ref: 'paths/reindex-instance-records/reindex-instance-records-full.yaml'
+
+  /search/index/instance-records/reindex/upload:
+    $ref: 'paths/reindex-instance-records/reindex-instance-records-upload.yaml'
+
   /search/config/languages:
     $ref: 'paths/search-config/search-config-languages.yaml'
 

@@ -28,7 +28,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @EnablePostgres
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class InstanceClassificationJdbcRepositoryIT {
+class InstanceClassificationRepositoryIT {
 
   private final EasyRandom easyRandom = new EasyRandom();
 

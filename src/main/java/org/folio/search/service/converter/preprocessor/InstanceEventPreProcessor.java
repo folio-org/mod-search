@@ -37,7 +37,7 @@ import org.folio.search.repository.classification.InstanceClassificationEntity;
 import org.folio.search.repository.classification.InstanceClassificationEntityAgg;
 import org.folio.search.repository.classification.InstanceClassificationRepository;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
   private final JsonConverter jsonConverter;
   private final FeatureConfigService featureConfigService;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
   private final InstanceClassificationRepository instanceClassificationRepository;
 
   @Override
@@ -92,7 +92,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     var tenant = event.getTenant();
     var instanceId = getResourceEventId(event);
-    var shared = isShared(tenant);
+    var shared = consortiumTenantProvider.isCentralTenant(tenant);
 
     var entitiesForDelete = toEntities(classifications, instanceId, tenant, shared);
     instanceClassificationRepository.deleteAll(entitiesForDelete);
@@ -115,7 +115,7 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
 
     var tenant = event.getTenant();
     var instanceId = getResourceEventId(event);
-    var shared = isShared(tenant);
+    var shared = consortiumTenantProvider.isCentralTenant(tenant);
 
     var classificationsForCreate = subtract(newClassifications, oldClassifications);
     var classificationsForDelete = subtract(oldClassifications, newClassifications);
@@ -226,10 +226,5 @@ public class InstanceEventPreProcessor implements EventPreProcessor {
       return emptySet();
     }
     return new HashSet<>((List<Map<String, Object>>) object);
-  }
-
-  private boolean isShared(String tenantId) {
-    var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
-    return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
   }
 }

@@ -1,6 +1,9 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
+import static org.folio.search.support.base.ApiEndpoints.reindexUploadPath;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -9,9 +12,12 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,16 +28,22 @@ import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.domain.dto.ReindexStatusItem;
+import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -61,6 +73,28 @@ class IndexManagementControllerTest {
   private IndexService indexService;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private ReindexService reindexService;
+  @MockBean
+  private ReindexStatusService reindexStatusService;
+
+  @Test
+  void submitReindexFull_positive() throws Exception {
+    when(reindexService.submitFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexUpload_positive() throws Exception {
+    when(reindexService.submitUploadReindex(eq(TENANT_ID), anyList())).thenReturn(new CompletableFuture<>());
+    var requestBody = new ReindexUploadDto().addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE);
+
+    mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
 
   @Test
   void createIndex_positive() throws Exception {
@@ -247,6 +281,17 @@ class IndexManagementControllerTest {
       .andExpect(jsonPath("$.errors[0].message", is("invalid value")))
       .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void getReindexStatus_positive() throws Exception {
+    var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.INSTANCE.name());
+    when(reindexStatusService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
+
+    mockMvc.perform(get(reindexInstanceRecordsStatus())
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));
   }
 
   private static MockHttpServletRequestBuilder preparePostRequest(String endpoint, String requestBody) {

@@ -1,16 +1,16 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import org.assertj.core.api.Condition;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -31,18 +31,20 @@ import org.springframework.test.context.jdbc.Sql;
 @EnablePostgres
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SubjectJdbcRepositoryIT {
+class ReindexJdbcRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
-  private SubjectJdbcRepository repository;
-  private ReindexConfigurationProperties properties;
+  private @MockBean ReindexConfigurationProperties reindexConfig;
+  private @MockBean ConsortiumTenantProvider tenantProvider;
+  private MergeInstanceRepository mergeRepository;
+  private UploadInstanceRepository uploadRepository;
 
   @BeforeEach
   void setUp() {
-    properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = new SubjectJdbcRepository(jdbcTemplate, jsonConverter, context, properties);
+    mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider);
+    uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -58,42 +60,26 @@ class SubjectJdbcRepositoryIT {
   }
 
   @Test
-  void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
-    // act
-    var ranges = repository.getUploadRanges(false);
-
-    // assert
-    assertThat(ranges).isEmpty();
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
+  @Sql({"/sql/populate-merge-ranges.sql", "/sql/populate-upload-ranges.sql"})
+  void setIndexRangeFinishDate() {
     // arrange
-    properties.setUploadRangeSize(5);
+    var timestamp = Timestamp.from(Instant.now());
 
     // act
-    var ranges = repository.getUploadRanges(true);
+    mergeRepository.setIndexRangeFinishDate(
+      UUID.fromString("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), timestamp);
+    uploadRepository.setIndexRangeFinishDate(
+      UUID.fromString("9f8febd1-e96c-46c4-a5f4-84a45cc499a3"), timestamp);
 
     // assert
-    assertThat(ranges)
-      .hasSize(5)
-      .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))
-      .extracting(UploadRangeEntity::getLimit, UploadRangeEntity::getOffset)
-      .containsExactly(tuple(5, 0), tuple(5, 5), tuple(5, 10), tuple(5, 15), tuple(1, 20));
-  }
+    var mergeRange = mergeRepository.getMergeRanges().stream()
+      .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
+      .findFirst();
+    var uploadRange = uploadRepository.getUploadRanges(false).stream()
+      .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
+      .findFirst();
 
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void fetchBy_returnListOfMaps() {
-    // act
-    var ranges = repository.fetchBy(10, 19);
-
-    // assert
-    assertThat(ranges)
-      .hasSize(2)
-      .allMatch(map -> map.keySet().containsAll(List.of("id", "value", "authorityId", "instances")))
-      .extracting("value", "authorityId")
-      .containsExactly(tuple("Alternative History", null), tuple("History", "79144653-7a98-4dfb-aa6a-13ad49e80952"));
+    assertThat(mergeRange).isPresent().get().matches(range -> timestamp.getTime() == range.getFinishedAt().getTime());
+    assertThat(uploadRange).isPresent().get().matches(range -> timestamp.getTime() == range.getFinishedAt().getTime());
   }
 }

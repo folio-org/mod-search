@@ -16,27 +16,24 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
+import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReindexRangeIndexService {
+public class ReindexUploadRangeIndexService {
 
-  private static final Map<ReindexEntityType, String> RESOURCE_NAME_MAP = Map.of(
-    ReindexEntityType.INSTANCE, ResourceType.INSTANCE.getName(),
-    ReindexEntityType.SUBJECT, ResourceType.INSTANCE_SUBJECT.getName(),
-    ReindexEntityType.CLASSIFICATION, ResourceType.INSTANCE_CLASSIFICATION.getName(),
-    ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR.getName()
-  );
-
-  private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
+  private final Map<ReindexEntityType, UploadRangeRepository> repositories;
   private final FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
+  private final ReindexStatusService statusService;
 
-  public ReindexRangeIndexService(List<ReindexJdbcRepository> repositories,
-                                  FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer) {
-    this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
+  public ReindexUploadRangeIndexService(List<UploadRangeRepository> repositories,
+                                        FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer,
+                                        ReindexStatusService statusService) {
+    this.repositories = repositories.stream()
+      .collect(Collectors.toMap(UploadRangeRepository::entityType, identity()));
     this.indexRangeEventProducer = indexRangeEventProducer;
+    this.statusService = statusService;
   }
 
   public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
@@ -44,6 +41,7 @@ public class ReindexRangeIndexService {
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
     var uploadRanges = repository.getUploadRanges(true);
+    statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
     indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
   }
 
@@ -53,7 +51,7 @@ public class ReindexRangeIndexService {
     var recordMaps = repository.fetchBy(rangeIndexEvent.getLimit(), rangeIndexEvent.getOffset());
     return recordMaps.stream()
       .map(map -> new ResourceEvent().id(getString(map, ID_FIELD))
-        .resourceName(RESOURCE_NAME_MAP.get(entityType))
+        .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType))
         ._new(map)
         .tenant(rangeIndexEvent.getTenant()))
       .toList();

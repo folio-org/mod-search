@@ -15,7 +15,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
+import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.testing.extension.Random;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
 import org.folio.spring.testing.type.UnitTest;
@@ -29,16 +29,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith({MockitoExtension.class, RandomParametersExtension.class})
-class ReindexRangeIndexServiceTest {
+class ReindexUploadRangeIndexServiceTest {
 
-  private @Mock ReindexJdbcRepository repository;
+  private @Mock UploadRangeRepository repository;
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
-  private ReindexRangeIndexService service;
+  private @Mock ReindexStatusService statusService;
+  private ReindexUploadRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexRangeIndexService(List.of(repository), indexRangeEventProducer);
+    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusService);
   }
 
   @Test
@@ -50,6 +51,7 @@ class ReindexRangeIndexServiceTest {
     service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE);
 
     // assert
+    verify(statusService).updateReindexUploadStarted(ReindexEntityType.INSTANCE, 1);
     ArgumentCaptor<List<ReindexRangeIndexEvent>> captor = ArgumentCaptor.captor();
     verify(indexRangeEventProducer).sendMessages(captor.capture());
     List<ReindexRangeIndexEvent> events = captor.getValue();
@@ -87,4 +89,6 @@ class ReindexRangeIndexServiceTest {
       .extracting(ResourceEvent::getTenant, ResourceEvent::getNew, ResourceEvent::getResourceName)
       .containsExactly(Tuple.tuple(TENANT_ID, mockRecord, ResourceType.INSTANCE.getName()));
   }
+
+
 }

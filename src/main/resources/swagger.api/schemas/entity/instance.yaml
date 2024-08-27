@@ -56,6 +56,10 @@ properties:
     description: "List of subject headings"
     items:
       $ref: "../dto/instance/subject.yaml"
+  dates:
+    type: object
+    description: "Instance Dates"
+    $ref: "../dto/instance/dates.yaml"
   instanceTypeId:
     description: "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined"
     type: string

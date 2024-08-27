@@ -36,6 +36,7 @@
 * Implement Reindexing of Campuses ([MSEARCH-767](https://issues.folio.org/browse/MSEARCH-767))
 * Implement Reindexing of Libraries ([MSEARCH-766](https://issues.folio.org/browse/MSEARCH-766))
 * Implement Reindexing of Institutions ([MSEARCH-768](https://issues.folio.org/browse/MSEARCH-768))
+* Create computed field for sorting and filtering Date 1 ([MSEARCH-806](https://folio-org.atlassian.net/browse/MSEARCH-806))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

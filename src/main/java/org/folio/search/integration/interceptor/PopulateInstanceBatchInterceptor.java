@@ -3,7 +3,6 @@ package org.folio.search.integration.interceptor;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 
-import jakarta.annotation.Priority;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,20 +16,30 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.utils.SearchConverterUtils;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.stereotype.Component;
 
-@Priority(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 @Component
 public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
 
-  private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
+  private final Map<ReindexEntityType, MergeRangeRepository> repositories;
+  private final ConsortiumTenantExecutor executionService;
+  private final SystemUserScopedExecutionService systemUserScopedExecutionService;
 
-  public PopulateInstanceBatchInterceptor(List<ReindexJdbcRepository> repositories) {
+  public PopulateInstanceBatchInterceptor(List<MergeRangeRepository> repositories,
+                                          ConsortiumTenantExecutor executionService,
+                                          SystemUserScopedExecutionService systemUserScopedExecutionService) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
+    this.executionService = executionService;
+    this.systemUserScopedExecutionService = systemUserScopedExecutionService;
   }
 
   @Override
@@ -45,25 +54,49 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       var list = entry.getValue();
       if (list.size() > 1) {
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
-        consumerRecords.add(list.get(0).value());
       }
+      consumerRecords.add(list.get(0).value());
     }
+    var count = records.count();
+    System.out.println(count);
+    System.out.println(consumerRecords.size());
     populate(consumerRecords);
     return records;
   }
 
   private void populate(List<ResourceEvent> records) {
-    var recordByResource = records.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
+    var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+    batchByTenant.forEach((tenant, batch) -> {
+      systemUserScopedExecutionService.executeSystemUserScoped(tenant,
+        () -> executionService.execute(() -> {
+          process(tenant, batch);
+          return null;
+        }));
+    });
+
+  }
+
+  private void process(String tenant, List<ResourceEvent> batch) {
+    var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
-      var repository = repositories.get(ReindexEntityType.valueOf(recordCollection.getKey()));
+      var repository = repositories.get(ReindexEntityType.fromValue(recordCollection.getKey()));
       if (repository != null) {
         var recordByOperation = recordCollection.getValue().stream()
-            .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
-        var resourceEvents = recordByOperation.getOrDefault(true, emptyList()).stream().map(SearchConverterUtils::getNewAsMap).toList();
-        repository.upsert(resourceEvents);
-        var idsToDrop = recordByOperation.getOrDefault(false, emptyList()).stream().map(ResourceEvent::getId).toList();
-        repository.delete(idsToDrop);
+          .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
+        var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
+          .map(SearchConverterUtils::getNewAsMap)
+          .toList();
+        if (!resourceToSave.isEmpty()) {
+          repository.saveEntities(tenant, resourceToSave);
+        }
+        var idsToDrop = recordByOperation.getOrDefault(false, emptyList()).stream()
+          .map(ResourceEvent::getId)
+          .toList();
+        if (!idsToDrop.isEmpty()) {
+          repository.deleteEntities(idsToDrop);
+        }
       }
+
     }
   }
 

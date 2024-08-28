@@ -2,7 +2,7 @@ package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.folio.search.model.types.ReindexEntityType.HOLDING;
+import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -57,7 +57,7 @@ class ReindexMergeRangeIndexServiceTest {
   @Test
   void deleteAllRangeRecords_positive() {
     // given
-    when(holdingRepository.entityType()).thenReturn(HOLDING);
+    when(holdingRepository.entityType()).thenReturn(HOLDINGS);
     when(itemRepository.entityType()).thenReturn(ITEM);
     service = new ReindexMergeRangeIndexService(List.of(repository, holdingRepository, itemRepository),
       inventoryService, config);
@@ -99,7 +99,7 @@ class ReindexMergeRangeIndexServiceTest {
       .are(new Condition<>(range -> range.getLowerId() != null, "lower id"))
       .are(new Condition<>(range -> range.getUpperId() != null, "upper id"))
       .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
-      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDING, TENANT_ID), tuple(ITEM, TENANT_ID));
+      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDINGS, TENANT_ID), tuple(ITEM, TENANT_ID));
   }
 
   @Test

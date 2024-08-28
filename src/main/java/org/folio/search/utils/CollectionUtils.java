@@ -195,7 +195,7 @@ public final class CollectionUtils {
    * @return nullableList if it is not null or empty, defaultList otherwise.
    */
   public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
-    return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream() : empty();
+    return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream().filter(Objects::nonNull) : empty();
   }
 
   /**

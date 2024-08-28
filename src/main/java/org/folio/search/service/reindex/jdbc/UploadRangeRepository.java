@@ -25,17 +25,16 @@ import org.springframework.jdbc.core.RowMapper;
 
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
+  protected static final String SELECT_RECORD_SQL = "SELECT * from %s LIMIT ? OFFSET ?;";
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, range_limit, range_offset, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT (id)
       DO UPDATE SET finished_at = EXCLUDED.finished_at;
     """;
-  private static final String SELECT_RECORD_SQL = "SELECT * from %s LIMIT ? OFFSET ?;";
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
 
   private final ReindexConfigurationProperties reindexConfig;
-
 
   protected UploadRangeRepository(JdbcTemplate jdbcTemplate,
                                   JsonConverter jsonConverter,
@@ -51,18 +50,13 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     var uploadRanges = jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().getType());
 
     return populateIfNotExist && uploadRanges.isEmpty()
-      ? prepareAndSaveUploadRanges()
-      : uploadRanges;
+           ? prepareAndSaveUploadRanges()
+           : uploadRanges;
   }
 
   public void truncateUploadRangeTable() {
     String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
     jdbcTemplate.execute(sql);
-  }
-
-  @Override
-  protected String rangeTable() {
-    return UPLOAD_RANGE_TABLE;
   }
 
   public List<Map<String, Object>> fetchBy(int limit, int offset) {
@@ -72,6 +66,11 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
   protected String getFetchBySql() {
     return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
+  }
+
+  @Override
+  protected String rangeTable() {
+    return UPLOAD_RANGE_TABLE;
   }
 
   protected abstract RowMapper<Map<String, Object>> rowToMapMapper();

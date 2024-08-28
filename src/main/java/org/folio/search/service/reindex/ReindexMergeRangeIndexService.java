@@ -105,7 +105,7 @@ public class ReindexMergeRangeIndexService {
     if (recordType == InventoryRecordType.INSTANCE) {
       return ReindexEntityType.INSTANCE;
     } else if (recordType == InventoryRecordType.HOLDING) {
-      return ReindexEntityType.HOLDING;
+      return ReindexEntityType.HOLDINGS;
     } else {
       return ReindexEntityType.ITEM;
     }

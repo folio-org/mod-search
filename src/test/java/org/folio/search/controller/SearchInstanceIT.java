@@ -1,10 +1,14 @@
 package org.folio.search.controller;
 
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
+import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
@@ -33,6 +37,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare() {
     setUpTenant(Instance.class, getSemanticWebAsMap());
+    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      doSearch(instanceSearchPath(), TENANT_ID, "holdings.id=\"\"", 1, null, true)
+        .andExpect(jsonPath("$.instances.[0].holdings.size()", is(3))));
+    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      doSearch(instanceSearchPath(), TENANT_ID, "items.id=\"\"", 1, null, true)
+        .andExpect(jsonPath("$.instances.[0].items.size()", is(3))));
   }
 
   @AfterAll

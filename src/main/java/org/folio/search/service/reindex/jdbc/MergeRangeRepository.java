@@ -2,6 +2,7 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
+  protected static final String DELETE_SQL = """
+    DELETE FROM %s WHERE id IN (%s);
+    """;
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -61,6 +65,13 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
+
+  public void deleteEntities(List<String> ids) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholder(ids.size()));
+
+    jdbcTemplate.update(sql, ids.toArray());
+  }
 
   private RowMapper<MergeRangeEntity> mergeRangeEntityRowMapper() {
     return (rs, rowNum) -> {

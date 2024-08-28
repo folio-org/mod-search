@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -150,7 +149,7 @@ public class ResourceService {
   }
 
   private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
-    return getEventsThatCanBeIndexed(events, indexNameProvider::getIndexName);
+    return events;
   }
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
@@ -207,30 +206,6 @@ public class ResourceService {
       .collect(joining(", "));
 
     return errorMessage.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errorMessage);
-  }
-
-  private List<ResourceEvent> getEventsThatCanBeIndexed(List<ResourceEvent> events,
-                                                        Function<ResourceEvent, String> eventToIndexNameFunc) {
-    var esIndices = events.stream().map(eventToIndexNameFunc).collect(toSet());
-    var existingIndices = esIndices.stream().filter(indexRepository::indexExists).collect(toSet());
-    var eventsToIndex = new ArrayList<ResourceEvent>();
-    var unknownEvents = new ArrayList<ResourceEvent>();
-
-    for (var event : events) {
-      if (existingIndices.contains(eventToIndexNameFunc.apply(event))) {
-        eventsToIndex.add(event);
-      } else {
-        unknownEvents.add(event);
-      }
-    }
-
-    if (!unknownEvents.isEmpty()) {
-      var absentIndexNames = unknownEvents.stream().map(eventToIndexNameFunc).collect(toSet());
-      log.warn("Ignoring incoming events [cause: Tenant(s) not initialized, indices {} are not exist, events: {}]",
-        absentIndexNames, unknownEvents.toString().replaceAll("\\s+", " "));
-    }
-
-    return eventsToIndex;
   }
 
   /**

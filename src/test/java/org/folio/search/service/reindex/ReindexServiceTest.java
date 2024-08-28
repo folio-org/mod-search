@@ -1,7 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
-import static org.folio.search.model.types.ReindexEntityType.HOLDING;
+import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
@@ -159,13 +159,13 @@ class ReindexServiceTest {
     // given
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(statusService.getStatusesByType())
-      .thenReturn(Map.of(HOLDING, ReindexStatus.MERGE_IN_PROGRESS));
+      .thenReturn(Map.of(HOLDINGS, ReindexStatus.MERGE_IN_PROGRESS));
     var entityTypes = List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE);
 
     // act & assert
     assertThrows(RequestValidationException.class,
       () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
-      "Full Reindex Merge is either in progress or failed " + HOLDING.getType());
+      "Full Reindex Merge is either in progress or failed " + HOLDINGS.getType());
   }
 
   @Test
@@ -176,13 +176,13 @@ class ReindexServiceTest {
       .thenReturn(Map.of(
         INSTANCE, ReindexStatus.MERGE_COMPLETED,
         ITEM, ReindexStatus.MERGE_COMPLETED,
-        HOLDING, ReindexStatus.MERGE_COMPLETED));
+        HOLDINGS, ReindexStatus.MERGE_COMPLETED));
     var entityTypes = List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE);
 
     // act & assert
     assertThrows(RequestValidationException.class,
       () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
-      "Reindex Merge is not complete for entity " + HOLDING.getType());
+      "Reindex Merge is not complete for entity " + HOLDINGS.getType());
   }
 
   @Test

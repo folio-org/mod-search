@@ -11,7 +11,7 @@ public enum ReindexEntityType {
   CONTRIBUTOR("contributor"),
   CLASSIFICATION("classification"),
   ITEM("item"),
-  HOLDING("holding");
+  HOLDINGS("holdings");
 
   private final String type;
 

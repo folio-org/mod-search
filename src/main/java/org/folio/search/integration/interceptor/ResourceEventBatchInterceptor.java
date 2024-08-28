@@ -7,17 +7,20 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.KafkaUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.stereotype.Component;
 
+@Order(value = Ordered.LOWEST_PRECEDENCE - 1)
 @Component
 public class ResourceEventBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
 
   private static final Map<String, ResourceType> TOPIC_TO_RESOURCE_MAP = Map.ofEntries(
     Map.entry("inventory.instance", ResourceType.INSTANCE),
-    Map.entry("inventory.holdings-record", ResourceType.INSTANCE),
-    Map.entry("inventory.item", ResourceType.INSTANCE),
-    Map.entry("inventory.bound-with", ResourceType.INSTANCE),
+    Map.entry("inventory.holdings-record", ResourceType.HOLDINGS),
+    Map.entry("inventory.item", ResourceType.ITEM),
+    Map.entry("inventory.bound-with", ResourceType.BOUND_WITH),
     Map.entry("authorities.authority", ResourceType.AUTHORITY),
     Map.entry("search.instance-contributor", ResourceType.INSTANCE_CONTRIBUTOR),
     Map.entry("search.instance-subject", ResourceType.INSTANCE_SUBJECT),

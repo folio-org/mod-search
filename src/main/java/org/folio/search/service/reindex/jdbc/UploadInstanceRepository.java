@@ -32,15 +32,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
         GROUP BY i.id LIMIT ? OFFSET ?;
     """;
 
-  private static final String UPSERT_SQL = """
-      INSERT INTO %s (id, tenant_id, shared, is_bound_with, instance_json)
-      VALUES (?::uuid, ?, ?, ?, ?::jsonb)
-      ON CONFLICT (id)
-      DO UPDATE SET shared = EXCLUDED.shared,
-      is_bound_with = EXCLUDED.is_bound_with,
-      instance_json = EXCLUDED.instance_json;
-    """;
-
   private static final String EMPTY_WHERE_CLAUSE = "true";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "i.id IN (%s)";
 
@@ -56,16 +47,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   public ReindexEntityType entityType() {
     return ReindexEntityType.INSTANCE;
-  }
-
-  @Override
-  public void upsert(List<Map<String, Object>> records) {
-
-  }
-
-  @Override
-  public void delete(List<String> ids) {
-
   }
 
   public List<Map<String, Object>> fetchByIds(List<String> ids) {
@@ -88,11 +69,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     }, rowToMapMapper());
   }
 
-  public void upsert(String id, String tenant, boolean shared, Map<String, Object> instanceMap) {
-    var sql = UPSERT_SQL.formatted(getFullTableName(context, entityTable()));
-    jdbcTemplate.update(sql, id, tenant, shared, false, jsonConverter.toJson(instanceMap));
-  }
-
   @Override
   protected String getFetchBySql() {
     return SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
@@ -103,7 +79,8 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
+    return (rs, rowNum) -> {
+      return jsonConverter.fromJsonToMap(rs.getString("json")); };
   }
 
   @Override

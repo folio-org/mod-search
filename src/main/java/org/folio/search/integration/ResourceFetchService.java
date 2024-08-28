@@ -1,10 +1,8 @@
 package org.folio.search.integration;
 
-import static com.google.common.collect.Lists.partition;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
@@ -16,11 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.client.InventoryViewClient;
-import org.folio.search.client.InventoryViewClient.InstanceView;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.client.CqlQueryParam;
-import org.folio.search.model.service.ResultList;
+import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +29,7 @@ public class ResourceFetchService {
 
   private final InventoryViewClient inventoryClient;
   private final FolioExecutionContext context;
+  private final UploadInstanceRepository instanceRepository;
 
   /**
    * Fetches instances from inventory-storage module using CQL query.
@@ -52,12 +49,8 @@ public class ResourceFetchService {
     var eventsById = events.stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
     var instanceIdList = List.copyOf(eventsById.keySet());
     var tenantId = context.getTenantId();
-    return partition(instanceIdList, BATCH_SIZE).stream()
-      .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))
-      .map(ResultList::getResult)
-      .flatMap(instanceViews -> instanceViews.stream()
-        .map(InstanceView::toInstance)
-        .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
+    return instanceRepository.fetchByIds(instanceIdList).stream()
+      .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById))
       .toList();
   }
 

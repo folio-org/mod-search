@@ -15,8 +15,12 @@ import org.springframework.stereotype.Repository;
 public class ItemRepository extends MergeRangeRepository {
 
   private static final String INSERT_SQL = """
-      INSERT INTO %s
-      VALUES (?, ?, ?, ?::json);
+      INSERT INTO %s (id, tenant_id, holding_id, item_json)
+      VALUES (?::uuid, ?, ?::uuid, ?::jsonb)
+      ON CONFLICT (id, tenant_id)
+      DO UPDATE SET
+      holding_id = EXCLUDED.holding_id,
+      item_json = EXCLUDED.item_json;
     """;
 
   protected ItemRepository(JdbcTemplate jdbcTemplate,

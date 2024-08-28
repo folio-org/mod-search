@@ -40,7 +40,11 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
   protected abstract Stream<Note> getNotes(Instance instance);
 
   private static <T> List<String> getNotesAsList(Stream<T> notesStream, Function<T, String> func) {
-    return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).toList();
+    try {
+      return notesStream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).toList();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static String getNote(Boolean staffOnly, String value) {

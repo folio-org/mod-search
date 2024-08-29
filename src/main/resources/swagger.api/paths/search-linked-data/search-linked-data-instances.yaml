@@ -1,6 +1,6 @@
 get:
-  operationId: searchLinkedDataWorks
-  summary: Search Linked Data Works
+  operationId: searchLinkedDataInstances
+  summary: Search Linked Data Instances
   description: Get a list of linked data records for CQL query
   tags:
     - search
@@ -9,17 +9,16 @@ get:
     - $ref: '../../parameters/cql-query.yaml'
     - $ref: '../../parameters/linked-data-limit-param.yaml'
     - $ref: '../../parameters/offset-param.yaml'
-    - $ref: '../../parameters/omit-instances.yaml'
   responses:
     '200':
-      description: 'Linked data works search result'
+      description: 'Linked data instances search result'
       content:
         application/json:
           schema:
-            $ref: '../../schemas/response/linkedDataWorkSearchResult.yaml'
+            $ref: '../../schemas/response/linkedDataInstanceSearchResult.yaml'
           examples:
             searchResult:
-              $ref: '../../examples/result/linkedDataWorkSearchResult.yaml'
+              $ref: '../../examples/result/linkedDataInstanceSearchResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

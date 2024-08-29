@@ -7,13 +7,13 @@
     "id": {
       "index": "whitespace"
     },
-    "titles": {
+    "classifications": {
       "type": "object",
       "properties": {
-        "value": {
+        "number": {
           "index": "whitespace"
         },
-        "type": {
+        "source": {
           "index": "whitespace"
         }
       }
@@ -32,29 +32,35 @@
         }
       }
     },
+    "hubAAPs": {
+      "searchAliases": [ "hub, hubAap, hubAAP" ],
+      "index": "keyword_lowercase"
+    },
     "languages": {
+      "searchAliases": [ "lang, language" ],
+      "index": "keyword_lowercase"
+    },
+    "notes": {
       "type": "object",
       "properties": {
         "value": {
           "index": "whitespace"
-        }
-      }
-    },
-    "classifications": {
-      "type": "object",
-      "properties": {
-        "number": {
-          "index": "whitespace"
         },
-        "source": {
+        "type": {
           "index": "whitespace"
         }
       }
     },
     "subjects": {
+      "index": "whitespace"
+    },
+    "titles": {
       "type": "object",
       "properties": {
         "value": {
+          "index": "whitespace"
+        },
+        "type": {
           "index": "whitespace"
         }
       }
@@ -64,28 +70,6 @@
       "properties": {
         "id": {
           "index": "keyword"
-        },
-        "titles": {
-          "type": "object",
-          "properties": {
-            "value": {
-              "index": "whitespace"
-            },
-            "type": {
-              "index": "whitespace"
-            }
-          }
-        },
-        "identifiers": {
-          "type": "object",
-          "properties": {
-            "value": {
-              "index": "whitespace"
-            },
-            "type": {
-              "index": "whitespace"
-            }
-          }
         },
         "contributors": {
           "type": "object",
@@ -101,6 +85,39 @@
             }
           }
         },
+        "editionStatements": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "format": {
+          "index": "keyword_lowercase"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
         "publications": {
           "type": "object",
           "properties": {
@@ -108,14 +125,33 @@
               "index": "whitespace"
             },
             "date": {
-              "index": "whitespace"
+              "searchAliases": [ "publicationDate" ],
+              "index": "keyword"
             }
           }
         },
-        "editionStatements": {
+        "suppress": {
+          "type": "object",
+          "properties": {
+            "fromDiscovery": {
+              "searchAliases": [ "suppressFromDiscovery" ],
+              "index": "bool",
+              "default": false
+            },
+            "staff": {
+              "searchAliases": [ "staffSuppress" ],
+              "index": "bool",
+              "default": false
+            }
+          }
+        },
+        "titles": {
           "type": "object",
           "properties": {
             "value": {
+              "index": "whitespace"
+            },
+            "type": {
               "index": "whitespace"
             }
           }
@@ -124,6 +160,11 @@
     }
   },
   "searchFields": {
+    "contributor": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataWorkContributorProcessor"
+    },
     "isbn": {
       "type": "search",
       "processor": "linkedDataWorkIsbnProcessor",
@@ -136,6 +177,11 @@
       "index": "standard",
       "processor": "linkedDataWorkLccnProcessor"
     },
+    "note": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataWorkNoteProcessor"
+    },
     "title": {
       "type": "search",
       "index": "multilang",
@@ -146,11 +192,6 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "linkedDataWorkSortTitleProcessor"
-    },
-    "contributor": {
-      "type": "search",
-      "index": "multilang",
-      "processor": "linkedDataWorkContributorProcessor"
     }
   },
   "indexMappings": { }

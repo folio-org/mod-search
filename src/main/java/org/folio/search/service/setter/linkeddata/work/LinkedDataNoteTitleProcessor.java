@@ -10,24 +10,24 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.LinkedDataInstanceOnly;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.service.setter.FieldProcessor;
-import org.folio.search.service.setter.linkeddata.common.LinkedDataTitleProcessor;
+import org.folio.search.service.setter.linkeddata.common.LinkedDataNoteProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LinkedDataWorkTitleProcessor implements FieldProcessor<LinkedDataWork, Set<String>> {
+public class LinkedDataNoteTitleProcessor implements FieldProcessor<LinkedDataWork, Set<String>> {
 
-  private final LinkedDataTitleProcessor linkedDataTitleProcessor;
+  private final LinkedDataNoteProcessor linkedDataNoteProcessor;
 
   @Override
   public Set<String> getFieldValue(LinkedDataWork linkedDataWork) {
-    var workTitles = ofNullable(linkedDataWork.getTitles()).stream().flatMap(Collection::stream);
-    var instTitles = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
+    var workNotes = ofNullable(linkedDataWork.getNotes()).stream().flatMap(Collection::stream);
+    var instNotes = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
       .filter(Objects::nonNull)
-      .map(LinkedDataInstanceOnly::getTitles)
+      .map(LinkedDataInstanceOnly::getNotes)
       .flatMap(Collection::stream);
-    var titles = Stream.concat(workTitles, instTitles).toList();
-    return linkedDataTitleProcessor.getFieldValue(titles);
+    var notes = Stream.concat(workNotes, instNotes).toList();
+    return linkedDataNoteProcessor.getFieldValue(notes);
   }
 
 }

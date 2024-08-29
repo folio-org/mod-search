@@ -1,4 +1,4 @@
-description: "Linked data authority search dto, contains Authority and Identifiers"
+description: "Linked Data Authority dto, contains Authority and Identifiers"
 type: "object"
 properties:
   id:
@@ -13,13 +13,6 @@ properties:
     type: "array"
     description: "Linked data authority identifier array"
     items:
-      properties:
-        value:
-          type: "string"
-          description: "Value of Identifier"
-        type:
-          type: "string"
-          enum:
-            - "LCCN"
+      $ref: "common/linkedDataIdentifier.yaml"
 required:
   - "id"

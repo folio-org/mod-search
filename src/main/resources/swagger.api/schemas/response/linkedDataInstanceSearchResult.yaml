@@ -1,4 +1,4 @@
-description: "Linked data Work search result response"
+description: "Linked data Instance search result response"
 type: "object"
 properties:
   searchQuery:
@@ -8,7 +8,7 @@ properties:
     type: "array"
     description: "List of linked data records found"
     items:
-      $ref: "../../schemas/dto/linked-data/linkedDataWork.yaml"
+      $ref: "../../schemas/dto/linked-data/linkedDataInstance.yaml"
   pageNumber:
     type: "integer"
     description: "Current results page number, 0 by default"

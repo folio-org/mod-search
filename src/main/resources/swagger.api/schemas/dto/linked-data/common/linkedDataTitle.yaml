@@ -1,0 +1,18 @@
+description: "Linked data Title DTO, contains value and type"
+type: "object"
+properties:
+  value:
+    type: "string"
+    description: "Value of Title"
+  type:
+    type: "string"
+    enum:
+      - "Main"
+      - "Sub"
+      - "Main Parallel"
+      - "Sub Parallel"
+      - "Main Variant"
+      - "Sub Variant"
+required:
+  - "value"
+  - "type"

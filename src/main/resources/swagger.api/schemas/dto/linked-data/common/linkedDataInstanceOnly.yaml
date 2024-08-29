@@ -1,0 +1,59 @@
+description: "Linked Data Instance dto, contains only Instance fields"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of an Instance"
+    type: "string"
+  contributors:
+    type: "array"
+    description: "Contributor array"
+    items:
+      $ref: "linkedDataContributor.yaml"
+  editionStatements:
+    type: "array"
+    description: "Edition statement array"
+    items:
+      properties:
+        value:
+          type: "string"
+          description: "Edition statement value"
+  format:
+    type: string
+    description: "Format of an Instance e.g. physical monographs vs. ebooks"
+  identifiers:
+    type: "array"
+    description: "Resource identifier array"
+    items:
+      $ref: "linkedDataIdentifier.yaml"
+  notes:
+    type: "array"
+    description: "Notes array"
+    items:
+      $ref: "linkedDataNote.yaml"
+  publications:
+    type: "array"
+    description: "List of publication items"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          description: "Name of publisher, distributor, etc."
+        date:
+          type: "string"
+          description: "Date (year YYYY) of publication, distribution, etc."
+  suppress:
+    type: "object"
+    description: "Suppress flags"
+    properties:
+      fromDiscovery:
+        type: boolean
+      staff:
+        type: boolean
+  titles:
+    type: "array"
+    description: "Title array"
+    items:
+      $ref: "linkedDataTitle.yaml"
+required:
+  - "id"

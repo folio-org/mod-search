@@ -54,7 +54,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.EVENT_LISTENER_ID,
-    containerFactory = "resourceListenerContainerFactory",
+    containerFactory = "instanceResourceListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")

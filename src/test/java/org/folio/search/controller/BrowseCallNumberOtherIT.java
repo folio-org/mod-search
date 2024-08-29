@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,13 +11,16 @@ import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -38,7 +40,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(12.0))), INSTANCES);
   }
 
   @AfterAll
@@ -125,9 +127,14 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     var effectiveShelvingOrderFunction = data.size() < 3
       ? (Function<String, String>) TestUtils::getShelfKeyFromCallNumber
       : (Function<String, String>) data.get(2);
+
+    var holdingId = randomId();
+    var holding = new Holding().id(holdingId).discoverySuppress(false).tenantId(TENANT_ID);
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
+        .tenantId(TENANT_ID)
+        .holdingsRecordId(holdingId)
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
         .effectiveShelvingOrder(effectiveShelvingOrderFunction.apply(callNumber)))
@@ -142,7 +149,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(List.of(holding));
   }
 
   private static Instance instance(String title) {

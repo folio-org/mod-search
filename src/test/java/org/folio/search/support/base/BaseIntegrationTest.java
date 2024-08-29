@@ -1,6 +1,7 @@
 package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
@@ -61,6 +62,7 @@ import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
 import org.folio.spring.testing.extension.impl.OkapiExtension;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -77,6 +79,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Log4j2
@@ -225,18 +228,23 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(Instance... instances) {
-    setUpTenant(TENANT_ID, instances);
+    setUpTenant(emptyList(), instances);
   }
 
   @SneakyThrows
-  protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length,
+  protected static void setUpTenant(List<ResultMatcher> matchers, Instance... instances) {
+    setUpTenant(TENANT_ID, matchers, instances);
+  }
+
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, List<ResultMatcher> matchers, Instance... instances) {
+    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length, matchers,
       instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
-    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount,
+    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
       record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, AUTHORITY, record)));
   }
 
@@ -244,6 +252,12 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Map<String, Object>... rawRecords) {
     setUpTenant(type, TENANT_ID, rawRecords);
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(Class<?> type, List<ResultMatcher> matchers, Map<String, Object>... rawRecords) {
+    setUpTenant(type, TENANT_ID, matchers, rawRecords);
   }
 
   @SneakyThrows
@@ -270,43 +284,52 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
     setUpTenant(type, tenant, () -> {
-    }, rawRecords.length, rawRecords);
+    }, rawRecords.length, emptyList(), rawRecords);
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(Class<?> type, String tenant, List<ResultMatcher> matchers,
+                                    Map<String, Object>... rawRecords) {
+    setUpTenant(type, tenant, () -> {
+    }, rawRecords.length, matchers, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
     setUpTenant(type, TENANT_ID, () -> {
-    }, expectedCount, rawRecords);
+    }, expectedCount, emptyList(), rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
-  protected static void setUpTenant(Class<?> type, Runnable postInitAction, Map<String, Object>... records) {
-    setUpTenant(type, TENANT_ID, postInitAction, records.length, records);
+  protected static void setUpTenant(Class<?> type, Runnable postInitAction,
+                                    @NotNull List<ResultMatcher> matchers, Map<String, Object>... records) {
+    setUpTenant(type, TENANT_ID, postInitAction, records.length, matchers, records);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
-                                    Map<String, Object>... records) {
+                                    List<ResultMatcher> matchers, Map<String, Object>... records) {
     if (type.equals(Instance.class)) {
-      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         instance -> inventoryApi.createInstance(tenant, instance));
     }
 
     if (type.equals(Authority.class)) {
-      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
         authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, authority)));
     }
 
     if (type.equals(LinkedDataWork.class)) {
-      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, LINKED_DATA_WORK, ldWork)));
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
-      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
           resourceEvent(null, LINKED_DATA_AUTHORITY, ldAuthority)));
     }
@@ -314,17 +337,23 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                        List<T> records, Integer expectedCount, Consumer<T> consumer) {
+                                        List<T> records, Integer expectedCount, List<ResultMatcher> matchers,
+                                        Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
-    saveRecords(tenant, validationPath, records, expectedCount, consumer);
+    saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         Consumer<T> consumer) {
+    saveRecords(tenant, validationPath, records, expectedCount, emptyList(), consumer);
+  }
+
+  protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
+                                        List<ResultMatcher> matchers, Consumer<T> consumer) {
     records.forEach(consumer);
     if (!records.isEmpty()) {
-      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
+      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount, matchers);
     }
   }
 
@@ -381,9 +410,12 @@ public abstract class BaseIntegrationTest {
       .andExpect(status().isNoContent());
   }
 
-  protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size) {
-    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, tenantId, "cql.allRecords=1", 1, null, null).andExpect(jsonPath("$.totalRecords", is(size))));
+  protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
+                                                           List<ResultMatcher> matchers) {
+    await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      doSearch(path, tenantId, "cql.allRecords=1", size, null, true)
+      .andExpect(jsonPath("$.totalRecords", is(size)))
+      .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }
 
   protected static String prepareQuery(String queryTemplate, String value) {

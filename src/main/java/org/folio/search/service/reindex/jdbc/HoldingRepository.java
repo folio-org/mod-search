@@ -41,6 +41,8 @@ public class HoldingRepository extends MergeRangeRepository {
 
     jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
       (statement, entity) -> {
+        System.out.println("!!!!!!");
+        System.out.println(entity.get("id"));
         statement.setObject(1, entity.get("id"));
         statement.setString(2, tenantId);
         statement.setObject(3, entity.get("instanceId"));

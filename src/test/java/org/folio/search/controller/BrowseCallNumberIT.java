@@ -11,14 +11,17 @@ import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -41,7 +44,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(57.0))), INSTANCES);
   }
 
   @AfterAll
@@ -83,20 +86,20 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @Test
   void browseByCallNumber_browsingVeryFirstCallNumberWithNoException() {
     var request = get(instanceCallNumberBrowsePath())
-        .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "\"AB 14 C72 NO 220\""))
-        .param("limit", "10")
-        .param("highlightMatch", "true")
-        .param("expandAll", "true")
-        .param("precedingRecordsCount", "5");
+      .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "\"AB 14 C72 NO 220\""))
+      .param("limit", "10")
+      .param("highlightMatch", "true")
+      .param("expandAll", "true")
+      .param("precedingRecordsCount", "5");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-        .totalRecords(32).prev(null).next("CE 16 B6713 X 41993").items(List.of(
-            cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
-            cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
-            cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
-            cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-            cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993")
-        )));
+      .totalRecords(32).prev(null).next("CE 16 B6713 X 41993").items(List.of(
+        cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
+        cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
+        cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
+        cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
+        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993")
+      )));
   }
 
   @Test
@@ -385,9 +388,13 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var holdingId = randomId();
+    var holding = new Holding().id(holdingId).discoverySuppress(false).tenantId(TENANT_ID);
+
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .tenantId(TENANT_ID)
+        .holdingsRecordId(holdingId)
         .id(randomId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
@@ -404,7 +411,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(List.of(holding));
   }
 
   private static Instance instance(String title) {

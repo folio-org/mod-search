@@ -23,13 +23,13 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       || jsonb_build_object('tenantId', i.tenant_id)
       || jsonb_build_object('shared', i.shared)
       || jsonb_build_object('isBoundWith', i.is_bound_with)
-      || jsonb_build_object('holdings', jsonb_agg(h.holding_json || jsonb_build_object('tenantId', h.tenant_id)))
-      || jsonb_build_object('items', jsonb_agg(it.item_json || jsonb_build_object('tenantId', it.tenant_id))) as json
-        FROM %s i
-        LEFT JOIN %s h on h.instance_id = i.id
-        LEFT JOIN %s it on it.holding_id = h.id
-        WHERE %s
-        GROUP BY i.id LIMIT ? OFFSET ?;
+      || jsonb_build_object('holdings', COALESCE(jsonb_agg(DISTINCT h.holding_json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.holding_json IS NOT NULL), '[]'::jsonb))
+      || jsonb_build_object('items', COALESCE(jsonb_agg(it.item_json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.item_json IS NOT NULL), '[]'::jsonb)) as json
+    FROM %s i
+      LEFT JOIN %s h on h.instance_id = i.id
+      LEFT JOIN %s it on it.holding_id = h.id
+      WHERE %s
+      GROUP BY i.id LIMIT ? OFFSET ?;
     """;
 
   private static final String EMPTY_WHERE_CLAUSE = "true";
@@ -79,8 +79,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      return jsonConverter.fromJsonToMap(rs.getString("json")); };
+    return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
   }
 
   @Override

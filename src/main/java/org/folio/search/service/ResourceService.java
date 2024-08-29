@@ -154,7 +154,8 @@ public class ResourceService {
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
     var indexEvents = extractEventsForDataMove(resourceEvents);
-    var fetchedInstances = resourceFetchService.fetchInstancesByIds(indexEvents);
+    var fetchedInstances = consortiumTenantExecutor.execute(
+      () -> resourceFetchService.fetchInstancesByIds(indexEvents));
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 

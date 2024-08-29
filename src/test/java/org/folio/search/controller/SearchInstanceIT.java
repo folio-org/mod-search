@@ -1,14 +1,11 @@
 package org.folio.search.controller;
 
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
-import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
@@ -36,13 +33,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
-    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(instanceSearchPath(), TENANT_ID, "holdings.id=\"\"", 1, null, true)
-        .andExpect(jsonPath("$.instances.[0].holdings.size()", is(3))));
-    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(instanceSearchPath(), TENANT_ID, "items.id=\"\"", 1, null, true)
-        .andExpect(jsonPath("$.instances.[0].items.size()", is(3))));
+    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
   }
 
   @AfterAll
@@ -451,7 +442,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("identifiers.value all ({value})", "047144250X AND 2003065165 AND 0317-8471"),
       arguments("identifiers.identifierTypeId == {value}", "C858E4F2-2B6B-4385-842B-60732EE14ABB"),
       arguments("identifiers.identifierTypeId == 8261054F-BE78-422D-BD51-4ED9F33C3422 "
-        + "AND identifiers.value == {value}", "0262012103"),
+                + "AND identifiers.value == {value}", "0262012103"),
 
       arguments("publisher all {value}", "MIT"),
       arguments("publisher all {value}", "MIT"),
@@ -647,6 +638,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("issn = {value}", "*X"),
       arguments("issn = {value}", "*x"),
       arguments("issn = {value}", "0040-781*")
-      );
+    );
   }
 }

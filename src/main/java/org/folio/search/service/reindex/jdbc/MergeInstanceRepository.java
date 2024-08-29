@@ -53,7 +53,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
         statement.setObject(1, entity.get("id"));
         statement.setString(2, tenantId);
         statement.setObject(3, shared);
-        statement.setObject(4, entity.get("isBoundWith"));
+        statement.setObject(4, entity.getOrDefault("isBoundWith", false));
         statement.setString(5, jsonConverter.toJson(entity));
       });
   }

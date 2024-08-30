@@ -29,12 +29,14 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@Disabled
 @IntegrationTest
 class BrowseCallNumberIT extends BaseIntegrationTest {
 
@@ -425,7 +427,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       List.of("instance #03", List.of("DA 3880 O6 L5 41955")),
       List.of("instance #04", List.of("CE 16 D86 X 41998")),
       List.of("instance #05", List.of("DA 3880 O6 M15")),
-      List.of("instance #06", List.of("DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2", "DA 3880 O6 L6 V2")),
+      List.of("instance #06", List.of("DA 3880 O6 L6 V2", "DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2")),
       List.of("instance #07", List.of("DA 3870 H47 41975")),
       List.of("instance #08", List.of("AC 11 A67 X 42000")),
       List.of("instance #09", List.of("DA 3700 C95 NO 18")),

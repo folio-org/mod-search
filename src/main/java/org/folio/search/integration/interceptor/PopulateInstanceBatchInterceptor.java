@@ -57,9 +57,6 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       }
       consumerRecords.add(list.get(0).value());
     }
-    var count = records.count();
-    System.out.println(count);
-    System.out.println(consumerRecords.size());
     populate(consumerRecords);
     return records;
   }

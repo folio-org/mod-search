@@ -158,8 +158,9 @@ class MergeRangeRepositoriesIT {
       Map.<String, Object>of("id", UUID.randomUUID(), "isBoundWith", false));
     var holdings = List.of(Map.<String, Object>of("id", holdingId1, "instanceId", mainInstanceId),
       Map.<String, Object>of("id", holdingId2, "instanceId", mainInstanceId));
-    var items = List.of(Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId1),
-      Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId2));
+    var items = List.of(Map.<String, Object>of("id", UUID.randomUUID(), "instanceId", mainInstanceId,
+        "holdingsRecordId", holdingId1),
+      Map.<String, Object>of("id", UUID.randomUUID(), "instanceId", mainInstanceId, "holdingsRecordId", holdingId2));
 
     // act
     instanceRepository.saveEntities(TENANT_ID, instances);

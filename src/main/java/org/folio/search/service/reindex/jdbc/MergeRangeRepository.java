@@ -2,7 +2,7 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +68,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public void deleteEntities(List<String> ids) {
     var fullTableName = getFullTableName(context, entityTable());
-    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholder(ids.size()));
+    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
 
     jdbcTemplate.update(sql, ids.toArray());
   }

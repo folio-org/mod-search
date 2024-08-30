@@ -13,8 +13,16 @@ public class JdbcUtils {
     return dbSchemaName + "." + tableName;
   }
 
+  public static String getParamPlaceholderForUuid(int size) {
+    return getParamPlaceholder(size, "uuid");
+  }
+
   public static String getParamPlaceholder(int size) {
-    return String.join(",", nCopies(size, "?"));
+    return getParamPlaceholder(size, null);
+  }
+
+  public static String getParamPlaceholder(int size, String cast) {
+    return String.join(",", nCopies(size, "?" + (cast == null ? "" : "::" + cast)));
   }
 
   public static String getGroupedParamPlaceholder(int size, int groupSize) {

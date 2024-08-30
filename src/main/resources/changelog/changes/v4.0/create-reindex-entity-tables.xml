@@ -91,6 +91,9 @@
       <column name="tenant_id" type="VARCHAR(100)">
         <constraints nullable="false" primaryKey="true" primaryKeyName="pk_item"/>
       </column>
+      <column name="instance_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
       <column name="holding_id" type="UUID">
         <constraints nullable="false"/>
       </column>
@@ -99,6 +102,10 @@
       </column>
     </createTable>
 
+    <createIndex tableName="item"
+                 indexName="idx_item_instance_id">
+      <column name="instance_id"/>
+    </createIndex>
     <createIndex tableName="item"
                  indexName="idx_item_holding_id">
       <column name="holding_id"/>

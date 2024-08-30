@@ -63,7 +63,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class);
+    setUpTenant();
   }
 
   @AfterAll
@@ -176,7 +176,7 @@ class RecordsIndexingIT extends BaseIntegrationTest {
   }
 
   private static Item item(int i) {
-    return new Item().id(ITEM_IDS.get(i));
+    return new Item().id(ITEM_IDS.get(i)).holdingsRecordId(HOLDING_IDS.get(i));
   }
 
   private static Holding holdingsRecord(int i) {
@@ -220,6 +220,12 @@ class RecordsIndexingIT extends BaseIntegrationTest {
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
     assertCountByQuery(instanceSearchPath(), ID, INSTANCE_IDS, 3);
+    for (String itemId : ITEM_IDS) {
+      assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemId, 1);
+    }
+    for (String holdingId : HOLDING_IDS) {
+      assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", holdingId, 1);
+    }
   }
 
   private void assertSubjectExistenceById(String subjectId, boolean isExists) {

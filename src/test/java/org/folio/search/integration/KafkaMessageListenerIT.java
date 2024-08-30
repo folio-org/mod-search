@@ -5,6 +5,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
+import static org.folio.search.model.types.ResourceType.BOUND_WITH;
 import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
@@ -33,11 +34,13 @@ import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.kafka.ConsortiumInstanceEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
+import org.folio.search.integration.interceptor.ResourceEventBatchInterceptor;
 import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
@@ -141,8 +144,8 @@ class KafkaMessageListenerIT {
 
   @Test
   void handleInstanceEvents_positive_boundWithEvent() {
-    var boundWithEvent = resourceEvent(null, ResourceType.INSTANCE, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
-    var expectedEvent = instanceEvent()._new(boundWithEvent.getNew());
+    var boundWithEvent = resourceEvent(null, BOUND_WITH, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
+    var expectedEvent = instanceEvent().resourceName(BOUND_WITH.getName())._new(boundWithEvent.getNew());
     resourceKafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(resourceService).indexInstancesById(List.of(expectedEvent)));
@@ -271,10 +274,10 @@ class KafkaMessageListenerIT {
   @TestConfiguration
   @EnableRetry(proxyTargetClass = true)
   @Import({
-    ResourceEventKafkaConfiguration.class, ConsortiumInstanceEventKafkaConfiguration.class,
-    KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
+    InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
+    ConsortiumInstanceEventKafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
-    RetryTemplateConfiguration.class
+    RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class
   })
   static class KafkaListenerTestConfiguration {
 

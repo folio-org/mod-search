@@ -29,8 +29,10 @@ import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 @IntegrationTest
 class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
 

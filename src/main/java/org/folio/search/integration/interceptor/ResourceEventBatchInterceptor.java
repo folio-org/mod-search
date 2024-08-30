@@ -1,5 +1,7 @@
 package org.folio.search.integration.interceptor;
 
+import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
+
 import java.util.Map;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -39,7 +41,11 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
     records.forEach(consumerRecord -> {
       var topicName = KafkaUtils.getTopicName(consumerRecord);
       var resourceType = TOPIC_TO_RESOURCE_MAP.getOrDefault(topicName, ResourceType.UNKNOWN);
-      consumerRecord.value().id(consumerRecord.key()).resourceName(resourceType.getName());
+      var id = consumerRecord.key();
+      if (resourceType.equals(ResourceType.HOLDINGS) || resourceType.equals(ResourceType.ITEM)) {
+        id = getResourceEventId(consumerRecord.value());
+      }
+      consumerRecord.value().id(id).resourceName(resourceType.getName());
     });
     return records;
   }

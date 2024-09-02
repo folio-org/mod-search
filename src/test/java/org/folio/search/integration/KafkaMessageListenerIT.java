@@ -10,7 +10,6 @@ import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -87,7 +86,6 @@ import org.springframework.retry.annotation.EnableRetry;
     "folio.kafka.listener.events.group-id=${folio.environment}-test-group",
     "folio.kafka.listener.authorities.group-id=${folio.environment}-authority-test-group",
     "folio.kafka.listener.contributors.group-id=${folio.environment}-contributor-test-group",
-    "folio.kafka.listener.consortium-instance.group-id=${folio.environment}-consortium-instance-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {
@@ -131,15 +129,6 @@ class KafkaMessageListenerIT {
     resourceKafkaTemplate.send(inventoryInstanceTopic(), INSTANCE_ID, instanceEvent());
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(resourceService).indexInstancesById(List.of(expectedEvent)));
-  }
-
-  @Test
-  void handleConsortiumInstanceEvents_positive() {
-    var expectedEvent = new ConsortiumInstanceEvent(INSTANCE_ID);
-    expectedEvent.setTenant(TENANT_ID);
-    consortiumKafkaTemplate.send(consortiumInstanceTopic(), INSTANCE_ID, expectedEvent);
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexConsortiumInstances(anyList()));
   }
 
   @Test

@@ -182,8 +182,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=*) sortby title", List.of(IDS)),
-      arguments("(id=* and source==\"MARC\") sortby title", List.of(IDS[0], IDS[1])),
-      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2])),
+      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2], IDS[4])),
 
       arguments("(id=* and languages==\"eng\") sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(id=* and languages==\"ger\") sortby title", List.of(IDS[1])),
@@ -193,8 +192,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(id=* and languages==\"ukr\") sortby title", List.of(IDS[2])),
       arguments("(languages==\"ukr\") sortby title", List.of(IDS[2])),
 
-      arguments("(id=* and source==\"CONSORTIUM-MARC\" and languages==\"ita\") sortby title", List.of(IDS[3])),
-      arguments("(id=* and source==\"CONSORTIUM-FOLIO\" and languages==\"eng\") sortby title", List.of(IDS[4])),
       arguments("(source==\"FOLIO\" and languages==\"ukr\") sortby title", List.of(IDS[2])),
 
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[0]), List.of(IDS[1], IDS[2])),
@@ -246,8 +243,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[1], IDS[3])),
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[2]),
         List.of(IDS[3], IDS[4])),
-      arguments(format("(holdings.permanentLocationId==%s and source==CONSORTIUM-MARC) sortby title",
-        PERMANENT_LOCATIONS[2]), List.of(IDS[3])),
 
       arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1], IDS[2])),
       arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
@@ -372,8 +367,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)),
         "instanceTags", facet(facetItem("cooking", 2), facetItem("future", 2), facetItem("science", 2),
           facetItem("casual", 1), facetItem("text", 1)),
-        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
+        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
         "instanceTypeId", facet(facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)),
         "statusId", facet(facetItem(STATUSES[1], 3), facetItem(STATUSES[0], 2)),
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
@@ -388,8 +382,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "holdings.discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2))
       )),
 
-      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-        facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)))),
+      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)))),
 
       arguments("id=*", array("languages"), mapOf("languages", facet(facetItem("eng", 3), facetItem("fra", 2),
         facetItem("ita", 2), facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)))),
@@ -432,15 +425,14 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
 
       arguments("source==MARC", array("instanceFormatIds"), mapOf(
-        "instanceFormatIds", facet(facetItem(FORMATS[1], 2), facetItem(FORMATS[2], 1)))),
+        "instanceFormatIds", facet(facetItem(FORMATS[0], 1), facetItem(FORMATS[1], 3), facetItem(FORMATS[2], 2)))),
 
       arguments("id=*", array("items.effectiveLocationId"), mapOf(
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
 
       arguments("source==MARC", array("source", "items.effectiveLocationId"), mapOf(
-        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
-        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 1), facetItem(LOCATIONS[1], 1)))),
+        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
+        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 2), facetItem(LOCATIONS[1], 1)))),
 
       arguments("id=*", array("items.status.name"), mapOf(
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
@@ -580,7 +572,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
     instances[3]
       .tenantId(TENANT_ID)
-      .source("CONSORTIUM-MARC")
+      .source("MARC")
       .languages(List.of("ita"))
       .staffSuppress(false)
       .discoverySuppress(false)
@@ -606,7 +598,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
     instances[4]
       .tenantId(TENANT_ID)
-      .source("CONSORTIUM-FOLIO")
+      .source("FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
       .statusId(STATUSES[1])

@@ -104,9 +104,6 @@ folio:
       - name: search.instance-subject
         numPartitions: 1
         replicationFactor: 1
-      - name: search.consortium.instance
-        numPartitions: 1
-        replicationFactor: 1
       - name: inventory.classification-type
         numPartitions: 1
         replicationFactor: 1
@@ -155,10 +152,6 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.instance-subject
         group-id: ${folio.environment}-mod-search-subjects-group
-      consortium-instance:
-        concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.consortium\.instance
-        group-id: ${folio.environment}-mod-search-consortium-instance-group
       classification-type:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type

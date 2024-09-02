@@ -2,9 +2,9 @@ CREATE OR REPLACE VIEW instance_view AS
   SELECT h.tenant_id,
     i.id,
     jsonb_build_object('instanceId', i.id,
-                        'instance', i.instance_json,
-                        'holdingsRecords', h.holding_json,
-                        'items', it.item_json,
+                        'instance', i.json,
+                        'holdingsRecords', h.json,
+                        'items', it.json,
                         'isBoundWith', i.is_bound_with) AS jsonb
   FROM instance i
     LEFT JOIN holding h

@@ -54,11 +54,6 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
            : uploadRanges;
   }
 
-  public void truncateUploadRangeTable() {
-    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, UPLOAD_RANGE_TABLE));
-    jdbcTemplate.execute(sql);
-  }
-
   public List<Map<String, Object>> fetchBy(int limit, int offset) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), limit, offset);

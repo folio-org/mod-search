@@ -129,32 +129,6 @@ public class KafkaMessageListener {
     indexResources(batch, resourceService::indexResources);
   }
 
-  /**
-   * Handles consortium instance events and indexes them using event body.
-   *
-   * @param consumerRecords - list of consumer records from Apache Kafka to process.
-   */
-  @KafkaListener(
-    id = KafkaConstants.CONSORTIUM_INSTANCE_LISTENER_ID,
-    containerFactory = "consortiumListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['consortium-instance'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['consortium-instance'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['consortium-instance'].topicPattern}")
-  public void handleConsortiumInstanceEvents(List<ConsumerRecord<String, ConsortiumInstanceEvent>> consumerRecords) {
-    log.info("Processing consortium instance events from Kafka [number of events: {}]", consumerRecords.size());
-    var batch = consumerRecords.stream()
-      .map(ConsumerRecord::value)
-      .toList();
-
-    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ConsortiumInstanceEvent::getTenant));
-
-    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
-      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceService::indexConsortiumInstances, KafkaMessageListener::logFailedConsortiumEvent);
-      return null;
-    }));
-  }
-
   @KafkaListener(
     id = KafkaConstants.CLASSIFICATION_TYPE_LISTENER_ID,
     containerFactory = "resourceListenerContainerFactory",

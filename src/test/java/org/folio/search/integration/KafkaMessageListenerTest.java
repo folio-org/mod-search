@@ -15,7 +15,6 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
@@ -257,20 +256,6 @@ class KafkaMessageListenerTest {
   }
 
   @Test
-  void handleConsortiumInstanceEvents_positive() {
-    var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
-    consortiumInstanceEvent.setTenant(TENANT_ID);
-    messageListener.handleConsortiumInstanceEvents(singletonList(new ConsumerRecord<>(
-      consortiumInstanceTopic(), 0, 0, RESOURCE_ID, consortiumInstanceEvent
-    )));
-
-    verify(resourceService).indexConsortiumInstances(singletonList(consortiumInstanceEvent));
-    verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
-      eq(KAFKA_RETRY_TEMPLATE_NAME),
-      any(), any());
-  }
-
-  @Test
   void handleConsortiumInstanceEvents_negative() {
     var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
     consortiumInstanceEvent.setTenant(TENANT_ID);
@@ -281,10 +266,6 @@ class KafkaMessageListenerTest {
     }).when(batchProcessor)
       .consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)), eq(KAFKA_RETRY_TEMPLATE_NAME), any(),
         any());
-
-    messageListener.handleConsortiumInstanceEvents(singletonList(new ConsumerRecord<>(
-      consortiumInstanceTopic(), 0, 0, RESOURCE_ID, consortiumInstanceEvent
-    )));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
       eq(KAFKA_RETRY_TEMPLATE_NAME),

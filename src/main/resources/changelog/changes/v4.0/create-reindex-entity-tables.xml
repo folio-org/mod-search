@@ -33,7 +33,7 @@
       <column name="is_bound_with" type="BOOLEAN">
         <constraints nullable="false"/>
       </column>
-      <column name="instance_json" type="jsonb">
+      <column name="json" type="jsonb">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -61,7 +61,7 @@
       <column name="instance_id" type="UUID">
         <constraints nullable="false"/>
       </column>
-      <column name="holding_json" type="jsonb">
+      <column name="json" type="jsonb">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -97,7 +97,7 @@
       <column name="holding_id" type="UUID">
         <constraints nullable="false"/>
       </column>
-      <column name="item_json" type="jsonb">
+      <column name="json" type="jsonb">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -112,75 +112,93 @@
     </createIndex>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-classification-table" author="Mukhiddin_Yusupov">
-    <preConditions>
-      <not>
-        <tableExists tableName="classification"/>
-      </not>
-    </preConditions>
+<!--  <changeSet id="MSEARCH-793@@create-classification-table" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions>-->
+<!--      <not>-->
+<!--        <tableExists tableName="classification"/>-->
+<!--      </not>-->
+<!--    </preConditions>-->
 
-    <comment>Create classification table</comment>
+<!--    <comment>Create classification table</comment>-->
 
-    <createTable tableName="classification">
-      <column name="id" type="VARCHAR(40)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_classification"/>
-      </column>
-      <column name="number" type="VARCHAR(50)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="type_id" type="VARCHAR(40)" defaultValue=""/>
-      <column name="instances" type="jsonb">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
+<!--    <createTable tableName="classification">-->
+<!--      <column name="id" type="VARCHAR(40)">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_classification"/>-->
+<!--      </column>-->
+<!--      <column name="number" type="VARCHAR(50)">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--      <column name="type_id" type="VARCHAR(40)" defaultValue=""/>-->
+<!--    </createTable>-->
+<!--  </changeSet>-->
 
-  <changeSet id="MSEARCH-793@@create-subject-table" author="Mukhiddin_Yusupov">
-    <preConditions>
-      <not>
-        <tableExists tableName="subject"/>
-      </not>
-    </preConditions>
+<!--  <changeSet id="MSEARCH-793@@recreate-instance_classification-table" author="pavlo_smahin">-->
+<!--    <comment>Recreate instance_classification table</comment>-->
 
-    <comment>Create subject table</comment>
+<!--    <dropTable tableName="instance_classification"/>-->
 
-    <createTable tableName="subject">
-      <column name="id" type="VARCHAR(40)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subject"/>
-      </column>
-      <column name="value" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>
-      <column name="instances" type="jsonb">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
+<!--    <createTable tableName="instance_classification">-->
+<!--      <column name="instance_id" type="UUID">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instance_classification"/>-->
+<!--      </column>-->
+<!--      <column name="classification_id" type="VARCHAR(40)">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instance_classification"/>-->
+<!--      </column>-->
+<!--      <column name="tenant_id" type="VARCHAR(100)">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instance_classification"/>-->
+<!--      </column>-->
+<!--      <column name="shared" type="BOOLEAN">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--    </createTable>-->
+<!--  </changeSet>-->
 
-  <changeSet id="MSEARCH-793@@create-contributor-table" author="Mukhiddin_Yusupov">
-    <preConditions>
-      <not>
-        <tableExists tableName="contributor"/>
-      </not>
-    </preConditions>
+<!--  <changeSet id="MSEARCH-793@@create-subject-table" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions>-->
+<!--      <not>-->
+<!--        <tableExists tableName="subject"/>-->
+<!--      </not>-->
+<!--    </preConditions>-->
 
-    <comment>Create contributor table</comment>
+<!--    <comment>Create subject table</comment>-->
 
-    <createTable tableName="contributor">
-      <column name="id" type="VARCHAR(40)">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_contributor"/>
-      </column>
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="contributor_name_type_id" type="VARCHAR(40)" defaultValue=""/>
-      <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>
-      <column name="instances" type="jsonb">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
+<!--    <createTable tableName="subject">-->
+<!--      <column name="id" type="VARCHAR(40)">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subject"/>-->
+<!--      </column>-->
+<!--      <column name="value" type="VARCHAR(255)">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--      <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>-->
+<!--      <column name="instances" type="jsonb">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--    </createTable>-->
+<!--  </changeSet>-->
+
+<!--  <changeSet id="MSEARCH-793@@create-contributor-table" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions>-->
+<!--      <not>-->
+<!--        <tableExists tableName="contributor"/>-->
+<!--      </not>-->
+<!--    </preConditions>-->
+
+<!--    <comment>Create contributor table</comment>-->
+
+<!--    <createTable tableName="contributor">-->
+<!--      <column name="id" type="VARCHAR(40)">-->
+<!--        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_contributor"/>-->
+<!--      </column>-->
+<!--      <column name="name" type="VARCHAR(255)">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--      <column name="contributor_name_type_id" type="VARCHAR(40)" defaultValue=""/>-->
+<!--      <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>-->
+<!--      <column name="instances" type="jsonb">-->
+<!--        <constraints nullable="false"/>-->
+<!--      </column>-->
+<!--    </createTable>-->
+<!--  </changeSet>-->
 
   <changeSet id="MSEARCH-793@@create-merge_ranges-table" author="Mukhiddin_Yusupov">
     <preConditions>
@@ -270,40 +288,40 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-instance_view" author="Mukhiddin_Yusupov">
-    <preConditions onFail="MARK_RAN">
-      <and>
-        <tableExists tableName="instance"/>
-        <tableExists tableName="holding"/>
-        <tableExists tableName="item"/>
-      </and>
-    </preConditions>
-    <sqlFile path="create-instance-view.sql" relativeToChangelogFile="true"/>
-  </changeSet>
+<!--  <changeSet id="MSEARCH-793@@create-instance_view" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions onFail="MARK_RAN">-->
+<!--      <and>-->
+<!--        <tableExists tableName="instance"/>-->
+<!--        <tableExists tableName="holding"/>-->
+<!--        <tableExists tableName="item"/>-->
+<!--      </and>-->
+<!--    </preConditions>-->
+<!--    <sqlFile path="create-instance-view.sql" relativeToChangelogFile="true"/>-->
+<!--  </changeSet>-->
 
-  <changeSet id="MSEARCH-793@@create-instance_trigger" author="Mukhiddin_Yusupov">
-    <preConditions onFail="MARK_RAN">
-      <and>
-        <tableExists tableName="instance"/>
-        <tableExists tableName="classification"/>
-        <tableExists tableName="subject"/>
-        <tableExists tableName="contributor"/>
-      </and>
-    </preConditions>
-    <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
-  </changeSet>
+<!--  <changeSet id="MSEARCH-793@@create-instance_trigger" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions onFail="MARK_RAN">-->
+<!--      <and>-->
+<!--        <tableExists tableName="instance"/>-->
+<!--        <tableExists tableName="classification"/>-->
+<!--        <tableExists tableName="subject"/>-->
+<!--        <tableExists tableName="contributor"/>-->
+<!--      </and>-->
+<!--    </preConditions>-->
+<!--    <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>-->
+<!--  </changeSet>-->
 
-  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
-    <preConditions onFail="MARK_RAN">
-      <and>
-        <tableExists tableName="instance"/>
-        <tableExists tableName="classification"/>
-        <tableExists tableName="subject"/>
-        <tableExists tableName="contributor"/>
-      </and>
-    </preConditions>
-    <sqlFile path="delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
-  </changeSet>
+<!--  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">-->
+<!--    <preConditions onFail="MARK_RAN">-->
+<!--      <and>-->
+<!--        <tableExists tableName="instance"/>-->
+<!--        <tableExists tableName="classification"/>-->
+<!--        <tableExists tableName="subject"/>-->
+<!--        <tableExists tableName="contributor"/>-->
+<!--      </and>-->
+<!--    </preConditions>-->
+<!--    <sqlFile path="delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>-->
+<!--  </changeSet>-->
 
   <changeSet id="MSEARCH-797@@create-reindex_status-trigger" author="Viacheslav_Kolesnyk">
     <preConditions onFail="MARK_RAN">

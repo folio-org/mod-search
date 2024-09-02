@@ -16,12 +16,12 @@ import org.springframework.stereotype.Repository;
 public class MergeInstanceRepository extends MergeRangeRepository {
 
   private static final String INSERT_SQL = """
-      INSERT INTO %s (id, tenant_id, shared, is_bound_with, instance_json)
+      INSERT INTO %s (id, tenant_id, shared, is_bound_with, json)
       VALUES (?::uuid, ?, ?, ?, ?::jsonb)
       ON CONFLICT (id)
       DO UPDATE SET shared = EXCLUDED.shared,
       is_bound_with = EXCLUDED.is_bound_with,
-      instance_json = EXCLUDED.instance_json;
+      json = EXCLUDED.json;
     """;
 
   private final ConsortiumTenantProvider consortiumTenantProvider;

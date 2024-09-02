@@ -1,5 +1,5 @@
 {
-  "name": "linked-data-work",
+  "name": "linked-data-instance",
   "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataInstance",
   "reindexSupported": true,
   "languageSourcePaths": [ "$.languages" ],

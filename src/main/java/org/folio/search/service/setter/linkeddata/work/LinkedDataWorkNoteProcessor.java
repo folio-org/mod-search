@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LinkedDataNoteTitleProcessor implements FieldProcessor<LinkedDataWork, Set<String>> {
+public class LinkedDataWorkNoteProcessor implements FieldProcessor<LinkedDataWork, Set<String>> {
 
   private final LinkedDataNoteProcessor linkedDataNoteProcessor;
 

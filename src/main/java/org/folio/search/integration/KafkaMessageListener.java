@@ -114,22 +114,6 @@ public class KafkaMessageListener {
   }
 
   @KafkaListener(
-    id = KafkaConstants.SUBJECT_LISTENER_ID,
-    containerFactory = "resourceListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['subjects'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['subjects'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['subjects'].topicPattern}")
-  public void handleSubjectEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
-    log.info("Processing subjects events from Kafka [number of events: {}]", consumerRecords.size());
-    var batch = consumerRecords.stream()
-      .map(ConsumerRecord::value)
-      .map(subject -> subject.id(getResourceEventId(subject)))
-      .toList();
-
-    indexResources(batch, resourceService::indexResources);
-  }
-
-  @KafkaListener(
     id = KafkaConstants.CLASSIFICATION_TYPE_LISTENER_ID,
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['classification-type'].groupId}",

@@ -34,10 +34,7 @@ import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.ContributorResourceEvent;
-import org.folio.search.model.event.SubjectResourceEvent;
-import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.utils.CollectionUtils;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -47,21 +44,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaMessageProducer {
 
-  private static final String SUBJECTS_FIELD = "subjects";
   private static final String INSTANCE_CONTRIBUTOR_TOPIC_NAME = "search.instance-contributor";
-  private static final String INSTANCE_SUBJECTS_TOPIC_NAME = "search.instance-subject";
   private static final TypeReference<List<Contributor>> TYPE_REFERENCE = new TypeReference<>() { };
-  private static final TypeReference<List<SubjectResourceEvent>> TYPE_REFERENCE_SUBJECT = new TypeReference<>() { };
   private final JsonConverter jsonConverter;
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
   private final ConsortiumTenantService consortiumTenantService;
 
   public void prepareAndSendContributorEvents(List<ResourceEvent> resourceEvents) {
     prepareAndSendEvents(resourceEvents, this::getContributorEvents);
-  }
-
-  public void prepareAndSendSubjectEvents(List<ResourceEvent> resourceEvents) {
-    prepareAndSendEvents(resourceEvents, this::getSubjectsEvents);
   }
 
   private void prepareAndSendEvents(List<ResourceEvent> resourceEvents,
@@ -75,68 +65,9 @@ public class KafkaMessageProducer {
     }
   }
 
-  private List<ProducerRecord<String, ResourceEvent>> getSubjectsEvents(ResourceEvent event) {
-    var tenantId = event.getTenant();
-    var shared = isSharedResource(tenantId);
-    var oldSubjects = extractSubjects(getOldAsMap(event), shared);
-    var newSubjects = extractSubjects(getNewAsMap(event), shared);
-
-    if (isUpdateEventForResourceSharing(event)) {
-      if (Boolean.TRUE.equals(shared)) {
-        log.warn("Update event for instance sharing is supposed to be for member tenant,"
-                 + " but received for central tenant: {}, eventId: {}", tenantId, event.getId());
-      }
-      return prepareSubjectsEvents(oldSubjects, List.of(), tenantId, DELETE);
-    } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
-      return emptyList();
-    }
-
-    List<ProducerRecord<String, ResourceEvent>> producerRecords = new ArrayList<>();
-    producerRecords.addAll(prepareSubjectsEvents(newSubjects, oldSubjects, tenantId, CREATE));
-    producerRecords.addAll(prepareSubjectsEvents(oldSubjects, newSubjects, tenantId, DELETE));
-    log.trace("Prepared subject events: [{}]", producerRecords);
-    log.debug("Prepared subject events: [total: {}]", producerRecords.size());
-    return producerRecords;
-  }
-
-  private List<SubjectResourceEvent> extractSubjects(Map<String, Object> objectMap, boolean shared) {
-    var subjectsObject = getObject(objectMap, SUBJECTS_FIELD, emptyList());
-    var subjectResourceEvents = jsonConverter.convert(subjectsObject, TYPE_REFERENCE_SUBJECT);
-    subjectResourceEvents.forEach(
-      subjectResourceEvent -> {
-        subjectResourceEvent.setInstanceId(getResourceEventId(objectMap));
-        subjectResourceEvent.setValue(StringUtils.trim(subjectResourceEvent.getValue()));
-        subjectResourceEvent.setShared(shared);
-      });
-    subjectResourceEvents.removeIf(subjectResourceEvent -> StringUtils.isBlank(subjectResourceEvent.getInstanceId()));
-    return subjectResourceEvents;
-  }
-
   private boolean isSharedResource(String tenantId) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantId);
     return centralTenant.isPresent() && centralTenant.get().equals(tenantId);
-  }
-
-  private List<ProducerRecord<String, ResourceEvent>> prepareSubjectsEvents(List<SubjectResourceEvent> subjects,
-                                                                            List<SubjectResourceEvent> subjectsToRemove,
-                                                                            String tenantId,
-                                                                            ResourceEventType eventType) {
-    var topicName = getTenantTopicName(INSTANCE_SUBJECTS_TOPIC_NAME, tenantId);
-    return CollectionUtils.subtract(subjects, subjectsToRemove).stream()
-      .filter(subject -> StringUtils.isNotBlank(subject.getValue()))
-      .map(subject -> convertToSubjectEvent(subject, tenantId, eventType))
-      .map(resourceEvent -> new ProducerRecord<>(topicName, resourceEvent.getId(), resourceEvent))
-      .toList();
-  }
-
-  private ResourceEvent convertToSubjectEvent(SubjectResourceEvent subject, String tenantId, ResourceEventType type) {
-    var stringForId = toRootLowerCase(subject.getValue() + "|" + subject.getAuthorityId());
-    var id = sha1Hex(stringForId); //NOSONAR
-    subject.setId(id);
-    var resourceEvent = new ResourceEvent().type(type).tenant(tenantId).id(id)
-      .resourceName(ResourceType.INSTANCE_SUBJECT.getName());
-    var body = jsonConverter.convert(subject, Map.class);
-    return type == CREATE ? resourceEvent._new(body) : resourceEvent.old(body);
   }
 
   private List<ProducerRecord<String, ResourceEvent>> getContributorEvents(ResourceEvent event) {

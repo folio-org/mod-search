@@ -32,8 +32,6 @@ import org.folio.spring.testing.type.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -57,89 +55,6 @@ class KafkaMessageProducerTest {
   @Mock
   private ConsortiumTenantService consortiumTenantService;
 
-  @Test
-  void shouldSendTwoSubjectEvents_whenSubjectChanged() {
-    var instanceId = randomId();
-    var oldSubjectObject = subjectObject("Medicine");
-    var newSubjectObject = subjectObject("Anthropology");
-    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
-      instanceObjectWithSubjects(instanceId, newSubjectObject),
-      instanceObjectWithSubjects(instanceId, oldSubjectObject)
-    );
-    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
-
-    verify(kafkaTemplate, times(2)).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
-  }
-
-  @Test
-  void shouldSendNoSubjectEvents_whenSubjectNotChanged() {
-    var instanceId = randomId();
-    var name = "Medicine";
-    var oldContributorObject = subjectObject(name);
-    var newContributorObject = subjectObject(name);
-    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
-      instanceObjectWithSubjects(instanceId, newContributorObject),
-      instanceObjectWithSubjects(instanceId, oldContributorObject)
-    );
-    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
-
-    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
-  }
-
-  @Test
-  void shouldSendNoSubjectEvents_whenShadowInstance() {
-    var instanceId = randomId();
-    var name = "Medicine";
-    var newContributorObject = subjectObject(name);
-    Map<String, String> instanceObject = instanceObjectWithSubjects(instanceId, newContributorObject);
-    instanceObject.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + instanceObject.get(SOURCE_FIELD));
-    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, CREATE, instanceObject, null);
-    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
-
-    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
-  }
-
-  @NullAndEmptySource
-  @ParameterizedTest
-  void shouldSendNoSubjectEvents_whenInstanceIdIsBlank(String instanceId) {
-    var oldSubjectObject = subjectObject("Medicine");
-    var newSubjectObject = subjectObject("Anthropology");
-    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
-      instanceObjectWithSubjects(instanceId, newSubjectObject),
-      instanceObjectWithSubjects(instanceId, oldSubjectObject)
-    );
-    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
-
-    verify(kafkaTemplate, never()).send(ArgumentMatchers.<ProducerRecord<String, ResourceEvent>>any());
-  }
-
-  @Test
-  void shouldSendDeleteOldSubjectEventOfMemberTenant_whenInstanceUpdatedWithSharing() {
-    var instanceId = randomId();
-    var name = "Medicine";
-    var oldContributorObject = subjectObject(name);
-    var newContributorObject = subjectObject(name);
-    var resourceEvent = resourceEvent(instanceId, ResourceType.INSTANCE, UPDATE,
-      instanceObjectWithSubjects(instanceId, newContributorObject, SOURCE_CONSORTIUM_PREFIX + "FOLIO"),
-      instanceObjectWithSubjects(instanceId, oldContributorObject, "FOLIO")
-    );
-    final var expectedOld = mapOf(
-      "authorityId", null,
-      "id", sha1Hex(toRootLowerCase(name + "|null")),
-      "value", name,
-      "instanceId", instanceId,
-      "shared", false
-    );
-
-    producer.prepareAndSendSubjectEvents(singletonList(resourceEvent));
-
-    verify(kafkaTemplate).send(CAPTOR.capture());
-    var record = (ResourceEvent) CAPTOR.getValue().value();
-    assertThat(List.of(record))
-      .extracting(ResourceEvent::getType, ResourceEvent::getNew)
-      .containsExactlyInAnyOrder(tuple(DELETE, null));
-    assertThat(record.getOld()).isEqualTo(expectedOld);
-  }
 
   @Test
   void shouldSendTwoContributorEvents_whenContributorChanged() {

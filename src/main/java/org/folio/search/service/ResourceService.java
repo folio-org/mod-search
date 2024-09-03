@@ -115,7 +115,7 @@ public class ResourceService {
     var fetchedInstances = consortiumTenantExecutor.execute(
       () -> resourceFetchService.fetchInstancesByIds(indexEvents));
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
-    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
+//    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 
     var list = preProcessEvents(fetchedInstances);
     return multiTenantSearchDocumentConverter.convert(list);
@@ -136,7 +136,6 @@ public class ResourceService {
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
     messageProducer.prepareAndSendContributorEvents(deleteEvents);
-    messageProducer.prepareAndSendSubjectEvents(deleteEvents);
 //    var list = preProcessEvents(deleteEvents);
     return multiTenantSearchDocumentConverter.convert(deleteEvents);
   }

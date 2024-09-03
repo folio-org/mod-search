@@ -76,8 +76,8 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
                                                               boolean isAnchor) {
     return BrowseResult.of(res)
       .map(subjectResource -> new SubjectBrowseItem()
-        .value(subjectResource.getValue())
-        .authorityId(subjectResource.getAuthorityId())
+        .value(subjectResource.value())
+        .authorityId(subjectResource.authorityId())
         .isAnchor(isAnchor ? true : null)
         .totalRecords(getTotalRecords(context, subjectResource)));
   }
@@ -89,7 +89,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   private Integer getTotalRecords(BrowseContext context, SubjectResource subjectResource) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(context, subjectResource,
-        SubjectResource::getInstances).stream()
+        SubjectResource::instances).stream()
       .map(InstanceSubResource::getInstanceId)
       .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
       .distinct()

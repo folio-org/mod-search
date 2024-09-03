@@ -98,8 +98,8 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
       .totalRecords(10).prev("Music").next(null)
       .items(List.of(
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
         subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_1),
+        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2),
         subjectBrowseItem(1, "Rules", true),
         subjectBrowseItem(1, "Text"),
         subjectBrowseItem(1, "United States"))));

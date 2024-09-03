@@ -51,6 +51,7 @@ public class SearchUtils {
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String AUTHORITY_ID_FIELD = "authorityId";
   public static final String CLASSIFICATIONS_FIELD = "classifications";
+  public static final String SUBJECTS_FIELD = "subjects";
   public static final String CLASSIFICATION_NUMBER_FIELD = "classificationNumber";
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";

@@ -2,9 +2,7 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -46,15 +44,12 @@ public class ClassificationRepository extends UploadRangeRepository {
   private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
   private static final String CLASSIFICATION_TYPE_COLUMN = "type_id";
   private static final String CLASSIFICATION_NUMBER_COLUMN = "number";
-  private final ObjectMapper objectMapper;
 
   protected ClassificationRepository(JdbcTemplate jdbcTemplate,
                                      JsonConverter jsonConverter,
                                      FolioExecutionContext context,
-                                     ReindexConfigurationProperties reindexConfig,
-                                     ObjectMapper objectMapper) {
+                                     ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
-    this.objectMapper = objectMapper;
   }
 
   @Override
@@ -67,7 +62,7 @@ public class ClassificationRepository extends UploadRangeRepository {
     return ReindexConstants.CLASSIFICATION_TABLE;
   }
 
-  public List<InstanceClassificationEntityAgg> fetchClassificationsByIds(List<String> ids) {
+  public List<InstanceClassificationEntityAgg> fetchByIds(List<String> ids) {
     if (CollectionUtils.isEmpty(ids)) {
       return Collections.emptyList();
     }
@@ -104,8 +99,8 @@ public class ClassificationRepository extends UploadRangeRepository {
       var instancesJson = rs.getString("instances");
       Set<InstanceSubResource> instanceSubResources;
       try {
-        instanceSubResources = objectMapper.readValue(instancesJson, VALUE_TYPE_REF);
-      } catch (JsonProcessingException e) {
+        instanceSubResources = jsonConverter.fromJson(instancesJson, VALUE_TYPE_REF);
+      } catch (Exception e) {
         throw new IllegalArgumentException(e);
       }
       return new InstanceClassificationEntityAgg(id, typeId, number, instanceSubResources);

@@ -47,7 +47,6 @@ import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -216,23 +215,6 @@ class KafkaMessageListenerTest {
       inventoryAuthorityTopic(), 0, 0, RESOURCE_ID, resourceEvent(null, AUTHORITY, UPDATE, payload, null))));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
-  }
-
-  @Test
-  void handleConsortiumInstanceEvents_negative() {
-    var consortiumInstanceEvent = new ConsortiumInstanceEvent(RESOURCE_ID);
-    consortiumInstanceEvent.setTenant(TENANT_ID);
-    doAnswer(inv -> {
-      inv.<BiConsumer<ConsortiumInstanceEvent, Exception>>getArgument(3)
-        .accept(consortiumInstanceEvent, new Exception("error"));
-      return null;
-    }).when(batchProcessor)
-      .consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)), eq(KAFKA_RETRY_TEMPLATE_NAME), any(),
-        any());
-
-    verify(batchProcessor).consumeBatchWithFallback(eq(singletonList(consortiumInstanceEvent)),
-      eq(KAFKA_RETRY_TEMPLATE_NAME),
-      any(), any());
   }
 
   @Test

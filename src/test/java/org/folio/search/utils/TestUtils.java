@@ -221,7 +221,14 @@ public class TestUtils {
         .map(ItemEffectiveCallNumberComponents::getTypeId));
     var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber, s))
       .orElseGet(() -> getShelfKeyFromCallNumber(callNumber));
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1)
+    var ins = new Instance().id(instance.getId()).title(instance.getTitle())
+      .tenantId(instance.getTenantId()).shared(instance.getShared())
+      .staffSuppress(instance.getStaffSuppress())
+      .discoverySuppress(instance.getDiscoverySuppress())
+      .isBoundWith(instance.getIsBoundWith())
+      .items(null)
+      .holdings(null);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(ins).totalRecords(1)
       .isAnchor(isAnchor);
   }
 
@@ -350,6 +357,16 @@ public class TestUtils {
 
   public static SearchDocumentBody searchDocumentBodyToDelete() {
     return SearchDocumentBody.of(null, null, resourceEvent(), DELETE);
+  }
+
+  public static void cleanupActual(CallNumberBrowseResult actual) {
+    for (var item : actual.getItems()) {
+      var instance = item.getInstance();
+      if (instance != null) {
+        instance.setItems(null);
+        instance.setHoldings(null);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")

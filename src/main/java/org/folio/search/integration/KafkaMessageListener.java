@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -203,13 +202,4 @@ public class KafkaMessageListener {
     ), e);
   }
 
-  private static void logFailedConsortiumEvent(ConsortiumInstanceEvent event, Exception e) {
-    if (event == null) {
-      log.warn("Failed to index resource event [event: null]", e);
-      return;
-    }
-
-    log.warn(new FormattedMessage("Failed to index consortium instance [tenantId: {}, id: {}]",
-      event.getTenant(), event.getInstanceId()), e);
-  }
 }

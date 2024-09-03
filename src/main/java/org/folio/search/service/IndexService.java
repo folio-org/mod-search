@@ -25,7 +25,6 @@ import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
-import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
@@ -46,7 +45,6 @@ public class IndexService {
   private final SearchSettingsHelper settingsHelper;
   private final ResourceReindexClient resourceReindexClient;
   private final ResourceDescriptionService resourceDescriptionService;
-  private final ConsortiumInstanceService consortiumInstanceService;
   private final IndexNameProvider indexNameProvider;
   private final TenantProvider tenantProvider;
   private final LocationService locationService;
@@ -147,9 +145,6 @@ public class IndexService {
       resources.forEach(resourceName -> {
         dropIndex(resourceName, tenantId);
         createIndex(resourceName, tenantId, reindexRequest.getIndexSettings());
-        if (ResourceType.INSTANCE.getName().equals(resource)) {
-          consortiumInstanceService.deleteAll();
-        }
       });
     }
 

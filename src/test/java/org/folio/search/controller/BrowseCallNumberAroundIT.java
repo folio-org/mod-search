@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,12 +9,15 @@ import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -23,12 +25,10 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 @IntegrationTest
-class BrowseAroundCallNumberIT extends BaseIntegrationTest {
+class BrowseCallNumberAroundIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
@@ -36,7 +36,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is((double) INSTANCES.length))), INSTANCES);
   }
 
   @AfterAll
@@ -117,15 +117,19 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
 
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
-      .map(BrowseAroundCallNumberIT::instance)
+      .map(BrowseCallNumberAroundIT::instance)
       .toArray(Instance[]::new);
   }
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var holding = new Holding().id(randomId()).tenantId(TENANT_ID).discoverySuppress(false);
+
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
+        .tenantId(TENANT_ID)
+        .holdingsRecordId(holding.getId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
         .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber)))
@@ -140,7 +144,7 @@ class BrowseAroundCallNumberIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(List.of(holding));
   }
 
   private Instance instance(String title) {

@@ -26,7 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.integration.ResourceFetchService;
+import org.folio.search.integration.InstanceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -48,7 +48,7 @@ public class ResourceService {
   private static final String PRIMARY_INDEXING_REPOSITORY_NAME = "primary";
   private static final String INSTANCE_ID_FIELD = "instanceId";
 
-  private final ResourceFetchService resourceFetchService;
+  private final InstanceFetchService resourceFetchService;
   private final PrimaryResourceRepository primaryResourceRepository;
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;

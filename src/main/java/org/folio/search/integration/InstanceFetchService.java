@@ -13,7 +13,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
-import org.folio.search.client.InventoryViewClient;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
@@ -23,11 +22,8 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class ResourceFetchService {
+public class InstanceFetchService {
 
-  private static final int BATCH_SIZE = 50;
-
-  private final InventoryViewClient inventoryClient;
   private final FolioExecutionContext context;
   private final UploadInstanceRepository instanceRepository;
 

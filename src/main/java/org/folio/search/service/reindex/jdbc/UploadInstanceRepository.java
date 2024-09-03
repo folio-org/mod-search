@@ -5,10 +5,10 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,8 +53,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }
-    var whereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted(ids.stream().map(v -> "?::uuid")
-      .collect(Collectors.joining(", ")));
+    var whereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted(JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),

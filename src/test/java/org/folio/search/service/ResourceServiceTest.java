@@ -23,7 +23,6 @@ import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,7 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.ResourceFetchService;
+import org.folio.search.integration.InstanceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -43,7 +42,6 @@ import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
-import org.folio.search.service.consortium.ConsortiumInstanceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
@@ -67,7 +65,7 @@ class ResourceServiceTest {
   @Mock
   private IndexRepository indexRepository;
   @Mock
-  private ResourceFetchService resourceFetchService;
+  private InstanceFetchService resourceFetchService;
   @Mock
   private PrimaryResourceRepository primaryResourceRepository;
   @Mock
@@ -81,8 +79,6 @@ class ResourceServiceTest {
   @Mock
   private ConsortiumTenantExecutor consortiumTenantExecutor;
   @Mock
-  private ConsortiumInstanceService consortiumInstanceService;
-  @Mock
   private IndexNameProvider indexNameProvider;
   @Mock
   private Map<String, ResourceRepository> resourceRepositoryBeans;
@@ -94,10 +90,6 @@ class ResourceServiceTest {
   @BeforeEach
   public void setUp() {
     lenient().when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.empty());
-    lenient().when(consortiumInstanceService.saveInstances(anyList()))
-      .thenAnswer(invocation -> invocation.getArgument(0));
-    lenient().when(consortiumInstanceService.deleteInstances(anyList()))
-      .thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(consortiumTenantExecutor.execute(any(), any()))
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))

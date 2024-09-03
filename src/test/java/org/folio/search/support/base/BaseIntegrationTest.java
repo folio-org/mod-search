@@ -2,9 +2,11 @@ package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
+import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
@@ -44,6 +46,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
@@ -51,6 +55,7 @@ import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.api.InventoryViewResponseBuilder;
@@ -70,6 +75,7 @@ import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
+import org.opensearch.search.SearchHit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -412,10 +418,10 @@ public abstract class BaseIntegrationTest {
 
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
                                                            List<ResultMatcher> matchers) {
-    await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+    Awaitility.await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
       doSearch(path, tenantId, "cql.allRecords=1", size, null, true)
-      .andExpect(jsonPath("$.totalRecords", is(size)))
-      .andExpectAll(matchers.toArray(new ResultMatcher[0])));
+        .andExpect(jsonPath("$.totalRecords", is(size)))
+        .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }
 
   protected static String prepareQuery(String queryTemplate, String value) {
@@ -486,6 +492,31 @@ public abstract class BaseIntegrationTest {
         .headers(defaultHeaders())
         .accept("application/json;charset=UTF-8"))
       .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()))
+      .indices(getIndexName(resourceType, tenantId));
+    return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
+  }
+
+  public static void assertCountByIds(String path, List<String> ids, int expected) {
+    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
+    awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void assertCountByQuery(String path, String template, String value, int expected) {
+    awaitAssertion(() -> doSearch(path, prepareQuery(template, value))
+      .andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void awaitAssertion(ThrowingRunnable runnable) {
+    Awaitility.await()
+      .atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(runnable);
   }
 
   @Getter

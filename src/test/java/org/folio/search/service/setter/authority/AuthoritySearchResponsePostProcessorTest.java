@@ -24,7 +24,6 @@ import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -50,11 +49,6 @@ class AuthoritySearchResponsePostProcessorTest {
   private @InjectMocks AuthoritySearchResponsePostProcessor processor;
 
   private @Captor ArgumentCaptor<List<SearchSourceBuilder>> searchSourceCaptor;
-
-  @BeforeEach
-  void setUp() {
-
-  }
 
   @Test
   void shouldDoNothing_whenProcessNotAuthorizedAuthorities() {

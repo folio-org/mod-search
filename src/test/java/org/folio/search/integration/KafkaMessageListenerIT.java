@@ -32,7 +32,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.RetryTemplateConfiguration;
-import org.folio.search.configuration.kafka.ConsortiumInstanceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -40,7 +39,6 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.integration.interceptor.ResourceEventBatchInterceptor;
-import org.folio.search.model.event.ConsortiumInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -82,10 +80,8 @@ import org.springframework.retry.annotation.EnableRetry;
     "folio.kafka.retry-interval-ms=10",
     "folio.kafka.retry-delivery-attempts=3",
     "folio.kafka.listener.events.concurrency=1",
-    "folio.kafka.listener.contributors.concurrency=1",
     "folio.kafka.listener.events.group-id=${folio.environment}-test-group",
     "folio.kafka.listener.authorities.group-id=${folio.environment}-authority-test-group",
-    "folio.kafka.listener.contributors.group-id=${folio.environment}-contributor-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {
@@ -95,8 +91,6 @@ class KafkaMessageListenerIT {
 
   @Autowired
   private KafkaTemplate<String, ResourceEvent> resourceKafkaTemplate;
-  @Autowired
-  private KafkaTemplate<String, ConsortiumInstanceEvent> consortiumKafkaTemplate;
   @Autowired
   private FolioKafkaProperties kafkaProperties;
   @MockBean
@@ -264,7 +258,7 @@ class KafkaMessageListenerIT {
   @EnableRetry(proxyTargetClass = true)
   @Import({
     InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
-    ConsortiumInstanceEventKafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
+    KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
     RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class
   })

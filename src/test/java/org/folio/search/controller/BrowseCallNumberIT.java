@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -29,14 +30,12 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@Disabled
 @IntegrationTest
 class BrowseCallNumberIT extends BaseIntegrationTest {
 
@@ -63,6 +62,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("query", prepareQuery(query, '"' + anchor + '"'))
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -74,6 +74,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(36).prev(null).next("CE 16 B6713 X 41993").items(List.of(
         cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220"),
@@ -94,6 +95,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "5");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(32).prev(null).next("CE 16 B6713 X 41993").items(List.of(
         cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
@@ -112,6 +114,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
       .totalRecords(41).prev("GA 16 D64 41548A").next("J29.29:M54/990").items(List.of(
         cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
@@ -131,7 +134,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(36).prev("AC 11 A67 X 42000").next("CE 16 D86 X 41998").items(List.of(
         cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
@@ -151,7 +154,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("limit", "7")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(49).prev("DA 3870 B55 41868").next("DA 3880 O6 D5").items(List.of(
         cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),

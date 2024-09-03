@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 
 @Disabled
 @IntegrationTest
-class BrowseTypedCallNumberIT extends BaseIntegrationTest {
+class BrowseCallNumberTypedIT extends BaseIntegrationTest {
 
   private static final String LOCAL_TYPE_2 = "654d7565-b277-4dfa-8b7d-fbf306d9d0cd";
   private static final Instance[] INSTANCES = instances();
@@ -222,7 +222,7 @@ class BrowseTypedCallNumberIT extends BaseIntegrationTest {
 
   private static Instance[] instances() {
     return callNumberBrowseInstanceData().stream()
-      .map(BrowseTypedCallNumberIT::instance)
+      .map(BrowseCallNumberTypedIT::instance)
       .toArray(Instance[]::new);
   }
 

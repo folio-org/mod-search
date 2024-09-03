@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 @IntegrationTest
 class SearchInstanceFilterIT extends BaseIntegrationTest {
@@ -113,15 +112,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(getMatchers(), instances());
-  }
-
-  public static List<ResultMatcher> getMatchers() {
     var holdingsMatcher = jsonPath("sum($.instances..holdings.length())", is((double) HOLDINGS_IDS.length));
     var itemsMatcher = jsonPath("sum($.instances..items.length())", is((double) ITEM_IDS.length));
-    return List.of(holdingsMatcher, itemsMatcher);
+    setUpTenant(List.of(holdingsMatcher, itemsMatcher), instances());
   }
-
 
   @AfterAll
   static void cleanUp() {

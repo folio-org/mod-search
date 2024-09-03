@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -13,13 +12,16 @@ import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -34,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 @Disabled
 @IntegrationTest
-class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
+class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
@@ -43,7 +45,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(24.0))), INSTANCES);
     enableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
   }
 
@@ -77,7 +79,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #10"), "308 H979"),
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
-    ));
+      ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "dewey", emptySet(), expected.getItems()));
     assertThat(actual).isEqualTo(expected);
   }
@@ -97,7 +99,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #10"), "Z669.R360 1975", 3, true),
         cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
         cnBrowseItem(instance("instance #10"), "Z669.R360 1977", 1)
-    ));
+      ));
     expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "lc", emptySet(), expected.getItems()));
     leaveOnlyBasicProps(expected);
     assertThat(actual).isEqualTo(expected);
@@ -180,15 +182,24 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
   }
 
   private static Instance instance(List<List<String>> data, String title) {
-    var items = data.stream().map(d -> new Item()
+    var items = new ArrayList<Item>();
+    var holdings = new ArrayList<Holding>();
+    for (List<String> d : data) {
+      var holding = new Holding()
         .id(randomId())
+        .tenantId(TENANT_ID)
+        .discoverySuppress(false);
+      var item = new Item()
+        .id(randomId())
+        .holdingsRecordId(holding.getId())
         .tenantId(TENANT_ID)
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(d.get(1))
           .typeId(d.get(0)))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1), d.get(0))))
-      .toList();
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(d.get(1), d.get(0)));
+      items.add(item);
+    }
 
     return new Instance()
       .id(randomId())
@@ -199,7 +210,7 @@ class BrowseTypedCallNumberIrrelevantResultIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(holdings);
   }
 
   private static List<List<String>> callNumberBrowseInstanceData() {

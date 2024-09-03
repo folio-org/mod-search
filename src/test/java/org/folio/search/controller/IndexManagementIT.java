@@ -182,6 +182,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknown")));
   }
 
+
   private static String reindexRequestJson(String resource) {
     return REINDEX_REQUEST.formatted(resource);
   }

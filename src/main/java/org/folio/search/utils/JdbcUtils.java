@@ -8,9 +8,12 @@ import org.folio.spring.FolioExecutionContext;
 @UtilityClass
 public class JdbcUtils {
 
+  public static String getSchemaName(FolioExecutionContext context) {
+    return context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());
+  }
+
   public static String getFullTableName(FolioExecutionContext context, String tableName) {
-    var dbSchemaName = context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());
-    return dbSchemaName + "." + tableName;
+    return getSchemaName(context) + "." + tableName;
   }
 
   public static String getParamPlaceholderForUuid(int size) {

@@ -117,8 +117,8 @@ public class ResourceService {
     messageProducer.prepareAndSendContributorEvents(fetchedInstances);
     messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 
-//    var list = preProcessEvents(fetchedInstances);
-    return multiTenantSearchDocumentConverter.convert(fetchedInstances);
+    var list = preProcessEvents(fetchedInstances);
+    return multiTenantSearchDocumentConverter.convert(list);
   }
 
   private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents) {
@@ -127,6 +127,7 @@ public class ResourceService {
     }
 
     return instanceEvents.stream()
+      .filter(Objects::nonNull)
       .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
       .filter(Objects::nonNull)
       .flatMap(List::stream)

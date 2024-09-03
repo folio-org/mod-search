@@ -70,16 +70,16 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public List<ResourceEvent> prepareEventsOnSharing(ResourceEvent event) {
-    var classifications = getSubjects(getOldAsMap(event));
+    var subjects = getSubjects(getOldAsMap(event));
 
-    if (!classifications.equals(getSubjects(getNewAsMap(event)))) {
+    if (!subjects.equals(getSubjects(getNewAsMap(event)))) {
       log.warn("Classifications are different on Update for instance sharing");
       return emptyList();
     }
 
     var tenant = event.getTenant();
 
-    var entitiesForDelete = toIds(classifications);
+    var entitiesForDelete = toIds(subjects);
     var entityAggList = subjectRepository.fetchByIds(entitiesForDelete);
 
     return entityAggList.stream()
@@ -108,7 +108,11 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
   }
 
   private ResourceEvent toResourceDeleteEvent(String id, String tenant) {
-    return new ResourceEvent().id(id).tenant(tenant).type(ResourceEventType.DELETE);
+    return new ResourceEvent()
+      .id(id)
+      .tenant(tenant)
+      .resourceName(ResourceType.INSTANCE_SUBJECT.getName())
+      .type(ResourceEventType.DELETE);
   }
 
   private ResourceEvent toResourceEvent(InstanceSubjectEntityAgg source, String tenant) {
@@ -123,7 +127,7 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
   }
 
   private String getSubjectId(String number, String typeId) {
-    return ShaUtils.sha(StringUtils.truncate(number.replace("\\", "\\\\"), 50), typeId);
+    return ShaUtils.sha(StringUtils.truncate(number.replace("\\", "\\\\"), 255), typeId);
   }
 
   @NotNull

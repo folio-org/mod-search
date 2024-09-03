@@ -26,7 +26,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -49,7 +48,6 @@ public class ResourceService {
   private static final String PRIMARY_INDEXING_REPOSITORY_NAME = "primary";
   private static final String INSTANCE_ID_FIELD = "instanceId";
 
-  private final KafkaMessageProducer messageProducer;
   private final ResourceFetchService resourceFetchService;
   private final PrimaryResourceRepository primaryResourceRepository;
   private final ResourceDescriptionService resourceDescriptionService;
@@ -114,8 +112,6 @@ public class ResourceService {
     var indexEvents = extractEventsForDataMove(resourceEvents);
     var fetchedInstances = consortiumTenantExecutor.execute(
       () -> resourceFetchService.fetchInstancesByIds(indexEvents));
-    messageProducer.prepareAndSendContributorEvents(fetchedInstances);
-//    messageProducer.prepareAndSendSubjectEvents(fetchedInstances);
 
     var list = preProcessEvents(fetchedInstances);
     return multiTenantSearchDocumentConverter.convert(list);
@@ -135,8 +131,6 @@ public class ResourceService {
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    messageProducer.prepareAndSendContributorEvents(deleteEvents);
-//    var list = preProcessEvents(deleteEvents);
     return multiTenantSearchDocumentConverter.convert(deleteEvents);
   }
 

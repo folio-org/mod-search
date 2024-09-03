@@ -92,27 +92,6 @@ public class KafkaMessageListener {
     indexResources(batch, resourceService::indexResources);
   }
 
-  /**
-   * Handles authority record events and indexes them using event body.
-   *
-   * @param consumerRecords - list of consumer records from Apache Kafka to process.
-   */
-  @KafkaListener(
-    id = KafkaConstants.CONTRIBUTOR_LISTENER_ID,
-    containerFactory = "resourceListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['contributors'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['contributors'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['contributors'].topicPattern}")
-  public void handleContributorEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
-    log.info("Processing contributor events from Kafka [number of events: {}]", consumerRecords.size());
-    var batch = consumerRecords.stream()
-      .map(ConsumerRecord::value)
-      .map(contributor -> contributor.id(getResourceEventId(contributor)))
-      .toList();
-
-    indexResources(batch, resourceService::indexResources);
-  }
-
   @KafkaListener(
     id = KafkaConstants.CLASSIFICATION_TYPE_LISTENER_ID,
     containerFactory = "resourceListenerContainerFactory",

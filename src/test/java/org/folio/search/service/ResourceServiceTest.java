@@ -24,7 +24,6 @@ import static org.folio.search.utils.TestUtils.searchDocumentBody;
 import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +35,6 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.KafkaMessageProducer;
 import org.folio.search.integration.ResourceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
@@ -76,8 +74,6 @@ class ResourceServiceTest {
   private ResourceDescriptionService resourceDescriptionService;
   @Mock
   private MultiTenantSearchDocumentConverter searchDocumentConverter;
-  @Mock
-  private KafkaMessageProducer kafkaMessageProducer;
   @Mock
   private TestRepository testRepository;
   @Mock
@@ -190,7 +186,6 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexInstancesById(resourceEvents);
     assertThat(actual).isEqualTo(expectedResponse);
@@ -211,7 +206,6 @@ class ResourceServiceTest {
     when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var response = indexService.indexInstancesById(List.of(resourceEvent));
     assertThat(response).isEqualTo(expectedResponse);
@@ -234,7 +228,6 @@ class ResourceServiceTest {
     when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var response = indexService.indexInstancesById(List.of(resourceEvent));
     assertThat(response).isEqualTo(expectedResponse);
@@ -249,7 +242,6 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var expectedResponse = getSuccessIndexOperationResponse();
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
@@ -270,7 +262,6 @@ class ResourceServiceTest {
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexInstancesById(resourceEvents);
     assertThat(actual).isEqualTo(expectedResponse);
@@ -296,7 +287,6 @@ class ResourceServiceTest {
     when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
-    doNothing().when(kafkaMessageProducer).prepareAndSendContributorEvents(anyList());
 
     var actual = indexService.indexInstancesById(eventIds);
 

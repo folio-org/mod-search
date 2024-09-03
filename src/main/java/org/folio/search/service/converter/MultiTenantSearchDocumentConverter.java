@@ -52,7 +52,7 @@ public class MultiTenantSearchDocumentConverter {
 
     var eventsByTenant = resourceEvents.stream().collect(groupingBy(ResourceEvent::getTenant));
     return eventsByTenant.entrySet().stream()
-      .map(this::convertForTenant)
+      .map(entry -> convertForTenant(entry))
       .flatMap(Collection::stream)
       .collect(groupingBy(SearchDocumentBody::getResource));
   }

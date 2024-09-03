@@ -220,7 +220,7 @@
       <column name="name" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="contributor_name_type_id" type="VARCHAR(40)" defaultValue=""/>
+      <column name="name_type_id" type="VARCHAR(40)" defaultValue=""/>
       <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>
     </createTable>
   </changeSet>
@@ -241,7 +241,7 @@
       <column name="contributor_id" type="VARCHAR(40)">
         <constraints nullable="false"/>
       </column>
-      <column name="contributor_type_id" type="VARCHAR(40)">
+      <column name="type_id" type="VARCHAR(40)">
         <constraints nullable="false"/>
       </column>
       <column name="tenant_id" type="VARCHAR(100)">
@@ -253,7 +253,7 @@
     </createTable>
 
     <addPrimaryKey tableName="instance_contributor"
-                   columnNames="contributor_id, instance_id, tenant_id"/>
+                   columnNames="contributor_id, instance_id, type_id, tenant_id"/>
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-merge_ranges-table" author="Mukhiddin_Yusupov">

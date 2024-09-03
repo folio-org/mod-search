@@ -34,7 +34,7 @@ public class ContributorBrowseService extends
 
   private static final String MISSING_LAST_PROP = "_last";
   private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
-  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.contributorTypeId";
+  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.typeId";
 
   private final ConsortiumSearchHelper consortiumSearchHelper;
 
@@ -88,7 +88,7 @@ public class ContributorBrowseService extends
     return BrowseResult.of(res)
       .map(item -> {
         var filteredInstanceResources = consortiumSearchHelper.filterSubResourcesForConsortium(context, item,
-          ContributorResource::getInstances);
+          ContributorResource::instances);
         var typeIds = filteredInstanceResources.stream()
           .map(InstanceSubResource::getTypeId)
           .filter(typeId -> nonNull(typeId) && !typeId.equals("null"))
@@ -97,10 +97,10 @@ public class ContributorBrowseService extends
           .toList();
 
         return new InstanceContributorBrowseItem()
-          .name(item.getName())
+          .name(item.name())
           .contributorTypeId(typeIds)
-          .contributorNameTypeId(item.getContributorNameTypeId())
-          .authorityId(item.getAuthorityId())
+          .contributorNameTypeId(item.contributorNameTypeId())
+          .authorityId(item.authorityId())
           .isAnchor(isAnchor)
           .totalRecords(getTotalRecords(filteredInstanceResources));
       });

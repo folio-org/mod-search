@@ -70,13 +70,13 @@ BEGIN
                                                        coalesce(i ->> 'authorityId', '')
                                              ))::bytea, 'sha1'), 'hex');
             INSERT
-            INTO contributor(id, name, contributor_name_type_id, authority_id)
+            INTO contributor(id, name, name_type_id, authority_id)
             VALUES (contributor_id, contributor_name, i ->> 'contributorNameTypeId', i ->> 'authorityId')
             ON CONFLICT (id) DO NOTHING;
 
             INSERT
-            INTO instance_contributor(instance_id, contributor_id, contributor_type_id, tenant_id, shared)
-            VALUES (NEW.id, contributor_id, i ->> 'contributorTypeId', NEW.tenant_id, NEW.shared);
+            INTO instance_contributor(instance_id, contributor_id, type_id, tenant_id, shared)
+            VALUES (NEW.id, contributor_id, coalesce(i ->> 'contributorTypeId', ''), NEW.tenant_id, NEW.shared);
         END LOOP;
 
     RETURN NEW;

@@ -114,7 +114,7 @@ class ContributorBrowseServiceTest {
   }
 
   private List<ContributorResource> contributors() {
-    return singletonList(new ContributorResource("name", "nameType", null, "auth",
+    return singletonList(new ContributorResource("id", "name", "nameType", "auth",
       Set.of(
           contributorInstance("ins1", "type1", false, "tenant1"),
           contributorInstance("ins2", "type1", true, "tenant2"),

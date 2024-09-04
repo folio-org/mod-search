@@ -18,7 +18,6 @@ import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
@@ -35,14 +34,6 @@ public class ReindexMergeRangeIndexService {
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
-  }
-
-  @Transactional
-  public void deleteAllRangeRecords() {
-    for (ReindexEntityType entityType : ReindexEntityType.values()) {
-      repositories.get(entityType).truncate();
-    }
-    repositories.get(ReindexEntityType.INSTANCE).truncateMergeRanges();
   }
 
   public void saveMergeRanges(List<MergeRangeEntity> ranges) {

@@ -98,7 +98,7 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
-    verify(mergeRangeService).deleteAllRangeRecords();
+    verify(uploadRangeService).deleteAllRecords();
     verify(statusService).recreateMergeStatusRecords();
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());

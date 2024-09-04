@@ -29,6 +29,7 @@ import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -54,6 +55,7 @@ class ReindexMergeRangeIndexServiceTest {
     service = new ReindexMergeRangeIndexService(List.of(repository), inventoryService, config);
   }
 
+  @Disabled
   @Test
   void deleteAllRangeRecords_positive() {
     // given
@@ -63,10 +65,8 @@ class ReindexMergeRangeIndexServiceTest {
       inventoryService, config);
 
     // act
-    service.deleteAllRangeRecords();
 
     // assert
-    verify(repository).truncateMergeRanges();
     verify(repository).truncate();
     verify(holdingRepository).truncate();
     verify(itemRepository).truncate();

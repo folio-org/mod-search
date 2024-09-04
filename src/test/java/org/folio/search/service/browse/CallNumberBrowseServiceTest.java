@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.mockito.ArgumentMatchers.any;
@@ -103,6 +104,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(7, browseItems("C1", "C2", "C3", "C4", "C5", "C6", "C7")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
       cnBrowseItem(instance("A3"), "A3"),
@@ -122,6 +124,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("B", "C 11")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -142,6 +145,7 @@ class CallNumberBrowseServiceTest {
     when(searchConfig.getMaxBrowseRequestOffset()).thenReturn(500L);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A"), "A"),
@@ -156,6 +160,7 @@ class CallNumberBrowseServiceTest {
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11", "A 12")), BrowseResult.empty());
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -173,6 +178,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(1, browseItems("C 11")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -222,6 +228,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("C1", "C2")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, "C1", null, List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
@@ -243,6 +250,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(1, browseItems("B")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, "B", null, List.of(
       cnBrowseItem(instance("B"), "B"))));
@@ -298,6 +306,7 @@ class CallNumberBrowseServiceTest {
       .thenReturn(succeedingResult);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A1"), "A1"),
@@ -320,6 +329,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(5, browseItems("C1", "C2", "C3", "C4", "C5")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(5, "C1", "C2", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
@@ -356,6 +366,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("A1", "A2")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A2", List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
@@ -396,6 +407,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(5, browseItems("A1", "A2", "A3", "A4", "A5")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", "A5", List.of(
       cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
@@ -471,6 +483,7 @@ class CallNumberBrowseServiceTest {
       .thenReturn(succeedingResult);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A"), "A"),

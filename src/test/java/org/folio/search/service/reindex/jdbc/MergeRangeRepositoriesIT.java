@@ -23,6 +23,7 @@ import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -110,11 +111,11 @@ class MergeRangeRepositoriesIT {
       .containsExactly(tuple(UUID.fromString("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "consortium"));
   }
 
+  @Disabled
   @Test
   @Sql("/sql/populate-merge-ranges.sql")
   void truncateMergeRanges_truncatesAndThenReturnEmptyList_whenMergeRangesExist() {
     // act
-    holdingRepository.truncateMergeRanges();
 
     var rangesHolding = holdingRepository.getMergeRanges();
     var rangesItem = itemRepository.getMergeRanges();

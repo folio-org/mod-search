@@ -69,7 +69,7 @@ public class ReindexService {
       recreateIndex(reindexEntityType, tenantId);
     }
 
-    mergeRangeService.deleteAllRangeRecords();
+    uploadRangeService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
 
     var future = CompletableFuture.runAsync(() -> {
@@ -129,7 +129,7 @@ public class ReindexService {
       indexService.dropIndex(resourceType, tenantId);
       indexService.createIndex(resourceType, tenantId);
     } catch (Exception e) {
-      log.warn("Index cannot be recreated for resource=%s".formatted(reindexEntityType), e);
+      log.warn("Index cannot be recreated for resource={}, message={}", reindexEntityType, e.getMessage());
     }
   }
 

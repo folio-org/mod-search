@@ -10,11 +10,8 @@ import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID_SECOND;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.indexName;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -94,7 +91,7 @@ class ResourceServiceTest {
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
       .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
-    lenient().when(instanceEventPreProcessor.preProcess(any())).thenReturn(emptyList());
+    lenient().when(instanceEventPreProcessor.preProcess(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test
@@ -105,7 +102,6 @@ class ResourceServiceTest {
 
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE.getName(), List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
@@ -121,7 +117,6 @@ class ResourceServiceTest {
 
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
@@ -139,7 +134,6 @@ class ResourceServiceTest {
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescriptionWithCustomRepository()));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
-    when(indexRepository.indexExists(INDEX_NAME)).thenReturn(true);
     when(resourceRepositoryBeans.containsKey(CUSTOM_REPOSITORY_NAME)).thenReturn(true);
     when(resourceRepositoryBeans.get(CUSTOM_REPOSITORY_NAME)).thenReturn(customResourceRepository);
     when(customResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -152,7 +146,6 @@ class ResourceServiceTest {
   @Test
   void indexResources_negative() {
     var resourceEvents = List.of(resourceEvent(INSTANCE, mapOf("id", randomId())));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(false);
     when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
 
@@ -173,8 +166,7 @@ class ResourceServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
-    when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
+    when(resourceFetchService.fetchInstancesByIds(any())).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
@@ -195,7 +187,6 @@ class ResourceServiceTest {
     when(resourceFetchService.fetchInstancesByIds(List.of(resourceEvent))).thenReturn(List.of(fetchedEvent));
     when(searchDocumentConverter.convert(List.of(fetchedEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
@@ -217,7 +208,6 @@ class ResourceServiceTest {
 
     when(resourceFetchService.fetchInstancesByIds(List.of(oldEvent, newEvent))).thenReturn(fetchedEvents);
     when(searchDocumentConverter.convert(fetchedEvents)).thenReturn(mapOf(INSTANCE.getName(), searchBodies));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
@@ -233,7 +223,6 @@ class ResourceServiceTest {
     when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
     when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
 
     var expectedResponse = getSuccessIndexOperationResponse();
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
@@ -249,7 +238,6 @@ class ResourceServiceTest {
     var expectedResponse = getErrorIndexOperationResponse("Bulk failed: errors: ['test-error']");
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(true);
     when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
@@ -268,20 +256,6 @@ class ResourceServiceTest {
   @Test
   void indexResourcesById_positive_null() {
     var actual = indexService.indexInstancesById(null);
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
-  }
-
-  @Test
-  void indexResourcesById_negative_indexNotExist() {
-    var eventIds = List.of(resourceEvent(randomId(), INSTANCE, CREATE));
-
-    when(indexRepository.indexExists(indexName(TENANT_ID))).thenReturn(false);
-    when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
-    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
-    when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
-
-    var actual = indexService.indexInstancesById(eventIds);
-
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 

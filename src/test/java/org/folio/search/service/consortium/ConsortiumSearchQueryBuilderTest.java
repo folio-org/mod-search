@@ -48,15 +48,12 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forHoldings().build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress FROM schema.holding i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
   @NullAndEmptySource
@@ -66,15 +63,12 @@ class ConsortiumSearchQueryBuilderTest {
       .withInstanceId(instanceId).withTenantId(null).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance ) i "
-                 + "ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress "
+                 + "FROM schema.holding i ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
   @NullAndEmptySource
@@ -83,15 +77,12 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forHoldings().withSortBy(sortBy).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress FROM schema.holding i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? LIMIT 100 OFFSET 10", actual);
   }
 
   @Test
@@ -99,15 +90,12 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forHoldings().withSortOrder(null).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "ORDER BY id LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress FROM schema.holding i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id LIMIT 100 OFFSET 10", actual);
   }
 
   @Test
@@ -115,15 +103,12 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forHoldings().withLimit(null).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "ORDER BY id desc OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress FROM schema.holding i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id desc OFFSET 10", actual);
   }
 
   @Test
@@ -131,15 +116,12 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forHoldings().withOffset(null).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, i.holdings ->> 'id' AS id, "
-                 + "i.holdings ->> 'hrid' AS hrid, i.holdings ->> 'callNumberPrefix' AS callNumberPrefix, "
-                 + "i.holdings ->> 'callNumber' AS callNumber, i.holdings ->> 'callNumberSuffix' AS callNumberSuffix, "
-                 + "i.holdings ->> 'copyNumber' AS copyNumber, "
-                 + "i.holdings ->> 'permanentLocationId' AS permanentLocationId, "
-                 + "i.holdings ->> 'discoverySuppress' AS discoverySuppress "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'holdings') as holdings "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "ORDER BY id desc LIMIT 100", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'callNumberPrefix' AS callNumberPrefix, "
+                 + "i.json ->> 'callNumber' AS callNumber, i.json ->> 'callNumberSuffix' AS callNumberSuffix, "
+                 + "i.json ->> 'copyNumber' AS copyNumber, i.json ->> 'permanentLocationId' AS permanentLocationId, "
+                 + "i.json ->> 'discoverySuppress' AS discoverySuppress FROM schema.holding i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id desc LIMIT 100", actual);
   }
 
   @Test
@@ -147,12 +129,10 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forItem().build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, "
-                 + "i.items ->> 'id' AS id, i.items ->> 'hrid' AS hrid, "
-                 + "i.items ->> 'holdingsRecordId' AS holdingsRecordId, i.items ->> 'barcode' AS barcode "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'items') as items "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "WHERE i.items ->> 'holdingsRecordId' = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'holdingsRecordId' AS holdingsRecordId, "
+                 + "i.json ->> 'barcode' AS barcode FROM schema.item i WHERE instance_id = ?::uuid "
+                 + "AND tenant_id = ? AND holding_id = ?::uuid ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
   @Test
@@ -160,12 +140,10 @@ class ConsortiumSearchQueryBuilderTest {
     var searchContext = new SearchContextMockBuilder().forItem().withHoldingsRecordId(null).build();
 
     var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectQuery(executionContext);
-    assertEquals("SELECT i.instance_id as instanceId, i.tenant_id as tenantId, "
-                 + "i.items ->> 'id' AS id, i.items ->> 'hrid' AS hrid, "
-                 + "i.items ->> 'holdingsRecordId' AS holdingsRecordId, i.items ->> 'barcode' AS barcode "
-                 + "FROM (SELECT instance_id, tenant_id, json_array_elements(json -> 'items') as items "
-                 + "FROM schema.consortium_instance WHERE instance_id = ? AND tenant_id = ? ) i "
-                 + "ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+    assertEquals("SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId, "
+                 + "i.json ->> 'hrid' AS hrid, i.json ->> 'holdingsRecordId' AS holdingsRecordId, "
+                 + "i.json ->> 'barcode' AS barcode FROM schema.item i "
+                 + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
   private static final class SearchContextMockBuilder {

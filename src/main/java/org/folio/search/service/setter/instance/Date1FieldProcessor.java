@@ -12,7 +12,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
 
   private static final Pattern NUMERIC_REGEX = Pattern.compile("^\\d{1,4}$");
   private static final String ZERO = "0";
-  private static final String NON_NUMERIC_REGEX = "[^0-9]";
+  private static final String NON_NUMERIC_REGEX = "\\D";
 
   @Override
   public Short getFieldValue(Instance instance) {

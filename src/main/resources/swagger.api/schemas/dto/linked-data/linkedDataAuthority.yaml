@@ -1,4 +1,4 @@
-description: "Linked Data Authority dto, contains Authority and Identifiers"
+description: "Linked Data Authority search dto, contains Authority and Identifiers"
 type: "object"
 properties:
   id:

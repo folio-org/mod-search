@@ -21,12 +21,14 @@ public class LinkedDataWorkNoteProcessor implements FieldProcessor<LinkedDataWor
 
   @Override
   public Set<String> getFieldValue(LinkedDataWork linkedDataWork) {
-    var workNotes = ofNullable(linkedDataWork.getNotes()).stream().flatMap(Collection::stream);
-    var instNotes = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
+    var workNotes = ofNullable(linkedDataWork.getNotes())
+      .stream()
+      .flatMap(Collection::stream);
+    var instanceNotes = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
       .filter(Objects::nonNull)
       .map(LinkedDataInstanceOnly::getNotes)
       .flatMap(Collection::stream);
-    var notes = Stream.concat(workNotes, instNotes).toList();
+    var notes = Stream.concat(workNotes, instanceNotes).toList();
     return linkedDataNoteProcessor.getFieldValue(notes);
   }
 

@@ -30,10 +30,7 @@ properties:
     type: "array"
     description: "Language array"
     items:
-      properties:
-        value:
-          type: "string"
-          description: "Language value"
+      type: "string"
   notes:
     type: "array"
     description: "Notes array"
@@ -41,12 +38,9 @@ properties:
       $ref: "linkedDataNote.yaml"
   subjects:
     type: "array"
-    description: "Subject array"
+    description: "Subject label array"
     items:
-      properties:
-        value:
-          type: "string"
-          description: "Subject label"
+      type: "string"
   titles:
     type: "array"
     description: "Title array"

@@ -109,6 +109,18 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/linked-data/instances",
+          "permissionsRequired": [
+            "search.linked-data.instance.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
             "search.linked-data.work.collection.get"
@@ -638,6 +650,11 @@
       "permissionName": "search.authorities.collection.get",
       "displayName": "Search - searches authorities by given query",
       "description": "Searches authorities by given query"
+    },
+    {
+      "permissionName": "search.linked-data.instance.collection.get",
+      "displayName": "Search - searches linked data instances by given query",
+      "description": "Searches linked data instances by given query"
     },
     {
       "permissionName": "search.linked-data.work.collection.get",

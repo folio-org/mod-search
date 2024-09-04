@@ -10,31 +10,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SampleLinkedData {
 
-  private static final Map<String, Object> WORK_AS_MAP =
-    readJsonFromFile("/samples/linked-data/work.json", MAP_TYPE_REFERENCE);
+  public static Map<String, Object> getInstanceSampleAsMap() {
+    return readJson("/samples/linked-data/instance.json");
+  }
 
-  private static final Map<String, Object> WORK_2_AS_MAP =
-    readJsonFromFile("/samples/linked-data/work2.json", MAP_TYPE_REFERENCE);
-
-  private static final Map<String, Object> AUTHORITY_CONCEPT_AS_MAP =
-    readJsonFromFile("/samples/linked-data/authority_concept.json", MAP_TYPE_REFERENCE);
-
-  private static final Map<String, Object> AUTHORITY_PERSON_AS_MAP =
-    readJsonFromFile("/samples/linked-data/authority_person.json", MAP_TYPE_REFERENCE);
+  public static Map<String, Object> getInstance2SampleAsMap() {
+    return readJson("/samples/linked-data/instance2.json");
+  }
 
   public static Map<String, Object> getWorkSampleAsMap() {
-    return WORK_AS_MAP;
+    return readJson("/samples/linked-data/work.json");
   }
 
   public static Map<String, Object> getWork2SampleAsMap() {
-    return WORK_2_AS_MAP;
+    return readJson("/samples/linked-data/work2.json");
   }
 
   public static Map<String, Object> getAuthorityConceptSampleAsMap() {
-    return AUTHORITY_CONCEPT_AS_MAP;
+    return readJson("/samples/linked-data/authority_concept.json");
   }
 
   public static Map<String, Object> getAuthorityPersonSampleAsMap() {
-    return AUTHORITY_PERSON_AS_MAP;
+    return readJson("/samples/linked-data/authority_person.json");
+  }
+
+  private static Map<String, Object> readJson(String path) {
+    return readJsonFromFile(path, MAP_TYPE_REFERENCE);
   }
 }

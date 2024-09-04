@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static java.lang.Boolean.TRUE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LINKED_DATA_AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
 import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
@@ -168,7 +169,7 @@ public class IndexService {
   /**
    * Runs reindex request for mod-inventory-storage.
    *
-   * @param resource       - resource name as {@link String} object
+   * @param resource - resource name as {@link String} object
    */
   public ReindexJob reindexInventoryAsync(String resource) {
     var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
@@ -294,6 +295,8 @@ public class IndexService {
   }
 
   private boolean isLinkedDataResource(String resource) {
-    return LINKED_DATA_WORK_RESOURCE.equals(resource) || LINKED_DATA_AUTHORITY_RESOURCE.equals(resource);
+    return LINKED_DATA_INSTANCE_RESOURCE.equals(resource)
+      || LINKED_DATA_WORK_RESOURCE.equals(resource)
+      || LINKED_DATA_AUTHORITY_RESOURCE.equals(resource);
   }
 }

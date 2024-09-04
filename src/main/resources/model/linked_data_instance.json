@@ -5,7 +5,8 @@
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
-      "index": "keyword"
+      "index": "keyword",
+      "searchAliases": [ "keyword" ]
     },
     "classifications": {
       "type": "object",
@@ -33,29 +34,17 @@
       }
     },
     "editionStatements": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "index": "whitespace"
-        }
-      }
+      "index": "whitespace"
     },
     "format": {
-      "index": "keyword_lowercase"
-    },
-    "hubAAPs": {
-      "searchAliases": [ "hub, hubAap, hubAAP" ],
-      "index": "keyword_lowercase"
-    },
-    "languages": {
-      "searchAliases": [ "lang, language" ],
-      "index": "keyword_lowercase"
+      "index": "whitespace"
     },
     "identifiers": {
       "type": "object",
       "properties": {
         "value": {
-          "index": "whitespace"
+          "index": "whitespace",
+          "searchAliases": [ "keyword" ]
         },
         "type": {
           "index": "whitespace"
@@ -81,12 +70,9 @@
         },
         "date": {
           "searchAliases": [ "publicationDate" ],
-          "index": "keyword"
+          "index": "date"
         }
       }
-    },
-    "subjects": {
-      "index": "whitespace"
     },
     "suppress": {
       "type": "object",
@@ -113,13 +99,81 @@
           "index": "whitespace"
         }
       }
+    },
+    "parentWork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "index": "keyword",
+          "searchAliases": [ "keyword" ]
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "number": {
+              "index": "whitespace"
+            },
+            "source": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "contributors": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            },
+            "isCreator": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "hubAAPs": {
+          "searchAliases": [ "hub", "keyword" ],
+          "index": "multilang"
+        },
+        "languages": {
+          "searchAliases": [ "lang", "language" ],
+          "index": "keyword_lowercase"
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "subjects": {
+          "index": "whitespace"
+        },
+        "titles": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        }
+      }
     }
   },
   "searchFields": {
     "contributor": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataInstanceContributorProcessor"
+      "processor": "linkedDataInstanceContributorProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "isbn": {
       "type": "search",
@@ -136,12 +190,14 @@
     "note": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataInstanceNoteProcessor"
+      "processor": "linkedDataInstanceNoteProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "title": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataInstanceTitleProcessor"
+      "processor": "linkedDataInstanceTitleProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "sort_title": {
       "searchTypes": "sort",

@@ -21,9 +21,15 @@ public class LinkedDataWorkContributorProcessor implements FieldProcessor<Linked
 
   @Override
   public Set<String> getFieldValue(LinkedDataWork linkedDataWork) {
-    var workContributors = ofNullable(linkedDataWork.getContributors()).stream().flatMap(Collection::stream);
-    var instanceContributors = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
-      .map(LinkedDataInstanceOnly::getContributors).filter(Objects::nonNull).flatMap(Collection::stream);
+    var workContributors = ofNullable(linkedDataWork.getContributors())
+      .stream()
+      .flatMap(Collection::stream);
+    var instanceContributors = ofNullable(linkedDataWork.getInstances())
+      .stream()
+      .flatMap(Collection::stream)
+      .map(LinkedDataInstanceOnly::getContributors)
+      .filter(Objects::nonNull)
+      .flatMap(Collection::stream);
     var contributors = Stream.concat(workContributors, instanceContributors).toList();
     return linkedDataContributorProcessor.getFieldValue(contributors);
   }

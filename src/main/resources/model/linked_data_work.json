@@ -5,7 +5,8 @@
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
-      "index": "whitespace"
+      "index": "whitespace",
+      "searchAliases": [ "keyword" ]
     },
     "classifications": {
       "type": "object",
@@ -22,7 +23,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "index": "whitespace"
+          "index": "whitespace",
+          "searchAliases": [ "workContributor" ]
         },
         "type": {
           "index": "whitespace"
@@ -33,18 +35,19 @@
       }
     },
     "hubAAPs": {
-      "searchAliases": [ "hub, hubAap, hubAAP" ],
-      "index": "keyword_lowercase"
+      "searchAliases": [ "hub", "keyword" ],
+      "index": "multilang"
     },
     "languages": {
-      "searchAliases": [ "lang, language" ],
+      "searchAliases": [ "lang", "language" ],
       "index": "keyword_lowercase"
     },
     "notes": {
       "type": "object",
       "properties": {
         "value": {
-          "index": "whitespace"
+          "index": "whitespace",
+          "searchAliases": [ "workNote" ]
         },
         "type": {
           "index": "whitespace"
@@ -58,7 +61,8 @@
       "type": "object",
       "properties": {
         "value": {
-          "index": "whitespace"
+          "index": "whitespace",
+          "searchAliases": [ "workTitle" ]
         },
         "type": {
           "index": "whitespace"
@@ -69,7 +73,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "index": "keyword"
+          "index": "keyword",
+          "searchAliases": [ "keyword" ]
         },
         "contributors": {
           "type": "object",
@@ -86,21 +91,18 @@
           }
         },
         "editionStatements": {
-          "type": "object",
-          "properties": {
-            "value": {
-              "index": "whitespace"
-            }
-          }
+          "index": "whitespace"
         },
         "format": {
-          "index": "keyword_lowercase"
+          "index": "whitespace",
+          "searchAliases": [ "format" ]
         },
         "identifiers": {
           "type": "object",
           "properties": {
             "value": {
-              "index": "whitespace"
+              "index": "whitespace",
+              "searchAliases": [ "keyword" ]
             },
             "type": {
               "index": "whitespace"
@@ -163,7 +165,8 @@
     "contributor": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataWorkContributorProcessor"
+      "processor": "linkedDataWorkContributorProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "isbn": {
       "type": "search",
@@ -180,12 +183,14 @@
     "note": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataWorkNoteProcessor"
+      "processor": "linkedDataWorkNoteProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "title": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataWorkTitleProcessor"
+      "processor": "linkedDataWorkTitleProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "sort_title": {
       "searchTypes": "sort",

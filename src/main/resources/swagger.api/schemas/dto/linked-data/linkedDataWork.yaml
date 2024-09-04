@@ -1,4 +1,4 @@
-description: "Linked Data Work dto, contains Work and linked Instances"
+description: "Linked Data Work search dto, contains Work and linked Instances"
 type: "object"
 allOf:
   - $ref: "common/linkedDataWorkOnly.yaml"

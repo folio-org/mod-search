@@ -21,8 +21,12 @@ public class LinkedDataWorkTitleProcessor implements FieldProcessor<LinkedDataWo
 
   @Override
   public Set<String> getFieldValue(LinkedDataWork linkedDataWork) {
-    var workTitles = ofNullable(linkedDataWork.getTitles()).stream().flatMap(Collection::stream);
-    var instTitles = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
+    var workTitles = ofNullable(linkedDataWork.getTitles())
+      .stream()
+      .flatMap(Collection::stream);
+    var instTitles = ofNullable(linkedDataWork.getInstances())
+      .stream()
+      .flatMap(Collection::stream)
       .filter(Objects::nonNull)
       .map(LinkedDataInstanceOnly::getTitles)
       .flatMap(Collection::stream);

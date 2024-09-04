@@ -13,10 +13,7 @@ properties:
     type: "array"
     description: "Edition statement array"
     items:
-      properties:
-        value:
-          type: "string"
-          description: "Edition statement value"
+      type: "string"
   format:
     type: string
     description: "Format of an Instance e.g. physical monographs vs. ebooks"

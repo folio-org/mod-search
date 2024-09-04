@@ -18,7 +18,7 @@ public class ReindexRecordsEvent {
 
     INSTANCE("instance", ReindexEntityType.INSTANCE),
     ITEM("item", ReindexEntityType.ITEM),
-    HOLDING("holding", ReindexEntityType.HOLDINGS);
+    HOLDINGS("holdings", ReindexEntityType.HOLDINGS);
 
     private final String value;
     private final ReindexEntityType entityType;

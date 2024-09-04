@@ -135,11 +135,11 @@
           "showInResponse": [ "search"]
         },
         "date1": {
-          "index": "source",
+          "index": "keyword_lowercase",
           "showInResponse": [ "search" ]
         },
         "date2": {
-          "index": "source",
+          "index": "keyword_lowercase",
           "showInResponse": [ "search" ]
         }
       }

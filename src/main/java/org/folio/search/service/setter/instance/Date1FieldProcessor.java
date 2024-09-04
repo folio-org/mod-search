@@ -12,7 +12,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
 
   private static final Pattern NUMERIC_REGEX = Pattern.compile("^\\d{1,4}$");
   private static final String ZERO = "0";
-  private static final String ALPHA_U = "u";
+  private static final String NON_NUMERIC_REGEX = "[^0-9]";
 
   @Override
   public Short getFieldValue(Instance instance) {
@@ -24,7 +24,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
   }
 
   public Short normalizeDate1(String value) {
-    String date1 = value.replace(ALPHA_U, ZERO);
+    String date1 = value.replaceAll(NON_NUMERIC_REGEX, ZERO);
     var matcher = NUMERIC_REGEX.matcher(date1);
     if (matcher.find()) {
       return Short.valueOf(matcher.group());

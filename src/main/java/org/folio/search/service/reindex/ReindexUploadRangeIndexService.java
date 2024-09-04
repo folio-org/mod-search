@@ -18,7 +18,6 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReindexUploadRangeIndexService {
@@ -60,14 +59,6 @@ public class ReindexUploadRangeIndexService {
   public void updateFinishDate(ReindexRangeIndexEvent event) {
     var repository = repositories.get(event.getEntityType());
     repository.setIndexRangeFinishDate(event.getId(), Timestamp.from(Instant.now()));
-  }
-
-
-  @Transactional
-  public void deleteAllRecords() {
-    for (ReindexEntityType entityType : ReindexEntityType.values()) {
-      repositories.get(entityType).truncate();
-    }
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

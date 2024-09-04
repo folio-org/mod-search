@@ -65,6 +65,8 @@ class ReindexServiceTest {
   private ExecutorService reindexExecutor;
   @Mock
   private ReindexEntityTypeMapper entityTypeMapper;
+  @Mock
+  private ReindexCommonService reindexCommonService;
   @InjectMocks
   private ReindexService reindexService;
 
@@ -98,7 +100,7 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
-    verify(uploadRangeService).deleteAllRecords();
+    verify(reindexCommonService).deleteAllRecords();
     verify(statusService).recreateMergeStatusRecords();
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());

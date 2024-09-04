@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -68,6 +69,11 @@ public class ContributorRepository extends UploadRangeRepository {
   @Override
   protected String entityTable() {
     return ReindexConstants.CONTRIBUTOR_TABLE;
+  }
+
+  @Override
+  protected Optional<String> subEntityTable() {
+    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
   }
 
   @Override

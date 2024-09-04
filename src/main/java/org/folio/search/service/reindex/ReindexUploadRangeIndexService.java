@@ -50,7 +50,7 @@ public class ReindexUploadRangeIndexService {
     var recordMaps = repository.fetchBy(rangeIndexEvent.getLimit(), rangeIndexEvent.getOffset());
     return recordMaps.stream()
       .map(map -> new ResourceEvent().id(getString(map, ID_FIELD))
-        .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType))
+        .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType).getName())
         ._new(map)
         .tenant(rangeIndexEvent.getTenant()))
       .toList();

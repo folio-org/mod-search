@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -55,6 +56,12 @@ public class SubjectRepository extends UploadRangeRepository {
   public ReindexEntityType entityType() {
     return ReindexEntityType.SUBJECT;
   }
+
+  @Override
+  protected Optional<String> subEntityTable() {
+    return Optional.of(ReindexConstants.INSTANCE_SUBJECT_TABLE);
+  }
+
 
   public List<InstanceSubjectEntityAgg> fetchByIds(List<String> ids) {
     if (CollectionUtils.isEmpty(ids)) {

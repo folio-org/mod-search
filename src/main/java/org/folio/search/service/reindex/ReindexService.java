@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
+import static org.folio.search.service.reindex.ReindexConstants.RESOURCE_NAME_MAP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.folio.search.integration.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.IndexService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +36,7 @@ public class ReindexService {
   private final ExecutorService reindexFullExecutor;
   private final ExecutorService reindexUploadExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
+  private final IndexService indexService;
 
   public ReindexService(ConsortiumTenantService consortiumService,
                         SystemUserScopedExecutionService executionService,
@@ -43,7 +46,8 @@ public class ReindexService {
                         InventoryService inventoryService,
                         @Qualifier("reindexFullExecutor") ExecutorService reindexFullExecutor,
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
-                        ReindexEntityTypeMapper entityTypeMapper) {
+                        ReindexEntityTypeMapper entityTypeMapper,
+                        IndexService indexService) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -53,12 +57,17 @@ public class ReindexService {
     this.reindexFullExecutor = reindexFullExecutor;
     this.reindexUploadExecutor = reindexUploadExecutor;
     this.entityTypeMapper = entityTypeMapper;
+    this.indexService = indexService;
   }
 
   public CompletableFuture<Void> submitFullReindex(String tenantId) {
     log.info("initFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant(tenantId);
+
+    for (var reindexEntityType : ReindexEntityType.values()) {
+      recreateIndex(reindexEntityType, tenantId);
+    }
 
     mergeRangeService.deleteAllRangeRecords();
     statusService.recreateMergeStatusRecords();
@@ -88,15 +97,16 @@ public class ReindexService {
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
                                                      List<ReindexUploadDto.EntityTypesEnum> entityTypesDto) {
     log.info("submitting reindex upload process");
-    var entityTypes = entityTypeMapper.convert(entityTypesDto);
-    validateUploadReindex(tenantId, entityTypes);
+    var reindexEntityTypes = entityTypeMapper.convert(entityTypesDto);
+    validateUploadReindex(tenantId, reindexEntityTypes);
 
-    for (var entityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(entityType);
+    for (var reindexEntityType : reindexEntityTypes) {
+      statusService.recreateUploadStatusRecord(reindexEntityType);
+      recreateIndex(reindexEntityType, tenantId);
     }
 
     var futures = new ArrayList<>();
-    for (var entityType : entityTypes) {
+    for (var entityType : reindexEntityTypes) {
       var future = CompletableFuture.runAsync(() ->
            uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
         .handle((unused, throwable) -> {
@@ -111,6 +121,16 @@ public class ReindexService {
 
     log.info("reindex upload process submitted");
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+  }
+
+  private void recreateIndex(ReindexEntityType reindexEntityType, String tenantId) {
+    try {
+      var resourceType = RESOURCE_NAME_MAP.get(reindexEntityType);
+      indexService.dropIndex(resourceType, tenantId);
+      indexService.createIndex(resourceType, tenantId);
+    } catch (Exception e) {
+      log.warn("Index cannot be recreated for resource=%s".formatted(reindexEntityType), e);
+    }
   }
 
   private List<MergeRangeEntity> processForConsortium(String tenantId) {

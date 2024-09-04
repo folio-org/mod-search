@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,8 +35,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   public void truncateMergeRanges() {
-    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, MERGE_RANGE_TABLE));
-    jdbcTemplate.execute(sql);
+    JdbcUtils.truncateTable(MERGE_RANGE_TABLE, jdbcTemplate, context);
   }
 
   @Transactional

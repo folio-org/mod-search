@@ -1,7 +1,5 @@
 package org.folio.search.service.reindex;
 
-import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,7 +39,9 @@ public class ReindexMergeRangeIndexService {
 
   @Transactional
   public void deleteAllRangeRecords() {
-    MERGE_RANGE_ENTITY_TYPES.stream().map(repositories::get).forEach(MergeRangeRepository::truncate);
+    for (ReindexEntityType entityType : ReindexEntityType.values()) {
+      repositories.get(entityType).truncate();
+    }
     repositories.get(ReindexEntityType.INSTANCE).truncateMergeRanges();
   }
 

@@ -83,6 +83,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -361,11 +362,21 @@ public class TestUtils {
 
   public static void cleanupActual(CallNumberBrowseResult actual) {
     for (var item : actual.getItems()) {
-      var instance = item.getInstance();
-      if (instance != null) {
-        instance.setItems(null);
-        instance.setHoldings(null);
-      }
+      cleanupCallNumberItem(item);
+    }
+  }
+
+  public static void cleanupActual(BrowseResult<CallNumberBrowseItem> actual) {
+    for (var item : actual.getRecords()) {
+      cleanupCallNumberItem(item);
+    }
+  }
+
+  private static void cleanupCallNumberItem(CallNumberBrowseItem item) {
+    var instance = item.getInstance();
+    if (instance != null) {
+      instance.setItems(null);
+      instance.setHoldings(null);
     }
   }
 

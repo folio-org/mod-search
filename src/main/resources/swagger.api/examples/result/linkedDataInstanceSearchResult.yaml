@@ -10,12 +10,12 @@ value:
           type: "Person"
           isCreator: true
       languages:
-        - value: "eng"
+        - "eng"
       classifications:
         - number: "1234"
           source: "ddc"
       subjects:
-        - value: "Subject"
+        - "Subject"
       identifiers:
         - value: "1234567890"
           type: "ISBN"
@@ -23,7 +23,7 @@ value:
         - name: "Publisher Name"
           date: "2022"
       editionStatements:
-        - value: "Edition 1"
+        - "Edition 1"
   pageNumber: 0
   totalPages: 10
   totalRecords: 100

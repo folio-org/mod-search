@@ -41,9 +41,9 @@ public class InventoryService {
 
       return result.totalRecords();
     } catch (Exception e) {
-      log.warn("Failed to fetch Inventory record counts for {}", recordType);
+      log.error("Failed to fetch Inventory record counts for {}", recordType);
       throw new FolioIntegrationException(
-        "Failed to fetch inventory record counts for %s : %s".formatted(recordType.name(), e.getMessage()));
+        "Failed to fetch inventory record counts for %s : %s".formatted(recordType.name(), e.getMessage()), e);
     }
   }
 

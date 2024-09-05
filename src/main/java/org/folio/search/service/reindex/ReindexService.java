@@ -61,7 +61,7 @@ public class ReindexService {
   }
 
   public CompletableFuture<Void> submitFullReindex(String tenantId) {
-    log.info("initFullReindex:: for [tenantId: {}]", tenantId);
+    log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant(tenantId);
 
@@ -91,13 +91,13 @@ public class ReindexService {
         return unused;
       });
 
-    log.info("initFullReindex:: submitted [tenantId: {}]", tenantId);
+    log.info("submitFullReindex:: submitted [tenantId: {}]", tenantId);
     return future;
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
                                                      List<ReindexUploadDto.EntityTypesEnum> entityTypesDto) {
-    log.info("submitting reindex upload process");
+    log.info("submitUploadReindex:: for [tenantId: {}]", tenantId);
     var reindexEntityTypes = entityTypeMapper.convert(entityTypesDto);
     validateUploadReindex(tenantId, reindexEntityTypes);
 
@@ -120,7 +120,7 @@ public class ReindexService {
       futures.add(future);
     }
 
-    log.info("reindex upload process submitted");
+    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 

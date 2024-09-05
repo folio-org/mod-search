@@ -12,7 +12,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-instance-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="instance"/>
       </not>
@@ -40,7 +40,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-holding-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="holding"/>
       </not>
@@ -73,7 +73,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-item-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="item"/>
       </not>
@@ -113,7 +113,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-classification-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="classification"/>
       </not>
@@ -157,7 +157,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-subject-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="subject"/>
       </not>
@@ -177,7 +177,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-instance_subject-table" author="pavlo_smahin">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="instance_subject"/>
       </not>
@@ -205,7 +205,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-contributor-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="contributor"/>
       </not>
@@ -226,7 +226,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-instance_contributor-table" author="pavlo_smahin">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="instance_contributor"/>
       </not>
@@ -257,7 +257,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-merge_ranges-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="merge_range"/>
       </not>
@@ -289,7 +289,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-upload_range-table" author="Mukhiddin_Yusupov">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="upload_range"/>
       </not>
@@ -318,7 +318,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-797@@create-reindex_status-table" author="Viacheslav_Kolesnyk">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="reindex_status"/>
       </not>
@@ -353,7 +353,7 @@
         <tableExists tableName="contributor"/>
       </and>
     </preConditions>
-    <sqlFile path="create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+    <sqlFile path="sql/create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
@@ -365,13 +365,17 @@
         <tableExists tableName="contributor"/>
       </and>
     </preConditions>
-    <sqlFile path="delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+    <sqlFile path="sql/delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 
   <changeSet id="MSEARCH-797@@create-reindex_status-trigger" author="Viacheslav_Kolesnyk">
     <preConditions onFail="MARK_RAN">
       <tableExists tableName="reindex_status"/>
     </preConditions>
-    <sqlFile path="update-reindex-status-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+    <sqlFile path="sql/update-reindex-status-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-821@@create-merge_status_function-trigger" author="pavlo_smahin">
+    <sqlFile path="sql/check-merge-completed-status-function.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 </databaseChangeLog>

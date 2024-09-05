@@ -88,7 +88,12 @@ public class ReindexStatusService {
   }
 
   public void updateReindexUploadStarted(ReindexEntityType entityType, int totalUploadRanges) {
+    log.info("updateReindexUploadStarted:: for [entityType: {}, totalMergeRanges: {}]", entityType, totalUploadRanges);
     statusRepository.setUploadReindexStarted(entityType, totalUploadRanges);
+  }
+
+  public boolean isMergeCompleted() {
+    return statusRepository.isMergeCompleted();
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(Set<ReindexEntityType> entityTypes,

@@ -1,5 +1,7 @@
 package org.folio.search.service.reindex;
 
+import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
+import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
 import java.util.ArrayList;
@@ -155,19 +157,20 @@ public class ReindexService {
 
     var statusesByType = statusService.getStatusesByType();
 
-    var fullReindexNotComplete = statusesByType.keySet().stream()
-      .filter(MERGE_RANGE_ENTITY_TYPES::contains)
+    var mergeNotComplete = statusesByType.entrySet().stream()
+      .filter(status -> MERGE_RANGE_ENTITY_TYPES.contains(status.getKey()))
+      .filter(status -> status.getValue().equals(MERGE_IN_PROGRESS) || status.getValue().equals(MERGE_FAILED))
       .findFirst();
-    if (fullReindexNotComplete.isPresent()) {
-      var mergeEntity = fullReindexNotComplete.get();
+    if (mergeNotComplete.isPresent()) {
+      var mergeEntityStatus = mergeNotComplete.get();
       // full reindex is either in progress or failed
       throw new RequestValidationException(
-        "Full Reindex Merge is either in progress or failed: %s".formatted(mergeEntity.getType()),
-        "reindexStatus", statusesByType.get(mergeEntity).getValue());
+        "Merge phase is in progress or failed for: %s".formatted(mergeEntityStatus.getKey()),
+        "reindexStatus", mergeEntityStatus.getValue().getValue());
     }
 
     var uploadInProgress = entityTypes.stream()
-      .filter(entityType -> statusesByType.keySet().contains(entityType))
+      .filter(statusesByType::containsKey)
       .filter(entityType -> statusesByType.get(entityType) == ReindexStatus.UPLOAD_IN_PROGRESS)
       .findAny();
     if (uploadInProgress.isPresent()) {

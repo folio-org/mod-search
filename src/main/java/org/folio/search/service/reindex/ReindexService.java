@@ -71,6 +71,7 @@ public class ReindexService {
     statusService.recreateMergeStatusRecords();
 
     var future = CompletableFuture.runAsync(() -> {
+      mergeRangeService.truncateMergeRanges();
       var rangesForAllTenants = Stream.of(
           mergeRangeService.createMergeRanges(tenantId),
           processForConsortium(tenantId)

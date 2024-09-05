@@ -40,6 +40,10 @@ public class ReindexMergeRangeIndexService {
     repositories.values().iterator().next().saveMergeRanges(ranges);
   }
 
+  public void truncateMergeRanges() {
+    repositories.values().iterator().next().truncateMergeRanges();
+  }
+
   public List<MergeRangeEntity> createMergeRanges(String tenantId) {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     var rangeSize = reindexConfig.getMergeRangeSize();

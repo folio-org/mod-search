@@ -334,8 +334,8 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `locations`,
-  `linked-data-work`, `linked-data-authority`. Please note that `locations` reindex is synchronous.
+* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `location`,
+  `linked-data-work`, `linked-data-authority`. Please note that `location` reindex is synchronous.
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.

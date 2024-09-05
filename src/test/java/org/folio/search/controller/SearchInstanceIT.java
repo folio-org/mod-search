@@ -469,17 +469,11 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("dates.date1 == {value}", "*99*"),
       arguments("dates.date1 == {value}", "19*"),
       arguments("dates.date1 > {value}", "19*"),
-      arguments("dates.date1 = {value}", "199u"),
-      arguments("dates.date1 = {value}", "199*"),
-      arguments("dates.date1 = {value}", "*99*"),
 
       arguments("dates.date2 == {value}", "*22"),
       arguments("dates.date2 == {value}", "*02*"),
       arguments("dates.date2 == {value}", "20*"),
       arguments("dates.date2 > {value}", " 2021"),
-      arguments("dates.date2 = {value}", " 2022"),
-      arguments("dates.date2 = {value}", " 202*"),
-      arguments("dates.date2 = {value}", " *02*"),
 
       arguments("contributors.authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
       arguments("authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),

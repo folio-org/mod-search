@@ -29,8 +29,8 @@ public class LinkedDataInstanceNoteProcessor implements FieldProcessor<LinkedDat
       .map(LinkedDataWorkOnly::getNotes)
       .stream()
       .flatMap(Collection::stream);
-    var contributors = Stream.concat(instanceNotes, workNotes).toList();
-    return linkedDataNoteProcessor.getFieldValue(contributors);
+    var notes = Stream.concat(instanceNotes, workNotes).toList();
+    return linkedDataNoteProcessor.getFieldValue(notes);
   }
 
 }

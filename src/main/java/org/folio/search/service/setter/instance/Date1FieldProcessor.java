@@ -1,6 +1,5 @@
 package org.folio.search.service.setter.instance;
 
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Instance;
@@ -10,9 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
 
-  private static final Pattern NUMERIC_REGEX = Pattern.compile("^\\d{1,4}$");
+  private static final int MAX_LENGTH = 4;
   private static final String ZERO = "0";
-  private static final String ALPHA_U = "u";
+  private static final String NON_NUMERIC_REGEX = "\\D";
 
   @Override
   public Short getFieldValue(Instance instance) {
@@ -24,10 +23,9 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
   }
 
   public Short normalizeDate1(String value) {
-    String date1 = value.replace(ALPHA_U, ZERO);
-    var matcher = NUMERIC_REGEX.matcher(date1);
-    if (matcher.find()) {
-      return Short.valueOf(matcher.group());
+    String date1 = value.replaceAll(NON_NUMERIC_REGEX, ZERO);
+    if (date1.length() <= MAX_LENGTH) {
+      return Short.valueOf(date1);
     }
     return 0;
   }

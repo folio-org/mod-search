@@ -36,8 +36,19 @@ class Date1FieldProcessorTest {
       arguments(instance("199"), Short.valueOf("199")),
       arguments(instance("1u9"), Short.valueOf("109")),
       arguments(instance("1"), Short.valueOf("1")),
+      arguments(instance("19d5"), Short.valueOf("1905")),
+      arguments(instance("d9d5"), Short.valueOf("905")),
+      arguments(instance("19 5"), Short.valueOf("1905")),
+      arguments(instance("195."), Short.valueOf("1950")),
+      arguments(instance("19\\5"), Short.valueOf("1905")),
+      arguments(instance("199\\"), Short.valueOf("1990")),
+      arguments(instance("\\95\\"), Short.valueOf("950")),
+      arguments(instance("1\\\\"), Short.valueOf("100")),
+      arguments(instance("1\\\\\\"), Short.valueOf("1000")),
       arguments(instance("19999"), Short.valueOf("0")),
-      arguments(instance("19k5"), Short.valueOf("0")),
+      arguments(instance("195.."), Short.valueOf("0")),
+      arguments(instance("19\\5\\"), Short.valueOf("0")),
+      arguments(instance("\\\\\\\\"), Short.valueOf("0")),
       arguments(new Instance(), Short.valueOf("0"))
     );
   }

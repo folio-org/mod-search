@@ -93,7 +93,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d");
 
   private static final String[] DATES = array(
-    "2021", "1998", "2020", "1978", "2023", "2022");
+    "2021", "ddd9", "2020", "d99\\", "2023", "2022", "0", "1000");
 
   @BeforeAll
   static void prepare() {
@@ -206,12 +206,14 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments(format("(item.effectiveLocationId==%s) sortby title", LOCATIONS[0]),
         List.of(IDS[0], IDS[2], IDS[3], IDS[4])),
 
-      arguments(format("(normalizedDate1<%s) sortby normalizedDate1", DATES[2]), List.of(IDS[3], IDS[1])),
-      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby title", DATES[1], DATES[5]),
-        List.of(IDS[0], IDS[1], IDS[2])),
-      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby normalizedDate1", DATES[1], DATES[5]),
-        List.of(IDS[1], IDS[2], IDS[0])),
+      arguments(format("(normalizedDate1<%s) sortby normalizedDate1", DATES[2]), List.of(IDS[1], IDS[3])),
+      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby title", DATES[6], DATES[0]),
+        List.of(IDS[1], IDS[2], IDS[3])),
+      arguments(format("(normalizedDate1>=%s and normalizedDate1<%s) sortby normalizedDate1", DATES[6], DATES[0]),
+        List.of(IDS[1], IDS[3], IDS[2])),
       arguments(format("(normalizedDate1>=%s) sortby title", DATES[0]), List.of(IDS[0], IDS[4])),
+      arguments(format("(normalizedDate1>%s and normalizedDate1<%s) sortby normalizedDate1", DATES[6], DATES[7]),
+        List.of(IDS[1], IDS[3])),
 
       arguments("(item.status.name==Available) sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(item.status.name==Missing) sortby title", List.of(IDS[2], IDS[3])),

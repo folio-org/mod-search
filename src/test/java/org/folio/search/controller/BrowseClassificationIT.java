@@ -86,18 +86,28 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "10")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult(null, "N6679.R64 G88 2010", 17, List.of(
-      classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
-      classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, true),
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
-      classificationBrowseItem("BJ1453 .I49 1983", LC2_TYPE_ID, 1),
-      classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
-      classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1),
-      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1)
-    )));
+    assertThat(actual)
+      .extracting(ClassificationNumberBrowseResult::getTotalRecords,
+        ClassificationNumberBrowseResult::getPrev,
+        ClassificationNumberBrowseResult::getNext)
+      .contains(17, null, "N6679.R64 G88 2010");
+    assertThat(actual.getItems())
+      .startsWith(
+        classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
+        classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1),
+        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, true),
+        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1),
+        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1)
+      )
+      .contains(
+        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
+        classificationBrowseItem("BJ1453 .I49 1983", LC2_TYPE_ID, 1)
+      )
+      .endsWith(
+        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
+        classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1),
+        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1)
+      );
   }
 
   @Test

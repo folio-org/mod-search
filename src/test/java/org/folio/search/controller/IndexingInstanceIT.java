@@ -60,9 +60,11 @@ class IndexingInstanceIT extends BaseIntegrationTest {
   @Test
   void shouldRemoveHolding() {
     createInstances();
+    HOLDING_IDS.forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
     inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
     assertCountByIds(instanceSearchPath(), List.of(HOLDING_IDS.get(0)), 0);
-    HOLDING_IDS.subList(1, 4).forEach(id -> assertCountByIds(instanceSearchPath(), List.of(id), 1));
+    HOLDING_IDS.subList(1, 4)
+      .forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
   }
 
   @Test

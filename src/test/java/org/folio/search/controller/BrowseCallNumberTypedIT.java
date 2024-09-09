@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -14,6 +13,7 @@ import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrows
 import static org.folio.search.utils.TestConstants.FOLIO_CN_TYPE;
 import static org.folio.search.utils.TestConstants.LOCAL_CN_TYPE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -36,10 +37,8 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 @IntegrationTest
 class BrowseCallNumberTypedIT extends BaseIntegrationTest {
 
@@ -50,7 +49,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(50.0))), INSTANCES);
   }
 
   @AfterAll
@@ -68,6 +67,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(23).prev("DA 43880 O6 M15").next("DA 43890 A2 B76 542002").items(List.of(
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
@@ -87,6 +87,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(11).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
@@ -103,6 +104,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(8).prev("11 CE 3210 K 3297 541858").next(null).items(List.of(
         cnBrowseItem(instance("instance #38"), "1CE 210 K297 41858"),
@@ -119,6 +121,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(6).prev(null).next("11 CE 3210 K 3297 541858").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
@@ -138,6 +141,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(4).prev(null).next(null).items(List.of(
         cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
@@ -155,6 +159,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(5).prev(null).next(null).items(List.of(
         cnBrowseItem(instance("instance #12"), "D1.211 N52 VOL 14"),
@@ -174,6 +179,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
 
     var multipleItemsInstance = instance("instance #27");
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
@@ -194,6 +200,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
       .totalRecords(5).prev("F  PR1866.S63 V.1 C.1").next(null).items(List.of(
         cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
@@ -228,9 +235,11 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
 
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    var holding = new Holding().id(randomId());
     var items = ((List<List<String>>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
+        .holdingsRecordId(holding.getId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
           .callNumber(callNumber.get(0)).typeId(callNumber.get(1)))
@@ -247,7 +256,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(List.of(holding));
   }
 
   private static Instance instance(String title) {

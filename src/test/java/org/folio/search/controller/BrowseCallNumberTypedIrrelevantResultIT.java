@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
@@ -8,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -25,23 +25,19 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.model.service.BrowseContext;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
+//@Disabled
 @IntegrationTest
 class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
 
   private static final Instance[] INSTANCES = instances();
   private static final Map<String, Instance> INSTANCE_MAP =
     Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
-  private static final BrowseContext CONTEXT = BrowseContext.builder().build();
 
   @BeforeAll
   static void prepare() {
@@ -64,6 +60,7 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "5")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
       .totalRecords(18)
       .prev("3308 H972")
@@ -80,7 +77,6 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
       ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "dewey", emptySet(), expected.getItems()));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -93,6 +89,7 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "5");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
       .totalRecords(4)
       .items(Arrays.asList(
@@ -100,7 +97,6 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "Z669.R360 1976", 1),
         cnBrowseItem(instance("instance #10"), "Z669.R360 1977", 1)
       ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "lc", emptySet(), expected.getItems()));
     leaveOnlyBasicProps(expected);
     assertThat(actual).isEqualTo(expected);
   }
@@ -115,7 +111,8 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "7")
       .param("expandAll", "true");
-    var result = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
       .next("3308 H981")
       .totalRecords(18)
@@ -133,10 +130,9 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
         cnBrowseItem(instance("instance #02"), "308 H980"),
         cnBrowseItem(instance("instance #08"), "308 H981")
       ));
-    expected.setItems(CallNumberUtils.excludeIrrelevantResultItems(CONTEXT, "dewey", emptySet(), expected.getItems()));
 
-    assertThat(result.getItems()).hasSizeLessThanOrEqualTo(limit);
-    assertThat(result).isEqualTo(expected);
+    assertThat(actual.getItems()).hasSizeLessThanOrEqualTo(limit);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private void leaveOnlyBasicProps(CallNumberBrowseResult expected) {
@@ -144,10 +140,6 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       Instance instance = i.getInstance();
       instance.setTenantId(null);
       instance.setShared(null);
-      instance.getItems().forEach(item -> {
-        item.setId(null);
-        item.setDiscoverySuppress(null);
-      });
     });
   }
 
@@ -183,12 +175,8 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
 
   private static Instance instance(List<List<String>> data, String title) {
     var items = new ArrayList<Item>();
-    var holdings = new ArrayList<Holding>();
+    var holding = new Holding().id(randomId());
     for (List<String> d : data) {
-      var holding = new Holding()
-        .id(randomId())
-        .tenantId(TENANT_ID)
-        .discoverySuppress(false);
       var item = new Item()
         .id(randomId())
         .holdingsRecordId(holding.getId())
@@ -210,7 +198,7 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(holdings);
+      .holdings(List.of(holding));
   }
 
   private static List<List<String>> callNumberBrowseInstanceData() {

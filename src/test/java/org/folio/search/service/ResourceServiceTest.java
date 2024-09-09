@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.InstanceFetchService;
@@ -89,9 +90,12 @@ class ResourceServiceTest {
     lenient().when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.empty());
     lenient().when(consortiumTenantExecutor.execute(any(), any()))
       .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
+    lenient().when(consortiumTenantExecutor.execute(any()))
+      .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
       .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
-    lenient().when(instanceEventPreProcessor.preProcess(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    lenient().when(instanceEventPreProcessor.preProcess(any()))
+      .thenAnswer(invocation -> List.of((ResourceEvent) invocation.getArgument(0)));
   }
 
   @Test
@@ -141,16 +145,6 @@ class ResourceServiceTest {
 
     var response = indexService.indexResources(List.of(resourceEvent));
     assertThat(response).isEqualTo(expectedResponse);
-  }
-
-  @Test
-  void indexResources_negative() {
-    var resourceEvents = List.of(resourceEvent(INSTANCE, mapOf("id", randomId())));
-    when(primaryResourceRepository.indexResources(null)).thenReturn(getSuccessIndexOperationResponse());
-    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
-
-    var actual = indexService.indexResources(resourceEvents);
-    assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test

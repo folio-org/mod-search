@@ -51,7 +51,7 @@ public class ResourceService {
   private final InstanceFetchService resourceFetchService;
   private final PrimaryResourceRepository primaryResourceRepository;
   private final ResourceDescriptionService resourceDescriptionService;
-  private final MultiTenantSearchDocumentConverter multiTenantSearchDocumentConverter;
+  private final MultiTenantSearchDocumentConverter searchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final InstanceEventPreProcessor instanceEventPreProcessor;
@@ -70,7 +70,7 @@ public class ResourceService {
     }
 
     var eventsToIndex = getEventsToIndex(resourceEvents);
-    var elasticsearchDocuments = multiTenantSearchDocumentConverter.convert(eventsToIndex);
+    var elasticsearchDocuments = searchDocumentConverter.convert(eventsToIndex);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
     log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
@@ -114,7 +114,7 @@ public class ResourceService {
       () -> resourceFetchService.fetchInstancesByIds(indexEvents));
 
     var list = preProcessEvents(fetchedInstances);
-    return multiTenantSearchDocumentConverter.convert(list);
+    return searchDocumentConverter.convert(list);
   }
 
   private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents) {
@@ -131,7 +131,7 @@ public class ResourceService {
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    return multiTenantSearchDocumentConverter.convert(deleteEvents);
+    return searchDocumentConverter.convert(deleteEvents);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

@@ -115,13 +115,14 @@ class ReindexOrchestrationServiceTest {
     event.setRangeId(UUID.randomUUID().toString());
     event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
+    when(reindexStatusService.isMergeCompleted()).thenReturn(false);
     doThrow(new RuntimeException()).when(mergeRangeIndexService).saveEntities(event);
 
     service.process(event);
 
     verify(reindexStatusService).updateReindexMergeFailed();
     verify(mergeRangeIndexService).updateFinishDate(ReindexEntityType.INSTANCE, event.getRangeId());
-
+    verify(reindexStatusService).isMergeCompleted();
     verifyNoMoreInteractions(reindexStatusService);
   }
 

@@ -109,6 +109,7 @@ class ReindexServiceTest {
     verify(statusService, times(expectedCallsCount))
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
+    verify(mergeRangeService).truncateMergeRanges();
     verifyNoMoreInteractions(mergeRangeService);
   }
 
@@ -177,8 +178,8 @@ class ReindexServiceTest {
     when(statusService.getStatusesByType())
       .thenReturn(Map.of(
         INSTANCE, ReindexStatus.MERGE_COMPLETED,
-        ITEM, ReindexStatus.MERGE_COMPLETED,
-        HOLDINGS, ReindexStatus.MERGE_COMPLETED));
+        ITEM, ReindexStatus.MERGE_IN_PROGRESS,
+        HOLDINGS, ReindexStatus.MERGE_FAILED));
     var entityTypes = List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE);
 
     // act & assert

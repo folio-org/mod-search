@@ -10,8 +10,9 @@ import lombok.experimental.UtilityClass;
 public class ShaUtils {
 
   public static String sha(String... input) {
-    return sha1Hex(Arrays.stream(input)
+    var value = Arrays.stream(input)
       .map(s -> s == null ? "" : s)
-      .collect(Collectors.joining("|")));
+      .collect(Collectors.joining("|"));
+    return sha1Hex(value); // NOSONAR
   }
 }

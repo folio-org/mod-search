@@ -69,8 +69,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsToIndex(resourceEvents);
-    var elasticsearchDocuments = searchDocumentConverter.convert(eventsToIndex);
+    var elasticsearchDocuments = searchDocumentConverter.convert(resourceEvents);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
     log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
@@ -91,9 +90,7 @@ public class ResourceService {
       return getSuccessIndexOperationResponse();
     }
 
-    var eventsToIndex = getEventsToIndex(resourceIdEvents);
-
-    var groupedByOperation = eventsToIndex.stream().collect(groupingBy(ResourceService::getEventIndexType));
+    var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
     var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
 
@@ -102,10 +99,6 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
-  }
-
-  private List<ResourceEvent> getEventsToIndex(List<ResourceEvent> events) {
-    return events;
   }
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {

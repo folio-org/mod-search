@@ -20,7 +20,7 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION instance_deps_trigger()
-    RETURNS TRIGGER AS
+    RETURNS trigger AS
 $$
 DECLARE
     entry                    jsonb;
@@ -36,9 +36,11 @@ DECLARE
     contributor_name_type_id text;
 BEGIN
     -- process classifications
-    DELETE
-    FROM instance_classification
-    WHERE instance_id = NEW.id;
+    IF TG_OP <> 'INSERT' THEN
+        DELETE
+        FROM instance_classification
+        WHERE instance_id = NEW.id;
+    END IF;
 
     IF TG_OP <> 'DELETE' THEN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'classifications')
@@ -60,9 +62,11 @@ BEGIN
     END IF;
 
     -- process subjects
-    DELETE
-    FROM instance_subject
-    WHERE instance_id = NEW.id;
+    IF TG_OP <> 'INSERT' THEN
+        DELETE
+        FROM instance_subject
+        WHERE instance_id = NEW.id;
+    END IF;
 
     IF TG_OP <> 'DELETE' THEN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'subjects')
@@ -84,9 +88,11 @@ BEGIN
     END IF;
 
     -- process contributors
-    DELETE
-    FROM instance_contributor
-    WHERE instance_id = NEW.id;
+    IF TG_OP <> 'INSERT' THEN
+        DELETE
+        FROM instance_contributor
+        WHERE instance_id = NEW.id;
+    END IF;
 
     IF TG_OP <> 'DELETE' THEN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'contributors')

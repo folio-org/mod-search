@@ -356,18 +356,6 @@
     <sqlFile path="sql/create-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
 
-  <changeSet id="MSEARCH-793@@create-instance_deleted_trigger" author="Mukhiddin_Yusupov">
-    <preConditions onFail="MARK_RAN">
-      <and>
-        <tableExists tableName="instance"/>
-        <tableExists tableName="classification"/>
-        <tableExists tableName="subject"/>
-        <tableExists tableName="contributor"/>
-      </and>
-    </preConditions>
-    <sqlFile path="sql/delete-instance-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
-  </changeSet>
-
   <changeSet id="MSEARCH-797@@create-reindex_status-trigger" author="Viacheslav_Kolesnyk">
     <preConditions onFail="MARK_RAN">
       <tableExists tableName="reindex_status"/>

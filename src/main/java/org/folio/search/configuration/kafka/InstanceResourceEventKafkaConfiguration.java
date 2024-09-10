@@ -2,7 +2,6 @@ package org.folio.search.configuration.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.message.interceptor.DeleteAllRecordFilterStrategy;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,19 +18,17 @@ public class InstanceResourceEventKafkaConfiguration extends KafkaConfiguration 
 
   /**
    * Creates and configures {@link ConcurrentKafkaListenerContainerFactory} as Spring bean
-   * for consuming resource events from Apache Kafka.
+   * for consuming resource instance related events from Kafka.
    *
    * @return {@link ConcurrentKafkaListenerContainerFactory} object as Spring bean.
    */
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ResourceEvent> instanceResourceListenerContainerFactory(
-    DeleteAllRecordFilterStrategy deleteAllRecordFilterStrategy,
     BatchInterceptor<String, ResourceEvent>[] batchInterceptors) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
     var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
-    factory.setRecordFilterStrategy(deleteAllRecordFilterStrategy);
     factory.setBatchInterceptor(new CompositeBatchInterceptor<>(batchInterceptors));
     return factory;
   }

@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.message;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

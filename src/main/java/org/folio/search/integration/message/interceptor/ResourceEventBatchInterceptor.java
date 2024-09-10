@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 

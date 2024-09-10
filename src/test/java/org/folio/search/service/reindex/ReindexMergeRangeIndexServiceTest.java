@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.integration.InventoryService;
+import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;

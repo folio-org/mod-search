@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

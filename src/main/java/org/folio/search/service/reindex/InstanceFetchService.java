@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.service.reindex;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;

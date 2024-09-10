@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

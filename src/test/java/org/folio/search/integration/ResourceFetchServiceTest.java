@@ -23,6 +23,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.reindex.InstanceFetchService;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;

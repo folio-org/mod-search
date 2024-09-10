@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

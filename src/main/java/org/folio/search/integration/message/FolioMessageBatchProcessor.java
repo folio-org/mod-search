@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.message;
 
 import static java.util.Collections.singletonList;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;

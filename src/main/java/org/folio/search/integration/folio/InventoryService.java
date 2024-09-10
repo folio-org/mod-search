@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.folio;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;

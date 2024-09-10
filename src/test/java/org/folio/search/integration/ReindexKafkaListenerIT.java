@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.configuration.kafka.ReindexRangeIndexEventKafkaConfiguration;
+import org.folio.search.integration.message.ReindexKafkaListener;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;

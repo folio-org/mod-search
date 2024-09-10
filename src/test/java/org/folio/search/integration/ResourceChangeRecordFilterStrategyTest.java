@@ -9,7 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.ResourceDeleteEventSubType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.integration.interceptor.ResourceChangeRecordFilterStrategy;
+import org.folio.search.integration.message.interceptor.ResourceChangeRecordFilterStrategy;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;

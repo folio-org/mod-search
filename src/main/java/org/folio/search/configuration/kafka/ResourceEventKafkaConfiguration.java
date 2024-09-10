@@ -2,8 +2,8 @@ package org.folio.search.configuration.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.interceptor.CompositeRecordFilterStrategy;
-import org.folio.search.integration.interceptor.ResourceEventBatchInterceptor;
+import org.folio.search.integration.message.interceptor.CompositeRecordFilterStrategy;
+import org.folio.search.integration.message.interceptor.ResourceEventBatchInterceptor;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

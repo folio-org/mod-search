@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.message;
 
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;

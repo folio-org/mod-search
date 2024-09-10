@@ -32,7 +32,7 @@ import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.integration.InventoryService;
+import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;

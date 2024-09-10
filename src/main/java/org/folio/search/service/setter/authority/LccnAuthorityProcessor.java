@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifier;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.lccn.LccnNormalizer;
 import org.folio.search.service.setter.AbstractLccnProcessor;
 import org.springframework.stereotype.Component;

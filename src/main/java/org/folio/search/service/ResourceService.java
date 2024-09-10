@@ -26,7 +26,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.integration.InstanceFetchService;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -38,6 +37,7 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.reindex.InstanceFetchService;
 import org.springframework.stereotype.Service;
 
 @Log4j2

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.model.Pair;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;

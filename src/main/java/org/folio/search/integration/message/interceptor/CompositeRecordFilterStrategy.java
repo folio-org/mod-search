@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;

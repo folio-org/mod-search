@@ -1,4 +1,4 @@
-package org.folio.search.integration;
+package org.folio.search.integration.folio;
 
 import static java.util.stream.Collectors.toSet;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;

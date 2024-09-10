@@ -3,7 +3,7 @@ package org.folio.search.service.setter.instance;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 

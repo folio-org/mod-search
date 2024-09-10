@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.service.lccn.DefaultLccnNormalizer;
 import org.folio.spring.testing.type.UnitTest;

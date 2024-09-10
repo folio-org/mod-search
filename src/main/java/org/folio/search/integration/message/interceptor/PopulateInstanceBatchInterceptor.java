@@ -1,4 +1,4 @@
-package org.folio.search.integration.interceptor;
+package org.folio.search.integration.message.interceptor;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;

@@ -9,13 +9,17 @@ import static org.folio.search.model.reindex.UploadRangeEntity.RANGE_OFFSET_COLU
 import static org.folio.search.service.reindex.ReindexConstants.UPLOAD_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.utils.JsonConverter;
@@ -26,13 +30,18 @@ import org.springframework.jdbc.core.RowMapper;
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
   protected static final String SELECT_RECORD_SQL = "SELECT * from %s LIMIT ? OFFSET ?;";
+  protected static final String EMPTY_WHERE_CLAUSE = "true LIMIT ? OFFSET ?";
+  protected static final String IDS_WHERE_CLAUSE = "id IN (%s)";
+
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, range_limit, range_offset, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT (id)
       DO UPDATE SET finished_at = EXCLUDED.finished_at;
     """;
+
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
+  private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
 
   private final ReindexConfigurationProperties reindexConfig;
 
@@ -69,6 +78,14 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
   }
 
   protected abstract RowMapper<Map<String, Object>> rowToMapMapper();
+
+  protected Set<InstanceSubResource> parseInstanceSubResources(String instancesJson) {
+    try {
+      return jsonConverter.fromJson(instancesJson, VALUE_TYPE_REF);
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
 
   private RowMapper<UploadRangeEntity> uploadRangeRowMapper() {
     return (rs, rowNum) -> {

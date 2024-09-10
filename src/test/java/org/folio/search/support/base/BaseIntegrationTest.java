@@ -251,7 +251,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
     setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
-      record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, AUTHORITY, record)));
+      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent(null, AUTHORITY, rec)));
   }
 
   @SafeVarargs
@@ -281,7 +281,7 @@ public abstract class BaseIntegrationTest {
 
       if (type.equals(Authority.class)) {
         saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, record)));
+          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, rec)));
       }
     }
   }

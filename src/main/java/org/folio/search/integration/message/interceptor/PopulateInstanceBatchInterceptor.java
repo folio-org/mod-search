@@ -63,13 +63,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void populate(List<ResourceEvent> records) {
     var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-    batchByTenant.forEach((tenant, batch) -> {
-      systemUserScopedExecutionService.executeSystemUserScoped(tenant,
-        () -> executionService.execute(() -> {
-          process(tenant, batch);
-          return null;
-        }));
-    });
+    batchByTenant.forEach((tenant, batch) -> systemUserScopedExecutionService.executeSystemUserScoped(tenant,
+      () -> executionService.execute(() -> {
+        process(tenant, batch);
+        return null;
+      })));
 
   }
 

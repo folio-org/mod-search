@@ -35,18 +35,20 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   private static final String EMPTY_WHERE_CLAUSE = "true";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "i.id IN (%s)";
 
-  private final JdbcTemplate jdbcTemplate;
-
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                      FolioExecutionContext context,
                                      ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
-    this.jdbcTemplate = jdbcTemplate;
   }
 
   @Override
   public ReindexEntityType entityType() {
     return ReindexEntityType.INSTANCE;
+  }
+
+  @Override
+  protected String entityTable() {
+    return ReindexConstants.INSTANCE_TABLE;
   }
 
   public List<Map<String, Object>> fetchByIds(List<String> ids) {
@@ -79,10 +81,5 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
-  }
-
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.INSTANCE_TABLE;
   }
 }

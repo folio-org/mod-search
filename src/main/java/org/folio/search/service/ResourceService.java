@@ -120,7 +120,7 @@ public class ResourceService {
       .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
       .filter(Objects::nonNull)
       .flatMap(List::stream)
-      .collect(toList());
+      .toList();
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {

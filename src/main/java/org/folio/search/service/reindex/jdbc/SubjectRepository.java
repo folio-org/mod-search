@@ -2,18 +2,16 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.InstanceSubjectEntityAgg;
-import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -40,11 +38,6 @@ public class SubjectRepository extends UploadRangeRepository {
     GROUP BY sr.id, sr.value, sr.authority_id;
     """;
 
-  private static final String EMPTY_WHERE_CLAUSE = "true LIMIT ? OFFSET ?";
-  private static final String IDS_WHERE_CLAUSE = "id IN (%s)";
-
-  private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
-
   protected SubjectRepository(JdbcTemplate jdbcTemplate,
                               JsonConverter jsonConverter,
                               FolioExecutionContext context,
@@ -58,10 +51,14 @@ public class SubjectRepository extends UploadRangeRepository {
   }
 
   @Override
+  protected String entityTable() {
+    return ReindexConstants.SUBJECT_TABLE;
+  }
+
+  @Override
   protected Optional<String> subEntityTable() {
     return Optional.of(ReindexConstants.INSTANCE_SUBJECT_TABLE);
   }
-
 
   public List<InstanceSubjectEntityAgg> fetchByIds(List<String> ids) {
     if (CollectionUtils.isEmpty(ids)) {
@@ -73,11 +70,6 @@ public class SubjectRepository extends UploadRangeRepository {
   }
 
   @Override
-  protected String entityTable() {
-    return ReindexConstants.SUBJECT_TABLE;
-  }
-
-  @Override
   protected String getFetchBySql() {
     return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), EMPTY_WHERE_CLAUSE);
   }
@@ -86,31 +78,39 @@ public class SubjectRepository extends UploadRangeRepository {
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> {
       Map<String, Object> subject = new HashMap<>();
-      subject.put("id", rs.getString("id"));
-      subject.put("value", rs.getString("value"));
-      subject.put("authorityId", rs.getString("authority_id"));
+      subject.put("id", getId(rs));
+      subject.put("value", getValue(rs));
+      subject.put("authorityId", getAuthorityId(rs));
 
-      var maps = jsonConverter.fromJsonToListOfMaps(rs.getString("instances"));
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
       subject.put("instances", maps);
 
       return subject;
     };
   }
 
-
   private RowMapper<InstanceSubjectEntityAgg> instanceAggRowMapper() {
-    return (rs, rowNum) -> {
-      var id = rs.getString("id");
-      var value = rs.getString("value");
-      var authorityId = rs.getString("authority_id");
-      var instancesJson = rs.getString("instances");
-      Set<InstanceSubResource> instanceSubResources;
-      try {
-        instanceSubResources = jsonConverter.fromJson(instancesJson, VALUE_TYPE_REF);
-      } catch (Exception e) {
-        throw new IllegalArgumentException(e);
-      }
-      return new InstanceSubjectEntityAgg(id, value, authorityId, instanceSubResources);
-    };
+    return (rs, rowNum) -> new InstanceSubjectEntityAgg(
+      getId(rs),
+      getValue(rs),
+      getAuthorityId(rs),
+      parseInstanceSubResources(getInstances(rs))
+    );
+  }
+
+  private String getId(ResultSet rs) throws SQLException {
+    return rs.getString("id");
+  }
+
+  private String getValue(ResultSet rs) throws SQLException {
+    return rs.getString("value");
+  }
+
+  private String getAuthorityId(ResultSet rs) throws SQLException {
+    return rs.getString("authority_id");
+  }
+
+  private String getInstances(ResultSet rs) throws SQLException {
+    return rs.getString("instances");
   }
 }

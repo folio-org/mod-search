@@ -23,7 +23,6 @@ import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -109,21 +108,6 @@ class MergeRangeRepositoriesIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.INSTANCE, "instance range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "consortium"));
-  }
-
-  @Disabled
-  @Test
-  @Sql("/sql/populate-merge-ranges.sql")
-  void truncateMergeRanges_truncatesAndThenReturnEmptyList_whenMergeRangesExist() {
-    // act
-
-    var rangesHolding = holdingRepository.getMergeRanges();
-    var rangesItem = itemRepository.getMergeRanges();
-    var rangesInstance = instanceRepository.getMergeRanges();
-
-    // assert
-    assertThat(List.of(rangesHolding, rangesItem, rangesInstance))
-      .are(new Condition<>(List::isEmpty, "empty ranges"));
   }
 
   @Test

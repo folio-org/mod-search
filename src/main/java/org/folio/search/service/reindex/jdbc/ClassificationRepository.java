@@ -2,18 +2,16 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.InstanceClassificationEntityAgg;
-import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -39,12 +37,6 @@ public class ClassificationRepository extends UploadRangeRepository {
     JOIN classification_range cr ON cr.id = ic.classification_id
     GROUP BY cr.id, cr.number, cr.type_id;
     """;
-
-  private static final String EMPTY_WHERE_CLAUSE = "true LIMIT ? OFFSET ?";
-  private static final String IDS_WHERE_CLAUSE = "id IN (%s)";
-  private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
-  private static final String CLASSIFICATION_TYPE_COLUMN = "type_id";
-  private static final String CLASSIFICATION_NUMBER_COLUMN = "number";
 
   protected ClassificationRepository(JdbcTemplate jdbcTemplate,
                                      JsonConverter jsonConverter,
@@ -86,11 +78,11 @@ public class ClassificationRepository extends UploadRangeRepository {
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> {
       Map<String, Object> classification = new HashMap<>();
-      classification.put("id", rs.getString("id"));
-      classification.put("number", rs.getString("number"));
-      classification.put("typeId", rs.getString("type_id"));
+      classification.put("id", getId(rs));
+      classification.put("number", getNumber(rs));
+      classification.put("typeId", getTypeId(rs));
 
-      var maps = jsonConverter.fromJsonToListOfMaps(rs.getString("instances"));
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
       classification.put("instances", maps);
 
       return classification;
@@ -98,18 +90,27 @@ public class ClassificationRepository extends UploadRangeRepository {
   }
 
   private RowMapper<InstanceClassificationEntityAgg> instanceClassificationAggRowMapper() {
-    return (rs, rowNum) -> {
-      var id = rs.getString("id");
-      var number = rs.getString(CLASSIFICATION_NUMBER_COLUMN);
-      var typeId = rs.getString(CLASSIFICATION_TYPE_COLUMN);
-      var instancesJson = rs.getString("instances");
-      Set<InstanceSubResource> instanceSubResources;
-      try {
-        instanceSubResources = jsonConverter.fromJson(instancesJson, VALUE_TYPE_REF);
-      } catch (Exception e) {
-        throw new IllegalArgumentException(e);
-      }
-      return new InstanceClassificationEntityAgg(id, typeId, number, instanceSubResources);
-    };
+    return (rs, rowNum) -> new InstanceClassificationEntityAgg(
+      getId(rs),
+      getTypeId(rs),
+      getNumber(rs),
+      parseInstanceSubResources(getInstances(rs))
+    );
+  }
+
+  private String getId(ResultSet rs) throws SQLException {
+    return rs.getString("id");
+  }
+
+  private String getTypeId(ResultSet rs) throws SQLException {
+    return rs.getString("type_id");
+  }
+
+  private String getNumber(ResultSet rs) throws SQLException {
+    return rs.getString("number");
+  }
+
+  private String getInstances(ResultSet rs) throws SQLException {
+    return rs.getString("instances");
   }
 }

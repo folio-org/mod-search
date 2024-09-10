@@ -1,6 +1,5 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.service.reindex.jdbc.UploadRangeRepository.SELECT_RECORD_SQL;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.sql.Timestamp;
@@ -44,10 +43,6 @@ public abstract class ReindexJdbcRepository {
   public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
     var sql = UPDATE_FINISHED_AT_RANGE_SQL.formatted(getFullTableName(context, rangeTable()));
     jdbcTemplate.update(sql, timestamp, id);
-  }
-
-  protected String getFetchBySql() {
-    return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
   }
 
   public abstract ReindexEntityType entityType();

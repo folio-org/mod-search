@@ -1,0 +1,7 @@
+description: "Linked Data Instance search dto, contains Instance and it's Work's fields"
+type: "object"
+allOf:
+  - $ref: "common/linkedDataInstanceOnly.yaml"
+properties:
+  parentWork:
+    $ref: "common/linkedDataWorkOnly.yaml"

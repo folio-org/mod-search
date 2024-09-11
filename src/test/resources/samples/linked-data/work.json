@@ -1,13 +1,13 @@
 {
   "id": "123456123456",
-  "titles": [
+  "classifications": [
     {
-      "value": "titleAbc def",
-      "type": "Main"
+      "number": "1234",
+      "source": "ddc"
     },
     {
-      "value": "sub",
-      "type": "Sub"
+      "number": "5678",
+      "source": "other"
     }
   ],
   "contributors": [
@@ -37,55 +37,41 @@
       "isCreator": true
     }
   ],
-  "languages": [
-    {
-      "value": "eng"
-    },
-    {
-      "value": "rus"
-    }
+  "hubAAPs": [
+    "hubAAP1",
+    "hubAAP2"
   ],
-  "classifications": [
+  "languages": [
+    "eng",
+    "rus"
+  ],
+  "notes": [
     {
-      "number": "1234",
-      "source": "ddc"
+      "value": "first work note",
+      "type": "firstWorkNoteType"
     },
     {
-      "number": "5678",
-      "source": "other"
+      "value": "second work note",
+      "type": "secondWorkNoteType"
     }
   ],
   "subjects": [
+    "Subject 1",
+    "Subject 2"
+  ],
+  "titles": [
     {
-      "value": "Subject 1"
+      "value": "titleAbc def",
+      "type": "Main"
     },
     {
-      "value": "Subject 2"
+      "value": "sub",
+      "type": "Sub"
     }
   ],
   "instances": [
     {
       "id": "instance1",
-      "titles": [
-        {
-          "value": "Instance1_Title",
-          "type": "Main"
-        },
-        {
-          "value": "Instance1_Subtitle",
-          "type": "Sub"
-        }
-      ],
-      "identifiers": [
-        {
-          "value": "1234567890123",
-          "type": "ISBN"
-        },
-        {
-          "value": "  2023-202345/AC/r932",
-          "type": "LCCN"
-        }
-      ],
       "contributors": [
         {
           "name": "Instance1_Family",
@@ -108,22 +94,53 @@
           "isCreator": false
         }
       ],
+      "editionStatements": [
+        "1st edition",
+        "2nd edition"
+      ],
+      "format": "Monograph",
+      "identifiers": [
+        {
+          "value": "1234567890123",
+          "type": "ISBN"
+        },
+        {
+          "value": "  2023-202345/AC/r932",
+          "type": "LCCN"
+        }
+      ],
+      "notes": [
+        {
+          "value": "first instance note",
+          "type": "firstInstanceNoteType"
+        },
+        {
+          "value": "second instance note",
+          "type": "secondInstanceNoteType"
+        }
+      ],
       "publications": [
         {
           "name": "publisher",
-          "date": 2023
+          "date": "2023"
         },
         {
           "name": "publisher2",
           "date": 2024
         }
       ],
-      "editionStatements": [
+      "suppress": {
+        "fromDiscovery": false,
+        "staff": true
+      },
+      "titles": [
         {
-          "value": "1st edition"
+          "value": "Instance1_Title",
+          "type": "Main"
         },
         {
-          "value": "2nd edition"
+          "value": "Instance1_Subtitle",
+          "type": "Sub"
         }
       ]
     }

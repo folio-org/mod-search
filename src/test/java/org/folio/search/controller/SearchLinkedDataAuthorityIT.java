@@ -1,10 +1,12 @@
 package org.folio.search.controller;
 
+import static org.folio.search.sample.SampleLinkedData.getAuthorityConceptSampleAsMap;
+import static org.folio.search.sample.SampleLinkedData.getAuthorityPersonSampleAsMap;
+import static org.folio.search.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.search.domain.dto.LinkedDataAuthority;
-import org.folio.search.sample.SampleLinkedData;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -18,9 +20,7 @@ class SearchLinkedDataAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(LinkedDataAuthority.class, 2,
-      SampleLinkedData.getAuthorityConceptSampleAsMap(), SampleLinkedData.getAuthorityPersonSampleAsMap()
-    );
+    setUpTenant(LinkedDataAuthority.class, getAuthorityConceptSampleAsMap(), getAuthorityPersonSampleAsMap());
   }
 
   @AfterAll
@@ -53,6 +53,6 @@ class SearchLinkedDataAuthorityIT extends BaseIntegrationTest {
   })
   void searchByLinkedDataAuthority_parameterized_singleResult(int index, int size, String query) throws Throwable {
     doSearchByLinkedDataAuthority(query)
-      .andExpect(jsonPath("$.totalRecords", is(size)));
+      .andExpect(jsonPath(toTotalRecords(), is(size)));
   }
 }

@@ -38,6 +38,7 @@ public class SearchUtils {
   public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
   public static final String LOCATION_RESOURCE = "location";
   public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
+  public static final String LINKED_DATA_INSTANCE_RESOURCE = "linked-data-instance";
   public static final String LINKED_DATA_WORK_RESOURCE = "linked-data-work";
   public static final String LINKED_DATA_AUTHORITY_RESOURCE = "linked-data-authority";
   public static final String CAMPUS_RESOURCE = "campus";

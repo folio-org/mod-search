@@ -9,6 +9,7 @@ get:
     - $ref: '../../parameters/cql-query.yaml'
     - $ref: '../../parameters/linked-data-limit-param.yaml'
     - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/omit-instances.yaml'
   responses:
     '200':
       description: 'Linked data works search result'

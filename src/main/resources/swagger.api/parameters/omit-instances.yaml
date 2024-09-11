@@ -1,0 +1,6 @@
+in: query
+name: omitInstances
+description: Whether to omit instances from a Work search result set
+schema:
+  type: boolean
+  default: false

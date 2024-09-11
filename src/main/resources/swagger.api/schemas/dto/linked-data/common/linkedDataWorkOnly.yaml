@@ -1,0 +1,50 @@
+description: "Linked Data Work DTO, contains only Work fields"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of a Work"
+    type: "string"
+  classifications:
+    type: "array"
+    description: "List of classification items"
+    items:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+          description: "Classification number"
+        source:
+          type: "string"
+          description: "The source of the classification"
+  contributors:
+    type: "array"
+    description: "Contributor array"
+    items:
+      $ref: "linkedDataContributor.yaml"
+  hubAAPs:
+    type: "array"
+    description: "Linked Data Hub Authorized Access Point array"
+    items:
+      type: "string"
+  languages:
+    type: "array"
+    description: "Language array"
+    items:
+      type: "string"
+  notes:
+    type: "array"
+    description: "Notes array"
+    items:
+      $ref: "linkedDataNote.yaml"
+  subjects:
+    type: "array"
+    description: "Subject label array"
+    items:
+      type: "string"
+  titles:
+    type: "array"
+    description: "Title array"
+    items:
+      $ref: "linkedDataTitle.yaml"
+required:
+  - "id"

@@ -1,0 +1,210 @@
+{
+  "name": "linked-data-instance",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataInstance",
+  "reindexSupported": true,
+  "languageSourcePaths": [ "$.languages" ],
+  "fields": {
+    "id": {
+      "index": "keyword",
+      "searchAliases": [ "keyword" ]
+    },
+    "classifications": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "index": "whitespace"
+        },
+        "source": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "contributors": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        },
+        "isCreator": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "editionStatements": {
+      "index": "whitespace"
+    },
+    "format": {
+      "index": "whitespace"
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace",
+          "searchAliases": [ "keyword" ]
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "publications": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "whitespace"
+        },
+        "date": {
+          "searchAliases": [ "publicationDate" ],
+          "index": "date"
+        }
+      }
+    },
+    "suppress": {
+      "type": "object",
+      "properties": {
+        "fromDiscovery": {
+          "searchAliases": [ "suppressFromDiscovery" ],
+          "index": "bool",
+          "default": false
+        },
+        "staff": {
+          "searchAliases": [ "staffSuppress" ],
+          "index": "bool",
+          "default": false
+        }
+      }
+    },
+    "titles": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "parentWork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "index": "keyword",
+          "searchAliases": [ "keyword" ]
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "number": {
+              "index": "whitespace"
+            },
+            "source": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "contributors": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            },
+            "isCreator": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "hubAAPs": {
+          "searchAliases": [ "hub", "keyword" ],
+          "index": "multilang"
+        },
+        "languages": {
+          "searchAliases": [ "lang", "language" ],
+          "index": "keyword_lowercase"
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "subjects": {
+          "index": "whitespace"
+        },
+        "titles": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "contributor": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataInstanceContributorProcessor",
+      "searchAliases": [ "keyword" ]
+    },
+    "isbn": {
+      "type": "search",
+      "processor": "linkedDataInstanceIsbnProcessor",
+      "searchTermProcessor": "isbnSearchTermProcessor",
+      "index": "standard",
+      "indexPlainValue": false
+    },
+    "lccn": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataInstanceLccnProcessor"
+    },
+    "note": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataInstanceNoteProcessor",
+      "searchAliases": [ "keyword" ]
+    },
+    "title": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataInstanceTitleProcessor",
+      "searchAliases": [ "keyword" ]
+    },
+    "sort_title": {
+      "searchTypes": "sort",
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "linkedDataInstanceSortTitleProcessor"
+    }
+  },
+  "indexMappings": { }
+}

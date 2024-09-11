@@ -49,19 +49,11 @@ public class ReindexMergeRangeIndexService {
     var rangeSize = reindexConfig.getMergeRangeSize();
     for (var recordType : InventoryRecordType.values()) {
       var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
-      if (recordsCount == 0) {
-        log.info("createMergeRanges:: constructed empty range [tenantId: {}, entityType: {}]",
-          tenantId, recordType);
-        var range = RangeGenerator.emptyRange();
-        var mergeRangeEntity = mergeEntity(recordType, tenantId, range.lowerBound(), range.upperBound());
-        mergeRangeEntities.add(mergeRangeEntity);
-      } else {
-        var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
-        if (CollectionUtils.isNotEmpty(ranges)) {
-          log.info("createMergeRanges:: constructed [tenantId: {}, entityType: {}, count: {}]",
-            tenantId, recordType, ranges.size());
-          mergeRangeEntities.addAll(ranges);
-        }
+      var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
+      if (CollectionUtils.isNotEmpty(ranges)) {
+        log.info("createMergeRanges:: constructed [tenantId: {}, entityType: {}, count: {}]",
+          tenantId, recordType, ranges.size());
+        mergeRangeEntities.addAll(ranges);
       }
     }
     return mergeRangeEntities;
@@ -91,7 +83,13 @@ public class ReindexMergeRangeIndexService {
                                                             String tenantId) {
     log.info("constructMergeRangeRecords:: [tenantId: {}, recordType: {}, recordsCount: {}, rangeSize: {}]",
       tenantId, recordType, recordsCount, rangeSize);
-
+    if (recordsCount == 0) {
+      log.info("constructMergeRangeRecords:: constructed empty range [tenantId: {}, entityType: {}]",
+        tenantId, recordType);
+      var range = RangeGenerator.emptyRange();
+      var mergeRangeEntity = mergeEntity(recordType, tenantId, range.lowerBound(), range.upperBound());
+      return List.of(mergeRangeEntity);
+    }
     var rangesCount = (int) Math.ceil((double) recordsCount / rangeSize);
     return RangeGenerator.createRanges(rangesCount).stream()
       .map(range -> mergeEntity(recordType, tenantId, range.lowerBound(), range.upperBound()))

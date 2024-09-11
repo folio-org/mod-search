@@ -3,6 +3,8 @@ package org.folio.search.service.converter.preprocessor.extractor.impl;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -17,7 +19,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.entity.InstanceContributorEntityAgg;
@@ -41,19 +42,19 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public List<ResourceEvent> prepareEvents(ResourceEvent event) {
-    var oldSubjects = getSubjects(getOldAsMap(event));
-    var newSubjects = getSubjects(getNewAsMap(event));
+    var oldEntities = getEntities(getOldAsMap(event));
+    var newEntities = getEntities(getNewAsMap(event));
 
-    if (oldSubjects.equals(newSubjects)) {
+    if (oldEntities.equals(newEntities)) {
       return emptyList();
     }
 
     var tenant = event.getTenant();
-    var subjectsForCreate = subtract(newSubjects, oldSubjects);
-    var subjectsForDelete = subtract(oldSubjects, newSubjects);
+    var entitiesForCreate = subtract(newEntities, oldEntities);
+    var entitiesForDelete = subtract(oldEntities, newEntities);
 
-    var idsForCreate = toIds(subjectsForCreate);
-    var idsForDelete = toIds(subjectsForDelete);
+    var idsForCreate = toIds(entitiesForCreate);
+    var idsForDelete = toIds(entitiesForDelete);
 
     List<String> idsForFetch = new ArrayList<>();
     idsForFetch.addAll(idsForCreate);
@@ -70,20 +71,20 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public List<ResourceEvent> prepareEventsOnSharing(ResourceEvent event) {
-    var subjects = getSubjects(getOldAsMap(event));
+    var entities = getEntities(getOldAsMap(event));
 
-    if (!subjects.equals(getSubjects(getNewAsMap(event)))) {
-      log.warn("Classifications are different on Update for instance sharing");
+    if (!entities.equals(getEntities(getNewAsMap(event)))) {
+      log.warn("Contributors are different on Update for instance sharing");
       return emptyList();
     }
 
     var tenant = event.getTenant();
 
-    var entitiesForDelete = toIds(subjects);
-    var entityAggList = contributorRepository.fetchByIds(entitiesForDelete);
+    var ids = toIds(entities);
+    var entityAggList = contributorRepository.fetchByIds(ids);
 
     return entityAggList.stream()
-      .map(entities -> toResourceEvent(entities, tenant))
+      .map(e -> toResourceEvent(e, tenant))
       .toList();
   }
 
@@ -93,9 +94,9 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
     var notFoundEntitiesForDelete = new ArrayList<>(idsForDelete);
     var iterator = notFoundEntitiesForDelete.iterator();
     while (iterator.hasNext()) {
-      var classification = iterator.next();
+      var entityId = iterator.next();
       for (InstanceContributorEntityAgg agg : entityAggList) {
-        if (agg.id().equals(classification)) {
+        if (agg.id().equals(entityId)) {
           iterator.remove();
         }
       }
@@ -126,22 +127,22 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
       ._new(jsonConverter.convertToMap(resource));
   }
 
-  private String getSubjectId(String number, String typeId, String authorityId) {
-    return ShaUtils.sha(StringUtils.truncate(number.replace("\\", "\\\\"), 255),
+  private String getEntityId(String name, String typeId, String authorityId) {
+    return ShaUtils.sha(truncate(name.replace("\\", "\\\\"), 255),
       typeId, authorityId);
   }
 
   @NotNull
   private List<String> toIds(Set<Map<String, Object>> subtract) {
     return subtract.stream()
-      .map(map -> getSubjectId(MapUtils.getString(map, "name"),
+      .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, "name"), ""),
         MapUtils.getString(map, "contributorNameTypeId"),
         MapUtils.getString(map, "authorityId")))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 
   @SuppressWarnings("unchecked")
-  private Set<Map<String, Object>> getSubjects(Map<String, Object> event) {
+  private Set<Map<String, Object>> getEntities(Map<String, Object> event) {
     var object = getObject(event, CONTRIBUTORS_FIELD, emptyList());
     if (object == null) {
       return emptySet();

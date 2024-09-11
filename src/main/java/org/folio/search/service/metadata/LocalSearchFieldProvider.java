@@ -113,8 +113,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public boolean isMultilangField(ResourceType resourceName, String path) {
-    return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
+  public boolean isMultilangField(ResourceType resourceType, String path) {
+    return this.getPlainFieldByPath(resourceType, path).filter(PlainFieldDescription::isMultilang).isPresent();
   }
 
   @Override

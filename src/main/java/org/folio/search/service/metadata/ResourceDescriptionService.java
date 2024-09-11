@@ -58,7 +58,7 @@ public class ResourceDescriptionService {
   /**
    * Provides {@link ResourceDescription} object for given resource name.
    *
-   * @param resourceType name of resource as {@link String}
+   * @param resourceType resource type as {@link ResourceType} value.
    * @return {@link ResourceDescription} object
    * @throws ResourceDescriptionException if resource description is not found for the given name.
    */
@@ -76,7 +76,7 @@ public class ResourceDescriptionService {
   /**
    * Provides {@link ResourceDescription} object as {@link Optional} for given resource name.
    *
-   * @param resourceType name of resource as {@link ResourceType}
+   * @param resourceType type of resource as {@link ResourceType}
    */
   public Optional<ResourceDescription> find(ResourceType resourceType) {
     return Optional.ofNullable(resourceDescriptions.get(resourceType));
@@ -94,17 +94,17 @@ public class ResourceDescriptionService {
   /**
    * Returns all supported resource types.
    *
-   * @return {@link Collection} with all resource names as {@link String} values.
+   * @return {@link Collection} with all resource names as {@link ResourceType} values.
    */
   public Collection<ResourceType> getResourceTypes() {
     return resourceDescriptions.keySet();
   }
 
   /**
-   * Returns name of secondary resources that linked to the given resource name.
+   * Returns types of secondary resources that linked to the given resource type.
    *
-   * @param resource - resource name to check as {@link String}.
-   * @return {@link Collection} with secondary resource names.
+   * @param resource - resource type to check as {@link ResourceType}.
+   * @return {@link Collection} with secondary resource types.
    */
   public Collection<ResourceType> getSecondaryResourceTypes(ResourceType resource) {
     log.debug("getSecondaryResourceNames:: by [resource: {}]", resource);

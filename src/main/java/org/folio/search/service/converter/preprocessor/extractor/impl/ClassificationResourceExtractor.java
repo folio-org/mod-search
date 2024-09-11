@@ -3,6 +3,8 @@ package org.folio.search.service.converter.preprocessor.extractor.impl;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -99,7 +100,6 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
       .toList();
   }
 
-
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
                                                            List<InstanceClassificationEntityAgg> entityAggList,
                                                            String tenant) {
@@ -139,13 +139,13 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
   }
 
   private String getClassificationId(String number, String typeId) {
-    return ShaUtils.sha(StringUtils.truncate(number.replace("\\", "\\\\"), 50), typeId);
+    return ShaUtils.sha(truncate(number.replace("\\", "\\\\"), 50), typeId);
   }
 
   @NotNull
   private List<String> toIds(Set<Map<String, Object>> subtract) {
     return subtract.stream()
-      .map(map -> getClassificationId(MapUtils.getString(map, CLASSIFICATION_NUMBER_FIELD),
+      .map(map -> getClassificationId(defaultIfBlank(MapUtils.getString(map, CLASSIFICATION_NUMBER_FIELD), ""),
         MapUtils.getString(map, CLASSIFICATION_TYPE_FIELD)))
       .collect(Collectors.toCollection(ArrayList::new));
   }

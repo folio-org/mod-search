@@ -24,7 +24,7 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields for given search type.
    *
-   * @param resource   resource type as {@link String}
+   * @param resource   resource type as {@link ResourceType}
    * @param searchType search type as {@link String}
    * @return list of fields.
    */
@@ -33,7 +33,7 @@ public interface SearchFieldProvider {
   /**
    * Provides plain field description for given path.
    *
-   * @param resource resource type as {@link String}
+   * @param resource resource type as {@link ResourceType}
    * @param path     path to field as {@link String}
    * @return {@link Optional} of resource field description by path, it would be empty if plain field by path not found
    */
@@ -42,7 +42,7 @@ public interface SearchFieldProvider {
   /**
    * Provides list of fields of source fields for resource and response group type.
    *
-   * @param resource  resource type as {@link String}
+   * @param resource  resource type as {@link ResourceType}
    * @param groupType - response group type as {@link ResponseGroupType} object
    * @return array of fields.
    */
@@ -58,16 +58,16 @@ public interface SearchFieldProvider {
   /**
    * Checks if field by path is multi-language or not.
    *
-   * @param resourceName resource name as {@link String} object
+   * @param resourceType resource type as {@link ResourceType} object
    * @param path         path to the field as {@link String} object
    * @return true if field by path is multi-language, false - otherwise
    */
-  boolean isMultilangField(ResourceType resourceName, String path);
+  boolean isMultilangField(ResourceType resourceType, String path);
 
   /**
    * Checks if field by path is full-text or not.
    *
-   * @param resourceName resource name as {@link String} object
+   * @param resourceName resource type as {@link ResourceType} object
    * @param path         path to the field as {@link String} object
    * @return true if field by path is full-text, false - otherwise
    */
@@ -77,7 +77,7 @@ public interface SearchFieldProvider {
    * Apply resource field modifiers for field.
    *
    * @param field    that should be modified {@link String} object
-   * @param resource resource name as {@link String} object
+   * @param resource resource type as {@link ResourceType} object
    * @return modified field
    */
   String getModifiedField(String field, ResourceType resource);

@@ -3,6 +3,8 @@ package org.folio.search.service.converter.preprocessor.extractor.impl;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
@@ -17,7 +19,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.entity.InstanceSubjectEntityAgg;
@@ -73,20 +74,19 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
     var subjects = getSubjects(getOldAsMap(event));
 
     if (!subjects.equals(getSubjects(getNewAsMap(event)))) {
-      log.warn("Classifications are different on Update for instance sharing");
+      log.warn("Subjects are different on Update for instance sharing");
       return emptyList();
     }
 
     var tenant = event.getTenant();
 
-    var entitiesForDelete = toIds(subjects);
-    var entityAggList = subjectRepository.fetchByIds(entitiesForDelete);
+    var ids = toIds(subjects);
+    var entityAggList = subjectRepository.fetchByIds(ids);
 
     return entityAggList.stream()
       .map(entities -> toResourceEvent(entities, tenant))
       .toList();
   }
-
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
                                                            List<InstanceSubjectEntityAgg> entityAggList,
@@ -94,9 +94,9 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
     var notFoundEntitiesForDelete = new ArrayList<>(idsForDelete);
     var iterator = notFoundEntitiesForDelete.iterator();
     while (iterator.hasNext()) {
-      var classification = iterator.next();
+      var entityId = iterator.next();
       for (InstanceSubjectEntityAgg agg : entityAggList) {
-        if (agg.id().equals(classification)) {
+        if (agg.id().equals(entityId)) {
           iterator.remove();
         }
       }
@@ -126,14 +126,14 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
       ._new(jsonConverter.convertToMap(resource));
   }
 
-  private String getSubjectId(String number, String typeId) {
-    return ShaUtils.sha(StringUtils.truncate(number.replace("\\", "\\\\"), 255), typeId);
+  private String getEntityId(String number, String typeId) {
+    return ShaUtils.sha(truncate(number.replace("\\", "\\\\"), 255), typeId);
   }
 
   @NotNull
   private List<String> toIds(Set<Map<String, Object>> subtract) {
     return subtract.stream()
-      .map(map -> getSubjectId(MapUtils.getString(map, "value"),
+      .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, "value"), ""),
         MapUtils.getString(map, "authorityId")))
       .collect(Collectors.toCollection(ArrayList::new));
   }

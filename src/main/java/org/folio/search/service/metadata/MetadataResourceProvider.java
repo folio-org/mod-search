@@ -22,7 +22,7 @@ public interface MetadataResourceProvider {
   /**
    * Finds resource description by given resource name.
    *
-   * @param resourceType resource name as {@link String} value.
+   * @param resourceType resource type as {@link ResourceType} value.
    * @return {@link Optional} of {@link ResourceDescription} if it has been found, it would be empty otherwise.
    */
   default Optional<ResourceDescription> getResourceDescription(ResourceType resourceType) {

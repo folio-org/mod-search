@@ -10,7 +10,7 @@ import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
-import static org.folio.search.utils.SearchUtils.LINKED_DATA_INSTANCE_RESOURCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
@@ -227,11 +227,11 @@ class KafkaMessageListenerTest {
     var payload = toMap(new LinkedDataInstance().id(RESOURCE_ID));
 
     var consumerRecord = new ConsumerRecord<>(linkedDataInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_INSTANCE_RESOURCE, CREATE, payload, null));
+      resourceEvent(null, LINKED_DATA_INSTANCE, CREATE, payload, null));
     messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
     var expectedEvents = singletonList(
-      resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE_RESOURCE, CREATE, payload, null)
+      resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE, CREATE, payload, null)
     );
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
@@ -240,7 +240,7 @@ class KafkaMessageListenerTest {
   @Test
   void handleLinkedDataInstanceEvent_negative_logFailedEvent() {
     var payload = toMap(new LinkedDataInstance().id(RESOURCE_ID));
-    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE_RESOURCE, UPDATE, payload, null));
+    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE, UPDATE, payload, null));
 
     doAnswer(inv -> {
       inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
@@ -248,7 +248,7 @@ class KafkaMessageListenerTest {
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
     var consumerRecord = new ConsumerRecord<>(linkedDataInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_INSTANCE_RESOURCE, UPDATE, payload, null));
+      resourceEvent(null, LINKED_DATA_INSTANCE, UPDATE, payload, null));
     messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());

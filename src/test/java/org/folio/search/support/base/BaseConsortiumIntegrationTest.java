@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Instance;
@@ -66,12 +67,13 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, null);
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, expandAll);
+  protected static ResultActions doSearchByInstances(String query, Boolean expandAll) {
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID,
+      Map.of("query", query, "expandAll", expandAll.toString()));
   }
 
   @AfterAll

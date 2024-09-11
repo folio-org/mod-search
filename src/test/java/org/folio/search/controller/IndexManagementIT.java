@@ -5,11 +5,10 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.AUTHORITY;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.model.types.ResourceType.LIBRARY;
-import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -31,6 +30,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.ApiEndpoints;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -92,7 +92,8 @@ class IndexManagementIT extends BaseIntegrationTest {
 
   @Test
   void runReindex_positive_locations() throws Exception {
-    var request = getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.LOCATION)));
+    var request = getReindexRequestBuilder(
+      asJsonString(new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.LOCATION)));
 
     assertThat(countDefaultIndexDocument(LOCATION)).isZero();
     assertThat(countDefaultIndexDocument(CAMPUS)).isZero();
@@ -119,12 +120,13 @@ class IndexManagementIT extends BaseIntegrationTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = ResourceNameEnum.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
-  void runReindex_shouldRecreate_linkedDataResourcesIndexes(ResourceNameEnum resourceNameEnum) throws Exception {
-    var resourceName = resourceNameEnum.getValue();
-    var request =
-      getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(resourceNameEnum).recreateIndex(true)));
-    var indexIdBeforeReindex = getIndexId(resourceName);
+  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
+  void runReindex_shouldRecreate_linkedDataResourcesIndexes(ResourceType resourceType) throws Exception {
+    var reindexRequest = new ReindexRequest()
+      .resourceName(ResourceNameEnum.valueOf(resourceType.name()))
+      .recreateIndex(true);
+    var request = getReindexRequestBuilder(asJsonString(reindexRequest));
+    var indexIdBeforeReindex = getIndexId(resourceType);
 
     mockMvc.perform(request)
       .andExpect(status().isOk());
@@ -132,22 +134,22 @@ class IndexManagementIT extends BaseIntegrationTest {
     await().atMost(FIVE_SECONDS)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
       .untilAsserted(() -> {
-        assertNotEquals(indexIdBeforeReindex, getIndexId(resourceName));
-        assertThat(countDefaultIndexDocument(resourceName)).isEqualTo(0);
+        assertNotEquals(indexIdBeforeReindex, getIndexId(resourceType));
+        assertThat(countDefaultIndexDocument(resourceType)).isEqualTo(0);
       });
   }
 
   @ParameterizedTest
   @MethodSource("requestBuilderDataProvider")
   void runReindex_shouldNotRecreate_linkedDataResourcesIndexes(RequestBuilder requestBuilder) throws Exception {
-    var indexIdBeforeReindex = getIndexId(LINKED_DATA_WORK_RESOURCE);
+    var indexIdBeforeReindex = getIndexId(LINKED_DATA_WORK);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk());
 
     await().atMost(FIVE_SECONDS)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
-      .untilAsserted(() -> assertEquals(indexIdBeforeReindex, getIndexId(LINKED_DATA_WORK_RESOURCE)));
+      .untilAsserted(() -> assertEquals(indexIdBeforeReindex, getIndexId(LINKED_DATA_WORK)));
   }
 
   @Test
@@ -211,7 +213,6 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknown")));
   }
 
-
   private static String reindexRequestJson(String resource) {
     return REINDEX_REQUEST.formatted(resource);
   }
@@ -223,11 +224,12 @@ class IndexManagementIT extends BaseIntegrationTest {
   private static Stream<Arguments> requestBuilderDataProvider() {
     return Stream.of(
       arguments(
-        getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(LINKED_DATA_WORK)))
+        getReindexRequestBuilder(asJsonString(new ReindexRequest().resourceName(ResourceNameEnum.LINKED_DATA_WORK)))
       ),
       arguments(
         post(ApiEndpoints.reindexPath())
-          .content(asJsonString(new ReindexRequest().resourceName(LINKED_DATA_WORK).recreateIndex(true)))
+          .content(asJsonString(new ReindexRequest()
+            .resourceName(ResourceNameEnum.LINKED_DATA_WORK).recreateIndex(true)))
           .headers(defaultHeaders(MEMBER_TENANT_ID))
           .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
           .contentType(MediaType.APPLICATION_JSON)

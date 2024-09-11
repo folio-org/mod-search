@@ -18,7 +18,6 @@ import static org.folio.search.utils.TestUtils.toMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ public class InventoryApi {
   private static final Map<String, Map<String, Map<String, Object>>> HOLDING_STORE = new LinkedHashMap<>();
   private static final Map<String, Map<String, Map<String, Object>>> ITEM_STORE = new LinkedHashMap<>();
   private static final String ID_FIELD = "id";
-  private static final String INSTANCE_ID_FIELD = "instanceId";
 
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
@@ -77,7 +75,7 @@ public class InventoryApi {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
     kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
-      resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE))
+        resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE))
       .whenComplete(onCompleteConsumer());
   }
 
@@ -111,22 +109,6 @@ public class InventoryApi {
       .whenComplete(onCompleteConsumer());
   }
 
-  public static Optional<Map<String, Object>> getInventoryView(String tenant, String id) {
-    var instance = INSTANCE_STORE.getOrDefault(tenant, emptyMap()).get(id);
-
-    var hrs = HOLDING_STORE.getOrDefault(tenant, emptyMap()).values().stream()
-      .filter(hr -> getString(hr, INSTANCE_ID_FIELD).equals(id))
-      .toList();
-
-    var items = ITEM_STORE.getOrDefault(tenant, emptyMap()).values().stream()
-      .filter(item -> getString(item, INSTANCE_ID_FIELD).equals(id))
-      .toList();
-
-    return Optional.ofNullable(instance)
-      .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))
-      .map(inst -> putField(inst, INSTANCE_ITEM_FIELD_NAME, items));
-  }
-
   private BiConsumer<SendResult<String, ResourceEvent>, Throwable> onCompleteConsumer() {
     return (sendResult, throwable) -> {
       if (throwable != null) {
@@ -144,11 +126,6 @@ public class InventoryApi {
     if (CollectionUtils.isNotEmpty(resourcesByKey)) {
       resourcesByKey.forEach(consumer);
     }
-  }
-
-  private static Map<String, Object> putField(Map<String, Object> instance, String key, Object subResources) {
-    instance.put(key, subResources);
-    return instance;
   }
 
 }

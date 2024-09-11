@@ -8,16 +8,11 @@ import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataWorkSearchPath;
-import static org.folio.search.utils.SearchUtils.LINKED_DATA_AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.LINKED_DATA_INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
@@ -63,19 +58,17 @@ import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.api.InventoryApi;
-import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.search.support.extension.EnableElasticSearch;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.extension.EnableKafka;
+import org.folio.spring.testing.extension.EnableOkapi;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
-import org.folio.spring.testing.extension.impl.OkapiExtension;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
@@ -95,6 +88,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Log4j2
+@EnableOkapi
 @EnableKafka
 @EnablePostgres
 @SpringBootTest
@@ -109,10 +103,6 @@ public abstract class BaseIntegrationTest {
   protected static OkapiConfiguration okapi;
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
-
-  @RegisterExtension
-  static OkapiExtension okapiExtension =
-    new OkapiExtension(new InventoryViewResponseBuilder());
 
   @SneakyThrows
   protected static ResultActions attemptPost(String uri, Object body) {
@@ -226,7 +216,7 @@ public abstract class BaseIntegrationTest {
     return searchResponse.getHits().getTotalHits().value;
   }
 
-  protected static String getIndexId(String resource) throws IOException {
+  protected static String getIndexId(ResourceType resource) throws IOException {
     var getIndexResponse = elasticClient.indices().get(new GetIndexRequest(getIndexName(resource, TENANT_ID)), DEFAULT);
     return getIndexResponse.getSetting(getIndexResponse.getIndices()[0], "index.uuid");
   }
@@ -348,23 +338,23 @@ public abstract class BaseIntegrationTest {
     }
 
     if (type.equals(LinkedDataInstance.class)) {
-      setUpTenant(tenant, linkedDataInstanceSearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, linkedDataInstanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
-          resourceEvent(null, LINKED_DATA_INSTANCE_RESOURCE, ldInstance))
+          resourceEvent(ResourceType.LINKED_DATA_INSTANCE, ldInstance))
       );
     }
 
     if (type.equals(LinkedDataWork.class)) {
       setUpTenant(tenant, linkedDataWorkSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant),
-          resourceEvent(null, LINKED_DATA_WORK_RESOURCE, ldWork))
+          resourceEvent(ResourceType.LINKED_DATA_WORK, ldWork))
       );
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
       setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
-          resourceEvent(null, LINKED_DATA_AUTHORITY_RESOURCE, ldAuthority))
+          resourceEvent(ResourceType.LINKED_DATA_AUTHORITY, ldAuthority))
       );
     }
   }
@@ -447,7 +437,7 @@ public abstract class BaseIntegrationTest {
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
                                                            List<ResultMatcher> matchers) {
     Awaitility.await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, tenantId, "cql.allRecords=1", size, null, true)
+      doSearch(path, tenantId, Map.of("query", "cql.allRecords=1", "expandAll", "true"))
         .andExpect(jsonPath("$.totalRecords", is(size)))
         .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }

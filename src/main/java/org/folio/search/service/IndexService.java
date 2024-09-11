@@ -1,6 +1,9 @@
 package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -288,8 +291,8 @@ public class IndexService {
   }
 
   private boolean isLinkedDataResource(String resource) {
-    return LINKED_DATA_INSTANCE_RESOURCE.equals(resource)
-      || LINKED_DATA_WORK_RESOURCE.equals(resource)
-      || LINKED_DATA_AUTHORITY_RESOURCE.equals(resource);
+    return LINKED_DATA_INSTANCE.getName().equals(resource)
+      || LINKED_DATA_WORK.getName().equals(resource)
+      || LINKED_DATA_AUTHORITY.getName().equals(resource);
   }
 }

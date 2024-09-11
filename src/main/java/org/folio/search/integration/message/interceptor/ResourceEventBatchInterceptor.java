@@ -31,6 +31,7 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
     Map.entry("inventory.campus", ResourceType.CAMPUS),
     Map.entry("inventory.institution", ResourceType.INSTITUTION),
     Map.entry("inventory.library", ResourceType.LIBRARY),
+    Map.entry("linked-data.instance", ResourceType.LINKED_DATA_INSTANCE),
     Map.entry("linked-data.work", ResourceType.LINKED_DATA_WORK),
     Map.entry("linked-data.authority", ResourceType.LINKED_DATA_AUTHORITY)
   );

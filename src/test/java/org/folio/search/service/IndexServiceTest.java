@@ -2,9 +2,9 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_AUTHORITY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
@@ -474,25 +474,25 @@ class IndexServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = ReindexRequest.ResourceNameEnum.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
-  void reindexInventory_shouldRecreate_linkedDataResourcesIndexes(ReindexRequest.ResourceNameEnum resourceNameEnum) {
-    var resourceName = resourceNameEnum.getValue();
-    var linkedDataResourceIndex = getIndexName(resourceName, TENANT_ID);
-    when(resourceDescriptionService.find(resourceName)).thenReturn(
-      Optional.of(resourceDescription(resourceName)));
-    when(resourceDescriptionService.getSecondaryResourceNames(resourceName))
+  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
+  void reindexInventory_shouldRecreate_linkedDataResourcesIndexes(ResourceType resourceType) {
+    var linkedDataResourceIndex = getIndexName(resourceType, TENANT_ID);
+    when(resourceDescriptionService.find(resourceType)).thenReturn(
+      Optional.of(resourceDescription(resourceType)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(resourceType))
       .thenReturn(List.of());
     when(indexRepository.indexExists(linkedDataResourceIndex)).thenReturn(true);
-    when(mappingsHelper.getMappings(resourceName)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(resourceName)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(resourceType)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(resourceType)).thenReturn(EMPTY_JSON_OBJECT);
 
-    var reindexRequest = new ReindexRequest().resourceName(resourceNameEnum).recreateIndex(true);
+    var reindexRequest = new ReindexRequest()
+      .resourceName(ResourceNameEnum.fromValue(resourceType.getName()))
+      .recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
 
     assertNotNull(actual);
     verify(indexRepository).dropIndex(linkedDataResourceIndex);
     verify(indexRepository).createIndex(linkedDataResourceIndex, EMPTY_JSON_OBJECT.toString(), EMPTY_OBJECT);
-    verifyNoInteractions(consortiumInstanceService);
     verifyNoInteractions(locationService);
     verifyNoInteractions(resourceReindexClient);
   }
@@ -500,17 +500,16 @@ class IndexServiceTest {
   @ParameterizedTest
   @MethodSource("tenantIdAndReindexRequestDataProvider")
   void reindexInventory_shouldNotRecreate_linkedDataResourcesIndexes(String tenantId, ReindexRequest reindexRequest) {
-    var resourceName = reindexRequest.getResourceName().getValue();
-    when(resourceDescriptionService.find(resourceName)).thenReturn(
-      Optional.of(resourceDescription(resourceName)));
-    when(resourceDescriptionService.getSecondaryResourceNames(resourceName))
+    var resourceType = ResourceType.byName(reindexRequest.getResourceName().getValue());
+    when(resourceDescriptionService.find(resourceType)).thenReturn(
+      Optional.of(resourceDescription(resourceType)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(resourceType))
       .thenReturn(List.of());
 
     var actual = indexService.reindexInventory(tenantId, reindexRequest);
 
     assertNotNull(actual);
     verifyNoInteractions(indexRepository);
-    verifyNoInteractions(consortiumInstanceService);
     verifyNoInteractions(locationService);
     verifyNoInteractions(resourceReindexClient);
   }

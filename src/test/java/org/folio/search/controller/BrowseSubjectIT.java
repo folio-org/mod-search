@@ -6,6 +6,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.parseResponse;
@@ -22,7 +23,6 @@ import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.model.Pair;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,7 +43,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   static void prepare() {
     setUpTenant(INSTANCES);
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var counted = countIndexDocument(SearchUtils.INSTANCE_SUBJECT_RESOURCE, TENANT_ID);
+      var counted = countIndexDocument(INSTANCE_SUBJECT, TENANT_ID);
       assertThat(counted).isEqualTo(23);
     });
   }
@@ -51,6 +51,55 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   @AfterAll
   static void cleanUp() {
     removeTenant();
+  }
+
+  @MethodSource("subjectBrowsingDataProvider")
+  @DisplayName("browseBySubject_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
+  void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery(query, '"' + anchor + '"'))
+      .param("limit", String.valueOf(limit));
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+
+    assertThat(actual).usingRecursiveComparison().ignoringFields("items.authorityId")
+      .isEqualTo(expected);
+  }
+
+  @Test
+  void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"water\""))
+      .param("limit", "7")
+      .param("precedingRecordsCount", "2");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(23).prev("Textbooks")
+      .items(List.of(
+        subjectBrowseItem(1, "Textbooks"),
+        subjectBrowseItem(1, "United States"),
+        subjectBrowseItem(1, "Water", true),
+        subjectBrowseItem(1, "Water--Analysis"),
+        subjectBrowseItem(1, "Water--Microbiology"),
+        subjectBrowseItem(1, "Water--Purification"),
+        subjectBrowseItem(1, "Water-supply"))));
+  }
+
+  @Test
+  void browseBySubject_browsingAroundWithoutHighlightMatch() {
+    var request = get(instanceSubjectBrowsePath())
+      .param("query", prepareQuery("value < {value} or value >= {value}", "\"fantasy\""))
+      .param("limit", "4")
+      .param("highlightMatch", "false");
+    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+
+    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+      .totalRecords(23).prev("Database management").next("History")
+      .items(List.of(
+        subjectBrowseItem(1, "Database management"),
+        subjectBrowseItem(1, "Europe"),
+        subjectBrowseItem(1, "Fantasy"),
+        subjectBrowseItem(3, "History"))));
   }
 
   private static Stream<Arguments> subjectBrowsingDataProvider() {
@@ -293,54 +342,5 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       List.of("instance #09", List.of("Water--Analysis", "Water--Purification", "Water--Microbiology")),
       List.of("instance #10", List.of("Database design", "Database management", "Textbooks"))
     );
-  }
-
-  @MethodSource("subjectBrowsingDataProvider")
-  @DisplayName("browseBySubject_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
-  void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-
-    assertThat(actual).usingRecursiveComparison().ignoringFields("items.authorityId")
-      .isEqualTo(expected);
-  }
-
-  @Test
-  void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("value < {value} or value >= {value}", "\"water\""))
-      .param("limit", "7")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(23).prev("Textbooks")
-      .items(List.of(
-        subjectBrowseItem(1, "Textbooks"),
-        subjectBrowseItem(1, "United States"),
-        subjectBrowseItem(1, "Water", true),
-        subjectBrowseItem(1, "Water--Analysis"),
-        subjectBrowseItem(1, "Water--Microbiology"),
-        subjectBrowseItem(1, "Water--Purification"),
-        subjectBrowseItem(1, "Water-supply"))));
-  }
-
-  @Test
-  void browseBySubject_browsingAroundWithoutHighlightMatch() {
-    var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("value < {value} or value >= {value}", "\"fantasy\""))
-      .param("limit", "4")
-      .param("highlightMatch", "false");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(23).prev("Database management").next("History")
-      .items(List.of(
-        subjectBrowseItem(1, "Database management"),
-        subjectBrowseItem(1, "Europe"),
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "History"))));
   }
 }

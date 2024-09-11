@@ -7,8 +7,8 @@ import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,11 +29,12 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +90,7 @@ class CallNumberBrowseServiceTest {
   @BeforeEach
   void setUp() {
     callNumberBrowseService.setBrowseContextProvider(browseContextProvider);
-    lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    lenient().when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList(ANCHOR));
   }
@@ -103,6 +104,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(7, browseItems("C1", "C2", "C3", "C4", "C5", "C6", "C7")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(11, "A3", "C2", List.of(
       cnBrowseItem(instance("A3"), "A3"),
@@ -122,6 +124,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("B", "C 11")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -142,6 +145,7 @@ class CallNumberBrowseServiceTest {
     when(searchConfig.getMaxBrowseRequestOffset()).thenReturn(500L);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A"), "A"),
@@ -156,6 +160,7 @@ class CallNumberBrowseServiceTest {
       contextAroundIncluding(), BrowseResult.of(1, browseItems("A 11", "A 12")), BrowseResult.empty());
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -173,6 +178,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(1, browseItems("C 11")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A 11"), "A 11"),
@@ -185,7 +191,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_around_highlightMatchWithSuffix(String callNumber) {
     var request = request(String.format("callNumber >= %s or callNumber < %s", callNumber, callNumber), true);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, callNumber));
     lenient().when(shelvingOrderProcessor.getSearchTerms(callNumber)).thenReturn(newArrayList(callNumber));
 
@@ -222,6 +228,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("C1", "C2")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, "C1", null, List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
@@ -243,6 +250,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(1, browseItems("B")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(1, "B", null, List.of(
       cnBrowseItem(instance("B"), "B"))));
@@ -264,7 +272,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_multipleAnchors() {
     var request = request("callNumber >= B or callNumber < B", true);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("A", "B"));
     when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn("A");
@@ -298,6 +306,7 @@ class CallNumberBrowseServiceTest {
       .thenReturn(succeedingResult);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, List.of(
       cnBrowseItem(instance("A1"), "A1"),
@@ -320,6 +329,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(5, browseItems("C1", "C2", "C3", "C4", "C5")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(5, "C1", "C2", List.of(
       cnBrowseItem(instance("C1"), "C1"), cnBrowseItem(instance("C2"), "C2"))));
@@ -356,6 +366,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(2, browseItems("A1", "A2")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(2, null, "A2", List.of(
       cnBrowseItem(instance("A1"), "A1"), cnBrowseItem(instance("A2"), "A2"))));
@@ -396,6 +407,7 @@ class CallNumberBrowseServiceTest {
       BrowseResult.of(5, browseItems("A1", "A2", "A3", "A4", "A5")));
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(5, "A4", "A5", List.of(
       cnBrowseItem(instance("A4"), "A4"), cnBrowseItem(instance("A5"), "A5"))));
@@ -446,7 +458,7 @@ class CallNumberBrowseServiceTest {
   void browse_positive_emptySucceedingResults() {
     var request = request("callNumber >= B or callNumber < B", true, 2, 5);
 
-    when(cqlSearchQueryConverter.convertToTermNode(anyString(), anyString()))
+    when(cqlSearchQueryConverter.convertToTermNode(anyString(), any()))
       .thenReturn(new CQLTermNode(null, null, "B"));
     when(shelvingOrderProcessor.getSearchTerm(any(), any())).thenReturn(ANCHOR);
     lenient().when(shelvingOrderProcessor.getSearchTerms(ANCHOR)).thenReturn(newArrayList("B"));
@@ -471,6 +483,7 @@ class CallNumberBrowseServiceTest {
       .thenReturn(succeedingResult);
 
     var actual = callNumberBrowseService.browse(request);
+    cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(3, List.of(
       cnBrowseItem(instance("A"), "A"),
@@ -558,7 +571,7 @@ class CallNumberBrowseServiceTest {
 
   private static BrowseRequest request(String query, String browsingField, boolean highlightMatch,
                                        String callNumberType, int precedingCount, int limit) {
-    return BrowseRequest.builder().tenantId(TENANT_ID).resource(RESOURCE_NAME)
+    return BrowseRequest.builder().tenantId(TENANT_ID).resource(ResourceType.INSTANCE)
       .query(query)
       .highlightMatch(highlightMatch)
       .expandAll(false)

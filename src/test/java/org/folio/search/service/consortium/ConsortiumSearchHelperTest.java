@@ -2,9 +2,9 @@ package org.folio.search.service.consortium;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,9 +58,9 @@ class ConsortiumSearchHelperTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    consortiumSearchHelper.filterQueryForActiveAffiliation(query, "resource");
+    consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE);
 
-    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, "resource");
+    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, INSTANCE);
   }
 
   @Test
@@ -69,7 +69,7 @@ class ConsortiumSearchHelperTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
-    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, "resource");
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE);
 
     assertThat(actual).isEqualTo(query);
     verify(consortiumSearchHelper, times(0)).filterQueryForActiveAffiliation(any(), any(), any(), any());
@@ -89,7 +89,7 @@ class ConsortiumSearchHelperTest {
 
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE_RESOURCE, TENANT_ID);
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE, TENANT_ID);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -107,7 +107,7 @@ class ConsortiumSearchHelperTest {
 
     when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE_RESOURCE, CENTRAL_TENANT_ID);
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE, CENTRAL_TENANT_ID);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -122,7 +122,7 @@ class ConsortiumSearchHelperTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, "resource");
+    var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -136,10 +136,10 @@ class ConsortiumSearchHelperTest {
       .should(termQuery("shared", true));
 
     var actual =
-      consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, "resource");
+      consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
-    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, "resource");
+    verify(consortiumSearchHelper).filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID, INSTANCE);
   }
 
   @Test
@@ -151,7 +151,7 @@ class ConsortiumSearchHelperTest {
       .should(termQuery(SHARED_FIELD, true));
 
     var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID, CENTRAL_TENANT_ID,
-      CONTRIBUTOR_RESOURCE);
+      INSTANCE_CONTRIBUTOR);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -165,7 +165,7 @@ class ConsortiumSearchHelperTest {
       .should(termQuery(SHARED_FIELD, true));
 
     var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID,
-      CENTRAL_TENANT_ID, INSTANCE_SUBJECT_RESOURCE);
+      CENTRAL_TENANT_ID, INSTANCE_SUBJECT);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -181,7 +181,7 @@ class ConsortiumSearchHelperTest {
         .should(termQuery(SHARED_FIELD, true)));
 
     var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID,
-      CENTRAL_TENANT_ID, INSTANCE_SUBJECT_RESOURCE);
+      CENTRAL_TENANT_ID, INSTANCE_SUBJECT);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -196,7 +196,7 @@ class ConsortiumSearchHelperTest {
       .should(termQuery(SHARED_FIELD, true));
 
     var actual = consortiumSearchHelper.filterQueryForActiveAffiliation(query, TENANT_ID,
-      CENTRAL_TENANT_ID, CONTRIBUTOR_RESOURCE);
+      CENTRAL_TENANT_ID, INSTANCE_CONTRIBUTOR);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -210,7 +210,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
     var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query,
-      "resource");
+      INSTANCE);
 
     assertThat(actual).isEqualTo(query);
     assertThat(browseContext.getFilters()).isEmpty();
@@ -228,7 +228,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
 
     var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query,
-      "resource");
+      INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -243,7 +243,7 @@ class ConsortiumSearchHelperTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
-    var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, "resource");
+    var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query, INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -260,7 +260,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query,
-      "resource");
+      INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
     assertThat(browseContext.getFilters()).isNotEmpty();
@@ -281,7 +281,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var actual = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(browseContext, query,
-      "resource");
+      INSTANCE);
 
     assertThat(actual).isEqualTo(expected);
     assertThat(browseContext.getFilters()).isNotEmpty();
@@ -293,13 +293,12 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
     var browseContext = browseContext(false, null);
-    var resource = new SubjectResource();
-    resource.setInstances(subResources());
+    var resource = new SubjectResource("id", "value", "authority", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
-      SubjectResource::getInstances);
+      SubjectResource::instances);
 
-    assertThat(actual).isEqualTo(resource.getInstances());
+    assertThat(actual).isEqualTo(resource.instances());
   }
 
   @Test
@@ -308,11 +307,10 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(null, null);
-    var resource = new SubjectResource();
-    resource.setInstances(subResources());
+    var resource = new SubjectResource("id", "value", "authority", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
-      SubjectResource::getInstances);
+      SubjectResource::instances);
 
     assertThat(actual).hasSize(2);
   }
@@ -323,11 +321,10 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(null, "member");
-    var resource = new SubjectResource();
-    resource.setInstances(subResources());
+    var resource = new SubjectResource("id", "value", "authority", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
-      SubjectResource::getInstances);
+      SubjectResource::instances);
 
     assertThat(actual).isEmpty();
   }
@@ -338,12 +335,10 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(false, null);
-    var subResources = subResources();
-    var resource = new SubjectResource();
-    resource.setInstances(subResources);
+    var resource = new SubjectResource("id", "value", "authority", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
-      SubjectResource::getInstances);
+      SubjectResource::instances);
 
     assertThat(actual).hasSize(1)
       .allMatch(instanceSubResource -> instanceSubResource.getShared().equals(Boolean.FALSE))
@@ -357,12 +352,12 @@ class ConsortiumSearchHelperTest {
 
     var browseContext = browseContext(true, null);
     var subResources = subResources();
-    var resource = SubjectResource.builder().instances(subResources).build();
+    var resource = new SubjectResource("id", "value", "authority", subResources);
     var expected = newHashSet(subResources);
     expected.removeIf(s -> !s.getShared());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
-      SubjectResource::getInstances);
+      SubjectResource::instances);
 
     assertThat(actual).isEqualTo(expected);
   }

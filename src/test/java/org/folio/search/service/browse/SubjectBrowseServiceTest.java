@@ -1,6 +1,7 @@
 package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -51,7 +52,6 @@ import org.opensearch.search.sort.SortOrder;
 @ExtendWith(MockitoExtension.class)
 class SubjectBrowseServiceTest {
 
-  private static final String INSTANCE_SUBJECT = "instance_subject";
   private static final String TARGET_FIELD = "value";
 
   @InjectMocks
@@ -73,7 +73,7 @@ class SubjectBrowseServiceTest {
   public void setUpMocks() {
     doAnswer(invocation -> invocation.getArgument(1))
       .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any(), any());
-    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).getInstances())
+    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).instances())
       .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
     lenient().when(searchRepository.analyze(any(), any(), any(), any()))
       .thenAnswer(invocation -> invocation.getArgument(0));
@@ -372,14 +372,10 @@ class SubjectBrowseServiceTest {
   }
 
   private SubjectResource[] browseItems(String... subject) {
-    return Arrays.stream(subject).map(sub -> {
-      var subjectResource = new SubjectResource();
-      subjectResource.setValue(sub);
-      subjectResource.setInstances(sub.chars().mapToObj(String::valueOf)
-        .map(s -> InstanceSubResource.builder().instanceId(s).build())
-        .collect(Collectors.toSet()));
-      return subjectResource;
-    }).toArray(SubjectResource[]::new);
+    return Arrays.stream(subject).map(sub -> new SubjectResource("id", sub, null, sub.chars()
+      .mapToObj(String::valueOf)
+      .map(s -> InstanceSubResource.builder().instanceId(s).build())
+      .collect(Collectors.toSet()))).toArray(SubjectResource[]::new);
   }
 
   private SearchSourceBuilder searchSource(String subject, int size, SortOrder sortOrder) {

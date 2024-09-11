@@ -47,6 +47,6 @@ class ConsortiumSearchContextTest {
       .filter("name", "value")
       .sortBy("wrongField");
     Exception exception = assertThrows(RequestValidationException.class, searchContextBuilder::build);
-    assertEquals(SORT_NOT_ALLOWED_MSG.formatted(ResourceType.HOLDINGS.getValue()), exception.getMessage());
+    assertEquals(SORT_NOT_ALLOWED_MSG.formatted(ResourceType.HOLDINGS.getName()), exception.getMessage());
   }
 }

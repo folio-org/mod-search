@@ -3,8 +3,10 @@ package org.folio.search.service.reindex.jdbc;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 import java.util.UUID;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +14,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public abstract class ReindexJdbcRepository {
 
   protected static final int BATCH_OPERATION_SIZE = 100;
-  protected static final String TRUNCATE_TABLE_SQL = "TRUNCATE TABLE %s;";
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
   private static final String UPDATE_FINISHED_AT_RANGE_SQL = "UPDATE %s SET finished_at = ? WHERE id = ?;";
 
@@ -35,8 +36,8 @@ public abstract class ReindexJdbcRepository {
   }
 
   public void truncate() {
-    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, entityTable()));
-    jdbcTemplate.execute(sql);
+    subEntityTable().ifPresent(tableName -> JdbcUtils.truncateTable(tableName, jdbcTemplate, context));
+    JdbcUtils.truncateTable(entityTable(), jdbcTemplate, context);
   }
 
   public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
@@ -44,10 +45,13 @@ public abstract class ReindexJdbcRepository {
     jdbcTemplate.update(sql, timestamp, id);
   }
 
-
   public abstract ReindexEntityType entityType();
 
   protected abstract String entityTable();
+
+  protected Optional<String> subEntityTable() {
+    return Optional.empty();
+  }
 
   protected abstract String rangeTable();
 

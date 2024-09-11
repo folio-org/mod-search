@@ -92,7 +92,7 @@ class MergeRangeRepositoriesIT {
     // assert
     assertThat(rangesHolding)
       .hasSize(2)
-      .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.HOLDING, "holding range"))
+      .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.HOLDINGS, "holding range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6"), "consortium"),
         tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), "member_tenant"));
@@ -108,21 +108,6 @@ class MergeRangeRepositoriesIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.INSTANCE, "instance range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "consortium"));
-  }
-
-  @Test
-  @Sql("/sql/populate-merge-ranges.sql")
-  void truncateMergeRanges_truncatesAndThenReturnEmptyList_whenMergeRangesExist() {
-    // act
-    holdingRepository.truncateMergeRanges();
-
-    var rangesHolding = holdingRepository.getMergeRanges();
-    var rangesItem = itemRepository.getMergeRanges();
-    var rangesInstance = instanceRepository.getMergeRanges();
-
-    // assert
-    assertThat(List.of(rangesHolding, rangesItem, rangesInstance))
-      .are(new Condition<>(List::isEmpty, "empty ranges"));
   }
 
   @Test
@@ -158,8 +143,9 @@ class MergeRangeRepositoriesIT {
       Map.<String, Object>of("id", UUID.randomUUID(), "isBoundWith", false));
     var holdings = List.of(Map.<String, Object>of("id", holdingId1, "instanceId", mainInstanceId),
       Map.<String, Object>of("id", holdingId2, "instanceId", mainInstanceId));
-    var items = List.of(Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId1),
-      Map.<String, Object>of("id", UUID.randomUUID(), "holdingsRecordId", holdingId2));
+    var items = List.of(Map.<String, Object>of("id", UUID.randomUUID(), "instanceId", mainInstanceId,
+        "holdingsRecordId", holdingId1),
+      Map.<String, Object>of("id", UUID.randomUUID(), "instanceId", mainInstanceId, "holdingsRecordId", holdingId2));
 
     // act
     instanceRepository.saveEntities(TENANT_ID, instances);

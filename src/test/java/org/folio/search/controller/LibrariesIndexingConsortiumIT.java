@@ -8,7 +8,6 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
-import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -24,6 +23,7 @@ import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.dto.locationunit.LibraryDto;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -52,7 +52,7 @@ class LibrariesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @AfterEach
   void tearDown() throws IOException {
-    cleanUpIndex(LIBRARY_RESOURCE, CENTRAL_TENANT_ID);
+    cleanUpIndex(ResourceType.LIBRARY, CENTRAL_TENANT_ID);
   }
 
   @Test
@@ -111,16 +111,9 @@ class LibrariesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     awaitAssertLibraryCount(1);
   }
 
-  private static LibraryDto library() {
-    return LibraryDto.builder().id(randomId())
-      .name("name")
-      .code("code")
-      .build();
-  }
-
   public static void awaitAssertLibraryCount(int expected) {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(LIBRARY_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(ResourceType.LIBRARY, CENTRAL_TENANT_ID);
 
       assertThat(totalHits).isEqualTo(expected);
     });
@@ -134,11 +127,18 @@ class LibrariesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(boolQuery().must(idQuery).must(nameQuery))
           .trackTotalHits(true).from(0).size(1))
-        .indices(getIndexName(LIBRARY_RESOURCE, CENTRAL_TENANT_ID));
+        .indices(getIndexName(ResourceType.LIBRARY, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       var hitCount = Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
 
       assertThat(hitCount).isEqualTo(expected);
     });
+  }
+
+  private static LibraryDto library() {
+    return LibraryDto.builder().id(randomId())
+      .name("name")
+      .code("code")
+      .build();
   }
 }

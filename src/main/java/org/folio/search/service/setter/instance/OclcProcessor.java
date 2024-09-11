@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
   /**
    * Used by dependency injection.
    *
-   * @param referenceDataService {@link org.folio.search.integration.ReferenceDataService} bean
+   * @param referenceDataService {@link ReferenceDataService} bean
    */
   public OclcProcessor(ReferenceDataService referenceDataService) {
     super(referenceDataService, OCLC_IDENTIFIER_NAMES);

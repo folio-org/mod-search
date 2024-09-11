@@ -2,8 +2,8 @@ package org.folio.search.cql.builders;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.CROSS_FIELDS;
@@ -32,22 +32,22 @@ class NotEqualToTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    var actual = queryBuilder.getQuery("value", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
+    var actual = queryBuilder.getQuery("value", UNKNOWN, EMPTY_TERM_MODIFIERS, "f1.*", "f2");
     assertThat(actual).isEqualTo(boolQuery()
       .mustNot(multiMatchQuery("value", "f1.*", "f2").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test
   void getFulltextQuery_positive() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(Optional.of(keywordField()));
-    var actual = queryBuilder.getFulltextQuery("val", "field", RESOURCE_NAME, emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, "field")).thenReturn(Optional.of(keywordField()));
+    var actual = queryBuilder.getFulltextQuery("val", "field", UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(boolQuery()
       .mustNot(multiMatchQuery("val", "field").operator(AND).type(CROSS_FIELDS)));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue", "field", RESOURCE_NAME, null);
+    var actual = queryBuilder.getTermLevelQuery("termValue", "field", UNKNOWN, null);
     assertThat(actual).isEqualTo(boolQuery().mustNot(termQuery("field", "termValue")));
   }
 

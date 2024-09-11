@@ -1,5 +1,6 @@
 package org.folio.search.repository;
 
+import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.search.sort.SortOrder.ASC;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ConsortiumInstitutionRepository {
 
-  public static final String INSTITUTION_INDEX = "institution";
   private static final String OPERATION_TYPE = "searchApi";
 
   private final IndexNameProvider indexNameProvider;
@@ -67,7 +67,7 @@ public class ConsortiumInstitutionRepository {
   }
 
   private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {
-    var index = indexNameProvider.getIndexName(INSTITUTION_INDEX, tenantHeader);
+    var index = indexNameProvider.getIndexName(INSTITUTION, tenantHeader);
     var searchRequest = new SearchRequest(index);
 
     searchRequest.source(sourceBuilder);

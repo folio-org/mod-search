@@ -1,9 +1,7 @@
 {
   "name": "instance_subject",
+  "eventBodyJavaClass": "org.folio.search.model.index.SubjectResource",
   "parent": "instance",
-  "indexingConfiguration": {
-    "resourceRepository": "instanceSubjectRepository"
-  },
   "fields": {
     "value": {
       "index": "keyword_lowercase",

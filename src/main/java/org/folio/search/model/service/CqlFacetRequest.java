@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.types.ResourceType;
 
 /**
  * CQL based facet request model.
@@ -15,7 +16,7 @@ public class CqlFacetRequest implements ResourceRequest {
   /**
    * Resource name.
    */
-  private final String resource;
+  private final ResourceType resource;
 
   /**
    * Request tenant id.

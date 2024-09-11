@@ -46,7 +46,6 @@ public class JsonConverter {
     try {
       return objectMapper.readValue(value, type);
     } catch (JsonProcessingException e) {
-      log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
       throw deserializationException(value, e);
     }
   }
@@ -67,7 +66,6 @@ public class JsonConverter {
     try {
       return objectMapper.readValue(value, type);
     } catch (JsonProcessingException e) {
-      log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
       throw deserializationException(value, e);
     }
   }
@@ -209,7 +207,7 @@ public class JsonConverter {
       return objectMapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
       throw new SerializationException(String.format(
-        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
+        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()), e);
     }
   }
 
@@ -270,6 +268,6 @@ public class JsonConverter {
   private static RuntimeException deserializationException(String value, Throwable e) {
     log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
     return new SerializationException(String.format(
-      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
+      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()), e);
   }
 }

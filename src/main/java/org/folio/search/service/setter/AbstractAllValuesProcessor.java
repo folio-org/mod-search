@@ -1,7 +1,6 @@
 package org.folio.search.service.setter;
 
 import static org.folio.search.utils.CollectionUtils.noneMatch;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 
@@ -15,13 +14,14 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.model.service.MultilangValue;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<String, Object>, MultilangValue> {
 
-  protected SearchFieldProvider searchFieldProvider;
   protected final Set<String> excludedFieldEndings = Set.of("Id", "Ids");
+  protected SearchFieldProvider searchFieldProvider;
 
   /**
    * Uses to inject {@link SearchFieldProvider} bean by dependency injection framework.
@@ -41,6 +41,10 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
 
     collectFieldValuesFromEventBody(initialPath, multilangValue, eventBody, keyFilter);
     return multilangValue;
+  }
+
+  protected boolean isIncludedField(String fieldName) {
+    return noneMatch(excludedFieldEndings, fieldName::endsWith);
   }
 
   private void collectFieldValuesFromEventBody(String path, MultilangValue context,
@@ -74,7 +78,8 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
   @SuppressWarnings("unchecked")
   private void collectFieldValuesFromEventBody(String path, MultilangValue ctx, Object v, Predicate<String> filter) {
     if (v instanceof String) {
-      ctx.addValue(StringUtils.strip((String) v), searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, path));
+      ctx.addValue(StringUtils.strip((String) v),
+        searchFieldProvider.isFullTextField(ResourceType.INSTANCE, path));
     }
 
     if (v instanceof Collection<?>) {
@@ -84,9 +89,5 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
     if (v instanceof Map<?, ?>) {
       collectFieldValuesFromEventBody(path, ctx, (Map<String, Object>) v, filter);
     }
-  }
-
-  protected boolean isIncludedField(String fieldName) {
-    return noneMatch(excludedFieldEndings, fieldName::endsWith);
   }
 }

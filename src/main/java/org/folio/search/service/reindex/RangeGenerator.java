@@ -13,11 +13,11 @@ public class RangeGenerator {
     }
 
     List<Range> ranges = new ArrayList<>();
-    var max = new BigInteger("ffffffffffffffffffffffffffffffff", 16);
+    var max = upperBound();
     var partitionCount = new BigInteger(String.valueOf(count));
     var step = max.divide(partitionCount);
 
-    var cur = BigInteger.valueOf(0);
+    var cur = lowerBound();
     var prev = cur;
     for (int i = 0; i < partitionCount.intValue(); i++) {
       cur = cur.add(step);
@@ -30,6 +30,18 @@ public class RangeGenerator {
     }
 
     return ranges;
+  }
+
+  private static BigInteger lowerBound() {
+    return BigInteger.valueOf(0);
+  }
+
+  private static BigInteger upperBound() {
+    return new BigInteger("ffffffffffffffffffffffffffffffff", 16);
+  }
+
+  public static Range emptyRange() {
+    return new Range(fromBigint(lowerBound()), fromBigint(upperBound()));
   }
 
   private static UUID fromBigint(BigInteger bigint) {

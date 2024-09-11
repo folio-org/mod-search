@@ -16,8 +16,12 @@ import org.springframework.stereotype.Repository;
 public class MergeInstanceRepository extends MergeRangeRepository {
 
   private static final String INSERT_SQL = """
-      INSERT INTO %s
-      VALUES (?, ?, ?, ?, ?::json);
+      INSERT INTO %s (id, tenant_id, shared, is_bound_with, json)
+      VALUES (?::uuid, ?, ?, ?, ?::jsonb)
+      ON CONFLICT (id)
+      DO UPDATE SET shared = EXCLUDED.shared,
+      is_bound_with = EXCLUDED.is_bound_with,
+      json = EXCLUDED.json;
     """;
 
   private final ConsortiumTenantProvider consortiumTenantProvider;
@@ -34,6 +38,11 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   }
 
   @Override
+  protected String entityTable() {
+    return ReindexConstants.INSTANCE_TABLE;
+  }
+
+  @Override
   public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
@@ -44,13 +53,8 @@ public class MergeInstanceRepository extends MergeRangeRepository {
         statement.setObject(1, entity.get("id"));
         statement.setString(2, tenantId);
         statement.setObject(3, shared);
-        statement.setObject(4, entity.get("isBoundWith"));
+        statement.setObject(4, entity.getOrDefault("isBoundWith", false));
         statement.setString(5, jsonConverter.toJson(entity));
       });
-  }
-
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.INSTANCE_TABLE;
   }
 }

@@ -2,10 +2,9 @@ package org.folio.search.utils;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -42,45 +41,45 @@ class SearchConverterUtilsTest {
 
   @Test
   void getEventPayload_newValue() {
-    var actual = SearchConverterUtils.getEventPayload(resourceEvent(RESOURCE_NAME, emptyMap()));
+    var actual = SearchConverterUtils.getEventPayload(resourceEvent(INSTANCE, emptyMap()));
     assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
   void getEventPayload_oldValue() {
-    var actual = SearchConverterUtils.getEventPayload(resourceEvent(RESOURCE_NAME, null).old(emptyMap()));
+    var actual = SearchConverterUtils.getEventPayload(resourceEvent(INSTANCE, null).old(emptyMap()));
     assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
   void getNewAsMap_positive() {
     var newData = mapOf(ID_FIELD, RESOURCE_ID);
-    var actual = SearchConverterUtils.getNewAsMap(resourceEvent(RESOURCE_NAME, newData));
+    var actual = SearchConverterUtils.getNewAsMap(resourceEvent(INSTANCE, newData));
     assertThat(actual).isEqualTo(newData);
   }
 
   @Test
   void getNewAsMap_negative() {
-    var actual = SearchConverterUtils.getNewAsMap(resourceEvent(RESOURCE_NAME, null));
+    var actual = SearchConverterUtils.getNewAsMap(resourceEvent(INSTANCE, null));
     assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
   void getOldAsMap_positive() {
     var oldData = mapOf(ID_FIELD, RESOURCE_ID);
-    var actual = SearchConverterUtils.getOldAsMap(resourceEvent(RESOURCE_NAME, null).old(oldData));
+    var actual = SearchConverterUtils.getOldAsMap(resourceEvent(INSTANCE, null).old(oldData));
     assertThat(actual).isEqualTo(oldData);
   }
 
   @Test
   void getOldAsMap_negative() {
-    var actual = SearchConverterUtils.getOldAsMap(resourceEvent(RESOURCE_NAME, null));
+    var actual = SearchConverterUtils.getOldAsMap(resourceEvent(INSTANCE, null));
     assertThat(actual).isEqualTo(emptyMap());
   }
 
   @Test
   void getResourceId_positive() {
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, Map.of("id", RESOURCE_ID));
+    var resourceEvent = resourceEvent(INSTANCE, Map.of("id", RESOURCE_ID));
     var actual = SearchConverterUtils.getResourceEventId(resourceEvent);
     assertThat(actual).isEqualTo(RESOURCE_ID);
   }

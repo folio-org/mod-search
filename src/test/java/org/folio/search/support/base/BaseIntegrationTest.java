@@ -1,9 +1,15 @@
 package org.folio.search.support.base;
 
 import static java.util.Arrays.asList;
-import static org.awaitility.Awaitility.await;
+import static java.util.Collections.emptyList;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
+import static org.folio.search.model.client.CqlQuery.exactMatchAny;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
@@ -40,6 +46,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
@@ -47,6 +55,8 @@ import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.client.CqlQueryParam;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.api.InventoryApi;
 import org.folio.search.support.api.InventoryViewResponseBuilder;
 import org.folio.search.support.extension.EnableElasticSearch;
@@ -57,6 +67,7 @@ import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
 import org.folio.spring.testing.extension.impl.OkapiExtension;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -64,6 +75,7 @@ import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
+import org.opensearch.search.SearchHit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,6 +85,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Log4j2
@@ -188,20 +201,20 @@ public abstract class BaseIntegrationTest {
     return attemptSearch(path, tenantId, query, limit, offset, expandAll).andExpect(status().isOk());
   }
 
-  protected static long countIndexDocument(String resource, String tenantId) throws IOException {
+  protected static long countIndexDocument(ResourceType resource, String tenantId) throws IOException {
     var searchRequest = new SearchRequest()
       .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
-      .indices(getIndexName(resource, tenantId));
+      .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;
   }
 
-  protected static long countDefaultIndexDocument(String resource) throws IOException {
+  protected static long countDefaultIndexDocument(ResourceType resource) throws IOException {
     return countIndexDocument(resource, TENANT_ID);
   }
 
-  protected static void cleanUpIndex(String resource, String tenantId) throws IOException {
-    var request = new DeleteByQueryRequest(getIndexName(resource, tenantId));
+  protected static void cleanUpIndex(ResourceType resource, String tenantId) throws IOException {
+    var request = new DeleteByQueryRequest(getIndexName(resource.getName(), tenantId));
     request.setQuery(matchAllQuery());
     elasticClient.deleteByQuery(request, DEFAULT);
   }
@@ -221,25 +234,36 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static void setUpTenant(Instance... instances) {
-    setUpTenant(TENANT_ID, instances);
+    setUpTenant(emptyList(), instances);
   }
 
   @SneakyThrows
-  protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length,
+  protected static void setUpTenant(List<ResultMatcher> matchers, Instance... instances) {
+    setUpTenant(TENANT_ID, matchers, instances);
+  }
+
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, List<ResultMatcher> matchers, Instance... instances) {
+    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length, matchers,
       instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
-    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount,
-      record -> kafkaTemplate.send(inventoryAuthorityTopic(), record.getId(), resourceEvent(null, null, record)));
+    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
+      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent(null, AUTHORITY, rec)));
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Map<String, Object>... rawRecords) {
     setUpTenant(type, TENANT_ID, rawRecords);
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(Class<?> type, List<ResultMatcher> matchers, Map<String, Object>... rawRecords) {
+    setUpTenant(type, TENANT_ID, matchers, rawRecords);
   }
 
   @SneakyThrows
@@ -257,7 +281,7 @@ public abstract class BaseIntegrationTest {
 
       if (type.equals(Authority.class)) {
         saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          record -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, record)));
+          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, rec)));
       }
     }
   }
@@ -266,60 +290,76 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
     setUpTenant(type, tenant, () -> {
-    }, rawRecords.length, rawRecords);
+    }, rawRecords.length, emptyList(), rawRecords);
+  }
+
+  @SafeVarargs
+  @SneakyThrows
+  protected static void setUpTenant(Class<?> type, String tenant, List<ResultMatcher> matchers,
+                                    Map<String, Object>... rawRecords) {
+    setUpTenant(type, tenant, () -> {
+    }, rawRecords.length, matchers, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
     setUpTenant(type, TENANT_ID, () -> {
-    }, expectedCount, rawRecords);
+    }, expectedCount, emptyList(), rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
-  protected static void setUpTenant(Class<?> type, Runnable postInitAction, Map<String, Object>... records) {
-    setUpTenant(type, TENANT_ID, postInitAction, records.length, records);
+  protected static void setUpTenant(Class<?> type, Runnable postInitAction,
+                                    @NotNull List<ResultMatcher> matchers, Map<String, Object>... records) {
+    setUpTenant(type, TENANT_ID, postInitAction, records.length, matchers, records);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
-                                    Map<String, Object>... records) {
+                                    List<ResultMatcher> matchers, Map<String, Object>... records) {
     if (type.equals(Instance.class)) {
-      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount,
+      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         instance -> inventoryApi.createInstance(tenant, instance));
     }
 
     if (type.equals(Authority.class)) {
-      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount,
-        authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, null, authority)));
+      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
+        authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, authority)));
     }
 
     if (type.equals(LinkedDataWork.class)) {
-      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount,
-        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, null, ldWork)));
+      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount, matchers,
+        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, LINKED_DATA_WORK, ldWork)));
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
-      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount,
-        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant), resourceEvent(null, null, ldAuthority)));
+      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
+        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
+          resourceEvent(null, LINKED_DATA_AUTHORITY, ldAuthority)));
     }
   }
 
   @SneakyThrows
   protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                        List<T> records, Integer expectedCount, Consumer<T> consumer) {
+                                        List<T> records, Integer expectedCount, List<ResultMatcher> matchers,
+                                        Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
-    saveRecords(tenant, validationPath, records, expectedCount, consumer);
+    saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         Consumer<T> consumer) {
+    saveRecords(tenant, validationPath, records, expectedCount, emptyList(), consumer);
+  }
+
+  protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
+                                        List<ResultMatcher> matchers, Consumer<T> consumer) {
     records.forEach(consumer);
     if (!records.isEmpty()) {
-      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount);
+      checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount, matchers);
     }
   }
 
@@ -376,9 +416,12 @@ public abstract class BaseIntegrationTest {
       .andExpect(status().isNoContent());
   }
 
-  protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size) {
-    await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, tenantId, "cql.allRecords=1", 1, null, null).andExpect(jsonPath("$.totalRecords", is(size))));
+  protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
+                                                           List<ResultMatcher> matchers) {
+    Awaitility.await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      doSearch(path, tenantId, "cql.allRecords=1", size, null, true)
+        .andExpect(jsonPath("$.totalRecords", is(size)))
+        .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }
 
   protected static String prepareQuery(String queryTemplate, String value) {
@@ -449,6 +492,31 @@ public abstract class BaseIntegrationTest {
         .headers(defaultHeaders())
         .accept("application/json;charset=UTF-8"))
       .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()))
+      .indices(getIndexName(resourceType, tenantId));
+    return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
+  }
+
+  public static void assertCountByIds(String path, List<String> ids, int expected) {
+    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
+    awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void assertCountByQuery(String path, String template, String value, int expected) {
+    awaitAssertion(() -> doSearch(path, prepareQuery(template, value))
+      .andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void awaitAssertion(ThrowingRunnable runnable) {
+    Awaitility.await()
+      .atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(runnable);
   }
 
   @Getter

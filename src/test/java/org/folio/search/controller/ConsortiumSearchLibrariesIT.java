@@ -8,7 +8,6 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleLibraries.getLibrariesSampleAsMap;
 import static org.folio.search.support.base.ApiEndpoints.consortiumLibrariesSearchPath;
-import static org.folio.search.utils.SearchUtils.LIBRARY_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryLibraryTopic;
@@ -21,6 +20,7 @@ import org.assertj.core.groups.Tuple;
 import org.folio.search.domain.dto.ConsortiumLibrary;
 import org.folio.search.domain.dto.ConsortiumLibraryCollection;
 import org.folio.search.model.Pair;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -107,7 +107,7 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
       .forEach(event -> kafkaTemplate.send(inventoryLibraryTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(LIBRARY_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(ResourceType.LIBRARY, CENTRAL_TENANT_ID);
 
       assertThat(totalHits).isEqualTo(EXPECTED_WITH_TWO_TENANTS);
     });

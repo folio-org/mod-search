@@ -3,9 +3,9 @@ package org.folio.search.service;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.searchResult;
@@ -72,8 +72,8 @@ class SearchServiceTest {
       .trackTotalHits(true).fetchSource(array("field1", "field2"), null).timeout(new TimeValue(25000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, SEARCH)).thenReturn(new String[] {"field1", "field2"});
-    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, RESOURCE_NAME, false))
+    when(searchFieldProvider.getSourceFields(UNKNOWN, SEARCH)).thenReturn(new String[] {"field1", "field2"});
+    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))
       .thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))
@@ -101,7 +101,7 @@ class SearchServiceTest {
       .trackTotalHits(true).timeout(new TimeValue(1000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, RESOURCE_NAME, false))
+    when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))
       .thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, TestResource.class))

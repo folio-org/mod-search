@@ -1,7 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
-import static org.folio.search.model.types.ReindexEntityType.HOLDING;
+import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
@@ -32,7 +32,7 @@ import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.integration.InventoryService;
+import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
@@ -65,6 +65,8 @@ class ReindexServiceTest {
   private ExecutorService reindexExecutor;
   @Mock
   private ReindexEntityTypeMapper entityTypeMapper;
+  @Mock
+  private ReindexCommonService reindexCommonService;
   @InjectMocks
   private ReindexService reindexService;
 
@@ -98,7 +100,7 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
-    verify(mergeRangeService).deleteAllRangeRecords();
+    verify(reindexCommonService).deleteAllRecords();
     verify(statusService).recreateMergeStatusRecords();
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());
@@ -107,6 +109,7 @@ class ReindexServiceTest {
     verify(statusService, times(expectedCallsCount))
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
+    verify(mergeRangeService).truncateMergeRanges();
     verifyNoMoreInteractions(mergeRangeService);
   }
 
@@ -159,13 +162,13 @@ class ReindexServiceTest {
     // given
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(statusService.getStatusesByType())
-      .thenReturn(Map.of(HOLDING, ReindexStatus.MERGE_IN_PROGRESS));
+      .thenReturn(Map.of(HOLDINGS, ReindexStatus.MERGE_IN_PROGRESS));
     var entityTypes = List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE);
 
     // act & assert
     assertThrows(RequestValidationException.class,
       () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
-      "Full Reindex Merge is either in progress or failed " + HOLDING.getType());
+      "Full Reindex Merge is either in progress or failed " + HOLDINGS.getType());
   }
 
   @Test
@@ -175,14 +178,14 @@ class ReindexServiceTest {
     when(statusService.getStatusesByType())
       .thenReturn(Map.of(
         INSTANCE, ReindexStatus.MERGE_COMPLETED,
-        ITEM, ReindexStatus.MERGE_COMPLETED,
-        HOLDING, ReindexStatus.MERGE_COMPLETED));
+        ITEM, ReindexStatus.MERGE_IN_PROGRESS,
+        HOLDINGS, ReindexStatus.MERGE_FAILED));
     var entityTypes = List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE);
 
     // act & assert
     assertThrows(RequestValidationException.class,
       () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
-      "Reindex Merge is not complete for entity " + HOLDING.getType());
+      "Reindex Merge is not complete for entity " + HOLDINGS.getType());
   }
 
   @Test

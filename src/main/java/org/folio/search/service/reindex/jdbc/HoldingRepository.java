@@ -15,8 +15,12 @@ import org.springframework.stereotype.Repository;
 public class HoldingRepository extends MergeRangeRepository {
 
   private static final String INSERT_SQL = """
-      INSERT INTO %s
-      VALUES (?, ?, ?, ?::json);
+      INSERT INTO %s (id, tenant_id, instance_id, json)
+      VALUES (?::uuid, ?, ?::uuid, ?::jsonb)
+      ON CONFLICT (id, tenant_id)
+      DO UPDATE SET
+      instance_id = EXCLUDED.instance_id,
+      json = EXCLUDED.json;
     """;
 
   protected HoldingRepository(JdbcTemplate jdbcTemplate,
@@ -27,7 +31,7 @@ public class HoldingRepository extends MergeRangeRepository {
 
   @Override
   public ReindexEntityType entityType() {
-    return ReindexEntityType.HOLDING;
+    return ReindexEntityType.HOLDINGS;
   }
 
   @Override

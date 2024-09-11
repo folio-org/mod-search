@@ -1,5 +1,7 @@
 package org.folio.search.service.reindex;
 
+import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
+import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.integration.InventoryService;
+import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
@@ -34,6 +36,7 @@ public class ReindexService {
   private final ExecutorService reindexFullExecutor;
   private final ExecutorService reindexUploadExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
+  private final ReindexCommonService reindexCommonService;
 
   public ReindexService(ConsortiumTenantService consortiumService,
                         SystemUserScopedExecutionService executionService,
@@ -43,7 +46,8 @@ public class ReindexService {
                         InventoryService inventoryService,
                         @Qualifier("reindexFullExecutor") ExecutorService reindexFullExecutor,
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
-                        ReindexEntityTypeMapper entityTypeMapper) {
+                        ReindexEntityTypeMapper entityTypeMapper,
+                        ReindexCommonService reindexCommonService) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -53,17 +57,23 @@ public class ReindexService {
     this.reindexFullExecutor = reindexFullExecutor;
     this.reindexUploadExecutor = reindexUploadExecutor;
     this.entityTypeMapper = entityTypeMapper;
+    this.reindexCommonService = reindexCommonService;
   }
 
   public CompletableFuture<Void> submitFullReindex(String tenantId) {
-    log.info("initFullReindex:: for [tenantId: {}]", tenantId);
+    log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant(tenantId);
 
-    mergeRangeService.deleteAllRangeRecords();
+    for (var reindexEntityType : ReindexEntityType.values()) {
+      reindexCommonService.recreateIndex(reindexEntityType, tenantId);
+    }
+
+    reindexCommonService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
 
     var future = CompletableFuture.runAsync(() -> {
+      mergeRangeService.truncateMergeRanges();
       var rangesForAllTenants = Stream.of(
           mergeRangeService.createMergeRanges(tenantId),
           processForConsortium(tenantId)
@@ -81,22 +91,23 @@ public class ReindexService {
         return unused;
       });
 
-    log.info("initFullReindex:: submitted [tenantId: {}]", tenantId);
+    log.info("submitFullReindex:: submitted [tenantId: {}]", tenantId);
     return future;
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
                                                      List<ReindexUploadDto.EntityTypesEnum> entityTypesDto) {
-    log.info("submitting reindex upload process");
-    var entityTypes = entityTypeMapper.convert(entityTypesDto);
-    validateUploadReindex(tenantId, entityTypes);
+    log.info("submitUploadReindex:: for [tenantId: {}]", tenantId);
+    var reindexEntityTypes = entityTypeMapper.convert(entityTypesDto);
+    validateUploadReindex(tenantId, reindexEntityTypes);
 
-    for (var entityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(entityType);
+    for (var reindexEntityType : reindexEntityTypes) {
+      statusService.recreateUploadStatusRecord(reindexEntityType);
+      reindexCommonService.recreateIndex(reindexEntityType, tenantId);
     }
 
     var futures = new ArrayList<>();
-    for (var entityType : entityTypes) {
+    for (var entityType : reindexEntityTypes) {
       var future = CompletableFuture.runAsync(() ->
            uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
         .handle((unused, throwable) -> {
@@ -109,7 +120,7 @@ public class ReindexService {
       futures.add(future);
     }
 
-    log.info("reindex upload process submitted");
+    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
@@ -146,19 +157,20 @@ public class ReindexService {
 
     var statusesByType = statusService.getStatusesByType();
 
-    var fullReindexNotComplete = statusesByType.keySet().stream()
-      .filter(MERGE_RANGE_ENTITY_TYPES::contains)
+    var mergeNotComplete = statusesByType.entrySet().stream()
+      .filter(status -> MERGE_RANGE_ENTITY_TYPES.contains(status.getKey()))
+      .filter(status -> status.getValue().equals(MERGE_IN_PROGRESS) || status.getValue().equals(MERGE_FAILED))
       .findFirst();
-    if (fullReindexNotComplete.isPresent()) {
-      var mergeEntity = fullReindexNotComplete.get();
+    if (mergeNotComplete.isPresent()) {
+      var mergeEntityStatus = mergeNotComplete.get();
       // full reindex is either in progress or failed
       throw new RequestValidationException(
-        "Full Reindex Merge is either in progress or failed: %s".formatted(mergeEntity.getType()),
-        "reindexStatus", statusesByType.get(mergeEntity).getValue());
+        "Merge phase is in progress or failed for: %s".formatted(mergeEntityStatus.getKey()),
+        "reindexStatus", mergeEntityStatus.getValue().getValue());
     }
 
     var uploadInProgress = entityTypes.stream()
-      .filter(entityType -> statusesByType.keySet().contains(entityType))
+      .filter(statusesByType::containsKey)
       .filter(entityType -> statusesByType.get(entityType) == ReindexStatus.UPLOAD_IN_PROGRESS)
       .findAny();
     if (uploadInProgress.isPresent()) {

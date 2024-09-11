@@ -94,6 +94,8 @@ class SubjectRepositoryIT {
       .hasSize(2)
       .allMatch(map -> map.keySet().containsAll(List.of("id", "value", "authorityId", "instances")))
       .extracting("value", "authorityId")
-      .containsExactly(tuple("Alternative History", null), tuple("History", "79144653-7a98-4dfb-aa6a-13ad49e80952"));
+      .containsExactlyInAnyOrder(
+        tuple("Alternative History", null),
+        tuple("History", "79144653-7a98-4dfb-aa6a-13ad49e80952"));
   }
 }

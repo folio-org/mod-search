@@ -58,6 +58,8 @@ public class ReindexStatusRepository {
 
   private static final String QUERY_TWO_COLUMNS_PLACEHOLDER = "%s = ?, %s = ?";
 
+  private static final String SELECT_MERGE_STATUS_SQL = "SELECT check_merge_completed_status()";
+
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
 
@@ -138,6 +140,10 @@ public class ReindexStatusRepository {
         statement.setTimestamp(9, entity.getStartTimeUpload());
         statement.setTimestamp(10, entity.getEndTimeUpload());
       });
+  }
+
+  public boolean isMergeCompleted() {
+    return Boolean.TRUE.equals(jdbcTemplate.queryForObject(SELECT_MERGE_STATUS_SQL, Boolean.class));
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {

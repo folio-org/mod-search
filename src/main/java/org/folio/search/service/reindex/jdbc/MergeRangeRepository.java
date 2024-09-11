@@ -2,12 +2,14 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
+  protected static final String DELETE_SQL = """
+    DELETE FROM %s WHERE id IN (%s);
+    """;
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -27,11 +32,6 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
                                  JsonConverter jsonConverter,
                                  FolioExecutionContext context) {
     super(jdbcTemplate, jsonConverter, context);
-  }
-
-  public void truncateMergeRanges() {
-    String sql = TRUNCATE_TABLE_SQL.formatted(getFullTableName(context, MERGE_RANGE_TABLE));
-    jdbcTemplate.execute(sql);
   }
 
   @Transactional
@@ -55,12 +55,23 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
   }
 
+  public void truncateMergeRanges() {
+    JdbcUtils.truncateTable(MERGE_RANGE_TABLE, jdbcTemplate, context);
+  }
+
   @Override
   protected String rangeTable() {
     return MERGE_RANGE_TABLE;
   }
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
+
+  public void deleteEntities(List<String> ids) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
+
+    jdbcTemplate.update(sql, ids.toArray());
+  }
 
   private RowMapper<MergeRangeEntity> mergeRangeEntityRowMapper() {
     return (rs, rowNum) -> {

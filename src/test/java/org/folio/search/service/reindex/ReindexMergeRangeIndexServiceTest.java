@@ -2,7 +2,7 @@ package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.folio.search.model.types.ReindexEntityType.HOLDING;
+import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.integration.InventoryService;
+import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
@@ -55,24 +55,6 @@ class ReindexMergeRangeIndexServiceTest {
   }
 
   @Test
-  void deleteAllRangeRecords_positive() {
-    // given
-    when(holdingRepository.entityType()).thenReturn(HOLDING);
-    when(itemRepository.entityType()).thenReturn(ITEM);
-    service = new ReindexMergeRangeIndexService(List.of(repository, holdingRepository, itemRepository),
-      inventoryService, config);
-
-    // act
-    service.deleteAllRangeRecords();
-
-    // assert
-    verify(repository).truncateMergeRanges();
-    verify(repository).truncate();
-    verify(holdingRepository).truncate();
-    verify(itemRepository).truncate();
-  }
-
-  @Test
   void saveMergeRanges_positive() {
     // act
     service.saveMergeRanges(List.of());
@@ -99,7 +81,7 @@ class ReindexMergeRangeIndexServiceTest {
       .are(new Condition<>(range -> range.getLowerId() != null, "lower id"))
       .are(new Condition<>(range -> range.getUpperId() != null, "upper id"))
       .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
-      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDING, TENANT_ID), tuple(ITEM, TENANT_ID));
+      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDINGS, TENANT_ID), tuple(ITEM, TENANT_ID));
   }
 
   @Test

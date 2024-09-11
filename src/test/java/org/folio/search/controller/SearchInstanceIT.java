@@ -466,6 +466,16 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name = {value}", "ANTON*"),
       arguments("contributors.name = {value}", "*RMELEN, FRANK"),
 
+      arguments("dates.date1 == {value}", "*9u"),
+      arguments("dates.date1 == {value}", "*99*"),
+      arguments("dates.date1 == {value}", "19*"),
+      arguments("dates.date1 > {value}", "19*"),
+
+      arguments("dates.date2 == {value}", "*22"),
+      arguments("dates.date2 == {value}", "*02*"),
+      arguments("dates.date2 == {value}", "20*"),
+      arguments("dates.date2 > {value}", " 2021"),
+
       arguments("contributors.authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
       arguments("authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
 

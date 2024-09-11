@@ -26,13 +26,8 @@ env:
   API_EXCLUDES: 'paths responses'
   API_WARNINGS: false
 
-#on:
-#  push:
-#    paths:
-#      - 'src/main/resources/swagger.api/**'
-#  pull_request:
-#    paths:
-#      - 'src/main/resources/swagger.api/**'
+on:
+  workflow_dispatch:
 
 jobs:
   api-lint:

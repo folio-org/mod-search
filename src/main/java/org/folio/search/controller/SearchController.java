@@ -1,5 +1,7 @@
 package org.folio.search.controller;
 
+import static java.lang.Boolean.TRUE;
+
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -7,6 +9,8 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataAuthoritySearchResult;
+import org.folio.search.domain.dto.LinkedDataInstance;
+import org.folio.search.domain.dto.LinkedDataInstanceSearchResult;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.LinkedDataWorkSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
@@ -53,13 +57,32 @@ public class SearchController implements SearchApi {
   }
 
   @Override
+  public ResponseEntity<LinkedDataInstanceSearchResult> searchLinkedDataInstances(String tenantId,
+                                                                                  String query,
+                                                                                  Integer limit,
+                                                                                  Integer offset) {
+    var searchRequest = CqlSearchRequest.of(LinkedDataInstance.class, tenantId, query, limit, offset, true);
+    var result = searchService.search(searchRequest);
+    return ResponseEntity.ok(new LinkedDataInstanceSearchResult()
+      .searchQuery(query)
+      .content(result.getRecords())
+      .pageNumber(divPlusOneIfRemainder(offset, limit))
+      .totalPages(divPlusOneIfRemainder(result.getTotalRecords(), limit))
+      .totalRecords(result.getTotalRecords())
+    );
+  }
+
+  @Override
   public ResponseEntity<LinkedDataWorkSearchResult> searchLinkedDataWorks(String tenantId,
                                                                           String query,
                                                                           Integer limit,
-                                                                          Integer offset) {
-    var searchRequest = CqlSearchRequest.of(
-      LinkedDataWork.class, tenantId, query, limit, offset, true);
+                                                                          Integer offset,
+                                                                          Boolean omitInstances) {
+    var searchRequest = CqlSearchRequest.of(LinkedDataWork.class, tenantId, query, limit, offset, true);
     var result = searchService.search(searchRequest);
+    if (TRUE.equals(omitInstances)) {
+      result.getRecords().forEach(ldw -> ldw.setInstances(null));
+    }
     return ResponseEntity.ok(new LinkedDataWorkSearchResult()
       .searchQuery(query)
       .content(result.getRecords())

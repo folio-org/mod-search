@@ -1,0 +1,17 @@
+description: "Linked data Identifier DTO, contains value and type"
+type: "object"
+properties:
+  value:
+    type: "string"
+    description: "Value of Identifier"
+  type:
+    type: "string"
+    enum:
+      - "Ean"
+      - "ISBN"
+      - "LCCN"
+      - "LocalId"
+      - "UNKNOWN"
+required:
+  - "value"
+  - "type"

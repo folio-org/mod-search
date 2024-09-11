@@ -150,6 +150,8 @@ public class IndexService {
 
     if (ResourceType.LOCATION.getName().equals(resource)) {
       return reindexInventoryLocations(tenantId, resources);
+    } else if (isLinkedDataResource(resource)) {
+      return new ReindexJob();
     } else {
       return reindexInventoryAsync(resource);
     }
@@ -283,5 +285,11 @@ public class IndexService {
 
   private static String normalizeResourceName(ResourceType resourceType) {
     return resourceType.getName().replace("_", "-");
+  }
+
+  private boolean isLinkedDataResource(String resource) {
+    return LINKED_DATA_INSTANCE_RESOURCE.equals(resource)
+      || LINKED_DATA_WORK_RESOURCE.equals(resource)
+      || LINKED_DATA_AUTHORITY_RESOURCE.equals(resource);
   }
 }

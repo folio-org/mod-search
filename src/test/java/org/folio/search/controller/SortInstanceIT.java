@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import org.folio.search.domain.dto.Contributor;
+import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -38,6 +39,26 @@ class SortInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("instances[2].contributors[0].name", is("bcc ccc")))
       .andExpect(jsonPath("instances[3].contributors[0].name", is("Śląsk")))
       .andExpect(jsonPath("instances[4].contributors[0].name", is("yyy zzz")));
+  }
+
+  @Test
+  void canSortInstancesByDate1_asc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("normalizedDate1", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].dates.date1", is("19u5")))
+      .andExpect(jsonPath("instances[1].dates.date1", is("199u")))
+      .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
+      .andExpect(jsonPath("instances[3].dates.date1", is("2001")))
+      .andExpect(jsonPath("instances[4].dates.date1", is("2021")));
+  }
+
+  @Test
+  void canSortInstancesByDate1_desc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("normalizedDate1", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].dates.date1", is("2021")))
+      .andExpect(jsonPath("instances[1].dates.date1", is("2001")))
+      .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
+      .andExpect(jsonPath("instances[3].dates.date1", is("199u")))
+      .andExpect(jsonPath("instances[4].dates.date1", is("19u5")));
   }
 
   @Test
@@ -90,23 +111,35 @@ class SortInstanceIT extends BaseIntegrationTest {
 
     instances[0].title("Animal farm")
       .indexTitle("B1 Animal farm")
-      .addContributorsItem(new Contributor().name("yyy zzz"));
+      .addContributorsItem(new Contributor().name("yyy zzz"))
+      .setDates(getDates("1999", "2000"));
 
     instances[1].title("Zero Minus Ten")
       .indexTitle(null)
       .addContributorsItem(new Contributor().name("aaa bbb").primary(false))
-      .addContributorsItem(new Contributor().name("bbb ccc").primary(true));
+      .addContributorsItem(new Contributor().name("bbb ccc").primary(true))
+      .setDates(getDates("199u", "2000"));
 
     instances[2].title("Calling Me Home")
       .indexTitle("A1 Calling Me Home")
-      .addContributorsItem(new Contributor().name("bcc ccc"));
+      .addContributorsItem(new Contributor().name("bcc ccc"))
+      .setDates(getDates("2021", "2022"));
 
     instances[3].title("Walk in My Soul")
       .indexTitle(null)
-      .addContributorsItem(new Contributor().name("1111 2222").primary(true));
+      .addContributorsItem(new Contributor().name("1111 2222").primary(true))
+      .setDates(getDates("2001", "2002"));
 
-    instances[4].title("Star Wars").indexTitle(null).addContributorsItem(new Contributor().name("Śląsk").primary(true));
+    instances[4].title("Star Wars").indexTitle(null).addContributorsItem(new Contributor().name("Śląsk").primary(true))
+      .setDates(getDates("19u5", "1998"));
 
     return instances;
+  }
+
+  private static Dates getDates(String date1, String date2) {
+    Dates dates = new Dates();
+    dates.setDate1(date1);
+    dates.setDate2(date2);
+    return dates;
   }
 }

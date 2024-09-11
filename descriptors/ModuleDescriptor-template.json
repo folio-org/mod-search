@@ -146,9 +146,24 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/linked-data/instances",
+          "permissionsRequired": [
+            "search.linked-data.instance.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/linked-data/works",
           "permissionsRequired": [
             "search.linked-data.work.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -158,6 +173,9 @@
           "pathPattern": "/search/linked-data/authorities",
           "permissionsRequired": [
             "search.linked-data.authority.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
           ]
         },
         {
@@ -681,6 +699,11 @@
       "description": "Searches authorities by given query"
     },
     {
+      "permissionName": "search.linked-data.instance.collection.get",
+      "displayName": "Search - searches linked data instances by given query",
+      "description": "Searches linked data instances by given query"
+    },
+    {
       "permissionName": "search.linked-data.work.collection.get",
       "displayName": "Search - searches linked data works by given query",
       "description": "Searches linked data works by given query"
@@ -849,6 +872,20 @@
       "description": "Returns institution records in consortium"
     }
   ],
+  "metadata": {
+    "user": {
+      "type": "system",
+      "permissions": [
+        "inventory-storage.inventory-view.instances.collection.get",
+        "inventory-storage.identifier-types.collection.get",
+        "inventory-storage.alternative-title-types.collection.get",
+        "inventory-storage.call-number-types.collection.get",
+        "inventory-storage.classification-types.collection.get",
+        "users.collection.get",
+        "user-tenants.collection.get"
+      ]
+    }
+  },
   "launchDescriptor": {
     "dockerImage": "@artifactId@:@version@",
     "dockerPull": false,

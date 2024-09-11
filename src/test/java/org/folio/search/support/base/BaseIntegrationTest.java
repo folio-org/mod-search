@@ -13,14 +13,18 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
-import static org.folio.search.support.base.ApiEndpoints.linkedDataSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.linkedDataWorkSearchPath;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_AUTHORITY_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_INSTANCE_RESOURCE;
+import static org.folio.search.utils.SearchUtils.LINKED_DATA_WORK_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataInstanceTopic;
 import static org.folio.search.utils.TestConstants.linkedDataWorkTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.doIfNotNull;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.removeEnvProperty;
 import static org.folio.search.utils.TestUtils.resourceEvent;
@@ -52,6 +56,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataInstance;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -74,6 +79,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.opensearch.search.SearchHit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,53 +158,64 @@ public abstract class BaseIntegrationTest {
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), TENANT_ID, query, null, null, null);
+    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
-    return doSearch(instanceSearchPath(), TENANT_ID, query, null, null, expandAll);
+    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query, "expandAll", String.valueOf(expandAll)));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, int limit, int offset) {
-    return doSearch(instanceSearchPath(), TENANT_ID, query, limit, offset, null);
+    return doSearch(instanceSearchPath(), TENANT_ID,
+      Map.of("query", query, "limit", String.valueOf(limit), "offset", String.valueOf(offset))
+    );
   }
 
   @SneakyThrows
   protected static ResultActions attemptSearchByInstances(String query) {
-    return attemptSearch(instanceSearchPath(), TENANT_ID, query, null, null, null);
+    return attemptSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByAuthorities(String query) {
-    return doSearch(authoritySearchPath(), TENANT_ID, query, null, null, null);
+    return doSearch(authoritySearchPath(), TENANT_ID, Map.of("query", query));
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByLinkedDataInstance(String query) {
+    return doSearch(linkedDataInstanceSearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByLinkedDataWork(String query) {
-    return doSearch(linkedDataSearchPath(), TENANT_ID, query, null, null, null);
+    return doSearch(linkedDataWorkSearchPath(), TENANT_ID, Map.of("query", query));
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByLinkedDataWorkWithoutInstances(String query) {
+    return doSearch(linkedDataWorkSearchPath(), TENANT_ID, Map.of("query", query, "omitInstances", "true"));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByLinkedDataAuthority(String query) {
-    return doSearch(linkedDataAuthoritySearchPath(), TENANT_ID, query, null, null, null);
+    return doSearch(linkedDataAuthoritySearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions attemptSearchByAuthorities(String query) {
-    return attemptSearch(authoritySearchPath(), TENANT_ID, query, null, null, null);
+    return attemptSearch(authoritySearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearch(String path, String query) {
-    return doSearch(path, TENANT_ID, query, null, null, null);
+    return doSearch(path, TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
-  protected static ResultActions doSearch(
-    String path, String tenantId, String query, Integer limit, Integer offset, Boolean expandAll) {
-    return attemptSearch(path, tenantId, query, limit, offset, expandAll).andExpect(status().isOk());
+  protected static ResultActions doSearch(String path, String tenantId, Map<String, String> queryParams) {
+    return attemptSearch(path, tenantId, queryParams).andExpect(status().isOk());
   }
 
   protected static long countIndexDocument(ResourceType resource, String tenantId) throws IOException {
@@ -207,6 +224,11 @@ public abstract class BaseIntegrationTest {
       .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;
+  }
+
+  protected static String getIndexId(String resource) throws IOException {
+    var getIndexResponse = elasticClient.indices().get(new GetIndexRequest(getIndexName(resource, TENANT_ID)), DEFAULT);
+    return getIndexResponse.getSetting(getIndexResponse.getIndices()[0], "index.uuid");
   }
 
   protected static long countDefaultIndexDocument(ResourceType resource) throws IOException {
@@ -220,14 +242,10 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static ResultActions attemptSearch(
-    String path, String tenantId, String query, Integer limit, Integer offset, Boolean expandAll) {
+  protected static ResultActions attemptSearch(String path, String tenantId, Map<String, String> queryParams) {
     var requestBuilder = get(path);
-    doIfNotNull(limit, value -> requestBuilder.queryParam("limit", String.valueOf(value)));
-    doIfNotNull(offset, value -> requestBuilder.queryParam("offset", String.valueOf(value)));
-    doIfNotNull(expandAll, value -> requestBuilder.queryParam("expandAll", String.valueOf(value)));
-
-    return mockMvc.perform(requestBuilder.queryParam("query", query)
+    queryParams.forEach(requestBuilder::param);
+    return mockMvc.perform(requestBuilder
       .headers(defaultHeaders(tenantId))
       .accept("application/json;charset=UTF-8"));
   }
@@ -329,15 +347,25 @@ public abstract class BaseIntegrationTest {
         authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, authority)));
     }
 
+    if (type.equals(LinkedDataInstance.class)) {
+      setUpTenant(tenant, linkedDataInstanceSearchPath(), postInitAction, asList(records), expectedCount,
+        ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
+          resourceEvent(null, LINKED_DATA_INSTANCE_RESOURCE, ldInstance))
+      );
+    }
+
     if (type.equals(LinkedDataWork.class)) {
-      setUpTenant(tenant, linkedDataSearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), resourceEvent(null, LINKED_DATA_WORK, ldWork)));
+      setUpTenant(tenant, linkedDataWorkSearchPath(), postInitAction, asList(records), expectedCount, matchers,
+        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant),
+          resourceEvent(null, LINKED_DATA_WORK_RESOURCE, ldWork))
+      );
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
       setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
-          resourceEvent(null, LINKED_DATA_AUTHORITY, ldAuthority)));
+          resourceEvent(null, LINKED_DATA_AUTHORITY_RESOURCE, ldAuthority))
+      );
     }
   }
 
@@ -358,7 +386,7 @@ public abstract class BaseIntegrationTest {
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         List<ResultMatcher> matchers, Consumer<T> consumer) {
     records.forEach(consumer);
-    if (!records.isEmpty()) {
+    if (! records.isEmpty()) {
       checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount, matchers);
     }
   }

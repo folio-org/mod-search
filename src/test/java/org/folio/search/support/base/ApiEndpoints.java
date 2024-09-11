@@ -101,7 +101,11 @@ public class ApiEndpoints {
     return "/browse/classification-numbers/" + optionType.getValue() + "/instances";
   }
 
-  public static String linkedDataSearchPath() {
+  public static String linkedDataInstanceSearchPath() {
+    return "/search/linked-data/instances";
+  }
+
+  public static String linkedDataWorkSearchPath() {
     return "/search/linked-data/works";
   }
 

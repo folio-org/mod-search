@@ -1,43 +1,12 @@
 {
   "name": "linked-data-work",
   "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataWork",
+  "reindexSupported": true,
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
-      "index": "whitespace"
-    },
-    "titles": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "index": "whitespace"
-        },
-        "type": {
-          "index": "whitespace"
-        }
-      }
-    },
-    "contributors": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "index": "whitespace"
-        },
-        "type": {
-          "index": "whitespace"
-        },
-        "isCreator": {
-          "index": "whitespace"
-        }
-      }
-    },
-    "languages": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "index": "whitespace"
-        }
-      }
+      "index": "whitespace",
+      "searchAliases": [ "keyword" ]
     },
     "classifications": {
       "type": "object",
@@ -50,10 +19,52 @@
         }
       }
     },
-    "subjects": {
+    "contributors": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "whitespace",
+          "searchAliases": [ "workContributor" ]
+        },
+        "type": {
+          "index": "whitespace"
+        },
+        "isCreator": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "hubAAPs": {
+      "searchAliases": [ "hub", "keyword" ],
+      "index": "multilang"
+    },
+    "languages": {
+      "searchAliases": [ "lang", "language" ],
+      "index": "keyword_lowercase"
+    },
+    "notes": {
       "type": "object",
       "properties": {
         "value": {
+          "index": "whitespace",
+          "searchAliases": [ "workNote" ]
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "subjects": {
+      "index": "whitespace"
+    },
+    "titles": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace",
+          "searchAliases": [ "workTitle" ]
+        },
+        "type": {
           "index": "whitespace"
         }
       }
@@ -62,29 +73,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "index": "keyword"
-        },
-        "titles": {
-          "type": "object",
-          "properties": {
-            "value": {
-              "index": "whitespace"
-            },
-            "type": {
-              "index": "whitespace"
-            }
-          }
-        },
-        "identifiers": {
-          "type": "object",
-          "properties": {
-            "value": {
-              "index": "whitespace"
-            },
-            "type": {
-              "index": "whitespace"
-            }
-          }
+          "index": "keyword",
+          "searchAliases": [ "keyword" ]
         },
         "contributors": {
           "type": "object",
@@ -100,6 +90,36 @@
             }
           }
         },
+        "editionStatements": {
+          "index": "whitespace"
+        },
+        "format": {
+          "index": "whitespace",
+          "searchAliases": [ "format" ]
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace",
+              "searchAliases": [ "keyword" ]
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
+        "notes": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "index": "whitespace"
+            },
+            "type": {
+              "index": "whitespace"
+            }
+          }
+        },
         "publications": {
           "type": "object",
           "properties": {
@@ -107,14 +127,33 @@
               "index": "whitespace"
             },
             "date": {
-              "index": "whitespace"
+              "searchAliases": [ "publicationDate" ],
+              "index": "keyword"
             }
           }
         },
-        "editionStatements": {
+        "suppress": {
+          "type": "object",
+          "properties": {
+            "fromDiscovery": {
+              "searchAliases": [ "suppressFromDiscovery" ],
+              "index": "bool",
+              "default": false
+            },
+            "staff": {
+              "searchAliases": [ "staffSuppress" ],
+              "index": "bool",
+              "default": false
+            }
+          }
+        },
+        "titles": {
           "type": "object",
           "properties": {
             "value": {
+              "index": "whitespace"
+            },
+            "type": {
               "index": "whitespace"
             }
           }
@@ -123,6 +162,12 @@
     }
   },
   "searchFields": {
+    "contributor": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataWorkContributorProcessor",
+      "searchAliases": [ "keyword" ]
+    },
     "isbn": {
       "type": "search",
       "processor": "linkedDataWorkIsbnProcessor",
@@ -135,21 +180,23 @@
       "index": "standard",
       "processor": "linkedDataWorkLccnProcessor"
     },
+    "note": {
+      "type": "search",
+      "index": "multilang",
+      "processor": "linkedDataWorkNoteProcessor",
+      "searchAliases": [ "keyword" ]
+    },
     "title": {
       "type": "search",
       "index": "multilang",
-      "processor": "linkedDataWorkTitleProcessor"
+      "processor": "linkedDataWorkTitleProcessor",
+      "searchAliases": [ "keyword" ]
     },
     "sort_title": {
       "searchTypes": "sort",
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "linkedDataWorkSortTitleProcessor"
-    },
-    "contributor": {
-      "type": "search",
-      "index": "multilang",
-      "processor": "linkedDataWorkContributorProcessor"
     }
   },
   "indexMappings": { }

@@ -1,4 +1,4 @@
-description: "Linked data search result response"
+description: "Linked data Work search result response"
 type: "object"
 properties:
   searchQuery:

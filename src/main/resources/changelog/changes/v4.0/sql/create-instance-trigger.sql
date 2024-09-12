@@ -57,7 +57,8 @@ BEGIN
 
                 INSERT
                 INTO instance_classification(instance_id, classification_id, tenant_id, shared)
-                VALUES (NEW.id, classification_id, NEW.tenant_id, NEW.shared);
+                VALUES (NEW.id, classification_id, NEW.tenant_id, NEW.shared)
+                ON CONFLICT DO NOTHING;
             END LOOP;
     END IF;
 
@@ -83,7 +84,8 @@ BEGIN
 
                 INSERT
                 INTO instance_subject(instance_id, subject_id, tenant_id, shared)
-                VALUES (NEW.id, subject_id, NEW.tenant_id, NEW.shared);
+                VALUES (NEW.id, subject_id, NEW.tenant_id, NEW.shared)
+                ON CONFLICT DO NOTHING;
             END LOOP;
     END IF;
 
@@ -112,7 +114,8 @@ BEGIN
                 INSERT
                 INTO instance_contributor(instance_id, contributor_id, type_id, tenant_id, shared)
                 VALUES (NEW.id, contributor_id, coalesce_to_empty(entry ->> 'contributorTypeId'),
-                        NEW.tenant_id, NEW.shared);
+                        NEW.tenant_id, NEW.shared)
+                ON CONFLICT DO NOTHING;
             END LOOP;
     END IF;
 

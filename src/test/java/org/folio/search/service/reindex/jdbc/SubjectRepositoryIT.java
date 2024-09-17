@@ -70,24 +70,26 @@ class SubjectRepositoryIT {
   @Sql("/sql/populate-subjects.sql")
   void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
     // arrange
-    properties.setUploadRangeSize(5);
+    properties.setUploadRangeLevel(1);
 
     // act
     var ranges = repository.getUploadRanges(true);
 
     // assert
     assertThat(ranges)
-      .hasSize(5)
+      .hasSize(15)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))
-      .extracting(UploadRangeEntity::getLimit, UploadRangeEntity::getOffset)
-      .containsExactly(tuple(5, 0), tuple(5, 5), tuple(5, 10), tuple(5, 15), tuple(1, 20));
+      .extracting(UploadRangeEntity::getLower, UploadRangeEntity::getUpper)
+      .startsWith(tuple("0", "1"))
+      .contains(tuple("a", "b"))
+      .endsWith(tuple("e", "f"));
   }
 
   @Test
   @Sql("/sql/populate-subjects.sql")
   void fetchBy_returnListOfMaps() {
     // act
-    var ranges = repository.fetchBy(10, 19);
+    var ranges = repository.fetchByIdRange("20", "21");
 
     // assert
     assertThat(ranges)

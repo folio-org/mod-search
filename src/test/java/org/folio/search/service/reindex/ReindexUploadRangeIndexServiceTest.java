@@ -39,7 +39,8 @@ class ReindexUploadRangeIndexServiceTest {
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusService);
+    service = new ReindexUploadRangeIndexService(List.of(repository),
+      indexRangeEventProducer, statusService);
   }
 
   @Test
@@ -58,9 +59,9 @@ class ReindexUploadRangeIndexServiceTest {
     assertThat(events)
       .hasSize(1)
       .extracting(ReindexRangeIndexEvent::getEntityType,
-        ReindexRangeIndexEvent::getLimit,
-        ReindexRangeIndexEvent::getOffset)
-      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLimit(), uploadRange.getOffset()));
+        ReindexRangeIndexEvent::getLower,
+        ReindexRangeIndexEvent::getUpper)
+      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper()));
   }
 
   @Test
@@ -76,19 +77,18 @@ class ReindexUploadRangeIndexServiceTest {
     indexEvent.setId(UUID.randomUUID());
     indexEvent.setEntityType(ReindexEntityType.INSTANCE);
     indexEvent.setTenant(TENANT_ID);
-    indexEvent.setLimit(10);
-    indexEvent.setOffset(50);
+    indexEvent.setLower("00");
+    indexEvent.setUpper("ff");
 
     Map<String, Object> mockRecord = Map.of("key", "val");
-    when(repository.fetchBy(10, 50)).thenReturn(List.of(mockRecord));
+    when(repository.fetchByIdRange("00", "ff")).thenReturn(List.of(mockRecord));
 
     var actual = service.fetchRecordRange(indexEvent);
 
     assertThat(actual)
-    .hasSize(1)
+      .hasSize(1)
       .extracting(ResourceEvent::getTenant, ResourceEvent::getNew, ResourceEvent::getResourceName)
       .containsExactly(Tuple.tuple(TENANT_ID, mockRecord, ResourceType.INSTANCE.getName()));
   }
-
 
 }

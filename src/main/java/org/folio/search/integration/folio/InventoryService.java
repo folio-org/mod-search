@@ -54,8 +54,8 @@ public class InventoryService {
       return;
     }
 
-    var from = rangeEntity.getLowerId().toString();
-    var to = rangeEntity.getUpperId().toString();
+    var from = rangeEntity.getLowerId();
+    var to = rangeEntity.getUpperId();
     var recordsRange = new InventoryReindexRecordsClient.ReindexRecords(
       rangeEntity.getId().toString(),
       rangeEntity.getEntityType().getType(),

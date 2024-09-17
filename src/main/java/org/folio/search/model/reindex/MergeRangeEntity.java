@@ -19,8 +19,8 @@ public class MergeRangeEntity {
   private final UUID id;
   private final ReindexEntityType entityType;
   private final String tenantId;
-  private final UUID lowerId;
-  private final UUID upperId;
+  private final String lowerId;
+  private final String upperId;
   private final Timestamp createdAt;
   private Timestamp finishedAt;
 

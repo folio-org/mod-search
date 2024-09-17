@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.RangeGenerator;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
@@ -29,10 +30,10 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       LEFT JOIN %s h on h.instance_id = i.id
       LEFT JOIN %s it on it.holding_id = h.id
       WHERE %s
-      GROUP BY i.id LIMIT ? OFFSET ?;
+      GROUP BY i.id;
     """;
 
-  private static final String EMPTY_WHERE_CLAUSE = "true";
+  private static final String IDS_RANGE_WHERE_CLAUSE = "i.id >= ?::uuid AND i.id <= ?::uuid";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "i.id IN (%s)";
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
@@ -65,9 +66,14 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       for (; i <= ids.size(); i++) {
         ps.setObject(i, ids.get(i - 1)); // set instance ids
       }
-      ps.setInt(i++, ids.size()); // set limit
-      ps.setInt(i, 0); // set offset
     }, rowToMapMapper());
+  }
+
+  @Override
+  protected List<RangeGenerator.Range> createRanges() {
+    var uploadRangeSize = reindexConfig.getUploadRangeSize();
+    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
+    return RangeGenerator.createUuidRanges(rangesCount);
   }
 
   @Override
@@ -75,7 +81,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     return SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      EMPTY_WHERE_CLAUSE);
+      IDS_RANGE_WHERE_CLAUSE);
   }
 
   @Override

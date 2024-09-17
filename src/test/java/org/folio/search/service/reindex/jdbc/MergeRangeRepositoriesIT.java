@@ -115,9 +115,13 @@ class MergeRangeRepositoriesIT {
     // given
     var id1 = UUID.randomUUID();
     var id2 = UUID.randomUUID();
+    var bound1 = id1.toString().replace("-", "");
+    var bound2 = id2.toString().replace("-", "");
     var instanceRanges = List.of(
-      new MergeRangeEntity(id1, ReindexEntityType.INSTANCE, "member", id1, id1, Timestamp.from(Instant.now())),
-      new MergeRangeEntity(id2, ReindexEntityType.INSTANCE, "member", id2, id2, Timestamp.from(Instant.now()))
+      new MergeRangeEntity(id1, ReindexEntityType.INSTANCE, "member", bound1, bound1,
+        Timestamp.from(Instant.now())),
+      new MergeRangeEntity(id2, ReindexEntityType.INSTANCE, "member", bound2, bound2,
+        Timestamp.from(Instant.now()))
     );
 
     // act
@@ -159,7 +163,8 @@ class MergeRangeRepositoriesIT {
 
     assertThat(List.of(instanceCount, holdingCount, itemCount)).allMatch(count -> count == 2);
 
-    var actual = uploadInstanceRepository.fetchBy(5, 0);
+    var actual = uploadInstanceRepository.fetchByIdRange("00000000000000000000000000000000",
+      "ffffffffffffffffffffffffffffffff");
     assertThat(actual)
       .hasSize(2);
     var mainInstance = actual.stream().filter(map -> map.get("id").equals(mainInstanceId.toString())).findFirst().get();

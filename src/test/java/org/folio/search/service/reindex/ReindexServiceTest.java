@@ -83,8 +83,9 @@ class ReindexServiceTest {
     var tenant = "central";
     var member = "member";
     var id = UUID.randomUUID();
+    var bound = UUID.randomUUID().toString();
     var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()));
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
@@ -118,8 +119,9 @@ class ReindexServiceTest {
     var tenant = "central";
     var member = "member";
     var id = UUID.randomUUID();
+    var bound = UUID.randomUUID().toString();
     var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, id, id, Timestamp.from(Instant.now()));
+      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()));
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));

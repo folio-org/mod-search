@@ -275,10 +275,10 @@
       <column name="tenant_id" type="VARCHAR(100)">
         <constraints nullable="false"/>
       </column>
-      <column name="lower" type="UUID">
+      <column name="lower" type="CHAR(32)">
         <constraints nullable="false"/>
       </column>
-      <column name="upper" type="UUID">
+      <column name="upper" type="CHAR(32)">
         <constraints nullable="false"/>
       </column>
       <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
@@ -304,10 +304,10 @@
       <column name="entity_type" type="VARCHAR(30)">
         <constraints nullable="false"/>
       </column>
-      <column name="range_limit" type="integer">
+      <column name="lower" type="VARCHAR(40)">
         <constraints nullable="false"/>
       </column>
-      <column name="range_offset" type="integer">
+      <column name="upper" type="VARCHAR(40)">
         <constraints nullable="false"/>
       </column>
       <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">

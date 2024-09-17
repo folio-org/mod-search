@@ -71,7 +71,7 @@ public class ContributorRepository extends UploadRangeRepository {
 
   @Override
   protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), EMPTY_WHERE_CLAUSE);
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), ID_RANGE_WHERE_CLAUSE);
   }
 
   @Override

@@ -4,14 +4,17 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
 public class MergeInstanceRepository extends MergeRangeRepository {
 
@@ -48,13 +51,24 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     var sql = INSERT_SQL.formatted(fullTableName);
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
 
-    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
-      (statement, entity) -> {
-        statement.setObject(1, entity.get("id"));
-        statement.setString(2, tenantId);
-        statement.setObject(3, shared);
-        statement.setObject(4, entity.getOrDefault("isBoundWith", false));
-        statement.setString(5, jsonConverter.toJson(entity));
-      });
+    try {
+      jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setObject(1, entity.get("id"));
+          statement.setString(2, tenantId);
+          statement.setObject(3, shared);
+          statement.setObject(4, entity.getOrDefault("isBoundWith", false));
+          statement.setString(5, jsonConverter.toJson(entity));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveEntities::Failed to save batch. Starting processing one-by-one", e);
+      for (Map<String, Object> entity : entities) {
+        jdbcTemplate.update(sql, entity.get("id"),
+          tenantId,
+          shared,
+          entity.getOrDefault("isBoundWith", false),
+          jsonConverter.toJson(entity));
+      }
+    }
   }
 }

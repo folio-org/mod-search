@@ -15,7 +15,6 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.reindex.ReindexStatusEntity;
@@ -114,7 +113,7 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, totalUploadRanges, Timestamp.from(Instant.now()), entityType.name());
   }
 
-  public void setMergeReindexFailed(Set<ReindexEntityType> entityTypes) {
+  public void setMergeReindexFailed(List<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));

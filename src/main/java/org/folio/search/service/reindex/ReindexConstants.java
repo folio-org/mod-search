@@ -1,14 +1,11 @@
 package org.folio.search.service.reindex;
 
-import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
-import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
-import static org.folio.search.model.types.ReindexEntityType.ITEM;
-
 import java.util.Map;
-import java.util.Set;
+import lombok.experimental.UtilityClass;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 
+@UtilityClass
 public final class ReindexConstants {
 
   public static final Map<ReindexEntityType, ResourceType> RESOURCE_NAME_MAP = Map.of(
@@ -30,9 +27,5 @@ public final class ReindexConstants {
   public static final String SUBJECT_TABLE = "subject";
   public static final String UPLOAD_RANGE_TABLE = "upload_range";
   public static final String REINDEX_STATUS_TABLE = "reindex_status";
-
-  public static final Set<ReindexEntityType> MERGE_RANGE_ENTITY_TYPES = Set.of(INSTANCE, ITEM, HOLDINGS);
-
-  private ReindexConstants() { }
 
 }

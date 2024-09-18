@@ -4,7 +4,6 @@ import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
-import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,7 +95,7 @@ class ReindexServiceTest {
       ((Runnable) invocation.getArgument(0)).run();
       return null;
     }).when(reindexExecutor).execute(any());
-    final var expectedCallsCount = MERGE_RANGE_ENTITY_TYPES.size();
+    final var expectedCallsCount = ReindexEntityType.supportMergeTypes().size();
 
     reindexService.submitFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));

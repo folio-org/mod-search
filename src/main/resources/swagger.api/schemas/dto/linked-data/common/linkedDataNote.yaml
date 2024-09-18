@@ -1,0 +1,12 @@
+description: "Linked data Note DTO, contains value and type"
+type: "object"
+properties:
+  value:
+    type: "string"
+    description: "Value of a note"
+  type:
+    type: "string"
+    description: "Type of a note"
+required:
+  - "value"
+  - "type"

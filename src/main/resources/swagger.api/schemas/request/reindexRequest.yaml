@@ -13,6 +13,7 @@ properties:
       - instance
       - authority
       - location
+      - linked-data-instance
       - linked-data-work
       - linked-data-authority
   indexSettings:

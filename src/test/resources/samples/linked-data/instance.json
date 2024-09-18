@@ -1,0 +1,146 @@
+{
+  "id": "instance1",
+  "contributors": [
+    {
+      "name": "Instance1_Family",
+      "type": "Family",
+      "isCreator": true
+    },
+    {
+      "name": "Instance1_Meeting",
+      "type": "Meeting",
+      "isCreator": false
+    },
+    {
+      "name": "Instance1_Organization",
+      "type": "Organization",
+      "isCreator": true
+    },
+    {
+      "name": "Instance1_Person",
+      "type": "Person",
+      "isCreator": false
+    }
+  ],
+  "editionStatements": [
+    "1st edition",
+    "2nd edition"
+  ],
+  "format": "Monograph",
+  "identifiers": [
+    {
+      "value": "1234567890123",
+      "type": "ISBN"
+    },
+    {
+      "value": "  2023-202345/AC/r932",
+      "type": "LCCN"
+    }
+  ],
+  "notes": [
+    {
+      "value": "first instance note",
+      "type": "firstInstanceNoteType"
+    },
+    {
+      "value": "second instance note",
+      "type": "secondInstanceNoteType"
+    }
+  ],
+  "publications": [
+    {
+      "name": "publisher",
+      "date": "2023"
+    },
+    {
+      "name": "publisher2",
+      "date": 2024
+    }
+  ],
+  "suppress": {
+    "fromDiscovery": false,
+    "staff": true
+  },
+  "titles": [
+    {
+      "value": "titleAbc def",
+      "type": "Main"
+    },
+    {
+      "value": "sub",
+      "type": "Sub"
+    }
+  ],
+  "parentWork": {
+    "id": "123456123456",
+    "classifications": [
+      {
+        "number": "1234",
+        "source": "ddc"
+      },
+      {
+        "number": "5678",
+        "source": "other"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Family",
+        "type": "Family",
+        "isCreator": true
+      },
+      {
+        "name": "Meeting",
+        "type": "Meeting",
+        "isCreator": false
+      },
+      {
+        "name": "Organization",
+        "type": "Organization",
+        "isCreator": true
+      },
+      {
+        "name": "Person",
+        "type": "Person",
+        "isCreator": false
+      },
+      {
+        "name": "common",
+        "type": "Family",
+        "isCreator": true
+      }
+    ],
+    "hubAAPs": [
+      "hubAAP1",
+      "hubAAP2"
+    ],
+    "languages": [
+      "eng",
+      "rus"
+    ],
+    "notes": [
+      {
+        "value": "first work note",
+        "type": "firstWorkNoteType"
+      },
+      {
+        "value": "second work note",
+        "type": "secondWorkNoteType"
+      }
+    ],
+    "subjects": [
+      "Subject 1",
+      "Subject 2"
+    ],
+    "titles": [
+      {
+        "value": "WorkTitle",
+        "type": "Main"
+      },
+      {
+        "value": "sub",
+        "type": "Sub"
+      }
+    ]
+  }
+}

@@ -260,6 +260,7 @@
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-testing</artifactId>
       <version>${folio-spring-support.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

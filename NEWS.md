@@ -9,7 +9,7 @@
 * Provides `consortium-search v1.2`
 
 ### Features
-* Implement indices recreation of linked-data-work and linked-data-authority ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))
+* Implement indices recreation of the Linked Data resources ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))
 * Extension of mod-search consortium items/holdings API ([MSEARCH-788](https://issues.folio.org/browse/MSEARCH-788))
 * Create location index and process location events ([MSEARCH-703](https://issues.folio.org/browse/MSEARCH-703))
 * Implement reindexing of locations ([MSEARCH-702](https://issues.folio.org/browse/MSEARCH-702))
@@ -22,6 +22,7 @@
 * Search consolidated items/holdings data in consortium ([MSEARCH-759](https://folio-org.atlassian.net/browse/MSEARCH-759))
 * Create linked data work index and process linked data work events ([MSEARCH-781](https://folio-org.atlassian.net/browse/MSEARCH-781))
 * Create linked data authority index and process linked data authority events ([MSEARCH-784](https://folio-org.atlassian.net/browse/MSEARCH-784))
+* Create linked data instance index and process linked data instance events ([MSEARCH-829](https://folio-org.atlassian.net/browse/MSEARCH-829))
 * Allow Unified List of Inventory Locations in a Consortium to be fetched by member tenants ([MSEARCH-660](https://folio-org.atlassian.net/browse/MSEARCH-660))
 * Implement Indexing of Campuses from Kafka ([MSEARCH-770](https://issues.folio.org/browse/MSEARCH-770))
 * Extend response with additional Location fields for Inventory Locations in a Consortium endpoint ([MSEARCH-775](https://folio-org.atlassian.net/browse/MSEARCH-775))
@@ -48,7 +49,8 @@
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 
 ### Tech Dept
-* Re-Index: delete all records from consortium_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
+* Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
+* Test scope for folio-spring-testing ([MSEARCH-834](https://folio-org.atlassian.net/browse/MSEARCH-834))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

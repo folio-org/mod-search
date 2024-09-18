@@ -1,5 +1,6 @@
 package org.folio.search.support.base;
 
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.folio.search.domain.dto.Instance;
@@ -124,11 +126,11 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, null);
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, query, null, null, expandAll);
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query, "expandAll", valueOf(expandAll)));
   }
 }

@@ -334,12 +334,12 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `locations`,
-  `linked-data-work`, `linked-data-authority`. Please note that `locations` reindex is synchronous.
+* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `location`,
+  `linked-data-instance`, `linked-data-work`, `linked-data-authority`. Please note that `location` reindex is synchronous.
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.
-* Please note that for `linked-data-work` and `linked-data-authority` resources the endpoint is used only for index recreation
+* Please note that for `linked-data-instance`, `linked-data-work` and `linked-data-authority` resources the endpoint is used only for index recreation
   purpose and actual reindex operation is triggered through mod-linked-data.
 
 ### Monitoring reindex process
@@ -421,6 +421,7 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 |:-------|:----------------------------------|:-------------------------------------------------------------------------------------|
 | GET    | `/search/instances`               | Search by instances and to this instance items and holding-records                   |
 | GET    | `/search/authorities`             | Search by authority records                                                          |
+| GET    | `/search/linked-data/instances`   | Search linked data graph instance resource descriptions                              |
 | GET    | `/search/linked-data/works`       | Search linked data graph work resource descriptions                                  |
 | GET    | `/search/linked-data/authorities` | Search linked data graph authority resource descriptions                             |
 | GET    | `/search/{recordType}/facets`     | Get facets where recordType could be: instances, authorities, contributors, subjects |
@@ -559,8 +560,6 @@ does not produce any values, so the following search options will return an empt
 | `oclc`                                 |   term    | `oclc="1234*"`                                                       | Matches instances that have an OCLC identifier with the given value                                                                               |
 | `lccn`                                 |   term    | `lccn = "LCCN"`                                                      | Matches instances with the given lccn                                                                                                             |
 | `normalizedClassificationNumber`       |   term    | `normalizedClassificationNumber == "LCCN"`                           | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
-| `dates.date1`                          |   term    | `dates.date1="199*"`                                                 | Matches instances with the given Date1 (supports leading, trailing  and internal wildcards)                                                       |
-| `dates.date2`                          |   term    | `dates.date2="199*"`                                                 | Matches instances with the given Date2 (supports leading, trailing  and internal wildcards)                                                       |
 | `normalizedDate1`                      |   term    | `normalizedDate1>=1990`                                              | Matches instances with the given Date1 (normalizes  alpha 'u' characters)                                                                         |
 
 ##### Holdings search options

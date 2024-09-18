@@ -1,0 +1,21 @@
+description: "Linked data Contributor DTO, contains name, type and isCreator flag"
+type: "object"
+properties:
+  name:
+    type: "string"
+    description: "Name of contributor"
+  type:
+    type: "string"
+    enum:
+      - "Family"
+      - "Jurisdiction"
+      - "Meeting"
+      - "Organization"
+      - "Person"
+  isCreator:
+    type: "boolean"
+    description: "A flag indicating whether the contributor is the creator"
+required:
+  - "name"
+  - "type"
+  - "isCreator"

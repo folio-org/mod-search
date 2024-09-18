@@ -1,9 +1,31 @@
 package org.folio.search.controller;
 
-import static java.lang.String.format;
-import static java.lang.String.join;
 import static org.folio.search.sample.SampleLinkedData.getWork2SampleAsMap;
 import static org.folio.search.sample.SampleLinkedData.getWorkSampleAsMap;
+import static org.folio.search.utils.LinkedDataTestUtils.toClassificationNumber;
+import static org.folio.search.utils.LinkedDataTestUtils.toClassificationSource;
+import static org.folio.search.utils.LinkedDataTestUtils.toContributorIsCreator;
+import static org.folio.search.utils.LinkedDataTestUtils.toContributorName;
+import static org.folio.search.utils.LinkedDataTestUtils.toContributorType;
+import static org.folio.search.utils.LinkedDataTestUtils.toEditionStatement;
+import static org.folio.search.utils.LinkedDataTestUtils.toFormat;
+import static org.folio.search.utils.LinkedDataTestUtils.toHubAap;
+import static org.folio.search.utils.LinkedDataTestUtils.toId;
+import static org.folio.search.utils.LinkedDataTestUtils.toIdType;
+import static org.folio.search.utils.LinkedDataTestUtils.toIdValue;
+import static org.folio.search.utils.LinkedDataTestUtils.toInstance;
+import static org.folio.search.utils.LinkedDataTestUtils.toLanguage;
+import static org.folio.search.utils.LinkedDataTestUtils.toNoteType;
+import static org.folio.search.utils.LinkedDataTestUtils.toNoteValue;
+import static org.folio.search.utils.LinkedDataTestUtils.toPublicationDate;
+import static org.folio.search.utils.LinkedDataTestUtils.toPublicationName;
+import static org.folio.search.utils.LinkedDataTestUtils.toRootContent;
+import static org.folio.search.utils.LinkedDataTestUtils.toSubject;
+import static org.folio.search.utils.LinkedDataTestUtils.toSuppressFromDiscovery;
+import static org.folio.search.utils.LinkedDataTestUtils.toSuppressStaff;
+import static org.folio.search.utils.LinkedDataTestUtils.toTitleType;
+import static org.folio.search.utils.LinkedDataTestUtils.toTitleValue;
+import static org.folio.search.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -21,7 +43,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(LinkedDataWork.class, 2, getWorkSampleAsMap(), getWork2SampleAsMap());
+    setUpTenant(LinkedDataWork.class, getWorkSampleAsMap(), getWork2SampleAsMap());
   }
 
   @AfterAll
@@ -57,80 +79,120 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
   void searchByLinkedDataWork_parameterized_allResults(int index, String query) throws Throwable {
     var asc = query.contains("titleAbc def") || query.contains("sortBy") && !query.contains("descending");
     doSearchByLinkedDataWork(query)
-      .andExpect(jsonPath("$.totalRecords", is(2)))
-      .andExpect(jsonPath("$.content[0].titles[0].value", is(asc ? "titleAbc def" : "titleAbc xyz")))
-      .andExpect(jsonPath("$.content[1].titles[0].value", is(asc ? "titleAbc xyz" : "titleAbc def")));
+      .andExpect(jsonPath(toTotalRecords(), is(2)))
+      .andExpect(jsonPath(toTitleValue(toRootContent(), 0), is(asc ? "titleAbc def" : "titleAbc xyz")))
+      .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
   }
 
   @DisplayName("search by linked data work (single work is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
-    "1, title any \"def\"",
-    "2, title = \"titleAbc def\"",
-    "3, title == \"titleAbc def\"",
-    "4, title ==/string \"titleAbc def\"",
-    "5, isbn = \"*\"",
-    "6, isbn = \"1234567890123\"",
-    "7, isbn = \"1234*\"",
-    "8, isbn == \"1234567890123\"",
-    "9, isbn ==/string \"1234567890123\"",
-    "10, isbn any \"1234567890123\"",
-    "11, isbn any \"1234567890123 XXX\"",
-    "12, isbn all \"1234567890123\"",
-    "13, lccn = \"*\"",
-    "14, lccn = \"2023202345\"",
-    "15, lccn = \"2023*\"",
-    "16, lccn == \"2023202345\"",
-    "17, lccn ==/string \"2023202345\"",
-    "18, lccn any \"2023202345\"",
-    "19, lccn any \"2023202345 XXX\"",
-    "20, lccn all \"2023202345\"",
-    "21, contributor = Family",
-    "22, contributor == Meeting",
-    "23, contributor ==/string Organization",
-    "24, contributor any Person",
-    "25, contributor all Family"
+    "1, keyword = Family",
+    "2, keyword = titleAbc def",
+    "3, keyword = 1234567890123",
+    "4, keyword = hubAAP1",
+    "5, keyword = first instance note",
+    "6, title any \"def\"",
+    "7, title = \"titleAbc def\"",
+    "8, title == \"titleAbc def\"",
+    "9, title ==/string \"titleAbc def\"",
+    "10, isbn = \"*\"",
+    "11, isbn = \"1234567890123\"",
+    "12, isbn = \"1234*\"",
+    "13, isbn == \"1234567890123\"",
+    "14, isbn ==/string \"1234567890123\"",
+    "15, isbn any \"1234567890123\"",
+    "16, isbn any \"1234567890123 XXX\"",
+    "17, isbn all \"1234567890123\"",
+    "18, lccn = \"*\"",
+    "19, lccn = \"2023202345\"",
+    "20, lccn = \"2023*\"",
+    "21, lccn == \"2023202345\"",
+    "22, lccn ==/string \"2023202345\"",
+    "23, lccn any \"2023202345\"",
+    "24, lccn any \"2023202345 XXX\"",
+    "25, lccn all \"2023202345\"",
+    "26, contributor = Family",
+    "27, contributor == Meeting",
+    "28, contributor ==/string Organization",
+    "29, contributor any Person",
+    "30, contributor all Family",
+    "31, hub = *",
+    "32, hub = hubA*",
+    "33, hub = hubAAP1",
+    "34, hub == hubAAP2",
+    "35, hub ==/string hubAAP1",
+    "36, hub any \"hubAAP1 hubAAP2 XXX\"",
+    "37, hub all hubAAP1",
+    "38, note = *",
+    "39, note = first*",
+    "40, note = first instance note",
+    "41, note == first instance note",
+    "42, note ==/string first instance note",
+    "43, note any \"first instance note XXX\"",
+    "44, note all \"first instance note\"",
+    "45, lang = *",
+    "46, lang = ru*",
+    "47, lang = eng",
+    "48, lang == rus",
+    "49, lang ==/string eng",
+    "50, lang == (\"rus\" or \"eng\" or \"XXX\")",
+    "51, lang all rus",
+    "52, format = *",
+    "53, format = Mono*",
+    "54, format = monograph",
+    "55, format == monograph",
+    "56, format ==/string Monograph",
+    "57, format any \"Monograph XXX\"",
+    "58, format all Monograph",
+    "59, suppressFromDiscovery = false",
+    "60, suppressFromDiscovery == false",
+    "61, staffSuppress = true",
+    "62, staffSuppress == true",
+    "63, publicationDate = 2023",
+    "64, publicationDate == 2024",
+    "65, publicationDate ==/string 2023",
+    "66, publicationDate == (\"2023\" or \"2024\" or \"2020\")",
+    "67, publicationDate all 2024"
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath(toId(toWork()), is("123456123456")))
-      .andExpect(jsonPath(toTitleValue(toWork(), 0), is("titleAbc def")))
-      .andExpect(jsonPath(toTitleType(toWork(), 0), is("Main")))
-      .andExpect(jsonPath(toTitleValue(toWork(), 1), is("sub")))
-      .andExpect(jsonPath(toTitleType(toWork(), 1), is("Sub")))
-      .andExpect(jsonPath(toContributorName(toWork(), 0), is("Family")))
-      .andExpect(jsonPath(toContributorType(toWork(), 0), is("Family")))
-      .andExpect(jsonPath(toContributorIsCreator(toWork(), 0), is(true)))
-      .andExpect(jsonPath(toContributorName(toWork(), 1), is("Meeting")))
-      .andExpect(jsonPath(toContributorType(toWork(), 1), is("Meeting")))
-      .andExpect(jsonPath(toContributorIsCreator(toWork(), 1), is(false)))
-      .andExpect(jsonPath(toContributorName(toWork(), 2), is("Organization")))
-      .andExpect(jsonPath(toContributorType(toWork(), 2), is("Organization")))
-      .andExpect(jsonPath(toContributorIsCreator(toWork(), 2), is(true)))
-      .andExpect(jsonPath(toContributorName(toWork(), 3), is("Person")))
-      .andExpect(jsonPath(toContributorType(toWork(), 3), is("Person")))
-      .andExpect(jsonPath(toContributorIsCreator(toWork(), 3), is(false)))
-      .andExpect(jsonPath(toContributorName(toWork(), 4), is("common")))
-      .andExpect(jsonPath(toContributorType(toWork(), 4), is("Family")))
-      .andExpect(jsonPath(toContributorIsCreator(toWork(), 4), is(true)))
-      .andExpect(jsonPath(toLanguage(0), is("eng")))
-      .andExpect(jsonPath(toLanguage(1), is("rus")))
-      .andExpect(jsonPath(toClassificationNumber(0), is("1234")))
-      .andExpect(jsonPath(toClassificationSource(0), is("ddc")))
-      .andExpect(jsonPath(toClassificationNumber(1), is("5678")))
-      .andExpect(jsonPath(toClassificationSource(1), is("other")))
-      .andExpect(jsonPath(toSubject(0), is("Subject 1")))
-      .andExpect(jsonPath(toSubject(1), is("Subject 2")))
+      .andExpect(jsonPath(toTotalRecords(), is(1)))
+      .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("1234")))
+      .andExpect(jsonPath(toClassificationSource(toRootContent(), 0), is("ddc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("5678")))
+      .andExpect(jsonPath(toClassificationSource(toRootContent(), 1), is("other")))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 0), is("Family")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 0), is(true)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 1), is("Meeting")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 1), is("Meeting")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 1), is(false)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 2), is("Organization")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 2), is("Organization")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 2), is(true)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 3), is("Person")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 3), is("Person")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 3), is(false)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 4), is("common")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 4), is("Family")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 4), is(true)))
+      .andExpect(jsonPath(toHubAap(toRootContent(), 0), is("hubAAP1")))
+      .andExpect(jsonPath(toHubAap(toRootContent(), 1), is("hubAAP2")))
+      .andExpect(jsonPath(toLanguage(toRootContent(), 0), is("eng")))
+      .andExpect(jsonPath(toLanguage(toRootContent(), 1), is("rus")))
+      .andExpect(jsonPath(toNoteValue(toRootContent(), 0), is("first work note")))
+      .andExpect(jsonPath(toNoteType(toRootContent(), 0), is("firstWorkNoteType")))
+      .andExpect(jsonPath(toNoteValue(toRootContent(), 1), is("second work note")))
+      .andExpect(jsonPath(toNoteType(toRootContent(), 1), is("secondWorkNoteType")))
+      .andExpect(jsonPath(toSubject(toRootContent(), 0), is("Subject 1")))
+      .andExpect(jsonPath(toSubject(toRootContent(), 1), is("Subject 2")))
+      .andExpect(jsonPath(toTitleValue(toRootContent(), 0), is("titleAbc def")))
+      .andExpect(jsonPath(toTitleType(toRootContent(), 0), is("Main")))
+      .andExpect(jsonPath(toTitleValue(toRootContent(), 1), is("sub")))
+      .andExpect(jsonPath(toTitleType(toRootContent(), 1), is("Sub")))
       .andExpect(jsonPath(toId(toInstance()), is("instance1")))
-      .andExpect(jsonPath(toTitleValue(toInstance(), 0), is("Instance1_Title")))
-      .andExpect(jsonPath(toTitleType(toInstance(), 0), is("Main")))
-      .andExpect(jsonPath(toTitleValue(toInstance(), 1), is("Instance1_Subtitle")))
-      .andExpect(jsonPath(toTitleType(toInstance(), 1), is("Sub")))
-      .andExpect(jsonPath(toIdValue(0), is("1234567890123")))
-      .andExpect(jsonPath(toIdType(0), is("ISBN")))
-      .andExpect(jsonPath(toIdValue(1), is("  2023-202345/AC/r932")))
-      .andExpect(jsonPath(toIdType(1), is("LCCN")))
       .andExpect(jsonPath(toContributorName(toInstance(), 0), is("Instance1_Family")))
       .andExpect(jsonPath(toContributorType(toInstance(), 0), is("Family")))
       .andExpect(jsonPath(toContributorIsCreator(toInstance(), 0), is(true)))
@@ -143,13 +205,28 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toContributorName(toInstance(), 3), is("Instance1_Person")))
       .andExpect(jsonPath(toContributorType(toInstance(), 3), is("Person")))
       .andExpect(jsonPath(toContributorIsCreator(toInstance(), 3), is(false)))
-      .andExpect(jsonPath(toPublicationName(0), is("publisher")))
-      .andExpect(jsonPath(toPublicationDate(0), is("2023")))
-      .andExpect(jsonPath(toPublicationName(1), is("publisher2")))
-      .andExpect(jsonPath(toPublicationDate(1), is("2024")))
-      .andExpect(jsonPath(toEditionStatement(0), is("1st edition")))
-      .andExpect(jsonPath(toEditionStatement(1), is("2nd edition")))
-      ;
+      .andExpect(jsonPath(toEditionStatement(toInstance(), 0), is("1st edition")))
+      .andExpect(jsonPath(toEditionStatement(toInstance(), 1), is("2nd edition")))
+      .andExpect(jsonPath(toFormat(toInstance()), is("Monograph")))
+      .andExpect(jsonPath(toIdValue(toInstance(), 0), is("1234567890123")))
+      .andExpect(jsonPath(toIdType(toInstance(), 0), is("ISBN")))
+      .andExpect(jsonPath(toIdValue(toInstance(), 1), is("  2023-202345/AC/r932")))
+      .andExpect(jsonPath(toIdType(toInstance(), 1), is("LCCN")))
+      .andExpect(jsonPath(toNoteValue(toInstance(), 0), is("first instance note")))
+      .andExpect(jsonPath(toNoteType(toInstance(), 0), is("firstInstanceNoteType")))
+      .andExpect(jsonPath(toNoteValue(toInstance(), 1), is("second instance note")))
+      .andExpect(jsonPath(toNoteType(toInstance(), 1), is("secondInstanceNoteType")))
+      .andExpect(jsonPath(toPublicationName(toInstance(), 0), is("publisher")))
+      .andExpect(jsonPath(toPublicationDate(toInstance(), 0), is("2023")))
+      .andExpect(jsonPath(toPublicationName(toInstance(), 1), is("publisher2")))
+      .andExpect(jsonPath(toPublicationDate(toInstance(), 1), is("2024")))
+      .andExpect(jsonPath(toSuppressFromDiscovery(toInstance()), is(false)))
+      .andExpect(jsonPath(toSuppressStaff(toInstance()), is(true)))
+      .andExpect(jsonPath(toTitleValue(toInstance(), 0), is("Instance1_Title")))
+      .andExpect(jsonPath(toTitleType(toInstance(), 0), is("Main")))
+      .andExpect(jsonPath(toTitleValue(toInstance(), 1), is("Instance1_Subtitle")))
+      .andExpect(jsonPath(toTitleType(toInstance(), 1), is("Sub")))
+    ;
   }
 
   @DisplayName("search by liked data work (nothing is found)")
@@ -188,99 +265,86 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
   })
   void searchByLinkedDataWork_parameterized_zeroResults(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)
-      .andExpect(jsonPath("$.totalRecords", is(0)));
+      .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 
-  private String path(String path) {
-    return format("['%s']", path);
-  }
-
-  private String arrayPath(String path) {
-    return arrayPath(path, 0);
-  }
-
-  private String arrayPath(String path, int number) {
-    return format("['%s'][%s]", path, number);
-  }
-
-  private String toWork() {
-    return join(".", "$", arrayPath("content"));
-  }
-
-  private String toId(String base) {
-    return join(".", base, path("id"));
-  }
-
-  private String toTitle(String base, int number) {
-    return join(".", base, arrayPath("titles", number));
-  }
-
-  private String toTitleValue(String base, int number) {
-    return join(".", toTitle(base, number), path("value"));
-  }
-
-  private String toTitleType(String base, int number) {
-    return join(".", toTitle(base, number), path("type"));
-  }
-
-  private String toContributor(String base, int number) {
-    return join(".", base, arrayPath("contributors", number));
-  }
-
-  private String toContributorName(String base, int number) {
-    return join(".", toContributor(base, number), path("name"));
-  }
-
-  private String toContributorType(String base, int number) {
-    return join(".", toContributor(base, number), path("type"));
-  }
-
-  private String toContributorIsCreator(String base, int number) {
-    return join(".", toContributor(base, number), path("isCreator"));
-  }
-
-  private String toLanguage(int number) {
-    return join(".", toWork(), arrayPath("languages", number), path("value"));
-  }
-
-  private String toClassification(int number) {
-    return join(".", toWork(), arrayPath("classifications", number));
-  }
-
-  private String toClassificationNumber(int number) {
-    return join(".", toClassification(number), path("number"));
-  }
-
-  private String toClassificationSource(int number) {
-    return join(".", toClassification(number), path("source"));
-  }
-
-  private String toSubject(int number) {
-    return join(".", toWork(), arrayPath("subjects", number), path("value"));
-  }
-
-  private String toInstance() {
-    return join(".", toWork(), arrayPath("instances"));
-  }
-
-  private String toIdValue(int number) {
-    return join(".", toInstance(), arrayPath("identifiers", number), path("value"));
-  }
-
-  private String toIdType(int number) {
-    return join(".", toInstance(), arrayPath("identifiers", number), path("type"));
-  }
-
-  private String toPublicationName(int number) {
-    return join(".", toInstance(), arrayPath("publications", number), path("name"));
-  }
-
-  private String toPublicationDate(int number) {
-    return join(".", toInstance(), arrayPath("publications", number), path("date"));
-  }
-
-  private String toEditionStatement(int number) {
-    return join(".", toInstance(), arrayPath("editionStatements", number), path("value"));
+  @DisplayName("search by linked data work without instances (single work is found)")
+  @ParameterizedTest(name = "[{0}] {1}")
+  @CsvSource({
+    "1, keyword = titleAbc def",
+    "2, keyword = Family",
+    "4, keyword = hubAAP1",
+    "5, keyword = first work note",
+    "6, workTitle any \"def\"",
+    "7, workTitle = \"titleAbc def\"",
+    "8, workTitle == \"titleAbc def\"",
+    "9, workTitle ==/string \"titleAbc def\"",
+    "10, workContributor = Family",
+    "11, workContributor == Meeting",
+    "12, workContributor ==/string Organization",
+    "13, workContributor any Person",
+    "14, workContributor all Family",
+    "15, hub = *",
+    "16, hub = hubA*",
+    "17, hub = hubAAP1",
+    "18, hub == hubAAP2",
+    "19, hub ==/string hubAAP1",
+    "20, hub any \"hubAAP1 hubAAP2 XXX\"",
+    "21, hub all hubAAP1",
+    "22, workNote = *",
+    "23, workNote = first*",
+    "24, workNote = first work note",
+    "25, workNote == first work note",
+    "26, workNote ==/string first work note",
+    "27, workNote any \"first work note XXX\"",
+    "28, workNote all \"first work note\"",
+    "29, lang = *",
+    "30, lang = ru*",
+    "31, lang = eng",
+    "32, lang == rus",
+    "33, lang ==/string eng",
+    "34, lang == (\"rus\" or \"eng\" or \"XXX\")",
+    "35, lang all rus"
+  })
+  void searchByLinkedDataWorkWithNoInstances_parameterized_singleResult(int index, String query) throws Throwable {
+    doSearchByLinkedDataWorkWithoutInstances(query)
+      .andExpect(jsonPath(toTotalRecords(), is(1)))
+      .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("1234")))
+      .andExpect(jsonPath(toClassificationSource(toRootContent(), 0), is("ddc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("5678")))
+      .andExpect(jsonPath(toClassificationSource(toRootContent(), 1), is("other")))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 0), is("Family")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 0), is(true)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 1), is("Meeting")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 1), is("Meeting")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 1), is(false)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 2), is("Organization")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 2), is("Organization")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 2), is(true)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 3), is("Person")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 3), is("Person")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 3), is(false)))
+      .andExpect(jsonPath(toContributorName(toRootContent(), 4), is("common")))
+      .andExpect(jsonPath(toContributorType(toRootContent(), 4), is("Family")))
+      .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 4), is(true)))
+      .andExpect(jsonPath(toHubAap(toRootContent(), 0), is("hubAAP1")))
+      .andExpect(jsonPath(toHubAap(toRootContent(), 1), is("hubAAP2")))
+      .andExpect(jsonPath(toLanguage(toRootContent(), 0), is("eng")))
+      .andExpect(jsonPath(toLanguage(toRootContent(), 1), is("rus")))
+      .andExpect(jsonPath(toNoteValue(toRootContent(), 0), is("first work note")))
+      .andExpect(jsonPath(toNoteType(toRootContent(), 0), is("firstWorkNoteType")))
+      .andExpect(jsonPath(toNoteValue(toRootContent(), 1), is("second work note")))
+      .andExpect(jsonPath(toNoteType(toRootContent(), 1), is("secondWorkNoteType")))
+      .andExpect(jsonPath(toSubject(toRootContent(), 0), is("Subject 1")))
+      .andExpect(jsonPath(toSubject(toRootContent(), 1), is("Subject 2")))
+      .andExpect(jsonPath(toTitleValue(toRootContent(), 0), is("titleAbc def")))
+      .andExpect(jsonPath(toTitleType(toRootContent(), 0), is("Main")))
+      .andExpect(jsonPath(toTitleValue(toRootContent(), 1), is("sub")))
+      .andExpect(jsonPath(toTitleType(toRootContent(), 1), is("Sub")))
+      .andExpect(jsonPath(toInstance()).doesNotExist())
+    ;
   }
 
 }

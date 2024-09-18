@@ -1,0 +1,25 @@
+get:
+  operationId: searchLinkedDataInstances
+  summary: Search Linked Data Instances
+  description: Get a list of linked data records for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/linked-data-limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+  responses:
+    '200':
+      description: 'Linked data instances search result'
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/linkedDataInstanceSearchResult.yaml'
+          examples:
+            searchResult:
+              $ref: '../../examples/result/linkedDataInstanceSearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

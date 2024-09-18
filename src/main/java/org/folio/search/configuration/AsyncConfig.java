@@ -2,6 +2,7 @@ package org.folio.search.configuration;
 
 import java.util.concurrent.Executor;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.service.FolioExecutor;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AsyncConfig {
 
   private final StreamIdsProperties streamIdsProperties;
+  private final ReindexConfigurationProperties reindexConfigurationProperties;
 
   @Bean("streamIdsExecutor")
   public Executor streamIdsExecutor() {
@@ -37,6 +39,13 @@ public class AsyncConfig {
   @Bean("reindexUploadExecutor")
   public FolioExecutor reindexUploadExecutor() {
     return new FolioExecutor(2, 4);
+  }
+
+  @Bean("reindexPublisherExecutor")
+  public FolioExecutor reindexPublisherExecutor() {
+    return new FolioExecutor(
+      reindexConfigurationProperties.getMergeRangePublisherCorePoolSize(),
+      reindexConfigurationProperties.getMergeRangePublisherMaxPoolSize());
   }
 }
 

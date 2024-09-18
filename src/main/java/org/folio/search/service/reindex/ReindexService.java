@@ -35,6 +35,7 @@ public class ReindexService {
   private final InventoryService inventoryService;
   private final ExecutorService reindexFullExecutor;
   private final ExecutorService reindexUploadExecutor;
+  private final ExecutorService reindexPublisherExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
 
@@ -46,6 +47,7 @@ public class ReindexService {
                         InventoryService inventoryService,
                         @Qualifier("reindexFullExecutor") ExecutorService reindexFullExecutor,
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
+                        @Qualifier("reindexPublisherExecutor") ExecutorService reindexPublisherExecutor,
                         ReindexEntityTypeMapper entityTypeMapper,
                         ReindexCommonService reindexCommonService) {
     this.consortiumService = consortiumService;
@@ -56,6 +58,7 @@ public class ReindexService {
     this.inventoryService = inventoryService;
     this.reindexFullExecutor = reindexFullExecutor;
     this.reindexUploadExecutor = reindexUploadExecutor;
+    this.reindexPublisherExecutor = reindexPublisherExecutor;
     this.entityTypeMapper = entityTypeMapper;
     this.reindexCommonService = reindexCommonService;
   }
@@ -141,12 +144,14 @@ public class ReindexService {
       if (CollectionUtils.isNotEmpty(rangeEntities)) {
         log.info("publishRecordsRange:: publishing merge ranges [tenant: {}, entityType: {}, count: {}]",
           tenantId, entityType, rangeEntities.size());
+
         statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
         for (var rangeEntity : rangeEntities) {
-          executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-            inventoryService.publishReindexRecordsRange(rangeEntity);
-            return null;
-          });
+          CompletableFuture.runAsync(() ->
+            executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+              inventoryService.publishReindexRecordsRange(rangeEntity);
+              return null;
+            }), reindexPublisherExecutor);
         }
       }
     }

@@ -21,4 +21,8 @@ public class ReindexConfigurationProperties {
   private Integer uploadRangeSize = 1_000;
 
   private Integer mergeRangeSize = 1_000;
+
+  private Integer mergeRangePublisherCorePoolSize = 3;
+
+  private Integer mergeRangePublisherMaxPoolSize = 6;
 }

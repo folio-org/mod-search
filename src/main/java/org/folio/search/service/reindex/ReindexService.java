@@ -139,6 +139,7 @@ public class ReindexService {
   }
 
   private void publishRecordsRange(String tenantId) {
+    var futures = new ArrayList<>();
     for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
       if (CollectionUtils.isNotEmpty(rangeEntities)) {
@@ -147,14 +148,16 @@ public class ReindexService {
 
         statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
         for (var rangeEntity : rangeEntities) {
-          CompletableFuture.runAsync(() ->
+          var publishFuture = CompletableFuture.runAsync(() ->
             executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
               inventoryService.publishReindexRecordsRange(rangeEntity);
               return null;
             }), reindexPublisherExecutor);
+          futures.add(publishFuture);
         }
       }
     }
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
   }
 
   private void validateUploadReindex(String tenantId, List<ReindexEntityType> entityTypes) {

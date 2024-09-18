@@ -58,6 +58,9 @@ BEGIN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'classifications')
             LOOP
                 classification_number := prepare_for_expected_format(entry ->> 'classificationNumber', 50);
+                IF classification_number = '' OR classification_number = ' ' THEN
+                    CONTINUE;
+                END IF;
                 classification_type_id := entry ->> 'classificationTypeId';
                 classification_id := calculate_hash_id(ARRAY [classification_number,
                     coalesce_to_empty(classification_type_id)]);
@@ -93,6 +96,9 @@ BEGIN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'subjects')
             LOOP
                 subject_value := prepare_for_expected_format(entry ->> 'value', 255);
+                IF subject_value = '' OR subject_value = ' ' THEN
+                    CONTINUE;
+                END IF;
                 subject_authority_id := entry ->> 'authorityId';
                 subject_id := calculate_hash_id(ARRAY [subject_value, coalesce_to_empty(subject_authority_id)]);
 
@@ -128,6 +134,9 @@ BEGIN
         FOR entry IN SELECT * FROM jsonb_array_elements(NEW.json -> 'contributors')
             LOOP
                 contributor_name := prepare_for_expected_format(entry ->> 'name', 255);
+                IF contributor_name = '' OR contributor_name = ' ' THEN
+                    CONTINUE;
+                END IF;
                 contributor_name_type_id := entry ->> 'contributorNameTypeId';
                 contributor_authority_id := entry ->> 'authorityId';
                 contributor_id := calculate_hash_id(ARRAY [contributor_name,

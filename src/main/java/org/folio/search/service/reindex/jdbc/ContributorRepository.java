@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.InstanceContributorEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
@@ -25,19 +26,21 @@ import org.springframework.stereotype.Repository;
 public class ContributorRepository extends UploadRangeRepository {
 
   public static final String SELECT_QUERY = """
-    WITH contributor_range AS(
-        SELECT * FROM %1$s.contributor WHERE %2$s
-    )
-    SELECT cr.id, cr.name, cr.name_type_id, cr.authority_id, json_agg(json_build_object(
+    SELECT c.id, c.name, c.name_type_id, c.authority_id, json_agg(json_build_object(
                 'instanceId', ic.instance_id,
                 'typeId', NULLIF(ic.type_id, ''),
                 'shared', ic.shared,
                 'tenantId', ic.tenant_id
             )) AS instances
     FROM %1$s.instance_contributor ic
-    JOIN contributor_range cr ON cr.id = ic.contributor_id
-    GROUP BY cr.id, cr.name, cr.name_type_id, cr.authority_id;
+    JOIN %1$s.contributor c ON c.id = ic.contributor_id
+    WHERE %2$s
+    GROUP BY c.id, c.name, c.name_type_id, c.authority_id;
     """;
+
+  private static final String ID_RANGE_WHERE_CLAUSE = "ic.contributor_id >= ? AND ic.contributor_id <= ? "
+                                                      + "AND c.id >= ? AND c.id <= ?";
+  private static final String IDS_WHERE_CLAUSE = "ic.contributor_id IN (%1$s) AND c.id IN (%1$s)";
 
   protected ContributorRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                   FolioExecutionContext context,
@@ -66,7 +69,13 @@ public class ContributorRepository extends UploadRangeRepository {
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceAggRowMapper(), ids.toArray());
+    return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
   }
 
   @Override

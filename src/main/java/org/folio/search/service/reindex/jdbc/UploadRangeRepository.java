@@ -30,8 +30,6 @@ import org.springframework.jdbc.core.RowMapper;
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
   protected static final String SELECT_RECORD_SQL = "SELECT * from %s WHERE id >= ? AND id <= ?;";
-  protected static final String ID_RANGE_WHERE_CLAUSE = "id >= ? AND id <= ?";
-  protected static final String IDS_WHERE_CLAUSE = "id IN (%s)";
 
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, lower, upper, created_at, finished_at)

@@ -80,6 +80,7 @@ folio:
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
+    upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}
     merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:1000}
   query:
     properties:

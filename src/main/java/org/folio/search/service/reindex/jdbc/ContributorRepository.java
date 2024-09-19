@@ -35,7 +35,7 @@ public class ContributorRepository extends UploadRangeRepository {
     FROM %1$s.instance_contributor ic
     JOIN %1$s.contributor c ON c.id = ic.contributor_id
     WHERE %2$s
-    GROUP BY c.id, c.name, c.name_type_id, c.authority_id;
+    GROUP BY c.id;
     """;
 
   private static final String ID_RANGE_WHERE_CLAUSE = "ic.contributor_id >= ? AND ic.contributor_id <= ? "

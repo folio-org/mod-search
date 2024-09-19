@@ -21,11 +21,11 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
     SELECT i.json
-      || jsonb_build_object('tenantId', i.tenant_id)
-      || jsonb_build_object('shared', i.shared)
-      || jsonb_build_object('isBoundWith', i.is_bound_with)
-      || jsonb_build_object('holdings', COALESCE(jsonb_agg(DISTINCT h.json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb))
-      || jsonb_build_object('items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
+      || jsonb_build_object('tenantId', i.tenant_id,
+                            'shared', i.shared,
+                            'isBoundWith', i.is_bound_with,
+                            'holdings', COALESCE(jsonb_agg(DISTINCT h.json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
+                            'items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
     FROM %s i
       LEFT JOIN %s h on h.instance_id = i.id
       LEFT JOIN %s it on it.holding_id = h.id

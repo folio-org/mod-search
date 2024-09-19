@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.InstanceClassificationEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
@@ -25,18 +26,20 @@ import org.springframework.stereotype.Repository;
 public class ClassificationRepository extends UploadRangeRepository {
 
   private static final String SELECT_QUERY = """
-    WITH classification_range AS(
-        SELECT * FROM %1$s.classification WHERE %2$s
-    )
-    SELECT cr.id as id, cr.number as number, cr.type_id as type_id, json_agg(json_build_object(
+    SELECT c.id as id, c.number as number, c.type_id as type_id, json_agg(json_build_object(
                 'instanceId', ic.instance_id,
                 'shared', ic.shared,
                 'tenantId', ic.tenant_id
             )) AS instances
     FROM %1$s.instance_classification ic
-    JOIN classification_range cr ON cr.id = ic.classification_id
-    GROUP BY cr.id, cr.number, cr.type_id;
+    JOIN %1$s.classification c ON c.id = ic.classification_id
+    WHERE %2$s
+    GROUP BY c.id;
     """;
+
+  private static final String ID_RANGE_WHERE_CLAUSE = "ic.classification_id >= ? AND ic.classification_id <= ? "
+                                                      + "AND c.id >= ? AND c.id <= ?";
+  private static final String IDS_WHERE_CLAUSE = "ic.classification_id IN (%1$s) AND c.id IN (%1$s)";
 
   protected ClassificationRepository(JdbcTemplate jdbcTemplate,
                                      JsonConverter jsonConverter,
@@ -66,7 +69,13 @@ public class ClassificationRepository extends UploadRangeRepository {
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceClassificationAggRowMapper(), ids.toArray());
+    return jdbcTemplate.query(sql, instanceClassificationAggRowMapper(), ListUtils.union(ids, ids).toArray());
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
   }
 
   @Override

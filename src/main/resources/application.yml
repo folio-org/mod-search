@@ -19,6 +19,8 @@ spring:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
+      properties:
+        max.poll.interval.ms: 600000
     security:
       protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
     ssl:

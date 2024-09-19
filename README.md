@@ -65,7 +65,7 @@ This module provides a search functionality for instance and authorities via RES
 [The Contextual Query Language](https://www.loc.gov/standards/sru/cql/) as a formal language to query
 records using filters, boolean conditions, etc.
 
-mod-search has switched from Elasticsearch to OpenSearch for integration tests, however,
+mod-search works with either Elasticsearch and OpenSearch, however,
 many variables still have Elasticsearch in their name for backwards compatibility.
 
 ## Compiling
@@ -80,16 +80,12 @@ By default the integration tests run against an OpenSearch server.
 To run them against an Elasticsearch server use
 
 ```shell
-SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch/Dockerfile" mvn install
-```
-
-for Elasticsearch 7 or
-
-```shell
 SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch8/Dockerfile" mvn install
 ```
 
-for Elasticsearch 8 or run [GitHub Action elasticsearch.yml](.github/workflows/elasticsearch.yml).
+or run [GitHub Action elasticsearch.yml](.github/workflows/elasticsearch.yml).
+
+The GitHub Action automatically runs whenever a commit is pushed to the master branch.
 
 ## Running it
 

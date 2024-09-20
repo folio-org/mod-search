@@ -67,10 +67,6 @@ public class ReindexService {
 
     validateTenant(tenantId);
 
-    for (var reindexEntityType : ReindexEntityType.values()) {
-      reindexCommonService.recreateIndex(reindexEntityType, tenantId);
-    }
-
     reindexCommonService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
 

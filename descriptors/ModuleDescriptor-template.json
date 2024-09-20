@@ -605,6 +605,14 @@
     {
       "id": "user-tenants",
       "version": "1.0"
+    },
+    {
+      "id": "consortia",
+      "version": "1.0"
+    },
+    {
+      "id": "inventory-reindex-records",
+      "version": "1.0"
     }
   ],
   "requires": [

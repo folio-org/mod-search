@@ -1219,9 +1219,29 @@
         "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
       },
       {
-        "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT,",
+        "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT",
         "value": "20_000",
         "description": "Defines maximum batch request IDs count for searching consolidated items/holdings in consortium"
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_SIZE",
+        "value": "1_000",
+        "description": "The range size that represents the number of merge entities to process during the Merge process of reindex"
+      },
+      {
+        "name": "REINDEX_UPLOAD_RANGE_SIZE",
+        "value": "1_000",
+        "description": "The range size that represents the number of upload entities to process during the Upload process of reindex"
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE",
+        "value": "3",
+        "description": "The number of threads for publishing the merge ranges to keep in the pool, even if they are idle."
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE",
+        "value": "6",
+        "description": "The maximum number of threads for publishing the merge ranges to allow in the pool."
       }
     ]
   }

@@ -126,14 +126,15 @@ class ReindexServiceTest {
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any()))
-      .thenReturn(List.of()) // when creating ranges for one member tenant
-      .thenThrow(FolioIntegrationException.class); // when publishing ranges
+      .thenReturn(List.of()); // when creating ranges for one member tenant
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
 
     doAnswer(invocation -> {
       ((Runnable) invocation.getArgument(0)).run();
       return null;
-    }).when(reindexExecutor).execute(any());
+    })
+      .doThrow(FolioIntegrationException.class)
+      .when(reindexExecutor).execute(any());
 
     reindexService.submitFullReindex(tenant);
     ThreadUtils.sleep(Duration.ofSeconds(1));

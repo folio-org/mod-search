@@ -2,7 +2,6 @@ package org.folio.search.service.reindex;
 
 import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
 import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
-import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,9 +98,11 @@ public class ReindexService {
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
-                                                     List<ReindexUploadDto.EntityTypesEnum> entityTypesDto) {
-    log.info("submitUploadReindex:: for [tenantId: {}]", tenantId);
-    var reindexEntityTypes = entityTypeMapper.convert(entityTypesDto);
+                                                     List<ReindexUploadDto.EntityTypesEnum> entityTypes) {
+    log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
+    var reindexEntityTypes = entityTypeMapper.convert(entityTypes)
+      .stream().filter(ReindexEntityType::isSupportsUpload).toList();
+
     validateUploadReindex(tenantId, reindexEntityTypes);
 
     for (var reindexEntityType : reindexEntityTypes) {
@@ -140,7 +141,7 @@ public class ReindexService {
 
   private void publishRecordsRange(String tenantId) {
     var futures = new ArrayList<>();
-    for (var entityType : MERGE_RANGE_ENTITY_TYPES) {
+    for (var entityType : ReindexEntityType.supportMergeTypes()) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
       if (CollectionUtils.isNotEmpty(rangeEntities)) {
         log.info("publishRecordsRange:: publishing merge ranges [tenant: {}, entityType: {}, count: {}]",
@@ -166,7 +167,7 @@ public class ReindexService {
     var statusesByType = statusService.getStatusesByType();
 
     var mergeNotComplete = statusesByType.entrySet().stream()
-      .filter(status -> MERGE_RANGE_ENTITY_TYPES.contains(status.getKey()))
+      .filter(status -> ReindexEntityType.supportMergeTypes().contains(status.getKey()))
       .filter(status -> status.getValue().equals(MERGE_IN_PROGRESS) || status.getValue().equals(MERGE_FAILED))
       .findFirst();
     if (mergeNotComplete.isPresent()) {

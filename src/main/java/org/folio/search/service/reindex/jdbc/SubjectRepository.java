@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.InstanceSubjectEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
@@ -25,18 +26,21 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepository extends UploadRangeRepository {
 
   public static final String SELECT_QUERY = """
-    WITH subject_range AS(
-        SELECT * FROM %1$s.subject WHERE %2$s
-    )
-    SELECT sr.id, sr.value, sr.authority_id, json_agg(json_build_object(
+    SELECT s.id, s.value, s.authority_id, json_agg(json_build_object(
                 'instanceId', ins.instance_id,
                 'shared', ins.shared,
                 'tenantId', ins.tenant_id
             )) AS instances
     FROM %1$s.instance_subject ins
-    JOIN subject_range sr ON sr.id = ins.subject_id
-    GROUP BY sr.id, sr.value, sr.authority_id;
+    JOIN %1$s.subject s ON s.id = ins.subject_id
+    WHERE %2$s
+    GROUP BY s.id;
     """;
+
+  private static final String ID_RANGE_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ? "
+                                                      + "AND s.id >= ? AND s.id <= ?";
+  private static final String IDS_WHERE_CLAUSE = "ins.subject_id IN (%1$s) AND s.id IN (%1$s)";
+
 
   protected SubjectRepository(JdbcTemplate jdbcTemplate,
                               JsonConverter jsonConverter,
@@ -66,12 +70,20 @@ public class SubjectRepository extends UploadRangeRepository {
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceAggRowMapper(), ids.toArray());
+    return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
+
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
+  }
+
 
   @Override
   protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), EMPTY_WHERE_CLAUSE);
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), ID_RANGE_WHERE_CLAUSE);
   }
 
   @Override

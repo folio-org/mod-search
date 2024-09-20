@@ -42,8 +42,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
         statement.setObject(1, entity.getId());
         statement.setString(2, entity.getEntityType().getType());
         statement.setString(3, entity.getTenantId());
-        statement.setObject(4, entity.getLowerId());
-        statement.setObject(5, entity.getUpperId());
+        statement.setString(4, entity.getLowerId());
+        statement.setString(5, entity.getUpperId());
         statement.setTimestamp(6, entity.getCreatedAt());
         statement.setTimestamp(7, entity.getFinishedAt());
       });
@@ -79,8 +79,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
         rs.getObject(MergeRangeEntity.ID_COLUMN, UUID.class),
         ReindexEntityType.fromValue(rs.getString(MergeRangeEntity.ENTITY_TYPE_COLUMN)),
         rs.getString(MergeRangeEntity.TENANT_ID_COLUMN),
-        rs.getObject(MergeRangeEntity.RANGE_LOWER_COLUMN, UUID.class),
-        rs.getObject(MergeRangeEntity.RANGE_UPPER_COLUMN, UUID.class),
+        rs.getString(MergeRangeEntity.RANGE_LOWER_COLUMN),
+        rs.getString(MergeRangeEntity.RANGE_UPPER_COLUMN),
         rs.getTimestamp(MergeRangeEntity.CREATED_AT_COLUMN)
       );
       mergeRange.setFinishedAt(rs.getTimestamp(MergeRangeEntity.FINISHED_AT_COLUMN));

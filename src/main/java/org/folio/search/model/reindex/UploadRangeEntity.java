@@ -10,15 +10,15 @@ public class UploadRangeEntity {
 
   public static final String ID_COLUMN = "id";
   public static final String ENTITY_TYPE_COLUMN = "entity_type";
-  public static final String RANGE_LIMIT_COLUMN = "range_limit";
-  public static final String RANGE_OFFSET_COLUMN = "range_offset";
+  public static final String LOWER_BOUND_COLUMN = "lower";
+  public static final String UPPER_BOUND_COLUMN = "upper";
   public static final String CREATED_AT_COLUMN = "created_at";
   public static final String FINISHED_AT_COLUMN = "finished_at";
 
   private final UUID id;
   private final ReindexEntityType entityType;
-  private final int limit;
-  private final int offset;
+  private final String lower;
+  private final String upper;
   private final Timestamp createdAt;
   private Timestamp finishedAt;
 

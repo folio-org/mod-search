@@ -5,6 +5,7 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 import static org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
@@ -35,9 +36,16 @@ public abstract class KafkaConfiguration {
 
   protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(JsonDeserializer<T> deserializer,
                                                                                  KafkaProperties kafkaProperties) {
+    return getConsumerFactory(deserializer, kafkaProperties, Collections.emptyMap());
+  }
+
+  protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(JsonDeserializer<T> deserializer,
+                                                                                 KafkaProperties kafkaProperties,
+                                                                                 Map<String, Object> overrideProps) {
     var config = new HashMap<>(kafkaProperties.buildConsumerProperties(null));
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
+    config.putAll(overrideProps);
     return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
   }
 

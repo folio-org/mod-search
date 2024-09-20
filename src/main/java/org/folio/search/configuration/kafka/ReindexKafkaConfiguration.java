@@ -1,7 +1,9 @@
 package org.folio.search.configuration.kafka;
 
+import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
 import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.REINDEX_RANGE_INDEX;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.ParameterizedMessage;
@@ -22,7 +24,7 @@ import org.springframework.util.backoff.FixedBackOff;
 @Log4j2
 @Configuration
 @RequiredArgsConstructor
-public class ReindexRangeIndexEventKafkaConfiguration extends KafkaConfiguration {
+public class ReindexKafkaConfiguration extends KafkaConfiguration {
 
   private final KafkaProperties kafkaProperties;
 
@@ -31,7 +33,8 @@ public class ReindexRangeIndexEventKafkaConfiguration extends KafkaConfiguration
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent>();
     var deserializer = new JsonDeserializer<>(ReindexRangeIndexEvent.class, false);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
+    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setCommonErrorHandler(commonErrorHandler);
     return factory;
   }
@@ -41,7 +44,8 @@ public class ReindexRangeIndexEventKafkaConfiguration extends KafkaConfiguration
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent>();
     var deserializer = new JsonDeserializer<>(ReindexRecordsEvent.class, false);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
+    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setCommonErrorHandler(commonErrorHandler);
     return factory;
   }

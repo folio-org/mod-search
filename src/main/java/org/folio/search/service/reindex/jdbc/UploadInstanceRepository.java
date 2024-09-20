@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.RangeGenerator;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
@@ -20,19 +21,19 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
     SELECT i.json
-      || jsonb_build_object('tenantId', i.tenant_id)
-      || jsonb_build_object('shared', i.shared)
-      || jsonb_build_object('isBoundWith', i.is_bound_with)
-      || jsonb_build_object('holdings', COALESCE(jsonb_agg(DISTINCT h.json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb))
-      || jsonb_build_object('items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
+      || jsonb_build_object('tenantId', i.tenant_id,
+                            'shared', i.shared,
+                            'isBoundWith', i.is_bound_with,
+                            'holdings', COALESCE(jsonb_agg(DISTINCT h.json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
+                            'items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
     FROM %s i
       LEFT JOIN %s h on h.instance_id = i.id
       LEFT JOIN %s it on it.holding_id = h.id
       WHERE %s
-      GROUP BY i.id LIMIT ? OFFSET ?;
+      GROUP BY i.id;
     """;
 
-  private static final String EMPTY_WHERE_CLAUSE = "true";
+  private static final String IDS_RANGE_WHERE_CLAUSE = "i.id >= ?::uuid AND i.id <= ?::uuid";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "i.id IN (%s)";
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
@@ -65,9 +66,14 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       for (; i <= ids.size(); i++) {
         ps.setObject(i, ids.get(i - 1)); // set instance ids
       }
-      ps.setInt(i++, ids.size()); // set limit
-      ps.setInt(i, 0); // set offset
     }, rowToMapMapper());
+  }
+
+  @Override
+  protected List<RangeGenerator.Range> createRanges() {
+    var uploadRangeSize = reindexConfig.getUploadRangeSize();
+    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
+    return RangeGenerator.createUuidRanges(rangesCount);
   }
 
   @Override
@@ -75,7 +81,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     return SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      EMPTY_WHERE_CLAUSE);
+      IDS_RANGE_WHERE_CLAUSE);
   }
 
   @Override

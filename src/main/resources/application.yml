@@ -19,6 +19,8 @@ spring:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
+      properties:
+        max.poll.interval.ms: 600000
     security:
       protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
     ssl:
@@ -78,6 +80,7 @@ folio:
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
+    upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}
     merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:1000}
     merge-range-publisher-core-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE:3}
     merge-range-publisher-max-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE:6}
@@ -133,7 +136,7 @@ folio:
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|authority)
         group-id: ${folio.environment}-mod-search-linked-data-group
       reindex-range-index:
-        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:1}
+        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
       reindex-records:

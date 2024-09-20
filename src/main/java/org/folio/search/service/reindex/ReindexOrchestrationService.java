@@ -29,8 +29,8 @@ public class ReindexOrchestrationService {
   private final FolioExecutionContext context;
 
   public boolean process(ReindexRangeIndexEvent event) {
-    log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, offset: {}, limit: {}, ts: {}]",
-      event.getId(), event.getTenant(), event.getEntityType(), event.getOffset(), event.getLimit(), event.getTs());
+    log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, lower: {}, upper: {}, ts: {}]",
+      event.getId(), event.getTenant(), event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
     var resourceEvents = uploadRangeService.fetchRecordRange(event);
     var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);

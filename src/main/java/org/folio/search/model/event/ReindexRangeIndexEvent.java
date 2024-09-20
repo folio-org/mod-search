@@ -10,8 +10,8 @@ public class ReindexRangeIndexEvent implements BaseKafkaMessage {
 
   private UUID id;
   private ReindexEntityType entityType;
-  private int offset;
-  private int limit;
+  private String lower;
+  private String upper;
 
   private String tenant;
   private String ts;

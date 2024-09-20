@@ -47,7 +47,7 @@ public class ReindexUploadRangeIndexService {
   public Collection<ResourceEvent> fetchRecordRange(ReindexRangeIndexEvent rangeIndexEvent) {
     var entityType = rangeIndexEvent.getEntityType();
     var repository = repositories.get(entityType);
-    var recordMaps = repository.fetchBy(rangeIndexEvent.getLimit(), rangeIndexEvent.getOffset());
+    var recordMaps = repository.fetchByIdRange(rangeIndexEvent.getLower(), rangeIndexEvent.getUpper());
     return recordMaps.stream()
       .map(map -> new ResourceEvent().id(getString(map, ID_FIELD))
         .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType).getName())
@@ -67,8 +67,8 @@ public class ReindexUploadRangeIndexService {
         var event = new ReindexRangeIndexEvent();
         event.setId(range.getId());
         event.setEntityType(range.getEntityType());
-        event.setOffset(range.getOffset());
-        event.setLimit(range.getLimit());
+        event.setLower(range.getLower());
+        event.setUpper(range.getUpper());
         return event;
       })
       .toList();

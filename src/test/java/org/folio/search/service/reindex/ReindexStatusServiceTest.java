@@ -3,7 +3,6 @@ package org.folio.search.service.reindex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
-import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -89,7 +88,7 @@ class ReindexStatusServiceTest {
     service.updateReindexMergeFailed();
 
     // assert
-    verify(statusRepository).setMergeReindexFailed(MERGE_RANGE_ENTITY_TYPES);
+    verify(statusRepository).setMergeReindexFailed(ReindexEntityType.supportMergeTypes());
   }
 
   @Test
@@ -147,9 +146,9 @@ class ReindexStatusServiceTest {
     verify(statusRepository).saveReindexStatusRecords(captor.capture());
     var savedEntities = (List<ReindexStatusEntity>) captor.getValue();
     assertThat(savedEntities)
-      .hasSize(MERGE_RANGE_ENTITY_TYPES.size())
+      .hasSize(ReindexEntityType.supportMergeTypes().size())
       .are(new Condition<>(statusEntity ->
-        MERGE_RANGE_ENTITY_TYPES.contains(statusEntity.getEntityType()), "merge status entity"))
+        ReindexEntityType.supportMergeTypes().contains(statusEntity.getEntityType()), "merge status entity"))
       .are(new Condition<>(statusEntity ->
         ReindexStatus.MERGE_IN_PROGRESS.equals(statusEntity.getStatus()), "merge status entity"));
   }

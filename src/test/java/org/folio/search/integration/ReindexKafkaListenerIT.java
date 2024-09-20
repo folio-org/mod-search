@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.folio.search.configuration.kafka.ReindexRangeIndexEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.ReindexKafkaConfiguration;
 import org.folio.search.integration.message.ReindexKafkaListener;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
@@ -140,7 +140,7 @@ class ReindexKafkaListenerIT {
   @TestConfiguration
   @EnableRetry(proxyTargetClass = true)
   @RequiredArgsConstructor
-  @Import({ReindexRangeIndexEventKafkaConfiguration.class, KafkaAutoConfiguration.class, KafkaAdminService.class})
+  @Import({ReindexKafkaConfiguration.class, KafkaAutoConfiguration.class, KafkaAdminService.class})
   static class KafkaListenerTestConfiguration {
 
     private final KafkaProperties kafkaProperties;

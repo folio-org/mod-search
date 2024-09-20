@@ -1,10 +1,7 @@
 package org.folio.search.service.reindex;
 
-import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_ENTITY_TYPES;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.converter.ReindexStatusMapper;
@@ -52,7 +49,8 @@ public class ReindexStatusService {
   @Transactional
   public void recreateMergeStatusRecords() {
     log.info("recreateMergeStatusRecords:: recreating status records for reindex merge.");
-    var statusRecords = constructNewStatusRecords(MERGE_RANGE_ENTITY_TYPES, ReindexStatus.MERGE_IN_PROGRESS);
+    var statusRecords =
+      constructNewStatusRecords(ReindexEntityType.supportMergeTypes(), ReindexStatus.MERGE_IN_PROGRESS);
     statusRepository.truncate();
     statusRepository.saveReindexStatusRecords(statusRecords);
   }
@@ -73,8 +71,9 @@ public class ReindexStatusService {
   }
 
   public void updateReindexMergeFailed() {
-    log.info("updateReindexMergeFailed:: for [entityTypes: {}]", MERGE_RANGE_ENTITY_TYPES);
-    statusRepository.setMergeReindexFailed(MERGE_RANGE_ENTITY_TYPES);
+    var entityTypes = ReindexEntityType.supportMergeTypes();
+    log.info("updateReindexMergeFailed:: for [entityTypes: {}]", entityTypes);
+    statusRepository.setMergeReindexFailed(entityTypes);
   }
 
   public void updateReindexUploadFailed(ReindexEntityType entityType) {
@@ -96,7 +95,7 @@ public class ReindexStatusService {
     return statusRepository.isMergeCompleted();
   }
 
-  private List<ReindexStatusEntity> constructNewStatusRecords(Set<ReindexEntityType> entityTypes,
+  private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
                                                               ReindexStatus status) {
     return entityTypes.stream()
       .map(entityType -> new ReindexStatusEntity(entityType, status))

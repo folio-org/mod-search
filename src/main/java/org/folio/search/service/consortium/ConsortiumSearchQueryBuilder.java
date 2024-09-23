@@ -18,15 +18,16 @@ import org.folio.spring.FolioExecutionContext;
 
 public class ConsortiumSearchQueryBuilder {
 
-  static final String CONSORTIUM_INSTANCE_TABLE_NAME = "consortium_instance";
+  static final String INSTANCE_TABLE_NAME = "instance";
   static final String HOLDING_TABLE_NAME = "holding";
   static final String ITEM_TABLE_NAME = "item";
 
-  public static final Map<ResourceType, String> CONSORTIUM_TABLES = Map.of(
-    ResourceType.INSTANCE, CONSORTIUM_INSTANCE_TABLE_NAME,
+  private static final Map<ResourceType, String> CONSORTIUM_TABLES = Map.of(
+    ResourceType.INSTANCE, INSTANCE_TABLE_NAME,
     ResourceType.HOLDINGS, HOLDING_TABLE_NAME,
     ResourceType.ITEM, ITEM_TABLE_NAME
   );
+
   private static final Map<ResourceType, List<String>> RESOURCE_FIELDS = Map.of(
     ResourceType.HOLDINGS,
     List.of("hrid", "callNumberPrefix", "callNumber", "callNumberSuffix",
@@ -35,13 +36,14 @@ public class ConsortiumSearchQueryBuilder {
     List.of("hrid", "holdingsRecordId", "barcode")
   );
 
+  private static final String INSTANCE_ID = "instance_id";
   private static final Map<ResourceType, Map<String, String>> RESOURCE_FILTER_DATABASE_NAME = Map.of(
-    ResourceType.HOLDINGS, Map.of("instanceId", "instance_id", "tenantId", "tenant_id"),
-    ResourceType.ITEM, Map.of("instanceId", "instance_id", "tenantId", "tenant_id", "holdingsRecordId", "holding_id")
+    ResourceType.HOLDINGS, Map.of("instanceId", INSTANCE_ID, "tenantId", "tenant_id"),
+    ResourceType.ITEM, Map.of("instanceId", INSTANCE_ID, "tenantId", "tenant_id", "holdingsRecordId", "holding_id")
   );
 
   private static final Map<String, String> COLUMN_CASTS = Map.of(
-    "instance_id", "uuid",
+    INSTANCE_ID, "uuid",
     "holding_id", "uuid"
   );
 

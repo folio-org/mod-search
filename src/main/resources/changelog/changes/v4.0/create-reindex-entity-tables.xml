@@ -366,4 +366,14 @@
   <changeSet id="MSEARCH-821@@create-merge_status_function-trigger" author="pavlo_smahin">
     <sqlFile path="sql/check-merge-completed-status-function.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
+
+  <changeSet id="MSEARCH-821@@drop-consortium_instance-table" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="consortium_instance"/>
+    </preConditions>
+
+    <dropTable tableName="consortium_instance"/>
+  </changeSet>
+
+
 </databaseChangeLog>

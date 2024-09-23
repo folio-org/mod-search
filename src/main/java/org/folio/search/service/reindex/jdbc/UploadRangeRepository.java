@@ -100,7 +100,6 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
   }
 
   private List<UploadRangeEntity> prepareAndSaveUploadRanges() {
-    var uploadRangeLevel = reindexConfig.getUploadRangeLevel();
     var ranges = createRanges()
       .stream()
       .map(range -> new UploadRangeEntity(UUID.randomUUID(), entityType(), range.lowerBound(), range.upperBound(),

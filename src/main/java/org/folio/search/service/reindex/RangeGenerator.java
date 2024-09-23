@@ -43,7 +43,7 @@ public class RangeGenerator {
     }
 
     // Calculate the number of elements (2^length*4 since each hex digit represents 4 bits)
-    int totalElements = (int) Math.pow(2, length * 4) - 1;
+    int totalElements = (int) Math.pow(2, length * 4.0) - 1;
 
     List<Range> ranges = new ArrayList<>();
     String formatString = "%0" + length + "x"; // dynamic format for leading zeros

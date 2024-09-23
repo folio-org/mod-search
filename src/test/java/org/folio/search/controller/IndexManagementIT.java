@@ -135,7 +135,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
       .untilAsserted(() -> {
         assertNotEquals(indexIdBeforeReindex, getIndexId(resourceType));
-        assertThat(countDefaultIndexDocument(resourceType)).isEqualTo(0);
+        assertThat(countDefaultIndexDocument(resourceType)).isZero();
       });
   }
 

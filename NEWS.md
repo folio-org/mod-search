@@ -1,3 +1,8 @@
+## v3.2.7 2024-09-25
+### Bug fixes
+* Modify usage of shelving order in call-number browse ([MSEARCH-776](https://folio-org.atlassian.net/browse/MSEARCH-776))
+
+
 ## v3.2.6 2024-05-14
 ### Bug fixes
 * Do additional search request on browse before getting backward succeeding in order to find preceding results ([MSEARCH-705](https://folio-org.atlassian.net/browse/MSEARCH-705))

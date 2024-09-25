@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.client.InventoryViewClient;
@@ -31,12 +32,12 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ResultList;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,7 +47,6 @@ import org.mockito.stubbing.Answer;
 @ExtendWith(MockitoExtension.class)
 class ResourceFetchServiceTest {
 
-  @InjectMocks
   private ResourceFetchService resourceFetchService;
   @Mock
   private InventoryViewClient inventoryClient;
@@ -55,6 +55,7 @@ class ResourceFetchServiceTest {
 
   @BeforeEach
   void setUp() {
+    resourceFetchService = new ResourceFetchService(inventoryClient, context, new JsonConverter(new ObjectMapper()));
     lenient().when(context.getTenantId()).thenReturn(TENANT_ID);
   }
 
@@ -75,12 +76,12 @@ class ResourceFetchServiceTest {
 
     assertThat(actual).isEqualTo(List.of(
       resourceEvent(instanceId1, INSTANCE_RESOURCE,
-        mapOf("id", instanceId1, "title", "inst1", "isBoundWith", null,
-          "holdings", List.of(), "items", List.of(), "electronicAccess", List.of(), "notes", List.of())),
+        mapOf("id", instanceId1, "title", "inst1", "electronicAccess", List.of(),
+          "notes", List.of(), "items", List.of(), "holdings", List.of(), "isBoundWith", null)),
       resourceEvent(instanceId2, INSTANCE_RESOURCE, UPDATE,
-        mapOf("id", instanceId2, "title", "inst2",
+        mapOf("id", instanceId2, "title", "inst2", "electronicAccess", List.of(), "notes", List.of(),
+          "items", List.of(mapOf("id", "itemId", "notes", List.of(), "effectiveShelvingOrder", null)),
           "holdings", List.of(mapOf("id", "holdingId", "electronicAccess", List.of(), "notes", List.of())),
-          "items", List.of(mapOf("id", "itemId", "notes", List.of())),
           "isBoundWith", true, "electronicAccess", List.of(), "notes", List.of()),
         mapOf("id", instanceId2, "title", "old"))
     ));

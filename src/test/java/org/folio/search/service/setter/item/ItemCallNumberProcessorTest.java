@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class ItemCallNumberProcessorTest {
   void getFieldValue_multipleValue_positive() {
     var eventBody = instance(item("HD 11"), item("HD 12"), item("HD 11"));
     var actual = callNumberProcessor.getFieldValue(eventBody);
-    assertThat(actual).containsExactly(4408940162027048960L, 4408940181797658624L);
+    assertThat(actual).containsExactly(4408941193520587776L, 4408941193900791808L);
   }
 
   @Test
@@ -32,6 +33,7 @@ class ItemCallNumberProcessorTest {
   }
 
   private static Item item(String effectiveShelvingOrder) {
-    return new Item().effectiveShelvingOrder(effectiveShelvingOrder);
+    return new Item()
+      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(effectiveShelvingOrder));
   }
 }

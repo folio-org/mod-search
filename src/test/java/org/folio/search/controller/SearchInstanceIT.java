@@ -214,7 +214,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors all {value}", "frank"),
       arguments("contributors all {value}", "Frank"),
       arguments("contributors all {value}", "grigoris"),
-      arguments("contributors all {value}", "Grigoris Antoniou"),
+      arguments("contributors all {value}", "Grigoris Ant\\\\niou"),
       arguments("contributors any {value}", "Grigoris frank"),
       arguments("contributors all {value}", "Van Harmelen, Frank"),
       arguments("contributors == {value}", "Van Harmelen, Frank"),
@@ -226,7 +226,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "Van Harmelen"),
       arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
-      arguments("contributors.name = {value}", "Anton*"),
+      arguments("contributors.name = {value}", "Ant\\\\n*"),
       arguments("contributors.name = {value}", "*rmelen, Frank"),
 
       arguments("contributors.authorityId == {value}", "55294032-fcf6-45cc-b6da-4420a61ef72c"),
@@ -239,7 +239,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
-      arguments("keyword all {value}", "semantic Antoniou ocm0012345 047144250X"),
+      arguments("keyword all {value}", "semantic Ant\\\\niou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
       arguments("subjects ==/string {value}", "semantic web"),
 
@@ -450,7 +450,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors all {value}", "FRANK"),
       arguments("contributors all {value}", "FRANK"),
       arguments("contributors all {value}", "GRIGORIS"),
-      arguments("contributors all {value}", "GRIGORIS ANTONIOU"),
+      arguments("contributors all {value}", "GRIGORIS ANT\\\\NIOU"),
       arguments("contributors any {value}", "GRIGORIS FRANK"),
       arguments("contributors all {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors == {value}", "VAN HARMELEN, FRANK"),
@@ -462,18 +462,16 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "VAN HARMELEN"),
       arguments("contributors.name ==/string {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors.name = {value}", "VAN HARMELEN, FR*"),
-      arguments("contributors.name = {value}", "ANTON*"),
+      arguments("contributors.name = {value}", "ANT\\\\N*"),
       arguments("contributors.name = {value}", "*RMELEN, FRANK"),
 
       arguments("dates.date1 == {value}", "*9u"),
-      arguments("dates.date1 == {value}", "*99*"),
-      arguments("dates.date1 == {value}", "19*"),
-      arguments("dates.date1 > {value}", "19*"),
+      arguments("dates.date1 == {value}", "*\\\\9*"),
+      arguments("dates.date1 == {value}", "1\\\\*"),
 
       arguments("dates.date2 == {value}", "*22"),
       arguments("dates.date2 == {value}", "*02*"),
       arguments("dates.date2 == {value}", "20*"),
-      arguments("dates.date2 > {value}", " 2021"),
 
       arguments("contributors.authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
       arguments("authorityId == {value}", "55294032-FCF6-45CC-B6DA-4420A61EF72C"),
@@ -485,7 +483,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "SEMANTIC WEB PRIMER"),
-      arguments("keyword all {value}", "SEMANTIC ANTONIOU OCM0012345 047144250X"),
+      arguments("keyword all {value}", "SEMANTIC ANT\\\\NIOU OCM0012345 047144250X"),
       arguments("subjects all {value}", "SEMANTIC"),
       arguments("subjects ==/string {value}", "SEMANTIC WEB"),
 

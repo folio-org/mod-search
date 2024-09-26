@@ -25,6 +25,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 - [Data Indexing](#data-indexing)
   * [Recreating Elasticsearch index](#recreating-elasticsearch-index)
   * [Monitoring reindex process](#monitoring-reindex-process)
+- [Indexing of Instance Records](#indexing-of-instance-records)
 - [API](#api)
   * [CQL support](#cql-support)
     + [CQL query operators](#cql-query-operators)
@@ -284,6 +285,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
 | REINDEX_MERGE_RANGE_SIZE                           | 1_000                                                      | The range size that represents the number of merge entities to process during the Merge process of reindex                                                                            |
 | REINDEX_UPLOAD_RANGE_SIZE                          | 1_000                                                      | The range size that represents the number of upload entities to process during the Upload process of reindex                                                                          |
+| REINDEX_UPLOAD_RANGE_LEVEL                         | 3                                                          | The level of deepness of upload range generator affecting the number of ranges to be generated                                                                                        |
 | REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE       | 3                                                          | The number of threads for publishing the merge ranges to keep in the pool, even if they are idle.                                                                                     |
 | REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE        | 6                                                          | The maximum number of threads for publishing the merge ranges to allow in the pool.                                                                                                   |
 | MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                 | 20_000                                                     | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
@@ -364,6 +366,69 @@ _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
 `totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
 see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
+
+## Indexing of Instance Records
+
+The section below describes the data indexing for ```instance```, ```subject```, ```contribution``` and ```classification``` resource types.
+Since ```subject```, ```contribution``` and ```classification``` are derived or child records of an Instance, in short, we are referring to
+indexing of these and ```instance``` as _Indexing of Instances_ (or _Instances Indexing_) and resources as Instance resources.
+
+This is an improved and recommended version of instances indexing than that which is achieved with
+```POST [OKAPI_URL]/search/index/inventory/reindex``` and documented in [Data Indexing](#data-indexing) section
+
+The whole indexing procedure consist of two steps:
+1. Merge - building the necessary data model and collection of data in accordance with the built model
+2. Upload - querying the data and adding them into OpenSearch index
+
+Merge step can be considered as Data Aggregation or Data Reloading. We need to run this step when there is a breaking change introduced to index structure (mapping).
+Normally, we run Instances indexing with this step rarely, as introducing the breaking changes does not happen that frequently. The step aggregates all instances data
+available for the tenant into specific data models and keeps them there. For Create/Update/Delete operations performed on specific Instances mod-search will
+update or sync the aggregated data of those specific Instances, so that the aggregated data is always actual and represents the latest state of an instance resources.
+
+Upload step queries the aggregated data for the specific Instance resources type and then runs the indexing by populating the data into resource's OpenSearch index.
+
+We can execute both Merge and Upload steps with
+```http
+POST /search/index/instance-records/reindex/full
+```
+It runs the async process which performs both steps described above.
+
+If we do not want to run Merge step, but just Upload one then we can call the following async API:
+
+```http
+POST /search/index/instance-records/reindex/upload
+
+x-okapi-tenant: [tenant]
+x-okapi-token: [JWT_TOKEN]
+
+{
+  "entityTypes": ['instance', 'subject', 'contributor', 'classification']
+}
+```
+
+The assumption for running this API is that Merge step was run before with ```POST /search/index/instance-records/reindex/full``` which means we have aggregated data in our models.
+
+In order to monitor the async processes initiated by the above two APIs we can execute the endpoint:
+```http
+GET /search/index/instance-records/reindex/status
+```
+
+and it returns a response that may look like this:
+```json
+{
+  "entityType": "instance",
+  "status": "Upload Completed",
+  "totalMergeRanges": 3,
+  "processedMergeRanges": 3,
+  "totalUploadRanges": 2,
+  "processedUploadRanges": 2,
+  "startTimeMerge": "2024-04-01T01:37:34.15755006Z",
+  "endTimeMerge": "2024-04-01T01:37:35.15755006Z",
+  "startTimeUpload": "2024-04-01T01:37:36.15755006Z",
+  "endTimeUpload": "2024-04-01T01:37:37.15755006Z"
+}
+```
+
 
 ## API
 

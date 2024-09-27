@@ -6,6 +6,7 @@
 * Provides `indices v0.7`
 * Provides `search v1.3`
 * Provides `consortium-search v1.2`
+* Provides `browse v1.4`
 * Requires `locations v3.0`
 * Requires `instance-storage v10.3`
 

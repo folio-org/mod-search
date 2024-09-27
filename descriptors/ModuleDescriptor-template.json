@@ -81,7 +81,7 @@
           ],
           "pathPattern": "/search/index/instance-records/reindex/status",
           "permissionsRequired": [
-            "search.index.reindex.status.get"
+            "search.index.instance-records.reindex.status.get"
           ]
         },
         {
@@ -776,7 +776,7 @@
       "description": "Starts inventory reindex operation"
     },
     {
-      "permissionName": "search.index.reindex.status.get",
+      "permissionName": "search.index.instance-records.reindex.status.get",
       "displayName": "Search - returns reindex status for entities",
       "description": "Returns reindex status for entities"
     },
@@ -882,7 +882,18 @@
       "permissionName": "consortium-search.institutions.collection.get",
       "displayName": "Consortium Search - fetch institutions records",
       "description": "Returns institution records in consortium"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.all",
+      "displayName": "Search Instance Records Re-Index - All permissions",
+      "description": "Entire set of permissions needed to manage  Instance Records Re-Index",
+      "subPermissions": [
+        "search.index.instance-records.reindex.status.get",
+        "search.index.instance-records.reindex.full.post",
+        "search.index.instance-records.reindex.upload.post"
+      ]
     }
+
   ],
   "metadata": {
     "user": {

@@ -173,6 +173,8 @@
         <constraints nullable="false"/>
       </column>
       <column name="authority_id" type="VARCHAR(40)" defaultValue=""/>
+      <column name="source_id" type="VARCHAR(40)" defaultValue=""/>
+      <column name="type_id" type="VARCHAR(40)" defaultValue=""/>
     </createTable>
   </changeSet>
 

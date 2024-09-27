@@ -293,7 +293,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.empty());
 
     var browseContext = browseContext(false, null);
-    var resource = new SubjectResource("id", "value", "authority", subResources());
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::instances);
@@ -307,7 +307,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(null, null);
-    var resource = new SubjectResource("id", "value", "authority", subResources());
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::instances);
@@ -321,7 +321,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(null, "member");
-    var resource = new SubjectResource("id", "value", "authority", subResources());
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::instances);
@@ -335,7 +335,7 @@ class ConsortiumSearchHelperTest {
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
 
     var browseContext = browseContext(false, null);
-    var resource = new SubjectResource("id", "value", "authority", subResources());
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources());
 
     var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
       SubjectResource::instances);
@@ -352,7 +352,7 @@ class ConsortiumSearchHelperTest {
 
     var browseContext = browseContext(true, null);
     var subResources = subResources();
-    var resource = new SubjectResource("id", "value", "authority", subResources);
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources);
     var expected = newHashSet(subResources);
     expected.removeIf(s -> !s.getShared());
 

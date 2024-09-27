@@ -117,7 +117,8 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
 
   private ResourceEvent toResourceEvent(InstanceSubjectEntityAgg source, String tenant) {
     var id = source.id();
-    var resource = new SubjectResource(id, source.value(), source.authorityId(), source.instances());
+    var resource = new SubjectResource(id, source.value(), source.authorityId(), source.sourceId(), source.typeId(),
+      source.instances());
     return new ResourceEvent()
       .id(id)
       .tenant(tenant)
@@ -126,15 +127,18 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
       ._new(jsonConverter.convertToMap(resource));
   }
 
-  private String getEntityId(String number, String typeId) {
-    return ShaUtils.sha(truncate(number.replace("\\", "\\\\"), 255), typeId);
+  private String getEntityId(String number, String authorityId, String sourceId, String typeId) {
+    return ShaUtils.sha(truncate(number.replace("\\", "\\\\"), 255), authorityId, sourceId,
+      typeId);
   }
 
   @NotNull
   private List<String> toIds(Set<Map<String, Object>> subtract) {
     return subtract.stream()
       .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, "value"), ""),
-        MapUtils.getString(map, "authorityId")))
+        MapUtils.getString(map, "authorityId"),
+        MapUtils.getString(map, "sourceId"),
+        MapUtils.getString(map, "typeId")))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 

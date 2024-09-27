@@ -35,8 +35,10 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     var instanceId1 = randomId();
     var instanceId2 = randomId();
     var authorityId = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
+    var sourceId = "ce176ace-a53e-4b4d-aa89-725ed7b2edad";
+    var typeId = "ce176ace-a53e-4b4d-aa89-725ed7b2edae";
     var value = "Fantasy";
-    var subject = new Subject().value(value).authorityId(authorityId);
+    var subject = new Subject().value(value).authorityId(authorityId).sourceId(sourceId).typeId(typeId);
     var instance1 = new Instance().id(instanceId1).addSubjectsItem(subject);
     var instance2 = new Instance().id(instanceId2).addSubjectsItem(subject);
     inventoryApi.createInstance(TENANT_ID, instance1);
@@ -49,7 +51,9 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     assertThat(sourceAsMap)
       .contains(
         entry("value", value),
-        entry("authorityId", authorityId)
+        entry("authorityId", authorityId),
+        entry("sourceId", sourceId),
+        entry("typeId", typeId)
       );
 
     @SuppressWarnings("unchecked")

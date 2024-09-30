@@ -283,7 +283,7 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 | REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
-| REINDEX_MERGE_RANGE_SIZE                           | 1_000                                                      | The range size that represents the number of merge entities to process during the Merge process of reindex                                                                            |
+| REINDEX_MERGE_RANGE_SIZE                           | 500                                                        | The range size that represents the number of merge entities to process during the Merge process of reindex                                                                            |
 | REINDEX_UPLOAD_RANGE_SIZE                          | 1_000                                                      | The range size that represents the number of upload entities to process during the Upload process of reindex                                                                          |
 | REINDEX_UPLOAD_RANGE_LEVEL                         | 3                                                          | The level of deepness of upload range generator affecting the number of ranges to be generated                                                                                        |
 | REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE       | 3                                                          | The number of threads for publishing the merge ranges to keep in the pool, even if they are idle.                                                                                     |
@@ -387,13 +387,15 @@ update or sync the aggregated data of those specific Instances, so that the aggr
 
 Upload step queries the aggregated data for the specific Instance resources type and then runs the indexing by populating the data into resource's OpenSearch index.
 
-We can execute both Merge and Upload steps with
+We can execute both Merge and Upload steps with so called _full reindex_ API:
 ```http
 POST /search/index/instance-records/reindex/full
 ```
 It runs the async process which performs both steps described above.
 
-If we do not want to run Merge step, but just Upload one then we can call the following async API:
+If Instances Indexing was performed in the past, we have aggregated data of instances stored in our models, and changes we made do not require
+to perform mapping between the inventory Instance resources and OpenSearch indices then running the Merge Step in this and subsequent times is not
+necessary, and we can run only Upload step. In order to do this we can call the following async API:
 
 ```http
 POST /search/index/instance-records/reindex/upload
@@ -402,33 +404,76 @@ x-okapi-tenant: [tenant]
 x-okapi-token: [JWT_TOKEN]
 
 {
-  "entityTypes": ['instance', 'subject', 'contributor', 'classification']
+  "entityTypes": ["instance", "subject", "contributor", "classification"]
 }
 ```
 
-The assumption for running this API is that Merge step was run before with ```POST /search/index/instance-records/reindex/full``` which means we have aggregated data in our models.
+We can call the above API as _upload reindex_ API as it runs only Upload step. So, the assumption for running _upload reindex_ is that Merge step was run before with _full reindex_ API.
+If it is not the case or if our changes require to run the Merge step which means there are breaking changes on the mapping between the inventory Instance resources and OpenSearch indices
+then _full reindex_ API.
+
+We can specify one or many resource types in ```entityTypes``` array depending on our needs and if more than one resource type is given then upload step will run for each one of the
+specified resources.
 
 In order to monitor the async processes initiated by the above two APIs we can execute the endpoint:
 ```http
 GET /search/index/instance-records/reindex/status
 ```
 
-and it returns a response that may look like this:
+and it returns a response showing the status details for the latest run operations, merge and upload alike, which may look like the following:
 ```json
-{
-  "entityType": "instance",
-  "status": "Upload Completed",
-  "totalMergeRanges": 3,
-  "processedMergeRanges": 3,
-  "totalUploadRanges": 2,
-  "processedUploadRanges": 2,
-  "startTimeMerge": "2024-04-01T01:37:34.15755006Z",
-  "endTimeMerge": "2024-04-01T01:37:35.15755006Z",
-  "startTimeUpload": "2024-04-01T01:37:36.15755006Z",
-  "endTimeUpload": "2024-04-01T01:37:37.15755006Z"
-}
+[
+  {
+    "entityType": "holding",
+    "status": "Merge Completed",
+    "totalMergeRanges": 5,
+    "processedMergeRanges": 5,
+    "totalUploadRanges": 0,
+    "processedUploadRanges": 0,
+    "startTimeMerge": "2024-04-01T00:38:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:38:35.15755006Z"
+  },
+  {
+    "entityType": "item",
+    "status": "Merge Completed",
+    "totalMergeRanges": 3,
+    "processedMergeRanges": 3,
+    "totalUploadRanges": 0,
+    "processedUploadRanges": 0,
+    "startTimeMerge": "2024-04-01T00:37:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:37:35.15755006Z"
+  },
+  {
+    "entityType": "instance",
+    "status": "Upload Completed",
+    "totalMergeRanges": 3,
+    "processedMergeRanges": 3,
+    "totalUploadRanges": 2,
+    "processedUploadRanges": 2,
+    "startTimeMerge": "2024-04-01T00:37:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:37:35.15755006Z",
+    "startTimeUpload": "2024-04-01T00:37:36.15755006Z",
+    "endTimeUpload": "2024-04-01T00:37:37.15755006Z"
+  },
+  {
+    "entityType": "subject",
+    "status": "Upload Completed",
+    "totalMergeRanges": 0,
+    "processedMergeRanges": 0,
+    "totalUploadRanges": 2,
+    "processedUploadRanges": 2,
+    "startTimeUpload": "2024-04-01T01:37:36.15755006Z",
+    "endTimeUpload": "2024-04-01T01:37:37.15755006Z"
+  }
+]
 ```
 
+When ```entityType``` has value of ```item``` or ```holding``` then we have status details of Merge step
+and when ```entityType``` has value of ```subject```, ```contributor``` or ```classification``` then we have status details of Upload step.
+Only for entity type of ```instance``` we can have statuses of both Merge and Upload steps.
+
+```status``` response field can have values of ```"Merge In Progress"```, ```"Merge Completed"``` or ```"Merge Failed"``` for entity types
+representing Merge step and values of ```"Upload In Progress"```, ```"Upload Completed"``` or ```"Upload Failed"``` for the entities of Upload step.
 
 ## API
 

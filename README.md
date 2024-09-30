@@ -425,7 +425,7 @@ and it returns a response showing the status details for the latest run operatio
 [
   {
     "entityType": "holding",
-    "status": "Merge Completed",
+    "status": "MERGE_COMPLETED",
     "totalMergeRanges": 5,
     "processedMergeRanges": 5,
     "totalUploadRanges": 0,
@@ -435,7 +435,7 @@ and it returns a response showing the status details for the latest run operatio
   },
   {
     "entityType": "item",
-    "status": "Merge Completed",
+    "status": "MERGE_COMPLETED",
     "totalMergeRanges": 3,
     "processedMergeRanges": 3,
     "totalUploadRanges": 0,
@@ -445,7 +445,7 @@ and it returns a response showing the status details for the latest run operatio
   },
   {
     "entityType": "instance",
-    "status": "Upload Completed",
+    "status": "UPLOAD_COMPLETED",
     "totalMergeRanges": 3,
     "processedMergeRanges": 3,
     "totalUploadRanges": 2,
@@ -457,7 +457,7 @@ and it returns a response showing the status details for the latest run operatio
   },
   {
     "entityType": "subject",
-    "status": "Upload Completed",
+    "status": "UPLOAD_COMPLETED",
     "totalMergeRanges": 0,
     "processedMergeRanges": 0,
     "totalUploadRanges": 2,
@@ -472,8 +472,8 @@ When ```entityType``` has value of ```item``` or ```holding``` then we have stat
 and when ```entityType``` has value of ```subject```, ```contributor``` or ```classification``` then we have status details of Upload step.
 Only for entity type of ```instance``` we can have statuses of both Merge and Upload steps.
 
-```status``` response field can have values of ```"Merge In Progress"```, ```"Merge Completed"``` or ```"Merge Failed"``` for entity types
-representing Merge step and values of ```"Upload In Progress"```, ```"Upload Completed"``` or ```"Upload Failed"``` for the entities of Upload step.
+```status``` response field can have values of ```"MERGE_IN_PROGRESS"```, ```"MERGE_COMPLETED"``` or ```"MERGE_FAILED"``` for entity types
+representing Merge step and values of ```"UPLOAD_IN_PROGRESS"```, ```"UPLOAD_COMPLETED"``` or ```"UPLOAD_FAILED"``` for the entities of Upload step.
 
 ## API
 

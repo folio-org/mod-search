@@ -218,7 +218,7 @@
     },
     {
       "id": "consortium-search",
-      "version": "1.2",
+      "version": "2.0",
       "handlers": [
         {
           "methods": [
@@ -322,7 +322,7 @@
           ],
           "pathPattern": "/search/consortium/batch/items",
           "permissionsRequired": [
-            "consortium-search.items.collection.get"
+            "consortium-search.items.batch.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -334,7 +334,7 @@
           ],
           "pathPattern": "/search/consortium/batch/holdings",
           "permissionsRequired": [
-            "consortium-search.holdings.collection.get"
+            "consortium-search.holdings.batch.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -851,6 +851,16 @@
     {
       "permissionName": "consortium-search.items.collection.get",
       "displayName": "Consortium Search - fetch items records",
+      "description": "Returns items records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.holdings.batch.collection.get",
+      "displayName": "Consortium Search - fetch holdings records by batch request",
+      "description": "Returns holdings records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.items.batch.collection.get",
+      "displayName": "Consortium Search - fetch items records by batch request",
       "description": "Returns items records in consortium"
     },
     {

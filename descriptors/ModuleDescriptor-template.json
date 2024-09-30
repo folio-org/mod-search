@@ -1264,13 +1264,18 @@
       },
       {
         "name": "REINDEX_MERGE_RANGE_SIZE",
-        "value": "1_000",
+        "value": "500",
         "description": "The range size that represents the number of merge entities to process during the Merge process of reindex"
       },
       {
         "name": "REINDEX_UPLOAD_RANGE_SIZE",
         "value": "1_000",
         "description": "The range size that represents the number of upload entities to process during the Upload process of reindex"
+      },
+      {
+        "name": "REINDEX_UPLOAD_RANGE_LEVEL",
+        "value": "3",
+        "description": "The level of deepness of upload range generator affecting the number of ranges to be generated"
       },
       {
         "name": "REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE",

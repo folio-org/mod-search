@@ -7,6 +7,7 @@
 * Provides `search v1.3`
 * Requires `locations v3.0`
 * Provides `consortium-search v1.2`
+* Requires `instance-storage v10.0 or v11.0`
 
 ### Features
 * Implement indices recreation of the Linked Data resources ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))

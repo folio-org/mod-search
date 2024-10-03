@@ -2,6 +2,9 @@ package org.folio.search.integration.message.interceptor;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,6 +80,12 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       var repository = repositories.get(ReindexEntityType.fromValue(recordCollection.getKey()));
       if (repository != null) {
         var recordByOperation = recordCollection.getValue().stream()
+          .filter(resourceEvent -> {
+            if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
+              return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
+            }
+            return true;
+          })
           .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
         var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
           .map(SearchConverterUtils::getNewAsMap)

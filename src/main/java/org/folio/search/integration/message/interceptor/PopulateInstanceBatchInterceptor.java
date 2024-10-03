@@ -2,8 +2,11 @@ package org.folio.search.integration.message.interceptor;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
@@ -77,6 +80,17 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   private void process(String tenant, List<ResourceEvent> batch) {
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
+      if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {
+        var repository = repositories.get(ReindexEntityType.INSTANCE);
+        for (ResourceEvent resourceEvent : recordCollection.getValue()) {
+          boolean bound = resourceEvent.getType() != ResourceEventType.DELETE;
+          var eventPayload = getEventPayload(resourceEvent);
+          var id = getString(eventPayload, INSTANCE_ID_FIELD);
+          repository.updateBoundWith(tenant, id, bound);
+        }
+        continue;
+      }
+
       var repository = repositories.get(ReindexEntityType.fromValue(recordCollection.getKey()));
       if (repository != null) {
         var recordByOperation = recordCollection.getValue().stream()

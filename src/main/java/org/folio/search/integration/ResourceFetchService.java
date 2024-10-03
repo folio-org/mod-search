@@ -4,7 +4,6 @@ import static com.google.common.collect.Lists.partition;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
@@ -17,10 +16,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.folio.search.client.InventoryViewClient;
 import org.folio.search.client.InventoryViewClient.InstanceView;
+import org.folio.search.client.StreamingInventoryViewClient;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.client.CqlQueryParam;
-import org.folio.search.model.service.ResultList;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +28,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResourceFetchService {
 
-  private static final int BATCH_SIZE = 50;
+  private static final int BATCH_SIZE = 200;
 
   private final InventoryViewClient inventoryClient;
+  private final StreamingInventoryViewClient streamingInventoryViewClient;
   private final FolioExecutionContext context;
+  private final JsonConverter jsonConverter;
 
   /**
    * Fetches instances from inventory-storage module using CQL query.
@@ -53,11 +54,10 @@ public class ResourceFetchService {
     var instanceIdList = List.copyOf(eventsById.keySet());
     var tenantId = context.getTenantId();
     return partition(instanceIdList, BATCH_SIZE).stream()
-      .map(batchIds -> inventoryClient.getInstances(exactMatchAny(CqlQueryParam.ID, batchIds), batchIds.size()))
-      .map(ResultList::getResult)
-      .flatMap(instanceViews -> instanceViews.stream()
+      .map(batchIds -> streamingInventoryViewClient.getInstances(new StreamingInventoryViewClient.IdInput(batchIds)))
+      .flatMap(instanceViews -> instanceViews.map(view -> jsonConverter.fromJson(view, InstanceView.class)))
         .map(InstanceView::toInstance)
-        .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById)))
+        .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById))
       .toList();
   }
 

@@ -286,6 +286,10 @@
       </column>
       <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"/>
     </createTable>
+
+    <createIndex tableName="merge_range" indexName="idx_merge_range_entity_type">
+      <column name="entity_type"/>
+    </createIndex>
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-upload_range-table" author="Mukhiddin_Yusupov">
@@ -315,6 +319,10 @@
       </column>
       <column name="finished_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"/>
     </createTable>
+
+    <createIndex tableName="upload_range" indexName="idx_upload_range_entity_type">
+      <column name="entity_type"/>
+    </createIndex>
   </changeSet>
 
   <changeSet id="MSEARCH-797@@create-reindex_status-table" author="Viacheslav_Kolesnyk">

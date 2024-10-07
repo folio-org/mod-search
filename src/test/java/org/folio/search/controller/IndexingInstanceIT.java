@@ -58,6 +58,19 @@ class IndexingInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void shouldUpdateBoundWith() {
+    var instanceId = randomId();
+    var instance = new Instance().id(instanceId).title("test-resource");
+
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByQuery(instanceSearchPath(), "title=={value}", "test-resource", 1);
+    assertCountByQuery(instanceSearchPath(), "isBoundWith=={value}", "false", 1);
+
+    inventoryApi.createBoundWith(TENANT_ID, instanceId);
+    assertCountByQuery(instanceSearchPath(), "isBoundWith=={value}", "true", 1);
+  }
+
+  @Test
   void shouldRemoveHolding() {
     createInstances();
     HOLDING_IDS.forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));

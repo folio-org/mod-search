@@ -27,6 +27,9 @@ public class MergeInstanceRepository extends MergeRangeRepository {
       json = EXCLUDED.json;
     """;
 
+  private static final String UPDATE_BOUND_WITH_SQL = """
+    UPDATE %s SET is_bound_with = ? WHERE id = ?::uuid;
+    """;
   private final ConsortiumTenantProvider consortiumTenantProvider;
 
   public MergeInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
@@ -70,5 +73,12 @@ public class MergeInstanceRepository extends MergeRangeRepository {
           jsonConverter.toJson(entity));
       }
     }
+  }
+
+  @Override
+  public void updateBoundWith(String tenantId, String id, boolean bound) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
+    jdbcTemplate.update(sql, bound /*? "true" : "false"*/, id);
   }
 }

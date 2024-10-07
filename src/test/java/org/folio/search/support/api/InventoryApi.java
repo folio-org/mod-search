@@ -8,6 +8,7 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
@@ -18,6 +19,7 @@ import static org.folio.search.utils.TestUtils.toMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,9 @@ public class InventoryApi {
   private static final Map<String, Map<String, Map<String, Object>>> INSTANCE_STORE = new LinkedHashMap<>();
   private static final Map<String, Map<String, Map<String, Object>>> HOLDING_STORE = new LinkedHashMap<>();
   private static final Map<String, Map<String, Map<String, Object>>> ITEM_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, Map<String, Object>>> BOUND_WITH_STORE = new LinkedHashMap<>();
   private static final String ID_FIELD = "id";
+  private static final String INSTANCE_ID_FIELD = "instanceId";
 
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
@@ -80,7 +84,7 @@ public class InventoryApi {
   }
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
-    holding.put("instanceId", instanceId);
+    holding.put(INSTANCE_ID_FIELD, instanceId);
     var holdingsId = getString(holding, ID_FIELD);
     HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(holdingsId, holding);
     kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingsId, kafkaResourceEvent(tenant, CREATE, holding, null))
@@ -95,7 +99,7 @@ public class InventoryApi {
   }
 
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {
-    item.put("instanceId", instanceId);
+    item.put(INSTANCE_ID_FIELD, instanceId);
     var itemId = getString(item, ID_FIELD);
     ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
     kafkaTemplate.send(inventoryItemTopic(tenant), itemId, kafkaResourceEvent(tenant, CREATE, item, null))
@@ -106,6 +110,15 @@ public class InventoryApi {
     var item = ITEM_STORE.get(tenant).remove(id);
     var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, item);
     kafkaTemplate.send(inventoryItemTopic(tenant), getString(item, ID_FIELD), resourceEvent)
+      .whenComplete(onCompleteConsumer());
+  }
+
+  public void createBoundWith(String tenant, String instanceId) {
+    var id = UUID.randomUUID().toString();
+    Map<String, Object> boundWith = Map.of(ID_FIELD, id, INSTANCE_ID_FIELD, instanceId);
+    BOUND_WITH_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(id, boundWith);
+    var resourceEvent = kafkaResourceEvent(tenant, CREATE, boundWith, null);
+    kafkaTemplate.send(inventoryBoundWithTopic(tenant), id, resourceEvent)
       .whenComplete(onCompleteConsumer());
   }
 

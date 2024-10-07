@@ -32,7 +32,6 @@ public class SearchTenantService extends TenantService {
   private static final String CENTRAL_TENANT_ID_PARAM_NAME = "centralTenantId";
 
   private final IndexService indexService;
-  private final ScriptService scriptService;
   private final KafkaAdminService kafkaAdminService;
   private final PrepareSystemUserService prepareSystemUserService;
   private final LanguageConfigServiceDecorator languageConfigService;
@@ -42,7 +41,7 @@ public class SearchTenantService extends TenantService {
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService, ScriptService scriptService,
+                             IndexService indexService,
                              PrepareSystemUserService prepareSystemUserService,
                              LanguageConfigServiceDecorator languageConfigService,
                              CallNumberBrowseRangeService callNumberBrowseRangeService,
@@ -51,7 +50,6 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
-    this.scriptService = scriptService;
     this.prepareSystemUserService = prepareSystemUserService;
     this.languageConfigService = languageConfigService;
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;
@@ -90,11 +88,24 @@ public class SearchTenantService extends TenantService {
     }
   }
 
-  private void baseAfterTenantUpdate() {
-    kafkaAdminService.createTopics(context.getTenantId());
-    kafkaAdminService.restartEventListeners();
-    prepareSystemUserService.setupSystemUser();
-    log.info("Tenant base init has been completed");
+  /**
+   * Removes database schemas.
+   * Removes elasticsearch indices for all supported record types and cleaning related caches
+   * if it's not a consortium member tenant.
+   * Deletes kafka topics.
+   *
+   * @param tenantAttributes - tenant attributes comes from {@code POST /_/tenant} request.
+   */
+  @Override
+  public void deleteTenant(TenantAttributes tenantAttributes) {
+    var tenantId = context.getTenantId();
+    var centralTenant = centralTenant(tenantId, tenantAttributes);
+    if (tenantId.equals(centralTenant)) {
+      super.deleteTenant(tenantAttributes);
+    } else {
+      log.info("Not executing full tenant destroy for not central tenant {}.", tenantId);
+      baseAfterTenantDeletion(tenantId);
+    }
   }
 
   /**
@@ -120,30 +131,6 @@ public class SearchTenantService extends TenantService {
   }
 
   /**
-   * Removes database schemas.
-   * Removes elasticsearch indices for all supported record types and cleaning related caches
-   * if it's not a consortium member tenant.
-   * Deletes kafka topics.
-   *
-   * @param tenantAttributes - tenant attributes comes from {@code POST /_/tenant} request.
-   */
-  @Override
-  public void deleteTenant(TenantAttributes tenantAttributes) {
-    var tenantId = context.getTenantId();
-    var centralTenant = centralTenant(tenantId, tenantAttributes);
-    if (tenantId.equals(centralTenant)) {
-      super.deleteTenant(tenantAttributes);
-    } else {
-      log.info("Not executing full tenant destroy for not central tenant {}.", tenantId);
-      baseAfterTenantDeletion(tenantId);
-    }
-  }
-
-  private void baseAfterTenantDeletion(String tenantId) {
-    kafkaAdminService.deleteTopics(tenantId);
-  }
-
-  /**
    * Removes elasticsearch indices for all supported record types and cleaning related caches
    * if it's not a consortium member tenant.
    *
@@ -161,8 +148,18 @@ public class SearchTenantService extends TenantService {
     baseAfterTenantDeletion(tenantId);
   }
 
+  private void baseAfterTenantUpdate() {
+    kafkaAdminService.createTopics(context.getTenantId());
+    kafkaAdminService.restartEventListeners();
+    prepareSystemUserService.setupSystemUser();
+    log.info("Tenant base init has been completed");
+  }
+
+  private void baseAfterTenantDeletion(String tenantId) {
+    kafkaAdminService.deleteTopics(tenantId);
+  }
+
   private void createIndexesAndReindex(TenantAttributes tenantAttributes) {
-    scriptService.saveScripts();
     var resourceNames = resourceDescriptionService.getResourceTypes();
     resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
     Stream.ofNullable(tenantAttributes.getParameters())

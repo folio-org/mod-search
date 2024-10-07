@@ -73,6 +73,10 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     jdbcTemplate.update(sql, ids.toArray());
   }
 
+  public void updateBoundWith(String tenantId, String id, boolean bound) {
+
+  }
+
   private RowMapper<MergeRangeEntity> mergeRangeEntityRowMapper() {
     return (rs, rowNum) -> {
       var mergeRange = new MergeRangeEntity(

@@ -124,7 +124,8 @@ public class ResourceService {
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    return searchDocumentConverter.convert(deleteEvents);
+    var list = preProcessEvents(deleteEvents);
+    return searchDocumentConverter.convert(list);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

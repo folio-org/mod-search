@@ -70,7 +70,7 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
   }
 
   @Test
-  void shouldIndexInstanceContributor_deleteDocument() {
+  void shouldIndexInstanceContributor_deleteDocumentOnInstanceUpdate() {
     var instanceId = randomId();
     var contributor = new Contributor().name("Frodo Begins").authorityId(null);
     var instance = new Instance().id(instanceId).addContributorsItem(contributor);
@@ -78,6 +78,18 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.contributors(null));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).isEmpty());
+  }
+
+  @Test
+  void shouldIndexInstanceContributor_deleteDocumentOnInstanceDelete() {
+    var instanceId = randomId();
+    var contributor = new Contributor().name("Frodo Begins").authorityId(null);
+    var instance = new Instance().id(instanceId).addContributorsItem(contributor);
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
+    inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).isEmpty());
   }
 }

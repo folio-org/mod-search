@@ -54,10 +54,6 @@ folio:
       browse-cn-intermediate-remove-duplicates: true
       browse-classifications: true
     indexing:
-      instance-subjects:
-        retry-attempts: 3
-      instance-contributors:
-        retry-attempts: 3
       data-format: ${INDEXING_DATA_FORMAT:json}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}

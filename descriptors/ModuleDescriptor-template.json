@@ -81,7 +81,7 @@
           ],
           "pathPattern": "/search/index/instance-records/reindex/status",
           "permissionsRequired": [
-            "search.index.reindex.status.get"
+            "search.index.instance-records.reindex.status.get"
           ]
         },
         {
@@ -622,7 +622,7 @@
   "requires": [
     {
       "id": "instance-storage",
-      "version": "10.3"
+      "version": "10.3 11.0"
     },
     {
       "id": "login",
@@ -776,7 +776,7 @@
       "description": "Starts inventory reindex operation"
     },
     {
-      "permissionName": "search.index.reindex.status.get",
+      "permissionName": "search.index.instance-records.reindex.status.get",
       "displayName": "Search - returns reindex status for entities",
       "description": "Returns reindex status for entities"
     },
@@ -882,7 +882,18 @@
       "permissionName": "consortium-search.institutions.collection.get",
       "displayName": "Consortium Search - fetch institutions records",
       "description": "Returns institution records in consortium"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.all",
+      "displayName": "Search Instance Records Re-Index - All permissions",
+      "description": "Entire set of permissions needed to manage  Instance Records Re-Index",
+      "subPermissions": [
+        "search.index.instance-records.reindex.status.get",
+        "search.index.instance-records.reindex.full.post",
+        "search.index.instance-records.reindex.upload.post"
+      ]
     }
+
   ],
   "metadata": {
     "user": {
@@ -995,61 +1006,6 @@
         "description": "Custom number of kafka concurrent threads for authority message consuming."
       },
       {
-        "name": "KAFKA_CONTRIBUTORS_CONCURRENCY",
-        "value": "2",
-        "description": "Custom number of kafka concurrent threads for contributor message consuming."
-      },
-      {
-        "name": "KAFKA_CONTRIBUTORS_CONSUMER_PATTERN",
-        "value": "(folio\\.)(.*\\.)search\\.instance-contributor",
-        "description": "Custom subscription pattern for Kafka contributor message consumers."
-      },
-      {
-        "name": "KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS",
-        "value": "50",
-        "description": "Amount of partitions for `search.instance-contributor` topic."
-      },
-      {
-        "name": "KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR",
-        "value": "",
-        "description": "Replication factor for `search.instance-contributor` topic."
-      },
-      {
-        "name": "KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY",
-        "value": "2",
-        "description": "Custom number of kafka concurrent threads for consortium.instance message consuming."
-      },
-      {
-        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS",
-        "value": "50",
-        "description": "Amount of partitions for `search.consortium.instance` topic."
-      },
-      {
-        "name": "KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR",
-        "value": "",
-        "description": "Replication factor for `search.consortium.instance` topic."
-      },
-      {
-        "name": "KAFKA_SUBJECTS_CONCURRENCY",
-        "value": "2",
-        "description": "Custom number of kafka concurrent threads for subject message consuming."
-      },
-      {
-        "name": "KAFKA_SUBJECTS_CONSUMER_PATTERN",
-        "value": "(folio\\.)(.*\\.)search\\.instance-subject",
-        "description": "Custom subscription pattern for Kafka subject message consumers."
-      },
-      {
-        "name": "KAFKA_SUBJECTS_TOPIC_PARTITIONS",
-        "value": "50",
-        "description": "Amount of partitions for `search.instance-subject` topic."
-      },
-      {
-        "name": "KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR",
-        "value": "",
-        "description": "Replication factor for `search.instance-subject` topic."
-      },
-      {
         "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
         "value": "1",
         "description": "Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming."
@@ -1140,16 +1096,6 @@
       {
         "name": "DB_MAXPOOLSIZE",
         "value": "5"
-      },
-      {
-        "name": "INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS",
-        "value": "3",
-        "description": "Amount of retry attempts to delete instance subject resources."
-      },
-      {
-        "name": "INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS",
-        "value": "3",
-        "description": "Amount of retry attempts to delete instance contributor resources."
       },
       {
         "name": "INDEXING_DATA_FORMAT",
@@ -1253,13 +1199,18 @@
       },
       {
         "name": "REINDEX_MERGE_RANGE_SIZE",
-        "value": "1_000",
+        "value": "500",
         "description": "The range size that represents the number of merge entities to process during the Merge process of reindex"
       },
       {
         "name": "REINDEX_UPLOAD_RANGE_SIZE",
         "value": "1_000",
         "description": "The range size that represents the number of upload entities to process during the Upload process of reindex"
+      },
+      {
+        "name": "REINDEX_UPLOAD_RANGE_LEVEL",
+        "value": "3",
+        "description": "The level of deepness of upload range generator affecting the number of ranges to be generated"
       },
       {
         "name": "REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE",

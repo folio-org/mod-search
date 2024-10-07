@@ -34,10 +34,8 @@ public class SearchUtils {
   public static final String INSTANCE_ID_FIELD = "instanceId";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
-  public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
   public static final String SHARED_FIELD_NAME = "shared";
   public static final String TENANT_ID_FIELD_NAME = "tenantId";
-  public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
@@ -57,7 +55,6 @@ public class SearchUtils {
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
   public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
-  public static final String SOURCE_FOLIO = "FOLIO";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
@@ -74,27 +71,6 @@ public class SearchUtils {
     ShelvingOrderAlgorithmType.LC, LC_SHELVING_ORDER_BROWSING_FIELD,
     ShelvingOrderAlgorithmType.DEWEY, DEWEY_SHELVING_ORDER_BROWSING_FIELD
   );
-
-  //CHECKSTYLE.ON: LineLength
-  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT_ID = "instance_subject_upsert_script";
-  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT = """
-    {
-      "script": {
-        "lang": "painless",
-        "source": "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
-      }
-    }
-    """;
-  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID = "instance_contributors_upsert_script";
-  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT = """
-    {
-      "script" : {
-        "lang" : "painless",
-        "source" : "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
-      }
-    }
-    """;
-  //CHECKSTYLE.OFF: LineLength
 
   private static final Pattern NON_ALPHA_NUMERIC_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 

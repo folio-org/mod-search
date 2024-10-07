@@ -15,8 +15,11 @@ import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.query.RangeQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
+import org.z3950.zing.cql.CQLBoolean;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLSortNode;
@@ -136,8 +139,8 @@ public class CqlSearchQueryConverter {
   private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
     var operator = node.getOperator();
     return switch (operator) {
-      case OR -> flattenBoolQuery(node, resource, BoolQueryBuilder::should);
-      case AND -> flattenBoolQuery(node, resource, BoolQueryBuilder::must);
+      case OR -> flattenBoolQuery(node, resource, operator, BoolQueryBuilder::should);
+      case AND -> flattenBoolQuery(node, resource, operator, BoolQueryBuilder::must);
       case NOT -> boolQuery()
         .must(convertToQuery(node.getLeftOperand(), resource))
         .mustNot(convertToQuery(node.getRightOperand(), resource));
@@ -146,10 +149,17 @@ public class CqlSearchQueryConverter {
     };
   }
 
-  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource,
+  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource, CQLBoolean operator,
                                             Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
     var rightOperandQuery = convertToQuery(node.getRightOperand(), resource);
     var leftOperandQuery = convertToQuery(node.getLeftOperand(), resource);
+
+    if (CQLBoolean.AND.equals(operator)
+      && leftOperandQuery instanceof RangeQueryBuilder lr
+      && rightOperandQuery instanceof RangeQueryBuilder rr
+      && lr.fieldName().equals(rr.fieldName())) {
+      return collapseRangeQueries(lr, rr, conditionProvider);
+    }
 
     var boolQuery = boolQuery();
     if (isBoolQuery(leftOperandQuery)) {
@@ -166,6 +176,28 @@ public class CqlSearchQueryConverter {
     var conditions = conditionProvider.apply(boolQuery);
     conditions.add(leftOperandQuery);
     conditions.add(rightOperandQuery);
+    return boolQuery;
+  }
+
+  private BoolQueryBuilder collapseRangeQueries(RangeQueryBuilder leftRange, RangeQueryBuilder rightRange,
+                                            Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
+    var rangeQuery = QueryBuilders.rangeQuery(leftRange.fieldName());
+
+    if (leftRange.from() != null) {
+      rangeQuery.from(leftRange.from())
+        .includeLower(leftRange.includeLower())
+        .to(rightRange.to())
+        .includeUpper(rightRange.includeUpper());
+    } else {
+      rangeQuery.from(rightRange.from())
+        .includeLower(rightRange.includeLower())
+        .to(leftRange.to())
+        .includeUpper(leftRange.includeUpper());
+    }
+
+    var boolQuery = boolQuery();
+    var conditions = conditionProvider.apply(boolQuery);
+    conditions.add(rangeQuery);
     return boolQuery;
   }
 

@@ -260,11 +260,13 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(holdings.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[3])),
       arguments("(holdings.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0])),
+      arguments("(holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
+        + "sortby title", List.of()),
 
       arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[3])),
-      arguments("(holdings.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(holdings.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[3])),
 
@@ -276,7 +278,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(item.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
       arguments("(item.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(item.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(item.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(item.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
       arguments("(item.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3])),
 
@@ -317,11 +319,13 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.createdDate > 2021-03-01) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
       arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0], IDS[2])),
+      arguments("(items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
+        List.of()),
 
       arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
       arguments("(items.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
       arguments("(items.metadata.updatedDate > 2021-03-05) sortby title", List.of(IDS[1], IDS[2], IDS[3])),
-      arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1])),
+      arguments("(items.metadata.updatedDate < 2021-03-15) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
       arguments("(items.metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) sortby title",
         List.of(IDS[2], IDS[3])),
       arguments(format("(classifications.classificationTypeId==%s) sortby title", CLASSIFICATION_TYPE_IDS[0]),
@@ -574,15 +578,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .dates(new Dates().date1(DATES[3]))
       .items(List.of(new Item().id(randomId())
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-        .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
-        .materialTypeId(MATERIAL_TYPES[1])))
+        .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
+        .materialTypeId(MATERIAL_TYPES[1]),
+        new Item().id(randomId())
+          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+          .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
+          .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
           .holdingsTypeId(HOLDINGS_TYPES[1])
-          .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
+          .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
           .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1])
           .holdingsTypeId(HOLDINGS_TYPES[0])
+          .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
           .tags(tags("htag2")),
         new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 

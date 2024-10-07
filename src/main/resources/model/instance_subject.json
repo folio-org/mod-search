@@ -11,6 +11,16 @@
       "index": "keyword",
       "showInResponse": [ "browse" ]
     },
+    "sourceId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "browse" ]
+    },
+    "typeId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "browse" ]
+    },
     "instances": {
       "type": "object",
       "properties": {

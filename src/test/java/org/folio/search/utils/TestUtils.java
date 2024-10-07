@@ -294,6 +294,18 @@ public class TestUtils {
       .isAnchor(isAnchor);
   }
 
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
+                                                    String sourceId, String typeId) {
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
+      .totalRecords(totalRecords);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
+                                                    String sourceId, String typeId, boolean isAnchor) {
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
+      .totalRecords(totalRecords).isAnchor(isAnchor);
+  }
+
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
     return new SubjectBrowseItem().value(subject);
   }

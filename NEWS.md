@@ -3,9 +3,10 @@
 ### New APIs versions
 * Provides `indices v0.8`
 * Provides `search v1.3`
-* Requires `locations v3.0`
 * Provides `consortium-search v1.2`
-* Requires `instance-storage v10.0 or v11.0`
+* Provides `browse v1.4`
+* Requires `locations v3.0`
+* Requires `instance-storage v10.3 or v11.0`
 
 ### Features
 * Implement indices recreation of the Linked Data resources ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))
@@ -37,6 +38,7 @@
 * Implement Reindexing of Libraries ([MSEARCH-766](https://issues.folio.org/browse/MSEARCH-766))
 * Implement Reindexing of Institutions ([MSEARCH-768](https://issues.folio.org/browse/MSEARCH-768))
 * Create computed field for sorting and filtering Date 1 ([MSEARCH-806](https://folio-org.atlassian.net/browse/MSEARCH-806))
+* Support filters for subject source and type on subject browse ([MSEARCH-805](https://folio-org.atlassian.net/browse/MSEARCH-805))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
 
 ### Bug fixes

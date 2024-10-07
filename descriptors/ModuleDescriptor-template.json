@@ -386,7 +386,7 @@
     },
     {
       "id": "browse",
-      "version": "1.3",
+      "version": "1.4",
       "handlers": [
         {
           "methods": [
@@ -622,7 +622,7 @@
   "requires": [
     {
       "id": "instance-storage",
-      "version": "10.0 11.0"
+      "version": "10.3 11.0"
     },
     {
       "id": "login",

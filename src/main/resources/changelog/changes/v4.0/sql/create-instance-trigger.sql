@@ -36,6 +36,8 @@ DECLARE
     subject_id               text;
     subject_value            text;
     subject_authority_id     text;
+    subject_source_id     text;
+    subject_type_id     text;
     contributor_id           text;
     contributor_name         text;
     contributor_authority_id text;
@@ -100,18 +102,20 @@ BEGIN
                     CONTINUE;
                 END IF;
                 subject_authority_id := entry ->> 'authorityId';
-                subject_id := calculate_hash_id(ARRAY [subject_value, coalesce_to_empty(subject_authority_id)]);
+                subject_source_id := entry ->> 'sourceId';
+                subject_type_id := entry ->> 'typeId';
+                subject_id := calculate_hash_id(ARRAY [subject_value, coalesce_to_empty(subject_authority_id), coalesce_to_empty(subject_source_id), coalesce_to_empty(subject_type_id)]);
 
                 subject_arr := array_append(subject_arr,
-                                            ROW (subject_id, subject_value, subject_authority_id)::subject);
+                                            ROW (subject_id, subject_value, subject_authority_id, subject_source_id, subject_type_id)::subject);
                 subject_id_arr := array_append(subject_id_arr, subject_id);
             END LOOP;
 
         INSERT
-        INTO subject(id, value, authority_id)
-        SELECT id, value, authority_id
+        INTO subject(id, value, authority_id, source_id, type_id)
+        SELECT id, value, authority_id, source_id, type_id
         FROM unnest(subject_arr)
-        ORDER BY id, value, authority_id
+        ORDER BY id, value, authority_id, source_id, type_id
         ON CONFLICT DO NOTHING;
 
         INSERT

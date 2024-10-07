@@ -861,6 +861,8 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 |:---------------------|:----:|:------------------------------|
 | `instances.tenantId` | term | Requests a tenantId facet     |
 | `instances.shared`   | term | Requests a shared/local facet |
+| `sourceId`           | term | Requests a sourceId facet     |
+| `typeId`             | term | Requests a typeId facet       |
 
 ##### Classifications facets
 

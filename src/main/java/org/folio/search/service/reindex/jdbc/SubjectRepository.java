@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepository extends UploadRangeRepository {
 
   public static final String SELECT_QUERY = """
-    SELECT s.id, s.value, s.authority_id, json_agg(json_build_object(
+    SELECT s.id, s.value, s.authority_id, s.source_id, s.type_id, json_agg(json_build_object(
                 'instanceId', ins.instance_id,
                 'shared', ins.shared,
                 'tenantId', ins.tenant_id
@@ -106,6 +106,8 @@ public class SubjectRepository extends UploadRangeRepository {
       getId(rs),
       getValue(rs),
       getAuthorityId(rs),
+      getSourceId(rs),
+      getTypeId(rs),
       parseInstanceSubResources(getInstances(rs))
     );
   }
@@ -120,6 +122,14 @@ public class SubjectRepository extends UploadRangeRepository {
 
   private String getAuthorityId(ResultSet rs) throws SQLException {
     return rs.getString("authority_id");
+  }
+
+  private String getSourceId(ResultSet rs) throws SQLException {
+    return rs.getString("source_id");
+  }
+
+  private String getTypeId(ResultSet rs) throws SQLException {
+    return rs.getString("type_id");
   }
 
   private String getInstances(ResultSet rs) throws SQLException {

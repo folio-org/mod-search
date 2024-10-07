@@ -51,7 +51,7 @@ BEGIN
     IF TG_OP <> 'INSERT' THEN
         DELETE
         FROM instance_classification
-        WHERE instance_id = NEW.id;
+        WHERE instance_id = OLD.id;
     END IF;
 
     IF TG_OP <> 'DELETE' THEN
@@ -89,7 +89,7 @@ BEGIN
     IF TG_OP <> 'INSERT' THEN
         DELETE
         FROM instance_subject
-        WHERE instance_id = NEW.id;
+        WHERE instance_id = OLD.id;
     END IF;
 
     IF TG_OP <> 'DELETE' THEN
@@ -127,7 +127,7 @@ BEGIN
     IF TG_OP <> 'INSERT' THEN
         DELETE
         FROM instance_contributor
-        WHERE instance_id = NEW.id;
+        WHERE instance_id = OLD.id;
     END IF;
 
     IF TG_OP <> 'DELETE' THEN

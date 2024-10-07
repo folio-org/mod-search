@@ -62,7 +62,7 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
   }
 
   @Test
-  void shouldIndexInstanceSubject_deleteDocument() {
+  void shouldIndexInstanceSubject_deleteDocumentOnInstanceUpdate() {
     var instanceId = randomId();
     var subject = new Subject().value("Sci-Fi").authorityId(null);
     var instance = new Instance().id(instanceId).addSubjectsItem(subject);
@@ -70,6 +70,18 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.subjects(null));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).isEmpty());
+  }
+
+  @Test
+  void shouldIndexInstanceSubject_deleteDocumentOnInstanceDelete() {
+    var instanceId = randomId();
+    var subject = new Subject().value("Sci-Fi").authorityId(null);
+    var instance = new Instance().id(instanceId).addSubjectsItem(subject);
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
+    inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).isEmpty());
   }
 }

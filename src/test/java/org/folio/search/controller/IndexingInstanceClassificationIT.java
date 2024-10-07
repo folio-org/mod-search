@@ -65,7 +65,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
   }
 
   @Test
-  void shouldIndexInstanceClassification_deleteDocument() {
+  void shouldIndexInstanceClassification_deleteDocumentOnInstanceUpdate() {
     var instanceId = randomId();
     var classification = new Classification().classificationNumber("N123").classificationTypeId("type1");
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
@@ -73,6 +73,18 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.classifications(null));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).isEmpty());
+  }
+
+  @Test
+  void shouldIndexInstanceClassification_deleteDocumentOnInstanceDelete() {
+    var instanceId = randomId();
+    var classification = new Classification().classificationNumber("N123").classificationTypeId("type1");
+    var instance = new Instance().id(instanceId).addClassificationsItem(classification);
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
+    inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).isEmpty());
   }
 }

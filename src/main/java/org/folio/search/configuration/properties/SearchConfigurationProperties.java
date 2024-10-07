@@ -66,30 +66,9 @@ public class SearchConfigurationProperties {
   public static class IndexingSettings {
 
     /**
-     * Instance subjects indexing settings.
-     */
-    private DocumentIndexingSettings instanceSubjects;
-
-    /**
-     * Instance contributors indexing settings.
-     */
-    private DocumentIndexingSettings instanceContributors;
-
-    /**
      * Data format to use for passing data to elasticsearch.
      */
     private IndexingDataFormat dataFormat;
-  }
-
-  @Data
-  @Validated
-  public static class DocumentIndexingSettings {
-
-    /**
-     * Retry attempts for delete bulk requests.
-     */
-    @Min(0)
-    private int retryAttempts = 3;
   }
 
 }

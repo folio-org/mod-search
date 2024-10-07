@@ -6,6 +6,11 @@
     "id": {
       "index": "keyword"
     },
+    "tenantId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search" ]
+    },
     "label": {
       "index": "standard"
     },

@@ -4,6 +4,9 @@ properties:
   id:
     description: "The Linked Data ID of an Authority"
     type: "string"
+  tenantId:
+    description: "Tenant ID"
+    type: string
   label:
     description: "Value of Label"
     type: "string"

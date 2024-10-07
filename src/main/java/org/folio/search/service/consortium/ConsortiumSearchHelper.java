@@ -51,7 +51,8 @@ public class ConsortiumSearchHelper {
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, ResourceType resource,
                                                       String contextTenantId) {
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty()) {
+    if (centralTenantId.isEmpty() || resource.getName().contains(LINKED_DATA)
+      && centralTenantId.get().equals(contextTenantId)) {
       return query;
     }
 

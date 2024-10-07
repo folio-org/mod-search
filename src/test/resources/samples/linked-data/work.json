@@ -1,5 +1,6 @@
 {
   "id": "123456123456",
+  "tenantId": "consortium",
   "classifications": [
     {
       "number": "1234",
@@ -72,6 +73,7 @@
   "instances": [
     {
       "id": "instance1",
+      "tenantId": "consortium",
       "contributors": [
         {
           "name": "Instance1_Family",

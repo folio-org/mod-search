@@ -1,7 +1,6 @@
 package org.folio.search.service.setter.instance;
 
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
 
   @Override
   public Short getFieldValue(Instance instance) {
-    Dates dates = instance.getDates();
+    var dates = instance.getDates();
     if (dates != null && StringUtils.isNotEmpty(dates.getDate1())) {
       return normalizeDate1(dates.getDate1());
     }
@@ -23,7 +22,7 @@ public class Date1FieldProcessor implements FieldProcessor<Instance, Short> {
   }
 
   public Short normalizeDate1(String value) {
-    String date1 = value.replaceAll(NON_NUMERIC_REGEX, ZERO);
+    var date1 = value.replaceAll(NON_NUMERIC_REGEX, ZERO);
     if (date1.length() <= MAX_LENGTH) {
       return Short.valueOf(date1);
     }

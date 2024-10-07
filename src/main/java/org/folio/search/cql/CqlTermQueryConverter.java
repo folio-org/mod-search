@@ -108,11 +108,14 @@ public class CqlTermQueryConverter {
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
+    //cql converter just removes backslash if single passed so two are passed instead. This breaks search on
+    //keyword fields so second slash must be removed. For wildcard queries two slashes are still needed
+    var normalizedTerm = term.contains("*") ? term : term.replace("\\\\", "\\");
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)
       .map(searchTermProcessors::get)
-      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(term))
-      .orElse(term);
+      .map(searchTermProcessor -> searchTermProcessor.getSearchTerm(normalizedTerm))
+      .orElse(normalizedTerm);
   }
 
   private static boolean isWildcardQuery(Object query) {

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.2</version>
+    <version>3.3.4</version>
     <relativePath />
   </parent>
 
@@ -38,14 +38,14 @@
     <folio-service-tools.version>4.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.7.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.2.2</folio-cql2pgjson.version>
-    <opensearch.version>2.16.0</opensearch.version>
-    <mapstruct.version>1.6.0</mapstruct.version>
-    <apache-commons-io.version>2.16.1</apache-commons-io.version>
+    <opensearch.version>2.17.0</opensearch.version>
+    <mapstruct.version>1.6.2</mapstruct.version>
+    <apache-commons-io.version>2.17.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.34</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
-    <streamex.version>0.8.2</streamex.version>
+    <streamex.version>0.8.3</streamex.version>
     <jackson-bom.version>2.16.0</jackson-bom.version>
 
     <!-- Plugins versions -->
@@ -54,12 +54,12 @@
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
+    <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.4.0</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.4.0</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.0</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-    <checkstyle.version>10.17.0</checkstyle.version>
+    <checkstyle.version>10.18.1</checkstyle.version>
   </properties>
 
   <dependencies>

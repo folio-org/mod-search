@@ -9,7 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 public class KafkaUtils {
 
   /**
-   * Returns topic name in the format - `{env}.{tenant}.{topic-name}`
+   * Returns topic name in the format - `{env}.{tenant}.{topic-name}`.
    *
    * @param initialName initial topic name as {@link String}
    * @param tenantId    tenant id as {@link String}

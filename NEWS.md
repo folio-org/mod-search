@@ -7,6 +7,7 @@
 * Provides `search v1.3`
 * Requires `locations v3.0`
 * Provides `consortium-search v1.2`
+* Requires `instance-storage v10.0 or v11.0`
 
 ### Features
 * Implement indices recreation of the Linked Data resources ([MSEARCH-820](https://issues.folio.org/browse/MSEARCH-820))
@@ -47,6 +48,7 @@
 * Classification browse: Fix instances count for Shared Facet ([MSEARCH-761](https://folio-org.atlassian.net/browse/MSEARCH-761))
 * Subjects/Contributors browse: Fix instances count for Shared Facet ([MSEARCH-782](https://folio-org.atlassian.net/browse/MSEARCH-782))
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
+* Fix backslash handling in search terms ([MSEARCH-839](https://folio-org.atlassian.net/browse/MSEARCH-839))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

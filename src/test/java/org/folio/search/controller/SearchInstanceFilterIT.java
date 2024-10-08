@@ -12,7 +12,6 @@ import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,7 +63,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "8b3afe85-0887-4f53-9104-1302e881bf25",
     "b2895b5d-c1eb-47e8-9402-90119104d765",
     "d44bc80e-ed6e-4c34-a24b-2cdbbc48b083",
-    "ec4833b1-69c2-465d-8bc2-dcf4cd527d8c"
+    "ec4833b1-69c2-465d-8bc2-dcf4cd527d8c",
+    "ec4833b1-69c2-465d-8bc2-dcf4cd527d8d"
   );
 
   private static final String[] HOLDINGS_IDS = array(
@@ -602,7 +602,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
         .materialTypeId(MATERIAL_TYPES[1]),
-        new Item().id(randomId())
+        new Item().id(ITEM_IDS[7])
+          .holdingsRecordId(HOLDINGS_IDS[4])
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
           .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
           .materialTypeId(MATERIAL_TYPES[1])))

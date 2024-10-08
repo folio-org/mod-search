@@ -4,6 +4,7 @@ import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
 import java.util.List;
 import java.util.Set;
+import org.folio.search.model.types.ResourceType;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
@@ -11,12 +12,12 @@ import org.springframework.stereotype.Component;
 public class LtTermQueryBuilder implements RangeTermQueryBuilder {
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
+  public QueryBuilder getQuery(Object term, ResourceType resource, List<String> modifiers, String... fields) {
     return getRangeQuery(fields).lt(term);
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
     return rangeQuery(fieldName).lt(term);
   }
 

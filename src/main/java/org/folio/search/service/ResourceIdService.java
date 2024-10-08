@@ -99,8 +99,8 @@ public class ResourceIdService {
     var tableName = job.getTemporaryTableName();
     try {
       var entityType = job.getEntityType();
-      String resource = entityType.getResource();
-      String sourceIdPath = entityType.getSourceIdPath();
+      var resource = entityType.getResource();
+      var sourceIdPath = entityType.getSourceIdPath();
       var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
 
       log.info("streamResourceIdsForJob:: Attempting to create table for ids [tableName: {}]", tableName);

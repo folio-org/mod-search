@@ -1,0 +1,15 @@
+description: Reindex Upload Entity types
+type: object
+properties:
+  entityTypes:
+    type: array
+    description: Entity name to run reindex upload
+    items:
+      enum:
+        - instance
+        - subject
+        - contributor
+        - classification
+    minItems: 1
+required:
+  - entityTypes

@@ -1,7 +1,7 @@
 package org.folio.search.support.base;
 
-import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -22,14 +22,10 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest {
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @SneakyThrows
   protected static void removeTenant() {
@@ -39,22 +35,22 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
 
   @SneakyThrows
   protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length,
-      instance -> inventoryApi.createInstance(tenantName, instance));
+    setUpTenant(tenantName, emptyList(), instances);
   }
 
   @SneakyThrows
-  protected static void setUpTenant(String tenantName, int expectedCount, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), expectedCount,
+  protected static void setUpTenant(String tenantName, List<ResultMatcher> matchers, Instance... instances) {
+    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length, matchers,
       instance -> inventoryApi.createInstance(tenantName, instance));
   }
 
   @SneakyThrows
   protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                      List<T> records, Integer expectedCount, Consumer<T> consumer) {
+                                        List<T> records, Integer expectedCount, List<ResultMatcher> matchers,
+                                        Consumer<T> consumer) {
     enableTenant(tenant);
     postInitAction.run();
-    saveRecords(tenant, validationPath, records, expectedCount, consumer);
+    saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
   @SneakyThrows
@@ -70,6 +66,22 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   }
 
   @SneakyThrows
+  protected static ResultActions doSearchByInstances(String query) {
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByInstances(String query, Boolean expandAll) {
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID,
+      Map.of("query", query, "expandAll", expandAll.toString()));
+  }
+
+  @AfterAll
+  static void cleanUp() {
+    removeTenant();
+  }
+
+  @SneakyThrows
   public static ResultActions tryGet(String uri, Object... args) {
     return tryGet(uri, MEMBER_TENANT_ID, args);
   }
@@ -77,8 +89,8 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   @SneakyThrows
   public static ResultActions tryGet(String uri, String tenantHeader, Object... args) {
     return mockMvc.perform(get(uri, args)
-        .headers(defaultHeaders(tenantHeader))
-        .accept("application/json;charset=UTF-8"));
+      .headers(defaultHeaders(tenantHeader))
+      .accept("application/json;charset=UTF-8"));
   }
 
   @SneakyThrows
@@ -122,15 +134,5 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   public static ResultActions doPost(String uri, String tenantHeader, Object body) {
     return tryPost(uri, tenantHeader, body)
       .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query, "expandAll", valueOf(expandAll)));
   }
 }

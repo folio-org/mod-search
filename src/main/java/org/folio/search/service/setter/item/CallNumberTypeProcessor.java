@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;

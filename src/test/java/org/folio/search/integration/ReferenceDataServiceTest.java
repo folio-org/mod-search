@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.folio.search.client.InventoryReferenceDataClient;
 import org.folio.search.integration.ReferenceDataServiceTest.TestContextConfiguration;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.service.ReferenceRecord;

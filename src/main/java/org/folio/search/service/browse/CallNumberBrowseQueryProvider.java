@@ -4,7 +4,6 @@ import static java.util.Collections.singletonMap;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
 import static org.folio.search.utils.CallNumberUtils.getCallNumberAsLong;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_LANG;
@@ -21,6 +20,7 @@ import org.folio.search.configuration.properties.SearchQueryConfigurationPropert
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.types.CallNumberType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.QueryBuilder;
@@ -59,7 +59,7 @@ public class CallNumberBrowseQueryProvider {
 
     var pageSize = getBrowsingQueryPageSize(ctx.getLimit(isBrowsingForward));
     var initialQuery = getQuery(ctx, request, pageSize, isBrowsingForward);
-    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(initialQuery, INSTANCE_RESOURCE);
+    var query = consortiumSearchHelper.filterQueryForActiveAffiliation(initialQuery, ResourceType.INSTANCE);
     var searchSource = searchSource().from(0).size(pageSize)
       .query(query)
       .sort(scriptSort(script, STRING).order(isBrowsingForward ? ASC : DESC));
@@ -118,8 +118,8 @@ public class CallNumberBrowseQueryProvider {
 
   private static String getSortingScript(boolean isBrowsingForward) {
     return "def f=doc['itemEffectiveShelvingOrder'];"
-      + "def a=Collections.binarySearch(f,params['cn']);"
-      + "if(a>=0) return f[a];a=-a-" + (isBrowsingForward ? "1" : "2")
-      + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
+           + "def a=Collections.binarySearch(f,params['cn']);"
+           + "if(a>=0) return f[a];a=-a-" + (isBrowsingForward ? "1" : "2")
+           + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
   }
 }

@@ -6,15 +6,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.search.utils.SearchUtils.getTotalPages;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.folio.search.utils.SearchUtils.updateMultilangPlainFieldKey;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -35,6 +34,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.service.MultilangValue;
+import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,13 +71,13 @@ class SearchUtilsTest {
 
   @Test
   void getIndexName_resourceNameAndTenantId_positive() {
-    var actual = getIndexName(INSTANCE_RESOURCE, TENANT_ID);
+    var actual = getIndexName(INSTANCE, TENANT_ID);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
 
   @Test
   void getIndexName_positive_resourceEvent() {
-    var resourceEvent = resourceEvent(INSTANCE_RESOURCE, emptyMap());
+    var resourceEvent = resourceEvent(INSTANCE, emptyMap());
     var actual = getIndexName(resourceEvent);
     assertThat(actual).isEqualTo(INDEX_NAME);
   }
@@ -122,7 +122,6 @@ class SearchUtilsTest {
   void updateMultilangPlainFieldKey_positive(String given, String expected) {
     assertThat(updateMultilangPlainFieldKey(given)).isEqualTo(expected);
   }
-
 
   @Test
   void updatePathForFulltextField_positive_multilangField() {
@@ -269,8 +268,8 @@ class SearchUtilsTest {
     return Stream.of(
       arguments(emptyMap(), 0),
       arguments(null, 0),
-      arguments(mapOf(RESOURCE_NAME, null), 0),
-      arguments(mapOf(RESOURCE_NAME, List.of(searchDocumentBody(), searchDocumentBody())), 2),
+      arguments(mapOf(ResourceType.UNKNOWN, null), 0),
+      arguments(mapOf(ResourceType.UNKNOWN, List.of(searchDocumentBody(), searchDocumentBody())), 2),
       arguments(mapOf("r1", List.of(searchDocumentBody()), "r2", List.of(searchDocumentBody())), 2)
     );
   }

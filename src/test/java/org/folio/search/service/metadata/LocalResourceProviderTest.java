@@ -2,7 +2,6 @@ package org.folio.search.service.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.resourceDescription;
@@ -19,6 +18,7 @@ import java.util.List;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -92,7 +92,7 @@ class LocalResourceProviderTest {
   @Test
   void getResourceDescription_positive_resourceWithException() throws IOException {
     var r1 = mock(Resource.class);
-    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    var resourceDescription = resourceDescription(ResourceType.UNKNOWN);
     var r1InputStream = mock(InputStream.class);
 
     when(r1.isReadable()).thenReturn(true);
@@ -100,11 +100,11 @@ class LocalResourceProviderTest {
     when(patternResolver.getResources("classpath*:/model/*.json")).thenReturn(array(r1));
     when(jsonConverter.readJson(r1InputStream, ResourceDescription.class)).thenReturn(resourceDescription);
 
-    var actual = localResourceProvider.getResourceDescription(RESOURCE_NAME);
+    var actual = localResourceProvider.getResourceDescription(ResourceType.UNKNOWN);
     assertThat(actual).isPresent().get().isEqualTo(resourceDescription);
 
     // second call must return locally cached resource descriptions
-    var actual2 = localResourceProvider.getResourceDescription(RESOURCE_NAME);
+    var actual2 = localResourceProvider.getResourceDescription(ResourceType.UNKNOWN);
     assertThat(actual2).isPresent().get().isEqualTo(resourceDescription);
 
     verify(patternResolver).getResources("classpath*:/model/*.json");
@@ -113,7 +113,7 @@ class LocalResourceProviderTest {
   @Test
   void getResourceDescription_negative_resourceNotFoundByName() throws IOException {
     var r1 = mock(Resource.class);
-    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    var resourceDescription = resourceDescription(ResourceType.INSTANCE);
     var r1InputStream = mock(InputStream.class);
 
     when(r1.isReadable()).thenReturn(true);
@@ -121,7 +121,7 @@ class LocalResourceProviderTest {
     when(patternResolver.getResources("classpath*:/model/*.json")).thenReturn(array(r1));
     when(jsonConverter.readJson(r1InputStream, ResourceDescription.class)).thenReturn(resourceDescription);
 
-    var actual = localResourceProvider.getResourceDescription("unknown");
+    var actual = localResourceProvider.getResourceDescription(ResourceType.UNKNOWN);
 
     assertThat(actual).isEmpty();
     verify(patternResolver).getResources("classpath*:/model/*.json");

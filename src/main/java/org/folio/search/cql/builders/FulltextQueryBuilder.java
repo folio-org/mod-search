@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchUtils.isMultilangFieldPath;
 import static org.folio.search.utils.SearchUtils.updatePathForFulltextField;
 
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,7 +25,7 @@ public abstract class FulltextQueryBuilder implements TermQueryBuilder {
    * @param fieldPath - path to field as {@link String} object
    * @return updated path for full-text querying
    */
-  protected String updatePathForFulltextQuery(String resource, String fieldPath) {
+  protected String updatePathForFulltextQuery(ResourceType resource, String fieldPath) {
     return searchFieldProvider.getPlainFieldByPath(resource, fieldPath)
       .map(fieldDescription -> updatePathForFulltextField(fieldDescription, fieldPath))
       .orElse(fieldPath);
@@ -42,7 +43,7 @@ public abstract class FulltextQueryBuilder implements TermQueryBuilder {
    * @param fieldPath - path to field as {@link String} object
    * @return updated path for term-level querying
    */
-  protected String updatePathForTermQueries(String resource, String fieldPath) {
+  protected String updatePathForTermQueries(ResourceType resource, String fieldPath) {
     if (isMultilangFieldPath(fieldPath)) {
       return getPathToFulltextPlainValue(fieldPath.substring(0, fieldPath.length() - 2));
     }

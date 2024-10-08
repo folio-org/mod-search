@@ -2,6 +2,7 @@ package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.search.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.search.support.base.ApiEndpoints.instanceIdsPath;
@@ -32,7 +33,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
   }
 
   @AfterAll
@@ -441,7 +442,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("identifiers.value all ({value})", "047144250X AND 2003065165 AND 0317-8471"),
       arguments("identifiers.identifierTypeId == {value}", "C858E4F2-2B6B-4385-842B-60732EE14ABB"),
       arguments("identifiers.identifierTypeId == 8261054F-BE78-422D-BD51-4ED9F33C3422 "
-        + "AND identifiers.value == {value}", "0262012103"),
+                + "AND identifiers.value == {value}", "0262012103"),
 
       arguments("publisher all {value}", "MIT"),
       arguments("publisher all {value}", "MIT"),
@@ -646,6 +647,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("issn = {value}", "*X"),
       arguments("issn = {value}", "*x"),
       arguments("issn = {value}", "0040-781*")
-      );
+    );
   }
 }

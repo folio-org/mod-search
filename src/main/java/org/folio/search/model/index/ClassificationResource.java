@@ -6,5 +6,4 @@ public record ClassificationResource(
   String id,
   String typeId,
   String number,
-  Set<InstanceSubResource> instances) {
-}
+  Set<InstanceSubResource> instances) { }

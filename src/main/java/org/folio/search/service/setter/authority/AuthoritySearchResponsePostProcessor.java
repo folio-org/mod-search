@@ -11,14 +11,13 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.SimpleResourceRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
@@ -57,10 +56,9 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
   }
 
   private void countAndSetNumberOfLinkedInstances(List<Authority> authorities) {
-    var instanceResourceName = SearchUtils.getResourceName(Instance.class);
-    var queries = buildQueries(authorities, instanceResourceName);
+    var queries = buildQueries(authorities, ResourceType.INSTANCE);
 
-    var resourceRequest = SimpleResourceRequest.of(instanceResourceName,
+    var resourceRequest = SimpleResourceRequest.of(ResourceType.INSTANCE,
       tenantProvider.getTenant(context.getTenantId()));
     var responses = searchRepository.msearch(resourceRequest, queries).getResponses();
 
@@ -73,8 +71,8 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
     }
   }
 
-  private List<SearchSourceBuilder> buildQueries(List<Authority> authorities, String resourceName) {
-    var authorityIdFields = searchFieldProvider.getFields(resourceName, AUTHORITY_ID_FIELD);
+  private List<SearchSourceBuilder> buildQueries(List<Authority> authorities, ResourceType resource) {
+    var authorityIdFields = searchFieldProvider.getFields(resource, AUTHORITY_ID_FIELD);
     return authorities.stream()
       .map(Authority::getId)
       .map(id -> buildQuery(authorityIdFields, id))

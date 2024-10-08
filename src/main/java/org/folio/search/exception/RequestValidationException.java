@@ -2,9 +2,13 @@ package org.folio.search.exception;
 
 import lombok.Getter;
 import org.folio.search.model.types.ErrorCode;
+import org.folio.spring.integration.XOkapiHeaders;
 
 @Getter
 public class RequestValidationException extends BaseSearchException {
+
+  public static final String REQUEST_NOT_ALLOWED_MSG =
+    "The request not allowed for member tenant of consortium environment";
 
   private final String key;
   private final String value;
@@ -21,5 +25,9 @@ public class RequestValidationException extends BaseSearchException {
 
     this.key = key;
     this.value = value;
+  }
+
+  public static RequestValidationException memberTenantNotAllowedException(String tenantId) {
+    return new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantId);
   }
 }

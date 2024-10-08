@@ -20,6 +20,7 @@ import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -44,7 +45,7 @@ public class SearchMappingsHelper {
    * @param resource resource name as {@link String} object
    * @return elasticsearch mappings as {@link String} object with JSON object inside
    */
-  public String getMappings(String resource) {
+  public String getMappings(ResourceType resource) {
     log.debug("getMappings:: by [resource: {}]", resource);
 
     var description = resourceDescriptionService.get(resource);

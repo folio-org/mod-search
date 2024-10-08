@@ -114,15 +114,12 @@ class ContributorBrowseServiceTest {
   }
 
   private List<ContributorResource> contributors() {
-    return singletonList(ContributorResource.builder()
-      .name("name")
-      .contributorNameTypeId("nameType")
-      .authorityId("auth")
-      .instances(Set.of(
-        contributorInstance("ins1", "type1", false, "tenant1"),
-        contributorInstance("ins2", "type1", true, "tenant2"),
-        contributorInstance("ins1", "type2", false, "tenant1")))
-      .build());
+    return singletonList(new ContributorResource("id", "name", "nameType", "auth",
+      Set.of(
+          contributorInstance("ins1", "type1", false, "tenant1"),
+          contributorInstance("ins2", "type1", true, "tenant2"),
+          contributorInstance("ins1", "type2", false, "tenant1")))
+    );
   }
 
   private InstanceSubResource contributorInstance(String instanceId, String typeId, Boolean shared, String tenantId) {

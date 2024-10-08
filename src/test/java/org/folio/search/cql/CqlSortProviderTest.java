@@ -4,10 +4,10 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.model.types.SearchType.SORT;
 import static org.folio.search.model.types.SortFieldType.COLLECTION;
 import static org.folio.search.model.types.SortFieldType.SINGLE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -52,61 +52,61 @@ class CqlSortProviderTest {
   @Test
   void getSort_positive_ascOrder() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort("sort_" + FIELD_NAME).order(ASC)));
   }
 
   @Test
   void getSort_positive_descOrder() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field/sort.descending");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort("sort_" + FIELD_NAME).order(DESC)));
   }
 
   @Test
   void getSort_positive_customFieldName() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(
       of(sortField(sortDescription("customField", SINGLE))));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort("customField")));
   }
 
   @Test
   void getSort_positive_modifyFieldName() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field");
-    when(searchFieldProvider.getModifiedField(FIELD_NAME, RESOURCE_NAME)).thenReturn("modifiedField");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "modifiedField")).thenReturn(of(keywordField(SORT)));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    when(searchFieldProvider.getModifiedField(FIELD_NAME, UNKNOWN)).thenReturn("modifiedField");
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, "modifiedField")).thenReturn(of(keywordField(SORT)));
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort("sort_" + "modifiedField").order(ASC)));
   }
 
   @Test
   void getSort_positive_collectionFieldAscOrder() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(
       of(sortField(sortDescription(FIELD_NAME, COLLECTION))));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort(FIELD_NAME).sortMode(MIN)));
   }
 
   @Test
   void getSort_positive_collectionFieldDescOrder() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field/sort.descending");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(
       of(sortField(sortDescription(FIELD_NAME, COLLECTION))));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(fieldSort(FIELD_NAME).order(DESC).sortMode(MAX)));
   }
 
   @Test
   void getSort_positive_secondarySort() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(
       of(sortField(sortDescription(FIELD_NAME, COLLECTION, "_score"))));
-    var sort = cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME);
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN);
     assertThat(sort).isEqualTo(List.of(
       fieldSort(FIELD_NAME).order(ASC).sortMode(MIN),
       fieldSort("_score").order(ASC).sortMode(MIN)));
@@ -115,8 +115,8 @@ class CqlSortProviderTest {
   @Test
   void getSort_negative_invalidField() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field/sort.descending");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(of(keywordField()));
-    assertThatThrownBy(() -> cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME))
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(of(keywordField()));
+    assertThatThrownBy(() -> cqlSortProvider.getSort(cqlSortNode, UNKNOWN))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Sort field not found or cannot be used.");
   }
@@ -124,8 +124,8 @@ class CqlSortProviderTest {
   @Test
   void getSort_negative_invalidModifier() throws Exception {
     var cqlSortNode = sortNode("(keyword all value) sortby field/sort.unknown");
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
-    assertThatThrownBy(() -> cqlSortProvider.getSort(cqlSortNode, RESOURCE_NAME))
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(of(keywordField(SORT)));
+    assertThatThrownBy(() -> cqlSortProvider.getSort(cqlSortNode, UNKNOWN))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Failed to parse CQL query. [error: 'CQL: Unsupported modifier sort.unknown']");
   }

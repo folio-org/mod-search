@@ -29,7 +29,7 @@ import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.config.BrowseConfigEntity;
 import org.folio.search.model.config.BrowseConfigId;
 import org.folio.search.repository.BrowseConfigEntityRepository;

@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
@@ -33,6 +32,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,7 +105,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, "query", INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<List<String>>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::add);
@@ -123,7 +123,7 @@ class SearchRepositoryTest {
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
     doReturn(new ClearScrollResponse(false, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, "query", INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<String>();
 
     searchRepository.streamResourceIds(request, searchSource(), actualIds::addAll);

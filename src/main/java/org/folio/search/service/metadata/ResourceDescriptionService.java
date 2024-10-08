@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,7 @@ public class ResourceDescriptionService {
 
   private final LocalResourceProvider localResourceProvider;
   private final Map<String, FieldProcessor<?, ?>> availableProcessors;
-  private Map<String, ResourceDescription> resourceDescriptions;
+  private Map<ResourceType, ResourceDescription> resourceDescriptions;
 
   /**
    * Initializes bean after constructor call and loads required resources from local files.
@@ -45,7 +46,7 @@ public class ResourceDescriptionService {
   public void init() {
     log.debug("init::  Attempting to start loading required resources from local");
 
-    var mapBuilder = new LinkedHashMap<String, ResourceDescription>();
+    var mapBuilder = new LinkedHashMap<ResourceType, ResourceDescription>();
     var loadedResourceDescriptions = localResourceProvider.getResourceDescriptions();
 
     validateResourceDescriptions(loadedResourceDescriptions);
@@ -57,17 +58,17 @@ public class ResourceDescriptionService {
   /**
    * Provides {@link ResourceDescription} object for given resource name.
    *
-   * @param resourceName name of resource as {@link String}
+   * @param resourceType resource type as {@link ResourceType} value.
    * @return {@link ResourceDescription} object
    * @throws ResourceDescriptionException if resource description is not found for the given name.
    */
-  public ResourceDescription get(String resourceName) {
-    log.debug("get:: by [resourceName: {}]", resourceName);
+  public ResourceDescription get(ResourceType resourceType) {
+    log.debug("get:: by [resourceType: {}]", resourceType);
 
-    var resourceDescription = resourceDescriptions.get(resourceName);
+    var resourceDescription = resourceDescriptions.get(resourceType);
     if (resourceDescription == null) {
       throw new ResourceDescriptionException(format(
-        "Resource description not found [resourceName: %s]", resourceName));
+        "Resource description not found [resourceType: %s]", resourceType.getName()));
     }
     return resourceDescription;
   }
@@ -75,10 +76,10 @@ public class ResourceDescriptionService {
   /**
    * Provides {@link ResourceDescription} object as {@link Optional} for given resource name.
    *
-   * @param resourceName name of resource as {@link String}
+   * @param resourceType type of resource as {@link ResourceType}
    */
-  public Optional<ResourceDescription> find(String resourceName) {
-    return Optional.ofNullable(resourceDescriptions.get(resourceName));
+  public Optional<ResourceDescription> find(ResourceType resourceType) {
+    return Optional.ofNullable(resourceDescriptions.get(resourceType));
   }
 
   /**
@@ -91,25 +92,25 @@ public class ResourceDescriptionService {
   }
 
   /**
-   * Returns all supported resource names.
+   * Returns all supported resource types.
    *
-   * @return {@link Collection} with all resource names as {@link String} values.
+   * @return {@link Collection} with all resource names as {@link ResourceType} values.
    */
-  public Collection<String> getResourceNames() {
+  public Collection<ResourceType> getResourceTypes() {
     return resourceDescriptions.keySet();
   }
 
   /**
-   * Returns name of secondary resources that linked to the given resource name.
+   * Returns types of secondary resources that linked to the given resource type.
    *
-   * @param resource - resource name to check as {@link String}.
-   * @return {@link Collection} with secondary resource names.
+   * @param resource - resource type to check as {@link ResourceType}.
+   * @return {@link Collection} with secondary resource types.
    */
-  public Collection<String> getSecondaryResourceNames(String resource) {
+  public Collection<ResourceType> getSecondaryResourceTypes(ResourceType resource) {
     log.debug("getSecondaryResourceNames:: by [resource: {}]", resource);
 
     return resourceDescriptions.values().stream()
-      .filter(desc -> StringUtils.equals(resource, desc.getParent()))
+      .filter(desc -> resource == desc.getParent())
       .map(ResourceDescription::getName)
       .toList();
   }
@@ -117,14 +118,14 @@ public class ResourceDescriptionService {
   private void validateResourceDescriptions(List<ResourceDescription> descriptors) {
     log.debug("validateResourceDescriptions:: by [descriptors:: {}]", collectionToLogMsg(descriptors, true));
 
-    var validationErrors = new LinkedHashMap<String, List<String>>();
+    var validationErrors = new LinkedHashMap<ResourceType, List<String>>();
     descriptors.forEach(descriptor -> validationErrors
       .computeIfAbsent(descriptor.getName(), v -> new ArrayList<>())
       .addAll(checkIfProcessorExistForSearchFields(descriptor)));
 
     var errorString = validationErrors.entrySet().stream()
       .filter(entry -> CollectionUtils.isNotEmpty(entry.getValue()))
-      .map(entry -> format("%s: ('%s')", entry.getKey(), String.join("', '", entry.getValue())))
+      .map(entry -> format("%s: ('%s')", entry.getKey().getName(), String.join("', '", entry.getValue())))
       .collect(Collectors.joining("\n", "\n", ""));
     if (StringUtils.isNotBlank(errorString)) {
       throw new ResourceDescriptionException("Found error(s) in resource description(s):" + errorString);

@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.aggregationsFromJson;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -24,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.service.CallNumberBrowseRangeValue;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.utils.CallNumberUtils;
 import org.folio.spring.testing.type.UnitTest;
@@ -69,7 +69,7 @@ class CallNumberBrowseRangeServiceTest {
 
   @Test
   void getBrowseRanges_positive() {
-    var request = SimpleResourceRequest.of(INSTANCE_RESOURCE, TENANT_ID);
+    var request = SimpleResourceRequest.of(ResourceType.INSTANCE, TENANT_ID);
     when(searchRepository.search(eq(request), searchSourceCaptor.capture())).thenReturn(searchResponse);
     when(searchResponse.getAggregations()).thenReturn(aggregationsFromJson(
       jsonObject(

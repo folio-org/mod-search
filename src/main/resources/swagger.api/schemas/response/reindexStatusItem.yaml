@@ -1,0 +1,33 @@
+description: Reindex status item
+type: object
+properties:
+  entityType:
+    type: string
+    description: Entity type for reindex status item
+  status:
+    type: string
+    description: Reindex status
+  totalMergeRanges:
+    type: integer
+    description: Total merge ranges to process for entity
+  processedMergeRanges:
+    type: integer
+    description: Processed merge ranges for entity
+  totalUploadRanges:
+    type: integer
+    description: Total upload ranges to process for entity
+  processedUploadRanges:
+    type: integer
+    description: Processed upload ranges for entity
+  startTimeMerge:
+    type: string
+    description: Start time of reindex merge phase for entity
+  endTimeMerge:
+    type: string
+    description: End time of reindex merge phase for entity
+  startTimeUpload:
+    type: string
+    description: Start time of reindex upload phase for entity
+  endTimeUpload:
+    type: string
+    description: End time of reindex upload phase for entity

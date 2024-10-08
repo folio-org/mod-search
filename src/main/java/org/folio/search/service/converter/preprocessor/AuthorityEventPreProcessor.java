@@ -4,11 +4,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.StreamSupport.stream;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.utils.CollectionUtils.toMap;
 import static org.folio.search.utils.SearchConverterUtils.copyEntityFields;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.metadata.AuthorityFieldDescription;
-import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class AuthorityEventPreProcessor implements EventPreProcessor {
 
   private final ResourceDescriptionService resourceDescriptionService;
-  private final ConsortiumTenantService consortiumTenantService;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
   private Map<String, List<String>> fieldTypes;
   private List<String> commonFields;
 
@@ -42,7 +42,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
   @PostConstruct
   public void init() {
     log.debug("init:: PostConstruct stated");
-    var fields = resourceDescriptionService.get(AUTHORITY_RESOURCE);
+    var fields = resourceDescriptionService.get(AUTHORITY);
     var fieldPerDistinctiveType = new LinkedHashMap<String, List<String>>();
     var commonFieldsList = new ArrayList<String>();
     for (var entry : fields.getFields().entrySet()) {
@@ -73,8 +73,7 @@ public class AuthorityEventPreProcessor implements EventPreProcessor {
       var eventNewPart = getNewAsMap(event);
       eventNewPart.put("tenantId", event.getTenant());
 
-      var centralTenant = consortiumTenantService.getCentralTenant(event.getTenant());
-      if (centralTenant.isPresent() && centralTenant.get().equals(event.getTenant())) {
+      if (consortiumTenantProvider.isCentralTenant(event.getTenant())) {
         eventNewPart.put("shared", true);
       }
     }

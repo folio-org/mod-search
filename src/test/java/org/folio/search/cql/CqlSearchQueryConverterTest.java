@@ -3,8 +3,8 @@ package org.folio.search.cql;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestUtils.filterField;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.multilangField;
@@ -91,8 +91,8 @@ class CqlSearchQueryConverterTest {
   @DisplayName("convert_positive_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void convert_positive_parameterized(String cqlQuery, SearchSourceBuilder expected) {
-    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    when(searchFieldProvider.getPlainFieldByPath(eq(UNKNOWN), any())).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -100,24 +100,24 @@ class CqlSearchQueryConverterTest {
   @MethodSource("convertCqlQuerySearchGroupDataProvider")
   @DisplayName("convert_positive_parameterizedSearchGroup")
   void convert_positive_parameterizedSearchGroup(String cqlQuery, SearchSourceBuilder expected) {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, TITLE_SEARCH_TYPE)).thenReturn(List.of(TITLE_FIELDS));
-    when(searchFieldProvider.getPlainFieldByPath(eq(RESOURCE_NAME), any())).thenReturn(Optional.of(keywordField()));
+    when(searchFieldProvider.getFields(UNKNOWN, TITLE_SEARCH_TYPE)).thenReturn(List.of(TITLE_FIELDS));
+    when(searchFieldProvider.getPlainFieldByPath(eq(UNKNOWN), any())).thenReturn(Optional.of(keywordField()));
 
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   void convert_positive_searchByGroupOfOneField() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "group")).thenReturn(List.of("field"));
-    var actual = cqlSearchQueryConverter.convert("group all value", RESOURCE_NAME);
+    when(searchFieldProvider.getFields(UNKNOWN, "group")).thenReturn(List.of("field"));
+    var actual = cqlSearchQueryConverter.convert("group all value", UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(getMultiMatchQuery("value", "field")));
   }
 
   @Test
   void convert_negative_unsupportedBoolOperator() {
     var cqlQuery = "title all \"test-query\" prox contributors = \"value\"";
-    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Failed to parse CQL query. Operator 'PROX' is not supported.");
   }
@@ -125,7 +125,7 @@ class CqlSearchQueryConverterTest {
   @Test
   void convert_negative_unsupportedComparator() {
     var cqlQuery = "title within  \"test-query\"";
-    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Failed to parse CQL query. Comparator 'within' is not supported.");
   }
@@ -133,7 +133,7 @@ class CqlSearchQueryConverterTest {
   @Test
   void convert_negative_unsupportedNode() {
     var cqlQuery = "> dc = \"info:srw/context-sets/1/dc-v1.1\" dc.title any fish";
-    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Failed to parse CQL query. Node with type 'CQLPrefixNode' is not supported.");
   }
@@ -141,27 +141,27 @@ class CqlSearchQueryConverterTest {
   @Test
   void convert_negative_invalidQuery() {
     var cqlQuery = "> invalidQuery";
-    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE_RESOURCE))
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to parse cql query [cql: '> invalidQuery', resource: instance]");
   }
 
   @Test
   void convert_positive_multilangSearchField() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getFields(UNKNOWN, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(Optional.of(multilangField()));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " all value", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(getMultiMatchQuery("value", "field.*")));
   }
 
   @Test
   void convert_positive_multilangSearchFieldExactMatch() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(multilangField()));
+    when(searchFieldProvider.getFields(UNKNOWN, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(Optional.of(multilangField()));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " == value", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " == value", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(
       multiMatchQuery("value", FIELD + ".*").type(PHRASE)));
@@ -169,55 +169,55 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_plainSearchField() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(keywordField()));
+    when(searchFieldProvider.getFields(UNKNOWN, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(Optional.of(keywordField()));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " all value", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " all value", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "value").operator(AND)));
   }
 
   @Test
   void convert_positive_isbnSearch() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
+    when(searchFieldProvider.getFields(UNKNOWN, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("isbnSearchTermProcessor")));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "123").operator(AND)));
   }
 
   @Test
   void convert_positive_oclcSearch() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FIELD)).thenReturn(emptyList());
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
+    when(searchFieldProvider.getFields(UNKNOWN, FIELD)).thenReturn(emptyList());
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("oclcSearchTermProcessor")));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " = 00061712", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " = 00061712", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "61712").operator(AND)));
   }
 
   @Test
   void convert_negative_searchTermProcessorNotFound() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(
       Optional.of(keywordFieldWithProcessor("termProcessor")));
 
-    var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(FIELD + " = 1 23", UNKNOWN);
 
     assertThat(actual).isEqualTo(searchSource().query(matchQuery(FIELD, "1 23").operator(AND)));
   }
 
   @Test
   void convert_positive_boolQueryWithFilters() {
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "title");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f4");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "title");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f3");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f4");
 
     var cqlQuery = "(title all \"v1\") and f2==\"v2\" and f3 ==\"v3\" and f4==\"v4\"";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
         .must(matchQuery("title", "v1").operator(AND))
@@ -228,12 +228,12 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_boolQueryWithDisjunctionFilters() {
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "title");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "title");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f3");
 
     var cqlQuery = "(title all \"v1\") and f2==(v2 or v3 or v4) and f3==v5";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery()
         .must(matchQuery("title", "v1").operator(AND))
@@ -243,13 +243,13 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_boolQueryWithNotFilterQuery() {
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "title");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f4");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "title");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f3");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f4");
 
     var cqlQuery = "(title all \"v1\") and (f2==v2 or f4==v3) and f3==v4";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(matchQuery("title", "v1").operator(AND))
       .must(boolQuery().should(termQuery("f2", "v2")).should(termQuery("f4", "v3")))
@@ -258,20 +258,20 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_queryWithSingleFilter() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
     var cqlQuery = "f1==value";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery().filter(termQuery("f1", "value"))));
   }
 
   @Test
   void convert_positive_boolQueryWithMustNotCondition() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f3");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f3");
 
     var cqlQuery = "(f2=v1 not f3=v2) and f1==(v3 or v4)";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(boolQuery()
         .must(matchQuery("f2", "v1").operator(AND))
@@ -281,11 +281,11 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_boolQueryWithMustCondition() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
 
     var cqlQuery = "f2=v1 and f1==(v3 or v4)";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(matchQuery("f2", "v1").operator(AND))
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
@@ -293,11 +293,11 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_boolQueryWithNotCondition() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
 
     var cqlQuery = "f2<>v1 and f1==(v3 or v4)";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(boolQuery().mustNot(termQuery("f2", "v1")))
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
@@ -305,19 +305,19 @@ class CqlSearchQueryConverterTest {
 
   @Test
   void convert_positive_disjunctionFilterQuery() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    var actual = cqlSearchQueryConverter.convert("f1==(v3 or v4)", RESOURCE_NAME);
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
+    var actual = cqlSearchQueryConverter.convert("f1==(v3 or v4)", UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .filter(boolQuery().should(termQuery("f1", "v3")).should(termQuery("f1", "v4")))));
   }
 
   @Test
   void convert_positive_boolQueryWithRangeCondition() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
-    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f2");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
+    doReturn(Optional.of(keywordField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f2");
 
     var cqlQuery = "f2<>v1 and f1 > 2";
-    var actual = cqlSearchQueryConverter.convert(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(boolQuery()
       .must(boolQuery().mustNot(termQuery("f2", "v1")))
       .filter(rangeQuery("f1").gt("2"))));
@@ -327,34 +327,34 @@ class CqlSearchQueryConverterTest {
   void convert_positive_sortQuery() {
     var expectedSort = fieldSort(FIELD);
 
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(Optional.of(keywordField()));
-    when(cqlSortProvider.getSort(any(), eq(RESOURCE_NAME))).thenReturn(List.of(expectedSort));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(Optional.of(keywordField()));
+    when(cqlSortProvider.getSort(any(), eq(UNKNOWN))).thenReturn(List.of(expectedSort));
 
-    var actual = cqlSearchQueryConverter.convert("(field==value) sortby title", RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convert("(field==value) sortby title", UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(termQuery(FIELD, "value")).sort(expectedSort));
   }
 
   @Test
   void convert_positive_groupOfOneField() {
     var field = "contributors.name";
-    when(searchFieldProvider.getFields(RESOURCE_NAME, "contributors")).thenReturn(List.of(field));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, field)).thenReturn(Optional.of(keywordField()));
-    var actual = cqlSearchQueryConverter.convert("contributors any joh*", RESOURCE_NAME);
+    when(searchFieldProvider.getFields(UNKNOWN, "contributors")).thenReturn(List.of(field));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, field)).thenReturn(Optional.of(keywordField()));
+    var actual = cqlSearchQueryConverter.convert("contributors any joh*", UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(wildcardQuery(field, "joh*")));
   }
 
   @Test
   void convert_negative_unsupportedField() {
-    assertThatThrownBy(() -> cqlSearchQueryConverter.convert("invalid_field all value", RESOURCE_NAME))
+    assertThatThrownBy(() -> cqlSearchQueryConverter.convert("invalid_field all value", UNKNOWN))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("Invalid search field provided in the CQL query");
   }
 
   @Test
   void convertForConsortia_positive_whenConsortiaDisabled() {
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
     var cqlQuery = "f1==value";
-    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(
       boolQuery().filter(termQuery("f1", "value"))));
   }
@@ -363,9 +363,9 @@ class CqlSearchQueryConverterTest {
   void convertForConsortia_positive() {
     var consortiumQueryMock = disMaxQuery();
     when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(consortiumQueryMock);
-    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(RESOURCE_NAME, "f1");
+    doReturn(Optional.of(filterField())).when(searchFieldProvider).getPlainFieldByPath(UNKNOWN, "f1");
     var cqlQuery = "f1==value";
-    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, RESOURCE_NAME);
+    var actual = cqlSearchQueryConverter.convertForConsortia(cqlQuery, UNKNOWN);
     assertThat(actual).isEqualTo(searchSource().query(consortiumQueryMock));
   }
 

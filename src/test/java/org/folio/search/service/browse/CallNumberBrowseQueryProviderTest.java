@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResponseGroupType.CN_BROWSE;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -28,6 +27,7 @@ import java.util.function.Supplier;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.CallNumberUtils;
@@ -71,7 +71,8 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_forward() {
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
+    when(searchFieldProvider.getSourceFields(ResourceType.INSTANCE, CN_BROWSE)).thenReturn(
+      new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
 
     var actual = mockCallNumberConversion(() -> queryProvider.get(request(false), context, true));
@@ -81,7 +82,8 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_forwardQueryWithFilters() {
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
+    when(searchFieldProvider.getSourceFields(ResourceType.INSTANCE, CN_BROWSE)).thenReturn(
+      new String[] {"id", "title"});
     var filterQuery = termQuery("effectiveLocationId", "location#1");
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5)
       .filters(List.of(filterQuery)).build();
@@ -123,7 +125,8 @@ class CallNumberBrowseQueryProviderTest {
   void get_positive_forwardConsortium() {
     var query = disMaxQuery();
     when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(query);
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
+    when(searchFieldProvider.getSourceFields(ResourceType.INSTANCE, CN_BROWSE)).thenReturn(
+      new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).succeedingLimit(5).build();
 
     var actual = mockCallNumberConversion(() -> queryProvider.get(request(false), context, true));
@@ -134,7 +137,8 @@ class CallNumberBrowseQueryProviderTest {
 
   @Test
   void get_positive_backward() {
-    when(searchFieldProvider.getSourceFields(RESOURCE_NAME, CN_BROWSE)).thenReturn(new String[] {"id", "title"});
+    when(searchFieldProvider.getSourceFields(ResourceType.INSTANCE, CN_BROWSE)).thenReturn(
+      new String[] {"id", "title"});
     var context = BrowseContext.builder().anchor(ANCHOR).precedingLimit(5).build();
 
     var actual = mockCallNumberConversion(() -> queryProvider.get(request(false), context, false));
@@ -195,7 +199,7 @@ class CallNumberBrowseQueryProviderTest {
 
   private static BrowseRequest request(boolean expandAll) {
     return BrowseRequest.builder()
-      .resource(RESOURCE_NAME)
+      .resource(ResourceType.INSTANCE)
       .tenantId(TENANT_ID)
       .subField("callNumber")
       .expandAll(expandAll)
@@ -204,16 +208,16 @@ class CallNumberBrowseQueryProviderTest {
 
   private static String precedingQuerySortScript() {
     return "def f=doc['itemEffectiveShelvingOrder'];"
-      + "def a=Collections.binarySearch(f,params['cn']);"
-      + "if(a>=0) return f[a];a=-a-2"
-      + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
+           + "def a=Collections.binarySearch(f,params['cn']);"
+           + "if(a>=0) return f[a];a=-a-2"
+           + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
   }
 
   private static String succeedingQuerySortScript() {
     return "def f=doc['itemEffectiveShelvingOrder'];"
-      + "def a=Collections.binarySearch(f,params['cn']);"
-      + "if(a>=0) return f[a];a=-a-1"
-      + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
+           + "def a=Collections.binarySearch(f,params['cn']);"
+           + "if(a>=0) return f[a];a=-a-1"
+           + ";f[(int)Math.min(Math.max(0, a),f.length-1)]";
   }
 
   private static SearchQueryConfigurationProperties getSearchQueryConfigurationProperties() {

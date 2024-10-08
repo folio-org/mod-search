@@ -8,7 +8,7 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
@@ -16,31 +16,32 @@ import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.resourceEvent;
 import static org.folio.search.utils.TestUtils.toMap;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 
 @Log4j2
 @RequiredArgsConstructor
 public class InventoryApi {
 
   private static final Map<String, Map<String, Map<String, Object>>> INSTANCE_STORE = new LinkedHashMap<>();
-  private static final Map<String, Map<String, HoldingEvent>> HOLDING_STORE = new LinkedHashMap<>();
-  private static final Map<String, Map<String, ItemEvent>> ITEM_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, Map<String, Object>>> HOLDING_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, Map<String, Object>>> ITEM_STORE = new LinkedHashMap<>();
+  private static final Map<String, Map<String, Map<String, Object>>> BOUND_WITH_STORE = new LinkedHashMap<>();
   private static final String ID_FIELD = "id";
+  private static final String INSTANCE_ID_FIELD = "instanceId";
 
   private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
@@ -54,14 +55,7 @@ public class InventoryApi {
 
     var instanceEvent = kafkaResourceEvent(tenantId, CREATE, instance, null);
     kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
-        .whenComplete((stringResourceEventSendResult, throwable) -> {
-          if (throwable != null) {
-            log.error("Failed sending instance resource event", throwable);
-          } else {
-            var topic = stringResourceEventSendResult.getRecordMetadata().topic();
-            log.info("Succeeded sending instance resource event to topic: {}", topic);
-          }
-        });
+      .whenComplete(onCompleteConsumer());
     createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
     createNestedResources(instance, INSTANCE_ITEM_FIELD_NAME, item -> createItem(tenantId, instanceId, item));
   }
@@ -77,38 +71,66 @@ public class InventoryApi {
     INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
     var instanceEvent = kafkaResourceEvent(tenantId, UPDATE, instance, previousInstance);
-    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent);
+    kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
+      .whenComplete(onCompleteConsumer());
   }
 
   public void deleteInstance(String tenant, String id) {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
 
     kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
-      resourceEvent(INSTANCE_RESOURCE, null).old(instance).tenant(tenant).type(DELETE));
+        resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE))
+      .whenComplete(onCompleteConsumer());
   }
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
-    var event = new HoldingEvent(holding, instanceId);
-    HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(holding, ID_FIELD), event);
-    kafkaTemplate.send(inventoryHoldingTopic(tenant), instanceId, kafkaResourceEvent(tenant, CREATE, event, null));
+    holding.put(INSTANCE_ID_FIELD, instanceId);
+    var holdingsId = getString(holding, ID_FIELD);
+    HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(holdingsId, holding);
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingsId, kafkaResourceEvent(tenant, CREATE, holding, null))
+      .whenComplete(onCompleteConsumer());
   }
 
   public void deleteHolding(String tenant, String id) {
-    var holdingRecord = HOLDING_STORE.get(tenant).remove(id);
-    var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, holdingRecord);
-    kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingRecord.getInstanceId(), resourceEvent);
+    var holdings = HOLDING_STORE.get(tenant).remove(id);
+    var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, holdings);
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), getString(holdings, ID_FIELD), resourceEvent)
+      .whenComplete(onCompleteConsumer());
   }
 
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {
-    var event = new ItemEvent(item, instanceId);
-    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(getString(item, ID_FIELD), event);
-    kafkaTemplate.send(inventoryItemTopic(tenant), instanceId, kafkaResourceEvent(tenant, CREATE, event, null));
+    item.put(INSTANCE_ID_FIELD, instanceId);
+    var itemId = getString(item, ID_FIELD);
+    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
+    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, kafkaResourceEvent(tenant, CREATE, item, null))
+      .whenComplete(onCompleteConsumer());
   }
 
   public void deleteItem(String tenant, String id) {
     var item = ITEM_STORE.get(tenant).remove(id);
     var resourceEvent = kafkaResourceEvent(tenant, DELETE, null, item);
-    kafkaTemplate.send(inventoryItemTopic(tenant), item.getInstanceId(), resourceEvent);
+    kafkaTemplate.send(inventoryItemTopic(tenant), getString(item, ID_FIELD), resourceEvent)
+      .whenComplete(onCompleteConsumer());
+  }
+
+  public void createBoundWith(String tenant, String instanceId) {
+    var id = UUID.randomUUID().toString();
+    Map<String, Object> boundWith = Map.of(ID_FIELD, id, INSTANCE_ID_FIELD, instanceId);
+    BOUND_WITH_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(id, boundWith);
+    var resourceEvent = kafkaResourceEvent(tenant, CREATE, boundWith, null);
+    kafkaTemplate.send(inventoryBoundWithTopic(tenant), id, resourceEvent)
+      .whenComplete(onCompleteConsumer());
+  }
+
+  private BiConsumer<SendResult<String, ResourceEvent>, Throwable> onCompleteConsumer() {
+    return (sendResult, throwable) -> {
+      if (throwable != null) {
+        log.error("Failed sending resource event", throwable);
+      } else {
+        var topic = sendResult.getRecordMetadata().topic();
+        log.info("Succeeded sending resource event to topic: {}", topic);
+      }
+    };
   }
 
   @SuppressWarnings("unchecked")
@@ -119,46 +141,4 @@ public class InventoryApi {
     }
   }
 
-  public static Optional<Map<String, Object>> getInventoryView(String tenant, String id) {
-    var instance = INSTANCE_STORE.getOrDefault(tenant, emptyMap()).get(id);
-
-    var hrs = HOLDING_STORE.getOrDefault(tenant, emptyMap()).values().stream()
-      .filter(hr -> hr.getInstanceId().equals(id))
-      .map(HoldingEvent::getHolding)
-      .toList();
-
-    var items = ITEM_STORE.getOrDefault(tenant, emptyMap()).values().stream()
-      .filter(item -> item.getInstanceId().equals(id))
-      .map(ItemEvent::getItem)
-      .toList();
-
-    return Optional.ofNullable(instance)
-      .map(inst -> putField(inst, INSTANCE_HOLDING_FIELD_NAME, hrs))
-      .map(inst -> putField(inst, INSTANCE_ITEM_FIELD_NAME, items));
-  }
-
-  private static Map<String, Object> putField(Map<String, Object> instance, String key, Object subResources) {
-    instance.put(key, subResources);
-    return instance;
-  }
-
-  @Data
-  @AllArgsConstructor
-  @NoArgsConstructor
-  private static final class HoldingEvent {
-
-    @JsonUnwrapped
-    private Map<String, Object> holding;
-    private String instanceId;
-  }
-
-  @Data
-  @AllArgsConstructor
-  @NoArgsConstructor
-  private static final class ItemEvent {
-
-    @JsonUnwrapped
-    private Map<String, Object> item;
-    private String instanceId;
-  }
 }

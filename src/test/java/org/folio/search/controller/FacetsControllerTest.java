@@ -1,10 +1,5 @@
 package org.folio.search.controller;
 
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
 import static org.folio.search.utils.TestUtils.facet;
@@ -23,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -56,19 +52,9 @@ class FacetsControllerTest {
       .thenReturn(TENANT_ID);
   }
 
-  public static Stream<Arguments> facetsTestSource() {
-    return Stream.of(
-      Arguments.arguments("authorities", AUTHORITY_RESOURCE),
-      Arguments.arguments("instances", INSTANCE_RESOURCE),
-      Arguments.arguments("contributors", CONTRIBUTOR_RESOURCE),
-      Arguments.arguments("subjects", INSTANCE_SUBJECT_RESOURCE),
-      Arguments.arguments("classifications", INSTANCE_CLASSIFICATION_RESOURCE)
-    );
-  }
-
   @MethodSource("facetsTestSource")
   @ParameterizedTest
-  void getFacets_positive(String recordType, String resource) throws Exception {
+  void getFacets_positive(String recordType, ResourceType resource) throws Exception {
     var cqlQuery = "source all \"test-query\"";
     var expectedFacetRequest = defaultFacetServiceRequest(resource, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenReturn(
@@ -93,7 +79,7 @@ class FacetsControllerTest {
   @Test
   void getFacets_negative_unknownFacet() throws Exception {
     var cqlQuery = "title all \"test-query\"";
-    var expectedFacetRequest = defaultFacetServiceRequest(INSTANCE_RESOURCE, cqlQuery, "source:5");
+    var expectedFacetRequest = defaultFacetServiceRequest(ResourceType.INSTANCE, cqlQuery, "source:5");
     when(facetService.getFacets(expectedFacetRequest)).thenThrow(
       new RequestValidationException("Invalid facet value", "facet", "source"));
 
@@ -129,5 +115,15 @@ class FacetsControllerTest {
       .andExpect(jsonPath("$.errors[0].message", containsString("Failed to convert value")))
       .andExpect(jsonPath("$.errors[0].type", is("MethodArgumentTypeMismatchException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  public static Stream<Arguments> facetsTestSource() {
+    return Stream.of(
+      Arguments.arguments("authorities", ResourceType.AUTHORITY),
+      Arguments.arguments("instances", ResourceType.INSTANCE),
+      Arguments.arguments("contributors", ResourceType.INSTANCE_CONTRIBUTOR),
+      Arguments.arguments("subjects", ResourceType.INSTANCE_SUBJECT),
+      Arguments.arguments("classifications", ResourceType.INSTANCE_CLASSIFICATION)
+    );
   }
 }

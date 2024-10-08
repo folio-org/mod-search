@@ -1,6 +1,9 @@
 package org.folio.search.service.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
@@ -9,6 +12,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -45,13 +49,13 @@ import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortMode;
 import org.opensearch.search.sort.SortOrder;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class SubjectBrowseServiceTest {
 
-  private static final String INSTANCE_SUBJECT = "instance_subject";
   private static final String TARGET_FIELD = "value";
 
   @InjectMocks
@@ -73,7 +77,7 @@ class SubjectBrowseServiceTest {
   public void setUpMocks() {
     doAnswer(invocation -> invocation.getArgument(1))
       .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any(), any());
-    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).getInstances())
+    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).instances())
       .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
     lenient().when(searchRepository.analyze(any(), any(), any(), any()))
       .thenAnswer(invocation -> invocation.getArgument(0));
@@ -372,29 +376,32 @@ class SubjectBrowseServiceTest {
   }
 
   private SubjectResource[] browseItems(String... subject) {
-    return Arrays.stream(subject).map(sub -> {
-      var subjectResource = new SubjectResource();
-      subjectResource.setValue(sub);
-      subjectResource.setInstances(sub.chars().mapToObj(String::valueOf)
-        .map(s -> InstanceSubResource.builder().instanceId(s).build())
-        .collect(Collectors.toSet()));
-      return subjectResource;
-    }).toArray(SubjectResource[]::new);
+    return Arrays.stream(subject).map(sub -> new SubjectResource("id", sub, null, null, null, sub.chars()
+      .mapToObj(String::valueOf)
+      .map(s -> InstanceSubResource.builder().instanceId(s).build())
+      .collect(Collectors.toSet()))).toArray(SubjectResource[]::new);
   }
 
   private SearchSourceBuilder searchSource(String subject, int size, SortOrder sortOrder) {
     return SearchSourceBuilder.searchSource()
       .query(matchAllQuery())
-      .searchAfter(new String[] {subject}).from(0).size(size)
-      .sort(fieldSort(TARGET_FIELD).order(sortOrder));
+      .searchAfter(new String[] {subject, null, null, null}).from(0).size(size)
+      .sort(fieldSort(TARGET_FIELD).order(sortOrder))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort("sourceId").missing(MISSING_LAST_PROP))
+      .sort(fieldSort("typeId").missing(MISSING_LAST_PROP).sortMode(SortMode.MAX));
   }
 
   private SearchSourceBuilder searchSource(QueryBuilder query) {
-    return SearchSourceBuilder.searchSource().query(query);
+    return SearchSourceBuilder.searchSource().query(boolQuery().must(query));
   }
 
   private SearchSourceBuilder subjectTermQuery(String subjectValue, int size) {
-    return searchSource(termQuery(TARGET_FIELD, subjectValue)).from(0).size(size).sort(TARGET_FIELD);
+    return searchSource(termQuery(TARGET_FIELD, subjectValue)).from(0).size(size)
+      .sort(TARGET_FIELD)
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort("sourceId").missing(MISSING_LAST_PROP))
+      .sort(fieldSort("typeId").missing(MISSING_LAST_PROP).sortMode(SortMode.MAX));
   }
 
   private BrowseContext browseContextAround(boolean includeAnchor) {

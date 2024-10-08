@@ -14,4 +14,20 @@ public class ConsortiumTenantProvider implements TenantProvider {
     return consortiumTenantService.getCentralTenant(tenantId)
       .orElse(tenantId);
   }
+
+  public boolean isMemberTenant(String tenantId) {
+    return consortiumTenantService.getCentralTenant(tenantId)
+      .map(centralTenantId -> !centralTenantId.equals(tenantId))
+      .orElse(false);
+  }
+
+  public boolean isCentralTenant(String tenantId) {
+    return consortiumTenantService.getCentralTenant(tenantId)
+      .map(centralTenantId -> centralTenantId.equals(tenantId))
+      .orElse(false);
+  }
+
+  public boolean isConsortiumTenant(String tenantId) {
+    return consortiumTenantService.getCentralTenant(tenantId).isPresent();
+  }
 }

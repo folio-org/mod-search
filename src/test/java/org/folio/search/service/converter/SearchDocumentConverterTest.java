@@ -6,10 +6,10 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
@@ -79,9 +79,9 @@ class SearchDocumentConverterTest {
   @Test
   void convert_positive() {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+    when(descriptionService.get(UNKNOWN)).thenReturn(
       resourceDescription(resourceDescriptionFields(), List.of("$.language")));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, testResourceBody());
+    var resourceEvent = resourceEvent(UNKNOWN, testResourceBody());
 
     var actual = documentMapper.convert(resourceEvent);
 
@@ -98,9 +98,9 @@ class SearchDocumentConverterTest {
       languageConfigService, descriptionService, searchConfig, jsonConverter::toJsonBytes);
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+    when(descriptionService.get(UNKNOWN)).thenReturn(
       resourceDescription(resourceDescriptionFields(), List.of("$.language")));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, testResourceBody());
+    var resourceEvent = resourceEvent(UNKNOWN, testResourceBody());
 
     var expected = Optional.of(SearchDocumentBody.of(new BytesArray(asJsonString(expectedSearchDocumentBody())),
       IndexingDataFormat.JSON, resourceEvent, INDEX));
@@ -111,7 +111,7 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_deleteEvent() {
-    var event = resourceEvent(RESOURCE_ID, RESOURCE_NAME, ResourceEventType.DELETE, null, emptyMap());
+    var event = resourceEvent(RESOURCE_ID, UNKNOWN, ResourceEventType.DELETE, null, emptyMap());
     var actual = documentMapper.convert(event);
     assertThat(actual).isPresent()
       .get()
@@ -120,9 +120,9 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_negative_pathNotFound() {
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(
       mapOf("id", plainField("keyword"), "tenantId", keywordField(), "title", plainField("keyword"))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID));
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID));
     var actual = documentMapper.convert(resourceEvent);
     assertThat(actual).isEqualTo(
       expectedSearchDocument(resourceEvent, jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID)));
@@ -130,10 +130,10 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_negative_emptyTitle() {
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(
       mapOf("id", plainField("keyword"), "tenantId", keywordField(),
         "title", plainField("keyword"))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "title", ""));
     var actual = documentMapper.convert(resourceEvent);
     ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "title", "");
@@ -143,11 +143,11 @@ class SearchDocumentConverterTest {
   @Test
   void convert_positive_multilangResource() {
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(
       mapOf("id", plainField("keyword"), "tenantId", keywordField(), "title", multilangField()),
       List.of("$.lang1", "$.lang2", "$.lang3", "$.lang4", "$.lang5")));
 
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf(
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf(
       "id", RESOURCE_ID,
       "tenantId", TENANT_ID,
       "title", "val",
@@ -168,10 +168,10 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_repeatableObjectField() {
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "tenantId", keywordField(),
       "identifiers", objectField(mapOf("value", keywordField())))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID,
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID,
       "tenantId", TENANT_ID,
       "identifiers", List.of(
         mapOf("type", "isbn", "value", "test-isbn"),
@@ -190,10 +190,10 @@ class SearchDocumentConverterTest {
     var resourceDescription = resourceDescription(mapOf(
       "id", keywordField(), "tenantId", keywordField(),
       "alternativeTitle", objectField(mapOf("value", multilangField()))));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "alternativeTitle", List.of(mapOf("value", "title1"), mapOf("value", null), emptyMap(), "title3")));
 
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription);
 
     var actual = documentMapper.convert(resourceEvent);
 
@@ -204,7 +204,7 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_negative_dataIsNull() {
-    var resourceEvent = resourceEvent(RESOURCE_NAME, null);
+    var resourceEvent = resourceEvent(UNKNOWN, null);
     var actual = documentMapper.convert(resourceEvent);
     assertThat(actual).isEmpty();
   }
@@ -213,11 +213,11 @@ class SearchDocumentConverterTest {
   void convert_positive_extendedFields() {
     var desc = resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
       "base", keywordField()));
-    var resourceEvent = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+    var resourceEvent = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "base", "base val"));
     var expectedContext = ConversionContext.of(resourceEvent, desc, emptyList(), TENANT_ID);
 
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(desc);
+    when(descriptionService.get(UNKNOWN)).thenReturn(desc);
     when(searchFieldsProcessor.getSearchFields(expectedContext)).thenReturn(mapOf("generated", "generated value"));
 
     var actual = documentMapper.convert(resourceEvent);
@@ -229,10 +229,10 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_useDefaultValueFromFieldDescription() {
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "tenantId", keywordField(),
       "value", keywordFieldWithDefaultValue("default"))));
-    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "aValue"));
+    var event = resourceEvent(UNKNOWN, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "aValue"));
     var actual = documentMapper.convert(event);
     ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "aValue");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
@@ -244,9 +244,9 @@ class SearchDocumentConverterTest {
       "tenantId", keywordField(),
       "value", keywordFieldWithDefaultValue("default")));
 
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription);
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription);
 
-    var event = resourceEvent(RESOURCE_NAME, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID));
+    var event = resourceEvent(UNKNOWN, Map.of("id", RESOURCE_ID, "tenantId", TENANT_ID));
     var actual = documentMapper.convert(event);
 
     ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "default");
@@ -255,10 +255,10 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_useDefaultWhenValueIsNull() {
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(mapOf(
+    when(descriptionService.get(UNKNOWN)).thenReturn(resourceDescription(mapOf(
       "id", keywordField(), "tenantId", keywordField(),
       "value", keywordFieldWithDefaultValue("default"))));
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", null));
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", null));
     var actual = documentMapper.convert(event);
     ObjectNode expectedJson = jsonObject("id", RESOURCE_ID, "tenantId", TENANT_ID, "value", "default");
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
@@ -266,11 +266,11 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_languageIsNotSpecified() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID,
       "language", "rus", "multilang_value", "value"));
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng", "fra"));
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+    when(descriptionService.get(UNKNOWN)).thenReturn(
       resourceDescription(resourceDescriptionFields(), List.of("$.language")));
 
     var actual = documentMapper.convert(event);
@@ -282,14 +282,14 @@ class SearchDocumentConverterTest {
 
   @Test
   void convert_positive_instanceWithItems() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "items", List.of(
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "items", List.of(
       mapOf("id", "item#1"),
       mapOf("id", "item#2", "effectiveShelvingOrder", "F10"),
       mapOf("id", "item#3", "effectiveShelvingOrder", "C5"),
       mapOf("id", "item#4"))));
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(emptySet());
-    when(descriptionService.get(RESOURCE_NAME)).thenReturn(
+    when(descriptionService.get(UNKNOWN)).thenReturn(
       resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
         "items", objectField(mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));
 
